@@ -1,0 +1,8 @@
+export { default as OverviewTab } from './OverviewTab'
+export { default as IncomeModelTab } from './IncomeModelTab'
+export { default as CostDriversTab } from './CostDriversTab'
+export { default as ComplianceTab } from './ComplianceTab'
+export { default as ExampleForecastTab } from './ExampleForecastTab'
+export { default as StarterChecklistTab } from './StarterChecklistTab'
+export { default as RisksTab } from './RisksTab'
+export { default as AiQuestionsTab } from './AiQuestionsTab'

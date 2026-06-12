@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch",
+      "WebSearch",
+      "PowerShell(Start-Process \"http://localhost:3000\")",
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\PC\\\\Documents\\\\Saas Dev Build\\\\propvora-final-release-v.1.0\\\\src\\\\app\\\\\\(app\\)\\\\app\\\\money\\\\reports\\\\page.tsx\" -Pattern \"import\" | Select-Object -First 10 | ForEach-Object { $_.Line })"
+    ]
+  }
+}

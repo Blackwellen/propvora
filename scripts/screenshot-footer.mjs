@@ -1,0 +1,11 @@
+import { chromium } from 'playwright'
+const browser = await chromium.launch({ headless: true })
+const page = await browser.newPage()
+await page.setViewportSize({ width: 1440, height: 900 })
+await page.goto('http://localhost:3001', { waitUntil: 'networkidle', timeout: 15000 })
+await page.waitForTimeout(1000)
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+await page.waitForTimeout(500)
+await page.screenshot({ path: 'public/screenshots/footer.png', fullPage: false })
+console.log('done')
+await browser.close()

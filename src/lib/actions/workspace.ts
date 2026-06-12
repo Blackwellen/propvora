@@ -1,0 +1,281 @@
+"use server"
+
+import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
+import { randomUUID } from "node:crypto"
+import { DEFAULT_DURATION_MONTHS } from "@/lib/affiliate/levels"
+
+export interface CreateWorkspaceInput {
+  name: string
+  businessType: string
+  operationInterests: string[]
+  /** The user's primary operation profile (one of the 13 enum values). */
+  primaryOperationProfile?: string
+  demoDataVariant?: string
+  /** Optional team invites to create (email + role). */
+  teamInvites?: { email: string; role: string }[]
+}
+
+export interface CreateWorkspaceResult {
+  workspaceId: string
+  slug: string
+}
+
+/**
+ * Creates a new workspace for the authenticated user and sets them as owner.
+ * Optionally seeds demo data if a variant is provided.
+ */
+export async function createWorkspace(
+  data: CreateWorkspaceInput
+): Promise<CreateWorkspaceResult> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("Not authenticated. Please sign in and try again.")
+  }
+
+  // Build a URL-safe slug from the workspace name
+  const slug = data.name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7)
+
+  // 1. Insert the workspace
+  const { data: workspace, error: wsError } = await supabase
+    .from("workspaces")
+    .insert({
+      name: data.name.trim(),
+      slug,
+      business_type: data.businessType || null,
+      operation_interests: data.operationInterests,
+      primary_operation_profile:
+        data.primaryOperationProfile || data.operationInterests[0] || null,
+      owner_user_id: user.id,
+      // plan is the plan_tier enum {starter,operator,scale,pro_agency,enterprise};
+      // a free trial is represented by plan='starter' + plan_status='trialing'.
+      plan: "starter",
+      plan_status: "trialing",
+      onboarding_completed: true,
+      trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    })
+    .select("id, slug")
+    .single()
+
+  if (wsError) {
+    // Handle unique constraint violation on slug
+    if (wsError.code === "23505") {
+      throw new Error("A workspace with this name already exists. Please choose a different name.")
+    }
+    throw new Error("Failed to create workspace. Please try again.")
+  }
+
+  // 2. Add the creator as the workspace owner
+  const { error: memberError } = await supabase.from("workspace_members").insert({
+    workspace_id: workspace.id,
+    user_id: user.id,
+    role: "owner",
+    invited_by: user.id,
+    joined_at: new Date().toISOString(),
+  })
+
+  if (memberError) {
+    // Workspace was created — log but don't surface to user
+    console.error("[createWorkspace] Failed to insert workspace member:", memberError)
+  }
+
+  // 3. Update the user's profile: set current workspace + mark onboarding complete
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .upsert(
+      {
+        id: user.id,
+        current_workspace_id: workspace.id,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "id" }
+    )
+
+  if (profileError) {
+    console.error("[createWorkspace] Failed to update profile:", profileError)
+  }
+
+  // 4. Create default workspace settings (42P01-safe — table may not exist yet).
+  try {
+    const { error: settingsError } = await supabase
+      .from("workspace_settings")
+      .insert({
+        workspace_id: workspace.id,
+        default_currency: "GBP",
+        default_timezone: "Europe/London",
+        default_date_format: "DD/MM/YYYY",
+        default_locale: "en-GB",
+      })
+    if (settingsError && settingsError.code !== "23505" && settingsError.code !== "42P01") {
+      console.error("[createWorkspace] workspace_settings insert:", settingsError)
+    }
+  } catch (e) {
+    console.error("[createWorkspace] workspace_settings failed:", e)
+  }
+
+  // 5. Mark onboarding complete in user_preferences (first-run flag).
+  try {
+    await supabase
+      .from("user_preferences")
+      .upsert(
+        {
+          user_id: user.id,
+          metadata: { onboarding_complete: true, onboarded_at: new Date().toISOString() },
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      )
+  } catch (e) {
+    console.error("[createWorkspace] user_preferences failed:", e)
+  }
+
+  // 6. Create any pending team invitations (42P01-safe).
+  if (data.teamInvites && data.teamInvites.length > 0) {
+    const validRoles = ["admin", "member", "viewer", "finance"]
+    const rows = data.teamInvites
+      .map((inv) => ({
+        email: (inv.email ?? "").trim().toLowerCase(),
+        role: validRoles.includes(inv.role) ? inv.role : "member",
+      }))
+      .filter((inv) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inv.email))
+      .map((inv) => ({
+        workspace_id: workspace.id,
+        email: inv.email,
+        role: inv.role,
+        token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
+        invited_by: user.id,
+        status: "pending",
+      }))
+    if (rows.length > 0) {
+      try {
+        await supabase.from("workspace_invitations").insert(rows)
+      } catch (e) {
+        console.error("[createWorkspace] invitations failed:", e)
+      }
+    }
+  }
+
+  // 7. Audit log entry for workspace creation (42P01-safe).
+  try {
+    await supabase.from("audit_logs").insert({
+      workspace_id: workspace.id,
+      user_id: user.id,
+      action: "workspace.created",
+      resource_type: "workspace",
+      resource_id: workspace.id,
+      new_data: {
+        name: data.name.trim(),
+        business_type: data.businessType || null,
+        operation_interests: data.operationInterests,
+      },
+    })
+  } catch (e) {
+    console.error("[createWorkspace] audit_logs failed:", e)
+  }
+
+  // 7b. Affiliate referral attribution (42P01-safe). If the visitor arrived via
+  // ?ref=CODE (captured into the propvora_ref cookie), link this new workspace to
+  // the referring affiliate — unless it's a self-referral. Commission is computed
+  // at first payment (billing webhooks, Wave B); here we only record the link.
+  try {
+    const jar = await cookies()
+    const refCode = jar.get("propvora_ref")?.value?.trim()
+    if (refCode) {
+      const { data: aff } = await supabase
+        .from("affiliates")
+        .select("workspace_id, enrolled, approved")
+        .eq("referral_code", refCode)
+        .maybeSingle()
+      if (aff?.enrolled && aff.approved && aff.workspace_id !== workspace.id) {
+        // Self-referral guard: skip if the referrer's workspace belongs to this user.
+        const { data: selfMember } = await supabase
+          .from("workspace_members")
+          .select("workspace_id")
+          .eq("workspace_id", aff.workspace_id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+        if (!selfMember) {
+          await supabase.from("affiliate_referrals").insert({
+            affiliate_workspace_id: aff.workspace_id,
+            referred_workspace_id: workspace.id,
+            status: "pending",
+            recurring_months_remaining: DEFAULT_DURATION_MONTHS,
+          })
+        }
+      }
+      // Clear the cookie either way so it isn't reused.
+      jar.delete("propvora_ref")
+    }
+  } catch (e) {
+    console.error("[createWorkspace] referral attribution failed:", e)
+  }
+
+  // 8. Seed demo data if requested
+  if (data.demoDataVariant) {
+    try {
+      const { seedDemoData } = await import("@/lib/demo/seed")
+      await seedDemoData(workspace.id as string, user.id, data.demoDataVariant)
+    } catch (seedError) {
+      // Non-fatal — demo data seeding can fail silently
+      console.error("[createWorkspace] Demo seed failed:", seedError)
+    }
+  }
+
+  revalidatePath("/app")
+
+  return {
+    workspaceId: workspace.id as string,
+    slug: workspace.slug as string,
+  }
+}
+
+/**
+ * Updates the current user's active workspace.
+ */
+export async function switchWorkspace(workspaceId: string): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("Not authenticated.")
+  }
+
+  // Verify user is a member of this workspace
+  const { data: member, error: memberError } = await supabase
+    .from("workspace_members")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (memberError || !member) {
+    throw new Error("You do not have access to this workspace.")
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ current_workspace_id: workspaceId, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+
+  if (error) {
+    throw new Error("Failed to switch workspace.")
+  }
+
+  revalidatePath("/app")
+}

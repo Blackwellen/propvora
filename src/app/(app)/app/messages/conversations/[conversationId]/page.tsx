@@ -1,0 +1,185 @@
+"use client"
+
+import { useState, useRef, useEffect, useMemo } from "react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import {
+  ArrowLeft, Send, Loader2, MessageSquare, Eye,
+} from "lucide-react"
+import { DashboardContainer } from "@/components/layout/PageContainer"
+import { cn } from "@/lib/utils"
+import { useWorkspace } from "@/providers/AuthProvider"
+import {
+  useConversations,
+  useConversationMessages,
+  useSendMessage,
+} from "@/hooks/useMessages"
+import type { Message } from "@/types/database"
+
+/* ── Avatar helpers ─────────────────────────────────────────────────────── */
+const AVATAR_BG = [
+  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
+  "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-teal-500",
+]
+function avatarBg(name: string): string {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return AVATAR_BG[Math.abs(h) % AVATAR_BG.length]
+}
+function initials(name: string): string {
+  const p = name.trim().split(/\s+/)
+  return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase()
+}
+
+const TYPE_BADGE: Record<string, string> = {
+  tenant: "bg-emerald-100 text-emerald-700",
+  landlord: "bg-blue-100 text-blue-700",
+  supplier: "bg-amber-100 text-amber-700",
+  applicant: "bg-sky-100 text-sky-700",
+  agent: "bg-violet-100 text-violet-700",
+  other: "bg-slate-100 text-slate-600",
+}
+
+function Bubble({ message }: { message: Message }) {
+  // sender_type 'user' = us (workspace operator); everything else = the other party.
+  const isUser = message.sender_type === "user"
+  return (
+    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+      <div className="max-w-[75%] space-y-1">
+        <div
+          className={cn(
+            "px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
+            isUser
+              ? "bg-blue-600 text-white rounded-tr-sm"
+              : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm"
+          )}
+        >
+          {message.body}
+        </div>
+        <p className={cn("text-[10px] text-slate-400", isUser ? "text-right" : "text-left")}>
+          {new Date(message.created_at).toLocaleString("en-GB", {
+            day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+          })}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export default function ConversationPage() {
+  const params = useParams()
+  const conversationId = params.conversationId as string
+  const { workspace } = useWorkspace()
+
+  const { data: conversations = [] } = useConversations(workspace?.id)
+  const { data: messages = [], isLoading } = useConversationMessages(workspace?.id, conversationId)
+  const sendMessage = useSendMessage()
+
+  const conv = useMemo(
+    () => conversations.find((c) => c.id === conversationId) ?? null,
+    [conversations, conversationId]
+  )
+  const name = conv?.contact?.full_name ?? conv?.subject ?? "Conversation"
+  const type = conv?.contact?.contact_type ?? "other"
+
+  const [input, setInput] = useState("")
+  const threadRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight
+  }, [messages])
+
+  async function handleSend() {
+    if (!input.trim() || !workspace?.id) return
+    const body = input.trim()
+    setInput("")
+    try {
+      await sendMessage.mutateAsync({ workspaceId: workspace.id, conversationId, body })
+    } catch {
+      setInput(body) // restore on failure
+    }
+  }
+
+  return (
+    <DashboardContainer>
+      <div className="space-y-0">
+        {/* Back */}
+        <Link href="/app/messages" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+          <ArrowLeft className="w-4 h-4" /> Back to Messages
+        </Link>
+
+        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 220px)", minHeight: "480px" }}>
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(name))}>
+                {initials(name)}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
+                  <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium", TYPE_BADGE[type] ?? TYPE_BADGE.other)}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </span>
+                </div>
+                {conv?.subject && <p className="text-xs text-slate-500 truncate">{conv.subject}</p>}
+              </div>
+            </div>
+            {conv?.contact?.id && (
+              <Link
+                href={`/app/contacts/${conv.contact.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors shrink-0"
+              >
+                <Eye className="w-3.5 h-3.5" /> View Profile
+              </Link>
+            )}
+          </div>
+
+          {/* Thread */}
+          <div ref={threadRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-5 h-5 text-slate-300 animate-spin" />
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                  <MessageSquare className="w-7 h-7 text-slate-300" />
+                </div>
+                <p className="text-sm font-semibold text-slate-500">No messages in this conversation yet</p>
+                <p className="text-xs text-slate-400 mt-1">Send the first message below.</p>
+              </div>
+            ) : (
+              messages.map((msg) => <Bubble key={msg.id} message={msg} />)
+            )}
+          </div>
+
+          {/* Composer */}
+          <div className="border-t border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <textarea
+                placeholder="Type a message…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSend() }}
+                rows={2}
+                className="w-full resize-none text-sm text-slate-700 placeholder:text-slate-400 outline-none bg-transparent"
+              />
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                <span className="text-[10px] text-slate-400">Ctrl+Enter to send</span>
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim() || sendMessage.isPending}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors"
+                >
+                  {sendMessage.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardContainer>
+  )
+}

@@ -1,0 +1,866 @@
+import "server-only"
+import { createAdminClient } from "@/lib/supabase/admin"
+
+/**
+ * Cross-workspace read helpers for the platform admin console.
+ *
+ * All reads use the service-role client. This is legitimate: platform admins
+ * see across every workspace. The service-role key is NEVER sent to the client
+ * — these functions run only in server components / actions, and callers are
+ * gated by requireAdmin()/the (admin) layout guard before invoking them.
+ *
+ * Every function is 42P01-safe: a missing table/column resolves to an empty /
+ * zero result rather than throwing, so the console renders honest empty states.
+ */
+
+const MISSING_RELATION = "42P01"
+const UNDEFINED_COLUMN = "42703"
+
+function isSchemaGap(code?: string) {
+  return code === MISSING_RELATION || code === UNDEFINED_COLUMN
+}
+
+/** Safe count of a table, optionally filtered by an equality. */
+export async function safeCount(
+  table: string,
+  filter?: { column: string; value: string },
+): Promise<number | null> {
+  try {
+    const admin = createAdminClient()
+    let q = admin.from(table).select("*", { count: "exact", head: true })
+    if (filter) q = q.eq(filter.column, filter.value)
+    const { count, error } = await q
+    if (error) return isSchemaGap(error.code) ? null : 0
+    return count ?? 0
+  } catch {
+    return null
+  }
+}
+
+export interface PlatformStats {
+  workspaces: number | null
+  workspacesActive: number | null
+  workspacesSuspended: number | null
+  users: number | null
+  members: number | null
+  properties: number | null
+  contacts: number | null
+  tasks: number | null
+  auditEvents: number | null
+}
+
+/** Top-line platform counts for the command centre. */
+export async function getPlatformStats(): Promise<PlatformStats> {
+  const [
+    workspaces,
+    workspacesActive,
+    workspacesSuspended,
+    users,
+    members,
+    properties,
+    contacts,
+    tasks,
+    auditEvents,
+  ] = await Promise.all([
+    safeCount("workspaces"),
+    safeCount("workspaces", { column: "plan_status", value: "active" }),
+    safeCount("workspaces", { column: "plan_status", value: "suspended" }),
+    safeCount("profiles"),
+    safeCount("workspace_members"),
+    safeCount("properties"),
+    safeCount("contacts"),
+    safeCount("tasks"),
+    safeCount("audit_logs"),
+  ])
+  return {
+    workspaces,
+    workspacesActive,
+    workspacesSuspended,
+    users,
+    members,
+    properties,
+    contacts,
+    tasks,
+    auditEvents,
+  }
+}
+
+export interface AdminWorkspaceRow {
+  id: string
+  name: string
+  plan: string
+  planStatus: string
+  ownerName: string | null
+  ownerEmail: string | null
+  memberCount: number
+  createdAt: string | null
+}
+
+interface ProfileLite { id: string; full_name: string | null; email: string | null }
+
+/**
+ * Fetch a map of profile id -> profile for the given ids. Avoids fragile
+ * PostgREST FK-embed hints (which break if constraint names differ) by
+ * resolving relations explicitly in JS. 42P01-safe.
+ */
+async function profilesMap(ids: string[]): Promise<Record<string, ProfileLite>> {
+  const out: Record<string, ProfileLite> = {}
+  const unique = Array.from(new Set(ids.filter(Boolean)))
+  if (unique.length === 0) return out
+  try {
+    const admin = createAdminClient()
+    // profiles has `display_name` (NOT full_name) and no email column — email
+    // lives in auth.users. Select only existing columns to avoid a 42703 that
+    // would wipe out every owner name in the admin console.
+    const { data } = await admin.from("profiles").select("id, display_name").in("id", unique)
+    for (const p of data ?? []) {
+      out[p.id as string] = {
+        id: p.id as string,
+        full_name: (p.display_name as string) ?? null,
+        email: null,
+      }
+    }
+  } catch { /* ignore */ }
+  return out
+}
+
+/** All workspaces with owner + member count, newest first. */
+export async function listWorkspaces(limit = 500): Promise<AdminWorkspaceRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("workspaces")
+      .select("id, name, plan, plan_status, created_at, owner_user_id")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+
+    const ids = data.map((w) => w.id as string)
+    const counts = await memberCountsFor(ids)
+    const owners = await profilesMap(data.map((w) => w.owner_user_id as string))
+
+    return data.map((w) => {
+      const owner = owners[w.owner_user_id as string] ?? null
+      return {
+        id: w.id as string,
+        name: (w.name as string) ?? "Unnamed workspace",
+        plan: (w.plan as string) ?? "—",
+        planStatus: (w.plan_status as string) ?? "active",
+        ownerName: owner?.full_name ?? null,
+        ownerEmail: owner?.email ?? null,
+        memberCount: counts[w.id as string] ?? 0,
+        createdAt: (w.created_at as string) ?? null,
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
+/** Map of workspace_id -> member count. 42P01-safe. */
+async function memberCountsFor(ids: string[]): Promise<Record<string, number>> {
+  const out: Record<string, number> = {}
+  if (ids.length === 0) return out
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("workspace_members")
+      .select("workspace_id")
+      .in("workspace_id", ids)
+    if (error || !data) return out
+    for (const row of data) {
+      const wid = row.workspace_id as string
+      out[wid] = (out[wid] ?? 0) + 1
+    }
+    return out
+  } catch {
+    return out
+  }
+}
+
+export interface AdminWorkspaceDetail {
+  id: string
+  name: string
+  plan: string
+  planStatus: string
+  createdAt: string | null
+  stripeCustomerId: string | null
+  demoDataLoaded: boolean
+  owner: { id: string | null; name: string | null; email: string | null }
+  members: Array<{ userId: string; name: string | null; email: string | null; role: string; joinedAt: string | null }>
+  dataSummary: Record<string, number | null>
+  recentAudit: AdminAuditRow[]
+}
+
+/** Full detail for one workspace. Returns null if the workspace is missing. */
+export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDetail | null> {
+  try {
+    const admin = createAdminClient()
+    const { data: ws, error } = await admin
+      .from("workspaces")
+      .select("id, name, plan, plan_status, created_at, stripe_customer_id, demo_data_loaded, owner_user_id")
+      .eq("id", id)
+      .maybeSingle()
+    if (error || !ws) return null
+
+    const { data: memberRows } = await admin
+      .from("workspace_members")
+      .select("user_id, role, joined_at")
+      .eq("workspace_id", id)
+      .order("joined_at", { ascending: true })
+
+    const profileIds = [ws.owner_user_id as string, ...(memberRows ?? []).map((m) => m.user_id as string)]
+    const profiles = await profilesMap(profileIds)
+    const owner = profiles[ws.owner_user_id as string] ?? null
+
+    const members = (memberRows ?? []).map((m) => {
+      const p = profiles[m.user_id as string] ?? null
+      return {
+        userId: m.user_id as string,
+        name: p?.full_name ?? null,
+        email: p?.email ?? null,
+        role: (m.role as string) ?? "member",
+        joinedAt: (m.joined_at as string) ?? null,
+      }
+    })
+
+    const [properties, contacts, tasks, tenancies, documents, invoices] = await Promise.all([
+      safeCount("properties", { column: "workspace_id", value: id }),
+      safeCount("contacts", { column: "workspace_id", value: id }),
+      safeCount("tasks", { column: "workspace_id", value: id }),
+      safeCount("tenancies", { column: "workspace_id", value: id }),
+      safeCount("documents", { column: "workspace_id", value: id }),
+      safeCount("invoices", { column: "workspace_id", value: id }),
+    ])
+
+    const recentAudit = await listAudit({ workspaceId: id, limit: 15 })
+
+    return {
+      id: ws.id as string,
+      name: (ws.name as string) ?? "Unnamed workspace",
+      plan: (ws.plan as string) ?? "—",
+      planStatus: (ws.plan_status as string) ?? "active",
+      createdAt: (ws.created_at as string) ?? null,
+      stripeCustomerId: (ws.stripe_customer_id as string) ?? null,
+      demoDataLoaded: Boolean(ws.demo_data_loaded),
+      owner: { id: owner?.id ?? (ws.owner_user_id as string) ?? null, name: owner?.full_name ?? null, email: owner?.email ?? null },
+      members,
+      dataSummary: { properties, contacts, tasks, tenancies, documents, invoices },
+      recentAudit,
+    }
+  } catch {
+    return null
+  }
+}
+
+export interface AdminUserRow {
+  id: string
+  name: string | null
+  email: string | null
+  role: string
+  createdAt: string | null
+  workspaceCount: number
+}
+
+/** All platform users (profiles) with their membership count. */
+export async function listUsers(limit = 500): Promise<AdminUserRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("profiles")
+      .select("id, full_name, email, role, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+
+    const ids = data.map((p) => p.id as string)
+    const memberships = await membershipCountsFor(ids)
+
+    return data.map((p) => ({
+      id: p.id as string,
+      name: (p.full_name as string) ?? null,
+      email: (p.email as string) ?? null,
+      role: (p.role as string) ?? "user",
+      createdAt: (p.created_at as string) ?? null,
+      workspaceCount: memberships[p.id as string] ?? 0,
+    }))
+  } catch {
+    return []
+  }
+}
+
+async function membershipCountsFor(userIds: string[]): Promise<Record<string, number>> {
+  const out: Record<string, number> = {}
+  if (userIds.length === 0) return out
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("workspace_members")
+      .select("user_id")
+      .in("user_id", userIds)
+    if (error || !data) return out
+    for (const row of data) {
+      const uid = row.user_id as string
+      out[uid] = (out[uid] ?? 0) + 1
+    }
+    return out
+  } catch {
+    return out
+  }
+}
+
+export interface AdminUserDetail {
+  id: string
+  name: string | null
+  email: string | null
+  role: string
+  phone: string | null
+  createdAt: string | null
+  memberships: Array<{ workspaceId: string; workspaceName: string; role: string; joinedAt: string | null }>
+  recentAudit: AdminAuditRow[]
+}
+
+export async function getUserDetail(id: string): Promise<AdminUserDetail | null> {
+  try {
+    const admin = createAdminClient()
+    const { data: p, error } = await admin
+      .from("profiles")
+      .select("id, full_name, email, role, phone, created_at")
+      .eq("id", id)
+      .maybeSingle()
+    if (error || !p) return null
+
+    const { data: memberRows } = await admin
+      .from("workspace_members")
+      .select("workspace_id, role, joined_at")
+      .eq("user_id", id)
+      .order("joined_at", { ascending: true })
+
+    const wsNames = await workspaceNameMap()
+
+    const memberships = (memberRows ?? []).map((m) => {
+      return {
+        workspaceId: m.workspace_id as string,
+        workspaceName: wsNames[m.workspace_id as string] ?? "Workspace",
+        role: (m.role as string) ?? "member",
+        joinedAt: (m.joined_at as string) ?? null,
+      }
+    })
+
+    const recentAudit = await listAudit({ userId: id, limit: 15 })
+
+    return {
+      id: p.id as string,
+      name: (p.full_name as string) ?? null,
+      email: (p.email as string) ?? null,
+      role: (p.role as string) ?? "user",
+      phone: (p.phone as string) ?? null,
+      createdAt: (p.created_at as string) ?? null,
+      memberships,
+      recentAudit,
+    }
+  } catch {
+    return null
+  }
+}
+
+export interface AdminAuditRow {
+  id: string
+  createdAt: string | null
+  action: string
+  resourceType: string | null
+  resourceId: string | null
+  workspaceId: string | null
+  workspaceName: string | null
+  actorId: string | null
+  actorName: string | null
+  actorEmail: string | null
+  ip: string | null
+  before: unknown
+  after: unknown
+}
+
+export interface AuditFilter {
+  workspaceId?: string
+  userId?: string
+  action?: string
+  since?: string
+  limit?: number
+}
+
+/**
+ * Read audit_logs with optional filters, newest first. 42P01-safe.
+ * Resolves actor + workspace names with explicit follow-up queries rather than
+ * PostgREST FK embeds (robust to constraint-name differences).
+ */
+export async function listAudit(filter: AuditFilter = {}): Promise<AdminAuditRow[]> {
+  try {
+    const admin = createAdminClient()
+    let q = admin
+      .from("audit_logs")
+      .select("id, created_at, action, resource_type, resource_id, workspace_id, user_id, old_data, new_data, ip_address")
+      .order("created_at", { ascending: false })
+      .limit(filter.limit ?? 200)
+    if (filter.workspaceId) q = q.eq("workspace_id", filter.workspaceId)
+    if (filter.userId) q = q.eq("user_id", filter.userId)
+    if (filter.action) q = q.eq("action", filter.action)
+    if (filter.since) q = q.gte("created_at", filter.since)
+
+    const { data, error } = await q
+    if (error || !data) return []
+
+    const actors = await profilesMap(data.map((r) => r.user_id as string).filter(Boolean) as string[])
+    const wsNames = await workspaceNameMap()
+
+    return data.map((r) => {
+      const actor = actors[r.user_id as string] ?? null
+      return {
+        id: r.id as string,
+        createdAt: (r.created_at as string) ?? null,
+        action: (r.action as string) ?? "",
+        resourceType: (r.resource_type as string) ?? null,
+        resourceId: (r.resource_id as string) ?? null,
+        workspaceId: (r.workspace_id as string) ?? null,
+        workspaceName: r.workspace_id ? wsNames[r.workspace_id as string] ?? null : null,
+        actorId: (r.user_id as string) ?? null,
+        actorName: actor?.full_name ?? null,
+        actorEmail: actor?.email ?? null,
+        ip: (r.ip_address as string) ?? null,
+        before: r.old_data ?? null,
+        after: r.new_data ?? null,
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
+/** Distinct action values present in audit_logs (for filter dropdown). */
+export async function distinctAuditActions(): Promise<string[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("audit_logs")
+      .select("action")
+      .limit(1000)
+    if (error || !data) return []
+    return Array.from(new Set(data.map((r) => r.action as string).filter(Boolean))).sort()
+  } catch {
+    return []
+  }
+}
+
+// ── Cross-workspace diagnostics (admin/support read-only views) ─────────────
+
+export interface DiagnosticRow {
+  id: string
+  workspaceId: string
+  workspaceName: string
+  primary: string
+  secondary: string | null
+  status: string | null
+  meta: string | null
+}
+
+async function workspaceNameMap(): Promise<Record<string, string>> {
+  const out: Record<string, string> = {}
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin.from("workspaces").select("id, name").limit(1000)
+    for (const w of data ?? []) out[w.id as string] = (w.name as string) ?? "Workspace"
+  } catch { /* ignore */ }
+  return out
+}
+
+/** Cross-workspace properties for diagnostics. 42P01-safe. */
+export async function listAllProperties(limit = 300): Promise<DiagnosticRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("properties")
+      .select("id, workspace_id, name, address_line1, city, postcode, property_type, status")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+    const names = await workspaceNameMap()
+    return data.map((p) => ({
+      id: p.id as string,
+      workspaceId: p.workspace_id as string,
+      workspaceName: names[p.workspace_id as string] ?? "—",
+      primary: (p.name as string) || (p.address_line1 as string) || "Untitled property",
+      secondary: [p.city, p.postcode].filter(Boolean).join(", ") || null,
+      status: (p.status as string) ?? null,
+      meta: (p.property_type as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Cross-workspace contacts for diagnostics. */
+export async function listAllContacts(limit = 300): Promise<DiagnosticRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("contacts")
+      .select("id, workspace_id, full_name, email, contact_type, status")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+    const names = await workspaceNameMap()
+    return data.map((c) => ({
+      id: c.id as string,
+      workspaceId: c.workspace_id as string,
+      workspaceName: names[c.workspace_id as string] ?? "—",
+      primary: (c.full_name as string) || "Unnamed contact",
+      secondary: (c.email as string) ?? null,
+      status: (c.status as string) ?? null,
+      meta: (c.contact_type as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Cross-workspace tasks for diagnostics. */
+export async function listAllTasks(limit = 300): Promise<DiagnosticRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("tasks")
+      .select("id, workspace_id, title, status, priority, due_date")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+    const names = await workspaceNameMap()
+    return data.map((t) => ({
+      id: t.id as string,
+      workspaceId: t.workspace_id as string,
+      workspaceName: names[t.workspace_id as string] ?? "—",
+      primary: (t.title as string) || "Untitled task",
+      secondary: t.due_date ? `Due ${new Date(t.due_date as string).toLocaleDateString("en-GB")}` : null,
+      status: (t.status as string) ?? null,
+      meta: (t.priority as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Cross-workspace planning sets for diagnostics. */
+export async function listAllPlanningSets(limit = 300): Promise<DiagnosticRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("planning_sets")
+      .select("id, workspace_id, title, operation_profile, status, postcode")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return []
+    const names = await workspaceNameMap()
+    return data.map((p) => ({
+      id: p.id as string,
+      workspaceId: p.workspace_id as string,
+      workspaceName: names[p.workspace_id as string] ?? "—",
+      primary: (p.title as string) || "Untitled plan",
+      secondary: (p.postcode as string) ?? null,
+      status: (p.status as string) ?? null,
+      meta: (p.operation_profile as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+// ── Customers ────────────────────────────────────────────────────────────────
+
+export interface AdminCustomerRow {
+  ownerId: string
+  name: string | null
+  email: string | null
+  workspaceCount: number
+  primaryWorkspaceId: string
+  primaryWorkspaceName: string
+  plan: string
+  planStatus: string
+  createdAt: string | null
+}
+
+/**
+ * Customers view. If a dedicated `platform_customers` table exists we'd use it,
+ * but absent that we DERIVE customers from workspaces + their owners (each owner
+ * = one customer account). This is honest: it's real data, clearly labelled as
+ * derived, not a fabricated CRM.
+ */
+export async function listCustomers(): Promise<{ derived: boolean; rows: AdminCustomerRow[] }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("workspaces")
+      .select("id, name, plan, plan_status, created_at, owner_user_id")
+      .order("created_at", { ascending: false })
+      .limit(1000)
+    if (error || !data) return { derived: true, rows: [] }
+
+    const owners = await profilesMap(data.map((w) => w.owner_user_id as string))
+
+    // Group by owner.
+    const byOwner: Record<string, AdminCustomerRow> = {}
+    for (const w of data) {
+      const oid = w.owner_user_id as string
+      if (!oid) continue
+      if (!byOwner[oid]) {
+        const o = owners[oid] ?? null
+        byOwner[oid] = {
+          ownerId: oid,
+          name: o?.full_name ?? null,
+          email: o?.email ?? null,
+          workspaceCount: 0,
+          primaryWorkspaceId: w.id as string,
+          primaryWorkspaceName: (w.name as string) ?? "Workspace",
+          plan: (w.plan as string) ?? "—",
+          planStatus: (w.plan_status as string) ?? "active",
+          createdAt: (w.created_at as string) ?? null,
+        }
+      }
+      byOwner[oid].workspaceCount += 1
+    }
+
+    return { derived: true, rows: Object.values(byOwner) }
+  } catch {
+    return { derived: true, rows: [] }
+  }
+}
+
+// ── Subscriptions (billing) ─────────────────────────────────────────────────
+
+export interface AdminSubscriptionRow {
+  id: string
+  workspaceId: string
+  workspaceName: string
+  plan: string
+  status: string
+  stripeSubscriptionId: string | null
+  periodEnd: string | null
+}
+
+/**
+ * Live subscriptions. Returns `available: false` only if the table is missing.
+ * Empty array with available:true => honest "no billing data yet" state.
+ */
+export async function listSubscriptions(limit = 500): Promise<{ available: boolean; rows: AdminSubscriptionRow[] }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("subscriptions")
+      .select("id, workspace_id, plan, status, stripe_subscription_id, current_period_end")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error) {
+      if (isSchemaGap(error.code)) return { available: false, rows: [] }
+      return { available: true, rows: [] }
+    }
+    const names = await workspaceNameMap()
+    return {
+      available: true,
+      rows: (data ?? []).map((s) => ({
+        id: s.id as string,
+        workspaceId: s.workspace_id as string,
+        workspaceName: names[s.workspace_id as string] ?? "—",
+        plan: (s.plan as string) ?? "—",
+        status: (s.status as string) ?? "—",
+        stripeSubscriptionId: (s.stripe_subscription_id as string) ?? null,
+        periodEnd: (s.current_period_end as string) ?? null,
+      })),
+    }
+  } catch {
+    return { available: false, rows: [] }
+  }
+}
+
+// ── Affiliates ───────────────────────────────────────────────────────────────
+
+export interface AdminAffiliateRow {
+  id: string            // workspace_id (PK of affiliates)
+  name: string | null   // workspace name
+  email: string | null  // payout_email
+  code: string          // referral_code
+  status: string        // derived: active | pending | none
+  origin: string
+  commissionRate: number
+  referrals: number
+  pendingPence: number
+  clearedPence: number
+  paidPence: number
+  createdAt: string | null
+}
+
+export async function listAffiliates(limit = 500): Promise<{ available: boolean; rows: AdminAffiliateRow[] }> {
+  try {
+    const admin = createAdminClient()
+    // Live affiliates table is workspace-keyed (no `id`/`user_id`/`code` columns).
+    const { data, error } = await admin
+      .from("affiliates")
+      .select("workspace_id, enrolled, approved, origin, band, referral_code, payout_email, active_referrals_count, pending_pence, cleared_pence, paid_pence, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error) {
+      if (isSchemaGap(error.code)) return { available: false, rows: [] }
+      return { available: true, rows: [] }
+    }
+
+    const rows = data ?? []
+    const wsIds = rows.map((a) => a.workspace_id as string)
+
+    // Workspace names (best-effort).
+    const names: Record<string, string> = {}
+    if (wsIds.length) {
+      try {
+        const { data: ws } = await admin.from("workspaces").select("id, name").in("id", wsIds)
+        for (const w of ws ?? []) names[w.id as string] = (w.name as string) ?? ""
+      } catch { /* non-fatal */ }
+    }
+
+    const { levelByBand } = await import("@/lib/affiliate/levels")
+
+    return {
+      available: true,
+      rows: rows.map((a) => {
+        const enrolled = !!a.enrolled
+        const approved = !!a.approved
+        const status = !enrolled ? "none" : approved ? "active" : "pending"
+        return {
+          id: a.workspace_id as string,
+          name: names[a.workspace_id as string] ?? null,
+          email: (a.payout_email as string) ?? null,
+          code: (a.referral_code as string) ?? "—",
+          status,
+          origin: (a.origin as string) ?? "internal",
+          commissionRate: levelByBand(a.band as number | null).rate,
+          referrals: Number(a.active_referrals_count ?? 0),
+          pendingPence: Number(a.pending_pence ?? 0),
+          clearedPence: Number(a.cleared_pence ?? 0),
+          paidPence: Number(a.paid_pence ?? 0),
+          createdAt: (a.created_at as string) ?? null,
+        }
+      }),
+    }
+  } catch {
+    return { available: false, rows: [] }
+  }
+}
+
+export interface AdminAffiliateApplication {
+  id: string
+  fullName: string
+  email: string
+  company: string | null
+  website: string | null
+  audienceType: string | null
+  promotionPlan: string | null
+  country: string | null
+  existingCustomer: boolean
+  referralCode: string | null
+  status: string
+  createdAt: string | null
+}
+
+export async function listAffiliateApplications(
+  limit = 500
+): Promise<{ available: boolean; rows: AdminAffiliateApplication[] }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("affiliate_applications")
+      .select("id, full_name, email, company, website, audience_type, promotion_plan, country, existing_customer, referral_code, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error) {
+      if (isSchemaGap(error.code)) return { available: false, rows: [] }
+      return { available: true, rows: [] }
+    }
+    return {
+      available: true,
+      rows: (data ?? []).map((a) => ({
+        id: a.id as string,
+        fullName: (a.full_name as string) ?? "—",
+        email: (a.email as string) ?? "—",
+        company: (a.company as string) ?? null,
+        website: (a.website as string) ?? null,
+        audienceType: (a.audience_type as string) ?? null,
+        promotionPlan: (a.promotion_plan as string) ?? null,
+        country: (a.country as string) ?? null,
+        existingCustomer: !!a.existing_customer,
+        referralCode: (a.referral_code as string) ?? null,
+        status: (a.status as string) ?? "pending_review",
+        createdAt: (a.created_at as string) ?? null,
+      })),
+    }
+  } catch {
+    return { available: false, rows: [] }
+  }
+}
+
+// ── Feature flags & platform settings ──────────────────────────────────────
+
+export interface PlatformFlag {
+  key: string
+  enabled: boolean
+  description: string | null
+  workspaceAllowlist: string[]
+  planGate: string | null
+}
+
+/**
+ * Read platform feature flags. Returns `{ available: false }` if the
+ * platform_feature_flags table has not been created yet (migration pending).
+ */
+export async function getPlatformFlags(): Promise<{ available: boolean; flags: PlatformFlag[] }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("platform_feature_flags")
+      .select("key, enabled, description, workspace_allowlist, plan_gate")
+      .order("key", { ascending: true })
+    if (error) {
+      if (isSchemaGap(error.code)) return { available: false, flags: [] }
+      return { available: true, flags: [] }
+    }
+    return {
+      available: true,
+      flags: (data ?? []).map((f) => ({
+        key: f.key as string,
+        enabled: Boolean(f.enabled),
+        description: (f.description as string) ?? null,
+        workspaceAllowlist: Array.isArray(f.workspace_allowlist) ? (f.workspace_allowlist as string[]) : [],
+        planGate: (f.plan_gate as string) ?? null,
+      })),
+    }
+  } catch {
+    return { available: false, flags: [] }
+  }
+}
+
+/**
+ * Read a platform setting blob by key.
+ * Returns `{ available: false }` if the platform_settings table is missing.
+ */
+export async function getPlatformSetting(
+  key: string,
+): Promise<{ available: boolean; value: Record<string, unknown> | null }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("platform_settings")
+      .select("value")
+      .eq("key", key)
+      .maybeSingle()
+    if (error) {
+      if (isSchemaGap(error.code)) return { available: false, value: null }
+      return { available: true, value: null }
+    }
+    return { available: true, value: (data?.value as Record<string, unknown>) ?? null }
+  } catch {
+    return { available: false, value: null }
+  }
+}

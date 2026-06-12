@@ -1,0 +1,73 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import {
+  CalendarRange,
+  CalendarDays,
+  Calendar,
+  List,
+  GanttChart,
+} from "lucide-react"
+
+const VIEW_TABS = [
+  {
+    key:   "month",
+    label: "Month",
+    href:  "/app/calendar/views/month",
+    icon:  CalendarRange,
+  },
+  {
+    key:   "week",
+    label: "Week",
+    href:  "/app/calendar/views/week",
+    icon:  CalendarDays,
+  },
+  {
+    key:   "day",
+    label: "Day",
+    href:  "/app/calendar/views/day",
+    icon:  Calendar,
+  },
+  {
+    key:   "agenda",
+    label: "Agenda",
+    href:  "/app/calendar/views/agenda",
+    icon:  List,
+  },
+  {
+    key:   "gantt",
+    label: "Gantt",
+    href:  "/app/calendar/views/gantt",
+    icon:  GanttChart,
+  },
+] as const
+
+export default function CalendarViewsSwitcher() {
+  const pathname = usePathname()
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {VIEW_TABS.map((tab) => {
+        const active = pathname.startsWith(tab.href)
+        const Icon = tab.icon
+        return (
+          <Link
+            key={tab.key}
+            href={tab.href}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-150 border",
+              active
+                ? "bg-[#2563EB] text-white border-[#2563EB] shadow-sm"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50"
+            )}
+          >
+            <Icon className="w-3.5 h-3.5 shrink-0" />
+            {tab.label}
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
