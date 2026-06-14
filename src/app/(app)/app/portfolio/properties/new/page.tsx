@@ -524,18 +524,20 @@ export default function NewPropertyPage() {
         .single()
       if (error) throw error
 
-      // Insert units if any
+      // Insert units if any — into the canonical `units` table the app reads
+      // (label/rent_amount/status), not the vestigial property_units.
       if (data.units.length > 0 && created) {
-        await supabase.from("property_units").insert(
+        const { error: unitsError } = await supabase.from("units").insert(
           data.units.map((u) => ({
             property_id: created.id,
             workspace_id: workspaceId,
-            unit_name: u.name,
-            unit_type: u.type,
-            target_rent: u.targetRent,
-            status: "vacant",
+            label: u.name,
+            rent_amount: u.targetRent || null,
+            rent_period: "monthly",
+            status: "available",
           }))
         )
+        if (unitsError) throw unitsError
       }
 
       router.push(`/app/portfolio/properties/${created.id}`)

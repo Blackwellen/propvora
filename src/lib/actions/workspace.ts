@@ -223,14 +223,15 @@ export async function createWorkspace(
     console.error("[createWorkspace] referral attribution failed:", e)
   }
 
-  // 8. Seed demo data if requested
+  // 8. Seed demo data if requested — via the SQL seeder (single source of truth).
   if (data.demoDataVariant) {
-    try {
-      const { seedDemoData } = await import("@/lib/demo/seed")
-      await seedDemoData(workspace.id as string, user.id, data.demoDataVariant)
-    } catch (seedError) {
-      // Non-fatal — demo data seeding can fail silently
-      console.error("[createWorkspace] Demo seed failed:", seedError)
+    const { error: seedError } = await supabase.rpc("seed_demo_workspace", {
+      p_workspace_id: workspace.id as string,
+      p_user_id: user.id,
+    })
+    if (seedError) {
+      // Non-fatal — workspace is created regardless of demo seeding.
+      console.error("[createWorkspace] Demo seed failed:", seedError.message)
     }
   }
 

@@ -103,7 +103,7 @@ export default function DemoDataPage() {
       }
 
       setSuccessMessage(
-        "Demo data loaded — 3 properties, 6+ units, 5 tenancies, 20 tasks, 8 jobs, 8 invoices and more."
+        "Demo data loaded — 6 properties (with photos), units, tenancies, rent, tasks, jobs, compliance, messages and more. It auto-expires after 30 days."
       )
       await loadStatus()
     } catch {
@@ -228,23 +228,24 @@ export default function DemoDataPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-1">Sample Dataset</h3>
         <p className="text-[12.5px] text-slate-500 mb-5 leading-relaxed">
-          The demo dataset includes realistic UK property management data — 3 properties (HMO and
-          flat), tenancies, contacts, jobs, invoices, planning sets and compliance certificates.
-          All records are labelled <code className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded font-mono">is_demo: true</code> and
-          can be removed at any time.
+          The demo dataset includes realistic UK property management data — HMOs, flats, a serviced
+          let and a student let (with real photos), tenancies, rent schedules, contacts, tasks, jobs,
+          compliance items, messages and finances. Every record is labelled{" "}
+          <code className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded font-mono">demo: true</code>,
+          can be removed at any time, and auto-expires 30 days after loading.
         </p>
 
         {/* What's included */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: "Properties", count: "3" },
-            { label: "Units", count: "9" },
-            { label: "Tenancies", count: "5" },
-            { label: "Tasks", count: "20" },
-            { label: "Jobs", count: "8" },
-            { label: "Invoices", count: "8" },
-            { label: "Contacts", count: "14" },
-            { label: "Certificates", count: "2" },
+            { label: "Properties", count: "6" },
+            { label: "Units", count: "5" },
+            { label: "Tenancies", count: "3" },
+            { label: "Tasks", count: "4" },
+            { label: "Jobs", count: "3" },
+            { label: "Compliance", count: "6" },
+            { label: "Contacts", count: "7" },
+            { label: "Messages", count: "2" },
           ].map(({ label, count }) => (
             <div
               key={label}

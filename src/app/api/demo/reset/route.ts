@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { resetDemoData } from '@/lib/demo/reset'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -42,12 +41,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  try {
-    const result = await resetDemoData(workspaceId)
-    return NextResponse.json({ success: true, deleted: result.deleted })
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('[demo/reset] Reset failed:', message)
-    return NextResponse.json({ error: 'Reset failed', detail: message }, { status: 500 })
+  // Removal is handled by the SQL function delete_demo_data(workspace_id) —
+  // deletes every demo row in FK-safe order and clears demo_data_loaded.
+  const { error } = await supabase.rpc('delete_demo_data', { p_workspace_id: workspaceId })
+  if (error) {
+    console.error('[demo/reset] Reset failed:', error.message)
+    return NextResponse.json({ error: 'Reset failed', detail: error.message }, { status: 500 })
   }
+  return NextResponse.json({ success: true })
 }

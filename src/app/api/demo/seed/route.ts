@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { seedDemoData } from '@/lib/demo/seed'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -57,18 +56,18 @@ export async function POST(request: Request) {
     )
   }
 
-  try {
-    await seedDemoData(workspaceId, user.id, variant ?? 'full')
-    try {
-      await supabase
-        .from('workspaces')
-        .update({ demo_data_loaded: true, demo_data_variant: variant ?? 'full' })
-        .eq('id', workspaceId)
-    } catch { /* non-fatal */ }
-    return NextResponse.json({ success: true })
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('[demo/seed] Seed failed:', message)
-    return NextResponse.json({ error: 'Seed failed', detail: message }, { status: 500 })
+  // Demo data is seeded by the SQL function seed_demo_workspace(workspace_id,
+  // user_id) — the single, schema-correct source (sets demo_data_loaded + the
+  // 30-day demo_expires_at stamps itself). `variant` is accepted for API
+  // compatibility but the SQL seeder loads the full coherent dataset.
+  void variant
+  const { error } = await supabase.rpc('seed_demo_workspace', {
+    p_workspace_id: workspaceId,
+    p_user_id: user.id,
+  })
+  if (error) {
+    console.error('[demo/seed] Seed failed:', error.message)
+    return NextResponse.json({ error: 'Seed failed', detail: error.message }, { status: 500 })
   }
+  return NextResponse.json({ success: true })
 }
