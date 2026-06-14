@@ -546,7 +546,7 @@ export default function ProfilesPage() {
       title="Operation Profiles"
       subtitle="Choose the right strategy for each opportunity. 13 commercial property operation models."
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => {
               setCompareMode((c) => !c)
@@ -781,7 +781,7 @@ export default function ProfilesPage() {
 
       {/* Compare Banner */}
       {compareMode && compareSelected.length >= 2 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#7C3AED] text-white px-6 py-3 rounded-2xl shadow-xl">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex flex-wrap items-center justify-center gap-3 sm:gap-4 bg-[#7C3AED] text-white px-4 sm:px-6 py-3 rounded-2xl shadow-xl max-w-[calc(100vw-2rem)]">
           <span className="text-[13.5px] font-semibold">
             {compareSelected.length} profiles selected
           </span>

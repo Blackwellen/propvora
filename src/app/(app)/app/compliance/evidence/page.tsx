@@ -24,7 +24,7 @@ import { EvidenceUpload, type EvidenceDoc } from "@/components/work/EvidenceUplo
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useComplianceEvidence, type ComplianceEvidence } from "@/hooks/useComplianceData"
-import { fmtDate, humaniseType, downloadCsv } from "../_lib/useComplianceItems"
+import { fmtDate, humaniseType, downloadCsv, useComplianceItems } from "../_lib/useComplianceItems"
 
 const VERIFY_FILTERS = ["", "verified", "pending", "rejected"]
 
@@ -51,8 +51,10 @@ export default function EvidencePage() {
   const [search, setSearch] = useState("")
   const [verifyFilter, setVerifyFilter] = useState("")
   const [showUpload, setShowUpload] = useState(false)
+  const [linkItemId, setLinkItemId] = useState("")
 
   const { data: evidence = [], isLoading, refetch } = useComplianceEvidence()
+  const { items: complianceItems } = useComplianceItems()
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -90,22 +92,25 @@ export default function EvidencePage() {
     )
   }
 
-  // Persist evidence metadata with the real compliance_evidence columns.
+  // Persist evidence metadata with the REAL compliance_evidence columns.
+  // The live table requires a compliance_item_id, so evidence must be linked
+  // to a tracked compliance item.
   async function handleUploaded(doc: EvidenceDoc) {
-    if (!workspace?.id) return
+    if (!workspace?.id || !linkItemId) return
     try {
       const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const kind = doc.type.startsWith("image/") ? "photo" : "report"
+      const note = doc.url ? `File: ${doc.url}` : null
       const { error } = await supabase.from("compliance_evidence").insert({
         workspace_id: workspace.id,
-        evidence_name: doc.name,
-        evidence_type: doc.type.startsWith("image/") ? "photo" : "report",
-        file_url: doc.url,
-        file_size_bytes: doc.size,
-        file_mime_type: doc.type,
-        source: "web_app",
-        verification_status: "pending",
+        compliance_item_id: linkItemId,
+        kind,
+        label: doc.name,
+        notes: note,
+        created_by: user?.id ?? null,
       })
-      if (error && error.code !== "42P01") console.error("[evidence] insert error", error.message)
+      if (error) console.error("[evidence] insert error", error.message)
     } catch (e) {
       console.error("[evidence] upload persist error", e)
     } finally {
@@ -116,7 +121,7 @@ export default function EvidencePage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Evidence</h1>
           <p className="text-sm text-slate-500 mt-0.5">Photos, certificates and supporting files for compliance records.</p>
@@ -141,7 +146,7 @@ export default function EvidencePage() {
 
       <DashboardContainer>
         {/* KPIs */}
-        <div className="grid grid-cols-4 gap-4 px-6 py-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
           <ComplianceKpiCard label="Total Evidence" value={isLoading ? "—" : kpis.total} subtitle="Files on record" icon={Folder} iconBg="bg-blue-100" iconColor="text-blue-600" />
           <ComplianceKpiCard label="Verified" value={isLoading ? "—" : kpis.verified} subtitle={kpis.total ? `${Math.round((kpis.verified / kpis.total) * 100)}% of total` : "—"} icon={CheckCircle} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
           <ComplianceKpiCard label="Pending Review" value={isLoading ? "—" : kpis.pending} subtitle="Awaiting verification" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
@@ -156,13 +161,30 @@ export default function EvidencePage() {
                 <h3 className="text-sm font-semibold text-slate-900">Upload evidence</h3>
                 <button onClick={() => setShowUpload(false)} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
               </div>
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">Link to compliance item <span className="text-red-500">*</span></label>
+                <select
+                  value={linkItemId}
+                  onChange={(e) => setLinkItemId(e.target.value)}
+                  className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 max-h-60 overflow-y-auto"
+                >
+                  <option value="">{complianceItems.length ? "Select a compliance item…" : "No compliance items yet"}</option>
+                  {complianceItems.map((it) => (
+                    <option key={it.id} value={it.id}>{it.title || it.typeLabel}</option>
+                  ))}
+                </select>
+              </div>
               {workspace?.id ? (
-                <EvidenceUpload
-                  workspaceId={workspace.id}
-                  folder="compliance-evidence"
-                  onUploaded={handleUploaded}
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-                />
+                linkItemId ? (
+                  <EvidenceUpload
+                    workspaceId={workspace.id}
+                    folder="compliance-evidence"
+                    onUploaded={handleUploaded}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                  />
+                ) : (
+                  <p className="text-sm text-slate-400 py-6 text-center">Select a compliance item above to attach evidence.</p>
+                )
               ) : (
                 <p className="text-sm text-slate-400 py-6 text-center">Loading workspace…</p>
               )}

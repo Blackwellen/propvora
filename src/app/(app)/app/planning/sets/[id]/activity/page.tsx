@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams } from "next/navigation"
 import {
-  AlertTriangle,
   Settings,
   MessageSquare,
   FileText,
@@ -11,7 +10,6 @@ import {
   Handshake,
   BarChart2,
   Send,
-  ArrowRight,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { PlanningActivity } from "@/lib/planning/types"
@@ -77,9 +75,9 @@ function Avatar({ name }: { name: string }) {
   )
 }
 
-// ── Static activity data ──────────────────────────────────────────────────────
+// ── Display activity shape ────────────────────────────────────────────────────
 
-interface StaticActivity {
+interface DisplayActivity {
   id: string
   group: string
   time: string
@@ -88,20 +86,6 @@ interface StaticActivity {
   title: string
   description?: string
 }
-
-const STATIC_ACTIVITY: StaticActivity[] = [
-  // Today
-  { id: "a1", group: "Today", time: "10:42", action_type: "plan_updated", actor: "James Taylor", title: "Plan updated", description: "James Taylor edited 5. Expenses — Operating Expenses" },
-  { id: "a2", group: "Today", time: "09:38", action_type: "comment_added", actor: "Michael Chen", title: "Comment added", description: 'Michael Chen commented on 9. Landlord Offer — "Please confirm early repayment charge terms."' },
-  { id: "a3", group: "Today", time: "09:15", action_type: "document_uploaded", actor: "Emma Turner", title: "Document uploaded", description: "Emma Turner uploaded Building Survey Report.pdf" },
-  // Yesterday
-  { id: "a4", group: "Yesterday", time: "16:21", action_type: "plan_edited", actor: "Sarah Patel", title: "Plan edited", description: "Sarah Patel edited 7. Upfront Costs — Refurbishment" },
-  { id: "a5", group: "Yesterday", time: "14:05", action_type: "offer_changed", actor: "Michael Chen", title: "Offer changed", description: "Michael Chen updated the landlord offer — Price: £229,450 → £231,000" },
-  { id: "a6", group: "Yesterday", time: "11:32", action_type: "scenario_run", actor: "James Taylor", title: "Scenario run", description: "James Taylor ran scenario 'Stress Test: Rates +2%' — IRR: 16.3% Cash Flow: £110,221" },
-  // 22 May
-  { id: "a7", group: "22 May 2025", time: "18:10", action_type: "comment_added", actor: "Emma Turner", title: "Comment added", description: 'Emma Turner commented on 8. Compliance — "Need confirmation on sprinklers for room 3."' },
-  { id: "a8", group: "22 May 2025", time: "17:45", action_type: "document_uploaded", actor: "Sarah Patel", title: "Document uploaded", description: "Sarah Patel uploaded Fire Risk Assessment.pdf" },
-]
 
 const FILTER_TABS: ActivityFilter[] = ["All", "Updates", "Comments", "Documents", "Plan Edits", "Offers", "Scenarios"]
 
@@ -113,7 +97,6 @@ export default function ActivityPage() {
 
   const [activity, setActivity] = useState<PlanningActivity[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<ActivityFilter>("All")
   const [comment, setComment] = useState("")
   const [posting, setPosting] = useState(false)
@@ -124,21 +107,15 @@ export default function ActivityPage() {
     const supabase = createClient()
     async function load() {
       setLoading(true)
-      setError(null)
-      try {
-        const { data, error: err } = await supabase
-          .from("planning_activity")
-          .select("*")
-          .eq("planning_set_id", id)
-          .order("created_at", { ascending: false })
-          .limit(50)
-        if (err) throw err
-        setActivity((data ?? []) as PlanningActivity[])
-      } catch {
-        setError("Failed to load activity.")
-      } finally {
-        setLoading(false)
-      }
+      // planning_activity is not yet provisioned (42P01) — swallow to empty.
+      const { data, error } = await supabase
+        .from("planning_activity")
+        .select("*")
+        .eq("planning_set_id", id)
+        .order("created_at", { ascending: false })
+        .limit(50)
+      setActivity(error ? [] : ((data ?? []) as PlanningActivity[]))
+      setLoading(false)
     }
     load()
   }, [id])
@@ -165,36 +142,23 @@ export default function ActivityPage() {
     }
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
-          <AlertTriangle className="w-6 h-6 text-red-500" />
-        </div>
-        <div className="text-slate-700 font-semibold">{error}</div>
-      </div>
-    )
-  }
-
-  // Build display activity list
-  const displayActivity: StaticActivity[] = activity.length > 0
-    ? activity.map((a) => ({
-        id: a.id,
-        group: (() => {
-          const d = new Date(a.created_at)
-          const now = new Date()
-          const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
-          if (diff === 0) return "Today"
-          if (diff === 1) return "Yesterday"
-          return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-        })(),
-        time: new Date(a.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-        action_type: a.action_type,
-        actor: a.actor_id ?? "System",
-        title: a.title,
-        description: a.description ?? undefined,
-      }))
-    : STATIC_ACTIVITY
+  // Build display activity list from real rows only
+  const displayActivity: DisplayActivity[] = activity.map((a) => ({
+    id: a.id,
+    group: (() => {
+      const d = new Date(a.created_at)
+      const now = new Date()
+      const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
+      if (diff === 0) return "Today"
+      if (diff === 1) return "Yesterday"
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    })(),
+    time: new Date(a.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+    action_type: a.action_type,
+    actor: a.actor_id ?? "System",
+    title: a.title,
+    description: a.description ?? undefined,
+  }))
 
   // Filter
   const filteredActivity = filter === "All"
@@ -202,7 +166,7 @@ export default function ActivityPage() {
     : displayActivity.filter((a) => getActionTypeCfg(a.action_type).filterKey === filter)
 
   // Group by date
-  const groups = filteredActivity.reduce<Record<string, StaticActivity[]>>((acc, a) => {
+  const groups = filteredActivity.reduce<Record<string, DisplayActivity[]>>((acc, a) => {
     if (!acc[a.group]) acc[a.group] = []
     acc[a.group].push(a)
     return acc
@@ -320,15 +284,16 @@ export default function ActivityPage() {
           ))}
 
           {filteredActivity.length === 0 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-              <p className="text-sm text-slate-400">No activity found for this filter.</p>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-2">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+                <Settings className="w-6 h-6 text-slate-400" />
+              </div>
+              <p className="text-sm font-semibold text-slate-700">No activity yet</p>
+              <p className="text-xs text-slate-400 max-w-sm">
+                Edits, comments, document uploads and offer changes for this planning set will appear here.
+              </p>
             </div>
           )}
-
-          <button className="inline-flex items-center justify-center gap-1.5 h-9 w-full rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-            View full activity log
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
         </div>
       )}
     </div>

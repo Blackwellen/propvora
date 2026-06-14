@@ -85,8 +85,8 @@ export default function InspectionsPage() {
     try {
       const supabase = createClient()
       const { error } = await supabase
-        .from("compliance_inspections")
-        .update({ archived_at: new Date().toISOString() })
+        .from("property_inspections")
+        .update({ deleted_at: new Date().toISOString() })
         .eq("id", id)
       if (error && error.code !== "42P01") throw new Error(error.message)
     } finally {
@@ -97,7 +97,7 @@ export default function InspectionsPage() {
   return (
     <DashboardContainer>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Inspections</h1>
           <p className="text-sm text-slate-500 mt-1">Schedule, track and manage property inspections.</p>
@@ -122,7 +122,7 @@ export default function InspectionsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-5 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Scheduled" value={isLoading ? "—" : kpis.total} subtitle="All inspections" icon={CalendarDays} iconBg="bg-blue-50" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Upcoming" value={isLoading ? "—" : kpis.upcoming} subtitle="Awaiting inspection" icon={CalendarClock} iconBg="bg-blue-50" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Overdue" value={isLoading ? "—" : kpis.overdue} subtitle="Require action" icon={AlertTriangle} iconBg="bg-red-50" iconColor="text-red-600" />

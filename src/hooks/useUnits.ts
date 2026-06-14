@@ -14,6 +14,8 @@ export interface Unit {
   bathrooms: number | null
   floor_area_sqm: number | null
   target_rent: number | null
+  // App vocabulary. Mapped to the live `units.status` CHECK
+  // (available|occupied|maintenance|offline) at the adapter boundary.
   status: 'occupied' | 'vacant' | 'under_works' | 'reserved'
   is_demo: boolean
   created_at: string
@@ -46,9 +48,30 @@ export interface UpdateUnit extends Partial<InsertUnit> {
 const TABLE = 'units'
 const KEY = 'units'
 
+// Live `units.status` CHECK = available|occupied|maintenance|offline.
+// The app UI speaks vacant/occupied/under_works/reserved, so we translate at
+// the adapter boundary in BOTH directions. Any write therefore always lands a
+// value the DB accepts — never a raw 'vacant'/'reserved' that the CHECK rejects.
+const STATUS_TO_DB: Record<string, string> = {
+  vacant: 'available',
+  available: 'available',
+  occupied: 'occupied',
+  under_works: 'maintenance',
+  maintenance: 'maintenance',
+  reserved: 'offline',
+  offline: 'offline',
+}
+const STATUS_FROM_DB: Record<string, Unit['status']> = {
+  available: 'vacant',
+  occupied: 'occupied',
+  maintenance: 'under_works',
+  offline: 'reserved',
+}
+
 function fromDb(r: Record<string, unknown>): Unit {
   const g = (k: string): any => r[k]
   const floorRaw = g('floor')
+  const dbStatus = (g('status') ?? 'available') as string
   return {
     id: g('id'),
     workspace_id: g('workspace_id'),
@@ -60,7 +83,7 @@ function fromDb(r: Record<string, unknown>): Unit {
     bathrooms: g('bathrooms') ?? null,
     floor_area_sqm: g('size_sqm') ?? null,
     target_rent: g('rent_amount') ?? null,
-    status: (g('status') ?? 'vacant') as Unit['status'],
+    status: STATUS_FROM_DB[dbStatus] ?? 'vacant',
     is_demo: false,
     created_at: g('created_at'),
     updated_at: g('updated_at'),
@@ -73,7 +96,8 @@ function toDb(p: Record<string, any>): Record<string, unknown> {
   if ('floor_area_sqm' in p) o.size_sqm = p.floor_area_sqm
   if ('target_rent' in p) o.rent_amount = p.target_rent
   if ('floor' in p) o.floor = p.floor == null ? null : String(p.floor)
-  for (const k of ['workspace_id', 'property_id', 'status', 'bedrooms', 'bathrooms'] as const) {
+  if ('status' in p) o.status = STATUS_TO_DB[String(p.status)] ?? 'available'
+  for (const k of ['workspace_id', 'property_id', 'bedrooms', 'bathrooms'] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }
   return o

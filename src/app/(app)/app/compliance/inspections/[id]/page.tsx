@@ -19,24 +19,6 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const MOCK_INSPECTION = {
-  id: "insp-001",
-  inspection_type: "routine",
-  property_name: "8 Clarence Rd",
-  property_id: null,
-  status: "overdue",
-  scheduled_date: "2026-05-21",
-  completed_date: null,
-  inspector_name: "Sarah Chen",
-  inspector_company: "Chen Inspections",
-  outcome: null,
-  findings_count: 0,
-  evidence_count: 0,
-  next_action: null,
-  created_at: "2026-05-01",
-  __seed: true as const,
-}
-
 const TYPE_LABELS: Record<string, string> = {
   routine: "Routine Property Inspection",
   mid_term: "Mid-Term Inspection",
@@ -155,18 +137,37 @@ export default function InspectionDetailPage() {
     queryKey: ["compliance-inspection-detail", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("compliance_inspections")
+        .from("property_inspections")
         .select("*, properties(name:nickname)")
         .eq("id", id)
         .single()
-      if (error) return { ...MOCK_INSPECTION }
-      const { properties: prop, ...rest } = data as any
-      return { ...rest, property_name: prop?.name ?? undefined, __seed: false }
+      if (error) {
+        if (error.code === "42P01" || error.code === "PGRST116") return null
+        throw new Error(error.message)
+      }
+      const r = data as any
+      return {
+        id: r.id,
+        inspection_type: r.kind,
+        property_id: r.property_id,
+        property_name: r.properties?.name ?? undefined,
+        status: r.status === "scheduled" ? "scheduled" : r.status,
+        scheduled_date: r.scheduled_for,
+        completed_date: r.completed_at,
+        inspector_name: null,
+        inspector_company: null,
+        outcome: r.score != null ? (r.score >= 50 ? "pass" : "fail") : null,
+        findings_count: 0,
+        evidence_count: r.report_document_id ? 1 : 0,
+        next_action: r.notes,
+        created_at: r.created_at,
+      }
     },
   })
 
-  const row: any = insp ?? MOCK_INSPECTION
-  const isSeed = !!row.__seed
+  const row: any = insp ?? {}
+  const notFound = !isLoading && !insp
+  const isSeed = false // live data only
   const label = TYPE_LABELS[row.inspection_type] ?? row.inspection_type ?? "Inspection"
   const overdue = row.status === "overdue"
   const overdueDays = overdue ? daysSince(row.scheduled_date) : null
@@ -175,11 +176,17 @@ export default function InspectionDetailPage() {
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const [rescheduleDate, setRescheduleDate] = useState("")
 
+  // Map view-model field keys back to property_inspections columns.
   async function saveField(patch: Record<string, any>) {
-    if (isSeed) return
+    const out: Record<string, any> = { updated_at: new Date().toISOString() }
+    if ("inspection_type" in patch) out.kind = patch.inspection_type
+    if ("scheduled_date" in patch) out.scheduled_for = patch.scheduled_date
+    if ("completed_date" in patch) out.completed_at = patch.completed_date
+    if ("status" in patch) out.status = patch.status === "upcoming" ? "scheduled" : patch.status
+    if ("next_action" in patch) out.notes = patch.next_action
     const { error } = await supabase
-      .from("compliance_inspections")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .from("property_inspections")
+      .update(out)
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-inspection-detail", id] })
@@ -205,6 +212,23 @@ export default function InspectionDetailPage() {
     return (
       <div className="space-y-0">
         <div className="p-10 text-center text-sm text-slate-400">Loading inspection…</div>
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="space-y-0">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <ClipboardList className="w-7 h-7 text-slate-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">Inspection not found</h2>
+          <p className="text-sm text-slate-500 mb-5">This inspection may have been removed.</p>
+          <Button variant="primary" size="sm" asChild>
+            <Link href="/app/compliance/inspections">Back to Inspections</Link>
+          </Button>
+        </div>
       </div>
     )
   }
@@ -291,7 +315,7 @@ export default function InspectionDetailPage() {
 
         {/* KPI strip */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex divide-x divide-slate-100">
+          <div className="flex flex-wrap divide-x divide-slate-100">
             <KpiContext label="Status" value={row.status} colour={overdue ? "#DC2626" : "#2563EB"} />
             <KpiContext label="Findings" value={row.findings_count ?? 0} sub="recorded" colour="#64748B" />
             <KpiContext label="Evidence" value={row.evidence_count ?? 0} sub="documents" colour="#64748B" />
@@ -300,8 +324,8 @@ export default function InspectionDetailPage() {
           </div>
         </div>
 
-        <div className="flex gap-4 items-start">
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col lg:flex-row gap-4 items-start">
+          <div className="flex-1 min-w-0 w-full">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="border-b border-slate-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <div className="flex">
@@ -468,7 +492,7 @@ export default function InspectionDetailPage() {
           </div>
 
           {/* Right rail */}
-          <aside className="w-72 shrink-0 sticky top-6 space-y-3">
+          <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-6 space-y-3">
             <Card className="p-4">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Quick Actions</p>
               <div className="space-y-2">

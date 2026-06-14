@@ -172,11 +172,11 @@ export default function TenancyEditPage() {
                 </div>
                 <Field label="Tenancy status">
                   <SelectInput {...register("status")}>
-                    <option value="pending">Pending</option>
+                    <option value="draft">Draft</option>
                     <option value="active">Active</option>
                     <option value="ended">Ended</option>
-                    <option value="disputed">Disputed</option>
-                    <option value="surrendered">Surrendered</option>
+                    <option value="terminated">Terminated</option>
+                    <option value="uncollectable">Uncollectable</option>
                   </SelectInput>
                 </Field>
                 <Field label="Notes">
@@ -197,8 +197,7 @@ export default function TenancyEditPage() {
                   <SelectInput {...register("rent_frequency")}>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="annually">Annually</option>
+                    <option value="nightly">Nightly</option>
                   </SelectInput>
                 </Field>
               </div>

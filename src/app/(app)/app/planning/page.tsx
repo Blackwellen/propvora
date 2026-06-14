@@ -219,7 +219,8 @@ export default function PlanningPage() {
                 </Link>
               </div>
             ) : (
-              <table className="w-full">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px]">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
                     <th className="text-left text-[10.5px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Plan</th>
@@ -250,6 +251,7 @@ export default function PlanningPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
 

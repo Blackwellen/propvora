@@ -34,6 +34,26 @@ const TEMPLATE_TO_PROFILE: Record<string, string> = {
 }
 const PROFILE_TO_TEMPLATE: Record<string, string> = { long_term_let: 'standard_rental' }
 
+// Live `properties.status` enum = active|void|off_market|archived.
+// The UI historically offered vacant/under_works (no such enum members), which
+// the DB would reject. Normalise in BOTH directions at the adapter boundary so
+// a status write is always a valid enum member.
+const PROPERTY_STATUS_TO_DB: Record<string, string> = {
+  active: 'active',
+  vacant: 'void',
+  void: 'void',
+  under_works: 'off_market',
+  off_market: 'off_market',
+  archived: 'archived',
+  disposed: 'archived',
+}
+const PROPERTY_STATUS_FROM_DB: Record<string, Property['status']> = {
+  active: 'active',
+  void: 'vacant',
+  off_market: 'under_works',
+  archived: 'archived',
+}
+
 function templateToType(template: string | null): Property['property_type'] {
   switch (template) {
     case 'hmo': return 'hmo'
@@ -63,7 +83,7 @@ function fromDb(r: Record<string, unknown>): Property {
     property_type: templateToType(template),
     operation_profile: (template ? (TEMPLATE_TO_PROFILE[template] ?? template) : null) as Property['operation_profile'],
     category: (g('category') ?? null) as string | null,
-    status: (g('status') ?? 'active') as Property['status'],
+    status: (PROPERTY_STATUS_FROM_DB[String(g('status') ?? 'active')] ?? 'active') as Property['status'],
     bedrooms: g('bedrooms') ?? null,
     bathrooms: g('bathrooms') ?? null,
     floor_area_sqm: g('floor_area_sqm') ?? null,
@@ -88,9 +108,10 @@ function toDb(p: Partial<Property>): Record<string, unknown> {
   if ('target_rent' in p) o.target_rent_pcm = p.target_rent
   if ('monthly_mortgage' in p) o.mortgage_outstanding = p.monthly_mortgage
   if ('is_demo' in p) o.demo = p.is_demo
+  if ('status' in p && p.status) o.status = PROPERTY_STATUS_TO_DB[String(p.status)] ?? 'active'
   for (const k of [
     'workspace_id', 'address_line1', 'address_line2', 'city', 'county', 'postcode', 'country',
-    'latitude', 'longitude', 'status', 'bedrooms', 'bathrooms', 'floor_area_sqm',
+    'latitude', 'longitude', 'bedrooms', 'bathrooms', 'floor_area_sqm',
     'purchase_price', 'current_value', 'notes', 'cover_image_url', 'created_by', 'category',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]

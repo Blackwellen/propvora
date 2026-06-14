@@ -52,11 +52,12 @@ function useExtraStats(workspaceId: string | undefined): ExtraStats {
         const today = new Date().toISOString().split("T")[0]
         const in30 = new Date(Date.now() + 30 * 86400_000).toISOString().split("T")[0]
 
+        // Real tables: certificates live in compliance_items, inspections in property_inspections.
         const [certs, certExp, inspUp, inspOver] = await Promise.all([
-          supabase.from("compliance_certificates").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("archived_at", null),
-          supabase.from("compliance_certificates").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("archived_at", null).gte("expiry_date", today).lte("expiry_date", in30),
-          supabase.from("compliance_inspections").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("archived_at", null).in("status", ["upcoming", "scheduled"]),
-          supabase.from("compliance_inspections").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("archived_at", null).eq("status", "overdue"),
+          supabase.from("compliance_items").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("deleted_at", null),
+          supabase.from("compliance_items").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("deleted_at", null).gte("due_date", today).lte("due_date", in30),
+          supabase.from("property_inspections").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("deleted_at", null).eq("status", "scheduled"),
+          supabase.from("property_inspections").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId).is("deleted_at", null).eq("status", "overdue"),
         ])
 
         if (!active) return
@@ -209,7 +210,7 @@ export default function ComplianceOverviewPage() {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-6 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard
           label="Compliance Items"
           value={loading ? "—" : String(stats.total)}
@@ -303,9 +304,9 @@ export default function ComplianceOverviewPage() {
         </div>
       ) : (
         /* Main content */
-        <div className="px-6 pb-6 grid grid-cols-12 gap-4">
+        <div className="px-4 sm:px-6 pb-6 grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Expiring items */}
-          <div className="col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Expiring soon</h2>
               <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
@@ -340,7 +341,7 @@ export default function ComplianceOverviewPage() {
           </div>
 
           {/* Overdue items */}
-          <div className="col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Overdue & expired</h2>
               <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
@@ -374,7 +375,7 @@ export default function ComplianceOverviewPage() {
           </div>
 
           {/* Status breakdown */}
-          <div className="col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Live status mix</h2>
             </div>
@@ -415,7 +416,7 @@ export default function ComplianceOverviewPage() {
           </div>
 
           {/* Coverage gaps */}
-          <div className="col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="md:col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Coverage gaps by requirement</h2>
               <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
@@ -455,7 +456,7 @@ export default function ComplianceOverviewPage() {
           </div>
 
           {/* Recommended next actions (derived from real counts) */}
-          <div className="col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="md:col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Recommended next actions</h2>
             </div>

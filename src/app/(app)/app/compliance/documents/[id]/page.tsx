@@ -14,24 +14,6 @@ import {
   RotateCcw, Trash2,
 } from "lucide-react"
 
-// ─── Mock fallback ──────────────────────────────────────────────────────────
-
-const MOCK_DOC = {
-  id: "doc-001",
-  document_type: "gas_safety",
-  document_name: "Gas Safety Certificate",
-  property_name: "14 Westbourne Gardens",
-  verification_status: "verified",
-  issue_date: "2025-06-04",
-  expiry_date: "2026-06-04",
-  issuer: "Elite Gas Services",
-  category: "Statutory",
-  version: "v2",
-  file_url: null,
-  created_at: "2025-06-05",
-  __seed: true as const,
-}
-
 const DOC_TYPE_LABELS: Record<string, string> = {
   gas_safety: "Gas Safety Certificate",
   eicr: "EICR Certificate",
@@ -83,25 +65,66 @@ export default function DocumentDetailPage() {
     queryKey: ["compliance-document-detail", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("compliance_documents")
+        .from("documents")
         .select("*, properties(name:nickname)")
         .eq("id", id)
         .single()
-      if (error) return { ...MOCK_DOC }
-      const { properties: prop, ...rest } = data as any
-      return { ...rest, property_name: prop?.name ?? undefined, __seed: false }
+      if (error) {
+        if (error.code === "42P01" || error.code === "PGRST116") return null
+        throw new Error(error.message)
+      }
+      const r = data as any
+      const meta = r.metadata ?? {}
+      return {
+        id: r.id,
+        property_id: r.property_id,
+        document_name: r.name,
+        document_type: r.type ?? "other",
+        verification_status: meta.verification_status ?? (r.status === "active" ? "pending" : r.status),
+        issue_date: meta.issue_date ?? null,
+        expiry_date: r.expires_at,
+        issuer: meta.issuer ?? null,
+        category: r.category,
+        version: meta.version ?? "v1",
+        file_url: r.url,
+        linked_certificate_id: meta.linked_certificate_id ?? null,
+        linked_inspection_id: meta.linked_inspection_id ?? null,
+        property_name: r.properties?.name ?? undefined,
+        created_at: r.created_at,
+      }
     },
   })
 
-  const row: any = doc ?? MOCK_DOC
-  const isSeed = !!row.__seed
+  const row: any = doc ?? {}
+  const notFound = !isLoading && !doc
+  const isSeed = false // live data only
   const label = row.document_name || DOC_TYPE_LABELS[row.document_type] || "Document"
 
+  // Map view-model field keys back to documents columns (some live in metadata).
   async function saveField(patch: Record<string, any>) {
-    if (isSeed) return
+    const out: Record<string, any> = { updated_at: new Date().toISOString() }
+    const metaPatch: Record<string, any> = {}
+    if ("document_name" in patch) out.name = patch.document_name
+    if ("document_type" in patch) out.type = patch.document_type
+    if ("category" in patch) out.category = patch.category
+    if ("expiry_date" in patch) out.expires_at = patch.expiry_date
+    if ("issuer" in patch) metaPatch.issuer = patch.issuer
+    if ("issue_date" in patch) metaPatch.issue_date = patch.issue_date
+    if ("verification_status" in patch) metaPatch.verification_status = patch.verification_status
+    if (Object.keys(metaPatch).length) {
+      out.metadata = {
+        issuer: row.issuer,
+        issue_date: row.issue_date,
+        verification_status: row.verification_status,
+        version: row.version,
+        linked_certificate_id: row.linked_certificate_id,
+        linked_inspection_id: row.linked_inspection_id,
+        ...metaPatch,
+      }
+    }
     const { error } = await supabase
-      .from("compliance_documents")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .from("documents")
+      .update(out)
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-document-detail", id] })
@@ -113,13 +136,11 @@ export default function DocumentDetailPage() {
   }
 
   async function handleArchive() {
-    if (!isSeed) {
-      const { error } = await supabase
-        .from("compliance_documents")
-        .update({ archived_at: new Date().toISOString() })
-        .eq("id", id)
-      if (error && error.code !== "42P01") throw new Error(error.message)
-    }
+    const { error } = await supabase
+      .from("documents")
+      .update({ archived_at: new Date().toISOString() })
+      .eq("id", id)
+    if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-documents"] })
     router.push("/app/compliance/documents")
   }
@@ -142,7 +163,7 @@ export default function DocumentDetailPage() {
 
   function RightRail() {
     return (
-      <aside className="w-72 shrink-0 space-y-4">
+      <aside className="w-full lg:w-72 shrink-0 space-y-4">
         <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
           <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Document Info</h3>
           <dl className="space-y-2.5 text-sm">
@@ -392,6 +413,23 @@ export default function DocumentDetailPage() {
     )
   }
 
+  if (notFound) {
+    return (
+      <div className="space-y-0">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <FileText className="w-7 h-7 text-slate-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">Document not found</h2>
+          <p className="text-sm text-slate-500 mb-5">This document may have been archived or removed.</p>
+          <Link href="/app/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+            Back to Documents
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-0">
       <div className="p-6 space-y-6">
@@ -458,14 +496,14 @@ export default function DocumentDetailPage() {
         </div>
 
         {/* Tabs + Right Rail */}
-        <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0 space-y-4">
-            <div className="flex gap-0.5 border-b border-slate-200">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="flex-1 min-w-0 w-full space-y-4">
+            <div className="flex gap-0.5 border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                     activeTab === tab.key ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >

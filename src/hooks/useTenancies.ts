@@ -16,8 +16,11 @@ export interface Tenancy {
   deposit_held_by: 'landlord' | 'scheme' | 'agent' | null
   deposit_scheme: string | null
   deposit_reference: string | null
-  rent_frequency: 'weekly' | 'monthly' | 'quarterly' | 'annually'
-  status: 'pending' | 'active' | 'ended' | 'disputed' | 'surrendered'
+  // App vocabulary. Mapped to the live `tenancies.rent_period` CHECK
+  // (weekly|monthly|nightly) and `tenancies.status` enum
+  // (draft|active|ended|terminated|uncollectable) at the adapter boundary.
+  rent_frequency: 'weekly' | 'monthly' | 'nightly'
+  status: 'draft' | 'active' | 'ended' | 'terminated' | 'uncollectable'
   tenancy_type: 'ast' | 'periodic' | 'contractual' | 'lodger' | 'commercial' | 'hmo_room' | null
   reference: string | null
   notes: string | null
@@ -53,7 +56,34 @@ const KEY = 'tenancies'
 //   primary_contact_id <-> tenant_contact_id
 //   rent_period        <-> rent_frequency
 //   deposit_ref        <-> deposit_reference
+//
+// Live constraints that we MUST satisfy on every write:
+//   rent_period CHECK = weekly|monthly|nightly
+//   status      enum  = draft|active|ended|terminated|uncollectable
+// Older UI vocabulary (pending/disputed/surrendered, quarterly/annually) is
+// normalised here so a write never hits an enum/CHECK rejection.
 // ============================================================
+
+const PERIOD_TO_DB: Record<string, string> = {
+  weekly: 'weekly',
+  monthly: 'monthly',
+  nightly: 'nightly',
+  daily: 'nightly',
+  quarterly: 'monthly',
+  annually: 'monthly',
+  yearly: 'monthly',
+}
+const STATUS_TO_DB: Record<string, string> = {
+  draft: 'draft',
+  pending: 'draft',
+  active: 'active',
+  ended: 'ended',
+  surrendered: 'ended',
+  expired: 'ended',
+  terminated: 'terminated',
+  disputed: 'terminated',
+  uncollectable: 'uncollectable',
+}
 
 function fromDb(r: Record<string, unknown>): Tenancy {
   const g = (k: string): any => r[k]
@@ -70,8 +100,8 @@ function fromDb(r: Record<string, unknown>): Tenancy {
     deposit_held_by: g('deposit_held_by') ?? null,
     deposit_scheme: g('deposit_scheme') ?? null,
     deposit_reference: g('deposit_ref') ?? g('deposit_reference') ?? null,
-    rent_frequency: (g('rent_period') ?? 'monthly') as Tenancy['rent_frequency'],
-    status: (g('status') ?? 'active') as Tenancy['status'],
+    rent_frequency: ((PERIOD_TO_DB[String(g('rent_period') ?? 'monthly')] ?? 'monthly') as Tenancy['rent_frequency']),
+    status: ((STATUS_TO_DB[String(g('status') ?? 'active')] ?? 'active') as Tenancy['status']),
     tenancy_type: g('tenancy_type') ?? null,
     reference: g('reference') ?? null,
     notes: g('notes') ?? null,
@@ -84,11 +114,12 @@ function fromDb(r: Record<string, unknown>): Tenancy {
 function toDb(p: Record<string, any>): Record<string, unknown> {
   const o: Record<string, unknown> = {}
   if ('tenant_contact_id' in p) o.primary_contact_id = p.tenant_contact_id
-  if ('rent_frequency' in p) o.rent_period = p.rent_frequency
+  if ('rent_frequency' in p) o.rent_period = PERIOD_TO_DB[String(p.rent_frequency)] ?? 'monthly'
   if ('deposit_reference' in p) o.deposit_ref = p.deposit_reference
+  if ('status' in p) o.status = STATUS_TO_DB[String(p.status)] ?? 'active'
   for (const k of [
     'workspace_id', 'property_id', 'unit_id', 'start_date', 'end_date',
-    'rent_amount', 'deposit_amount', 'deposit_scheme', 'status', 'notes',
+    'rent_amount', 'deposit_amount', 'deposit_scheme', 'notes',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }

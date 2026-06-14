@@ -53,62 +53,6 @@ export interface MapProperty {
 }
 
 /* ------------------------------------------------------------------ */
-/* Demo data — no external images                                       */
-/* ------------------------------------------------------------------ */
-export const MOCK_MAP_PROPERTIES: MapProperty[] = [
-  {
-    id: "p1", name: "Brunswick Road HMO", address: "12 Brunswick Road", city: "Nottingham", postcode: "NG1 4EX",
-    type: "HMO", status: "active", operationProfile: "HMO", units: 6, occupied: 5, monthlyRent: 2850, arrears: 475, openWork: 2,
-    healthScore: "watch", lat: 52.9548, lng: -1.1581, coverImage: "",
-  },
-  {
-    id: "p2", name: "Maple Street HMO", address: "34 Maple Street", city: "Birmingham", postcode: "B1 2QR",
-    type: "HMO", status: "active", operationProfile: "HMO", units: 8, occupied: 8, monthlyRent: 3600, arrears: 0, openWork: 0,
-    healthScore: "healthy", lat: 52.4862, lng: -1.8904, coverImage: "",
-  },
-  {
-    id: "p3", name: "Victoria Terrace", address: "8 Victoria Terrace", city: "Leeds", postcode: "LS1 3XY",
-    type: "BTL", status: "vacant", operationProfile: "Long-Term Let", units: 1, occupied: 0, monthlyRent: 0, arrears: 0, openWork: 1,
-    healthScore: "at_risk", lat: 53.8008, lng: -1.5491, coverImage: "",
-  },
-  {
-    id: "p4", name: "Oak Lane BTL", address: "22 Oak Lane", city: "Manchester", postcode: "M14 5FG",
-    type: "BTL", status: "active", operationProfile: "Long-Term Let", units: 1, occupied: 1, monthlyRent: 1100, arrears: 0, openWork: 0,
-    healthScore: "healthy", lat: 53.4808, lng: -2.2426, coverImage: "",
-  },
-  {
-    id: "p5", name: "City Centre SA", address: "15 Piccadilly", city: "Manchester", postcode: "M1 1HP",
-    type: "SA", status: "active", operationProfile: "Serviced Accommodation", units: 2, occupied: 1, monthlyRent: 1800, arrears: 0, openWork: 0,
-    healthScore: "watch", lat: 53.4792, lng: -2.2372, coverImage: "",
-  },
-  {
-    id: "p6", name: "Elms Road R2R", address: "5 Elms Road", city: "Liverpool", postcode: "L8 3QA",
-    type: "R2R", status: "under_works", operationProfile: "Rent-to-Rent", units: 5, occupied: 0, monthlyRent: 0, arrears: 0, openWork: 4,
-    healthScore: "critical", lat: 53.4084, lng: -2.9916, coverImage: "",
-  },
-  {
-    id: "p7", name: "Harbour View Flat", address: "1A Harbour View", city: "Bristol", postcode: "BS1 5WA",
-    type: "BTL", status: "active", operationProfile: "Long-Term Let", units: 1, occupied: 1, monthlyRent: 1200, arrears: 0, openWork: 0,
-    healthScore: "healthy", lat: 51.4545, lng: -2.5879, coverImage: "",
-  },
-  {
-    id: "p8", name: "Regent Street Studio", address: "88 Regent Street", city: "London", postcode: "W1B 4EG",
-    type: "BTL", status: "active", operationProfile: "Long-Term Let", units: 1, occupied: 1, monthlyRent: 1950, arrears: 0, openWork: 0,
-    healthScore: "healthy", lat: 51.5141, lng: -0.1407, coverImage: "",
-  },
-  {
-    id: "p9", name: "Park Lane Co-Living", address: "45 Park Lane", city: "London", postcode: "W1K 1PN",
-    type: "Co-Living", status: "active", operationProfile: "Co-Living", units: 12, occupied: 11, monthlyRent: 9600, arrears: 0, openWork: 1,
-    healthScore: "healthy", lat: 51.5074, lng: -0.1526, coverImage: "",
-  },
-  {
-    id: "p10", name: "Meadow Court Student", address: "3 Meadow Court", city: "Sheffield", postcode: "S1 2GT",
-    type: "Student", status: "active", operationProfile: "Student Let", units: 7, occupied: 7, monthlyRent: 3850, arrears: 0, openWork: 0,
-    healthScore: "healthy", lat: 53.3811, lng: -1.4701, coverImage: "",
-  },
-]
-
-/* ------------------------------------------------------------------ */
 /* Config                                                               */
 /* ------------------------------------------------------------------ */
 export const STATUS_LABELS: Record<string, string> = {
@@ -227,8 +171,7 @@ export default function PortfolioMapPage() {
 
   /* All live properties (mapped), regardless of whether they have coordinates. */
   const allProperties: MapProperty[] = useMemo(() => {
-    if (!isLive) return MOCK_MAP_PROPERTIES
-    if (!rawProps?.length) return []
+    if (!isLive || !rawProps?.length) return []
     const agg = aggregateByProperty(
       (rawUnits ?? []).map(u => ({ property_id: u.property_id, status: u.status, target_rent: u.target_rent })),
       (rawTenancies ?? []).map(t => ({ property_id: t.property_id, status: t.status, rent_amount: t.rent_amount })),
@@ -345,9 +288,9 @@ export default function PortfolioMapPage() {
           </Button>
         </div>
       ) : (
-        <div className="flex gap-4 h-[calc(100vh-240px)] min-h-[520px]">
+        <div className="flex flex-col lg:flex-row gap-4 lg:h-[calc(100vh-240px)] lg:min-h-[520px]">
           {/* ── Side list ──────────────────────────────────────────── */}
-          <div className="w-80 shrink-0 flex flex-col gap-2.5">
+          <div className="w-full lg:w-80 shrink-0 flex flex-col gap-2.5 lg:max-h-none">
             {/* Search + filter header */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -445,7 +388,7 @@ export default function PortfolioMapPage() {
           </div>
 
           {/* ── Map ───────────────────────────────────────────────── */}
-          <div className="flex-1 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+          <div className="flex-1 min-h-[420px] rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
             <LeafletMap
               properties={filtered}
               selectedId={selectedId}

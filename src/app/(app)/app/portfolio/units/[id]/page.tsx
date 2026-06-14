@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useUnit, useUpdateUnit, useDeleteUnit } from "@/hooks/useUnits"
+import { useUnit, useUpdateUnit, useDeleteUnit, type Unit } from "@/hooks/useUnits"
 import { useTenancies, type Tenancy } from "@/hooks/useTenancies"
 import { useContacts } from "@/hooks/useContacts"
 import { useJobs } from "@/hooks/useJobs"
@@ -30,23 +30,10 @@ import {
 } from "recharts"
 
 /* ------------------------------------------------------------------ */
-/* Mock Data                                                            */
+/* Display shape                                                        */
 /* ------------------------------------------------------------------ */
-const MOCK_UNIT = {
-  id: "u2",
-  property_id: "p1",
-  unit_name: "Room 2",
-  unit_type: "Standard Room",
-  floor: 0,
-  bedrooms: 1,
-  bathrooms: 1,
-  floor_area_sqm: 14,
-  target_rent: 475,
-  status: "occupied",
-  unit_ref: "BRUN-R2",
-  max_occupancy: 1,
-  furnished: true,
-}
+// Unit detail renders the canonical Unit (from useUnits) directly.
+type UnitDisplay = Unit
 
 // Chart data types
 interface IncomeChartPoint { month: string; income: number; expenses: number }
@@ -204,7 +191,7 @@ function EditPen({ onClick }: { onClick?: () => void }) {
 /* Tab: Overview (2A)                                                   */
 /* ------------------------------------------------------------------ */
 function TabOverview({ unit, tenancy, tenant, onSave }: {
-  unit: typeof MOCK_UNIT
+  unit: UnitDisplay
   tenancy: Tenancy | null
   tenant: Contact | null
   onSave: (field: string, value: any) => Promise<void>
@@ -213,9 +200,9 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
   const rent = tenancy?.rent_amount ?? unit.target_rent ?? null
   const deposit = tenancy?.deposit_amount ?? null
   return (
-    <div className="grid grid-cols-5 gap-5">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
       {/* LEFT ~60% */}
-      <div className="col-span-3 space-y-4">
+      <div className="lg:col-span-3 space-y-4">
         {/* Photo placeholder — replace with real uploads from Documents tab */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="relative h-[260px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)" }}>
@@ -274,7 +261,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
           </div>
 
           {/* Spec Row */}
-          <div className="grid grid-cols-3 gap-x-4 gap-y-3 pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 pt-2 border-t border-slate-100">
             <div>
               <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Unit Type</div>
               <InlineEditField
@@ -366,7 +353,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
       </div>
 
       {/* RIGHT ~40% */}
-      <div className="col-span-2 space-y-4">
+      <div className="lg:col-span-2 space-y-4">
         {/* KPI Cards — live */}
         <div className="grid grid-cols-2 gap-3">
           <KpiCard label="Occupancy" value={isOccupied ? "Occupied" : "Vacant"} sub={isOccupied ? "Tenanted" : "Available"} icon={Users} accent={isOccupied ? "text-emerald-600" : "text-amber-600"} />
@@ -467,11 +454,11 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
     )
   }
   const statusColor: "emerald" | "amber" | "slate" | "red" =
-    tenancy.status === "active" ? "emerald" : tenancy.status === "pending" ? "amber" : tenancy.status === "disputed" ? "red" : "slate"
+    tenancy.status === "active" ? "emerald" : tenancy.status === "draft" ? "amber" : (tenancy.status === "terminated" || tenancy.status === "uncollectable") ? "red" : "slate"
   return (
-    <div className="grid grid-cols-5 gap-5">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
       {/* LEFT */}
-      <div className="col-span-3 space-y-4">
+      <div className="lg:col-span-3 space-y-4">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold text-slate-900">Tenancy Overview</h3>
@@ -535,7 +522,7 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
       </div>
 
       {/* RIGHT */}
-      <div className="col-span-2 space-y-4">
+      <div className="lg:col-span-2 space-y-4">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <h3 className="text-[13px] font-bold text-slate-900 mb-3">Contact</h3>
           {tenant ? (
@@ -696,7 +683,7 @@ function TabActivity({ events, loaded }: { events: ActivityRow[]; loaded: boolea
 /* ------------------------------------------------------------------ */
 /* Tab: Finance & Performance (2F)                                      */
 /* ------------------------------------------------------------------ */
-function TabFinance({ incomeChart, tenancy, unit }: { incomeChart: IncomeChartPoint[]; tenancy: Tenancy | null; unit: typeof MOCK_UNIT }) {
+function TabFinance({ incomeChart, tenancy, unit }: { incomeChart: IncomeChartPoint[]; tenancy: Tenancy | null; unit: UnitDisplay }) {
   const rent = tenancy?.rent_amount ?? unit.target_rent ?? null
   const deposit = tenancy?.deposit_amount ?? null
   const hasIncomeData = incomeChart.length > 0
@@ -755,7 +742,7 @@ function TabFinance({ incomeChart, tenancy, unit }: { incomeChart: IncomeChartPo
 /* Tab: Specifications & Services (2G)                                  */
 /* ------------------------------------------------------------------ */
 function TabSpecifications({ unit, complianceItems, complianceLoaded, onSave }: {
-  unit: typeof MOCK_UNIT
+  unit: UnitDisplay
   complianceItems: ComplianceItemRow[]
   complianceLoaded: boolean
   onSave: (field: string, value: any) => Promise<void>
@@ -877,20 +864,23 @@ export default function UnitDetailPage() {
     const supabase = createClient();
     (async () => {
       try {
-        // Try money_income filtered by unit_id first, then property_id
-        const { data: incomeData, error: incomeErr } = await supabase
-          .from("money_income")
-          .select("amount, expected_date, income_type")
+        // Live income for this unit from the canonical `money_transactions`
+        // table (direction = 'in'), scoped to workspace + unit. 42P01-safe.
+        const { data: txData, error: txErr } = await supabase
+          .from("money_transactions")
+          .select("amount, occurred_on, direction")
           .eq("workspace_id", workspace.id)
-          .order("expected_date", { ascending: true })
-        if (!incomeErr && incomeData && incomeData.length > 0) {
-          // Group by month
+          .eq("unit_id", unitId)
+          .eq("direction", "in")
+          .order("occurred_on", { ascending: true })
+        if (!txErr && txData && txData.length > 0) {
           const byMonth: Record<string, { income: number; expenses: number }> = {}
-          for (const row of incomeData as Array<{ amount: number; expected_date: string; income_type: string }>) {
-            const d = new Date(row.expected_date)
+          for (const row of txData as Array<{ amount: number; occurred_on: string; direction: string }>) {
+            const d = new Date(row.occurred_on)
+            if (isNaN(d.getTime())) continue
             const key = d.toLocaleString("en-GB", { month: "short" })
             if (!byMonth[key]) byMonth[key] = { income: 0, expenses: 0 }
-            byMonth[key].income += row.amount
+            byMonth[key].income += Number(row.amount) || 0
           }
           setIncomeChart(Object.entries(byMonth).slice(-6).map(([month, v]) => ({ month, income: v.income, expenses: v.expenses })))
           setRentChart(Object.entries(byMonth).slice(-6).map(([month, v]) => ({ month, rent: v.income })))
@@ -899,17 +889,47 @@ export default function UnitDetailPage() {
     })()
   }, [workspace?.id, unitId])
 
-  // Use mock when no real data
-  const displayUnit = unit ?? MOCK_UNIT
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50/40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+          <p className="text-sm text-slate-500">Loading unit…</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Honest not-found state — never render fabricated demo data.
+  if (!unit) {
+    return (
+      <div className="min-h-screen bg-slate-50/40 flex items-center justify-center px-6">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Home className="w-7 h-7 text-slate-300" />
+          </div>
+          <div>
+            <p className="text-[15px] font-bold text-slate-700">Unit not found</p>
+            <p className="text-[13px] text-slate-400 mt-1">This unit doesn’t exist or you don’t have access to it.</p>
+          </div>
+          <Link href="/app/portfolio/units" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+            <ChevronLeft className="w-3.5 h-3.5" /> Back to Units
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const displayUnit = unit
 
   const tabContent: Record<string, React.ReactNode> = {
-    overview: <TabOverview unit={displayUnit as any} tenancy={tenancy} tenant={tenant} onSave={save} />,
+    overview: <TabOverview unit={displayUnit} tenancy={tenancy} tenant={tenant} onSave={save} />,
     tenancy: <TabTenancy unitId={unitId} tenancy={tenancy} tenant={tenant} />,
     documents: <TabDocuments unitId={unitId} />,
     timeline: <TabTimeline events={activityEvents} loaded={activityLoaded} />,
     activity: <TabActivity events={activityEvents} loaded={activityLoaded} />,
-    finance: <TabFinance incomeChart={incomeChart} tenancy={tenancy} unit={displayUnit as any} />,
-    specifications: <TabSpecifications unit={displayUnit as any} complianceItems={complianceItems} complianceLoaded={complianceLoaded} onSave={save} />,
+    finance: <TabFinance incomeChart={incomeChart} tenancy={tenancy} unit={displayUnit} />,
+    specifications: <TabSpecifications unit={displayUnit} complianceItems={complianceItems} complianceLoaded={complianceLoaded} onSave={save} />,
   }
 
   return (
@@ -981,15 +1001,14 @@ export default function UnitDetailPage() {
               description="This will permanently delete the unit and all linked data. This cannot be undone."
               confirmLabel="Delete unit"
               onConfirm={async () => {
-                const u = unit ?? MOCK_UNIT
-                await deleteUnit.mutateAsync({ id: unitId, workspaceId: workspace!.id, propertyId: u.property_id })
+                await deleteUnit.mutateAsync({ id: unitId, workspaceId: workspace!.id, propertyId: displayUnit.property_id })
                 router.push("/app/portfolio/units")
               }}
             >
               {(openDelete) => (
                 <ActionMenu
                   items={[
-                    { label: "View parent property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${(unit ?? MOCK_UNIT).property_id}`) },
+                    { label: "View parent property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${displayUnit.property_id}`) },
                     { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?unitId=${unitId}`) },
                     { label: "View work", icon: Wrench, onClick: () => router.push(`/app/work?unitId=${unitId}`) },
                     { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },

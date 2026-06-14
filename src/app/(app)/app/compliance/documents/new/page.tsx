@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client"
 import { uploadFile } from "@/lib/upload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import {
   Upload, FileText, Link2, Tag, Calendar, CheckCircle,
   ChevronRight, ChevronLeft, X, Home, User, Truck,
@@ -109,9 +110,6 @@ const DOC_TYPE_OPTIONS: DocTypeOption[] = [
   { key: "compliance_note",   label: "Compliance Note",   description: "Notes & memos",         icon: ClipboardList, color: "text-slate-600", bg: "bg-slate-100" },
   { key: "other",             label: "Other",             description: "Any other document",    icon: FileText,    color: "text-slate-500",   bg: "bg-slate-100" },
 ]
-
-const TENANTS = ["James Smith", "Alice Brown", "Tom Jones", "Sarah Parker"]
-const SUPPLIERS = ["Elite Gas Services", "FastFix Plumbing", "Bright Electrical", "CleanPro Services"]
 
 // ─── Step 1: Select File ──────────────────────────────────────────────────────
 
@@ -237,7 +235,7 @@ function Step2({ state, setState }: { state: WizardState; setState: (s: WizardSt
 
 // ─── Step 3: Link Records ─────────────────────────────────────────────────────
 
-function Step3({ state, setState, properties }: { state: WizardState; setState: (s: WizardState) => void; properties: { id: string; name: string }[] }) {
+function Step3({ state, setState, properties, contacts }: { state: WizardState; setState: (s: WizardState) => void; properties: { id: string; name: string }[]; contacts: { id: string; name: string }[] }) {
   return (
     <div className="space-y-5">
       <div>
@@ -285,8 +283,8 @@ function Step3({ state, setState, properties }: { state: WizardState; setState: 
             value={state.tenancyContact}
             onChange={e => setState({ ...state, tenancyContact: e.target.value })}
           >
-            <option value="">Select tenant/contact...</option>
-            {TENANTS.map(t => <option key={t} value={t}>{t}</option>)}
+            <option value="">{contacts.length ? "Select tenant/contact..." : "No contacts found"}</option>
+            {contacts.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
           </select>
         </div>
 
@@ -300,8 +298,8 @@ function Step3({ state, setState, properties }: { state: WizardState; setState: 
             value={state.supplier}
             onChange={e => setState({ ...state, supplier: e.target.value })}
           >
-            <option value="">Select supplier...</option>
-            {SUPPLIERS.map(s => <option key={s} value={s}>{s}</option>)}
+            <option value="">{contacts.length ? "Select supplier..." : "No contacts found"}</option>
+            {contacts.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
           </select>
         </div>
       </div>
@@ -532,7 +530,7 @@ function Step6({
 function SummaryRail({ state }: { state: WizardState }) {
   const typeLabel = DOC_TYPE_OPTIONS.find(o => o.key === state.docType)?.label
   return (
-    <aside className="w-64 shrink-0 space-y-4 sticky top-6">
+    <aside className="hidden xl:block w-64 shrink-0 space-y-4 sticky top-6">
       <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Upload Summary</h3>
 
@@ -576,27 +574,18 @@ function SummaryRail({ state }: { state: WizardState }) {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
-// Map wizard doc-type keys to the compliance_documents.document_type enum.
-const DOC_TYPE_TO_SCHEMA: Record<DocType, string> = {
-  certificate: "certificate",
-  inspection_evidence: "report",
-  insurance: "insurance",
-  licence: "register",
-  agreement: "other",
-  tenant_doc: "other",
-  supplier_doc: "other",
-  photo_evidence: "report",
-  compliance_note: "other",
-  other: "other",
-}
-
 export default function UploadDocumentPage() {
   const router = useRouter()
   const { workspace } = useWorkspace()
   const { data: liveProperties = [] } = useProperties(workspace?.id)
+  const { data: liveContacts = [] } = useContacts(workspace?.id)
   const properties = useMemo(
     () => liveProperties.map((p) => ({ id: p.id, name: p.name || p.address_line1 || "Property" })),
     [liveProperties]
+  )
+  const contacts = useMemo(
+    () => liveContacts.map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Contact" })),
+    [liveContacts]
   )
   const [step, setStep] = useState(1)
   const [state, setState] = useState<WizardState>(INITIAL_STATE)
@@ -638,32 +627,38 @@ export default function UploadDocumentPage() {
         }
       }
 
-      // 2. Save document record with the real compliance_documents columns.
-      const notes = [state.description || null, state.tags ? `Tags: ${state.tags}` : null].filter(Boolean).join("\n") || null
+      // 2. Save the document record into the live `documents` table.
+      const { data: { user } } = await supabase.auth.getUser()
+      const tags = state.tags ? state.tags.split(",").map((t) => t.trim()).filter(Boolean) : null
       const { data, error: dbError } = await supabase
-        .from("compliance_documents")
+        .from("documents")
         .insert({
           workspace_id: workspace.id,
           property_id: state.property || null,
-          document_name: state.fileName || state.referenceNumber || "Compliance document",
-          document_type: state.docType ? DOC_TYPE_TO_SCHEMA[state.docType] : "other",
-          file_url: fileUrl || null,
-          file_size_bytes: file?.size ?? null,
-          file_mime_type: file?.type ?? null,
-          issuer: state.issuer || null,
-          issue_date: state.issueDate || null,
-          expiry_date: state.noExpiry ? null : (state.expiryDate || null),
-          verification_status: "pending",
-          notes,
+          name: state.fileName || state.referenceNumber || "Compliance document",
+          type: state.docType ?? "other",
+          category: "compliance_certificate",
+          mime_type: file?.type ?? null,
+          size_bytes: file?.size ?? null,
+          url: fileUrl || null,
+          r2_key: fileUrl || `compliance-documents/${Date.now()}`,
+          r2_bucket: "propvora",
+          status: "active",
+          expires_at: state.noExpiry ? null : (state.expiryDate || null),
+          tags,
+          metadata: {
+            issuer: state.issuer || null,
+            reference: state.referenceNumber || null,
+            description: state.description || null,
+            verification_status: "pending",
+            issue_date: state.issueDate || null,
+          },
+          created_by: user?.id ?? null,
         })
         .select("id")
         .single()
 
       if (dbError) {
-        if (dbError.code === "42P01") {
-          setUploaded(true)
-          return
-        }
         setUploadError(dbError.message)
         setUploading(false)
         return
@@ -726,7 +721,7 @@ export default function UploadDocumentPage() {
 
         <div className="flex gap-6 items-start">
           {/* Left Stepper */}
-          <div className="w-52 shrink-0">
+          <div className="hidden lg:block w-52 shrink-0">
             <nav className="space-y-1">
               {STEPS.map(s => {
                 const Icon = s.icon
@@ -770,7 +765,7 @@ export default function UploadDocumentPage() {
                   />
                 )}
                 {step === 2 && <Step2 state={state} setState={setState} />}
-                {step === 3 && <Step3 state={state} setState={setState} properties={properties} />}
+                {step === 3 && <Step3 state={state} setState={setState} properties={properties} contacts={contacts} />}
                 {step === 4 && <Step4 state={state} setState={setState} />}
                 {step === 5 && <Step5 state={state} setState={setState} />}
                 {step === 6 && (

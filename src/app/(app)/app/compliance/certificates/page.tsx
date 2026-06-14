@@ -100,7 +100,7 @@ export default function CertificatesPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Certificates</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage and track all compliance certificates.</p>
@@ -139,7 +139,7 @@ export default function CertificatesPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-5 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Certificates" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileCheck2} iconBg="bg-blue-100" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Valid" value={isLoading ? "—" : kpis.valid} subtitle={kpis.total ? `${Math.round((kpis.valid / kpis.total) * 100)}% of total` : "—"} icon={CheckCircle} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
         <ComplianceKpiCard label="Expiring Soon" value={isLoading ? "—" : kpis.expiring} subtitle="Within 30 days" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
@@ -176,7 +176,7 @@ export default function CertificatesPage() {
       </div>
 
       {/* Table */}
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-6">
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
           {isLoading ? (
             <div className="px-4 py-16 text-center text-sm text-slate-400">Loading certificates…</div>
@@ -192,6 +192,7 @@ export default function CertificatesPage() {
               )}
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
@@ -265,6 +266,7 @@ export default function CertificatesPage() {
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

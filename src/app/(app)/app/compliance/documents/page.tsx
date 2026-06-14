@@ -79,7 +79,7 @@ export default function ComplianceDocumentsPage() {
     try {
       const supabase = createClient()
       const { error } = await supabase
-        .from("compliance_documents")
+        .from("documents")
         .update({ archived_at: new Date().toISOString() })
         .eq("id", id)
       if (error && error.code !== "42P01") throw new Error(error.message)
@@ -91,7 +91,7 @@ export default function ComplianceDocumentsPage() {
   return (
     <DashboardContainer>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
           <p className="text-sm text-slate-500 mt-1">Store and verify compliance documents across your portfolio.</p>
@@ -116,7 +116,7 @@ export default function ComplianceDocumentsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Documents" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileText} iconBg="bg-blue-50" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Verified" value={isLoading ? "—" : kpis.verified} subtitle={kpis.total ? `${Math.round((kpis.verified / kpis.total) * 100)}% of total` : "—"} icon={CheckCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
         <ComplianceKpiCard label="Pending Review" value={isLoading ? "—" : kpis.pending} subtitle="Awaiting verification" icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />

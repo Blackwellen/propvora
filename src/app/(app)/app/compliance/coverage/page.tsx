@@ -168,7 +168,7 @@ export default function CoveragePage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Coverage</h1>
           <p className="text-sm text-slate-500 mt-0.5">Live compliance coverage computed across your properties.</p>
@@ -205,7 +205,7 @@ export default function CoveragePage() {
         ) : (
           <>
             {/* KPIs */}
-            <div className="grid grid-cols-6 gap-4 px-6 py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
               <ComplianceKpiCard label="Coverage Score" value={loading ? "—" : `${kpis.score}%`} subtitle={kpis.score >= 85 ? "Good" : kpis.score >= 60 ? "Fair" : "Needs work"} icon={TrendingUp} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
               <ComplianceKpiCard label="Total Gaps" value={loading ? "—" : kpis.totalGaps} subtitle={`${kpis.overdue} overdue`} icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
               <ComplianceKpiCard label="Critical Properties" value={loading ? "—" : kpis.criticalProps} subtitle="Below 60% coverage" icon={Building2} iconBg="bg-red-100" iconColor="text-red-600" />

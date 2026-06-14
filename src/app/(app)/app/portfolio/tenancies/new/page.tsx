@@ -31,11 +31,11 @@ interface TenancyWizardData {
   notes: string
 }
 
+// Live `tenancies.rent_period` CHECK = weekly|monthly|nightly.
 const RENT_FREQUENCIES = [
   { key: "weekly", label: "Weekly" },
   { key: "monthly", label: "Monthly" },
-  { key: "quarterly", label: "Quarterly" },
-  { key: "annually", label: "Annually" },
+  { key: "nightly", label: "Nightly" },
 ]
 
 const DEPOSIT_HOLDERS = [

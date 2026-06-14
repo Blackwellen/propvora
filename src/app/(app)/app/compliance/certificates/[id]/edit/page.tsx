@@ -1,137 +1,121 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import {
   ChevronRight,
   ChevronDown,
   Flame,
-  UploadCloud,
-  FileText,
   AlertTriangle,
   Trash2,
   Archive,
   RefreshCw,
   Save,
-  ToggleLeft,
-  ToggleRight,
   X,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type CertStatus  = "valid" | "expiring_soon" | "expired" | "missing" | "renewal_scheduled" | "not_required" | "superseded"
-type RiskLevel   = "critical" | "high" | "watch" | "low" | "n/a"
+type CertStatus = "valid" | "expiring_soon" | "expired" | "missing" | "exempt"
 
 interface EditState {
-  certType:         string
-  referenceNumber:  string
-  notes:            string
-  property:         string
-  unit:             string
-  tenancy:          string
-  supplier:         string
-  issuerContact:    string
-  issueDate:        string
-  expiryDate:       string
-  status:           CertStatus
-  riskLevel:        RiskLevel
-  notRequired:      boolean
-  notRequiredNote:  string
+  certType: string
+  referenceNumber: string
+  notes: string
+  property: string
+  unit: string
+  issuerContact: string
+  issueDate: string
+  expiryDate: string
+  status: CertStatus
 }
 
-// ─── Mock Pre-fill ────────────────────────────────────────────────────────────
-
-const INITIAL_STATE: EditState = {
-  certType:        "gas_safety",
-  referenceNumber: "GAS-2025-001",
-  notes:           "",
-  property:        "14 Westbourne Gardens",
-  unit:            "Whole property",
-  tenancy:         "",
-  supplier:        "",
-  issuerContact:   "Elite Gas Services",
-  issueDate:       "2025-06-04",
-  expiryDate:      "2026-07-04",
-  status:          "expiring_soon",
-  riskLevel:       "watch",
-  notRequired:     false,
-  notRequiredNote: "",
+const EMPTY_STATE: EditState = {
+  certType: "gas_safety",
+  referenceNumber: "",
+  notes: "",
+  property: "",
+  unit: "",
+  issuerContact: "",
+  issueDate: "",
+  expiryDate: "",
+  status: "valid",
 }
 
+// Live compliance_kind enum values.
 const CERT_TYPE_OPTIONS = [
-  { value: "gas_safety",          label: "Gas Safety Certificate" },
-  { value: "eicr",                label: "EICR" },
-  { value: "epc",                 label: "EPC" },
-  { value: "fire_risk",           label: "Fire Risk Assessment" },
-  { value: "hmo_licence",         label: "HMO Licence" },
-  { value: "building_insurance",  label: "Buildings Insurance" },
-  { value: "pat_test",            label: "PAT Test" },
-  { value: "landlord_insurance",  label: "Landlord Insurance" },
-  { value: "other",               label: "Other" },
+  { value: "gas_safety", label: "Gas Safety Certificate" },
+  { value: "eicr", label: "EICR" },
+  { value: "epc", label: "EPC" },
+  { value: "pat", label: "PAT Test" },
+  { value: "fire_alarm", label: "Fire Alarm" },
+  { value: "emergency_lighting", label: "Emergency Lighting" },
+  { value: "legionella", label: "Legionella" },
+  { value: "hmo_licence", label: "HMO Licence" },
+  { value: "selective_licence", label: "Selective Licence" },
+  { value: "insurance", label: "Insurance" },
+  { value: "deposit_protection", label: "Deposit Protection" },
+  { value: "right_to_rent", label: "Right to Rent" },
+  { value: "smoke_co_alarm", label: "Smoke / CO Alarm" },
+  { value: "fire_door", label: "Fire Door" },
+  { value: "other", label: "Other" },
 ]
 
+// View-model status ↔ live compliance_status enum.
 const STATUS_OPTIONS: { value: CertStatus; label: string }[] = [
-  { value: "valid",              label: "Valid" },
-  { value: "expiring_soon",      label: "Expiring Soon" },
-  { value: "expired",            label: "Expired" },
-  { value: "missing",            label: "Missing" },
-  { value: "renewal_scheduled",  label: "Renewal Scheduled" },
-  { value: "not_required",       label: "Not Required" },
-  { value: "superseded",         label: "Superseded" },
+  { value: "valid", label: "Valid" },
+  { value: "expiring_soon", label: "Expiring Soon" },
+  { value: "expired", label: "Expired" },
+  { value: "missing", label: "Missing" },
+  { value: "exempt", label: "Exempt / Not Required" },
 ]
 
-const RISK_OPTIONS: { value: RiskLevel; label: string }[] = [
-  { value: "critical", label: "Critical" },
-  { value: "high",     label: "High" },
-  { value: "watch",    label: "Watch" },
-  { value: "low",      label: "Low" },
-  { value: "n/a",      label: "N/A" },
-]
+function toItemStatus(s: CertStatus): string {
+  switch (s) {
+    case "valid": return "ok"
+    case "expiring_soon": return "due_soon"
+    case "expired": return "overdue"
+    case "missing": return "missing"
+    case "exempt": return "exempt"
+    default: return "ok"
+  }
+}
 
-const MOCK_PROPERTIES = [
-  "14 Westbourne Gardens",
-  "Brunswick Road HMO",
-  "Maple Street HMO",
-  "Oak Lane BTL",
-  "Victoria Terrace",
-]
-
-const MOCK_CONTACTS = [
-  "Elite Gas Services",
-  "SafeWire Services",
-  "EPC Direct",
-  "FireSafe Assessors",
-  "Council Licensing",
-  "ProLet Insure",
-]
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+function fromItemStatus(s: string): CertStatus {
+  switch (s) {
+    case "ok": return "valid"
+    case "due_soon": return "expiring_soon"
+    case "overdue": return "expired"
+    case "missing": return "missing"
+    case "exempt": return "exempt"
+    default: return "valid"
+  }
+}
 
 function calcDuration(issue: string, expiry: string): string {
   if (!issue || !expiry) return "—"
-  const months = Math.round(
-    (new Date(expiry).getTime() - new Date(issue).getTime()) / (1000 * 60 * 60 * 24 * 30)
-  )
+  const months = Math.round((new Date(expiry).getTime() - new Date(issue).getTime()) / (1000 * 60 * 60 * 24 * 30))
   return `${months} months`
 }
 
-// ─── Section Card ─────────────────────────────────────────────────────────────
+// ─── UI primitives ────────────────────────────────────────────────────────────
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 mb-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 mb-4">
       <h3 className="text-base font-bold text-slate-900 mb-5 pb-3 border-b border-slate-100">{title}</h3>
       {children}
     </div>
   )
 }
-
-// ─── Field Components ─────────────────────────────────────────────────────────
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -142,17 +126,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
   )
 }
 
-function Input({
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-}: {
-  value: string
-  onChange: (v: string) => void
-  placeholder?: string
-  type?: string
-}) {
+function Input({ value, onChange, placeholder, type = "text" }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
   return (
     <input
       type={type}
@@ -164,42 +138,31 @@ function Input({
   )
 }
 
-function SelectInput({
-  value,
-  onChange,
-  children,
-}: {
-  value: string
-  onChange: (v: string) => void
-  children: React.ReactNode
-}) {
+function SelectInput({ value, onChange, children }: { value: string; onChange: (v: string) => void; children: React.ReactNode }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white"
+      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white max-h-60 overflow-y-auto"
     >
       {children}
     </select>
   )
 }
 
-// ─── Dangerous Actions Accordion ──────────────────────────────────────────────
+// ─── Dangerous Actions ─────────────────────────────────────────────────────────
 
-function DangerousActions({ referenceNumber }: { referenceNumber: string }) {
-  const [open, setOpen]                     = useState(false)
-  const [showSupersede, setShowSupersede]   = useState(false)
-  const [showArchive, setShowArchive]       = useState(false)
-  const [showDelete, setShowDelete]         = useState(false)
-  const [deleteInput, setDeleteInput]       = useState("")
-  const deleteMatch                         = deleteInput === referenceNumber
+function DangerousActions({ referenceNumber, onArchive, onDelete }: { referenceNumber: string; onArchive: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [showArchive, setShowArchive] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleteInput, setDeleteInput] = useState("")
+  const confirmWord = referenceNumber || "DELETE"
+  const deleteMatch = deleteInput === confirmWord
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white mb-4 overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 transition-colors"
-      >
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-4 sm:px-6 py-4 text-left hover:bg-slate-50 transition-colors">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-red-500" />
           <span className="text-sm font-bold text-red-600">Dangerous Actions</span>
@@ -209,104 +172,56 @@ function DangerousActions({ referenceNumber }: { referenceNumber: string }) {
 
       {open && (
         <div className="border-t border-slate-100 divide-y divide-slate-100">
-          {/* Mark as Superseded */}
-          <div className="px-6 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-amber-700">Mark as Superseded</p>
-                <p className="text-xs text-slate-500 mt-0.5">This certificate has been replaced by a newer one. It will remain in records as historical.</p>
-              </div>
-              <Button
-                variant="warning"
-                size="sm"
-                onClick={() => setShowSupersede(!showSupersede)}
-              >
-                Mark Superseded
-              </Button>
-            </div>
-            {showSupersede && (
-              <div className="mt-3 flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <p className="text-xs text-amber-700 flex-1">Are you sure? This will mark the certificate as superseded.</p>
-                <Button variant="warning" size="sm">Confirm</Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowSupersede(false)}>Cancel</Button>
-              </div>
-            )}
-          </div>
-
-          {/* Archive */}
-          <div className="px-6 py-4">
-            <div className="flex items-start justify-between gap-4">
+          <div className="px-4 sm:px-6 py-4">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <p className="text-sm font-semibold text-amber-700">Archive Certificate</p>
-                <p className="text-xs text-slate-500 mt-0.5">This will hide the certificate from active views. It can be restored from the archive.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Hide from active views. Can be restored from the archive.</p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-amber-700 border-amber-200 hover:bg-amber-50"
-                onClick={() => setShowArchive(!showArchive)}
-              >
+              <Button variant="outline" size="sm" className="text-amber-700 border-amber-200 hover:bg-amber-50" onClick={() => setShowArchive(!showArchive)}>
                 <Archive className="w-3.5 h-3.5" />
                 Archive
               </Button>
             </div>
             {showArchive && (
-              <div className="mt-3 flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+              <div className="mt-3 flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200 flex-wrap">
                 <Archive className="w-4 h-4 text-amber-600 shrink-0" />
-                <p className="text-xs text-amber-700 flex-1">Archive this certificate? It will be hidden from active compliance views.</p>
-                <Button variant="warning" size="sm">Confirm Archive</Button>
+                <p className="text-xs text-amber-700 flex-1">Archive this certificate?</p>
+                <Button variant="warning" size="sm" onClick={onArchive}>Confirm Archive</Button>
                 <Button variant="ghost" size="sm" onClick={() => setShowArchive(false)}>Cancel</Button>
               </div>
             )}
           </div>
 
-          {/* Delete */}
-          <div className="px-6 py-4 bg-red-50/50">
-            <div className="flex items-start justify-between gap-4">
+          <div className="px-4 sm:px-6 py-4 bg-red-50/50">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <p className="text-sm font-semibold text-red-700">Delete Certificate</p>
-                <p className="text-xs text-slate-500 mt-0.5">Permanently delete this certificate and all associated data. This action cannot be undone.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Permanently remove this certificate. This cannot be undone.</p>
               </div>
-              <Button
-                variant="destructive-soft"
-                size="sm"
-                onClick={() => setShowDelete(!showDelete)}
-              >
+              <Button variant="destructive-soft" size="sm" onClick={() => setShowDelete(!showDelete)}>
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
               </Button>
             </div>
             {showDelete && (
               <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
-                  <p className="text-sm font-bold text-red-700">Confirm Permanent Deletion</p>
-                </div>
                 <p className="text-xs text-red-600 mb-3">
-                  Type <span className="font-mono font-bold bg-red-100 px-1 rounded">{referenceNumber}</span> to confirm deletion.
+                  Type <span className="font-mono font-bold bg-red-100 px-1 rounded">{confirmWord}</span> to confirm deletion.
                 </p>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <input
                     type="text"
                     value={deleteInput}
                     onChange={(e) => setDeleteInput(e.target.value)}
-                    placeholder={`Type "${referenceNumber}" to confirm`}
-                    className="flex-1 h-9 rounded-lg border border-red-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
+                    placeholder={`Type "${confirmWord}"`}
+                    className="flex-1 min-w-[180px] h-9 rounded-lg border border-red-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
                   />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    disabled={!deleteMatch}
-                  >
+                  <Button variant="destructive" size="sm" disabled={!deleteMatch} onClick={onDelete}>
                     <Trash2 className="w-3.5 h-3.5" />
                     Delete Forever
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { setShowDelete(false); setDeleteInput("") }}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => { setShowDelete(false); setDeleteInput("") }}>
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -323,75 +238,154 @@ function DangerousActions({ referenceNumber }: { referenceNumber: string }) {
 
 export default function EditCertificatePage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
+  const supabase = createClient()
+  const { workspace } = useWorkspace()
+  const { data: properties = [] } = useProperties(workspace?.id)
+  const { data: liveContacts = [] } = useContacts(workspace?.id)
 
-  const [state, setState] = useState<EditState>(INITIAL_STATE)
+  const [state, setState] = useState<EditState>(EMPTY_STATE)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved]   = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const update = (partial: Partial<EditState>) =>
-    setState((prev) => ({ ...prev, ...partial }))
+  const update = (partial: Partial<EditState>) => setState((prev) => ({ ...prev, ...partial }))
+
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      setLoading(true)
+      const { data, error: err } = await supabase
+        .from("compliance_items")
+        .select("*")
+        .eq("id", id)
+        .single()
+      if (!active) return
+      if (err || !data) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
+      const r = data as Record<string, unknown>
+      const meta = (r.metadata ?? {}) as { issuer?: string }
+      setState({
+        certType: (r.kind as string) ?? "gas_safety",
+        referenceNumber: (r.reference_no as string) ?? "",
+        notes: (r.notes as string) ?? "",
+        property: (r.property_id as string) ?? "",
+        unit: "",
+        issuerContact: meta.issuer ?? "",
+        issueDate: (r.last_completed_at as string) ?? "",
+        expiryDate: (r.due_date as string) ?? "",
+        status: fromItemStatus((r.status as string) ?? "ok"),
+      })
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [id, supabase])
 
   const duration = calcDuration(state.issueDate, state.expiryDate)
 
-  const handleSave = () => {
+  async function handleSave() {
     setSaving(true)
-    setTimeout(() => { setSaving(false); setSaved(true) }, 1000)
+    setError(null)
+    const { error: err } = await supabase
+      .from("compliance_items")
+      .update({
+        kind: state.certType,
+        reference_no: state.referenceNumber || null,
+        notes: state.notes || (state.issuerContact ? `Issuer: ${state.issuerContact}` : null),
+        property_id: state.property || null,
+        last_completed_at: state.issueDate || null,
+        due_date: state.expiryDate || null,
+        status: toItemStatus(state.status),
+        metadata: { issuer: state.issuerContact || null },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+    setSaving(false)
+    if (err) {
+      setError(err.message)
+      return
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
   }
+
+  async function handleArchive() {
+    await supabase.from("compliance_items").update({ deleted_at: new Date().toISOString() }).eq("id", id)
+    router.push("/app/compliance/certificates")
+  }
+
+  async function handleDelete() {
+    await supabase.from("compliance_items").update({ deleted_at: new Date().toISOString() }).eq("id", id)
+    router.push("/app/compliance/certificates")
+  }
+
+  if (loading) {
+    return <div className="p-10 text-center text-sm text-slate-400">Loading certificate…</div>
+  }
+
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <h2 className="text-lg font-semibold text-slate-900 mb-1">Certificate not found</h2>
+        <p className="text-sm text-slate-500 mb-5">This compliance record may have been removed.</p>
+        <Button variant="primary" size="sm" asChild>
+          <Link href="/app/compliance/certificates">Back to Certificates</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  const typeLabel = CERT_TYPE_OPTIONS.find((o) => o.value === state.certType)?.label ?? "Certificate"
 
   return (
     <div className="space-y-0">
       {/* Breadcrumb */}
-      <div className="px-6 py-3 border-b border-slate-100 bg-white">
-        <nav className="flex items-center gap-2 text-sm">
+      <div className="px-4 sm:px-6 py-3 border-b border-slate-100 bg-white">
+        <nav className="flex items-center gap-2 text-sm flex-wrap">
           <Link href="/app/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <Link href="/app/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <Link href={`/app/compliance/certificates/${id}`} className="text-slate-400 hover:text-slate-600">Gas Safety — 14 Westbourne Gardens</Link>
+          <Link href={`/app/compliance/certificates/${id}`} className="text-slate-400 hover:text-slate-600">{typeLabel}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-slate-700 font-medium">Edit</span>
         </nav>
       </div>
 
-      {/* Page Title */}
-      <div className="px-6 pt-6 pb-4 flex items-center justify-between">
+      {/* Title */}
+      <div className="px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
             <div style={{ color: "#f97316" }}><Flame className="w-5 h-5" /></div>
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Edit Certificate</h1>
-            <p className="text-sm text-slate-500">Gas Safety — 14 Westbourne Gardens</p>
+            <p className="text-sm text-slate-500">{typeLabel}</p>
           </div>
         </div>
-        {saved && (
-          <Badge variant="success" size="md" dot>Changes saved</Badge>
-        )}
+        {saved && <Badge variant="success" size="md" dot>Changes saved</Badge>}
       </div>
 
-      {/* Form */}
-      <div className="px-6 pb-24">
-        {/* Section 1: Certificate Details */}
+      <div className="px-4 sm:px-6 pb-28">
         <SectionCard title="Certificate Details">
-          <div className="grid grid-cols-2 gap-5">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="sm:col-span-2">
               <Label required>Certificate Type</Label>
               <SelectInput value={state.certType} onChange={(v) => update({ certType: v })}>
-                {CERT_TYPE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
+                {CERT_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </SelectInput>
             </div>
             <div>
               <Label>Reference Number</Label>
-              <Input
-                value={state.referenceNumber}
-                onChange={(v) => update({ referenceNumber: v })}
-                placeholder="e.g. GAS-2025-001"
-              />
+              <Input value={state.referenceNumber} onChange={(v) => update({ referenceNumber: v })} placeholder="e.g. GAS-2025-001" />
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <Label>Notes</Label>
               <textarea
                 value={state.notes}
@@ -404,47 +398,37 @@ export default function EditCertificatePage() {
           </div>
         </SectionCard>
 
-        {/* Section 2: Linked Records */}
         <SectionCard title="Linked Records">
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <Label required>Property</Label>
+              <Label>Property</Label>
               <SelectInput value={state.property} onChange={(v) => update({ property: v })}>
-                <option value="">Select property...</option>
-                {MOCK_PROPERTIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                <option value="">{properties.length ? "Select property..." : "No properties found"}</option>
+                {properties.map((p) => <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Property"}</option>)}
               </SelectInput>
             </div>
             <div>
               <Label>Unit <span className="text-slate-400 font-normal text-xs">(optional)</span></Label>
               <Input value={state.unit} onChange={(v) => update({ unit: v })} placeholder="e.g. Flat 2" />
             </div>
-            <div>
-              <Label>Tenancy <span className="text-slate-400 font-normal text-xs">(optional)</span></Label>
-              <Input value={state.tenancy} onChange={(v) => update({ tenancy: v })} placeholder="Search tenancy..." />
-            </div>
-            <div>
-              <Label>Supplier <span className="text-slate-400 font-normal text-xs">(optional)</span></Label>
-              <Input value={state.supplier} onChange={(v) => update({ supplier: v })} placeholder="Search supplier..." />
-            </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <Label>Issuer / Certifier Contact</Label>
               <SelectInput value={state.issuerContact} onChange={(v) => update({ issuerContact: v })}>
-                <option value="">Select contact...</option>
-                {MOCK_CONTACTS.map((c) => <option key={c} value={c}>{c}</option>)}
+                <option value="">{liveContacts.length ? "Select contact..." : "No contacts found"}</option>
+                {liveContacts.map((c) => <option key={c.id} value={c.full_name || c.company_name || "Contact"}>{c.full_name || c.company_name || "Contact"}</option>)}
               </SelectInput>
             </div>
           </div>
         </SectionCard>
 
-        {/* Section 3: Dates */}
         <SectionCard title="Dates">
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <Label required>Issue Date</Label>
+              <Label>Issue Date</Label>
               <Input type="date" value={state.issueDate} onChange={(v) => update({ issueDate: v })} />
             </div>
             <div>
-              <Label required>Expiry Date</Label>
+              <Label>Expiry Date</Label>
               <Input type="date" value={state.expiryDate} onChange={(v) => update({ expiryDate: v })} />
             </div>
           </div>
@@ -456,89 +440,34 @@ export default function EditCertificatePage() {
           )}
         </SectionCard>
 
-        {/* Section 4: Document */}
-        <SectionCard title="Document">
-          <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5 text-[#2563EB]" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-800">GasSafety_14Westbourne_2025.pdf</p>
-              <p className="text-xs text-slate-400 mt-0.5">1.2 MB — Uploaded 4 Jun 2025 — Version 1</p>
-            </div>
-            <Button variant="outline" size="sm">
-              <FileText className="w-3.5 h-3.5" />
-              View
-            </Button>
-          </div>
-
-          <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-400 hover:bg-slate-50 transition-all cursor-pointer">
-            <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-slate-700">Replace Document</p>
-            <p className="text-xs text-slate-400 mt-1">Drop PDF or image here, or click to browse</p>
-            <p className="text-xs text-slate-400 mt-1">Uploading a new file will create version 2</p>
-          </div>
-        </SectionCard>
-
-        {/* Section 5: Status & Risk */}
-        <SectionCard title="Status & Risk">
-          <div className="grid grid-cols-2 gap-5">
+        <SectionCard title="Status">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <Label required>Status</Label>
               <SelectInput value={state.status} onChange={(v) => update({ status: v as CertStatus })}>
-                {STATUS_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </SelectInput>
-            </div>
-            <div>
-              <Label required>Risk Level</Label>
-              <SelectInput value={state.riskLevel} onChange={(v) => update({ riskLevel: v as RiskLevel })}>
-                {RISK_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
+                {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </SelectInput>
             </div>
           </div>
-
-          <div className="mt-5 flex items-center justify-between py-3 border-t border-slate-100">
-            <div>
-              <p className="text-sm font-semibold text-slate-800">Mark as Not Required</p>
-              <p className="text-xs text-slate-500 mt-0.5">Flag this certificate type as not applicable to this property</p>
-            </div>
-            <button onClick={() => update({ notRequired: !state.notRequired })}>
-              {state.notRequired
-                ? <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
-                : <ToggleLeft className="w-8 h-8 text-slate-300" />
-              }
-            </button>
-          </div>
-
-          {state.notRequired && (
-            <div className="mt-3">
-              <Label>Reason <span className="text-slate-400 font-normal text-xs">(required)</span></Label>
-              <textarea
-                value={state.notRequiredNote}
-                onChange={(e) => update({ notRequiredNote: e.target.value })}
-                placeholder="Explain why this certificate is not required for this property..."
-                rows={2}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white resize-none"
-              />
-            </div>
-          )}
         </SectionCard>
 
-        {/* Dangerous Actions */}
-        <DangerousActions referenceNumber={state.referenceNumber || "GAS-2025-001"} />
+        <DangerousActions referenceNumber={state.referenceNumber} onArchive={handleArchive} onDelete={handleDelete} />
+
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-lg mb-2">
+            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
       </div>
 
       {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shadow-lg">
-        <p className="text-sm text-slate-500">
-          Editing: <span className="font-semibold text-slate-700">Gas Safety — 14 Westbourne Gardens</span>
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-lg flex-wrap">
+        <p className="text-sm text-slate-500 truncate">
+          Editing: <span className="font-semibold text-slate-700">{typeLabel}</span>
           {saved && <span className="ml-3 text-emerald-600 font-medium">✓ Saved</span>}
         </p>
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <Button variant="outline" size="md" asChild>
             <Link href={`/app/compliance/certificates/${id}`}>Cancel</Link>
           </Button>

@@ -237,7 +237,7 @@ export default function ComplianceReportsPage() {
       />
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Available reports" value={kpis.reports} subtitle="Live generators" icon={FileText} iconBg="bg-blue-100" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Records tracked" value={kpis.tracked} subtitle="Items + certificates" icon={BarChart2} iconBg="bg-violet-100" iconColor="text-violet-600" />
         <ComplianceKpiCard label="Expiring soon" value={kpis.expiring} subtitle="Within 30 days" icon={Calendar} iconBg="bg-amber-100" iconColor="text-amber-600" />
@@ -245,8 +245,8 @@ export default function ComplianceReportsPage() {
       </div>
 
       {/* Report cards */}
-      <div className="px-6 pb-8">
-        <div className="grid grid-cols-3 gap-4">
+      <div className="px-4 sm:px-6 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {reports.map((card) => (
             <div key={card.id} className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex flex-col gap-4">
               <div className="flex gap-4">

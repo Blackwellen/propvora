@@ -18,7 +18,7 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
-import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
+import { getPropertyTypeOption, PROPERTY_TYPE_OPTIONS } from "@/lib/constants/propertyTypes"
 import {
   Building2, Home, Users, PoundSterling, TrendingUp,
   Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
@@ -37,58 +37,6 @@ const LocationMap = nextDynamic(() => import("@/components/maps/LocationMap"), {
   ssr: false,
   loading: () => <div className="h-full w-full rounded-2xl bg-slate-100 animate-pulse" />,
 })
-
-/* ─────────────────────────────────────────────────────────────────────
-   MOCK DATA
-───────────────────────────────────────────────────────────────────── */
-const MOCK_PROPERTY = {
-  id: "PRP-10024",
-  workspace_id: "demo",
-  name: "Brunswick Road HMO",
-  address_line1: "12 Brunswick Road" as string | null,
-  address_line2: null as string | null,
-  city: "Nottingham" as string | null,
-  county: null as string | null,
-  postcode: "NG7 1AE" as string | null,
-  country: "GB",
-  latitude: 52.9534 as number | null,
-  longitude: -1.1497 as number | null,
-  property_type: "hmo" as Property["property_type"],
-  operation_profile: "hmo" as Property["operation_profile"],
-  category: "hmo" as string | null,
-  status: "active" as Property["status"],
-  bedrooms: 6 as number | null,
-  bathrooms: 3 as number | null,
-  floor_area_sqm: 582 as number | null,
-  purchase_price: null as number | null,
-  current_value: null as number | null,
-  monthly_mortgage: null as number | null,
-  target_rent: 3095 as number | null,
-  notes: "Well-maintained 6-bedroom HMO near Nottingham city centre. Regular inspections carried out. All certificates up to date." as string | null,
-  is_demo: true,
-  cover_image_url: null as string | null,
-  created_by: null as string | null,
-  created_at: "2024-01-15T00:00:00Z",
-  updated_at: "2025-05-30T00:00:00Z",
-} satisfies Property
-
-const MOCK_UNITS: Unit[] = [
-  { id: "u1", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 1", unit_type: "Room", floor: 1, bedrooms: 1, bathrooms: 1, floor_area_sqm: 16, target_rent: 550, status: "occupied", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "u2", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 2", unit_type: "Room", floor: 1, bedrooms: 1, bathrooms: 1, floor_area_sqm: 14, target_rent: 475, status: "occupied", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "u3", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 3", unit_type: "Room", floor: 1, bedrooms: 1, bathrooms: 1, floor_area_sqm: 16, target_rent: 520, status: "occupied", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "u4", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 4", unit_type: "Room", floor: 2, bedrooms: 1, bathrooms: 1, floor_area_sqm: 17, target_rent: 550, status: "occupied", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "u5", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 5", unit_type: "Room", floor: 2, bedrooms: 1, bathrooms: 1, floor_area_sqm: 15, target_rent: 500, status: "vacant", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "u6", workspace_id: "demo", property_id: "PRP-10024", unit_name: "Room 6", unit_type: "Room", floor: 2, bedrooms: 1, bathrooms: 1, floor_area_sqm: 15, target_rent: 500, status: "vacant", is_demo: true, created_at: "2024-01-15T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-]
-
-const MOCK_TENANCIES: Tenancy[] = [
-  { id: "t1", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u1", tenant_contact_id: null, start_date: "2024-09-01", end_date: "2025-08-31", rent_amount: 550, deposit_amount: 550, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "active", tenancy_type: "hmo_room", reference: "TEN-001", notes: null, is_demo: true, created_at: "2024-09-01T00:00:00Z", updated_at: "2024-09-01T00:00:00Z" },
-  { id: "t2", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u2", tenant_contact_id: null, start_date: "2024-06-01", end_date: "2025-05-31", rent_amount: 475, deposit_amount: 475, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "active", tenancy_type: "hmo_room", reference: "TEN-002", notes: null, is_demo: true, created_at: "2024-06-01T00:00:00Z", updated_at: "2024-06-01T00:00:00Z" },
-  { id: "t3", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u3", tenant_contact_id: null, start_date: "2024-11-01", end_date: "2025-10-31", rent_amount: 520, deposit_amount: 520, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "active", tenancy_type: "hmo_room", reference: "TEN-003", notes: null, is_demo: true, created_at: "2024-11-01T00:00:00Z", updated_at: "2024-11-01T00:00:00Z" },
-  { id: "t4", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u4", tenant_contact_id: null, start_date: "2024-07-01", end_date: "2025-06-30", rent_amount: 550, deposit_amount: 550, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "active", tenancy_type: "hmo_room", reference: "TEN-004", notes: null, is_demo: true, created_at: "2024-07-01T00:00:00Z", updated_at: "2024-07-01T00:00:00Z" },
-  { id: "t5", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u5", tenant_contact_id: null, start_date: "2025-07-01", end_date: "2026-06-30", rent_amount: 500, deposit_amount: 500, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "pending", tenancy_type: "hmo_room", reference: "TEN-005", notes: null, is_demo: true, created_at: "2025-06-01T00:00:00Z", updated_at: "2025-06-01T00:00:00Z" },
-  { id: "t6", workspace_id: "demo", property_id: "PRP-10024", unit_id: "u6", tenant_contact_id: null, start_date: "2025-07-01", end_date: "2026-06-30", rent_amount: 500, deposit_amount: 500, deposit_held_by: null, deposit_scheme: null, deposit_reference: null, rent_frequency: "monthly", status: "pending", tenancy_type: "hmo_room", reference: "TEN-006", notes: null, is_demo: true, created_at: "2025-06-01T00:00:00Z", updated_at: "2025-06-01T00:00:00Z" },
-]
 
 /* ─────────────────────────────────────────────────────────────────────
    HELPERS
@@ -411,8 +359,8 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
   return (
     <div className="space-y-5">
       {/* Hero + right col */}
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2 flex flex-col gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 flex flex-col gap-4">
           {/* Hero — uploaded photo or gradient fallback (half-height banner) */}
           <div
             className="relative h-[220px] shrink-0 rounded-2xl overflow-hidden group"
@@ -595,32 +543,23 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
       </div>
 
       {/* Bottom section */}
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-4">
           {/* Property summary */}
           <Card className="p-5">
             <SectionHeader title="Property Summary" />
-            <div className="grid grid-cols-2 gap-x-10 gap-y-3 text-[13px]">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-slate-500">Property Type</span>
-                <InlineEditField
-                  value={prop.property_type ?? ""}
-                  onSave={(v) => onSave("property_type", v)}
-                  type="select"
-                  options={[
-                    { value: "hmo", label: "HMO" },
-                    { value: "btl", label: "BTL" },
-                    { value: "sa", label: "SA" },
-                    { value: "commercial", label: "Commercial" },
-                    { value: "mixed_use", label: "Mixed Use" },
-                    { value: "other", label: "Other" },
-                  ]}
-                  displayClassName="font-medium text-slate-800"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 md:gap-x-10 gap-y-3 text-[13px]">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="text-slate-500">Dwelling Type</span>
-                <span className="font-medium text-slate-800">{dwellingLabel ?? "—"}</span>
+                {/* Saves the live free-text `category` column (NOT a non-existent
+                    `property_type`). The `template` enum is derived server-side. */}
+                <InlineEditField
+                  value={prop.category ?? ""}
+                  onSave={(v) => onSave("category", v)}
+                  type="select"
+                  options={PROPERTY_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                  displayClassName="font-medium text-slate-800"
+                />
               </div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="text-slate-500">Status</span>
@@ -630,8 +569,8 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                   type="select"
                   options={[
                     { value: "active", label: "Active" },
-                    { value: "vacant", label: "Vacant" },
-                    { value: "under_works", label: "Under Works" },
+                    { value: "vacant", label: "Void" },
+                    { value: "under_works", label: "Off Market" },
                     { value: "archived", label: "Archived" },
                   ]}
                   displayClassName="font-medium text-slate-800"
@@ -697,7 +636,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 </Link>
               }
             />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "—", color: "text-slate-900" },
                 { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "—", color: "text-slate-900" },
@@ -954,7 +893,7 @@ function TabTenancies({ propertyId, tenanciesList, unitsList }: { propertyId: st
           onChange={(e) => setStatusFilter(e.target.value)}
           className="text-[13px] border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none"
         >
-          {["All", "active", "pending", "expired", "terminated"].map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+          {["All", "draft", "active", "ended", "terminated", "uncollectable"].map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
         </select>
         <button className="flex items-center gap-1.5 text-[13px] text-slate-600 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50">
           <SlidersHorizontal size={13} /> More filters
@@ -1766,9 +1705,9 @@ export default function PropertyDetailPage() {
   const updateProperty = useUpdateProperty()
   const deleteProperty = useDeleteProperty()
 
-  const prop = property ?? MOCK_PROPERTY
-  const unitsList = units.length ? units : MOCK_UNITS
-  const tenanciesList = tenancies.length ? tenancies : MOCK_TENANCIES
+  // Live data only — no mock fallback. Empty arrays render honest empty states.
+  const unitsList = units
+  const tenanciesList = tenancies
 
   // Activity scoped to the property + its child units/tenancies
   const activityIds = React.useMemo(
@@ -1778,7 +1717,7 @@ export default function PropertyDetailPage() {
   const { events: activityEvents, loaded: activityLoaded } = useActivityLog(workspace?.id, activityIds)
 
   // Initialise coverImageUrl from the property data once loaded
-  const effectiveCoverUrl = coverImageUrl ?? prop.cover_image_url ?? null
+  const effectiveCoverUrl = coverImageUrl ?? property?.cover_image_url ?? null
 
   const isLoading = propLoading || unitsLoading || tenLoading
 
@@ -1827,6 +1766,28 @@ export default function PropertyDetailPage() {
     )
   }
 
+  // Honest not-found state — never render fabricated demo data.
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-slate-50/40 flex items-center justify-center px-6">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Building2 size={28} className="text-slate-300" />
+          </div>
+          <div>
+            <p className="text-[15px] font-bold text-slate-700">Property not found</p>
+            <p className="text-[13px] text-slate-400 mt-1">This property doesn’t exist or you don’t have access to it.</p>
+          </div>
+          <Link href="/app/portfolio/properties" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+            <ChevronLeft size={14} /> Back to Properties
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const prop = property
+
   return (
     <div className="min-h-screen bg-slate-50/40">
       {/* ── Page header ─────────────────────────────────────────────── */}
@@ -1841,7 +1802,7 @@ export default function PropertyDetailPage() {
         </div>
 
         {/* Title row */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="flex-1 min-w-0">
             {/* Property name */}
             <div className="flex items-center gap-2.5 group mb-1">
@@ -1862,8 +1823,8 @@ export default function PropertyDetailPage() {
                 type="select"
                 options={[
                   { value: "active", label: "Active" },
-                  { value: "vacant", label: "Vacant" },
-                  { value: "under_works", label: "Under Works" },
+                  { value: "vacant", label: "Void" },
+                  { value: "under_works", label: "Off Market" },
                   { value: "archived", label: "Archived" },
                 ]}
                 displayClassName="hidden"
@@ -1872,8 +1833,8 @@ export default function PropertyDetailPage() {
             </div>
 
             {/* Address + ID */}
-            <div className="flex items-center gap-3 ml-10">
-              <div className="flex items-center gap-1.5 text-[13px] text-slate-500">
+            <div className="flex items-center gap-3 ml-10 flex-wrap">
+              <div className="flex items-center gap-1.5 text-[13px] text-slate-500 flex-wrap">
                 <MapPin size={13} className="text-slate-400" />
                 <InlineEditField
                   value={prop.address_line1 ?? ""}
@@ -1899,22 +1860,23 @@ export default function PropertyDetailPage() {
               <span className="text-[12px] text-slate-400 font-mono">{prop.id}</span>
             </div>
 
-            {/* Tags */}
+            {/* Tags — derived from the real property record (operation + dwelling). */}
             <div className="flex items-center gap-2 ml-10 mt-2">
-              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
-                <Building2 size={9} /> HMO
-              </span>
-              <span className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
-                <Home size={9} /> Residential
-              </span>
-              <button className="inline-flex items-center gap-1 border border-dashed border-slate-300 text-slate-400 text-[11px] px-2 py-0.5 rounded-full hover:border-slate-400 hover:text-slate-600 transition-colors">
-                <Plus size={9} /> Add tag
-              </button>
+              {prop.operation_profile && (
+                <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize">
+                  <Building2 size={9} /> {String(prop.operation_profile).replace(/_/g, " ")}
+                </span>
+              )}
+              {prop.category && (
+                <span className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                  <Home size={9} /> {getPropertyTypeOption(prop.category)?.label ?? prop.category}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap ml-10 md:ml-0">
             <ConfirmDialog
               title="Delete this property?"
               description="This will permanently delete the property and all linked data. This cannot be undone."
@@ -1952,7 +1914,7 @@ export default function PropertyDetailPage() {
       {/* ── Tabs + content ──────────────────────────────────────────── */}
       <div className="px-6 pb-8">
         {/* Tab bar */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6 overflow-x-auto scrollbar-hide">
           {TABS.map((tab) => (
             <button
               key={tab.id}

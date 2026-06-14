@@ -36,29 +36,6 @@ const ALL_PROFILES = [
   { key: "Buy-to-Sell",            label: "Buy-to-Sell",            shortLabel: "BTS",        color: "#BE123C" },
 ]
 
-/* ------------------------------------------------------------------ */
-/* Mock data                                                            */
-/* ------------------------------------------------------------------ */
-const MOCK: TenancyCardData[] = [
-  { id: "t1", property_id: "p1", unit_id: "u1", property_name: "Brunswick Road HMO",   unit_name: "Room 1",  tenant_name: "James Wilson",   status: "active",  start_date: "2025-09-01", end_date: "2026-08-31", rent_amount: 550,  deposit_amount: 550,  deposit_held_by: "scheme" },
-  { id: "t2", property_id: "p1", unit_id: "u2", property_name: "Brunswick Road HMO",   unit_name: "Room 2",  tenant_name: "Sarah Chen",     status: "active",  start_date: "2025-10-01", end_date: "2026-07-31", rent_amount: 475,  deposit_amount: 475,  deposit_held_by: "scheme", arrears: 475 },
-  { id: "t3", property_id: "p2", unit_id: "u4", property_name: "Maple Street HMO",     unit_name: "Room A",  tenant_name: "Mohammed Ali",   status: "active",  start_date: "2025-11-01", end_date: "2026-10-31", rent_amount: 520,  deposit_amount: 520,  deposit_held_by: "scheme" },
-  { id: "t4", property_id: "p4", unit_id: null, property_name: "Oak Lane BTL",          unit_name: undefined, tenant_name: "Priya Sharma",   status: "active",  start_date: "2026-01-01", end_date: "2026-12-31", rent_amount: 1100, deposit_amount: 1100, deposit_held_by: "scheme" },
-  { id: "t5", property_id: "p7", unit_id: null, property_name: "Harbour View Flat",     unit_name: undefined, tenant_name: "Daniel Murphy",  status: "active",  start_date: "2025-08-01", end_date: "2026-07-31", rent_amount: 1200, deposit_amount: 1200, deposit_held_by: "scheme" },
-  { id: "t6", property_id: "p8", unit_id: null, property_name: "Regent Street Studio",  unit_name: undefined, tenant_name: "Marcus Webb",    status: "active",  start_date: "2024-09-01", end_date: "2026-08-31", rent_amount: 1950, deposit_amount: 1950, deposit_held_by: "scheme" },
-  { id: "t7", property_id: "p9", unit_id: "u7", property_name: "Park Lane Co-Living",   unit_name: "Suite 3", tenant_name: "Aisha Okonkwo",  status: "active",  start_date: "2026-02-01", end_date: "2027-01-31", rent_amount: 850,  deposit_amount: 850,  deposit_held_by: "scheme" },
-  { id: "t8", property_id: "p4", unit_id: null, property_name: "Oak Lane BTL",          unit_name: undefined, tenant_name: "Ex-Tenant",      status: "ended",   start_date: "2024-01-01", end_date: "2025-12-31", rent_amount: 1050, deposit_amount: 1050, deposit_held_by: "scheme" },
-]
-
-const MOCK_PROPS = [
-  { id: "p1", name: "Brunswick Road HMO", operationProfile: "HMO" },
-  { id: "p2", name: "Maple Street HMO", operationProfile: "HMO" },
-  { id: "p4", name: "Oak Lane BTL", operationProfile: "Long-Term Let" },
-  { id: "p7", name: "Harbour View Flat", operationProfile: "Long-Term Let" },
-  { id: "p8", name: "Regent Street Studio", operationProfile: "Long-Term Let" },
-  { id: "p9", name: "Park Lane Co-Living", operationProfile: "Co-Living" },
-]
-
 const PAGE_SIZE = 12
 
 function daysUntil(d: string) { return Math.ceil((new Date(d).getTime() - Date.now()) / 86400000) }
@@ -108,8 +85,7 @@ export default function TenanciesListPage() {
   const loading = wsLoading || tenanciesLoading
 
   const allTenancies: TenancyCardData[] = useMemo(() => {
-    if (!workspace?.id) return MOCK
-    if (!rawTenancies?.length) return []
+    if (!workspace?.id || !rawTenancies?.length) return []
     const propName = new Map((rawProperties ?? []).map(p => [p.id, p.name]))
     return rawTenancies.map((t) => ({
       id: t.id, property_id: t.property_id, unit_id: t.unit_id,
@@ -121,8 +97,7 @@ export default function TenanciesListPage() {
   }, [rawTenancies, rawProperties, workspace?.id])
 
   const propertyOptions = useMemo(() => {
-    if (!workspace?.id) return MOCK_PROPS
-    if (!rawProperties?.length) return MOCK_PROPS
+    if (!workspace?.id || !rawProperties?.length) return []
     return rawProperties.map(p => ({ id: p.id, name: p.name, operationProfile: normaliseOperationProfile(p.operation_profile) }))
   }, [rawProperties, workspace?.id])
 
@@ -241,7 +216,7 @@ export default function TenanciesListPage() {
 
         {/* Status + quick filters */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          {["all", "active", "pending", "ended", "disputed"].map(s => (
+          {["all", "draft", "active", "ended", "terminated", "uncollectable"].map(s => (
             <Chip key={s} active={filterStatus === s} onClick={() => { setFilterStatus(s); setPage(1) }}>
               {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
             </Chip>

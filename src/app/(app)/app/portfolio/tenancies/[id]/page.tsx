@@ -27,36 +27,39 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts"
 
-/* ─────────────────────── MOCK DATA ─────────────────────── */
+/* ─────────────────────── DISPLAY SHAPE ─────────────────────── */
 
-const MOCK_TENANCY = {
-  id: "t1",
-  tenantName: "James Wilson",
-  tenantRole: "Primary Tenant",
-  tenantPhone: "07912 345 678",
-  tenantEmail: "james.wilson@email.com",
-  tenantAvatarInitials: "JW",
-  address: "12 Brunswick Road HMO, Room 1, Nottingham NG7 1AE",
-  property: "Brunswick Road HMO",
-  unit: "Room 1",
-  unitSize: "16m²",
-  leaseStart: "15 Jan 2025",
-  leaseEnd: "14 Jan 2026",
-  leaseTerm: "Fixed term, 12 months",
-  rent: 550,
-  deposit: 550,
-  depositScheme: "DPS",
-  depositCertNo: "DPS1234567",
-  depositProtectedOn: "15 Jan 2025",
-  depositExpiry: "15 Jul 2025",
-  paymentDay: "1st of each month",
-  paymentMethod: "Direct Debit",
-  tenancyType: "AST",
-  status: "Active",
-  arrears: 50,
-  onTimeRate: 92,
-  totalPaid6m: 3215,
-  totalDue6m: 3300,
+interface TenancyDisplay {
+  id: string
+  tenantName: string
+  tenantRole: string
+  tenantPhone: string
+  tenantEmail: string
+  tenantAvatarInitials: string
+  address: string
+  property: string
+  propertyId?: string | null
+  unit: string
+  unitId?: string | null
+  unitSize: string
+  leaseStart: string
+  leaseEnd: string
+  leaseTerm: string
+  rent: number
+  deposit: number
+  depositScheme: string
+  depositCertNo: string
+  depositProtectedOn: string
+  depositExpiry: string
+  paymentDay: string
+  paymentMethod: string
+  tenancyType: string
+  status: string
+  rawStatus?: string
+  arrears: number
+  onTimeRate: number
+  totalPaid6m: number
+  totalDue6m: number
 }
 
 /* ─────────────────────── HELPERS ─────────────────────── */
@@ -194,11 +197,9 @@ const TABS = [
 
 /* ─────────────────────── TAB: OVERVIEW (3A) ─────────────────────── */
 
-type TenancyDisplay = typeof MOCK_TENANCY & { propertyId?: string | null; unitId?: string | null; rawStatus?: string }
-
 function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDisplay; activity: TenancyActivityRow[]; activityLoaded: boolean; onSave: (field: string, value: any) => Promise<void> }) {
   return (
-    <div className="flex gap-5 mt-4">
+    <div className="flex flex-col lg:flex-row gap-5 mt-4">
       {/* Left 60% */}
       <div className="flex-[3] flex flex-col gap-4 min-w-0">
         {/* Tenant Identity */}
@@ -301,15 +302,15 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Status</span>
               <InlineEditField
-                value={t.status}
+                value={t.rawStatus ?? "active"}
                 onSave={(v) => onSave("status", v)}
                 type="select"
                 options={[
+                  { value: "draft", label: "Draft" },
                   { value: "active", label: "Active" },
-                  { value: "pending", label: "Pending" },
                   { value: "ended", label: "Ended" },
-                  { value: "disputed", label: "Disputed" },
-                  { value: "surrendered", label: "Surrendered" },
+                  { value: "terminated", label: "Terminated" },
+                  { value: "uncollectable", label: "Uncollectable" },
                 ]}
                 displayClassName="text-sm font-semibold text-slate-800"
               />
@@ -637,7 +638,7 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
         ))}
       </div>
 
-      <div className="flex gap-5">
+      <div className="flex flex-col lg:flex-row gap-5">
         {/* Left */}
         <div className="flex-1 flex flex-col gap-4">
           {/* Protection Details */}
@@ -827,43 +828,6 @@ export default function TenancyDetailPage() {
     await updateTenancy.mutateAsync({ id: tenancyId, workspaceId: workspace.id, payload: { [field]: value } })
   }
 
-  // Build display object — real data when available, mock as fallback for demo mode
-  const tenantName = tenantContact?.full_name ?? (tenancy?.tenant_contact_id ? "Tenant" : "Unassigned tenant")
-  const t = tenancy
-    ? {
-        id: tenancy.id,
-        tenantName,
-        tenantRole: "Primary Tenant",
-        tenantPhone: tenantContact?.phone ?? "",
-        tenantEmail: tenantContact?.email ?? "",
-        tenantAvatarInitials: (tenantContact?.full_name ?? tenancy.reference ?? tenancy.id).slice(0, 2).toUpperCase(),
-        address: [property?.address_line1, property?.city, property?.postcode].filter(Boolean).join(", "),
-        property: property?.name ?? "Property",
-        propertyId: tenancy.property_id,
-        unit: unit?.unit_name ?? (tenancy.unit_id ? "Unit" : "—"),
-        unitId: tenancy.unit_id ?? null,
-        unitSize: unit?.floor_area_sqm != null ? `${unit.floor_area_sqm}m²` : "—",
-        leaseStart: tenancy.start_date,
-        leaseEnd: tenancy.end_date ?? "Periodic",
-        leaseTerm: tenancy.tenancy_type ?? "AST",
-        rent: tenancy.rent_amount,
-        deposit: tenancy.deposit_amount ?? 0,
-        depositScheme: tenancy.deposit_scheme ?? "—",
-        depositCertNo: tenancy.deposit_reference ?? "—",
-        depositProtectedOn: tenancy.start_date,
-        depositExpiry: tenancy.end_date ?? "—",
-        paymentDay: "1st of each month",
-        paymentMethod: "Bank Transfer",
-        tenancyType: (tenancy.tenancy_type ?? "AST").toUpperCase(),
-        status: tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1),
-        rawStatus: tenancy.status,
-        arrears: 0,
-        onTimeRate: 100,
-        totalPaid6m: 0,
-        totalDue6m: tenancy.rent_amount * 6,
-      }
-    : { ...MOCK_TENANCY, propertyId: null as string | null, unitId: null as string | null, rawStatus: "active" }
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50/40 flex items-center justify-center">
@@ -873,6 +837,61 @@ export default function TenancyDetailPage() {
         </div>
       </div>
     )
+  }
+
+  // Honest not-found state — no fabricated demo tenancy.
+  if (!tenancy) {
+    return (
+      <div className="min-h-screen bg-slate-50/40 flex items-center justify-center px-6">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Users className="w-7 h-7 text-slate-300" />
+          </div>
+          <div>
+            <p className="text-[15px] font-bold text-slate-700">Tenancy not found</p>
+            <p className="text-[13px] text-slate-400 mt-1">This tenancy doesn’t exist or you don’t have access to it.</p>
+          </div>
+          <Link href="/app/portfolio/tenancies" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+            <ChevronLeft className="w-3.5 h-3.5" /> Back to Tenancies
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Build display object from the real tenancy record only.
+  const tenantName = tenantContact?.full_name ?? (tenancy.tenant_contact_id ? "Tenant" : "Unassigned tenant")
+  const t: TenancyDisplay = {
+    id: tenancy.id,
+    tenantName,
+    tenantRole: "Primary Tenant",
+    tenantPhone: tenantContact?.phone ?? "",
+    tenantEmail: tenantContact?.email ?? "",
+    tenantAvatarInitials: (tenantContact?.full_name ?? tenancy.reference ?? tenancy.id).slice(0, 2).toUpperCase(),
+    address: [property?.address_line1, property?.city, property?.postcode].filter(Boolean).join(", "),
+    property: property?.name ?? "Property",
+    propertyId: tenancy.property_id,
+    unit: unit?.unit_name ?? (tenancy.unit_id ? "Unit" : "—"),
+    unitId: tenancy.unit_id ?? null,
+    unitSize: unit?.floor_area_sqm != null ? `${unit.floor_area_sqm}m²` : "—",
+    leaseStart: tenancy.start_date,
+    leaseEnd: tenancy.end_date ?? "Periodic",
+    leaseTerm: tenancy.tenancy_type ?? "AST",
+    rent: tenancy.rent_amount,
+    deposit: tenancy.deposit_amount ?? 0,
+    depositScheme: tenancy.deposit_scheme ?? "—",
+    depositCertNo: tenancy.deposit_reference ?? "—",
+    depositProtectedOn: tenancy.start_date,
+    depositExpiry: tenancy.end_date ?? "—",
+    paymentDay: "1st of each month",
+    paymentMethod: "Bank Transfer",
+    tenancyType: (tenancy.tenancy_type ?? "AST").toUpperCase(),
+    status: tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1),
+    rawStatus: tenancy.status,
+    arrears: 0,
+    onTimeRate: 100,
+    totalPaid6m: 0,
+    totalDue6m: tenancy.rent_amount * 6,
   }
 
   return (
@@ -889,12 +908,12 @@ export default function TenancyDetailPage() {
         </div>
 
         {/* Page Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Tenancy Lifecycle, Payments &amp; Deposit</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Tenancy Lifecycle, Payments &amp; Deposit</h1>
             <p className="text-sm text-slate-500 mt-0.5">{t.tenantName} — {t.property}, {t.unit}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <ConfirmDialog
               title="Delete this tenancy?"
               description="This will permanently delete the tenancy record. This cannot be undone."

@@ -54,42 +54,6 @@ const ALL_PROFILES = [
 ]
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                            */
-/* ------------------------------------------------------------------ */
-const MOCK_PROPERTIES: PropertyCardData[] = [
-  { id: "p1", name: "Brunswick Road HMO",     address: "12 Brunswick Road, Nottingham", postcode: "NG1 4EX", type: "HMO",   status: "Active",       units: 6,  occupied: 5,  tenants: 5,  monthlyRent: 2850, operationProfile: "HMO",                    bedrooms: 6,  bathrooms: 3, arrears: 475, openWork: 2, healthScore: "watch" },
-  { id: "p2", name: "Maple Street HMO",       address: "34 Maple Street, Birmingham",   postcode: "B1 2QR",  type: "HMO",   status: "Active",       units: 8,  occupied: 8,  tenants: 8,  monthlyRent: 3600, operationProfile: "HMO",                    bedrooms: 8,  bathrooms: 4, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p3", name: "Victoria Terrace",       address: "8 Victoria Terrace, Leeds",     postcode: "LS1 3XY", type: "BTL",   status: "Vacant",       units: 1,  occupied: 0,  tenants: 0,  monthlyRent: 0,    operationProfile: "Long-Term Let",           bedrooms: 3,  bathrooms: 1, arrears: 0,   openWork: 1, healthScore: "at_risk" },
-  { id: "p4", name: "Oak Lane BTL",           address: "22 Oak Lane, Manchester",       postcode: "M14 5FG", type: "BTL",   status: "Active",       units: 1,  occupied: 1,  tenants: 2,  monthlyRent: 1100, operationProfile: "Long-Term Let",           bedrooms: 2,  bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p5", name: "City Centre SA",         address: "15 Piccadilly, Manchester",     postcode: "M1 1HP",  type: "SA",    status: "Active",       units: 2,  occupied: 1,  tenants: 0,  monthlyRent: 1800, operationProfile: "Serviced Accommodation",  bedrooms: 2,  bathrooms: 2, arrears: 0,   openWork: 0, healthScore: "watch" },
-  { id: "p6", name: "Elms Road R2R",          address: "5 Elms Road, Liverpool",        postcode: "L8 3QA",  type: "R2R",   status: "Under Works",  units: 5,  occupied: 0,  tenants: 0,  monthlyRent: 0,    operationProfile: "Rent-to-Rent",            bedrooms: 5,  bathrooms: 2, arrears: 0,   openWork: 4, healthScore: "critical" },
-  { id: "p7", name: "Harbour View Flat",      address: "1A Harbour View, Bristol",      postcode: "BS1 5WA", type: "BTL",   status: "Active",       units: 1,  occupied: 1,  tenants: 1,  monthlyRent: 1200, operationProfile: "Long-Term Let",           bedrooms: 1,  bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p8", name: "Regent Street Studio",   address: "88 Regent Street, London",      postcode: "W1B 4EG", type: "BTL",   status: "Active",       units: 1,  occupied: 1,  tenants: 1,  monthlyRent: 1950, operationProfile: "Long-Term Let",           bedrooms: 1,  bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p9", name: "Park Lane Co-Living",    address: "45 Park Lane, London",          postcode: "W1K 1PN", type: "Other", status: "Active",       units: 12, occupied: 11, tenants: 11, monthlyRent: 9600, operationProfile: "Co-Living",               bedrooms: 12, bathrooms: 6, arrears: 0,   openWork: 1, healthScore: "healthy" },
-  { id: "p10",name: "Meadow Court Student",   address: "3 Meadow Court, Sheffield",     postcode: "S1 2GT",  type: "Other", status: "Active",       units: 7,  occupied: 7,  tenants: 7,  monthlyRent: 3850, operationProfile: "Student Let",             bedrooms: 7,  bathrooms: 3, arrears: 0,   openWork: 0, healthScore: "healthy" },
-]
-
-const MOCK_UNITS: UnitCardData[] = [
-  { id: "u1", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 1",  unit_type: "room",   bedrooms: 1, floor_area_sqm: 16, target_rent: 550,  status: "occupied",    tenant_name: "James Wilson",    tenancy_end: "2026-08-31" },
-  { id: "u2", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 2",  unit_type: "room",   bedrooms: 1, floor_area_sqm: 14, target_rent: 475,  status: "occupied",    tenant_name: "Sarah Chen",      tenancy_end: "2026-07-31" },
-  { id: "u3", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 3",  unit_type: "room",   bedrooms: 1, floor_area_sqm: 14, target_rent: 475,  status: "vacant" },
-  { id: "u4", property_id: "p2", property_name: "Maple Street HMO",    unit_name: "Room A",  unit_type: "room",   bedrooms: 1, floor_area_sqm: 18, target_rent: 520,  status: "occupied",    tenant_name: "Mohammed Ali",    tenancy_end: "2026-10-31" },
-  { id: "u5", property_id: "p5", property_name: "City Centre SA",       unit_name: "Studio 1",unit_type: "studio", bedrooms: 1, floor_area_sqm: 35, target_rent: 900,  status: "occupied",    tenant_name: "Booking guest" },
-  { id: "u6", property_id: "p6", property_name: "Elms Road R2R",        unit_name: "Room 1",  unit_type: "room",   bedrooms: 1, floor_area_sqm: 12, target_rent: 480,  status: "under_works" },
-  { id: "u7", property_id: "p9", property_name: "Park Lane Co-Living",  unit_name: "Suite 3", unit_type: "suite",  bedrooms: 1, floor_area_sqm: 22, target_rent: 850,  status: "occupied",    tenant_name: "Aisha Okonkwo",   tenancy_end: "2027-01-31" },
-  { id: "u8", property_id: "p3", property_name: "Victoria Terrace",     unit_name: "Flat",    unit_type: "flat",   bedrooms: 3, floor_area_sqm: 85, target_rent: 1100, status: "vacant" },
-]
-
-const MOCK_TENANCIES: TenancyCardData[] = [
-  { id: "t1", property_id: "p1", unit_id: "u1", property_name: "Brunswick Road HMO",  unit_name: "Room 1",  tenant_name: "James Wilson",   status: "active", start_date: "2025-09-01", end_date: "2026-08-31", rent_amount: 550,  deposit_amount: 550,  deposit_held_by: "scheme" },
-  { id: "t2", property_id: "p1", unit_id: "u2", property_name: "Brunswick Road HMO",  unit_name: "Room 2",  tenant_name: "Sarah Chen",     status: "active", start_date: "2025-10-01", end_date: "2026-07-31", rent_amount: 475,  deposit_amount: 475,  deposit_held_by: "scheme", arrears: 475 },
-  { id: "t3", property_id: "p2", unit_id: "u4", property_name: "Maple Street HMO",    unit_name: "Room A",  tenant_name: "Mohammed Ali",   status: "active", start_date: "2025-11-01", end_date: "2026-10-31", rent_amount: 520,  deposit_amount: 520,  deposit_held_by: "scheme" },
-  { id: "t4", property_id: "p4", unit_id: null, property_name: "Oak Lane BTL",          unit_name: undefined, tenant_name: "Priya Sharma",   status: "active", start_date: "2026-01-01", end_date: "2026-12-31", rent_amount: 1100, deposit_amount: 1100, deposit_held_by: "scheme" },
-  { id: "t5", property_id: "p7", unit_id: null, property_name: "Harbour View Flat",     unit_name: undefined, tenant_name: "Daniel Murphy",  status: "active", start_date: "2025-08-01", end_date: "2026-07-31", rent_amount: 1200, deposit_amount: 1200, deposit_held_by: "scheme" },
-  { id: "t6", property_id: "p8", unit_id: null, property_name: "Regent Street Studio",  unit_name: undefined, tenant_name: "Marcus Webb",    status: "active", start_date: "2024-09-01", end_date: "2026-08-31", rent_amount: 1950, deposit_amount: 1950, deposit_held_by: "scheme" },
-]
-
-/* ------------------------------------------------------------------ */
 /* Helpers                                                              */
 /* ------------------------------------------------------------------ */
 function fmtGBP(n: number) {
@@ -298,8 +262,7 @@ export default function PortfolioPage() {
   const isLive = !!workspace?.id
 
   const units: UnitCardData[] = useMemo(() => {
-    if (!isLive) return MOCK_UNITS
-    if (!rawUnits?.length) return []
+    if (!isLive || !rawUnits?.length) return []
     const propName = new globalThis.Map((rawProperties ?? []).map(p => [p.id, p.name]))
     return rawUnits.map(u => ({
       id: u.id, property_id: u.property_id,
@@ -312,8 +275,7 @@ export default function PortfolioPage() {
   }, [rawUnits, rawProperties, isLive, unitCoverUrls])
 
   const tenancies: TenancyCardData[] = useMemo(() => {
-    if (!isLive) return MOCK_TENANCIES
-    if (!rawTenancies?.length) return []
+    if (!isLive || !rawTenancies?.length) return []
     const propName = new globalThis.Map((rawProperties ?? []).map(p => [p.id, p.name]))
     return rawTenancies.map((t) => ({
       id: t.id, property_id: t.property_id, unit_id: t.unit_id,
@@ -326,8 +288,7 @@ export default function PortfolioPage() {
   }, [rawTenancies, rawProperties, isLive])
 
   const properties: PropertyCardData[] = useMemo(() => {
-    if (!isLive) return MOCK_PROPERTIES
-    if (!rawProperties?.length) return []
+    if (!isLive || !rawProperties?.length) return []
     const agg = aggregateByProperty(
       (rawUnits ?? []).map(u => ({ property_id: u.property_id, status: u.status, target_rent: u.target_rent })),
       (rawTenancies ?? []).map(t => ({ property_id: t.property_id, status: t.status, rent_amount: t.rent_amount })),
@@ -1210,7 +1171,7 @@ export default function PortfolioPage() {
 
             {/* Status + quick filters */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              {["all", "active", "pending", "ended", "disputed"].map(s => (
+              {["all", "draft", "active", "ended", "terminated"].map(s => (
                 <Chip key={s} active={tenFStatus === s} onClick={() => setTenFStatus(s)}>{s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}</Chip>
               ))}
               <div className="h-4 w-px bg-slate-200 mx-0.5" />

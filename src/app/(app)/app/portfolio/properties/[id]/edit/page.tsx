@@ -67,10 +67,12 @@ const PROPERTY_TYPES = [
   { value: "other",      label: "Other" },
 ]
 
+// Values map to the live `properties.status` enum (active|void|off_market|archived)
+// via the useProperties adapter.
 const STATUSES = [
   { value: "active",      label: "Active" },
-  { value: "vacant",      label: "Vacant" },
-  { value: "under_works", label: "Under Works" },
+  { value: "vacant",      label: "Void" },
+  { value: "under_works", label: "Off Market" },
   { value: "archived",    label: "Archived" },
 ]
 

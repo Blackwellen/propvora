@@ -22,22 +22,6 @@ import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls } from "@/lib/files/coverUrl"
 import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
-/* ------------------------------------------------------------------ */
-/* Mock data — no external images                                      */
-/* ------------------------------------------------------------------ */
-const MOCK: PropertyCardData[] = [
-  { id: "p1",  name: "Brunswick Road HMO",   address: "12 Brunswick Road, Nottingham",postcode: "NG1 4EX",  type: "HMO", status: "Active",       units: 6, occupied: 5, tenants: 5, monthlyRent: 2850, operationProfile: "HMO",                   bedrooms: 6, bathrooms: 3, arrears: 475, openWork: 2, healthScore: "watch" },
-  { id: "p2",  name: "Maple Street HMO",     address: "34 Maple Street, Birmingham",  postcode: "B1 2QR",   type: "HMO", status: "Active",       units: 8, occupied: 8, tenants: 8, monthlyRent: 3600, operationProfile: "HMO",                   bedrooms: 8, bathrooms: 4, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p3",  name: "Victoria Terrace",     address: "8 Victoria Terrace, Leeds",    postcode: "LS1 3XY",  type: "BTL", status: "Vacant",       units: 1, occupied: 0, tenants: 0, monthlyRent: 0,    operationProfile: "Long-Term Let",          bedrooms: 3, bathrooms: 1, arrears: 0,   openWork: 1, healthScore: "at_risk" },
-  { id: "p4",  name: "Oak Lane BTL",          address: "22 Oak Lane, Manchester",      postcode: "M14 5FG",  type: "BTL", status: "Active",       units: 1, occupied: 1, tenants: 2, monthlyRent: 1100, operationProfile: "Long-Term Let",          bedrooms: 2, bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p5",  name: "City Centre SA",        address: "15 Piccadilly, Manchester",    postcode: "M1 1HP",   type: "SA",  status: "Active",       units: 2, occupied: 1, tenants: 0, monthlyRent: 1800, operationProfile: "Serviced Accommodation", bedrooms: 2, bathrooms: 2, arrears: 0,   openWork: 0, healthScore: "watch" },
-  { id: "p6",  name: "Elms Road R2R",         address: "5 Elms Road, Liverpool",       postcode: "L8 3QA",   type: "R2R", status: "Under Works",  units: 5, occupied: 0, tenants: 0, monthlyRent: 0,    operationProfile: "Rent-to-Rent",           bedrooms: 5, bathrooms: 2, arrears: 0,   openWork: 4, healthScore: "critical" },
-  { id: "p7",  name: "Harbour View Flat",     address: "1A Harbour View, Bristol",     postcode: "BS1 5WA",  type: "BTL", status: "Active",       units: 1, occupied: 1, tenants: 1, monthlyRent: 1200, operationProfile: "Long-Term Let",          bedrooms: 1, bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p8",  name: "Regent Street Studio",  address: "88 Regent Street, London",    postcode: "W1B 4EG",  type: "BTL", status: "Active",       units: 1, occupied: 1, tenants: 1, monthlyRent: 1950, operationProfile: "Long-Term Let",          bedrooms: 1, bathrooms: 1, arrears: 0,   openWork: 0, healthScore: "healthy" },
-  { id: "p9",  name: "Park Lane Co-Living",   address: "45 Park Lane, London",         postcode: "W1K 1PN",  type: "Other",status: "Active",      units: 12,occupied: 11,tenants: 11,monthlyRent: 9600, operationProfile: "Co-Living",              bedrooms: 12,bathrooms: 6, arrears: 0,   openWork: 1, healthScore: "healthy" },
-  { id: "p10", name: "Meadow Court Student",  address: "3 Meadow Court, Sheffield",    postcode: "S1 2GT",   type: "Other",status: "Active",      units: 7, occupied: 7, tenants: 7, monthlyRent: 3850, operationProfile: "Student Let",            bedrooms: 7, bathrooms: 3, arrears: 0,   openWork: 0, healthScore: "healthy" },
-]
-
 const PAGE_SIZE = 12
 
 const HEALTH_OPTIONS: { key: string; label: string }[] = [
@@ -79,8 +63,7 @@ export default function PropertiesListPage() {
   }, [workspace?.id, rawProps])
 
   const allProperties: PropertyCardData[] = useMemo(() => {
-    if (!workspace?.id) return MOCK
-    if (!rawProps?.length) return []
+    if (!workspace?.id || !rawProps?.length) return []
     const agg = aggregateByProperty(
       (rawUnits ?? []).map(u => ({ property_id: u.property_id, status: u.status, target_rent: u.target_rent })),
       (rawTenancies ?? []).map(t => ({ property_id: t.property_id, status: t.status, rent_amount: t.rent_amount })),

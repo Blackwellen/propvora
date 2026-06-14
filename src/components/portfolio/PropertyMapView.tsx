@@ -44,20 +44,8 @@ const PROFILE_BADGE: Record<string, { label: string; bg: string; text: string }>
   "Co-Living":              { label: "CoL", bg: "bg-pink-600",    text: "text-white" },
 }
 
-/* Mock coordinates for known IDs — falls back to a scatter if missing */
-const MOCK_COORDS: Record<string, { lat: number; lng: number }> = {
-  p1:  { lat: 52.953, lng: -1.150 },
-  p2:  { lat: 52.483, lng: -1.893 },
-  p3:  { lat: 53.801, lng: -1.549 },
-  p4:  { lat: 53.483, lng: -2.244 },
-  p5:  { lat: 53.480, lng: -2.238 },
-  p6:  { lat: 53.408, lng: -2.979 },
-  p7:  { lat: 51.453, lng: -2.592 },
-  p8:  { lat: 51.517, lng: -0.143 },
-  p9:  { lat: 51.508, lng: -0.154 },
-  p10: { lat: 53.383, lng: -1.467 },
-}
-
+/* UK-centred fallback scatter for properties that have no real coordinates yet.
+   Real lat/lng on the property always takes precedence (see propsWithCoords). */
 const SCATTER_COORDS = [
   { lat: 53.1, lng: -1.6 }, { lat: 52.2, lng: -1.4 }, { lat: 54.0, lng: -1.3 },
   { lat: 52.9, lng: -2.5 }, { lat: 51.7, lng: -1.8 }, { lat: 53.7, lng: -2.6 },
@@ -169,7 +157,7 @@ function PropertyListItem({
           <span className={cn("inline-flex items-center gap-1 text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full", statusCfg.bg, statusCfg.text)}>
             <span className={cn("w-1 h-1 rounded-full", statusCfg.dot)} />{statusCfg.label}
           </span>
-          <span className="text-[9.5px] text-slate-400">Updated {p.updatedAt ?? "2h ago"}</span>
+          {p.updatedAt && <span className="text-[9.5px] text-slate-400">Updated {p.updatedAt}</span>}
         </div>
       </div>
     </button>
@@ -246,34 +234,34 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
           <p className="text-[11.5px] text-slate-500 mt-0.5">{p.address}{p.postcode ? `, ${p.postcode}` : ""}</p>
         </div>
 
-        {/* Manager + Owner */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full border border-white shadow-sm flex items-center justify-center text-white text-[9px] font-bold select-none shrink-0"
-              style={{ background: getAvatarColor(p.manager ?? "Sarah Mitchell") }}>
-              {getInitials(p.manager ?? "Sarah Mitchell")}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-slate-400 font-medium">Property Manager</p>
-              <p className="text-[12px] font-semibold text-slate-800 truncate">{p.manager ?? "Sarah Mitchell"}</p>
-            </div>
-            <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-all">
-              <Mail className="w-3.5 h-3.5" />
-            </button>
+        {/* Manager + Owner — only shown when the property record carries them. */}
+        {(p.manager || p.owner) && (
+          <div className="space-y-2">
+            {p.manager && (
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full border border-white shadow-sm flex items-center justify-center text-white text-[9px] font-bold select-none shrink-0"
+                  style={{ background: getAvatarColor(p.manager) }}>
+                  {getInitials(p.manager)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-slate-400 font-medium">Property Manager</p>
+                  <p className="text-[12px] font-semibold text-slate-800 truncate">{p.manager}</p>
+                </div>
+              </div>
+            )}
+            {p.owner && (
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-slate-400 font-medium">Owner / Landlord</p>
+                  <p className="text-[12px] font-semibold text-slate-800 truncate">{p.owner}</p>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-              <Building2 className="w-3.5 h-3.5 text-slate-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-slate-400 font-medium">Owner / Landlord</p>
-              <p className="text-[12px] font-semibold text-slate-800 truncate">{p.owner ?? "Propvora Estates Ltd"}</p>
-            </div>
-            <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-all">
-              <Mail className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+        )}
 
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-1.5">
@@ -317,8 +305,8 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
 
         {/* Metadata footer */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10.5px] text-slate-400">
-          <span>Last updated {p.updatedAt ?? "2h ago"}</span>
-          <span className="font-mono">{p.propertyId ?? `PRP-${p.id.toUpperCase().slice(0, 5)}`}</span>
+          <span>{p.updatedAt ? `Last updated ${p.updatedAt}` : ""}</span>
+          <span className="font-mono">{p.propertyId ?? p.id.slice(0, 8)}</span>
           <ActionMenu
             align="right"
             items={[
@@ -335,7 +323,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
 }
 
 /* ------------------------------------------------------------------ */
-/* Insight Strip                                                        */
+/* Insight Strip — derived entirely from the passed-in properties.      */
 /* ------------------------------------------------------------------ */
 function InsightStrip({ properties }: { properties: PropertyMapData[] }) {
   const totalRent = properties.reduce((s, p) => s + p.monthlyRent, 0)
@@ -344,117 +332,36 @@ function InsightStrip({ properties }: { properties: PropertyMapData[] }) {
   const avgOcc = activeProps.length > 0
     ? Math.round(activeProps.reduce((s, p) => s + (p.units > 0 ? ((p.occupied ?? 0) / p.units) * 100 : 0), 0) / activeProps.length)
     : 0
+  const locationCount = new Set(
+    properties.map(p => (p.address.split(",").pop() ?? "").trim().toLowerCase()).filter(Boolean)
+  ).size
+  const openWorkTotal = properties.reduce((s, p) => s + (p.openWork ?? 0), 0)
 
-  const regionData = [
-    { name: "London", rent: 78540, occ: 94 },
-    { name: "Midlands", rent: 42360, occ: 90 },
-    { name: "North", rent: 28780, occ: 88 },
-    { name: "Scotland", rent: 12860, occ: 91 },
+  const cards = [
+    { icon: Navigation, color: "#2563EB", bg: "bg-blue-50", label: "Active locations", value: String(locationCount), sub: locationCount === 1 ? "Location" : "Cities / areas" },
+    { icon: Building2, color: "#D97706", bg: "bg-amber-50", label: "Vacant", value: String(vacantCount), sub: "Properties marked vacant" },
+    { icon: BarChart2, color: "#059669", bg: "bg-emerald-50", label: "Avg occupancy", value: `${avgOcc}%`, sub: "Across active properties" },
+    { icon: Wrench, color: "#DC2626", bg: "bg-red-50", label: "Open work", value: String(openWorkTotal), sub: "Across all properties" },
+    { icon: PoundSterling, color: "#7C3AED", bg: "bg-violet-50", label: "Rent roll / mo", value: totalRent > 0 ? fmt(totalRent) : "—", sub: "Combined monthly" },
   ]
-  const maxRent = Math.max(...regionData.map(r => r.rent))
 
   return (
-    <div className="grid grid-cols-5 gap-0 border-t border-slate-200 bg-white">
-      {/* Active locations */}
-      <div className="p-4 border-r border-slate-100">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
-            <Navigation className="w-3.5 h-3.5 text-[#2563EB]" />
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700">Active locations</p>
-        </div>
-        <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">12</p>
-        <p className="text-[10.5px] text-slate-400 mt-0.5">Cities across the UK</p>
-        <div className="mt-2 flex items-end gap-0.5 h-6">
-          {[6, 4, 7, 3, 5, 8, 4, 6].map((h, i) => (
-            <div key={i} className="flex-1 rounded-sm bg-blue-400" style={{ height: `${(h / 8) * 100}%` }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Vacant units */}
-      <div className="p-4 border-r border-slate-100">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-xl bg-amber-50 flex items-center justify-center">
-            <Building2 className="w-3.5 h-3.5 text-amber-600" />
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700">Vacant units</p>
-        </div>
-        <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">{vacantCount + 7}</p>
-        <p className="text-[10.5px] text-slate-400 mt-0.5">8.1% of total units</p>
-        <div className="mt-2 flex items-end gap-0.5 h-6">
-          {[3, 5, 4, 7, 3, 4, 6, 5].map((h, i) => (
-            <div key={i} className="flex-1 rounded-sm bg-amber-400" style={{ height: `${(h / 7) * 100}%` }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Avg occupancy by region */}
-      <div className="p-4 border-r border-slate-100">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-xl bg-emerald-50 flex items-center justify-center">
-            <BarChart2 className="w-3.5 h-3.5 text-emerald-600" />
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700">Avg occupancy by region</p>
-        </div>
-        <div className="flex items-start gap-2 mt-1">
-          {/* Donut */}
-          <svg viewBox="0 0 40 40" className="w-10 h-10 shrink-0">
-            <circle cx="20" cy="20" r="15" fill="none" stroke="#E2E8F0" strokeWidth="8" />
-            <circle cx="20" cy="20" r="15" fill="none" stroke="#10B981" strokeWidth="8"
-              strokeDasharray={`${avgOcc * 0.942} 94.2`} strokeLinecap="round"
-              style={{ transformOrigin: "center", transform: "rotate(-90deg)" }} />
-          </svg>
-          <div className="space-y-1">
-            {regionData.map(r => (
-              <div key={r.name} className="flex items-center justify-between gap-3">
-                <span className="text-[9.5px] text-slate-500">{r.name}</span>
-                <span className="text-[9.5px] font-bold text-slate-800">{r.occ}%</span>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 border-t border-slate-200 bg-white">
+      {cards.map((c, i) => {
+        const Icon = c.icon
+        return (
+          <div key={c.label} className={cn("p-4 border-slate-100", i < cards.length - 1 && "border-r")}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center", c.bg)}>
+                <Icon className="w-3.5 h-3.5" style={{ color: c.color }} />
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Maintenance hotspots */}
-      <div className="p-4 border-r border-slate-100">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-xl bg-red-50 flex items-center justify-center">
-            <Wrench className="w-3.5 h-3.5 text-red-600" />
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700">Maintenance hotspots</p>
-        </div>
-        <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">3</p>
-        <p className="text-[10.5px] text-slate-400 mt-0.5">High activity areas</p>
-        <div className="mt-2 flex items-end gap-0.5 h-6">
-          {[2, 8, 4, 6, 3, 7, 5, 3].map((h, i) => (
-            <div key={i} className="flex-1 rounded-sm bg-red-400" style={{ height: `${(h / 8) * 100}%` }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Rent roll by region */}
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-xl bg-violet-50 flex items-center justify-center">
-            <PoundSterling className="w-3.5 h-3.5 text-violet-600" />
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700">Rent roll by region</p>
-        </div>
-        <div className="space-y-1.5 mt-1">
-          {regionData.map(r => (
-            <div key={r.name}>
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[9.5px] text-slate-500">{r.name}</span>
-                <span className="text-[9.5px] font-bold text-slate-800">£{(r.rent / 1000).toFixed(0)}k</span>
-              </div>
-              <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full rounded-full bg-violet-500" style={{ width: `${(r.rent / maxRent) * 100}%` }} />
-              </div>
+              <p className="text-[11px] font-semibold text-slate-700">{c.label}</p>
             </div>
-          ))}
-        </div>
-      </div>
+            <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">{c.value}</p>
+            <p className="text-[10.5px] text-slate-400 mt-0.5">{c.sub}</p>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -484,8 +391,8 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
   /* Augment properties with coordinates */
   const propsWithCoords = useMemo(() => properties.map((p, i) => ({
     ...p,
-    lat: p.lat ?? MOCK_COORDS[p.id]?.lat ?? SCATTER_COORDS[i % SCATTER_COORDS.length].lat,
-    lng: p.lng ?? MOCK_COORDS[p.id]?.lng ?? SCATTER_COORDS[i % SCATTER_COORDS.length].lng,
+    lat: p.lat ?? SCATTER_COORDS[i % SCATTER_COORDS.length].lat,
+    lng: p.lng ?? SCATTER_COORDS[i % SCATTER_COORDS.length].lng,
   })), [properties])
 
   const filteredWithCoords = useMemo(() =>

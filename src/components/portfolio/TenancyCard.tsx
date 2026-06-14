@@ -27,7 +27,7 @@ export interface TenancyCardData {
   tenant_avatar?: string | null
   tenant_email?: string | null
   tenant_phone?: string | null
-  status: "pending" | "active" | "ended" | "disputed" | "surrendered"
+  status: "draft" | "active" | "ended" | "terminated" | "uncollectable"
   start_date: string
   end_date?: string | null
   rent_amount: number
@@ -48,11 +48,11 @@ export interface TenancyCardData {
 /* Status Config                                                        */
 /* ------------------------------------------------------------------ */
 const STATUS_CFG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
-  active:      { label: "Active",       dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50 border border-emerald-200" },
-  pending:     { label: "Pending",      dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
-  ended:       { label: "Ended",        dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
-  disputed:    { label: "Disputed",     dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50 border border-red-200" },
-  surrendered: { label: "Surrendered",  dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
+  active:        { label: "Active",        dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50 border border-emerald-200" },
+  draft:         { label: "Draft",         dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
+  ended:         { label: "Ended",         dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
+  terminated:    { label: "Terminated",    dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50 border border-red-200" },
+  uncollectable: { label: "Uncollectable", dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50 border border-red-200" },
   ending_soon: { label: "Ending soon",  dot: "bg-orange-400",  text: "text-orange-700",  bg: "bg-orange-50 border border-orange-200" },
   arrears:     { label: "Arrears",      dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50 border border-red-200" },
 }
@@ -807,11 +807,11 @@ export function TenancyCardInlineEdit({
         <div>
           <label className={labelCls}>Status</label>
           <select className={inputCls} value={form.status} onChange={e => handleChange("status", e.target.value)}>
+            <option value="draft">Draft</option>
             <option value="active">Active</option>
-            <option value="pending">Pending</option>
             <option value="ended">Ended</option>
-            <option value="disputed">Disputed</option>
-            <option value="surrendered">Surrendered</option>
+            <option value="terminated">Terminated</option>
+            <option value="uncollectable">Uncollectable</option>
           </select>
         </div>
         <div>

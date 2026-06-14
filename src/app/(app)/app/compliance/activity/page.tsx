@@ -112,7 +112,7 @@ export default function ComplianceActivityPage() {
       />
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 px-6 py-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Events today" value={isLoading ? "—" : kpis.today} subtitle="Logged today" icon={Activity} iconBg="bg-blue-100" iconColor="text-blue-600" />
         <ComplianceKpiCard label="Escalations" value={isLoading ? "—" : kpis.escalations} subtitle="High / critical" trendPositive={kpis.escalations === 0} icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
         <ComplianceKpiCard label="Completed actions" value={isLoading ? "—" : kpis.completed} subtitle="Approvals & completions" icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" />

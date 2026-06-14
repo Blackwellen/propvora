@@ -39,20 +39,17 @@ import {
   CheckCircle2,
 } from "lucide-react"
 
-// ─── Mock Data (fallback when table missing) ──────────────────────────────────
-
-const MOCK_CERT = {
-  id: "cert-001",
-  certificate_type: "gas_safety",
-  reference_number: "GAS-2025-001",
-  issue_date: "2025-06-04",
-  expiry_date: "2026-07-04",
-  status: "expiring_soon",
-  risk_level: "watch",
-  notes: "Annual gas safety certificate.",
-  property_name: "14 Westbourne Gardens",
-  created_at: "2025-06-04",
-  __seed: true as const,
+// Map certificate-style status (from the mapped compliance_item) back to the
+// compliance_status enum the live table stores.
+function toItemStatus(status: string): string {
+  switch (status) {
+    case "valid": return "ok"
+    case "expiring_soon": return "due_soon"
+    case "expired": return "overdue"
+    case "missing": return "missing"
+    case "exempt": return "exempt"
+    default: return "ok"
+  }
 }
 
 const CERT_TYPE_LABELS: Record<string, string> = {
@@ -135,35 +132,61 @@ export default function CertificateDetailPage() {
   const supabase = createClient()
   const qc = useQueryClient()
 
-  // Fetch live cert, fall back to seed on missing table / not-found
+  // Fetch the live compliance item (mapped to certificate shape).
   const { data: cert, isLoading } = useQuery({
     queryKey: ["compliance-certificate-detail", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("compliance_certificates")
+        .from("compliance_items")
         .select("*, properties(name:nickname)")
         .eq("id", id)
         .single()
       if (error) {
-        if (error.code === "42P01" || error.code === "PGRST116") return { ...MOCK_CERT }
-        return { ...MOCK_CERT }
+        if (error.code === "42P01" || error.code === "PGRST116") return null
+        throw new Error(error.message)
       }
-      const { properties: prop, ...rest } = data as any
-      return { ...rest, property_name: prop?.name ?? undefined, __seed: false }
+      const r = data as any
+      const meta = r.metadata ?? {}
+      const status =
+        r.status === "ok" ? "valid"
+          : r.status === "due_soon" ? "expiring_soon"
+          : r.status === "overdue" ? "expired"
+          : r.status === "missing" ? "missing"
+          : "valid"
+      return {
+        id: r.id,
+        property_id: r.property_id,
+        certificate_type: r.kind,
+        reference_number: r.reference_no,
+        issue_date: r.last_completed_at,
+        expiry_date: r.due_date,
+        status,
+        risk_level: meta.risk_level ?? "medium",
+        notes: r.notes,
+        property_name: r.properties?.name ?? undefined,
+        created_at: r.created_at,
+      }
     },
   })
 
-  const row: any = cert ?? MOCK_CERT
-  const isSeed = !!row.__seed
+  const row: any = cert ?? {}
+  const notFound = !isLoading && !cert
+  const isSeed = false // live data only — inline editing always enabled
   const label = CERT_TYPE_LABELS[row.certificate_type] ?? row.certificate_type ?? "Certificate"
   const days = daysUntil(row.expiry_date)
 
-  // Persist a single field for live rows
+  // Persist a single field — maps view-model keys back to compliance_items columns.
   async function saveField(patch: Record<string, any>) {
-    if (isSeed) return
+    const out: Record<string, any> = { updated_at: new Date().toISOString() }
+    if ("certificate_type" in patch) out.kind = patch.certificate_type
+    if ("reference_number" in patch) out.reference_no = patch.reference_number
+    if ("issue_date" in patch) out.last_completed_at = patch.issue_date
+    if ("expiry_date" in patch) out.due_date = patch.expiry_date
+    if ("notes" in patch) out.notes = patch.notes
+    if ("status" in patch) out.status = toItemStatus(patch.status)
     const { error } = await supabase
-      .from("compliance_certificates")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .from("compliance_items")
+      .update(out)
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-certificate-detail", id] })
@@ -175,13 +198,11 @@ export default function CertificateDetailPage() {
   }
 
   async function handleDelete() {
-    if (!isSeed) {
-      const { error } = await supabase
-        .from("compliance_certificates")
-        .update({ archived_at: new Date().toISOString() })
-        .eq("id", id)
-      if (error && error.code !== "42P01") throw new Error(error.message)
-    }
+    const { error } = await supabase
+      .from("compliance_items")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+    if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-certificates"] })
     router.push("/app/compliance/certificates")
   }
@@ -634,6 +655,23 @@ export default function CertificateDetailPage() {
     )
   }
 
+  if (notFound) {
+    return (
+      <div className="space-y-0">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <FileText className="w-7 h-7 text-slate-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">Certificate not found</h2>
+          <p className="text-sm text-slate-500 mb-5">This compliance record may have been removed.</p>
+          <Button variant="primary" size="sm" asChild>
+            <Link href="/app/compliance/certificates">Back to Certificates</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-0">
       {/* Breadcrumb */}
@@ -652,7 +690,7 @@ export default function CertificateDetailPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="flex">
             <div className="w-1.5 bg-amber-400 shrink-0" />
-            <div className="flex-1 p-5 flex items-start justify-between gap-6">
+            <div className="flex-1 p-5 flex flex-col lg:flex-row lg:items-start justify-between gap-4 lg:gap-6">
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
                   <div style={{ color: "#f97316" }}><Flame className="w-7 h-7" /></div>
@@ -686,7 +724,7 @@ export default function CertificateDetailPage() {
               </div>
 
               {/* Hero Actions */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
                 <Button variant="primary" size="sm" asChild>
                   <Link href={`/app/compliance/certificates/${id}/edit`}>
                     <Pencil className="w-3.5 h-3.5" />
@@ -726,7 +764,7 @@ export default function CertificateDetailPage() {
       </div>
 
       {/* KPI Context Strip */}
-      <div className="grid grid-cols-5 gap-3 mx-6 mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mx-4 sm:mx-6 mt-4">
         {[
           { label: "Issue Date", value: fmtDate(row.issue_date), colour: "text-slate-800", bg: "bg-white", icon: <Calendar className="w-4 h-4 text-slate-400" /> },
           { label: "Expiry Date", value: fmtDate(row.expiry_date), colour: "text-amber-700", bg: "bg-amber-50", icon: <Calendar className="w-4 h-4 text-amber-500" /> },
@@ -745,8 +783,8 @@ export default function CertificateDetailPage() {
       </div>
 
       {/* Main Content: Tabs + Right Rail */}
-      <div className="flex gap-5 mx-6 mt-5 pb-10 items-start">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-col lg:flex-row gap-5 mx-4 sm:mx-6 mt-5 pb-10 items-start">
+        <div className="flex-1 min-w-0 w-full">
           <Tabs defaultValue="overview">
             <TabsList variant="underline" className="w-full">
               {DETAIL_TABS.map((t) => (
@@ -767,7 +805,7 @@ export default function CertificateDetailPage() {
           </Tabs>
         </div>
 
-        <aside className="w-72 shrink-0 sticky top-6">
+        <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-6">
           <RightRail />
         </aside>
       </div>

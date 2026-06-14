@@ -50,6 +50,15 @@ const RISK_CONFIG: Record<
   Critical: { label: "Critical Risk", textColor: "text-red-800",     bgColor: "bg-red-200" },
 }
 
+// Derive a risk band from the live numeric risk_score (0-100).
+function riskLevelFromScore(score: number | null | undefined): keyof typeof RISK_CONFIG {
+  const s = score ?? 0
+  if (s >= 75) return "Critical"
+  if (s >= 50) return "High"
+  if (s >= 25) return "Medium"
+  return "Low"
+}
+
 // ── Profile key → display label ───────────────────────────────────────────────
 
 function profileLabel(key: string): string {
@@ -85,8 +94,18 @@ export default async function PlanningSetDetailLayout({
   const planningSet = await getPlanningSetById(id)
   if (!planningSet) notFound()
 
-  const statusCfg = STATUS_CONFIG[planningSet.status] ?? STATUS_CONFIG.draft
-  const riskCfg   = RISK_CONFIG[planningSet.risk_level]   ?? RISK_CONFIG.Low
+  // The shared PlanningSet type predates the live schema; read live columns
+  // (title/operation_profile/risk_score) defensively via a loose view.
+  const live = planningSet as unknown as Record<string, unknown>
+  const title = (live.title as string) ?? (live.name as string) ?? "Untitled Plan"
+  const address = (live.address as string | null) ?? null
+  const status = (live.status as string) ?? "draft"
+  const operationProfile = (live.operation_profile as string) ?? (live.profile_key as string) ?? ""
+  const riskScore = (live.risk_score as number | null) ?? null
+  const updatedAt = (live.updated_at as string) ?? new Date().toISOString()
+
+  const statusCfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft
+  const riskCfg   = RISK_CONFIG[riskLevelFromScore(riskScore)] ?? RISK_CONFIG.Low
 
   return (
     <div className="flex flex-col h-full">
@@ -108,7 +127,7 @@ export default async function PlanningSetDetailLayout({
 
             <div className="flex items-center gap-2.5 min-w-0">
               <h1 className="text-[17px] font-bold text-slate-900 truncate leading-tight">
-                {planningSet.name}
+                {title}
               </h1>
               {/* Star / favourite button — client interaction handled inline via form-like approach */}
               <button
@@ -119,23 +138,16 @@ export default async function PlanningSetDetailLayout({
               </button>
             </div>
 
-            {planningSet.address && (
+            {address && (
               <p className="flex items-center gap-1 text-xs text-slate-400">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
-                <span className="truncate">{planningSet.address}</span>
+                <span className="truncate">{address}</span>
               </p>
             )}
           </div>
 
           {/* Centre: status pills */}
           <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
-            {/* Conversion readiness pill */}
-            {planningSet.conversion_percent >= 80 && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                Conversion Ready
-              </span>
-            )}
-
             {/* Plan status */}
             <span
               className={[
@@ -148,9 +160,11 @@ export default async function PlanningSetDetailLayout({
             </span>
 
             {/* Profile type */}
-            <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
-              {profileLabel(planningSet.profile_key)}
-            </span>
+            {operationProfile && (
+              <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                {profileLabel(operationProfile)}
+              </span>
+            )}
 
             {/* Risk level */}
             <span
@@ -166,7 +180,7 @@ export default async function PlanningSetDetailLayout({
             {/* Last updated */}
             <span className="inline-flex items-center gap-1 text-xs text-slate-400">
               <Clock className="w-3 h-3" />
-              {formatRelativeDate(planningSet.updated_at)}
+              {formatRelativeDate(updatedAt)}
             </span>
           </div>
 

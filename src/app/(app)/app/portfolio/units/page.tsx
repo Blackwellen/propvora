@@ -15,18 +15,6 @@ import { exportCsv } from "@/lib/portfolio/helpers"
 import { createClient } from "@/lib/supabase/client"
 import { resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
 
-const MOCK: UnitCardData[] = [
-  { id: "u1", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 1",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 16, target_rent: 550, status: "occupied",    tenant_name: "James Wilson",   tenancy_end: "2026-08-31" },
-  { id: "u2", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 2",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 14, target_rent: 475, status: "occupied",    tenant_name: "Sarah Chen",     tenancy_end: "2026-07-31" },
-  { id: "u3", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 3",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 14, target_rent: 475, status: "vacant" },
-  { id: "u4", property_id: "p2", property_name: "Maple Street HMO",    unit_name: "Room A",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 18, target_rent: 520, status: "occupied",    tenant_name: "Mohammed Ali",   tenancy_end: "2026-10-31" },
-  { id: "u5", property_id: "p5", property_name: "City Centre SA",       unit_name: "Studio 1",unit_type: "studio",floor: 2, bedrooms: 1, floor_area_sqm: 35, target_rent: 900, status: "occupied",    tenant_name: "Booking guest" },
-  { id: "u6", property_id: "p6", property_name: "Elms Road R2R",        unit_name: "Room 1",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 12, target_rent: 480, status: "under_works" },
-  { id: "u7", property_id: "p9", property_name: "Park Lane Co-Living",  unit_name: "Suite 3", unit_type: "suite",  floor: 3, bedrooms: 1, floor_area_sqm: 22, target_rent: 850, status: "occupied",    tenant_name: "Aisha Okonkwo",  tenancy_end: "2027-01-31" },
-  { id: "u8", property_id: "p3", property_name: "Victoria Terrace",     unit_name: "Flat",    unit_type: "flat",   floor: 0, bedrooms: 3, floor_area_sqm: 85, target_rent: 1100,status: "vacant" },
-  { id: "u9", property_id: "p10",property_name: "Meadow Court Student", unit_name: "Room 3",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 14, target_rent: 550, status: "occupied",    tenant_name: "Tom Chen",       tenancy_end: "2026-09-30" },
-]
-
 const PAGE_SIZE = 12
 const STATUSES = [
   { value: "all", label: "All" }, { value: "occupied", label: "Occupied" },
@@ -61,8 +49,7 @@ export default function UnitsListPage() {
   }, [workspace?.id, rawUnits])
 
   const allUnits: UnitCardData[] = useMemo(() => {
-    if (!isLive) return MOCK
-    if (!rawUnits?.length) return []
+    if (!isLive || !rawUnits?.length) return []
     const propName = new Map((rawProps ?? []).map(p => [p.id, p.name]))
     return rawUnits.map((u) => ({
       id: u.id, property_id: u.property_id,

@@ -70,7 +70,7 @@ export default function SupplierDocsPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Supplier Documents</h1>
           <p className="text-sm text-slate-500 mt-0.5">Track supplier insurance, accreditations and compliance documents.</p>
@@ -96,7 +96,7 @@ export default function SupplierDocsPage() {
 
       <DashboardContainer>
         {/* KPIs */}
-        <div className="grid grid-cols-4 gap-4 px-6 py-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
           <ComplianceKpiCard label="Suppliers" value={isLoading ? "—" : kpis.suppliers} subtitle="With documents" icon={Users} iconBg="bg-blue-100" iconColor="text-blue-600" />
           <ComplianceKpiCard label="Valid Documents" value={isLoading ? "—" : kpis.valid} subtitle="In date" icon={ShieldCheck} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
           <ComplianceKpiCard label="Expiring Soon" value={isLoading ? "—" : kpis.expiring} subtitle="Within 60 days" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />

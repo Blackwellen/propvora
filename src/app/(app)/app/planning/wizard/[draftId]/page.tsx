@@ -95,21 +95,28 @@ export default function ResumeDraftPage() {
 
   useEffect(() => {
     async function loadDraft() {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from("planning_wizard_drafts")
-        .select("*")
-        .eq("id", draftId)
-        .single()
+      // `planning_wizard_drafts` may not exist in the live DB (42P01). Treat any
+      // error or missing row as "no draft" and start a fresh wizard — never crash.
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from("planning_wizard_drafts")
+          .select("*")
+          .eq("id", draftId)
+          .single()
 
-      if (data?.draft_data) {
-        setInitialData({
-          ...(data.draft_data as Partial<WizardState>),
-          currentStep: data.current_step as number,
-          draftId,
-        })
+        if (!error && data?.draft_data) {
+          setInitialData({
+            ...(data.draft_data as Partial<WizardState>),
+            currentStep: data.current_step as number,
+            draftId,
+          })
+        }
+      } catch {
+        // Table missing or query failed — fall through to a fresh wizard.
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     void loadDraft()
   }, [draftId])

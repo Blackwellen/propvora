@@ -71,10 +71,11 @@ interface PropertyWizardData {
   documents: string[]
 }
 
+// Live `properties.status` enum = active|void|off_market|archived.
 const STATUSES = [
   { key: "active", label: "Active" },
-  { key: "vacant", label: "Vacant" },
-  { key: "under_works", label: "Under Works" },
+  { key: "void", label: "Void" },
+  { key: "off_market", label: "Off Market" },
 ]
 
 const STEPS = [

@@ -1,11 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Card } from "@/components/ui/Card"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import {
   ChevronRight,
   ChevronDown,
@@ -14,108 +18,40 @@ import {
   Trash2,
   RefreshCw,
   XCircle,
-  Plus,
-  ClipboardList,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-type InspectionStatus =
-  | "scheduled"
-  | "due"
-  | "overdue"
-  | "completed"
-  | "passed"
-  | "failed"
-  | "cancelled"
-  | "actions_required"
-
-type InspectionOutcome =
-  | "pass"
-  | "fail"
-  | "pass_with_actions"
-  | "inconclusive"
-  | "cancelled"
-  | ""
-
-type ChecklistSeverity = "ok" | "minor" | "major" | "na"
-
-interface ChecklistItem {
-  id: string
-  label: string
-  severity: ChecklistSeverity
-}
-
-// ── Mock data ─────────────────────────────────────────────────────────────────
-
-const MOCK_PROPERTIES = [
-  { id: "p1", name: "8 Clarence Rd", units: ["Flat 1", "Flat 2", "Flat 3"] },
-  { id: "p2", name: "12 Brunswick Ave", units: ["Flat A", "Flat B"] },
-  { id: "p3", name: "47 Victoria Terrace", units: [] },
-  { id: "p4", name: "5 Maple Street", units: ["Unit 1", "Unit 2", "Unit 3"] },
-  { id: "p5", name: "22 Oak Lane", units: [] },
-]
-
-const MOCK_CONTACTS = [
-  { id: "c1", name: "Sarah Chen", role: "Property Manager" },
-  { id: "c2", name: "James Patel", role: "Inspector" },
-  { id: "c3", name: "Alex Morgan", role: "Contractor" },
-  { id: "c4", name: "Fire Inspector Ltd", role: "Specialist" },
-]
-
-const MOCK_TENANCIES = [
-  { id: "t1", propertyId: "p1", tenant: "M. Davies", unit: "Flat 1" },
-  { id: "t2", propertyId: "p1", tenant: "J. Smith", unit: "Flat 2" },
-  { id: "t3", propertyId: "p2", tenant: "A. Brown", unit: "Flat A" },
-]
-
-const INITIAL_CHECKLIST: ChecklistItem[] = [
-  { id: "cl-1", label: "General condition", severity: "ok" },
-  { id: "cl-2", label: "Electrics & sockets", severity: "ok" },
-  { id: "cl-3", label: "Plumbing & water pressure", severity: "ok" },
-  { id: "cl-4", label: "Heating system", severity: "ok" },
-  { id: "cl-5", label: "Windows & doors", severity: "ok" },
-  { id: "cl-6", label: "Garden / external areas", severity: "ok" },
-  { id: "cl-7", label: "Smoke & CO alarms", severity: "ok" },
-  { id: "cl-8", label: "Damp & mould check", severity: "ok" },
-]
+// Live inspection_status enum values.
+type InspectionStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue"
 
 const STATUS_OPTIONS: { value: InspectionStatus; label: string }[] = [
   { value: "scheduled", label: "Scheduled" },
-  { value: "due", label: "Due" },
-  { value: "overdue", label: "Overdue" },
+  { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
-  { value: "passed", label: "Passed" },
-  { value: "failed", label: "Failed" },
+  { value: "overdue", label: "Overdue" },
   { value: "cancelled", label: "Cancelled" },
-  { value: "actions_required", label: "Actions Required" },
 ]
 
-const OUTCOME_OPTIONS: { value: InspectionOutcome; label: string }[] = [
-  { value: "", label: "No outcome yet" },
-  { value: "pass", label: "Pass" },
-  { value: "fail", label: "Fail" },
-  { value: "pass_with_actions", label: "Pass with Actions" },
-  { value: "inconclusive", label: "Inconclusive" },
-  { value: "cancelled", label: "Cancelled" },
+const INSPECTION_TYPES = [
+  { value: "routine", label: "Routine Property Inspection" },
+  { value: "move_in", label: "Move-in Inspection" },
+  { value: "move_out", label: "Move-out Inspection" },
+  { value: "inventory", label: "Inventory Check" },
+  { value: "safety", label: "Safety Inspection" },
+  { value: "maintenance", label: "Maintenance Inspection" },
+  { value: "hmo_room", label: "HMO Room Inspection" },
+  { value: "fire_safety", label: "Fire Safety Inspection" },
+  { value: "supplier", label: "Supplier Site Visit" },
+  { value: "pre_tenancy", label: "Pre-tenancy Inspection" },
+  { value: "post_tenancy", label: "Post-tenancy Inspection" },
+  { value: "other", label: "Other" },
 ]
 
 // ── Section card ──────────────────────────────────────────────────────────────
 
-function SectionCard({
-  title,
-  description,
-  children,
-  className,
-}: {
-  title: string
-  description?: string
-  children: React.ReactNode
-  className?: string
-}) {
+function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <Card className={cn("", className)}>
+    <Card>
       <div className="mb-4">
         <h2 className="text-base font-semibold text-slate-900">{title}</h2>
         {description && <p className="text-sm text-slate-500 mt-0.5">{description}</p>}
@@ -125,119 +61,56 @@ function SectionCard({
   )
 }
 
-// ── Dangerous actions accordion ───────────────────────────────────────────────
+// ── Dangerous actions ─────────────────────────────────────────────────────────
 
-function DangerousActions({ propertyName }: { propertyName: string }) {
+function DangerousActions({ onCancel, onDelete }: { onCancel: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false)
-  const [rescheduleOpen, setRescheduleOpen] = useState(false)
-  const [rescheduleDate, setRescheduleDate] = useState("")
   const [cancelConfirm, setCancelConfirm] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deleteConfirmText, setDeleteConfirmText] = useState("")
+  const [deleteText, setDeleteText] = useState("")
 
   return (
     <div className="border border-red-200 rounded-2xl overflow-hidden">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-red-50 hover:bg-red-100 transition-colors"
-      >
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between px-4 sm:px-5 py-4 bg-red-50 hover:bg-red-100 transition-colors">
         <div className="flex items-center gap-3">
-          <div style={{ color: "#DC2626" }}>
-            <AlertTriangle className="w-5 h-5" />
-          </div>
+          <div style={{ color: "#DC2626" }}><AlertTriangle className="w-5 h-5" /></div>
           <div className="text-left">
             <p className="text-sm font-semibold text-red-800">Dangerous Actions</p>
-            <p className="text-xs text-red-600">Reschedule, cancel, or permanently delete this inspection</p>
+            <p className="text-xs text-red-600">Cancel or permanently delete this inspection</p>
           </div>
         </div>
         <ChevronDown className={cn("w-4 h-4 text-red-500 transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="bg-white p-5 space-y-4">
-          {/* Reschedule */}
+        <div className="bg-white p-4 sm:p-5 space-y-4">
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-amber-800">Reschedule Inspection</p>
-                <p className="text-xs text-amber-700 mt-0.5">Pick a new date for this inspection</p>
-              </div>
-              <Button
-                variant="warning"
-                size="sm"
-                onClick={() => setRescheduleOpen((v) => !v)}
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Reschedule
-              </Button>
-            </div>
-            {rescheduleOpen && (
-              <div className="mt-3 flex gap-2 items-end">
-                <div className="flex-1">
-                  <Input
-                    label="New Date"
-                    type="date"
-                    value={rescheduleDate}
-                    onChange={(e) => setRescheduleDate(e.target.value)}
-                  />
-                </div>
-                <Button
-                  variant="warning"
-                  size="md"
-                  disabled={!rescheduleDate}
-                  onClick={() => { setRescheduleOpen(false); setRescheduleDate("") }}
-                >
-                  Confirm
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Cancel */}
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
                 <p className="text-sm font-semibold text-amber-800">Cancel Inspection</p>
                 <p className="text-xs text-amber-700 mt-0.5">Mark this inspection as cancelled</p>
               </div>
-              <Button
-                variant="warning"
-                size="sm"
-                onClick={() => setCancelConfirm(true)}
-              >
+              <Button variant="warning" size="sm" onClick={() => setCancelConfirm(true)}>
                 <XCircle className="w-3.5 h-3.5" />
                 Cancel Inspection
               </Button>
             </div>
             {cancelConfirm && (
-              <div className="mt-3 flex items-center gap-3 px-4 py-3 bg-amber-100 border border-amber-300 rounded-xl">
-                <p className="text-sm text-amber-800 flex-1 font-medium">
-                  Are you sure? This will mark the inspection as cancelled.
-                </p>
-                <Button variant="warning" size="sm" onClick={() => setCancelConfirm(false)}>
-                  Confirm Cancel
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setCancelConfirm(false)}>
-                  Keep
-                </Button>
+              <div className="mt-3 flex items-center gap-3 px-4 py-3 bg-amber-100 border border-amber-300 rounded-xl flex-wrap">
+                <p className="text-sm text-amber-800 flex-1 font-medium">Are you sure? This will mark the inspection as cancelled.</p>
+                <Button variant="warning" size="sm" onClick={() => { setCancelConfirm(false); onCancel() }}>Confirm Cancel</Button>
+                <Button variant="outline" size="sm" onClick={() => setCancelConfirm(false)}>Keep</Button>
               </div>
             )}
           </div>
 
-          {/* Delete */}
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
                 <p className="text-sm font-semibold text-red-800">Delete Inspection Record</p>
-                <p className="text-xs text-red-600 mt-0.5">
-                  Permanently delete all data for this inspection. This cannot be undone.
-                </p>
+                <p className="text-xs text-red-600 mt-0.5">Permanently delete this inspection. This cannot be undone.</p>
               </div>
-              <Button
-                variant="destructive-soft"
-                size="sm"
-                onClick={() => setDeleteOpen((v) => !v)}
-              >
+              <Button variant="destructive-soft" size="sm" onClick={() => setDeleteOpen((v) => !v)}>
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
               </Button>
@@ -245,23 +118,13 @@ function DangerousActions({ propertyName }: { propertyName: string }) {
             {deleteOpen && (
               <div className="mt-3 space-y-3">
                 <div className="px-4 py-3 bg-red-100 border border-red-200 rounded-xl">
-                  <p className="text-sm text-red-800 font-medium">
-                    Type <span className="font-bold">{propertyName}</span> to confirm deletion:
-                  </p>
+                  <p className="text-sm text-red-800 font-medium">Type <span className="font-bold">DELETE</span> to confirm deletion:</p>
                 </div>
-                <div className="flex gap-2 items-end">
-                  <div className="flex-1">
-                    <Input
-                      placeholder={`Type "${propertyName}" to confirm…`}
-                      value={deleteConfirmText}
-                      onChange={(e) => setDeleteConfirmText(e.target.value)}
-                    />
+                <div className="flex gap-2 items-end flex-wrap">
+                  <div className="flex-1 min-w-[160px]">
+                    <Input placeholder='Type "DELETE" to confirm…' value={deleteText} onChange={(e) => setDeleteText(e.target.value)} />
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="md"
-                    disabled={deleteConfirmText !== propertyName}
-                  >
+                  <Button variant="destructive" size="md" disabled={deleteText !== "DELETE"} onClick={onDelete}>
                     <Trash2 className="w-4 h-4" />
                     Delete
                   </Button>
@@ -279,120 +142,145 @@ function DangerousActions({ propertyName }: { propertyName: string }) {
 
 export default function EditInspectionPage() {
   const params = useParams()
-  const _id = params.id as string
+  const router = useRouter()
+  const id = params.id as string
+  const supabase = createClient()
+  const { workspace } = useWorkspace()
+  const { data: properties = [] } = useProperties(workspace?.id)
+  const { data: liveContacts = [] } = useContacts(workspace?.id)
 
-  // Section 1: Details
   const [inspType, setInspType] = useState("routine")
   const [notes, setNotes] = useState("")
-
-  // Section 2: Linked Records
-  const [propertyId, setPropertyId] = useState("p1")
-  const [unit, setUnit] = useState("")
-  const [tenancyId, setTenancyId] = useState("t1")
-  const [inspectorId, setInspectorId] = useState("c1")
+  const [propertyId, setPropertyId] = useState("")
+  const [inspectorId, setInspectorId] = useState("")
   const [supplierId, setSupplierId] = useState("")
-
-  // Section 3: Schedule
-  const [scheduledDate, setScheduledDate] = useState("2026-05-21")
+  const [scheduledDate, setScheduledDate] = useState("")
   const [scheduledTime, setScheduledTime] = useState("10:00")
-  const [duration, setDuration] = useState("1hr")
-  const [inspectorNotes, setInspectorNotes] = useState("")
+  const [status, setStatus] = useState<InspectionStatus>("scheduled")
 
-  // Section 4: Checklist
-  const [checklist, setChecklist] = useState<ChecklistItem[]>(INITIAL_CHECKLIST)
-  const [newItemLabel, setNewItemLabel] = useState("")
-
-  // Section 5: Status & Outcome
-  const [status, setStatus] = useState<InspectionStatus>("overdue")
-  const [outcome, setOutcome] = useState<InspectionOutcome>("")
-  const [followUpDate, setFollowUpDate] = useState("")
-
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
-  const selectedProperty = MOCK_PROPERTIES.find((p) => p.id === propertyId)
-  const propertyTenancies = MOCK_TENANCIES.filter((t) => t.propertyId === propertyId)
-
-  function addChecklistItem() {
-    if (!newItemLabel.trim()) return
-    setChecklist((prev) => [
-      ...prev,
-      { id: `cl-custom-${Date.now()}`, label: newItemLabel.trim(), severity: "ok" },
-    ])
-    setNewItemLabel("")
-  }
-
-  function removeChecklistItem(id: string) {
-    setChecklist((prev) => prev.filter((i) => i.id !== id))
-  }
-
-  function updateChecklistLabel(id: string, label: string) {
-    setChecklist((prev) => prev.map((i) => (i.id === id ? { ...i, label } : i)))
-  }
-
-  function updateSeverity(id: string, severity: ChecklistSeverity) {
-    setChecklist((prev) => prev.map((i) => (i.id === id ? { ...i, severity } : i)))
-  }
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      setLoading(true)
+      const { data, error: err } = await supabase
+        .from("property_inspections")
+        .select("*")
+        .eq("id", id)
+        .single()
+      if (!active) return
+      if (err || !data) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
+      const r = data as Record<string, unknown>
+      setInspType((r.kind as string) ?? "routine")
+      setNotes((r.notes as string) ?? "")
+      setPropertyId((r.property_id as string) ?? "")
+      setInspectorId((r.inspector_id as string) ?? "")
+      setSupplierId((r.supplier_id as string) ?? "")
+      const sched = r.scheduled_for as string | null
+      if (sched) {
+        const d = new Date(sched)
+        setScheduledDate(d.toISOString().slice(0, 10))
+        setScheduledTime(d.toISOString().slice(11, 16))
+      }
+      setStatus(((r.status as string) ?? "scheduled") as InspectionStatus)
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [id, supabase])
 
   async function handleSave() {
     setSaving(true)
-    await new Promise((r) => setTimeout(r, 800))
+    setError(null)
+    const scheduledAt = scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "10:00"}:00`).toISOString() : null
+    const { error: err } = await supabase
+      .from("property_inspections")
+      .update({
+        kind: inspType,
+        property_id: propertyId || null,
+        inspector_id: inspectorId || null,
+        supplier_id: supplierId || null,
+        scheduled_for: scheduledAt,
+        status,
+        notes: notes || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
     setSaving(false)
+    if (err) {
+      setError(err.message)
+      return
+    }
     setSavedMsg("Changes saved successfully")
     setTimeout(() => setSavedMsg(""), 3000)
   }
 
+  async function handleCancelInspection() {
+    await supabase.from("property_inspections").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", id)
+    router.push(`/app/compliance/inspections/${id}`)
+  }
+
+  async function handleDelete() {
+    await supabase.from("property_inspections").update({ deleted_at: new Date().toISOString() }).eq("id", id)
+    router.push("/app/compliance/inspections")
+  }
+
+  if (loading) {
+    return <div className="p-10 text-center text-sm text-slate-400">Loading inspection…</div>
+  }
+
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <h2 className="text-lg font-semibold text-slate-900 mb-1">Inspection not found</h2>
+        <p className="text-sm text-slate-500 mb-5">This inspection may have been removed.</p>
+        <Button variant="primary" size="sm" asChild>
+          <Link href="/app/compliance/inspections">Back to Inspections</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  const typeLabel = INSPECTION_TYPES.find((t) => t.value === inspType)?.label ?? "Inspection"
+
   return (
     <div className="space-y-0">
-      {/* Breadcrumb */}
-      <div className="px-6 pt-4 pb-2">
-        <nav className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="px-4 sm:px-6 pt-4 pb-2">
+        <nav className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
           <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <Link href="/app/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link
-            href={`/app/compliance/inspections/${_id}`}
-            className="hover:text-[#2563EB] transition-colors"
-          >
-            Routine Inspection — 8 Clarence Rd
-          </Link>
+          <Link href={`/app/compliance/inspections/${id}`} className="hover:text-[#2563EB] transition-colors">{typeLabel}</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">Edit</span>
         </nav>
       </div>
 
-      <div className="p-6 space-y-5">
+      <div className="p-4 sm:p-6 space-y-5">
         <div className="mb-2">
           <h1 className="text-2xl font-bold text-slate-900">Edit Inspection</h1>
-          <p className="text-sm text-slate-500 mt-1">Routine Property Inspection — 8 Clarence Rd</p>
+          <p className="text-sm text-slate-500 mt-1">{typeLabel}</p>
         </div>
 
-        {/* Section 1: Inspection Details */}
-        <SectionCard
-          title="Inspection Details"
-          description="Modify the inspection type and general notes."
-        >
+        <SectionCard title="Inspection Details" description="Modify the inspection type and general notes.">
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">Inspection Type</label>
               <select
                 value={inspType}
                 onChange={(e) => setInspType(e.target.value)}
-                className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
               >
-                <option value="routine">Routine Property Inspection</option>
-                <option value="move_in">Move-in Inspection</option>
-                <option value="move_out">Move-out Inspection</option>
-                <option value="inventory">Inventory Check</option>
-                <option value="safety">Safety Inspection</option>
-                <option value="maintenance">Maintenance Inspection</option>
-                <option value="hmo_room">HMO Room Inspection</option>
-                <option value="fire_safety">Fire Safety Inspection</option>
-                <option value="supplier">Supplier Site Visit</option>
-                <option value="pre_tenancy">Pre-tenancy Inspection</option>
-                <option value="post_tenancy">Post-tenancy Inspection</option>
-                <option value="other">Other</option>
+                {INSPECTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -408,54 +296,17 @@ export default function EditInspectionPage() {
           </div>
         </SectionCard>
 
-        {/* Section 2: Linked Records */}
-        <SectionCard
-          title="Linked Records"
-          description="Property, unit, tenancy, inspector, and supplier linkages."
-        >
+        <SectionCard title="Linked Records" description="Property, inspector, and supplier linkages.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">Property</label>
               <select
                 value={propertyId}
-                onChange={(e) => { setPropertyId(e.target.value); setUnit(""); setTenancyId("") }}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                onChange={(e) => setPropertyId(e.target.value)}
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
               >
-                <option value="">Select property…</option>
-                {MOCK_PROPERTIES.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">Unit</label>
-              <select
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                disabled={!selectedProperty || selectedProperty.units.length === 0}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="">Whole property</option>
-                {selectedProperty?.units.map((u) => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">Tenancy</label>
-              <select
-                value={tenancyId}
-                onChange={(e) => setTenancyId(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-              >
-                <option value="">No tenancy linked</option>
-                {propertyTenancies.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.tenant}{t.unit ? ` — ${t.unit}` : ""}
-                  </option>
-                ))}
+                <option value="">{properties.length ? "Select property…" : "No properties found"}</option>
+                {properties.map((p) => <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Property"}</option>)}
               </select>
             </div>
 
@@ -464,12 +315,10 @@ export default function EditInspectionPage() {
               <select
                 value={inspectorId}
                 onChange={(e) => setInspectorId(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
               >
-                <option value="">Select inspector…</option>
-                {MOCK_CONTACTS.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
-                ))}
+                <option value="">{liveContacts.length ? "Select inspector…" : "No contacts found"}</option>
+                {liveContacts.map((c) => <option key={c.id} value={c.id}>{c.full_name || c.company_name || "Contact"}</option>)}
               </select>
             </div>
 
@@ -479,185 +328,74 @@ export default function EditInspectionPage() {
                 <select
                   value={supplierId}
                   onChange={(e) => setSupplierId(e.target.value)}
-                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
                 >
-                  <option value="">Select supplier…</option>
-                  <option value="s1">Propcare Services Ltd</option>
-                  <option value="s2">Fire Safety Pro</option>
-                  <option value="s3">BuildRight Contractors</option>
+                  <option value="">{liveContacts.length ? "Select supplier…" : "No contacts found"}</option>
+                  {liveContacts.map((c) => <option key={c.id} value={c.id}>{c.full_name || c.company_name || "Contact"}</option>)}
                 </select>
               </div>
             )}
           </div>
         </SectionCard>
 
-        {/* Section 3: Schedule */}
-        <SectionCard
-          title="Schedule"
-          description="Update the scheduled date, time, and duration."
-        >
+        <SectionCard title="Schedule" description="Update the scheduled date and time.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Scheduled Date"
-              type="date"
-              value={scheduledDate}
-              onChange={(e) => setScheduledDate(e.target.value)}
-            />
+            <Input label="Scheduled Date" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">Scheduled Time</label>
               <select
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
               >
-                {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"].map((t) => (
+                {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">Duration</label>
-              <select
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-              >
-                <option value="30min">30 minutes</option>
-                <option value="1hr">1 hour</option>
-                <option value="2hr">2 hours</option>
-                <option value="halfday">Half day</option>
-                <option value="fullday">Full day</option>
-              </select>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">Inspector Notes</label>
-            <textarea
-              value={inspectorNotes}
-              onChange={(e) => setInspectorNotes(e.target.value)}
-              rows={3}
-              placeholder="Any notes for the inspector…"
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-none"
-            />
           </div>
         </SectionCard>
 
-        {/* Section 4: Checklist */}
-        <SectionCard
-          title="Checklist"
-          description="Edit, add, or remove checklist items for this inspection."
-        >
-          <div className="space-y-2">
-            {checklist.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-slate-50 rounded-lg border border-slate-100"
-              >
-                <ClipboardList className="w-4 h-4 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => updateChecklistLabel(item.id, e.target.value)}
-                  className="flex-1 text-sm text-slate-800 bg-transparent border-none outline-none focus:ring-0"
-                />
-                <select
-                  value={item.severity}
-                  onChange={(e) => updateSeverity(item.id, e.target.value as ChecklistSeverity)}
-                  className="h-7 rounded border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none"
-                >
-                  <option value="ok">OK</option>
-                  <option value="minor">Minor Issue</option>
-                  <option value="major">Major Issue</option>
-                  <option value="na">N/A</option>
-                </select>
-                <button
-                  onClick={() => removeChecklistItem(item.id)}
-                  className="text-slate-300 hover:text-red-400 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex gap-2">
-            <input
-              type="text"
-              value={newItemLabel}
-              onChange={(e) => setNewItemLabel(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addChecklistItem()}
-              placeholder="Add a checklist item…"
-              className="flex-1 h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-            />
-            <Button variant="outline" size="md" onClick={addChecklistItem}>
-              <Plus className="w-4 h-4" />
-              Add
-            </Button>
-          </div>
-        </SectionCard>
-
-        {/* Section 5: Status & Outcome */}
-        <SectionCard
-          title="Status & Outcome"
-          description="Override the inspection status, record outcome, and set a follow-up date."
-        >
+        <SectionCard title="Status" description="Override the inspection status.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as InspectionStatus)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
               >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
+                {STATUS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">Outcome</label>
-              <select
-                value={outcome}
-                onChange={(e) => setOutcome(e.target.value as InspectionOutcome)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-              >
-                {OUTCOME_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <Input
-              label="Follow-up Date"
-              type="date"
-              value={followUpDate}
-              onChange={(e) => setFollowUpDate(e.target.value)}
-            />
           </div>
         </SectionCard>
 
-        {/* Dangerous actions */}
-        <DangerousActions propertyName="8 Clarence Rd" />
+        <DangerousActions onCancel={handleCancelInspection} onDelete={handleDelete} />
 
-        {/* Spacer for sticky save bar */}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
         <div className="h-20" />
       </div>
 
-      {/* Sticky save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg px-6 py-3">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg px-4 sm:px-6 py-3">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             {savedMsg && (
               <span className="text-sm text-emerald-600 font-medium flex items-center gap-1.5">
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="#059669" strokeWidth="1.5" />
-                  <path d="M5 8l2 2 4-4" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <RefreshCw className="w-4 h-4" />
                 {savedMsg}
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="md" asChild>
-              <Link href={`/app/compliance/inspections/${_id}`}>Discard Changes</Link>
+              <Link href={`/app/compliance/inspections/${id}`}>Discard Changes</Link>
             </Button>
             <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
               <Save className="w-4 h-4" />

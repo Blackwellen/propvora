@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import { uploadFile } from "@/lib/upload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import type { Property } from "@/types/database"
 import {
   Flame,
@@ -79,14 +80,18 @@ const CERT_TYPES: { key: CertTypeKey; label: string; helper: string; critical: b
   { key: "other",               label: "Other",                helper: "Any other compliance document",              critical: false, icon: <div style={{ color: "#64748b" }}><FileText className="w-5 h-5" /></div> },
 ]
 
-const MOCK_CONTACTS = [
-  "Elite Gas Services",
-  "SafeWire Services",
-  "EPC Direct",
-  "FireSafe Assessors",
-  "Council Licensing",
-  "ProLet Insure",
-]
+// Map the wizard's certificate-type keys to the live `compliance_kind` enum.
+const CERT_KIND_MAP: Record<CertTypeKey, string> = {
+  gas_safety: "gas_safety",
+  eicr: "eicr",
+  epc: "epc",
+  fire_risk: "fire_alarm",
+  hmo_licence: "hmo_licence",
+  building_insurance: "insurance",
+  pat_test: "pat",
+  landlord_insurance: "insurance",
+  other: "other",
+}
 
 const STEPS = [
   { id: 1, label: "Certificate Type" },
@@ -147,7 +152,7 @@ function Step1({ state, update }: { state: WizardState; update: (p: Partial<Wiza
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900">Select Certificate Type</h2>
       <p className="text-sm text-slate-500">Choose the type of compliance certificate you want to record.</p>
-      <div className="grid grid-cols-3 gap-3 mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
         {CERT_TYPES.map((ct) => (
           <button
             key={ct.key}
@@ -316,7 +321,7 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
   )
 }
 
-function Step4({ state, update }: { state: WizardState; update: (p: Partial<WizardState>) => void }) {
+function Step4({ state, update, contacts }: { state: WizardState; update: (p: Partial<WizardState>) => void; contacts: { id: string; name: string }[] }) {
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-bold text-slate-900">Issuer / Contact Details</h2>
@@ -337,8 +342,8 @@ function Step4({ state, update }: { state: WizardState; update: (p: Partial<Wiza
           value={state.issuerContact}
           onChange={(e) => update({ issuerContact: e.target.value })}
         >
-          <option value="">Select contact...</option>
-          {MOCK_CONTACTS.map((c) => <option key={c} value={c}>{c}</option>)}
+          <option value="">{contacts.length ? "Select contact..." : "No contacts found"}</option>
+          {contacts.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
         </select>
       </div>
       <div>
@@ -462,16 +467,13 @@ function Step6({ state, update }: { state: WizardState; update: (p: Partial<Wiza
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Assignee</label>
-            <select
+            <input
+              type="text"
+              placeholder="Assignee name (optional)"
               className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
               value={state.taskAssignee}
               onChange={(e) => update({ taskAssignee: e.target.value })}
-            >
-              <option value="">Unassigned</option>
-              <option value="Jamal Thomas">Jamal Thomas</option>
-              <option value="Sarah Kim">Sarah Kim</option>
-              <option value="Marcus Reeves">Marcus Reeves</option>
-            </select>
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Due Date <span className="text-slate-400 font-normal">(auto: 30 days before expiry)</span></label>
@@ -601,6 +603,11 @@ export default function NewCertificatePage() {
   const router                    = useRouter()
   const { workspace }             = useWorkspace()
   const { data: properties = [] } = useProperties(workspace?.id)
+  const { data: liveContacts = [] } = useContacts(workspace?.id)
+  const contacts = React.useMemo(
+    () => liveContacts.map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Contact" })),
+    [liveContacts]
+  )
   const [step, setStep]           = useState(1)
   const [state, setState]         = useState<WizardState>(DEFAULT_STATE)
   const [saving, setSaving]       = useState(false)
@@ -634,13 +641,13 @@ export default function NewCertificatePage() {
     }
   }
 
-  // Derive a status from the expiry date so the record reflects reality.
+  // Derive a live compliance_status enum value from the expiry date.
   function deriveStatus(): string {
-    if (!state.expiryDate) return "valid"
+    if (!state.expiryDate) return "ok"
     const days = daysUntil(state.expiryDate)
-    if (days < 0) return "expired"
-    if (days <= 30) return "expiring_soon"
-    return "valid"
+    if (days < 0) return "overdue"
+    if (days <= 30) return "due_soon"
+    return "ok"
   }
 
   const handleSave = async () => {
@@ -667,31 +674,29 @@ export default function NewCertificatePage() {
         return
       }
 
-      // 2. Insert the certificate with real schema columns + workspace_id.
+      // 2. Insert the certificate into the live `compliance_items` table.
       const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const typeLabel = CERT_TYPES.find((t) => t.key === state.certType)?.label ?? "Certificate"
       const { data, error } = await supabase
-        .from("compliance_certificates")
+        .from("compliance_items")
         .insert({
           workspace_id: workspace.id,
-          certificate_type: state.certType,
+          kind: CERT_KIND_MAP[state.certType],
+          title: typeLabel,
           property_id: state.recordMode === "property" && state.property ? state.property : null,
-          reference_number: state.referenceNumber || null,
-          issue_date: state.issueDate || null,
-          expiry_date: state.expiryDate || null,
+          reference_no: state.referenceNumber || null,
+          last_completed_at: state.issueDate || null,
+          due_date: state.expiryDate || null,
           status: deriveStatus(),
-          risk_level: CERT_TYPES.find((t) => t.key === state.certType)?.critical ? "high" : "low",
           notes: state.issuerName ? `Issuer: ${state.issuerName}` : null,
-          reminder_enabled: state.renewalReminder,
+          metadata: { reminder_enabled: state.renewalReminder },
+          created_by: user?.id ?? null,
         })
         .select("id")
         .single()
 
       if (error) {
-        if (error.code === "42P01") {
-          // Table not provisioned — show success but no redirect target.
-          setSaved(true)
-          return
-        }
         setUploadError(error.message)
         setSaving(false)
         return
@@ -704,17 +709,23 @@ export default function NewCertificatePage() {
       if (fileUrl && certId) {
         const url = fileUrl
         try {
-          await supabase.from("compliance_documents").insert({
+          await supabase.from("documents").insert({
             workspace_id: workspace.id,
             property_id: state.recordMode === "property" && state.property ? state.property : null,
-            document_name: state.fileName || "Certificate document",
-            document_type: "certificate",
-            file_url: url,
-            issuer: state.issuerName || null,
-            issue_date: state.issueDate || null,
-            expiry_date: state.expiryDate || null,
-            verification_status: "pending",
-            linked_certificate_id: certId,
+            name: state.fileName || `${typeLabel} document`,
+            type: "certificate",
+            category: "compliance_certificate",
+            url,
+            r2_key: url,
+            r2_bucket: "propvora",
+            status: "active",
+            expires_at: state.expiryDate || null,
+            metadata: {
+              issuer: state.issuerName || null,
+              verification_status: "pending",
+              linked_certificate_id: certId,
+            },
+            created_by: user?.id ?? null,
           })
         } catch {
           /* non-fatal: certificate already created */
@@ -782,7 +793,7 @@ export default function NewCertificatePage() {
 
       <div className="flex gap-0 min-h-[calc(100vh-140px)]">
         {/* Left Stepper 240px */}
-        <aside className="w-60 shrink-0 border-r border-slate-100 bg-slate-50 py-6 px-4">
+        <aside className="hidden lg:block w-60 shrink-0 border-r border-slate-100 bg-slate-50 py-6 px-4">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Steps</p>
           <div className="space-y-1">
             {STEPS.map((s) => (
@@ -821,7 +832,7 @@ export default function NewCertificatePage() {
               {step === 1 && <Step1 state={state} update={update} />}
               {step === 2 && <Step2 state={state} update={update} properties={properties} />}
               {step === 3 && <Step3 state={state} update={update} />}
-              {step === 4 && <Step4 state={state} update={update} />}
+              {step === 4 && <Step4 state={state} update={update} contacts={contacts} />}
               {step === 5 && (
                 <Step5
                   state={state}
@@ -875,7 +886,7 @@ export default function NewCertificatePage() {
         </main>
 
         {/* Right Summary Rail 260px */}
-        <aside className="w-64 shrink-0 border-l border-slate-100 bg-slate-50 py-6 px-4">
+        <aside className="hidden xl:block w-64 shrink-0 border-l border-slate-100 bg-slate-50 py-6 px-4">
           <SummaryRail state={state} />
         </aside>
       </div>

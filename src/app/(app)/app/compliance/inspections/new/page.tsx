@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
+import { useContacts } from "@/hooks/useContacts"
 import {
   Home,
   LogIn,
@@ -91,13 +92,6 @@ const INSPECTION_TYPES: {
   { key: "other", label: "Other", description: "Custom inspection type", icon: HelpCircle, colour: "#64748B" },
 ]
 
-const MOCK_INSPECTORS = [
-  { id: "c1", name: "Sarah Chen", role: "Property Manager" },
-  { id: "c2", name: "James Patel", role: "Inspector" },
-  { id: "c3", name: "Alex Morgan", role: "Contractor" },
-  { id: "c4", name: "Fire Inspector Ltd", role: "Specialist" },
-]
-
 const ROUTINE_CHECKLIST: ChecklistItem[] = [
   { id: "cl-1", label: "General condition", severity: "ok" },
   { id: "cl-2", label: "Electrics & sockets", severity: "ok" },
@@ -123,7 +117,7 @@ const STEPS = [
 
 function StepSidebar({ current }: { current: number }) {
   return (
-    <aside className="w-60 shrink-0 sticky top-6">
+    <aside className="hidden lg:block w-60 shrink-0 sticky top-6">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">Progress</p>
         <ol className="space-y-1">
@@ -173,7 +167,7 @@ function SummaryRail({
 }) {
   const typeCfg = inspectionType ? INSPECTION_TYPES.find((t) => t.key === inspectionType) : null
   return (
-    <aside className="w-64 shrink-0 sticky top-6">
+    <aside className="hidden xl:block w-64 shrink-0 sticky top-6">
       <Card className="p-4">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Inspection Preview</p>
         <div className="space-y-3">
@@ -231,9 +225,21 @@ export default function NewInspectionPage() {
   // Live properties + units for the selected property.
   const { data: liveProperties = [] } = useProperties(workspace?.id)
   const { data: liveUnits = [] } = useUnits(workspace?.id, propertyId || undefined)
+  const { data: liveContacts = [] } = useContacts(workspace?.id)
   const properties = useMemo(
     () => liveProperties.map((p) => ({ id: p.id, name: p.name || p.address_line1 || "Property", units: [] as string[] })),
     [liveProperties]
+  )
+  const inspectors = useMemo(
+    () => liveContacts.map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Contact", role: c.category || c.contact_type || "Contact" })),
+    [liveContacts]
+  )
+  const suppliers = useMemo(
+    () =>
+      liveContacts
+        .filter((c) => c.contact_type === "supplier" || c.contact_type === "maintenance" || c.contact_type === "emergency_contractor")
+        .map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Supplier" })),
+    [liveContacts]
   )
 
   // Step 3
@@ -288,36 +294,42 @@ export default function NewInspectionPage() {
       setStep(1)
       return
     }
+    if (!propertyId) {
+      setSaveError("Please select a property for this inspection.")
+      setStep(2)
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
       const supabase = createClient()
-      // Combine date + time into a timestamp for scheduled_date.
+      const { data: { user } } = await supabase.auth.getUser()
+      // Combine date + time into a timestamp for scheduled_for.
       const scheduledAt = scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "10:00"}:00`).toISOString() : null
-      const inspectorName = MOCK_INSPECTORS.find((c) => c.id === inspectorId)?.name ?? null
-      const notesParts = [inspectorNotes || null, checklist.length ? `Checklist: ${checklist.map((c) => c.label).join(", ")}` : null].filter(Boolean)
+      const inspectorName = inspectors.find((c) => c.id === inspectorId)?.name ?? null
+      const notesParts = [
+        inspectorName ? `Inspector: ${inspectorName}` : null,
+        inspectorNotes || null,
+        checklist.length ? `Checklist: ${checklist.map((c) => c.label).join(", ")}` : null,
+      ].filter(Boolean)
 
       const { data, error } = await supabase
-        .from("compliance_inspections")
+        .from("property_inspections")
         .insert({
           workspace_id: workspace.id,
-          inspection_type: inspType,
+          kind: inspType,
           property_id: propertyId || null,
-          scheduled_date: scheduledAt,
-          inspector_name: inspectorName,
-          status: "upcoming",
-          findings_count: 0,
-          evidence_count: 0,
+          scheduled_for: scheduledAt,
+          status: "scheduled",
+          inspector_id: inspectorId || null,
+          supplier_id: supplierId || null,
           notes: notesParts.length ? notesParts.join("\n") : null,
+          created_by: user?.id ?? null,
         })
         .select("id")
         .single()
 
       if (error) {
-        if (error.code === "42P01") {
-          setSaved(true)
-          return
-        }
         setSaveError(error.message)
         setSaving(false)
         return
@@ -479,10 +491,10 @@ export default function NewInspectionPage() {
                         onChange={(e) => setSupplierId(e.target.value)}
                         className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
                       >
-                        <option value="">Select a supplier…</option>
-                        <option value="s1">Propcare Services Ltd</option>
-                        <option value="s2">Fire Safety Pro</option>
-                        <option value="s3">BuildRight Contractors</option>
+                        <option value="">{suppliers.length ? "Select a supplier…" : "No suppliers found"}</option>
+                        {suppliers.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
                       </select>
                     </div>
                   )}
@@ -494,8 +506,8 @@ export default function NewInspectionPage() {
                       onChange={(e) => setInspectorId(e.target.value)}
                       className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
                     >
-                      <option value="">Select an inspector…</option>
-                      {MOCK_INSPECTORS.map((c) => (
+                      <option value="">{inspectors.length ? "Select an inspector…" : "No contacts found"}</option>
+                      {inspectors.map((c) => (
                         <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
                       ))}
                     </select>
@@ -727,8 +739,8 @@ export default function NewInspectionPage() {
                         onChange={(e) => setWorkJobAssignee(e.target.value)}
                         className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
                       >
-                        <option value="">Select assignee…</option>
-                        {MOCK_INSPECTORS.map((c) => (
+                        <option value="">{inspectors.length ? "Select assignee…" : "No contacts found"}</option>
+                        {inspectors.map((c) => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
@@ -779,7 +791,7 @@ export default function NewInspectionPage() {
                     },
                     {
                       label: "Inspector",
-                      value: MOCK_INSPECTORS.find((c) => c.id === inspectorId)?.name ?? "Not selected",
+                      value: inspectors.find((c) => c.id === inspectorId)?.name ?? "Not selected",
                       icon: <User className="w-4 h-4 text-slate-400" />,
                     },
                     {
@@ -810,7 +822,7 @@ export default function NewInspectionPage() {
                   size="lg"
                   className="w-full"
                   loading={saving}
-                  disabled={!inspType || !scheduledDate}
+                  disabled={!inspType || !scheduledDate || !propertyId}
                   onClick={handleSchedule}
                 >
                   {saving ? "Scheduling…" : "Schedule Inspection"}
