@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from "react"
+import React, { useMemo, useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -31,6 +31,8 @@ import {
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { cn } from "@/lib/utils"
 import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus, normalisePropertyType, exportCsv } from "@/lib/portfolio/helpers"
+import { createClient } from "@/lib/supabase/client"
+import { resolvePropertyCoverUrls, resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
 
 /* ------------------------------------------------------------------ */
 /* 13 Operational Profiles                                              */
@@ -260,6 +262,30 @@ export default function PortfolioPage() {
   const { data: rawTenancies, isLoading: tenanciesLoading } = useTenancies(workspace?.id)
   const loading = propsLoading || unitsLoading || tenanciesLoading
 
+  /* Real uploaded cover photos → card coverImageUrl. Keyed by property id
+     (properties.cover_file_id) and unit id (files.unit_id + is_cover).
+     Empty maps leave coverImageUrl undefined → gradient fallback. */
+  const [propCoverUrls, setPropCoverUrls] = useState<globalThis.Map<string, string>>(new globalThis.Map())
+  useEffect(() => {
+    if (!workspace?.id) { setPropCoverUrls(new globalThis.Map()); return }
+    let active = true
+    resolvePropertyCoverUrls(createClient(), workspace.id)
+      .then((m) => { if (active) setPropCoverUrls(m) })
+      .catch(() => { if (active) setPropCoverUrls(new globalThis.Map()) })
+    return () => { active = false }
+  }, [workspace?.id, rawProperties])
+
+  const [unitCoverUrls, setUnitCoverUrls] = useState<globalThis.Map<string, string>>(new globalThis.Map())
+  useEffect(() => {
+    const ids = (rawUnits ?? []).map((u) => u.id)
+    if (!workspace?.id || ids.length === 0) { setUnitCoverUrls(new globalThis.Map()); return }
+    let active = true
+    resolveCoverUrlsByUnit(createClient(), ids)
+      .then((m) => { if (active) setUnitCoverUrls(m) })
+      .catch(() => { if (active) setUnitCoverUrls(new globalThis.Map()) })
+    return () => { active = false }
+  }, [workspace?.id, rawUnits])
+
   /* Delete (live only) */
   const deleteProperty = useDeleteProperty()
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null)
@@ -281,9 +307,9 @@ export default function PortfolioPage() {
       unit_name: u.unit_name,
       unit_type: u.unit_type, bedrooms: u.bedrooms,
       floor_area_sqm: u.floor_area_sqm, target_rent: u.target_rent, status: u.status,
-      coverImageUrl: (u as { cover_image_url?: string | null }).cover_image_url ?? undefined,
+      coverImageUrl: unitCoverUrls.get(u.id) ?? (u as { cover_image_url?: string | null }).cover_image_url ?? undefined,
     }))
-  }, [rawUnits, rawProperties, isLive])
+  }, [rawUnits, rawProperties, isLive, unitCoverUrls])
 
   const tenancies: TenancyCardData[] = useMemo(() => {
     if (!isLive) return MOCK_TENANCIES
@@ -327,10 +353,10 @@ export default function PortfolioPage() {
         operationProfile: normaliseOperationProfile(p.operation_profile),
         bedrooms: p.bedrooms ?? undefined,
         bathrooms: p.bathrooms ?? undefined,
-        coverImageUrl: p.cover_image_url ?? undefined,
+        coverImageUrl: propCoverUrls.get(p.id) ?? p.cover_image_url ?? undefined,
       }
     })
-  }, [rawProperties, rawUnits, rawTenancies, isLive])
+  }, [rawProperties, rawUnits, rawTenancies, isLive, propCoverUrls])
 
   /* Filtered datasets */
   const filteredProperties = useMemo(() => {

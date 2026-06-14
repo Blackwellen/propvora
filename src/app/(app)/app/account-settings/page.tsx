@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/Badge"
 import { createClient } from "@/lib/supabase/client"
 import { useShellStyle } from "@/contexts/ShellStyleContext"
 import { SHELL_STYLE_META, type ShellStyle, type ShellLayout } from "@/lib/shell"
+import { useGuidedHelp } from "@/guided-help/GuidedHelpProvider"
 
 /* ------------------------------------------------------------------ */
 /* Schemas                                                             */
@@ -585,6 +586,10 @@ function PreferencesTab() {
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
 
+  // Guided product tour / tips toggle — persisted by the guided-help provider
+  // (localStorage "propvora.help.enabled" + best-effort guided_help_state).
+  const { enabled: tourEnabled, setEnabled: setTourEnabled } = useGuidedHelp()
+
   async function handleSave() {
     setSaving(true); await new Promise(r => setTimeout(r, 800)); setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -592,6 +597,15 @@ function PreferencesTab() {
 
   return (
     <div className="space-y-5 max-w-md">
+      {/* Product tour & tips */}
+      <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white">
+        <div>
+          <p className="text-sm font-medium text-slate-900">Product tour &amp; tips</p>
+          <p className="text-xs text-slate-400 mt-0.5">Show guided walkthroughs and first-use tips as you explore Propvora.</p>
+        </div>
+        <Toggle checked={tourEnabled} onChange={setTourEnabled} />
+      </div>
+
       {[
         { label: "Language",    options: ["English (GB)", "English (US)", "Welsh"],           default: "English (GB)" },
         { label: "Date Format", options: ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],          default: "DD/MM/YYYY" },

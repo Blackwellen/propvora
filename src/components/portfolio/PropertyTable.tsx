@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import type { PropertyCardData } from "./PropertyCard"
 import {
-  ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit2, Archive, ArrowUpDown, Building2,
+  ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit2, Archive, ArrowUpDown, Building2, Home,
 } from "lucide-react"
+import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -137,6 +138,7 @@ export function PropertyTable({
             <tr className="border-b border-slate-100 bg-slate-50/80">
               <Th k="name">Property</Th>
               <Th k="type">Type</Th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">Dwelling</th>
               <Th k="units">Units</Th>
               <Th k="occupancy">Occupancy</Th>
               <Th k="monthlyRent">Rent / mo</Th>
@@ -152,6 +154,9 @@ export function PropertyTable({
               const occupancyPct = p.units > 0 ? Math.round(((p.occupied ?? p.tenants) / p.units) * 100) : 0
               const coverGradient = TYPE_GRADIENTS[p.type] ?? TYPE_GRADIENTS.Other
               const manager = MANAGERS[i % MANAGERS.length]
+              const dwellingLabel = p.category
+                ? (getPropertyTypeOption(p.category)?.label ?? p.category)
+                : null
 
               return (
                 <tr
@@ -181,6 +186,18 @@ export function PropertyTable({
                     <span className={cn("inline-flex text-[10px] font-bold px-2 py-0.5 rounded-md", typeBadge.bg, typeBadge.text)}>
                       {typeBadge.label}
                     </span>
+                  </td>
+
+                  {/* Dwelling type (category) */}
+                  <td className="px-4 py-3">
+                    {dwellingLabel ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 whitespace-nowrap">
+                        <Home className="w-3 h-3 text-slate-400" />
+                        {dwellingLabel}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-300">—</span>
+                    )}
                   </td>
 
                   {/* Units */}
@@ -240,7 +257,7 @@ export function PropertyTable({
                       {menuOpen === p.id && (
                         <>
                           <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(null)} />
-                          <div className="absolute right-0 top-full mt-1 z-40 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 overflow-hidden">
+                          <div className="absolute right-0 top-full mt-1 z-40 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                             {[
                               { label: "View",    icon: Eye,     href: `/app/portfolio/properties/${p.id}` },
                               { label: "Edit",    icon: Edit2,   href: `/app/portfolio/properties/${p.id}/edit` },
@@ -272,7 +289,7 @@ export function PropertyTable({
 
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-16 text-center text-sm text-slate-400">
+                <td colSpan={9} className="px-4 py-16 text-center text-sm text-slate-400">
                   No properties found
                 </td>
               </tr>

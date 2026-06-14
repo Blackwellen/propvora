@@ -34,6 +34,7 @@ function PropertyMiniCard({ property }: { property: HomeProperty }) {
     "from-violet-200 to-violet-400",
   ]
   const gradient = property.gradient || gradients[0]
+  const cover = property.coverImageUrl
 
   return (
     <Link
@@ -41,7 +42,12 @@ function PropertyMiniCard({ property }: { property: HomeProperty }) {
       className="flex-1 min-w-0 block rounded-xl overflow-hidden border border-[#E2E8F0] hover:shadow-md transition-shadow group"
     >
       <div className={`relative h-24 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-        <Building2 className="text-white/70" style={{ width: 28, height: 28 }} />
+        {cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={cover} alt={property.name} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <Building2 className="text-white/70" style={{ width: 28, height: 28 }} />
+        )}
         <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
           <span className="text-[9px] font-bold text-slate-700">{property.occupancyPct}%</span>
         </div>

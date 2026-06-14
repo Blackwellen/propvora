@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
@@ -18,6 +18,9 @@ import { useTenancies } from "@/hooks/useTenancies"
 import { LayoutGrid, List, Plus, Search, Building2, ChevronLeft, ChevronRight, X, SlidersHorizontal, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus, normalisePropertyType, exportCsv } from "@/lib/portfolio/helpers"
+import { createClient } from "@/lib/supabase/client"
+import { resolvePropertyCoverUrls } from "@/lib/files/coverUrl"
+import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
 /* ------------------------------------------------------------------ */
 /* Mock data — no external images                                      */
@@ -52,6 +55,7 @@ export default function PropertiesListPage() {
   const [search, setSearch] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
   const [filterProfile, setFilterProfile] = useState("all")
+  const [filterType, setFilterType] = useState("all")
   const [filterHealth, setFilterHealth] = useState("all")
   const [sortBy, setSortBy] = useState("name")
   const [page, setPage] = useState(1)
@@ -61,6 +65,18 @@ export default function PropertiesListPage() {
   const { data: rawUnits } = useUnits(workspace?.id)
   const { data: rawTenancies } = useTenancies(workspace?.id)
   const loading = wsLoading || propsLoading
+
+  /* Real uploaded cover photos (cover_file_id → /api/files URL), keyed by
+     property id. Empty when none/unavailable → cards keep gradient fallback. */
+  const [coverUrls, setCoverUrls] = useState<Map<string, string>>(new Map())
+  useEffect(() => {
+    if (!workspace?.id) { setCoverUrls(new Map()); return }
+    let active = true
+    resolvePropertyCoverUrls(createClient(), workspace.id)
+      .then((m) => { if (active) setCoverUrls(m) })
+      .catch(() => { if (active) setCoverUrls(new Map()) })
+    return () => { active = false }
+  }, [workspace?.id, rawProps])
 
   const allProperties: PropertyCardData[] = useMemo(() => {
     if (!workspace?.id) return MOCK
@@ -78,21 +94,34 @@ export default function PropertiesListPage() {
         address: [p.address_line1, p.city].filter(Boolean).join(", ") ?? "",
         postcode: p.postcode ?? "",
         type: normalisePropertyType(p.property_type) as PropertyCardData["type"],
+        category: p.category ?? null,
         status: normalisePropertyStatus(p.status) as PropertyCardData["status"],
         units: unitCount, occupied, tenants: a?.tenants ?? 0,
         monthlyRent: (a && a.unitRent > 0 ? a.unitRent : p.target_rent) ?? 0,
         operationProfile: normaliseOperationProfile(p.operation_profile),
         bedrooms: p.bedrooms ?? undefined, bathrooms: p.bathrooms ?? undefined,
-        coverImageUrl: p.cover_image_url ?? undefined,
+        coverImageUrl: coverUrls.get(p.id) ?? p.cover_image_url ?? undefined,
       }
     })
-  }, [rawProps, rawUnits, rawTenancies, workspace?.id])
+  }, [rawProps, rawUnits, rawTenancies, workspace?.id, coverUrls])
+
+  /* Distinct dwelling types present in the live data — drives the Type filter. */
+  const typeOptions = useMemo(() => {
+    const seen = new Map<string, string>()
+    for (const p of allProperties) {
+      if (!p.category || seen.has(p.category)) continue
+      seen.set(p.category, getPropertyTypeOption(p.category)?.label ?? p.category)
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [allProperties])
 
   const filtered = useMemo(() => {
     let r = [...allProperties]
     if (search) r = r.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase()) || p.postcode.toLowerCase().includes(search.toLowerCase()))
     if (filterStatus !== "all") r = r.filter((p) => p.status === filterStatus)
     if (filterProfile !== "all") r = r.filter((p) => p.operationProfile === filterProfile)
+    if (filterType !== "all") r = r.filter((p) => p.category === filterType)
     if (filterHealth !== "all") r = r.filter((p) => p.healthScore === filterHealth)
     r.sort((a, b) => {
       if (sortBy === "rent") return b.monthlyRent - a.monthlyRent
@@ -100,13 +129,13 @@ export default function PropertiesListPage() {
       return a.name.localeCompare(b.name)
     })
     return r
-  }, [allProperties, search, filterStatus, filterProfile, filterHealth, sortBy])
+  }, [allProperties, search, filterStatus, filterProfile, filterType, filterHealth, sortBy])
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const activeFilters = [filterStatus !== "all", filterProfile !== "all", filterHealth !== "all"].filter(Boolean).length
+  const activeFilters = [filterStatus !== "all", filterProfile !== "all", filterType !== "all", filterHealth !== "all"].filter(Boolean).length
 
-  function clearFilters() { setSearch(""); setFilterStatus("all"); setFilterProfile("all"); setFilterHealth("all"); setPage(1) }
+  function clearFilters() { setSearch(""); setFilterStatus("all"); setFilterProfile("all"); setFilterType("all"); setFilterHealth("all"); setPage(1) }
 
   /* Health filter only meaningful when the data carries health scores (mock/demo). */
   const hasHealthScores = allProperties.some(p => p.healthScore)
@@ -115,7 +144,8 @@ export default function PropertiesListPage() {
     exportCsv(
       filtered.map(p => ({
         name: p.name, address: p.address, postcode: p.postcode,
-        type: p.type, operation_profile: p.operationProfile, status: p.status,
+        type: p.type, dwelling_type: p.category ? (getPropertyTypeOption(p.category)?.label ?? p.category) : "",
+        operation_profile: p.operationProfile, status: p.status,
         units: p.units, occupied: p.occupied ?? 0, monthly_rent: p.monthlyRent,
       })),
       `properties-${new Date().toISOString().slice(0, 10)}.csv`,
@@ -211,6 +241,19 @@ export default function PropertiesListPage() {
               {ALL_OPERATION_PROFILES.filter(p => p !== "Unassigned").map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
+          {typeOptions.length > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">Property Type</label>
+              <select
+                value={filterType}
+                onChange={(e) => { setFilterType(e.target.value); setPage(1) }}
+                className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+              >
+                <option value="all">All types</option>
+                {typeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+          )}
           {hasHealthScores && (
             <div>
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">Health Score</label>

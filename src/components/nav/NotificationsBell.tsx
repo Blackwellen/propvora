@@ -173,7 +173,7 @@ export default function NotificationsBell() {
             "absolute right-0 top-full mt-2 w-80 z-50",
             "bg-white rounded-2xl shadow-2xl",
             "border border-slate-200",
-            "overflow-hidden flex flex-col max-h-[480px]",
+            "overflow-hidden flex flex-col max-h-[min(75vh,480px)]",
             "animate-[slideUp_150ms_ease-out]"
           )}
         >
@@ -199,7 +199,7 @@ export default function NotificationsBell() {
           </div>
 
           {/* Notifications list */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto overscroll-contain">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">

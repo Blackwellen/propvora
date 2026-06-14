@@ -119,7 +119,7 @@ export default function ContactPicker({ open, onClose, onSelect }: ContactPicker
         </div>
 
         {/* Contacts list */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           {filtered.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">No contacts found</p>
           ) : (

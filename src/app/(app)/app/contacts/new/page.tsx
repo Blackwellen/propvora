@@ -35,6 +35,7 @@ import {
   CheckCircle2,
   ArrowLeft,
 } from "lucide-react"
+import { SUPPLIER_CATEGORY_GROUPS } from "@/lib/constants/supplierCategories"
 import { useCreateContact } from "@/hooks/useContacts"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { ContactType, InsertContact } from "@/types/database"
@@ -158,13 +159,6 @@ const CONTACT_TYPE_OPTIONS: {
   { value: "insurer", label: "Insurer", icon: Shield, desc: "Insurance provider", colour: "border-cyan-200 bg-cyan-50 text-cyan-700" },
   { value: "investor", label: "Investor", icon: TrendingUp, desc: "Property investor or backer", colour: "border-green-200 bg-green-50 text-green-700" },
   { value: "other", label: "Other", icon: User, desc: "Other contact type", colour: "border-slate-200 bg-slate-50 text-slate-600" },
-]
-
-const SUPPLIER_SERVICES = [
-  "Plumbing", "Electrical", "Gas/Heating", "Cleaning", "Gardening",
-  "Handyman", "Locksmith", "Pest Control", "Waste Removal", "Broadband/Telecoms",
-  "Utilities", "Inventory Clerk", "Inspection", "Compliance", "Decorator",
-  "Builder", "Emergency Repairs", "Other",
 ]
 
 const ENQUIRY_SOURCES = [
@@ -453,6 +447,49 @@ function ChipGrid({
           </button>
         )
       })}
+    </div>
+  )
+}
+
+function GroupedChipGrid({
+  groups,
+  selected,
+  onChange,
+}: {
+  groups: { group: string; options: string[] }[]
+  selected: string[]
+  onChange: (v: string[]) => void
+}) {
+  const toggle = (opt: string) => {
+    onChange(selected.includes(opt) ? selected.filter((s) => s !== opt) : [...selected, opt])
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      {groups.map((grp) => (
+        <div key={grp.group} className="flex flex-col gap-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{grp.group}</p>
+          <div className="flex flex-wrap gap-2">
+            {grp.options.map((opt) => {
+              const active = selected.includes(opt)
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggle(opt)}
+                  className={[
+                    "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+                    active
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-blue-300",
+                  ].join(" ")}
+                >
+                  {opt}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -880,8 +917,8 @@ function Step5TypeSpecific({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Service Categories</label>
-          <ChipGrid
-            options={SUPPLIER_SERVICES}
+          <GroupedChipGrid
+            groups={SUPPLIER_CATEGORY_GROUPS}
             selected={state.supplierServices}
             onChange={(v) => setState((s) => ({ ...s, supplierServices: v }))}
           />
@@ -1642,7 +1679,16 @@ export default function NewContactPage() {
       city: state.city.trim() || null,
       postcode: state.postcode.trim() || null,
       notes: state.notes.trim() || null,
-      tags: state.tags.length > 0 ? state.tags.map((t) => t.label) : null,
+      // Persist selected supplier service categories alongside tags so they
+      // surface in the supplier service column/filter/detail (deriveSupplierCategories
+      // reads category/subcategory/tags). Without this they'd be lost on save.
+      tags: (() => {
+        const merged = [
+          ...state.tags.map((t) => t.label),
+          ...(state.contactType === "supplier" ? state.supplierServices : []),
+        ].filter((v, i, a) => v && a.indexOf(v) === i)
+        return merged.length > 0 ? merged : null
+      })(),
       status: "active",
       is_demo: false,
     }

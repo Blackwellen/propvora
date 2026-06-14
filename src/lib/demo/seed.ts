@@ -107,11 +107,21 @@ async function safeInsert(supabase: ReturnType<typeof createAdminClient>, table:
   ).map((r) => sanitiseRow(table, r))
   try {
     const { data, error } = await supabase.from(table as never).insert(stamped as never).select()
-    if (error) {
-      console.warn(`[seed] ${table} insert warning:`, error.message)
-      return []
+    if (!error) return data ?? []
+    console.warn(`[seed] ${table} batch insert warning:`, error.message)
+    // Batch insert is all-or-nothing: a single bad row rejects every row. Retry
+    // row-by-row so the good rows still land (and we surface which row failed).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const landed: any[] = []
+    for (const row of stamped) {
+      const { data: one, error: rowErr } = await supabase.from(table as never).insert(row as never).select()
+      if (rowErr) {
+        console.warn(`[seed] ${table} row insert warning:`, rowErr.message)
+        continue
+      }
+      if (one) landed.push(...one)
     }
-    return data ?? []
+    return landed
   } catch (err) {
     console.warn(`[seed] ${table} insert exception:`, err)
     return []
@@ -703,15 +713,39 @@ export async function seedDemoData(
   ])
 
   // ============================================================
+  // 25b. COMPLIANCE ITEMS (8) — the table the Compliance section reads
+  // ============================================================
+  // The Compliance section reads the live `compliance_items` table directly
+  // (useComplianceItems.ts maps kind→type). Base table, not a view.
+  // NOT NULL no-default: workspace_id, kind, title. Enums:
+  //   kind   = compliance_kind   (gas_safety|eicr|epc|pat|fire_alarm|…)
+  //   status = compliance_status (ok|due_soon|overdue|missing|exempt)
+
+  await safeInsert(supabase, 'compliance_items', [
+    { workspace_id: workspaceId, property_id: prop1.id, kind: 'gas_safety', title: 'Gas Safety Certificate — 42 Sycamore Road', status: 'ok', due_date: daysFromNow(355), last_completed_at: daysAgo(10), recurrence_months: 12, vendor_contact_id: supplier1.id, cost: 90, reference_no: 'GSC-SYC-001', notes: 'Annual GSC. Completed by DPM Maintenance.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop3.id, kind: 'gas_safety', title: 'Gas Safety Certificate — 22 Birchfield Lane', status: 'due_soon', due_date: daysFromNow(30), last_completed_at: monthsAgo(11), recurrence_months: 12, vendor_contact_id: supplier1.id, cost: 90, reference_no: 'GSC-BFL-001', notes: 'Book renewal urgently.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop1.id, kind: 'epc', title: 'EPC — 42 Sycamore Road', status: 'ok', due_date: daysFromNow(360), last_completed_at: monthsAgo(24), recurrence_months: 120, reference_no: 'EPC-BHM-001', notes: 'EPC Rating C.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop2.id, kind: 'epc', title: 'EPC — 88 Hawthorn Street', status: 'due_soon', due_date: daysFromNow(45), last_completed_at: monthsAgo(116), recurrence_months: 120, reference_no: 'EPC-BHM-002', notes: 'EPC Rating D. Due for renewal.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop2.id, kind: 'eicr', title: 'EICR — 88 Hawthorn Street', status: 'ok', due_date: daysFromNow(720), last_completed_at: monthsAgo(18), recurrence_months: 60, vendor_contact_id: supplier3.id, cost: 280, reference_no: 'EICR-HAW-001', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop3.id, kind: 'eicr', title: 'EICR — 22 Birchfield Lane', status: 'overdue', due_date: daysAgo(20), last_completed_at: monthsAgo(60), recurrence_months: 60, vendor_contact_id: supplier3.id, cost: 280, reference_no: 'EICR-BFL-001', notes: 'EICR overdue. Quote from Rajesh pending.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop1.id, kind: 'fire_alarm', title: 'Fire Alarm Test — 42 Sycamore Road', status: 'ok', due_date: daysFromNow(25), last_completed_at: daysAgo(5), recurrence_months: 1, reference_no: 'FA-SYC-001', notes: 'Monthly fire alarm test logged.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop1.id, kind: 'hmo_licence', title: 'HMO Licence — 42 Sycamore Road', status: 'due_soon', due_date: daysFromNow(45), last_completed_at: monthsAgo(55), recurrence_months: 60, cost: 800, reference_no: 'HMO-BCC-001', notes: 'Renewal due to Birmingham City Council.', demo: true, created_by: userId },
+  ])
+
+  // ============================================================
   // 26. DOCUMENTS (5)
   // ============================================================
 
+  // Live `documents` has NOT-NULL no-default `r2_key` (the R2 object key) and
+  // uses `created_by` (not `uploaded_by`). `contact_id`/`file_url`/`file_path`
+  // don't exist on the live table, so they're dropped by the sanitiser; keep the
+  // tenancy link via the real `tenancy_id` column where relevant.
   await safeInsert(supabase, 'documents', [
-    { workspace_id: workspaceId, name: 'AST — James Thornton (Room 1)', category: 'tenancy_agreement', property_id: prop1.id, contact_id: tenant1.id, file_url: null, file_path: null, mime_type: 'application/pdf', demo: true, uploaded_by: userId },
-    { workspace_id: workspaceId, name: 'AST — Sophie Clarke (88 Hawthorn Street)', category: 'tenancy_agreement', property_id: prop2.id, contact_id: tenant4.id, file_url: null, file_path: null, mime_type: 'application/pdf', demo: true, uploaded_by: userId },
-    { workspace_id: workspaceId, name: 'Right to Rent Check — Amara Mensah', category: 'right_to_rent', property_id: prop1.id, contact_id: tenant2.id, file_url: null, file_path: null, mime_type: 'application/pdf', demo: true, uploaded_by: userId },
-    { workspace_id: workspaceId, name: 'Passport Copy — Oliver Shaw', category: 'id_document', contact_id: tenant3.id, file_url: null, file_path: null, mime_type: 'image/jpeg', demo: true, uploaded_by: userId },
-    { workspace_id: workspaceId, name: 'Gas Safety Record — 42 Sycamore Road', category: 'compliance_certificate', property_id: prop1.id, file_url: null, file_path: null, mime_type: 'application/pdf', demo: true, uploaded_by: userId },
+    { workspace_id: workspaceId, name: 'AST — James Thornton (Room 1)', category: 'tenancy_agreement', type: 'tenancy_agreement', property_id: prop1.id, tenancy_id: tenancy1?.id ?? null, r2_key: `demo/${workspaceId}/ast-james-thornton.pdf`, mime_type: 'application/pdf', size_bytes: 248320, status: 'active', demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'AST — Sophie Clarke (88 Hawthorn Street)', category: 'tenancy_agreement', type: 'tenancy_agreement', property_id: prop2.id, tenancy_id: tenancy4?.id ?? null, r2_key: `demo/${workspaceId}/ast-sophie-clarke.pdf`, mime_type: 'application/pdf', size_bytes: 251904, status: 'active', demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'Right to Rent Check — Amara Mensah', category: 'right_to_rent', type: 'right_to_rent', property_id: prop1.id, r2_key: `demo/${workspaceId}/rtr-amara-mensah.pdf`, mime_type: 'application/pdf', size_bytes: 102400, status: 'active', demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'Passport Copy — Oliver Shaw', category: 'id_document', type: 'id_document', r2_key: `demo/${workspaceId}/passport-oliver-shaw.jpg`, mime_type: 'image/jpeg', size_bytes: 1843200, status: 'active', demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'Gas Safety Record — 42 Sycamore Road', category: 'compliance_certificate', type: 'compliance_certificate', property_id: prop1.id, r2_key: `demo/${workspaceId}/gsc-42-sycamore.pdf`, mime_type: 'application/pdf', size_bytes: 198656, status: 'active', demo: true, created_by: userId },
   ])
 
   // ============================================================

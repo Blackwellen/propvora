@@ -163,7 +163,7 @@ export default function PersonCard({ contact, onClick, onMenuClick }: PersonCard
           <MoreHorizontal className="w-4 h-4" />
         </button>
         {menuOpen && (
-          <div className="absolute right-0 bottom-7 z-20 bg-white rounded-xl shadow-lg border border-slate-100 py-1 min-w-[130px]">
+          <div className="absolute right-0 bottom-7 z-20 bg-white rounded-xl shadow-lg border border-slate-100 py-1 min-w-[130px] max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
             {MENU_ACTIONS.map((action) => (
               <button
                 key={action}

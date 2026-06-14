@@ -87,7 +87,7 @@ export function SavedViewsMenu<TConfig extends Record<string, unknown>>({
             </button>
           </div>
 
-          <div className="max-h-72 overflow-y-auto py-1">
+          <div className="max-h-[min(55vh,288px)] overflow-y-auto overscroll-contain py-1">
             {isLoading ? (
               <p className="px-3 py-3 text-[12px] text-slate-400 text-center">Loading…</p>
             ) : views.length === 0 ? (

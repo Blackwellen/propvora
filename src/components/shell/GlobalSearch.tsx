@@ -229,7 +229,7 @@ export default function GlobalSearch({ className }: GlobalSearchProps) {
         <div
           id="global-search-results"
           role="listbox"
-          className="absolute top-12 left-0 right-0 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden max-h-[420px] overflow-y-auto"
+          className="absolute top-12 left-0 right-0 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl max-h-[min(60vh,420px)] overflow-y-auto overscroll-contain"
         >
           {loading && results.length === 0 ? (
             <div className="flex items-center justify-center py-8">

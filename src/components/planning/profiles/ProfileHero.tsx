@@ -218,7 +218,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
             <div className="absolute right-0 top-full mt-1.5 w-56 bg-white rounded-xl border border-slate-200 shadow-lg z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 overflow-hidden">
-              <div className="py-1 max-h-64 overflow-y-auto">
+              <div className="py-1 max-h-[min(55vh,256px)] overflow-y-auto overscroll-contain">
                 {PROFILE_CONFIGS.filter((p) => p.slug !== profile.slug).map(
                   (p) => (
                     <button

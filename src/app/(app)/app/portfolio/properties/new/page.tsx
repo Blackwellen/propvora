@@ -7,6 +7,7 @@ import { FormContainer, PageHeader } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { PLANNING_PROFILES } from "@/lib/planning/profiles"
+import { PROPERTY_TYPE_GROUPS, getPropertyTypeOption, templateForPropertyType } from "@/lib/constants/propertyTypes"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -70,14 +71,6 @@ interface PropertyWizardData {
   documents: string[]
 }
 
-const PROPERTY_TYPES = [
-  { key: "house", label: "House", icon: Home },
-  { key: "flat", label: "Flat / Apartment", icon: Building2 },
-  { key: "hmo", label: "HMO", icon: Layers },
-  { key: "commercial", label: "Commercial", icon: Building2 },
-  { key: "mixed", label: "Mixed Use", icon: Layers },
-]
-
 const STATUSES = [
   { key: "active", label: "Active" },
   { key: "vacant", label: "Vacant" },
@@ -138,27 +131,24 @@ function StepBasics({ data, onChange }: { data: PropertyWizardData; onChange: (d
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">Property Type <span className="text-red-500">*</span></label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {PROPERTY_TYPES.map((pt) => {
-            const Icon = pt.icon
-            return (
-              <button
-                key={pt.key}
-                onClick={() => onChange({ propertyType: pt.key })}
-                className={cn(
-                  "flex items-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all duration-150 text-left",
-                  data.propertyType === pt.key
-                    ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
-                    : "border-[#E2E8F0] text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {pt.label}
-                {data.propertyType === pt.key && <Check className="w-3.5 h-3.5 ml-auto" />}
-              </button>
-            )
-          })}
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">Property Type <span className="text-red-500">*</span></label>
+        <div className="relative">
+          <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <select
+            value={data.propertyType}
+            onChange={(e) => onChange({ propertyType: e.target.value })}
+            className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+          >
+            <option value="">Select a property type…</option>
+            {PROPERTY_TYPE_GROUPS.map((grp) => (
+              <optgroup key={grp.group} label={grp.group}>
+                {grp.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
         </div>
       </div>
 
@@ -440,7 +430,7 @@ function StepReview({ data }: { data: PropertyWizardData }) {
   const selectedProfile = PLANNING_PROFILES.find((p) => p.key === data.operationProfile)
   const rows = [
     { label: "Name", value: data.name || "—" },
-    { label: "Type", value: data.propertyType || "—" },
+    { label: "Type", value: getPropertyTypeOption(data.propertyType)?.label || "—" },
     { label: "Status", value: data.status || "—" },
     { label: "Address", value: [data.addressLine1, data.city, data.postcode].filter(Boolean).join(", ") || "—" },
     { label: "Operation Profile", value: selectedProfile?.label || "—" },
@@ -510,23 +500,25 @@ export default function NewPropertyPage() {
         .from("properties")
         .insert({
           workspace_id: workspaceId,
-          name: data.name,
-          property_type: data.propertyType,
+          // Live column is `nickname` (not `name`).
+          nickname: data.name,
+          // Dwelling type is stored in the free-text `category` column; the DB
+          // `template` enum is derived from it (mapping never invents enum values).
+          category: data.propertyType || null,
+          template: templateForPropertyType(data.propertyType),
           status: data.status,
           address_line1: data.addressLine1,
           address_line2: data.addressLine2 || null,
           city: data.city,
           county: data.county || null,
           postcode: data.postcode,
-          operation_profile: data.operationProfile || null,
           bedrooms: data.bedrooms,
           bathrooms: data.bathrooms,
-          floor_area: data.floorArea || null,
+          floor_area_sqm: data.floorArea || null,
           year_built: data.yearBuilt || null,
           purchase_price: data.purchasePrice || null,
           current_value: data.currentValue || null,
-          monthly_mortgage: data.monthlyMortgage || null,
-          target_rent: data.targetRent || null,
+          target_rent_pcm: data.targetRent || null,
         })
         .select()
         .single()

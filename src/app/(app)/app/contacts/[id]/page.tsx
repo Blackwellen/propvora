@@ -8,7 +8,7 @@ import {
   Wallet, FolderOpen, MessageCircle, StickyNote, ListChecks, Activity, Shield,
   AlertTriangle, Edit, Plus, ExternalLink, CheckCircle2,
   Check, Star, Clock, Eye, Download, Copy, Trash2, RefreshCw, CalendarDays,
-  MapPin, Tag, User, Package, Zap, TrendingUp, Settings, Globe, Link2,
+  MapPin, Tag, User, Package, Zap, TrendingUp, Settings, Globe, Link2, Wrench,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -21,6 +21,7 @@ import { useWorkspace } from "@/hooks/useWorkspace"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { deriveSupplierCategories } from "@/lib/constants/supplierCategories"
 
 /* ------------------------------------------------------------------ */
 /* Inline-edit save context — wired to useUpdateContact (live rows)     */
@@ -94,6 +95,8 @@ interface ContactDetail {
   tags: string[]; arrears: number; linked_properties: number; active_tenancies: number
   last_contacted: string | null; next_follow_up: string | null; health: HealthStatus
   portal_status: string | null; notes: string | null
+  /** Live supplier service categories (from category/subcategory/tags). */
+  service_categories?: string[]
   tenancy?: TenancyInfo; invoices?: InvoiceRecord[]; activity?: ActivityRecord[]
   properties?: string[]; planning_sets?: PlanningSet[]; landlord_offers?: LandlordOffer[]
   enquiry?: EnquiryInfo; supplier?: SupplierInfo; jobs?: JobRecord[]
@@ -936,20 +939,26 @@ function SupplierOverviewTab({ contact }: { contact: ContactDetail }) {
 
 function SupplierProfileTab({ contact }: { contact: ContactDetail }) {
   const sup = contact.supplier
-  if (!sup) return <EmptyState icon={Settings} message="No supplier profile data." />
+  const serviceCategories = contact.service_categories ?? []
+  if (!sup && serviceCategories.length === 0) {
+    return <EmptyState icon={Settings} message="No supplier profile data." />
+  }
   return (
     <div className="space-y-6">
       <SectionCard className="p-4 space-y-4">
         <h4 className="text-sm font-semibold text-slate-900">Service Categories</h4>
-        <div className="flex flex-wrap gap-2">
-          {sup.service_categories.map(cat => (
-            <span key={cat} className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">{cat}</span>
-          ))}
-          <button className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-dashed border-slate-300 text-slate-400 text-xs hover:border-blue-400 hover:text-blue-600 transition-colors">
-            <Plus className="w-3 h-3" /> Add
-          </button>
-        </div>
+        {serviceCategories.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {serviceCategories.map(cat => (
+              <span key={cat} className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">{cat}</span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-slate-400">No service categories recorded for this supplier.</p>
+        )}
       </SectionCard>
+      {sup && (
+      <>
       <SectionCard className="p-4 space-y-4">
         <h4 className="text-sm font-semibold text-slate-900">Coverage Postcodes</h4>
         <div className="flex flex-wrap gap-2">
@@ -998,6 +1007,8 @@ function SupplierProfileTab({ contact }: { contact: ContactDetail }) {
           <span className="text-sm text-slate-600 ml-2">{sup.internal_rating}/5</span>
         </div>
       </SectionCard>
+      </>
+      )}
     </div>
   )
 }
@@ -1544,6 +1555,11 @@ export default function ContactDetailPage() {
     health: "healthy",
     portal_status: null,
     notes: liveContact.notes ?? null,
+    service_categories: deriveSupplierCategories({
+      category: liveContact.category,
+      subcategory: liveContact.subcategory,
+      tags: liveContact.tags,
+    }),
     activity: [],
   }
 
@@ -1653,6 +1669,14 @@ export default function ContactDetailPage() {
               <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
                 <Building2 className="w-3.5 h-3.5" /> {contact.company_name}
               </p>
+            )}
+            {contact.contact_type === "supplier" && (contact.service_categories?.length ?? 0) > 0 && (
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <Wrench className="w-3 h-3 text-slate-400" />
+                {contact.service_categories!.map(cat => (
+                  <span key={cat} className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">{cat}</span>
+                ))}
+              </div>
             )}
             <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" /> {contact.city}{contact.postcode ? `, ${contact.postcode}` : ""}

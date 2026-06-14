@@ -9,7 +9,7 @@ import type { Tutorial } from "../tutorial-types"
 
 export default function FirstUseModal() {
   const pathname = usePathname()
-  const { firstUseFor, markStatus, forced, clearForced } = useGuidedHelp()
+  const { firstUseFor, markStatus, forced, clearForced, setEnabled } = useGuidedHelp()
   const [active, setActive] = useState<Tutorial | null>(null)
   const [step, setStep] = useState(0)
 
@@ -42,6 +42,13 @@ export default function FirstUseModal() {
     if (active) markStatus(active.key, status)
     setActive(null)
     clearForced()
+  }
+
+  // Kill the tour entirely from the modal — turns off all first-use tips
+  // (persisted by the provider) and closes the current one.
+  function turnOffTips() {
+    setEnabled(false)
+    close("dismissed")
   }
 
   const isLast = step >= active.steps.length - 1
@@ -97,6 +104,13 @@ export default function FirstUseModal() {
             {active.helpHref && (
               <Link href={active.helpHref} className="text-xs text-slate-400 hover:text-[#2563EB] hidden sm:inline">Help Centre</Link>
             )}
+            <button
+              type="button"
+              onClick={turnOffTips}
+              className="text-xs text-slate-400 hover:text-slate-700 underline-offset-2 hover:underline"
+            >
+              Don&apos;t show tips again
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => close("dismissed")} className="text-sm text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg">

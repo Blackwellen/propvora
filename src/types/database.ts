@@ -177,6 +177,8 @@ export interface Property {
   longitude: number | null
   property_type: PropertyType | null
   operation_profile: OperationProfile | null
+  /** Free-text dwelling type stored in `properties.category` (see lib/constants/propertyTypes.ts). */
+  category: string | null
   status: PropertyStatus
   bedrooms: number | null
   bathrooms: number | null
@@ -246,6 +248,10 @@ export interface Contact {
   postcode: string | null
   notes: string | null
   tags: string[] | null
+  /** Supplier primary service category (free-text, `contacts.category`). */
+  category: string | null
+  /** Supplier service sub-category (free-text, `contacts.subcategory`). */
+  subcategory: string | null
   status: ContactStatus
   is_demo: boolean
   avatar_url: string | null

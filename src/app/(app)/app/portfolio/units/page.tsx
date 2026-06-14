@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
@@ -12,6 +12,8 @@ import { useProperties } from "@/hooks/useProperties"
 import { Plus, Search, Home, ChevronLeft, ChevronRight, X, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { exportCsv } from "@/lib/portfolio/helpers"
+import { createClient } from "@/lib/supabase/client"
+import { resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
 
 const MOCK: UnitCardData[] = [
   { id: "u1", property_id: "p1", property_name: "Brunswick Road HMO",  unit_name: "Room 1",  unit_type: "room",   floor: 1, bedrooms: 1, floor_area_sqm: 16, target_rent: 550, status: "occupied",    tenant_name: "James Wilson",   tenancy_end: "2026-08-31" },
@@ -45,6 +47,19 @@ export default function UnitsListPage() {
   const isLive = !!workspace?.id
   const loading = wsLoading || unitsLoading
 
+  /* Real uploaded unit covers (files.unit_id + is_cover → /api/files URL),
+     keyed by unit id. Empty → cards keep their gradient fallback. */
+  const [coverUrls, setCoverUrls] = useState<Map<string, string>>(new Map())
+  useEffect(() => {
+    const ids = (rawUnits ?? []).map((u) => u.id)
+    if (!workspace?.id || ids.length === 0) { setCoverUrls(new Map()); return }
+    let active = true
+    resolveCoverUrlsByUnit(createClient(), ids)
+      .then((m) => { if (active) setCoverUrls(m) })
+      .catch(() => { if (active) setCoverUrls(new Map()) })
+    return () => { active = false }
+  }, [workspace?.id, rawUnits])
+
   const allUnits: UnitCardData[] = useMemo(() => {
     if (!isLive) return MOCK
     if (!rawUnits?.length) return []
@@ -55,8 +70,9 @@ export default function UnitsListPage() {
       unit_name: u.unit_name,
       unit_type: u.unit_type, floor: u.floor, bedrooms: u.bedrooms,
       floor_area_sqm: u.floor_area_sqm, target_rent: u.target_rent, status: u.status,
+      coverImageUrl: coverUrls.get(u.id) ?? undefined,
     }))
-  }, [rawUnits, rawProps, isLive])
+  }, [rawUnits, rawProps, isLive, coverUrls])
 
   /* Property filter options derived from the data itself (id + name). */
   const propertyOptions = useMemo(() => {

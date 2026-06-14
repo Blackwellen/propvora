@@ -1,4 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+/* Inter is loaded (self-hosted + optimised) via next/font/google in app/layout.tsx
+   and exposed as --font-inter. The previous CSS `@import` to
+   fonts.googleapis.com duplicated that load as an extra cross-origin request on
+   every page; removed so no external font fetch is made (Inter still applies via
+   --font-inter, falling back to --font-sans → "Inter"). */
 @import "tailwindcss";
 
 /* Force class-based dark mode — dark: variants only apply inside .dark containers.

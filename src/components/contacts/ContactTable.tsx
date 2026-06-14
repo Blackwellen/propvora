@@ -191,7 +191,7 @@ export function ContactTable({ contacts, onEdit, onMessage, onDelete }: ContactT
               {isOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
-                  <div className="absolute right-0 top-8 z-20 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 overflow-hidden">
+                  <div className="absolute right-0 top-8 z-20 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                     <button
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                       onClick={() => { onMessage?.(id); setOpenDropdown(null) }}

@@ -115,7 +115,7 @@ export default function PublicNav() {
               </button>
 
               {legalOpen && (
-                <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
+                <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                   {legalLinks.map((link) => (
                     <Link
                       key={link.href}

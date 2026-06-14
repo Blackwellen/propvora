@@ -32,7 +32,7 @@ export function ActionMenu({ items, align = "right" }: Props) {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
             className={cn(
-              "absolute top-full mt-1 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl py-1.5 min-w-[180px]",
+              "absolute top-full mt-1 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl py-1.5 min-w-[180px] max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain",
               align === "right" ? "right-0" : "left-0"
             )}
           >

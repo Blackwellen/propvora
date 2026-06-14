@@ -62,6 +62,7 @@ function fromDb(r: Record<string, unknown>): Property {
     longitude: g('longitude') ?? null,
     property_type: templateToType(template),
     operation_profile: (template ? (TEMPLATE_TO_PROFILE[template] ?? template) : null) as Property['operation_profile'],
+    category: (g('category') ?? null) as string | null,
     status: (g('status') ?? 'active') as Property['status'],
     bedrooms: g('bedrooms') ?? null,
     bathrooms: g('bathrooms') ?? null,
@@ -90,7 +91,7 @@ function toDb(p: Partial<Property>): Record<string, unknown> {
   for (const k of [
     'workspace_id', 'address_line1', 'address_line2', 'city', 'county', 'postcode', 'country',
     'latitude', 'longitude', 'status', 'bedrooms', 'bathrooms', 'floor_area_sqm',
-    'purchase_price', 'current_value', 'notes', 'cover_image_url', 'created_by',
+    'purchase_price', 'current_value', 'notes', 'cover_image_url', 'created_by', 'category',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }

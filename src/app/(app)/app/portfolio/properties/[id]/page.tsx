@@ -18,6 +18,7 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 import {
   Building2, Home, Users, PoundSterling, TrendingUp,
   Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
@@ -54,6 +55,7 @@ const MOCK_PROPERTY = {
   longitude: -1.1497 as number | null,
   property_type: "hmo" as Property["property_type"],
   operation_profile: "hmo" as Property["operation_profile"],
+  category: "hmo" as string | null,
   status: "active" as Property["status"],
   bedrooms: 6 as number | null,
   bathrooms: 3 as number | null,
@@ -400,6 +402,11 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
     .filter((d) => !isNaN(d.getTime()) && d.getTime() >= Date.now())
     .sort((a, b) => a.getTime() - b.getTime())[0]
 
+  // Dwelling type (free-text `category`) with a nice label; falls back to operation type.
+  const dwellingLabel = prop.category
+    ? (getPropertyTypeOption(prop.category)?.label ?? prop.category)
+    : null
+
   return (
     <div className="space-y-5">
       {/* Hero + right col */}
@@ -433,9 +440,9 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            {/* Property type label overlay */}
+            {/* Property type label overlay — dwelling type if known, else operation type */}
             <div className="absolute bottom-4 left-4">
-              <span className="text-white/90 text-[13px] font-semibold uppercase tracking-widest">{prop.property_type?.toUpperCase() ?? "PROPERTY"}</span>
+              <span className="text-white/90 text-[13px] font-semibold uppercase tracking-widest">{dwellingLabel ?? prop.property_type?.toUpperCase() ?? "PROPERTY"}</span>
             </div>
             {/* Hidden file input */}
             <input
@@ -604,6 +611,10 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                   ]}
                   displayClassName="font-medium text-slate-800"
                 />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">Dwelling Type</span>
+                <span className="font-medium text-slate-800">{dwellingLabel ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="text-slate-500">Status</span>

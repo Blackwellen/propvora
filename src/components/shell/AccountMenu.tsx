@@ -108,13 +108,13 @@ export default function AccountMenu({
         zIndex: 9999,
         width: 220,
       }}
-      className="bg-white rounded-2xl border border-[#E2EAF6] shadow-[0_12px_40px_rgba(15,23,42,0.14)] overflow-hidden"
+      className="bg-white rounded-2xl border border-[#E2EAF6] shadow-[0_12px_40px_rgba(15,23,42,0.14)] overflow-hidden max-h-[min(70vh,440px)] flex flex-col"
     >
-      <div className="px-4 py-3 border-b border-slate-50">
+      <div className="px-4 py-3 border-b border-slate-50 shrink-0">
         <p className="text-[13px] font-semibold text-[#071B4D]">{displayName}</p>
         <p className="text-[11px] text-[#64748B]">{displayRole}</p>
       </div>
-      <div className="py-1.5">
+      <div className="py-1.5 overflow-y-auto overscroll-contain">
         <Link
           href="/app/account"
           onClick={() => setOpen(false)}

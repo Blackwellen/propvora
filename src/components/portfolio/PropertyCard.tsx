@@ -5,8 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Heart, MoreHorizontal, TrendingUp, Building2, Eye, Edit2, Plus, Users, Archive } from "lucide-react"
+import { Heart, MoreHorizontal, TrendingUp, Building2, Home, Eye, Edit2, Plus, Users, Archive } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -18,6 +19,8 @@ export interface PropertyCardData {
   postcode: string
   city?: string
   type: "HMO" | "BTL" | "SA" | "R2R" | "Commercial" | "Mixed" | "Holiday Let" | "Other"
+  /** Free-text dwelling type from `properties.category` (e.g. "semi_detached_house"). */
+  category?: string | null
   status: "Active" | "Vacant" | "Under Works" | "Archived"
   units: number
   occupied?: number
@@ -102,6 +105,9 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
     : 0
   const yieldVal = property.yield
     ?? (property.monthlyRent > 0 ? ((property.monthlyRent * 12 / 400000) * 100).toFixed(1) : null)
+  const dwellingLabel = property.category
+    ? (getPropertyTypeOption(property.category)?.label ?? property.category)
+    : null
 
   return (
     <Link href={`/app/portfolio/properties/${property.id}`} className="block group">
@@ -193,6 +199,14 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           <p className="text-[11px] text-slate-400 mt-0.5 truncate">
             {property.address}{property.postcode ? `, ${property.postcode}` : ""}
           </p>
+
+          {/* Dwelling type — free-text category */}
+          {dwellingLabel && (
+            <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-medium text-slate-500 bg-slate-100 rounded-md px-1.5 py-0.5">
+              <Home className="w-2.5 h-2.5 text-slate-400" />
+              {dwellingLabel}
+            </span>
+          )}
 
           {/* Metrics row */}
           <div className="flex items-center gap-3 mt-2.5 pt-2.5 border-t border-slate-100">

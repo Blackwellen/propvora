@@ -80,7 +80,7 @@ export default function QuickCreateButton() {
         <div
           ref={menuRef}
           style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999, width: 264 }}
-          className="bg-white rounded-2xl border border-[#E2EAF6] shadow-[0_16px_48px_rgba(15,23,42,0.16)] overflow-hidden max-h-[70vh] overflow-y-auto"
+          className="bg-white rounded-2xl border border-[#E2EAF6] shadow-[0_16px_48px_rgba(15,23,42,0.16)] max-h-[min(70vh,440px)] overflow-y-auto overscroll-contain"
         >
           {contextual.length > 0 && (
             <>

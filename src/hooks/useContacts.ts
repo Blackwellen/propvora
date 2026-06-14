@@ -30,6 +30,8 @@ function fromDb(r: Record<string, unknown>): Contact {
     postcode: g('postcode') ?? null,
     notes: g('notes') ?? null,
     tags: g('tags') ?? null,
+    category: g('category') ?? null,
+    subcategory: g('subcategory') ?? null,
     status: (g('status') ?? 'active') as Contact['status'],
     is_demo: (g('demo') ?? false) as boolean,
     avatar_url: g('avatar_url') ?? null,
@@ -47,7 +49,7 @@ function toDb(p: Partial<Contact>): Record<string, unknown> {
   if ('is_demo' in p) o.demo = p.is_demo
   for (const k of [
     'workspace_id', 'email', 'phone', 'address_line1', 'city', 'postcode',
-    'notes', 'tags', 'status', 'avatar_url', 'created_by',
+    'notes', 'tags', 'status', 'avatar_url', 'created_by', 'category', 'subcategory',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }

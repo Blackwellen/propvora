@@ -58,6 +58,48 @@ export async function resolveCoverUrls(
 }
 
 /**
+ * Convenience: resolve cover URLs for a workspace's properties, keyed by
+ * PROPERTY id (not file id).
+ *
+ * The card data builders only carry the canonical Property shape (which drops
+ * the raw `cover_file_id` FK), so this helper re-reads `id, cover_file_id`
+ * straight from the live `properties` table, then resolves each non-null
+ * `cover_file_id` to a view URL.
+ *
+ * Returns a Map keyed by property id → view URL. Properties without a cover
+ * (or whose file isn't ready) are absent → card falls back to its gradient.
+ */
+export async function resolvePropertyCoverUrls(
+  supabase: AnySupabase,
+  workspaceId: string,
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  if (!workspaceId) return out
+
+  try {
+    const { data, error } = await supabase
+      .from("properties")
+      .select("id, cover_file_id")
+      .eq("workspace_id", workspaceId)
+      .not("cover_file_id", "is", null)
+    if (error || !data) return out
+
+    const rows = data as Array<{ id: string; cover_file_id: string | null }>
+    const fileToUrl = await resolveCoverUrls(
+      supabase,
+      rows.map((r) => r.cover_file_id),
+    )
+    for (const row of rows) {
+      const url = row.cover_file_id ? fileToUrl.get(row.cover_file_id) : undefined
+      if (row.id && url) out.set(row.id, url)
+    }
+  } catch {
+    // fail soft → gradient fallback
+  }
+  return out
+}
+
+/**
  * Resolve cover URLs for a set of unit ids. Units carry their cover via the
  * `files` table (`unit_id` + `is_cover`) rather than a dedicated column.
  *

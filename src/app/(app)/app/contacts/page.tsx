@@ -21,6 +21,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { deriveSupplierCategories, SUPPLIER_CATEGORIES } from "@/lib/constants/supplierCategories"
 import type { Contact } from "@/types/database"
 
 /* ================================================================== */
@@ -183,6 +184,7 @@ interface MappedContact {
   company_name: string | null
   city: string | null
   tags: string[]
+  service_categories: string[]
   updated_at: string
 }
 
@@ -199,6 +201,11 @@ function mapContact(c: Contact): MappedContact {
     company_name: c.company_name ?? null,
     city: c.city ?? null,
     tags: (c.tags as string[]) ?? [],
+    service_categories: deriveSupplierCategories({
+      category: c.category,
+      subcategory: c.subcategory,
+      tags: (c.tags as string[]) ?? [],
+    }),
     updated_at: c.updated_at,
   }
 }
@@ -429,6 +436,19 @@ function GridContactCard({ contact }: { contact: MappedContact }) {
         )}
       </div>
 
+      {contact.service_categories.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {contact.service_categories.slice(0, 3).map(cat => (
+            <span key={cat} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium">
+              <Wrench className="w-2.5 h-2.5" />{cat}
+            </span>
+          ))}
+          {contact.service_categories.length > 3 && (
+            <span className="text-[10px] text-slate-400">+{contact.service_categories.length - 3}</span>
+          )}
+        </div>
+      )}
+
       {contact.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {contact.tags.slice(0, 3).map(tag => (
@@ -511,6 +531,20 @@ function TableContactRow({ contact }: { contact: MappedContact }) {
         </div>
       </td>
       <td className="px-4 py-3"><TypeBadge type={contact.contact_type} /></td>
+      <td className="px-4 py-3">
+        {contact.service_categories.length > 0 ? (
+          <div className="flex flex-wrap gap-1 max-w-[200px]">
+            {contact.service_categories.slice(0, 2).map(cat => (
+              <span key={cat} className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium whitespace-nowrap">{cat}</span>
+            ))}
+            {contact.service_categories.length > 2 && (
+              <span className="text-[10px] text-slate-400">+{contact.service_categories.length - 2}</span>
+            )}
+          </div>
+        ) : (
+          <span className="text-slate-300">—</span>
+        )}
+      </td>
       <td className="px-4 py-3 text-xs text-slate-600">
         {contact.email
           ? <a href={`mailto:${contact.email}`} className="hover:text-[#2563EB] transition-colors truncate block max-w-[180px]">{contact.email}</a>
@@ -805,6 +839,7 @@ export default function ContactsPage() {
 
   const [activeView, setActiveView] = useState<ViewMode>("overview")
   const [activeType, setActiveType] = useState<TypeFilter>("all")
+  const [serviceCategory, setServiceCategory] = useState("all")
   const [search, setSearch] = useState("")
   const [showAddModal, setShowAddModal] = useState(false)
   // Open the add-contact modal when arrived via the global "New" quick-create (?new=1).
@@ -876,17 +911,31 @@ export default function ContactsPage() {
       const allowed = TYPE_FILTER_MAP[activeType]
       data = data.filter(c => allowed.includes(c.contact_type))
     }
+    if (serviceCategory !== "all") {
+      data = data.filter(c => c.service_categories.includes(serviceCategory))
+    }
     if (search.trim()) {
       const q = search.toLowerCase()
       data = data.filter(c =>
         c.full_name.toLowerCase().includes(q) ||
         (c.email ?? "").toLowerCase().includes(q) ||
         (c.phone ?? "").includes(q) ||
-        (c.company_name ?? "").toLowerCase().includes(q)
+        (c.company_name ?? "").toLowerCase().includes(q) ||
+        c.service_categories.some(cat => cat.toLowerCase().includes(q))
       )
     }
     return data
-  }, [contacts, activeType, search])
+  }, [contacts, activeType, serviceCategory, search])
+
+  /* Distinct supplier service categories present in the live data. */
+  const serviceCategoryOptions = useMemo(() => {
+    const present = new Set<string>()
+    for (const c of contacts) for (const cat of c.service_categories) present.add(cat)
+    // Order by the canonical list, then any extras alphabetically.
+    const ordered = SUPPLIER_CATEGORIES.filter(c => present.has(c))
+    const extras = [...present].filter(c => !SUPPLIER_CATEGORIES.includes(c)).sort()
+    return [...ordered, ...extras]
+  }, [contacts])
 
   const pieSegments = useMemo(() => buildPieSegments(contacts), [contacts])
 
@@ -964,6 +1013,7 @@ export default function ContactsPage() {
                     { key: "city", label: "City" },
                     { key: "postcode", label: "Postcode" },
                     { key: "status", label: "Status" },
+                    { key: "service_categories", label: "Service Categories", format: (r) => Array.isArray((r as { service_categories?: string[] }).service_categories) ? (r as { service_categories: string[] }).service_categories.join("; ") : "" },
                     { key: "tags", label: "Tags", format: (r) => Array.isArray((r as { tags?: string[] }).tags) ? (r as { tags: string[] }).tags.join("; ") : "" },
                   ])
                   showToast(`Exported ${filtered.length} contacts`)
@@ -1077,6 +1127,25 @@ export default function ContactsPage() {
                 </button>
               ))}
             </div>
+
+            {/* Supplier service-category filter — live distinct categories */}
+            {serviceCategoryOptions.length > 0 && (
+              <div className="relative">
+                <Wrench className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                <select
+                  value={serviceCategory}
+                  onChange={e => setServiceCategory(e.target.value)}
+                  className={cn(
+                    "h-8 pl-8 pr-7 rounded-lg text-xs bg-white border text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all cursor-pointer appearance-none",
+                    serviceCategory !== "all" ? "border-[#2563EB]" : "border-slate-200"
+                  )}
+                >
+                  <option value="all">All services</option>
+                  {serviceCategoryOptions.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              </div>
+            )}
 
             {/* Search */}
             <div className="ml-auto relative min-w-[200px] max-w-xs w-full sm:w-auto">
@@ -1400,7 +1469,7 @@ export default function ContactsPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200">
-                      {["Contact","Type","Email","Phone","Location","Status","Last Updated","Actions"].map(col => (
+                      {["Contact","Type","Service","Email","Phone","Location","Status","Last Updated","Actions"].map(col => (
                         <th key={col} className="px-4 py-3 text-xs font-semibold text-slate-500 whitespace-nowrap">
                           <div className="flex items-center gap-1">
                             {col}
@@ -1415,7 +1484,7 @@ export default function ContactsPage() {
                   <tbody>
                     {isLoading ? (
                       <tr>
-                        <td colSpan={8} className="py-12 text-center">
+                        <td colSpan={9} className="py-12 text-center">
                           <div className="flex justify-center gap-2">
                             {Array.from({ length: 3 }).map((_, i) => (
                               <div key={i} className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: `${i * 100}ms` }} />
@@ -1425,7 +1494,7 @@ export default function ContactsPage() {
                       </tr>
                     ) : filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="py-20 text-center text-sm text-slate-400">
+                        <td colSpan={9} className="py-20 text-center text-sm text-slate-400">
                           No contacts match your filters.{" "}
                           <button onClick={() => { setActiveType("all"); setSearch("") }} className="text-[#2563EB] hover:underline">Clear filters</button>
                         </td>

@@ -25,6 +25,9 @@ const csp = [
   `form-action 'self'`,
   `frame-ancestors 'none'`,
   `manifest-src 'self'`,
+  // Prod-only: forces any stray http asset to https. Disabled in dev so it never
+  // rewrites http://localhost requests to https:// (which would surface as
+  // net::ERR_SSL_PROTOCOL_ERROR against the non-TLS dev server). Harmless in prod (TLS).
   ...(isDev ? [] : [`upgrade-insecure-requests`]),
 ].join("; ");
 

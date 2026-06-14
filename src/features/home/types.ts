@@ -24,6 +24,8 @@ export interface HomeProperty {
   risk: "High" | "Med" | "Low"
   occupancyPct: number
   gradient: string
+  /** Resolved cover photo (cover_file_id → /api/files URL). Gradient shows when absent. */
+  coverImageUrl?: string
   href?: string
 }
 

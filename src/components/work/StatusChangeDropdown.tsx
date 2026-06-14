@@ -63,7 +63,7 @@ export function StatusChangeDropdown({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl py-1.5 min-w-[180px]">
+          <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-2xl border border-slate-200 shadow-xl py-1.5 min-w-[180px] max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
             {statuses.map((s) => (
               <button
                 key={s.value}

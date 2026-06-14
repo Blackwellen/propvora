@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import type { PropertyCardData } from "./PropertyCard"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
 /* ------------------------------------------------------------------ */
 /* Config                                                               */
@@ -115,6 +116,9 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                 ? PROFILE_BADGE[p.operationProfile]
                 : null
               const cover = TYPE_GRADIENTS[p.type] ?? TYPE_GRADIENTS.Other
+              const dwellingLabel = p.category
+                ? (getPropertyTypeOption(p.category)?.label ?? p.category)
+                : null
               const occ = p.units > 0 ? Math.round(((p.occupied ?? p.tenants) / p.units) * 100) : 0
               const yld = p.yield ?? (p.monthlyRent > 0 ? ((p.monthlyRent * 12 / 400000) * 100).toFixed(1) : null)
 
@@ -146,13 +150,18 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                   </td>
                   {/* Type */}
                   <td className="px-4 py-3">
-                    {badge ? (
-                      <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-md", badge.bg, badge.text)}>
-                        {badge.label}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-slate-400">{p.type}</span>
-                    )}
+                    <div className="flex flex-col gap-1 items-start">
+                      {badge ? (
+                        <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-md", badge.bg, badge.text)}>
+                          {badge.label}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-slate-400">{p.type}</span>
+                      )}
+                      {dwellingLabel && (
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">{dwellingLabel}</span>
+                      )}
+                    </div>
                   </td>
                   {/* Units */}
                   <td className="px-4 py-3 text-[13px] font-semibold text-slate-800">{p.units}</td>

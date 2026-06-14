@@ -25,6 +25,7 @@ import { HomeRecentActivityCard } from "../components/HomeRecentActivityCard"
 import { HomeComplianceLegalCard } from "../components/HomeComplianceLegalCard"
 import { HomePriorityPanel } from "../components/HomePriorityPanel"
 import { createClient } from "@/lib/supabase/client"
+import { resolveCoverUrls } from "@/lib/files/coverUrl"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type {
   HomeKpi,
@@ -251,7 +252,7 @@ export function HomeDashboardPage() {
         // 0: properties  (alias live cols → app names the UI expects)
         supabase
           .from("properties")
-          .select("id, name:nickname, city, status, target_rent:target_rent_pcm, updated_at")
+          .select("id, name:nickname, city, status, target_rent:target_rent_pcm, cover_file_id, updated_at")
           .eq("workspace_id", wid),
 
         // 1: units  (live table is property_units)
@@ -437,7 +438,13 @@ export function HomeDashboardPage() {
           "from-emerald-200 to-emerald-400",
           "from-violet-200 to-violet-400",
         ]
-        const snapProperties: HomeProperty[] = activeProps.slice(0, 6).map((p, i) => {
+        const snapSource = activeProps.slice(0, 6) as Array<{
+          id: string; name: string; city?: string | null; target_rent?: number | null; cover_file_id?: string | null
+        }>
+        // Resolve real uploaded covers (cover_file_id → /api/files URL).
+        // Fails soft to an empty Map → gradient fallback in the card.
+        const coverMap = await resolveCoverUrls(supabase, snapSource.map((p) => p.cover_file_id))
+        const snapProperties: HomeProperty[] = snapSource.map((p, i) => {
           const propUnits = units.filter((u: { property_id: string }) => u.property_id === p.id)
           const propOccupied = propUnits.filter((u: { status: string }) => u.status === "occupied").length
           return {
@@ -449,6 +456,7 @@ export function HomeDashboardPage() {
             risk: "Med" as const,
             occupancyPct: propUnits.length > 0 ? Math.round((propOccupied / propUnits.length) * 100) : 0,
             gradient: gradients[i % gradients.length],
+            coverImageUrl: p.cover_file_id ? coverMap.get(p.cover_file_id) : undefined,
             href: `/app/portfolio/properties/${p.id}`,
           }
         })

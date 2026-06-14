@@ -262,7 +262,7 @@ export default function NotificationBell() {
           </div>
 
           {/* Body */}
-          <div className="max-h-[360px] overflow-y-auto">
+          <div className="max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
             {loading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="w-5 h-5 text-slate-300 animate-spin" />
