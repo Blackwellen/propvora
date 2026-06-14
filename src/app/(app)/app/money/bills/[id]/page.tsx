@@ -114,12 +114,31 @@ function statusVariant(s: BillStatus): "warning" | "primary" | "danger" | "succe
   }
 }
 
-// Reflect a money_bills status patch back onto the BillDetail UI shape
+// Reflect a status patch back onto the BillDetail UI shape
 function mapStatusPatch(patch: Record<string, unknown>): Partial<BillDetail> {
   const out: Partial<BillDetail> = {}
   if (patch.approval_status === "approved") out.status = "approved"
   if (patch.payment_status === "paid") { out.status = "paid" }
   if (patch.payment_status === "overdue") out.status = "overdue"
+  if (patch.payment_status === "scheduled") out.status = "scheduled_for_payment"
+  return out
+}
+
+// Translate a page-facing approval/payment patch into a real `bills` update.
+// The live `bills` table uses a single `status` column (no approval_status /
+// payment_status). Allowed status values include: awaiting_review, approved,
+// scheduled_for_payment, paid, overdue, disputed, rejected, cancelled.
+function toBillsUpdate(patch: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  if (patch.approval_status === "approved") out.status = "approved"
+  if (patch.approval_status === "rejected") out.status = "rejected"
+  if (patch.payment_status === "paid") out.status = "paid"
+  if (patch.payment_status === "overdue") out.status = "overdue"
+  if (patch.payment_status === "scheduled") out.status = "scheduled_for_payment"
+  if (patch.approved_at != null) out.approved_at = patch.approved_at
+  if (patch.paid_at != null) out.paid_at = patch.paid_at
+  // Map a bare amount edit to the real total column.
+  if (patch.amount != null) { out.subtotal = patch.amount; out.total = patch.amount }
   return out
 }
 
@@ -208,7 +227,7 @@ export default function BillDetailPage() {
     (async () => {
       try {
         const { data, error } = await supabase
-          .from("money_bills")
+          .from("bills")
           .select("*")
           .eq("id", id)
           .eq("workspace_id", workspace.id)
@@ -219,23 +238,25 @@ export default function BillDetailPage() {
         }
         if (data) {
           const r = data as Record<string, unknown>
-          const approval = (r.approval_status as string) ?? "pending_review"
-          const payment = (r.payment_status as string) ?? "unpaid"
+          // live `bills.status` is a single column; map it onto the BillStatus UI type.
+          const liveStatus = (r.status as string) ?? "awaiting_review"
           const status: BillStatus =
-            payment === "paid" ? "paid"
-            : payment === "overdue" ? "overdue"
-            : payment === "scheduled" ? "scheduled_for_payment"
-            : approval === "approved" ? "approved"
+            liveStatus === "paid" || liveStatus === "part_paid" || liveStatus === "reconciled" ? "paid"
+            : liveStatus === "overdue" ? "overdue"
+            : liveStatus === "scheduled_for_payment" ? "scheduled_for_payment"
+            : liveStatus === "disputed" ? "disputed"
+            : liveStatus === "approved" ? "approved"
             : "awaiting_review"
+          const total = (r.total as number | null) ?? undefined
           setBill((prev) => ({
             ...prev,
             id: r.id as string,
-            amount: (r.amount as number) ?? prev.amount,
+            amount: total ?? prev.amount,
             due_date: (r.due_date as string) ?? prev.due_date,
             status,
-            notes: (r.description as string | null) ?? prev.notes,
-            bill_number: (r.reference as string | null) ?? prev.bill_number,
-            paid: payment === "paid" ? ((r.amount as number) ?? prev.amount) : 0,
+            notes: (r.notes as string | null) ?? prev.notes,
+            bill_number: (r.bill_number as string | null) ?? prev.bill_number,
+            paid: liveStatus === "paid" ? (total ?? prev.amount) : 0,
           }))
           setIsLive(true)
         }
@@ -243,12 +264,21 @@ export default function BillDetailPage() {
     })()
   }, [id, workspace?.id])
 
-  // Persist a field to the live money_bills row (only called when isLive)
+  // Persist a field to the live `bills` row (only called when isLive).
+  // Map page-facing field names onto real `bills` columns.
   async function saveField(field: string, value: string | number | null) {
     const supabase = createClient()
+    let patch: Record<string, unknown>
+    if (field === "amount") {
+      patch = { subtotal: value, total: value }
+    } else if (field === "notes") {
+      patch = { notes: value }
+    } else {
+      patch = { [field]: value } // due_date etc. map 1:1
+    }
     const { error } = await supabase
-      .from("money_bills")
-      .update({ [field]: value })
+      .from("bills")
+      .update(patch)
       .eq("id", bill.id)
       .eq("workspace_id", workspace?.id ?? "")
     if (error) {
@@ -262,8 +292,8 @@ export default function BillDetailPage() {
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_bills")
-        .update(patch)
+        .from("bills")
+        .update(toBillsUpdate(patch))
         .eq("id", bill.id)
         .eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
@@ -279,7 +309,7 @@ export default function BillDetailPage() {
     if (!isLive) { router.push("/app/money/bills"); return }
     const supabase = createClient()
     try {
-      const { error } = await supabase.from("money_bills").delete().eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
+      const { error } = await supabase.from("bills").delete().eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       router.push("/app/money/bills")
     } catch {
@@ -539,15 +569,16 @@ export default function BillDetailPage() {
                     disabled={!isLive}
                     displayClassName="text-xs font-medium text-slate-700"
                     onSave={async (v) => {
-                      // Map BillStatus -> money_bills approval/payment columns
-                      const patch =
-                        v === "paid" ? { payment_status: "paid", paid_at: new Date().toISOString() }
-                        : v === "overdue" || v === "disputed" ? { payment_status: "overdue" }
-                        : v === "approved" ? { approval_status: "approved", approved_at: new Date().toISOString() }
-                        : v === "scheduled_for_payment" ? { payment_status: "scheduled" }
-                        : { approval_status: "pending_review", payment_status: "unpaid" }
+                      // Map the BillStatus UI value -> the real `bills.status` column.
+                      const patch: Record<string, unknown> =
+                        v === "paid" ? { status: "paid", paid_at: new Date().toISOString() }
+                        : v === "overdue" ? { status: "overdue" }
+                        : v === "disputed" ? { status: "disputed" }
+                        : v === "approved" ? { status: "approved", approved_at: new Date().toISOString() }
+                        : v === "scheduled_for_payment" ? { status: "scheduled_for_payment" }
+                        : { status: "awaiting_review" }
                       const supabase = createClient()
-                      const { error } = await supabase.from("money_bills").update(patch).eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
+                      const { error } = await supabase.from("bills").update(patch).eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
                       if (error && error.code !== "42P01") throw error
                       setBill((p) => ({ ...p, status: v as BillStatus }))
                     }}

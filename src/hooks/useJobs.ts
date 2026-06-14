@@ -158,7 +158,7 @@ export function useWorkKpis(workspaceId: string | undefined) {
           .select('id', { count: 'exact', head: true })
           .eq('workspace_id', workspaceId!)
           .not('status', 'in', '(done,completed,cancelled)')
-          .lt('due_date', now),
+          .lt('due_at', now),
       ])
 
       // 42P01 = table doesn't exist yet — return zeroed KPIs

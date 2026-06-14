@@ -317,7 +317,7 @@ export default function BillsPage() {
     if (isLiveBill(id)) {
       const supabase = createClient()
       try {
-        const { error } = await supabase.from("money_bills").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
+        const { error } = await supabase.from("bills").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
         if (error && error.code !== "42P01") throw error
       } catch { showToast("Could not delete bill"); return }
     }

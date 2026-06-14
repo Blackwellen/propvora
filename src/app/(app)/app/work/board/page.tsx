@@ -70,22 +70,22 @@ const COLUMN_DEFS: ColumnDef[] = [
     dotColor: "bg-blue-500",
   },
   {
-    key: "waiting",
-    label: "Waiting Supplier",
-    headerColor: "border-amber-400",
-    dotColor: "bg-amber-400",
-  },
-  {
     key: "blocked",
     label: "Blocked",
-    headerColor: "border-red-400",
-    dotColor: "bg-red-500",
+    headerColor: "border-amber-400",
+    dotColor: "bg-amber-400",
   },
   {
     key: "done",
     label: "Done",
     headerColor: "border-emerald-400",
     dotColor: "bg-emerald-500",
+  },
+  {
+    key: "cancelled",
+    label: "Cancelled",
+    headerColor: "border-slate-300",
+    dotColor: "bg-slate-400",
   },
 ]
 
@@ -116,7 +116,7 @@ function buildKpis(tasks: Task[]): WorkKpi[] {
     if (!t.due_date) return false
     return new Date(t.due_date) < new Date() && t.status !== "done" && t.status !== "cancelled"
   }).length
-  const waiting   = tasks.filter(t => t.status === "waiting").length
+  const cancelled = tasks.filter(t => t.status === "cancelled").length
   const blocked   = tasks.filter(t => t.status === "blocked").length
   const doneCount = tasks.filter(t => t.status === "done").length
   const total     = tasks.length
@@ -138,18 +138,18 @@ function buildKpis(tasks: Task[]): WorkKpi[] {
       label: "Overdue",
     },
     {
-      icon: Clock,
+      icon: TrendingDown,
       iconBg: "bg-amber-50",
       iconColor: "text-amber-600",
-      value: waiting,
-      label: "Waiting Supplier",
-    },
-    {
-      icon: TrendingDown,
-      iconBg: "bg-red-50",
-      iconColor: "text-red-600",
       value: blocked,
       label: "Blocked",
+    },
+    {
+      icon: Clock,
+      iconBg: "bg-slate-50",
+      iconColor: "text-slate-600",
+      value: cancelled,
+      label: "Cancelled",
     },
     {
       ring: true,

@@ -142,14 +142,31 @@ export default function InvoiceDetailPage() {
   const [activeTab, setActiveTab] = useState("Overview")
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
-  // Persist a single field on the live money_invoices row (42P01-tolerant)
+  // Persist a single field on the live `invoices` row (42P01-tolerant).
+  // Map the page-facing field names/values onto the real invoices columns.
   async function saveField(field: string, value: string | number | null) {
     if (!id) return
     const supabase = createClient()
+    // Translate page-facing fields -> real `invoices` columns/values.
+    const patch: Record<string, unknown> = {}
+    if (field === "amount") {
+      patch.subtotal = value
+      patch.total = value
+    } else if (field === "description") {
+      patch.notes = value
+    } else if (field === "invoice_type") {
+      // Page offers customer-facing types; the live table only has outbound|supplier.
+      patch.invoice_type = "outbound"
+    } else if (field === "status") {
+      patch.status = value === "void" ? "cancelled" : value
+    } else {
+      // issue_date / due_date map 1:1
+      patch[field] = value
+    }
     try {
       const { error } = await supabase
-        .from("money_invoices")
-        .update({ [field]: value })
+        .from("invoices")
+        .update(patch)
         .eq("id", id)
         .eq("workspace_id", workspace?.id ?? "")
       if (error) {
@@ -171,7 +188,7 @@ export default function InvoiceDetailPage() {
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_invoices")
+        .from("invoices")
         .delete()
         .eq("id", id)
         .eq("workspace_id", workspace?.id ?? "")
@@ -190,24 +207,25 @@ export default function InvoiceDetailPage() {
     if (!id) return
     const supabase = createClient();
     (async () => {
-      // Payments
+      // Payments — real `payments` table links to records via linked_type/linked_id.
       try {
         const { data, error } = await supabase
-          .from("money_payments")
+          .from("payments")
           .select("*")
-          .eq("invoice_id", id)
-          .order("created_at", { ascending: false })
+          .eq("linked_type", "invoice")
+          .eq("linked_id", id)
+          .order("payment_date", { ascending: false })
         if (!error) {
           setPayments((data ?? []).map((r: Record<string, unknown>) => ({
             id: r.id as string,
-            date: (r.paid_date ?? r.created_at ?? "") as string,
-            method: (r.payment_method ?? r.method ?? null) as string | null,
+            date: (r.payment_date ?? r.created_at ?? "") as string,
+            method: (r.payment_method ?? null) as string | null,
             amount: r.amount as number,
             reference: (r.reference ?? null) as string | null,
-            recorded_by: (r.recorded_by ?? null) as string | null,
+            recorded_by: (r.created_by ?? null) as string | null,
           })))
         }
-      } catch { /* money_payments table may not exist — stay empty */ }
+      } catch { /* payments table may not exist — stay empty */ }
 
       // Audit logs
       try {

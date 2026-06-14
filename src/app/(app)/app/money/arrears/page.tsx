@@ -427,8 +427,8 @@ export default function ArrearsPage() {
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_arrears")
-        .update({ last_chased_at: new Date().toISOString(), status: "being_chased" })
+        .from("arrears_records")
+        .update({ last_chased_at: new Date().toISOString(), status: "chasing" })
         .eq("id", c.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       showToast(error?.code === "42P01" ? "Arrears table not provisioned yet" : `Chase logged for ${c.tenantName}`)
@@ -443,13 +443,15 @@ export default function ArrearsPage() {
     const amt = parseFloat(raw)
     if (isNaN(amt) || amt <= 0) { showToast("Enter a valid amount greater than 0"); return }
     const row = liveArrears!.find((r) => r.id === c.id)
+    const amountDue = row?.amount_owed ?? 0
     const newPaid = (row?.amount_paid ?? 0) + amt
-    const fullyPaid = newPaid >= (row?.amount_owed ?? 0)
+    const fullyPaid = newPaid >= amountDue
+    const newOutstanding = Math.max(0, amountDue - newPaid)
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_arrears")
-        .update({ amount_paid: newPaid, status: fullyPaid ? "resolved" : "being_chased" })
+        .from("arrears_records")
+        .update({ amount_paid: newPaid, amount_outstanding: newOutstanding, status: fullyPaid ? "resolved" : "chasing" })
         .eq("id", c.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       showToast(error?.code === "42P01" ? "Arrears table not provisioned yet" : fullyPaid ? "Payment recorded — case resolved" : "Payment recorded")

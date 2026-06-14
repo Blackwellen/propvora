@@ -439,8 +439,9 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
       for (const ci of tolerant(complianceItemsRes) as Array<Record<string, any>>) {
         const when = ci.due_date as string | null
         if (!when) continue
-        const done = ci.status === 'compliant' || ci.status === 'completed' || ci.status === 'passed'
-        const cancelled = ci.status === 'not_applicable' || ci.status === 'exempt'
+        // compliance_items.status enum: ok | due_soon | overdue | missing | exempt
+        const done = ci.status === 'ok'
+        const cancelled = ci.status === 'exempt'
         items.push({
           key: `compitem:${ci.id}`,
           recordId: ci.id,

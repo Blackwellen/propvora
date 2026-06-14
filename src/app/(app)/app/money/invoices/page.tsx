@@ -183,7 +183,7 @@ export default function InvoicesPage() {
     if (isLive) {
       const supabase = createClient()
       try {
-        const { error } = await supabase.from("money_invoices").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
+        const { error } = await supabase.from("invoices").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
         if (error && error.code !== "42P01") throw error
       } catch { showToast("Could not delete invoice"); return }
     }

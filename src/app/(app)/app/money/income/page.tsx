@@ -328,7 +328,8 @@ export default function MoneyIncomePage() {
     if (isLiveIncome(id)) {
       const supabase = createClient()
       try {
-        const { error } = await supabase.from("money_income").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
+        // Income is stored in money_transactions (direction = 'in').
+        const { error } = await supabase.from("money_transactions").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
         if (error && error.code !== "42P01") throw error
       } catch { showToast("Could not delete record"); return }
     }
@@ -338,12 +339,9 @@ export default function MoneyIncomePage() {
 
   async function markReceived(id: string) {
     if (!isLiveIncome(id)) { showToast("Sample record — actions persist once saved"); return }
-    const supabase = createClient()
-    try {
-      const { error } = await supabase.from("money_income").update({ status: "received", received_date: new Date().toISOString().slice(0, 10) }).eq("id", id).eq("workspace_id", workspace?.id ?? "")
-      if (error && error.code !== "42P01") throw error
-      showToast(error?.code === "42P01" ? "Income table not provisioned yet" : "Marked as received")
-    } catch { showToast("Could not update record") }
+    // money_transactions rows are realized cash movements — already "received".
+    // There is no status/received_date column to update, so this is a no-op.
+    showToast("Income is already recorded as received")
   }
 
   // Map live data to IncomeRow display format — NO mock fallback (honest empty state)

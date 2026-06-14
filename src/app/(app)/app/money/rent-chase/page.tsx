@@ -227,7 +227,7 @@ export default function RentChasePage() {
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_arrears")
+        .from("arrears_records")
         .update({ status: "resolved" })
         .eq("id", c.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
@@ -240,7 +240,7 @@ export default function RentChasePage() {
     const supabase = createClient()
     try {
       const { error } = await supabase
-        .from("money_arrears")
+        .from("arrears_records")
         .update({ status: "open" })
         .eq("id", c.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error

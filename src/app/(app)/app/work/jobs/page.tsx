@@ -416,7 +416,7 @@ const JOB_BOARD_COLUMNS: { key: string; label: string }[] = [
   { key: "scheduled", label: "Scheduled" },
   { key: "in_progress", label: "In Progress" },
   { key: "complete", label: "Complete" },
-  { key: "cancelled", label: "Cancelled" },
+  { key: "invoiced", label: "Invoiced" },
 ]
 
 // ---------------------------------------------------------------------------
@@ -695,7 +695,7 @@ export default function JobsPage() {
                         className="h-7 rounded-md border border-slate-200 bg-white px-2 text-[12.5px] text-slate-700 disabled:opacity-50"
                       >
                         <option value="" disabled>Choose…</option>
-                        {["new", "scheduled", "in_progress", "on_hold", "complete", "cancelled"].map((s) => (
+                        {["new", "scheduled", "in_progress", "complete", "invoiced", "closed"].map((s) => (
                           <option key={s} value={s}>{s.replace("_", " ")}</option>
                         ))}
                       </select>

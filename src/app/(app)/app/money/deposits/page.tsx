@@ -663,7 +663,7 @@ export default function DepositsPage() {
     if (isLiveDeposit(id)) {
       const supabase = createClient()
       try {
-        const { error } = await supabase.from("money_deposits").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
+        const { error } = await supabase.from("deposits").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
         if (error && error.code !== "42P01") throw error
       } catch { showToast("Could not delete deposit"); return }
     }
@@ -675,7 +675,8 @@ export default function DepositsPage() {
     if (!isLiveDeposit(id)) { showToast("Sample deposit — actions persist once saved"); return }
     const supabase = createClient()
     try {
-      const { error } = await supabase.from("money_deposits").update({ status: "returned", returned_at: new Date().toISOString() }).eq("id", id).eq("workspace_id", workspace?.id ?? "")
+      // deposits has no returned_at column; the status enum carries 'returned'.
+      const { error } = await supabase.from("deposits").update({ status: "returned" }).eq("id", id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       showToast(error?.code === "42P01" ? "Deposits table not provisioned yet" : "Marked as returned")
     } catch { showToast("Could not update deposit") }
