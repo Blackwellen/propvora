@@ -62,24 +62,73 @@ const TYPE_BADGE_CLS: Record<string, string> = {
 
 // ─── Create link modal ─────────────────────────────────────────────────────────
 interface CreateModalProps {
+  workspaceId: string | undefined
   onClose: () => void
   onSuccess: () => void
 }
 
-function CreateLinkModal({ onClose, onSuccess }: CreateModalProps) {
-  const [contact, setContact] = useState("")
+function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) {
+  const [contactId, setContactId] = useState("")
   const [purpose, setPurpose] = useState("")
   const [expiry, setExpiry] = useState("")
+  const [contacts, setContacts] = useState<{ id: string; display_name: string }[]>([])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = () => {
-    // Portal link creation requires email configuration (Resend)
-    // For now we show confirmation toast and close
-    onSuccess()
+  useEffect(() => {
+    if (!workspaceId) return
+    const supabase = createClient()
+    ;(async () => {
+      const { data, error: e } = await supabase
+        .from("contacts")
+        .select("id, display_name")
+        .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
+        .order("display_name", { ascending: true })
+        .limit(500)
+      if (!e && data) setContacts(data as { id: string; display_name: string }[])
+    })()
+  }, [workspaceId])
+
+  async function handleSubmit() {
+    if (!workspaceId) { setError("Workspace not loaded"); return }
+    if (!contactId || !purpose || !expiry) return
+    setSaving(true)
+    setError(null)
+    try {
+      const supabase = createClient()
+      const expiresAt = new Date(Date.now() + Number(expiry) * 86400_000).toISOString()
+      // token_hash is a placeholder until email delivery is configured; the link
+      // record itself is real and listed/revocable.
+      const token_hash = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `tok_${Date.now()}`
+      const { error: e } = await supabase
+        .from("contact_portal_access")
+        .insert({
+          workspace_id: workspaceId,
+          contact_id: contactId,
+          access_type: purpose,
+          purpose,
+          status: "active",
+          expires_at: expiresAt,
+          token_hash,
+        })
+        .select("id")
+        .single()
+      if (e) {
+        setError((e as { code?: string }).code === "42P01" ? "Portal access table is not provisioned yet." : e.message)
+        setSaving(false)
+        return
+      }
+      onSuccess()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not create link")
+      setSaving(false)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-4 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-bold text-slate-900">Create Portal Link</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
@@ -90,13 +139,14 @@ function CreateLinkModal({ onClose, onSuccess }: CreateModalProps) {
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
-            <input
-              type="text"
-              placeholder="Search or enter contact name..."
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            />
+            <select
+              value={contactId}
+              onChange={(e) => setContactId(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all max-h-60"
+            >
+              <option value="">Select a contact…</option>
+              {contacts.map((c) => <option key={c.id} value={c.id}>{c.display_name}</option>)}
+            </select>
           </div>
 
           <div>
@@ -133,6 +183,8 @@ function CreateLinkModal({ onClose, onSuccess }: CreateModalProps) {
           </div>
         </div>
 
+        {error && <p className="text-xs text-red-500 mt-3">{error}</p>}
+
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
@@ -142,10 +194,10 @@ function CreateLinkModal({ onClose, onSuccess }: CreateModalProps) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!contact || !purpose || !expiry}
+            disabled={!contactId || !purpose || !expiry || saving}
             className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Create Link
+            {saving ? "Creating…" : "Create Link"}
           </button>
         </div>
       </div>
@@ -172,57 +224,60 @@ export default function PortalAccessPage() {
     setTimeout(() => setToast({ msg: "", visible: false }), 2500)
   }, [])
 
-  // Load portal access records from supplier_portal_access joined with contacts
-  useEffect(() => {
+  // Load portal access records from contact_portal_access joined with contacts.
+  // Live schema: status/purpose/expires_at/last_opened_at/created_at + contacts.display_name/type/company.
+  const loadLinks = useCallback(async () => {
     if (!workspace?.id) return
     setLoadingLinks(true)
-    ;(async () => {
-      try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("supplier_portal_access")
-          .select("id, active, created_at, contact_id, contacts(full_name, contact_type, company_name)")
-          .eq("workspace_id", workspace.id)
-          .order("created_at", { ascending: false })
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("contact_portal_access")
+        .select("id, status, purpose, created_at, expires_at, last_opened_at, contact_id, contacts(display_name, type, company)")
+        .eq("workspace_id", workspace.id)
+        .order("created_at", { ascending: false })
 
-        if (error) {
-          if ((error as { code?: string }).code === "42P01") {
-            // table doesn't exist yet — show empty state
-            setPortalLinks([])
-          } else {
-            console.error("portal_access load error:", error)
-          }
-          return
-        }
-
-        const rows: PortalLink[] = (data ?? []).map((row) => {
-          const c = Array.isArray(row.contacts) ? row.contacts[0] : row.contacts
-          const contactName = (c as { full_name?: string } | null)?.full_name ?? "Unknown Contact"
-          const contactType = ((c as { contact_type?: string } | null)?.contact_type ?? "other") as TypeFilterKey
-          const company = (c as { company_name?: string | null } | null)?.company_name
-          const contactSubtitle = company ?? contactType.charAt(0).toUpperCase() + contactType.slice(1)
-          const status: PortalStatus = row.active ? "active" : "expired"
-          const created = new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-          return {
-            id: row.id,
-            contactName,
-            contactSubtitle,
-            contactType,
-            purpose: "Portal access",
-            status,
-            created,
-            expires: "—",
-            lastOpened: "—",
-          }
-        })
-        setPortalLinks(rows)
-      } catch (err) {
-        console.error("portal_access fetch error:", err)
-      } finally {
-        setLoadingLinks(false)
+      if (error) {
+        // 42P01 (missing table) / RLS denial → honest empty state.
+        setPortalLinks([])
+        return
       }
-    })()
+
+      const fmt = (iso: string | null) =>
+        iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"
+
+      const rows: PortalLink[] = (data ?? []).map((row) => {
+        const c = Array.isArray(row.contacts) ? row.contacts[0] : row.contacts
+        const contactName = (c as { display_name?: string } | null)?.display_name ?? "Unknown Contact"
+        const contactType = ((c as { type?: string } | null)?.type ?? "other") as TypeFilterKey
+        const company = (c as { company?: string | null } | null)?.company
+        const contactSubtitle = company ?? contactType.charAt(0).toUpperCase() + contactType.slice(1)
+        const rawStatus = (row.status as string | null) ?? "active"
+        const status: PortalStatus =
+          rawStatus === "active" || rawStatus === "pending" || rawStatus === "expired" || rawStatus === "revoked"
+            ? (rawStatus as PortalStatus)
+            : "active"
+        return {
+          id: row.id,
+          contactName,
+          contactSubtitle,
+          contactType,
+          purpose: (row.purpose as string | null)?.replace(/_/g, " ") || "Portal access",
+          status,
+          created: fmt(row.created_at as string | null),
+          expires: fmt(row.expires_at as string | null),
+          lastOpened: fmt(row.last_opened_at as string | null),
+        }
+      })
+      setPortalLinks(rows)
+    } catch {
+      setPortalLinks([])
+    } finally {
+      setLoadingLinks(false)
+    }
   }, [workspace?.id])
+
+  useEffect(() => { void loadLinks() }, [loadLinks])
 
   const handleCopy = (id: string) => {
     const link = portalLinks.find(l => l.id === id)
@@ -235,11 +290,22 @@ export default function PortalAccessPage() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  const handleRevoke = (id: string) => {
+  const handleRevoke = async (id: string) => {
     if (confirmRevokeId === id) {
-      // Portal link revocation requires backend integration — shows confirmation toast
-      showToast("Portal link revoked (feature requires email configuration)")
       setConfirmRevokeId(null)
+      try {
+        const supabase = createClient()
+        const { error } = await supabase
+          .from("contact_portal_access")
+          .update({ status: "revoked", revoked_at: new Date().toISOString() })
+          .eq("id", id)
+          .eq("workspace_id", workspace?.id ?? "")
+        if (error) { showToast("Could not revoke link"); return }
+        showToast("Portal link revoked")
+        void loadLinks()
+      } catch {
+        showToast("Could not revoke link")
+      }
     } else {
       setConfirmRevokeId(id)
       setTimeout(() => setConfirmRevokeId(null), 3000)
@@ -608,10 +674,12 @@ export default function PortalAccessPage() {
       {/* Create modal */}
       {showCreateModal && (
         <CreateLinkModal
+          workspaceId={workspace?.id}
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false)
-            showToast("Portal link saved — sending requires email configuration")
+            showToast("Portal link created")
+            void loadLinks()
           }}
         />
       )}

@@ -19,6 +19,8 @@ import {
   tenancyStatusMeta, jobStatusMeta, isOpenJob,
   type TenantContext, type TenancyLite, type PropertyLite,
 } from "./_lib/tenant-context"
+import { getTenantIncome } from "@/lib/portal/income"
+import { getPropertyDocuments } from "@/lib/portal/documents"
 
 interface JobRow {
   id: string
@@ -103,33 +105,29 @@ export default function TenantHomePage() {
           } catch { /* tolerate */ }
         }
 
-        // LIVE rent paid this calendar year, scoped to the tenant's tenancies
-        if (tIds.length > 0) {
-          try {
-            const { data: incData, error: incErr } = await supabase
-              .from("income_records")
-              .select("amount, status, date, tenancy_id")
-              .in("tenancy_id", tIds)
-            if (!incErr && incData) {
-              const year = new Date().getFullYear()
-              const paid = (incData as Record<string, unknown>[])
-                .filter((r) => r.status === "received" && new Date(r.date as string).getFullYear() === year)
-                .reduce((s, r) => s + ((r.amount as number) ?? 0), 0)
-              setPaidThisYear(paid)
-            }
-          } catch { /* tolerate */ }
+        // LIVE rent paid this calendar year, from money_transactions scoped to
+        // the tenant's own tenancy/property ids (received cash only).
+        if (tIds.length > 0 || pIds.length > 0) {
+          const income = await getTenantIncome(tIds, pIds)
+          const year = new Date().getFullYear()
+          const paid = income
+            .filter((r) => r.date && new Date(r.date).getFullYear() === year)
+            .reduce((s, r) => s + (r.amount ?? 0), 0)
+          setPaidThisYear(paid)
         }
 
-        // LIVE documents shared with this tenant
-        try {
-          const { data: docData, error: docErr } = await supabase
-            .from("tenant_documents")
-            .select("id, name, file_url, created_at")
-            .eq("contact_id", tenant.contactId)
-            .order("created_at", { ascending: false })
-            .limit(5)
-          if (!docErr && docData) setDocs(docData as unknown as DocRow[])
-        } catch { /* tolerate */ }
+        // LIVE documents on the tenant's own property (property_documents)
+        if (pIds.length > 0) {
+          const docRows = await getPropertyDocuments(pIds)
+          setDocs(
+            docRows.slice(0, 5).map((d) => ({
+              id: d.id,
+              name: d.name,
+              file_url: d.file_url,
+              created_at: d.created_at,
+            }))
+          )
+        }
       } catch (err) {
         console.error(err)
         setError("Could not load your dashboard.")

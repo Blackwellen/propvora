@@ -235,18 +235,22 @@ function DonutChart({ events }: { events: TimelineEvent[] }) {
   )
 }
 
-// ─── CSS bar chart ─────────────────────────────────────────────────────────────
-function BarChart() {
-  const bars = [
-    { label: "W1", value: 28 },
-    { label: "W2", value: 35 },
-    { label: "W3", value: 22 },
-    { label: "W4", value: 41 },
-    { label: "W5", value: 38 },
-    { label: "W6", value: 30 },
-    { label: "W7", value: 52 },
-  ]
-  const max = Math.max(...bars.map((b) => b.value))
+// ─── CSS bar chart — derived from live events (last 7 weeks) ─────────────────────
+function BarChart({ events }: { events: TimelineEvent[] }) {
+  const bars = useMemo(() => {
+    const now = new Date()
+    const weeks: { label: string; value: number }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const end = new Date(now.getTime() - i * 7 * 86400000)
+      const start = new Date(end.getTime() - 7 * 86400000)
+      const startKey = start.toISOString().split("T")[0]
+      const endKey = end.toISOString().split("T")[0]
+      const value = events.filter((e) => e.date > startKey && e.date <= endKey).length
+      weeks.push({ label: `W${7 - i}`, value })
+    }
+    return weeks
+  }, [events])
+  const max = Math.max(1, ...bars.map((b) => b.value))
 
   return (
     <div className="flex items-end gap-1.5 h-16">
@@ -269,9 +273,11 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
   const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
+  const ninetyAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
   const todayCount = events.filter((e) => e.date === today).length
   const weekCount = events.filter((e) => e.date >= weekAgo && e.date <= today).length
   const monthCount = events.filter((e) => e.date >= monthAgo).length
+  const ninetyCount = events.filter((e) => e.date >= ninetyAgo).length
 
   // Derive top contacts from live event data
   const contactCountMap = new Map<string, { name: string; count: number }>()
@@ -298,7 +304,7 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
             { label: "Today",        value: todayCount,  sub: "events" },
             { label: "This week",    value: weekCount,   sub: "events" },
             { label: "This month",   value: monthCount,  sub: "events" },
-            { label: "Last 90 days", value: 246,         sub: "events" },
+            { label: "Last 90 days", value: ninetyCount, sub: "events" },
           ].map((row) => (
             <div key={row.label} className="flex items-center justify-between text-xs">
               <span className="text-slate-500">{row.label}</span>
@@ -338,7 +344,7 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
           <h3 className="text-sm font-bold text-slate-900">Activity Over Time</h3>
           <span className="text-[10px] text-blue-600 cursor-pointer hover:underline">View full report</span>
         </div>
-        <BarChart />
+        <BarChart events={events} />
       </div>
     </aside>
   )

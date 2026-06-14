@@ -128,8 +128,11 @@ export default function CalendarMonthPage() {
         <CalendarTabNav />
 
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-5 items-start">
-          {/* Grid */}
+          {/* Grid — horizontal scroll on small screens so cells keep a usable
+              width instead of warping at 375px. */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+           <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
             <div className="grid grid-cols-7 border-b border-slate-100">
               {WEEK_DAYS_HEADER.map((day) => (
                 <div key={day} className={cn("py-2.5 text-center text-[11px] font-bold uppercase tracking-wide", day === "SAT" || day === "SUN" ? "text-slate-400 bg-slate-50/60" : "text-slate-500")}>
@@ -185,6 +188,8 @@ export default function CalendarMonthPage() {
                 )
               })}
             </div>
+            </div>
+           </div>
 
             {isLoading && (
               <div className="px-4 py-2.5 text-center text-[12px] text-slate-400 border-t border-slate-100">Loading calendar…</div>

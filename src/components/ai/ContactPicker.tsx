@@ -1,23 +1,23 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Search, X } from "lucide-react"
+import { useState, useMemo, useEffect } from "react"
+import { Search, X, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 import type { MockContact } from "./InboxPanel"
 
-/* ------------------------------------------------------------------ */
-/* Mock contacts list                                                   */
-/* ------------------------------------------------------------------ */
-const MOCK_CONTACTS: (MockContact & { lastContact?: string })[] = [
-  { id: "c1", name: "Sarah Mitchell", type: "tenant", lastContact: "2 days ago" },
-  { id: "c2", name: "Robert Patel", type: "landlord", lastContact: "1 week ago" },
-  { id: "c3", name: "Apex Plumbing Ltd", type: "supplier", lastContact: "Yesterday" },
-  { id: "c4", name: "James Okafor", type: "tenant", lastContact: "3 days ago" },
-  { id: "c5", name: "Premier Estates Agency", type: "agent", lastContact: "2 weeks ago" },
-  { id: "c6", name: "Elena Sokolov", type: "tenant", lastContact: "Today" },
-  { id: "c7", name: "Marcus Williams", type: "landlord", lastContact: "5 days ago" },
-  { id: "c8", name: "BrightFix Electricals", type: "supplier", lastContact: "3 weeks ago" },
-]
+type PickerContact = MockContact & { lastContact?: string }
+
+/** Maps a live contact `type` enum value to a picker contact type. */
+function normaliseType(type: string | null): MockContact["type"] {
+  const t = (type ?? "").toLowerCase()
+  if (t === "tenant" || t === "landlord" || t === "supplier" || t === "agent" ||
+      t === "applicant" || t === "professional") {
+    return t as MockContact["type"]
+  }
+  return "other"
+}
 
 const AVATAR_COLOURS: Record<MockContact["type"], string> = {
   tenant:       "bg-[#2563EB]",
@@ -55,17 +55,55 @@ interface ContactPickerProps {
 }
 
 export default function ContactPicker({ open, onClose, onSelect }: ContactPickerProps) {
+  const { workspace } = useWorkspace()
   const [search, setSearch] = useState("")
+  const [contacts, setContacts] = useState<PickerContact[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+
+  // Load real, workspace-scoped contacts when the picker opens.
+  useEffect(() => {
+    if (!open || !workspace?.id) return
+    let cancelled = false
+    setLoading(true)
+    setError(false)
+    ;(async () => {
+      try {
+        const supabase = createClient()
+        const { data, error: qErr } = await supabase
+          .from("contacts")
+          .select("id, display_name, type")
+          .eq("workspace_id", workspace.id)
+          .is("deleted_at", null)
+          .order("display_name", { ascending: true })
+          .limit(100)
+        if (cancelled) return
+        if (qErr) { setError(true); setContacts([]); return }
+        setContacts(
+          (data ?? []).map((c) => ({
+            id: c.id as string,
+            name: (c.display_name as string) ?? "Unnamed contact",
+            type: normaliseType(c.type as string | null),
+          }))
+        )
+      } catch {
+        if (!cancelled) { setError(true); setContacts([]) }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [open, workspace?.id])
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    if (!q) return MOCK_CONTACTS
-    return MOCK_CONTACTS.filter(
+    if (!q) return contacts
+    return contacts.filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.type.toLowerCase().includes(q)
     )
-  }, [search])
+  }, [search, contacts])
 
   if (!open) return null
 
@@ -120,8 +158,18 @@ export default function ContactPicker({ open, onClose, onSelect }: ContactPicker
 
         {/* Contacts list */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No contacts found</p>
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-5 h-5 text-slate-300 animate-spin" />
+            </div>
+          ) : error ? (
+            <p className="text-sm text-slate-400 text-center py-8">
+              Couldn&apos;t load contacts. Please try again.
+            </p>
+          ) : filtered.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">
+              {search ? "No contacts found" : "No contacts yet. Add contacts to start a conversation."}
+            </p>
           ) : (
             filtered.map((contact) => (
               <button

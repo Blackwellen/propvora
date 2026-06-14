@@ -221,6 +221,8 @@ export default function EventEditPage() {
   const [cancelConfirm, setCancelConfirm] = useState(false)
   const [deleteText, setDeleteText] = useState("")
   const [properties, setProperties] = useState<string[]>([])
+  // Preserve metadata keys we don't edit here (source_module, status) on save.
+  const [existingMeta, setExistingMeta] = useState<Record<string, unknown>>({})
 
   useEffect(() => {
     if (!id) return
@@ -232,10 +234,22 @@ export default function EventEditPage() {
       .single()
       .then(({ data, error }) => {
         if (!error && data) {
-          const ev = data as {
-            title?: string; event_type?: string; description?: string; location?: string
-            start_at?: string; end_at?: string; all_day?: boolean; status?: string
-            recurrence_rule?: string | null; risk_level?: string | null; timezone?: string | null
+          const raw = data as Record<string, unknown>
+          const meta = (raw.metadata ?? {}) as Record<string, unknown>
+          // status/source_module/risk_level/location/timezone live in metadata jsonb.
+          setExistingMeta(meta)
+          const ev = {
+            title: raw.title as string | undefined,
+            event_type: raw.event_type as string | undefined,
+            description: raw.description as string | undefined,
+            location: (meta.location as string | undefined) ?? (raw.location as string | undefined),
+            start_at: raw.start_at as string | undefined,
+            end_at: raw.end_at as string | undefined,
+            all_day: raw.all_day as boolean | undefined,
+            status: (meta.status as string | undefined) ?? (raw.status as string | undefined),
+            recurrence_rule: raw.recurrence_rule as string | null | undefined,
+            risk_level: (meta.risk_level as string | null | undefined) ?? (raw.risk_level as string | null | undefined),
+            timezone: (meta.timezone as string | null | undefined) ?? (raw.timezone as string | null | undefined),
           }
           // Convert ISO → local input parts.
           const toParts = (iso?: string) => {
@@ -321,7 +335,9 @@ export default function EventEditPage() {
           all_day: form.allDay,
           recurrence_rule: form.recurrence !== "None" ? form.recurrence : null,
           // No dedicated columns for these on calendar_events — keep in metadata.
+          // Merge over existing metadata so source_module/status aren't dropped.
           metadata: {
+            ...existingMeta,
             timezone: form.timezone || "Europe/London",
             risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
             location: form.location || null,

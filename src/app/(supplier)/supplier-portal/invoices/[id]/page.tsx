@@ -61,16 +61,16 @@ export default function SupplierInvoiceDetailPage({ params }: PageProps) {
         const supplier = await resolveSupplierContext()
         if (!supplier) { setError("No supplier account linked."); setLoading(false); return }
 
+        // Scope the fetch itself to this supplier's contact id — a guessed/other
+        // supplier's invoice id simply returns no row (no cross-supplier read).
         const { data, error: fetchErr } = await supabase
           .from("supplier_invoices")
           .select("id, invoice_number, amount, currency, status, submitted_at, approved_at, paid_at, notes, supplier_job_id, contact_id")
           .eq("id", invoiceId)
+          .eq("contact_id", supplier.contactId)
           .maybeSingle()
 
         if (fetchErr || !data) { setError("Invoice not found."); setLoading(false); return }
-        if ((data as Record<string, unknown>).contact_id !== supplier.contactId) {
-          setError("You don't have access to this invoice."); setLoading(false); return
-        }
 
         const row = data as Record<string, unknown>
         let jobId: string | null = null

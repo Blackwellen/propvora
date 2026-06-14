@@ -377,50 +377,95 @@ function MessagesTab({ contactId, workspaceId }: { contactId: string; workspaceI
   )
 }
 
-function DocumentsTab({ type }: { type: ContactType }) {
-  const docs = type === "tenant"
-    ? [
-        { name:"Tenancy Agreement", date:"2023-04-01", status:"verified", icon:FileText },
-        { name:"Photo ID — Passport", date:"2023-03-28", status:"verified", icon:User },
-        { name:"Right to Rent Check", date:"2023-03-28", status:"verified", icon:Shield },
-      ]
-    : type === "supplier"
-    ? [
-        { name:"Insurance Certificate", date:"2026-01-15", status:"valid", icon:Shield },
-        { name:"Gas Safe Certificate", date:"2025-11-01", status:"valid", icon:CheckCircle2 },
-        { name:"Public Liability Policy", date:"2025-11-01", status:"valid", icon:FileText },
-      ]
-    : [
-        { name:"Signed Agreement", date:"2026-01-10", status:"verified", icon:FileText },
-        { name:"Company Documents", date:"2026-01-10", status:"pending", icon:FolderOpen },
-      ]
+function DocumentsTab({ contactId, workspaceId }: { contactId: string; workspaceId: string | undefined }) {
+  const { editable } = useContactSave()
+  const [docs, setDocs] = React.useState<Array<{ id: string; name: string; status: string; created_at: string; url: string | null }>>([])
+  const [loading, setLoading] = React.useState(true)
+  const [uploading, setUploading] = React.useState(false)
+  const fileRef = React.useRef<HTMLInputElement>(null)
+
+  const load = React.useCallback(async () => {
+    if (!workspaceId) return
+    setLoading(true)
+    const { createClient } = await import("@/lib/supabase/client")
+    const supabase = createClient()
+    // Contact documents are filed in `documents` with metadata.contact_id (no FK column).
+    const { data, error } = await supabase
+      .from("documents")
+      .select("id, name, status, created_at, url, metadata")
+      .eq("workspace_id", workspaceId)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false })
+      .limit(100)
+    if (error) { setDocs([]); setLoading(false); return }
+    const mine = (data ?? []).filter((d) => (d.metadata as { contact_id?: string } | null)?.contact_id === contactId)
+    setDocs(mine.map((d) => ({ id: d.id as string, name: d.name as string, status: (d.status as string) ?? "uploaded", created_at: d.created_at as string, url: (d.url as string | null) ?? null })))
+    setLoading(false)
+  }, [workspaceId, contactId])
+
+  React.useEffect(() => { void load() }, [load])
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file || !workspaceId) return
+    setUploading(true)
+    try {
+      const { uploadFile } = await import("@/lib/upload")
+      const { createClient } = await import("@/lib/supabase/client")
+      const up = await uploadFile(file, workspaceId, "contacts")
+      const supabase = createClient()
+      await supabase.from("documents").insert({
+        workspace_id: workspaceId,
+        name: file.name,
+        mime_type: up.type || file.type || null,
+        size_bytes: up.size ?? file.size,
+        r2_key: up.key,
+        r2_bucket: "propvora",
+        url: up.url,
+        status: "uploaded",
+        metadata: { contact_id: contactId },
+      })
+      await load()
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
+      <input ref={fileRef} type="file" className="hidden" onChange={onPick} />
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-500">{docs.length} documents</p>
-        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Upload Document</Button>
+        <p className="text-xs text-slate-500">{docs.length} document{docs.length === 1 ? "" : "s"}</p>
+        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} disabled={!editable || uploading} onClick={() => fileRef.current?.click()}>
+          {uploading ? "Uploading…" : "Upload Document"}
+        </Button>
       </div>
-      <div className="space-y-2">
-        {docs.map((doc, i) => {
-          const Icon = doc.icon
-          return (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-all">
+      {loading ? (
+        <div className="py-12 text-center text-sm text-slate-400">Loading documents…</div>
+      ) : docs.length === 0 ? (
+        <EmptyState icon={FolderOpen} message="No documents yet. Upload one to get started." />
+      ) : (
+        <div className="space-y-2">
+          {docs.map((doc) => (
+            <div key={doc.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-all">
               <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <Icon className="w-4 h-4 text-blue-600" />
+                <FileText className="w-4 h-4 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">{doc.name}</p>
-                <p className="text-xs text-slate-400">{doc.date}</p>
+                <p className="text-xs text-slate-400">{new Date(doc.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
               </div>
               <StatusChip status={doc.status} />
               <div className="flex gap-1">
-                <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 transition-colors"><Download className="w-3.5 h-3.5" /></button>
+                {doc.url && (
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-slate-100 text-slate-400 transition-colors"><Download className="w-3.5 h-3.5" /></a>
+                )}
               </div>
             </div>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -1354,16 +1399,16 @@ function PrimaryActions({ contact, onToast, onArchive, onDelete, editable }: {
       {type === "tenant" && <>
         <Button variant="outline" size="sm" leftIcon={<Home className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/portfolio/tenancies/new?contact=${contact.id}`)}>Open Tenancy</Button>
         <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
-        <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => onToast("Document upload coming soon")}>Upload Document</Button>
+        <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/contacts/${contact.id}?tab=documents`)}>Upload Document</Button>
       </>}
       {type === "landlord" && <>
         <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/planning/landlord-offers/new?contact=${contact.id}`)}>Create Offer</Button>
-        <Button variant="outline" size="sm" leftIcon={<Link2 className="w-3.5 h-3.5" />} onClick={() => onToast("Property linking coming soon")}>Link Property</Button>
+        <Button variant="outline" size="sm" leftIcon={<Link2 className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/portfolio/properties?link_contact=${contact.id}`)}>Link Property</Button>
         <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
       </>}
       {type === "supplier" && <>
         <Button variant="outline" size="sm" leftIcon={<Briefcase className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/jobs/new?contact=${contact.id}`)}>Create Job</Button>
-        <Button variant="outline" size="sm" leftIcon={<Package className="w-3.5 h-3.5" />} onClick={() => onToast("Request feature coming soon")}>Send Request</Button>
+        <Button variant="outline" size="sm" leftIcon={<Package className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/contacts/${contact.id}?tab=documents`)}>Request Docs</Button>
         <Button variant="outline" size="sm" leftIcon={<Globe className="w-3.5 h-3.5" />} onClick={() => onToast("Portal invite requires email configuration")}>Portal Link</Button>
       </>}
       {type === "applicant" && <>
@@ -1616,7 +1661,7 @@ export default function ContactDetailPage() {
       case "enquiry":    return <EnquiryTab contact={contact} />
       case "interest":   return <PropertyInterestTab />
       case "viewings":   return <ViewingsTab />
-      case "documents":  return <DocumentsTab type={contact.contact_type} />
+      case "documents":  return <DocumentsTab contactId={contact.id} workspaceId={wsId} />
       case "messages":   return <MessagesTab contactId={contact.id} workspaceId={wsId} />
       case "notes":      return <NotesTab contact={contact} />
       case "tasks":      return <TasksTab />

@@ -5,27 +5,15 @@ import { FolderOpen, FileText, ExternalLink } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { EvidenceUpload, type EvidenceDoc } from "@/components/work/EvidenceUpload"
-import { createClient } from "@/lib/supabase/client"
 import {
-  resolveTenantContext, formatDate,
+  resolveTenantContext, resolveTenantTenancies, tenancyPropertyIds, formatDate,
   type TenantContext,
 } from "../_lib/tenant-context"
-
-interface DocRow {
-  id: string
-  name: string | null
-  file_url: string | null
-  file_type: string | null
-  file_size: number | null
-  created_at: string | null
-}
-
-function code(e: unknown): string | undefined {
-  return (e as { code?: string } | null)?.code
-}
+import { getPropertyDocuments, type PortalDocRow as DocRow } from "@/lib/portal/documents"
 
 export default function TenantDocumentsPage() {
   const [ctx, setCtx] = useState<TenantContext | null>(null)
+  const [propertyId, setPropertyId] = useState<string | null>(null)
   const [docs, setDocs] = useState<DocRow[]>([])
   const [loading, setLoading] = useState(true)
   const [noContext, setNoContext] = useState(false)
@@ -34,24 +22,20 @@ export default function TenantDocumentsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const supabase = createClient()
         const tenant = await resolveTenantContext()
         if (!tenant) { setNoContext(true); setLoading(false); return }
         setCtx(tenant)
 
-        // LIVE documents shared with this tenant (42P01-safe)
-        try {
-          const { data, error: fetchErr } = await supabase
-            .from("tenant_documents")
-            .select("id, name, file_url, file_type, file_size, created_at")
-            .eq("contact_id", tenant.contactId)
-            .order("created_at", { ascending: false })
-          if (fetchErr && code(fetchErr) !== "42P01") {
-            setError("Could not load documents.")
-          } else if (data) {
-            setDocs(data as unknown as DocRow[])
-          }
-        } catch { /* tolerate */ }
+        // Resolve the property ids strictly linked to this tenant's tenancies.
+        const myTenancies = await resolveTenantTenancies(tenant.contactId, tenant.workspaceId)
+        const pIds = tenancyPropertyIds(myTenancies)
+        setPropertyId(pIds[0] ?? null)
+
+        // LIVE documents on the tenant's own property (property_documents), 42P01-safe.
+        if (pIds.length > 0) {
+          const rows = await getPropertyDocuments(pIds)
+          setDocs(rows)
+        }
       } catch (err) {
         console.error(err)
         setError("Unexpected error loading documents.")
@@ -142,13 +126,19 @@ export default function TenantDocumentsPage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader><CardTitle>Upload a Document</CardTitle></CardHeader>
         <CardContent>
-          <EvidenceUpload
-            workspaceId={ctx?.workspaceId ?? undefined}
-            folder="tenant-documents"
-            table="tenant_documents"
-            extra={{ contact_id: ctx?.contactId }}
-            initialDocs={initialDocs}
-          />
+          {propertyId ? (
+            <EvidenceUpload
+              workspaceId={ctx?.workspaceId ?? undefined}
+              folder="tenant-documents"
+              table="property_documents"
+              extra={{ property_id: propertyId, category: "tenant_upload" }}
+              initialDocs={initialDocs}
+            />
+          ) : (
+            <p className="text-sm text-slate-500">
+              Uploads are available once your managing agent links a property to your tenancy.
+            </p>
+          )}
           <p className="text-xs text-slate-400 mt-3">
             Upload references, ID, proof of address or correspondence. Files are stored securely and shared with
             your managing agent.

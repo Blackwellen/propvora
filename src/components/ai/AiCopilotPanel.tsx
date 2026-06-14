@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import Image from "next/image"
 import {
   Send,
@@ -16,6 +16,8 @@ import {
   Building2,
 } from "lucide-react"
 import { motion } from "framer-motion"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -25,13 +27,6 @@ interface CopilotMessage {
   role: "user" | "assistant"
   content: string
   timestamp: string
-  actionCard?: ActionDraft
-  requiresApproval?: boolean
-}
-
-interface ActionDraft {
-  label: string
-  content: string
 }
 
 interface SlashCommand {
@@ -39,49 +34,33 @@ interface SlashCommand {
   label: string
   desc: string
   icon: string
-  credits: number
 }
 
 /* ------------------------------------------------------------------ */
-/* Demo messages                                                        */
+/* Welcome message (static greeting — not fabricated data)             */
 /* ------------------------------------------------------------------ */
-const DEMO_MESSAGES: CopilotMessage[] = [
-  {
-    id: "m1",
-    role: "assistant",
-    content:
-      "Hello! I'm Propvora Copilot. I can help you manage your properties, chase arrears, review compliance, draft messages, and much more.\n\nWhat would you like to do today?",
-    timestamp: "Just now",
-  },
-  {
-    id: "m2",
-    role: "user",
-    content: "Which properties need attention today?",
-    timestamp: "Just now",
-  },
-  {
-    id: "m3",
-    role: "assistant",
-    content:
-      "Based on your current portfolio, here are the items needing attention today:\n\n• **8 Clarence Rd** — Gas cert expired 5 days ago — renewal overdue\n• **16 Rose Gardens** — EICR expired — urgent renewal required\n• **22 Park Lane** — Move-out inspection overdue by 1 day\n• **5 Tower St** — Arrears chase due today — £850 outstanding\n• **INV-2045** — Invoice due today — £4,200 — Brookfield Properties\n\nWould you like me to draft chase messages or create renewal tasks for any of these?",
-    timestamp: "Just now",
-  },
-]
+const WELCOME_MESSAGE: CopilotMessage = {
+  id: "welcome",
+  role: "assistant",
+  content:
+    "Hello! I'm Propvora Copilot. I can help you manage your properties, chase arrears, review compliance, draft messages and more — using your live workspace data.\n\nWhat would you like to do today?",
+  timestamp: "Just now",
+}
 
 /* ------------------------------------------------------------------ */
 /* Slash commands                                                       */
 /* ------------------------------------------------------------------ */
 const SLASH_COMMANDS: SlashCommand[] = [
-  { key: "summarise",           label: "/summarise",             desc: "Summarise current page or record",     icon: "BookOpen",      credits: 1 },
-  { key: "create-task",         label: "/create-task",           desc: "Create a task from context",          icon: "CheckSquare",   credits: 1 },
-  { key: "draft-email",         label: "/draft-email",           desc: "Draft an email to contact/supplier",  icon: "Mail",          credits: 2 },
-  { key: "chase-arrears",       label: "/chase-arrears",         desc: "Find and draft arrears chase",        icon: "AlertTriangle", credits: 2 },
-  { key: "review-compliance",   label: "/review-compliance",     desc: "Check compliance gaps",               icon: "Shield",        credits: 2 },
-  { key: "create-job",          label: "/create-job",            desc: "Create a Work job",                   icon: "Briefcase",     credits: 1 },
-  { key: "draft-supplier",      label: "/draft-supplier-message",desc: "Draft message to supplier",           icon: "Truck",         credits: 2 },
-  { key: "find-missing",        label: "/find-missing-docs",     desc: "Find missing compliance docs",        icon: "Search",        credits: 2 },
-  { key: "explain",             label: "/explain-cashflow",      desc: "Explain cashflow or forecast",        icon: "TrendingUp",    credits: 1 },
-  { key: "review-property",     label: "/review-property",       desc: "Full property review",                icon: "Building2",     credits: 3 },
+  { key: "summarise",           label: "/summarise",             desc: "Summarise current page or record",     icon: "BookOpen"      },
+  { key: "create-task",         label: "/create-task",           desc: "Create a task from context",          icon: "CheckSquare"   },
+  { key: "draft-email",         label: "/draft-email",           desc: "Draft an email to contact/supplier",  icon: "Mail"          },
+  { key: "chase-arrears",       label: "/chase-arrears",         desc: "Find and draft arrears chase",        icon: "AlertTriangle" },
+  { key: "review-compliance",   label: "/review-compliance",     desc: "Check compliance gaps",               icon: "Shield"        },
+  { key: "create-job",          label: "/create-job",            desc: "Create a Work job",                   icon: "Briefcase"     },
+  { key: "draft-supplier",      label: "/draft-supplier-message",desc: "Draft message to supplier",           icon: "Truck"         },
+  { key: "find-missing",        label: "/find-missing-docs",     desc: "Find missing compliance docs",        icon: "Search"        },
+  { key: "explain",             label: "/explain-cashflow",      desc: "Explain cashflow or forecast",        icon: "TrendingUp"    },
+  { key: "review-property",     label: "/review-property",       desc: "Full property review",                icon: "Building2"     },
 ]
 
 const CMD_ICONS: Record<string, React.ElementType> = {
@@ -120,39 +99,117 @@ function renderContent(text: string): React.ReactNode[] {
 /* AiCopilotPanel                                                       */
 /* ------------------------------------------------------------------ */
 export default function AiCopilotPanel() {
-  const [messages, setMessages] = useState<CopilotMessage[]>(DEMO_MESSAGES)
+  const { workspace } = useWorkspace()
+  const [messages, setMessages] = useState<CopilotMessage[]>([WELCOME_MESSAGE])
   const [input, setInput] = useState("")
   const [isThinking, setIsThinking] = useState(false)
   const [showSlashMenu, setShowSlashMenu] = useState(false)
-  const [creditCount] = useState(75)
+  const [threadId, setThreadId] = useState<string | undefined>(undefined)
+  const [tokensToday, setTokensToday] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isThinking])
 
+  /* ------ Live usage meter: today's token total for this workspace ------ */
+  const loadUsage = useCallback(async () => {
+    if (!workspace?.id) return
+    try {
+      const supabase = createClient()
+      const day = new Date().toISOString().slice(0, 10)
+      const { data } = await supabase
+        .from("ai_token_usage")
+        .select("tokens_in, tokens_out")
+        .eq("workspace_id", workspace.id)
+        .eq("day", day)
+        .maybeSingle()
+      const total =
+        Number(data?.tokens_in ?? 0) + Number(data?.tokens_out ?? 0)
+      setTokensToday(total)
+    } catch {
+      // 42P01 / RLS — leave as null and render an honest "—"
+      setTokensToday(null)
+    }
+  }, [workspace?.id])
+
+  useEffect(() => {
+    loadUsage()
+  }, [loadUsage])
+
   async function handleSend() {
-    if (!input.trim()) return
+    const trimmed = input.trim()
+    if (!trimmed || isThinking) return
+
     const userMsg: CopilotMessage = {
-      id: Date.now().toString(),
+      id: `u-${Date.now()}`,
       role: "user",
-      content: input,
+      content: trimmed,
       timestamp: "Just now",
     }
-    setMessages((m) => [...m, userMsg])
+    const aiId = `a-${Date.now()}`
+    setMessages((m) => [
+      ...m,
+      userMsg,
+      { id: aiId, role: "assistant", content: "", timestamp: "Just now" },
+    ])
     setInput("")
     setShowSlashMenu(false)
     setIsThinking(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    setIsThinking(false)
-    const aiMsg: CopilotMessage = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      content:
-        "I've noted that. This is a demo — in production, I'll use your current page context and workspace data to give a relevant response.\n\nType / to see available commands, or ask me anything about your properties.",
-      timestamp: "Just now",
+
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          threadId,
+          workspaceId: workspace?.id,
+        }),
+      })
+
+      if (!res.ok) {
+        let msg = "Something went wrong. Please try again."
+        try {
+          const j = await res.json()
+          if (typeof j.error === "string") msg = j.error
+        } catch {
+          /* ignore */
+        }
+        setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: msg } : x)))
+        return
+      }
+
+      const newThread = res.headers.get("X-Thread-Id")
+      if (newThread) setThreadId(newThread)
+
+      const reader = res.body?.getReader()
+      if (!reader) {
+        const full = await res.text()
+        setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: full } : x)))
+      } else {
+        const decoder = new TextDecoder()
+        let acc = ""
+        setIsThinking(false)
+        for (;;) {
+          const { done, value } = await reader.read()
+          if (done) break
+          acc += decoder.decode(value, { stream: true })
+          setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: acc } : x)))
+        }
+      }
+    } catch {
+      setMessages((m) =>
+        m.map((x) =>
+          x.id === aiId
+            ? { ...x, content: "Connection lost. Please check your network and try again." }
+            : x
+        )
+      )
+    } finally {
+      setIsThinking(false)
+      loadUsage()
     }
-    setMessages((m) => [...m, aiMsg])
   }
 
   function handleSlashCommand(cmd: SlashCommand) {
@@ -185,7 +242,9 @@ export default function AiCopilotPanel() {
               </div>
               <div className="max-w-[82%]">
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3 text-[13px] text-slate-800 leading-relaxed">
-                  {renderContent(message.content)}
+                  {message.content
+                    ? renderContent(message.content)
+                    : <span className="text-slate-400">…</span>}
                 </div>
                 <span className="text-[10px] text-slate-400 mt-1 ml-1 block">
                   {message.timestamp}
@@ -256,9 +315,6 @@ export default function AiCopilotPanel() {
                       <p className="text-[12px] font-semibold text-slate-800">{cmd.label}</p>
                       <p className="text-[11px] text-slate-400">{cmd.desc}</p>
                     </div>
-                    <span className="text-[10px] text-violet-500 font-medium shrink-0">
-                      {cmd.credits} cr
-                    </span>
                   </button>
                 )
               })}
@@ -292,13 +348,21 @@ export default function AiCopilotPanel() {
           </div>
         </div>
 
-        {/* Credit meter */}
-        <div className="flex items-center justify-between mt-2 px-1">
+        {/* Live usage meter + new-line hint */}
+        <div className="flex items-center justify-between mt-2 px-1 gap-2">
           <p className="text-[10px] text-slate-400">
-            AI credits: {100 - creditCount} remaining
+            {tokensToday === null
+              ? "AI usage: —"
+              : `AI tokens today: ${tokensToday.toLocaleString()}`}
           </p>
           <p className="text-[10px] text-slate-400">Shift+Enter for new line</p>
         </div>
+
+        {/* AI disclaimer (project rule: no legal/financial/tax advice; AI can be wrong) */}
+        <p className="text-[9.5px] text-slate-400 mt-1.5 px-1 leading-snug">
+          Copilot can make mistakes and does not provide legal, financial or tax advice.
+          Review any drafted action before it is sent or applied.
+        </p>
       </div>
     </div>
   )

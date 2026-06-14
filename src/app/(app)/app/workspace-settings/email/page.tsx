@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
-import { Mail, ChevronDown, ChevronRight, Send, Eye, Edit2 } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { Mail, ChevronDown, ChevronRight, Send, Eye, Edit2, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface EmailTemplate {
   key: string
@@ -26,21 +27,58 @@ export default function EmailPage() {
   const [replyTo, setReplyTo]         = useState("")
   const [supportEmail, setSupportEmail] = useState("")
   const [testEmail, setTestEmail]     = useState("")
-  const [testSent, setTestSent]       = useState(false)
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null)
   const [toast, setToast]             = useState<string | null>(null)
   const [isDirty, setIsDirty]         = useState(false)
+  const [saving, setSaving]           = useState(false)
+  const [unavailable, setUnavailable] = useState(false)
+
+  // Hydrate email settings from workspace_settings.
+  useEffect(() => {
+    getWorkspaceSettings().then(({ settings: s, unavailable }) => {
+      if (unavailable) setUnavailable(true)
+      if (s) {
+        if (typeof s.email_from === "string") setFromEmail(s.email_from)
+        if (typeof s.email_reply_to === "string") setReplyTo(s.email_reply_to)
+        if (typeof s.email_support === "string") setSupportEmail(s.email_support)
+      }
+    })
+  }, [])
 
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
   }
 
+  async function handleSaveSettings() {
+    setSaving(true)
+    const res = await saveWorkspaceSettings(
+      {
+        email_from: fromEmail,
+        email_reply_to: replyTo,
+        email_support: supportEmail,
+      },
+      "mail"
+    )
+    setSaving(false)
+    if (res.unavailable) {
+      setUnavailable(true)
+      showToast("Settings storage is not configured yet — changes can't be saved.")
+      return
+    }
+    if (!res.ok) {
+      showToast(res.error ?? "Failed to save email settings.")
+      return
+    }
+    setIsDirty(false)
+    showToast("Email settings saved")
+  }
+
   function handleSendTest() {
+    // Email delivery requires the Resend/SMTP integration, which is not yet
+    // configured — be honest rather than faking a successful send.
     if (!testEmail) return
-    setTestSent(true)
-    showToast("Test email sent successfully")
-    setTimeout(() => setTestSent(false), 3000)
+    showToast("Connect an email provider (Resend or SMTP) to send test emails.")
   }
 
   function handleEdit(template: EmailTemplate) {
@@ -60,6 +98,13 @@ export default function EmailPage() {
           Configure email delivery providers and manage email templates
         </p>
       </div>
+
+      {unavailable && (
+        <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-700">
+          <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+          Settings storage is not provisioned in this environment yet, so email addresses can&apos;t be persisted until the <code className="font-mono">workspace_settings</code> table exists.
+        </div>
+      )}
 
       {/* Email provider status */}
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -116,25 +161,22 @@ export default function EmailPage() {
             <button
               onClick={handleSendTest}
               disabled={!testEmail}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold transition-colors",
-                testSent
-                  ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
-                  : "bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-40"
-              )}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold transition-colors bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-40"
             >
               <Send className="w-3.5 h-3.5" />
-              {testSent ? "Sent!" : "Send test"}
+              Send test
             </button>
           </div>
         </div>
-        {isDirty && (
+        {isDirty && !unavailable && (
           <div className="flex items-center gap-3 mt-5 pt-4 border-t border-slate-100">
             <button
-              onClick={() => setIsDirty(false)}
-              className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+              onClick={handleSaveSettings}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
             >
-              Save settings
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving ? "Saving…" : "Save settings"}
             </button>
             <button
               onClick={() => setIsDirty(false)}

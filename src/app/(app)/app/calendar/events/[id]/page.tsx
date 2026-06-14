@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import {
   CalendarDays,
@@ -16,8 +17,6 @@ import {
   Shield,
   Layers,
   ChevronRight,
-  Download,
-  Upload,
   Sparkles,
   RefreshCw,
   Plus,
@@ -80,6 +79,27 @@ interface CalendarEventRow {
   is_demo?: boolean | null
   created_at?: string
   updated_at?: string
+  metadata?: Record<string, unknown> | null
+}
+
+/**
+ * `calendar_events` stores source_module / status / risk_level / location inside
+ * the `metadata` jsonb (no dedicated columns). Flatten them onto the row so the
+ * UI can read them, and never write these as top-level columns.
+ */
+const META_FIELDS = ["status", "source_module", "risk_level", "location"] as const
+type MetaField = (typeof META_FIELDS)[number]
+
+function flattenEvent(raw: Record<string, unknown>): CalendarEventRow {
+  const meta = (raw.metadata ?? {}) as Record<string, unknown>
+  return {
+    ...(raw as unknown as CalendarEventRow),
+    status: (meta.status as string | null) ?? (raw.status as string | null) ?? null,
+    source_module: (meta.source_module as string | null) ?? (raw.source_module as string | null) ?? null,
+    risk_level: (meta.risk_level as string | null) ?? (raw.risk_level as string | null) ?? null,
+    location: (meta.location as string | null) ?? (raw.location as string | null) ?? null,
+    metadata: meta,
+  }
 }
 
 type TabKey = "overview" | "linked" | "schedule" | "reminders" | "messages" | "documents" | "activity" | "audit"
@@ -342,41 +362,24 @@ function TabReminders() {
 /* ------------------------------------------------------------------ */
 /* Tab content — Messages                                               */
 /* ------------------------------------------------------------------ */
-function TabMessages() {
+function TabMessages({ event }: { event: CalendarEventRow }) {
+  // Calendar events are not their own message thread — messaging lives in the
+  // contacts hub. Surface an honest empty state that routes there rather than
+  // faking a conversation.
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
-          <p className="text-sm font-semibold text-slate-800">Thread: Elite Gas Services</p>
-          <p className="text-xs text-slate-500">Annual Boiler Service — 4 Jun 2026</p>
-        </div>
-        <div className="p-4 space-y-4 min-h-[200px]">
-          {[
-            { from: "Jamie Clarke",     time: "1 Jun · 10:00", text: "Hi, just confirming the boiler service for 4th June at 9am. Please bring your gas safety certificate paperwork.", self: true },
-            { from: "Elite Gas Services", time: "1 Jun · 11:30", text: "Confirmed! Our engineer will arrive at 9am. Please ensure access to the boiler room.", self: false },
-            { from: "Jamie Clarke",     time: "2 Jun · 09:15", text: "Tenant has been notified. The property will be accessible.", self: true },
-          ].map((msg, i) => (
-            <div key={i} className={cn("flex gap-2", msg.self ? "flex-row-reverse" : "flex-row")}>
-              <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold text-slate-600 shrink-0">
-                {msg.from[0]}
-              </div>
-              <div className={cn("max-w-[75%] rounded-xl px-3 py-2", msg.self ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-800")}>
-                <p className={cn("text-xs font-medium mb-0.5", msg.self ? "text-blue-100" : "text-slate-500")}>{msg.from} · {msg.time}</p>
-                <p className="text-sm">{msg.text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
-          <textarea
-            disabled
-            placeholder="Messaging coming soon…"
-            className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 bg-white resize-none opacity-50 cursor-not-allowed"
-            rows={2}
-          />
-          <p className="text-xs text-slate-400 mt-1">Direct messaging is coming in a future update.</p>
-        </div>
+    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+        <MessageSquare className="w-5 h-5 text-slate-400" />
       </div>
+      <p className="text-sm font-semibold text-slate-700">No messages on this event</p>
+      <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        Conversations are kept against contacts. Open the contacts messaging hub to message anyone linked to this event.
+      </p>
+      <Button variant="outline" size="sm" className="mt-4" asChild>
+        <Link href={event.property_id ? `/app/contacts/messages?property=${event.property_id}` : "/app/contacts/messages"}>
+          Open Messaging
+        </Link>
+      </Button>
     </div>
   )
 }
@@ -384,28 +387,66 @@ function TabMessages() {
 /* ------------------------------------------------------------------ */
 /* Tab content — Documents                                              */
 /* ------------------------------------------------------------------ */
-function TabDocuments() {
-  return (
-    <div className="space-y-4">
-      {/* Upload area */}
-      <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center hover:border-[#2563EB] hover:bg-[#EFF6FF]/30 transition-colors cursor-pointer">
-        <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-        <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
-        <p className="text-xs text-slate-400 mt-1">PDF, DOCX, JPG, PNG up to 20MB</p>
-      </div>
+function TabDocuments({ event }: { event: CalendarEventRow }) {
+  const [docs, setDocs] = useState<Array<{ id: string; name: string; size_bytes: number | null; created_at: string }>>([])
+  const [loading, setLoading] = useState(true)
 
-      {/* Mock doc */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
-          <FileText className="w-4 h-4 text-red-500" />
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    ;(async () => {
+      // Documents linked to this event's property (events have no own doc store).
+      if (!event.property_id) { if (active) { setDocs([]); setLoading(false) }; return }
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("documents")
+        .select("id, name, size_bytes, created_at")
+        .eq("workspace_id", event.workspace_id)
+        .eq("property_id", event.property_id)
+        .is("archived_at", null)
+        .order("created_at", { ascending: false })
+        .limit(50)
+      if (!active) return
+      // 42P01 / RLS tolerant → honest empty state.
+      setDocs(error ? [] : (data ?? []))
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [event.property_id, event.workspace_id])
+
+  const fmtSize = (b: number | null) => (!b ? "—" : b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`)
+
+  if (loading) {
+    return <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-400">Loading documents…</div>
+  }
+  if (docs.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+          <FileText className="w-5 h-5 text-slate-400" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-800">Booking_Confirmation.pdf</p>
-          <p className="text-xs text-slate-500">Uploaded 1 Jun 2026 · 142 KB</p>
-        </div>
-        <Button variant="ghost" size="icon-xs"><Download className="w-3.5 h-3.5" /></Button>
-        <Button variant="ghost" size="icon-xs"><X className="w-3.5 h-3.5" /></Button>
+        <p className="text-sm font-semibold text-slate-700">No documents</p>
+        <p className="text-xs text-slate-500 mt-1">
+          {event.property_id ? "No documents are filed against this event's property yet." : "Link a property to this event to surface related documents."}
+        </p>
       </div>
+    )
+  }
+  return (
+    <div className="space-y-2">
+      {docs.map((doc) => (
+        <div key={doc.id} className="rounded-xl border border-slate-200 bg-white p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-slate-800 truncate">{doc.name}</p>
+            <p className="text-xs text-slate-500">
+              {new Date(doc.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · {fmtSize(doc.size_bytes)}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -413,24 +454,57 @@ function TabDocuments() {
 /* ------------------------------------------------------------------ */
 /* Tab content — Activity                                               */
 /* ------------------------------------------------------------------ */
-function TabActivity() {
-  const items = [
-    { date: "28 May 2026 · 14:32", action: "Event created",      actor: "Jamie Clarke", colour: "#2563EB" },
-    { date: "1 Jun 2026 · 10:15",  action: "Scheduled for 4 Jun 2026", actor: "Jamie Clarke", colour: "#10B981" },
-    { date: "1 Jun 2026 · 10:18",  action: "Reminder set: 1hr before (In-app)", actor: "Jamie Clarke", colour: "#F59E0B" },
-    { date: "3 Jun 2026 · 09:12",  action: "Status updated to Confirmed", actor: "System", colour: "#10B981" },
-  ]
+function TabActivity({ event }: { event: CalendarEventRow }) {
+  const [items, setItems] = useState<Array<{ id: string; action: string; created_at: string; user_id: string | null }>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    ;(async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("id, action, created_at, user_id")
+        .eq("workspace_id", event.workspace_id)
+        .eq("resource_type", "calendar_event")
+        .eq("resource_id", event.id)
+        .order("created_at", { ascending: false })
+        .limit(50)
+      if (!active) return
+      setItems(error ? [] : (data ?? []))
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [event.id, event.workspace_id])
+
+  if (loading) {
+    return <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-400">Loading activity…</div>
+  }
+  if (items.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+          <Activity className="w-5 h-5 text-slate-400" />
+        </div>
+        <p className="text-sm font-semibold text-slate-700">No activity recorded</p>
+        <p className="text-xs text-slate-500 mt-1">Changes to this event will appear here.</p>
+      </div>
+    )
+  }
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="relative pl-4">
         <div className="absolute left-0 top-2 bottom-2 w-px bg-slate-200" />
         <div className="space-y-5">
-          {items.map((item, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-2.5 h-2.5 rounded-full absolute -left-[5px] mt-1.5" style={{ backgroundColor: item.colour }} />
+          {items.map((item) => (
+            <div key={item.id} className="flex items-start gap-3">
+              <div className="w-2.5 h-2.5 rounded-full absolute -left-[5px] mt-1.5 bg-[#2563EB]" />
               <div className="pl-2">
                 <p className="text-sm font-medium text-slate-800">{item.action}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{item.date} · {item.actor}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {new Date(item.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} · {item.user_id ? "Team member" : "System"}
+                </p>
               </div>
             </div>
           ))}
@@ -568,7 +642,7 @@ export default function EventDetailPage() {
             setNotFound(true)
           }
         } else {
-          setEvent(data as CalendarEventRow)
+          setEvent(flattenEvent(data as Record<string, unknown>))
         }
         setLoading(false)
       })
@@ -580,16 +654,23 @@ export default function EventDetailPage() {
   async function saveField(field: string, value: string) {
     if (!event) return
     const v = value.trim()
-    const payload: Record<string, unknown> = { [field]: v === "" ? null : v }
+    const next = v === "" ? null : v
+    // status / source_module / risk_level / location live in metadata jsonb,
+    // not as top-level columns — route them there so the write actually succeeds.
+    const isMeta = (META_FIELDS as readonly string[]).includes(field)
+    const payload: Record<string, unknown> = isMeta
+      ? { metadata: { ...(event.metadata ?? {}), [field as MetaField]: next } }
+      : { [field]: next }
     const supabase = createClient()
     const { data, error } = await supabase
       .from("calendar_events")
       .update(payload)
       .eq("id", event.id)
+      .eq("workspace_id", event.workspace_id)
       .select()
       .single()
     if (error) throw new Error(error.message)
-    setEvent(data as CalendarEventRow)
+    setEvent(flattenEvent(data as Record<string, unknown>))
   }
 
   async function handleMarkDone() {
@@ -746,9 +827,9 @@ export default function EventDetailPage() {
               {activeTab === "linked"    && <TabLinked />}
               {activeTab === "schedule"  && <TabSchedule />}
               {activeTab === "reminders" && <TabReminders />}
-              {activeTab === "messages"  && <TabMessages />}
-              {activeTab === "documents" && <TabDocuments />}
-              {activeTab === "activity"  && <TabActivity />}
+              {activeTab === "messages"  && <TabMessages event={event} />}
+              {activeTab === "documents" && <TabDocuments event={event} />}
+              {activeTab === "activity"  && <TabActivity event={event} />}
               {activeTab === "audit"     && <TabAudit />}
             </div>
           </div>

@@ -5,27 +5,15 @@ import { FolderOpen, FileText, ExternalLink } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { EvidenceUpload, type EvidenceDoc } from "@/components/work/EvidenceUpload"
-import { createClient } from "@/lib/supabase/client"
 import {
-  resolveLandlordContext, formatDate,
+  resolveLandlordContext, resolveLandlordPropertyIds, formatDate,
   type LandlordContext,
 } from "../_lib/landlord-context"
-
-interface DocRow {
-  id: string
-  name: string | null
-  file_url: string | null
-  file_type: string | null
-  file_size: number | null
-  created_at: string | null
-}
-
-function code(e: unknown): string | undefined {
-  return (e as { code?: string } | null)?.code
-}
+import { getPropertyDocuments, type PortalDocRow as DocRow } from "@/lib/portal/documents"
 
 export default function LandlordDocumentsPage() {
   const [ctx, setCtx] = useState<LandlordContext | null>(null)
+  const [propertyId, setPropertyId] = useState<string | null>(null)
   const [docs, setDocs] = useState<DocRow[]>([])
   const [loading, setLoading] = useState(true)
   const [noContext, setNoContext] = useState(false)
@@ -34,24 +22,19 @@ export default function LandlordDocumentsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const supabase = createClient()
         const landlord = await resolveLandlordContext()
         if (!landlord) { setNoContext(true); setLoading(false); return }
         setCtx(landlord)
 
-        // LIVE documents shared with this landlord (42P01-safe)
-        try {
-          const { data, error: fetchErr } = await supabase
-            .from("landlord_documents")
-            .select("id, name, file_url, file_type, file_size, created_at")
-            .eq("contact_id", landlord.contactId)
-            .order("created_at", { ascending: false })
-          if (fetchErr && code(fetchErr) !== "42P01") {
-            setError("Could not load documents.")
-          } else if (data) {
-            setDocs(data as unknown as DocRow[])
-          }
-        } catch { /* tolerate */ }
+        // Resolve the property ids strictly linked to this landlord.
+        const propertyIds = await resolveLandlordPropertyIds(landlord.contactId, landlord.workspaceId)
+        setPropertyId(propertyIds[0] ?? null)
+
+        // LIVE documents on the landlord's own properties (property_documents), 42P01-safe.
+        if (propertyIds.length > 0) {
+          const rows = await getPropertyDocuments(propertyIds)
+          setDocs(rows)
+        }
       } catch (err) {
         console.error(err)
         setError("Unexpected error loading documents.")
@@ -142,13 +125,19 @@ export default function LandlordDocumentsPage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader><CardTitle>Upload a Document</CardTitle></CardHeader>
         <CardContent>
-          <EvidenceUpload
-            workspaceId={ctx?.workspaceId ?? undefined}
-            folder="landlord-documents"
-            table="landlord_documents"
-            extra={{ contact_id: ctx?.contactId }}
-            initialDocs={initialDocs}
-          />
+          {propertyId ? (
+            <EvidenceUpload
+              workspaceId={ctx?.workspaceId ?? undefined}
+              folder="landlord-documents"
+              table="property_documents"
+              extra={{ property_id: propertyId, category: "landlord_upload" }}
+              initialDocs={initialDocs}
+            />
+          ) : (
+            <p className="text-sm text-slate-500">
+              Uploads are available once your managing agent links a property to your account.
+            </p>
+          )}
           <p className="text-xs text-slate-400 mt-3">
             Upload statements, ID, ownership proof or correspondence. Files are stored securely and shared with
             your managing agent.

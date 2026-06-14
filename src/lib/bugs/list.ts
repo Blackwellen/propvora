@@ -6,9 +6,13 @@ import type { BugKind } from "@/lib/bugs/sanitise"
 // across the admin ops layer so a not-yet-applied migration degrades gracefully.
 
 const MISSING_RELATION = "42P01"
+// PostgREST surfaces a missing table as PGRST205 over the REST path (the request
+// fails against the schema cache before reaching Postgres, so the raw 42P01 is
+// never returned). Treat both as "table not provisioned".
+const PGRST_MISSING_RELATION = "PGRST205"
 
 function isSchemaGap(code?: string | null): boolean {
-  return code === MISSING_RELATION
+  return code === MISSING_RELATION || code === PGRST_MISSING_RELATION
 }
 
 export type BugStatus = "new" | "triaged" | "resolved" | "ignored"

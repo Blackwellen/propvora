@@ -15,9 +15,21 @@ import { createAdminClient } from "@/lib/supabase/admin"
 
 const MISSING_RELATION = "42P01"
 const UNDEFINED_COLUMN = "42703"
+// PostgREST surfaces a missing table/view as PGRST205 (not the raw Postgres
+// 42P01) and a missing column as PGRST204, because the request fails against the
+// schema cache before it ever reaches Postgres. Treat all of these as schema
+// gaps so a not-yet-provisioned table renders the honest "not provisioned"
+// state rather than a misleading "no rows yet".
+const PGRST_MISSING_RELATION = "PGRST205"
+const PGRST_MISSING_COLUMN = "PGRST204"
 
 function isSchemaGap(code?: string) {
-  return code === MISSING_RELATION || code === UNDEFINED_COLUMN
+  return (
+    code === MISSING_RELATION ||
+    code === UNDEFINED_COLUMN ||
+    code === PGRST_MISSING_RELATION ||
+    code === PGRST_MISSING_COLUMN
+  )
 }
 
 /** Safe count of a table, optionally filtered by an equality. */

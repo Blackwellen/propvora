@@ -14,8 +14,9 @@
 //   • rent_schedules.due_date → /app/money/rent-chase       (rent payments due)
 //   • arrears_records.due_date → /app/money/arrears         (rent arrears)
 //   • compliance_items.due_date → /app/compliance/coverage  (the live compliance source)
-//   • compliance_certificates.expiry_date → /app/compliance/certificates/{id}
-//   • compliance_inspections.scheduled_date → /app/compliance/inspections/{id}
+//   • property_inspections.scheduled_for → /app/compliance/inspections/{id}
+//     (there is no compliance_certificates table — cert expiries surface via
+//      compliance_items and property legal-deadline columns)
 //   • properties.hmo_licence_expiry / epc_expiry → /app/portfolio/properties/{id} (legal deadlines)
 //   • planning_landlord_offers.responded_at/sent_at → /app/planning/landlord-offers/{id}
 //
@@ -161,7 +162,6 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
         rentRes,
         arrearsRes,
         complianceItemsRes,
-        certsRes,
         inspectionsRes,
         propsRes,
         offersRes,
@@ -202,14 +202,14 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           .eq('workspace_id', wsId)
           .is('deleted_at', null)
           .not('due_date', 'is', null),
-        supabase.from('compliance_certificates')
-          .select('id, certificate_type, expiry_date, status, property_id')
+        // Live table is `property_inspections` (kind / scheduled_for / status).
+        // There is no `compliance_certificates` table — certificate expiries are
+        // surfaced via compliance_items / property legal-deadline columns instead.
+        supabase.from('property_inspections')
+          .select('id, kind, scheduled_for, completed_at, status, property_id')
           .eq('workspace_id', wsId)
-          .not('expiry_date', 'is', null),
-        supabase.from('compliance_inspections')
-          .select('id, inspection_type, scheduled_date, status, property_id')
-          .eq('workspace_id', wsId)
-          .not('scheduled_date', 'is', null),
+          .is('deleted_at', null)
+          .not('scheduled_for', 'is', null),
         supabase.from('properties')
           .select('id, nickname, address_line1, hmo_licence_expiry, epc_expiry')
           .eq('workspace_id', wsId),
@@ -221,7 +221,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
       sourcesLive.calendar = !eventsRes.error
       sourcesLive.work = !tasksRes.error || !jobsRes.error || !jobSchedulesRes.error || !ppmRes.error
       sourcesLive.portfolio = !tenanciesRes.error
-      sourcesLive.compliance = !complianceItemsRes.error || !certsRes.error || !inspectionsRes.error || !propsRes.error
+      sourcesLive.compliance = !complianceItemsRes.error || !inspectionsRes.error || !propsRes.error
       sourcesLive.planning = !offersRes.error
       // money surfaces through rent schedules + arrears (+ native source_module)
       sourcesLive.money = !rentRes.error || !arrearsRes.error || !eventsRes.error
@@ -486,36 +486,15 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
         }
       }
 
-      // ── Compliance certificates (expiry) → Compliance ────────────────────
-      for (const c of tolerant(certsRes) as Array<Record<string, any>>) {
-        const when = c.expiry_date as string | null
-        if (!when) continue
-        items.push({
-          key: `cert:${c.id}`,
-          recordId: c.id,
-          title: `${(c.certificate_type ?? 'Certificate')} expires`,
-          description: null,
-          start: when,
-          end: null,
-          allDay: true,
-          source: 'compliance',
-          sourceLabel: 'Compliance',
-          status: deriveStatus(new Date(when), today, {}),
-          href: `/app/compliance/certificates/${c.id}`,
-          propertyId: c.property_id ?? null,
-          isNative: false,
-        })
-      }
-
-      // ── Compliance inspections (scheduled) → Compliance ──────────────────
+      // ── Property inspections (scheduled) → Compliance ────────────────────
       for (const ins of tolerant(inspectionsRes) as Array<Record<string, any>>) {
-        const when = ins.scheduled_date as string | null
+        const when = ins.scheduled_for as string | null
         if (!when) continue
-        const done = ins.status === 'completed' || ins.status === 'passed'
+        const done = ins.status === 'completed' || ins.status === 'passed' || !!ins.completed_at
         items.push({
           key: `inspection:${ins.id}`,
           recordId: ins.id,
-          title: `${(ins.inspection_type ?? 'Inspection')}`,
+          title: `${(ins.kind ?? 'Inspection')} inspection`,
           description: null,
           start: when,
           end: null,

@@ -10,7 +10,7 @@ import {
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { cn } from "@/lib/utils"
-import { useContacts } from "@/hooks/useContacts"
+import { useContacts, useUpdateContact } from "@/hooks/useContacts"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { Contact } from "@/types/database"
 
@@ -294,6 +294,7 @@ function BoardSkeleton() {
 export default function ContactsBoardPage() {
   const { workspace } = useWorkspace()
   const { data: contacts = [], isLoading } = useContacts(workspace?.id)
+  const updateContact = useUpdateContact()
 
   const [boardMode, setBoardMode] = useState<BoardMode>("status")
   const [typeFilter, setTypeFilter] = useState<TypeFilterKey>("all")
@@ -306,12 +307,39 @@ export default function ContactsBoardPage() {
     setTimeout(() => setToast({ msg: "", visible: false }), 2500)
   }, [])
 
-  const handleDrop = useCallback((columnId: string) => {
-    if (!draggingId) return
-    console.log("Move contact", draggingId, "→ column", columnId)
-    showToast("Contact moved")
+  const handleDrop = useCallback(async (columnId: string) => {
+    const id = draggingId
     setDraggingId(null)
-  }, [draggingId, showToast])
+    if (!id || !workspace?.id) return
+    const c = contacts.find((x) => x.id === id)
+    if (!c) return
+    if (c.is_demo) { showToast("Demo contacts are read-only"); return }
+
+    // Only persist the columns that map to a real, single field. Status-mode
+    // columns derived purely from contact_type are not movable (toast instead of
+    // pretending to persist). Archived ⇄ status; Follow-up ⇄ tag.
+    const tags = (c.tags as string[] | null) ?? []
+    try {
+      if (boardMode === "status" && columnId === "archived") {
+        await updateContact.mutateAsync({ id, workspaceId: workspace.id, payload: { status: "archived" } as Partial<Contact> })
+        showToast("Contact archived")
+      } else if (boardMode === "status" && columnId === "follow_up") {
+        if (!tags.includes("follow_up")) {
+          await updateContact.mutateAsync({ id, workspaceId: workspace.id, payload: { tags: [...tags, "follow_up"] } as Partial<Contact> })
+        }
+        showToast("Flagged for follow-up")
+      } else if (boardMode === "status" && (columnId === "active_tenant" || columnId === "new") && c.status === "archived") {
+        // Dragging out of Archived back into an active column restores the contact.
+        const cleaned = tags.filter((t) => t !== "follow_up")
+        await updateContact.mutateAsync({ id, workspaceId: workspace.id, payload: { status: "active", tags: cleaned } as Partial<Contact> })
+        showToast("Contact restored")
+      } else {
+        showToast("This column is derived from contact type — edit the contact to change it")
+      }
+    } catch {
+      showToast("Could not move contact")
+    }
+  }, [draggingId, workspace?.id, contacts, boardMode, updateContact, showToast])
 
   const filtered = useMemo(() => {
     let data = [...contacts]

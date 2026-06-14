@@ -124,7 +124,10 @@ export async function setFeatureFlag(key: string, enabled: boolean): Promise<Act
       .update({ enabled, updated_at: new Date().toISOString() })
       .eq("key", key)
     if (error) {
-      if (error.code === "42P01") return { ok: false, error: "Feature flags table not provisioned yet." }
+      // PostgREST returns PGRST205 (schema-cache miss) for a missing table over
+      // the REST path; the raw 42P01 only appears on direct SQL.
+      if (error.code === "42P01" || error.code === "PGRST205")
+        return { ok: false, error: "Feature flags table not provisioned yet." }
       return { ok: false, error: error.message }
     }
     await writeAudit({
@@ -153,7 +156,8 @@ export async function savePlatformSetting(
       .from("platform_settings")
       .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" })
     if (error) {
-      if (error.code === "42P01") return { ok: false, error: "Platform settings table not provisioned yet." }
+      if (error.code === "42P01" || error.code === "PGRST205")
+        return { ok: false, error: "Platform settings table not provisioned yet." }
       return { ok: false, error: error.message }
     }
     await writeAudit({

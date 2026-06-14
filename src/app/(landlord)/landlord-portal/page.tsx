@@ -18,6 +18,7 @@ import {
   jobStatusMeta, isOccupied, isOpenJob,
   type LandlordContext, type PropertyLite,
 } from "./_lib/landlord-context"
+import { getPropertyDocuments } from "@/lib/portal/documents"
 
 interface JobRow {
   id: string
@@ -101,16 +102,18 @@ export default function LandlordHomePage() {
           }
         }
 
-        // LIVE documents shared with this landlord (folder: landlord-documents)
-        try {
-          const { data: docData, error: docErr } = await supabase
-            .from("landlord_documents")
-            .select("id, name, file_url, created_at")
-            .eq("contact_id", landlord.contactId)
-            .order("created_at", { ascending: false })
-            .limit(5)
-          if (!docErr && docData) setDocs(docData as unknown as DocRow[])
-        } catch { /* tolerate */ }
+        // LIVE documents on the landlord's own properties (property_documents)
+        if (propertyIds.length > 0) {
+          const docRows = await getPropertyDocuments(propertyIds)
+          setDocs(
+            docRows.slice(0, 5).map((d) => ({
+              id: d.id,
+              name: d.name,
+              file_url: d.file_url,
+              created_at: d.created_at,
+            }))
+          )
+        }
       } catch (err) {
         console.error(err)
         setError("Could not load your dashboard.")

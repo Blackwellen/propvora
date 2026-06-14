@@ -12,6 +12,7 @@ import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import ContactsKpiCard from "@/components/contacts/ContactsKpiCard"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { uploadFile } from "@/lib/upload"
 import { useWorkspace } from "@/hooks/useWorkspace"
 
 // ─── Avatar helpers ────────────────────────────────────────────────────────────
@@ -104,15 +105,51 @@ function FileTypeIcon({ type }: { type: FileType }) {
 }
 
 // ─── Upload modal ──────────────────────────────────────────────────────────────
-function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function UploadModal({ workspaceId, contacts, onClose, onSuccess }: {
+  workspaceId: string | undefined
+  contacts: { id: string; display_name: string }[]
+  onClose: () => void
+  onSuccess: (msg: string) => void
+}) {
   const [contact, setContact] = useState("")
   const [category, setCategory] = useState("")
   const [expiry, setExpiry] = useState("")
-  const [fileName, setFileName] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const fileName = file?.name ?? ""
 
-  const handleSubmit = () => {
-    console.log("Upload document:", { contact, category, expiry, fileName })
-    onSuccess()
+  async function handleSubmit() {
+    if (!workspaceId) { setError("Workspace not loaded"); return }
+    if (!file) { setError("Please choose a file to upload"); return }
+    setSaving(true)
+    setError(null)
+    try {
+      const uploaded = await uploadFile(file, workspaceId, "contacts")
+      const supabase = createClient()
+      const { error: e } = await supabase.from("documents").insert({
+        workspace_id: workspaceId,
+        name: file.name,
+        category: category || null,
+        mime_type: uploaded.type || file.type || null,
+        size_bytes: uploaded.size ?? file.size,
+        r2_key: uploaded.key,
+        r2_bucket: "propvora",
+        url: uploaded.url,
+        status: "uploaded",
+        expires_at: expiry || null,
+        metadata: contact ? { contact_id: contact } : {},
+      })
+      if (e) {
+        setError((e as { code?: string }).code === "42P01" ? "Documents table not provisioned yet." : e.message)
+        setSaving(false)
+        return
+      }
+      onSuccess("Document uploaded")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed")
+      setSaving(false)
+    }
   }
 
   return (
@@ -131,7 +168,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
           <input
             type="file"
             className="hidden"
-            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             id="file-upload"
           />
           <label htmlFor="file-upload" className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors">
@@ -142,9 +179,12 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
 
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
-            <input type="text" placeholder="Search contact..." value={contact} onChange={(e) => setContact(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contact (optional)</label>
+            <select value={contact} onChange={(e) => setContact(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all">
+              <option value="">No linked contact</option>
+              {contacts.map((c) => <option key={c.id} value={c.id}>{c.display_name}</option>)}
+            </select>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
@@ -161,10 +201,12 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
           </div>
         </div>
 
+        {error && <p className="text-xs text-red-500 mt-3">{error}</p>}
+
         <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
-          <button onClick={handleSubmit} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-            <Upload className="w-4 h-4" />Upload
+          <button onClick={onClose} disabled={saving} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50">Cancel</button>
+          <button onClick={handleSubmit} disabled={saving || !file} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+            <Upload className="w-4 h-4" />{saving ? "Uploading…" : "Upload"}
           </button>
         </div>
       </div>
@@ -173,14 +215,44 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
 }
 
 // ─── Request modal ─────────────────────────────────────────────────────────────
-function RequestModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function RequestModal({ workspaceId, contacts, onClose, onSuccess }: {
+  workspaceId: string | undefined
+  contacts: { id: string; display_name: string }[]
+  onClose: () => void
+  onSuccess: (msg: string) => void
+}) {
   const [contact, setContact] = useState("")
   const [docType, setDocType] = useState("")
   const [dueDate, setDueDate] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = () => {
-    console.log("Request document:", { contact, docType, dueDate })
-    onSuccess()
+  async function handleSubmit() {
+    if (!workspaceId) { setError("Workspace not loaded"); return }
+    if (!contact || !docType) { setError("Choose a contact and document type"); return }
+    setSaving(true)
+    setError(null)
+    try {
+      const supabase = createClient()
+      // A document request is recorded as a contact_activity entry (no Resend yet).
+      const { error: e } = await supabase.from("contact_activity").insert({
+        workspace_id: workspaceId,
+        contact_id: contact,
+        activity_type: "document_request",
+        title: `Document requested: ${docType.replace(/_/g, " ")}`,
+        description: dueDate ? `Due by ${dueDate}` : null,
+        metadata: { doc_type: docType, due_date: dueDate || null },
+      })
+      if (e) {
+        setError((e as { code?: string }).code === "42P01" ? "Activity table not provisioned yet." : e.message)
+        setSaving(false)
+        return
+      }
+      onSuccess("Document request logged")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not log request")
+      setSaving(false)
+    }
   }
 
   return (
@@ -194,8 +266,11 @@ function RequestModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
-            <input type="text" placeholder="Search contact..." value={contact} onChange={(e) => setContact(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+            <select value={contact} onChange={(e) => setContact(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all">
+              <option value="">Select a contact…</option>
+              {contacts.map((c) => <option key={c.id} value={c.id}>{c.display_name}</option>)}
+            </select>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Document type</label>
@@ -217,10 +292,12 @@ function RequestModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
           </div>
         </div>
 
+        {error && <p className="text-xs text-red-500 mt-3">{error}</p>}
+
         <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
-          <button onClick={handleSubmit} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-            <Send className="w-4 h-4" />Send Request
+          <button onClick={onClose} disabled={saving} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50">Cancel</button>
+          <button onClick={handleSubmit} disabled={saving} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+            <Send className="w-4 h-4" />{saving ? "Sending…" : "Send Request"}
           </button>
         </div>
       </div>
@@ -232,6 +309,7 @@ function RequestModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
 export default function DocumentsPage() {
   const { data: workspace } = useWorkspace()
   const [docs, setDocs] = useState<LiveDocument[]>([])
+  const [contactOptions, setContactOptions] = useState<{ id: string; display_name: string }[]>([])
   const [loadingDocs, setLoadingDocs] = useState(true)
   const [activeCategory, setActiveCategory] = useState("All")
   const [search, setSearch] = useState("")
@@ -244,56 +322,88 @@ export default function DocumentsPage() {
     setTimeout(() => setToast({ msg: "", visible: false }), 2500)
   }, [])
 
-  useEffect(() => {
+  const loadDocs = useCallback(async () => {
     if (!workspace?.id) return
     setLoadingDocs(true)
-    ;(async () => {
-      try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("documents")
-          .select("id, name, file_path, file_size, mime_type, category, created_at, contact_id, contacts(full_name, contact_type)")
-          .eq("workspace_id", workspace.id)
-          .order("created_at", { ascending: false })
-          .limit(200)
+    try {
+      const supabase = createClient()
+      // Live `documents` columns: name, r2_key, size_bytes, mime_type, category,
+      // status, expires_at, created_at. Contact linkage is held in metadata.contact_id
+      // (no contact_id column), so we resolve names client-side.
+      const { data, error } = await supabase
+        .from("documents")
+        .select("id, name, r2_key, size_bytes, mime_type, category, status, expires_at, created_at, metadata")
+        .eq("workspace_id", workspace.id)
+        .is("archived_at", null)
+        .order("created_at", { ascending: false })
+        .limit(200)
 
-        if (error) {
-          if ((error as { code?: string }).code === "42P01") {
-            setDocs([])
-          } else {
-            console.error("documents load error:", error)
-          }
-          return
-        }
-
-        const rows: LiveDocument[] = (data ?? []).map((row) => {
-          const c = Array.isArray(row.contacts) ? row.contacts[0] : row.contacts
-          const contactName = (c as { full_name?: string } | null)?.full_name ?? "Unknown"
-          const contactRole = (c as { contact_type?: string } | null)?.contact_type ?? "—"
-          const fileName = row.file_path?.split("/").pop() ?? row.name
-          const category = row.category ?? "Other"
-          const uploaded = new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-          const fileType = mimeToFileType(row.mime_type)
-          return {
-            id: row.id,
-            name: row.name,
-            ref: fileName,
-            fileType,
-            contactName,
-            contactRole: contactRole.charAt(0).toUpperCase() + contactRole.slice(1),
-            category,
-            uploaded,
-            expiry: null,
-            status: "verified" as DocStatus,
-            size: fmtSize(row.file_size),
-          }
-        })
-        setDocs(rows)
-      } catch (err) {
-        console.error("documents fetch error:", err)
-      } finally {
-        setLoadingDocs(false)
+      if (error) {
+        // 42P01 / RLS → honest empty state.
+        setDocs([])
+        return
       }
+
+      // Resolve linked contact names in one batch.
+      const contactIds = Array.from(
+        new Set((data ?? []).map((r) => (r.metadata as { contact_id?: string } | null)?.contact_id).filter(Boolean) as string[])
+      )
+      const nameById = new Map<string, { name: string; type: string }>()
+      if (contactIds.length > 0) {
+        const { data: cs } = await supabase
+          .from("contacts")
+          .select("id, display_name, type")
+          .eq("workspace_id", workspace.id)
+          .in("id", contactIds)
+        for (const c of cs ?? []) nameById.set(c.id as string, { name: (c.display_name as string) ?? "Unknown", type: (c.type as string) ?? "other" })
+      }
+
+      const rows: LiveDocument[] = (data ?? []).map((row) => {
+        const cid = (row.metadata as { contact_id?: string } | null)?.contact_id
+        const linked = cid ? nameById.get(cid) : undefined
+        const contactName = linked?.name ?? "—"
+        const contactRole = linked?.type ?? "—"
+        const fileName = (row.r2_key as string | null)?.split("/").pop() ?? row.name
+        const category = (row.category as string | null) ?? "Other"
+        const uploaded = new Date(row.created_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+        const status: DocStatus = (row.status === "verified" ? "verified" : row.status === "needs_review" ? "needs_review" : "verified")
+        return {
+          id: row.id as string,
+          name: row.name as string,
+          ref: fileName,
+          fileType: mimeToFileType(row.mime_type as string | null),
+          contactName,
+          contactRole: contactRole.charAt(0).toUpperCase() + contactRole.slice(1),
+          category,
+          uploaded,
+          expiry: row.expires_at ? new Date(row.expires_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null,
+          status,
+          size: fmtSize(row.size_bytes as number | null),
+        }
+      })
+      setDocs(rows)
+    } catch {
+      setDocs([])
+    } finally {
+      setLoadingDocs(false)
+    }
+  }, [workspace?.id])
+
+  useEffect(() => { void loadDocs() }, [loadDocs])
+
+  // Contact options for the upload/request modals.
+  useEffect(() => {
+    if (!workspace?.id) return
+    const supabase = createClient()
+    ;(async () => {
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("id, display_name")
+        .eq("workspace_id", workspace.id)
+        .is("deleted_at", null)
+        .order("display_name", { ascending: true })
+        .limit(500)
+      if (!error && data) setContactOptions(data as { id: string; display_name: string }[])
     })()
   }, [workspace?.id])
 
@@ -590,14 +700,18 @@ export default function DocumentsPage() {
 
       {showUploadModal && (
         <UploadModal
+          workspaceId={workspace?.id}
+          contacts={contactOptions}
           onClose={() => setShowUploadModal(false)}
-          onSuccess={() => { setShowUploadModal(false); showToast("Document uploaded successfully") }}
+          onSuccess={(msg) => { setShowUploadModal(false); showToast(msg); void loadDocs() }}
         />
       )}
       {showRequestModal && (
         <RequestModal
+          workspaceId={workspace?.id}
+          contacts={contactOptions}
           onClose={() => setShowRequestModal(false)}
-          onSuccess={() => { setShowRequestModal(false); showToast("Document request sent") }}
+          onSuccess={(msg) => { setShowRequestModal(false); showToast(msg) }}
         />
       )}
 

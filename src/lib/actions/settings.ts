@@ -97,7 +97,29 @@ export interface WorkspaceSettingsResult {
 }
 
 /**
- * Reads the workspace_settings row for the active workspace.
+ * The `workspace_settings` table stores feature config inside typed jsonb
+ * "bucket" columns (ai, chat, mail, calendar, …) rather than one column per
+ * flag. Settings pages work with FLAT key/value maps, so reads merge the
+ * relevant buckets up to the top level and writes are nested back into a bucket.
+ */
+const SETTINGS_BUCKETS = [
+  "ai",
+  "chat",
+  "mail",
+  "calendar",
+  "team",
+  "money",
+  "suppliers",
+  "compliance",
+  "documents",
+  "insights",
+] as const
+
+export type SettingsBucket = (typeof SETTINGS_BUCKETS)[number]
+
+/**
+ * Reads the workspace_settings row for the active workspace and flattens its
+ * jsonb buckets into a single top-level key/value map.
  * 42P01-safe: returns { unavailable: true } when the table is missing.
  */
 export async function getWorkspaceSettings(): Promise<WorkspaceSettingsResult> {
@@ -114,7 +136,19 @@ export async function getWorkspaceSettings(): Promise<WorkspaceSettingsResult> {
       if (isMissingTable(error)) return { settings: null, unavailable: true }
       return { settings: null, unavailable: false }
     }
-    return { settings: (data as Record<string, unknown>) ?? null, unavailable: false }
+    if (!data) return { settings: null, unavailable: false }
+
+    // Flatten: top-level scalar columns first, then merge each jsonb bucket's
+    // keys up so callers can read flat keys (e.g. `ai_enabled`, `email_from`).
+    const row = data as Record<string, unknown>
+    const flat: Record<string, unknown> = { ...row }
+    for (const bucket of SETTINGS_BUCKETS) {
+      const b = row[bucket]
+      if (b && typeof b === "object" && !Array.isArray(b)) {
+        Object.assign(flat, b as Record<string, unknown>)
+      }
+    }
+    return { settings: flat, unavailable: false }
   } catch {
     return { settings: null, unavailable: false }
   }
@@ -128,11 +162,15 @@ export interface SaveSettingsResult {
 }
 
 /**
- * Upserts a partial set of keys onto the workspace_settings row.
- * 42P01-safe. Audited.
+ * Upserts a flat set of keys into one jsonb bucket on the workspace_settings
+ * row, merging with any existing keys in that bucket. 42P01-safe. Audited.
+ *
+ * @param patch  Flat key/value map to persist.
+ * @param bucket Target jsonb column (defaults to "ai").
  */
 export async function saveWorkspaceSettings(
-  patch: Record<string, unknown>
+  patch: Record<string, unknown>,
+  bucket: SettingsBucket = "ai"
 ): Promise<SaveSettingsResult> {
   let ctx: AuthedContext
   try {
@@ -142,12 +180,31 @@ export async function saveWorkspaceSettings(
   }
 
   const supabase = await createClient()
+
+  // Merge with the existing bucket so partial saves don't clobber other keys.
+  const { data: existing, error: readErr } = await supabase
+    .from("workspace_settings")
+    .select(bucket)
+    .eq("workspace_id", ctx.workspaceId)
+    .maybeSingle()
+
+  if (readErr && isMissingTable(readErr)) return { ok: false, unavailable: true }
+
+  const current =
+    (existing as Record<string, unknown> | null)?.[bucket]
+  const merged = {
+    ...(current && typeof current === "object" && !Array.isArray(current)
+      ? (current as Record<string, unknown>)
+      : {}),
+    ...patch,
+  }
+
   const { error } = await supabase
     .from("workspace_settings")
     .upsert(
       {
         workspace_id: ctx.workspaceId,
-        ...patch,
+        [bucket]: merged,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "workspace_id" }
@@ -159,6 +216,7 @@ export async function saveWorkspaceSettings(
   }
 
   await writeAudit(ctx.workspaceId, ctx.userId, "workspace_settings.updated", {
+    bucket,
     keys: Object.keys(patch),
   })
   revalidatePath("/app/workspace-settings")

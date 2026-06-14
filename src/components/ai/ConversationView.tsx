@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format, isToday, isYesterday } from "date-fns"
+import { useWorkspace } from "@/providers/AuthProvider"
 import type { MockConversation, MockMessage } from "./InboxPanel"
 
 /* ------------------------------------------------------------------ */
@@ -153,8 +154,9 @@ export default function ConversationView({
   onBack,
   onUpdateConversation,
 }: ConversationViewProps) {
+  const { workspace } = useWorkspace()
   const [text, setText] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
+  const [isTyping] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -176,41 +178,68 @@ export default function ConversationView({
       read: false,
     }
 
+    // Append the sent message. No simulated contact reply — replies arrive
+    // through the real messaging layer, not a fabricated timeout.
     onUpdateConversation({
       ...conversation,
       messages: [...conversation.messages, userMsg],
       unread: 0,
     })
     setText("")
-
-    // Simulate contact reply after a brief delay (demo only)
-    setIsTyping(true)
-    await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1000))
-    setIsTyping(false)
-
-    const replyMsg: MockMessage = {
-      id: `msg-${Date.now()}-reply`,
-      role: "contact",
-      content: "Thanks for your message. I'll get back to you shortly.",
-      timestamp: new Date(),
-      read: false,
-    }
-    onUpdateConversation({
-      ...conversation,
-      messages: [...conversation.messages, userMsg, replyMsg],
-      unread: 0,
-    })
   }, [text, conversation, onUpdateConversation])
 
+  // Draft a reply suggestion from the real AI chat route. The draft lands in the
+  // composer for the user to review and edit before sending (never auto-sent).
   const handleAiAssist = useCallback(async () => {
+    if (aiLoading) return
     setAiLoading(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    setAiLoading(false)
-    setText(
-      "Thank you for getting in touch. I'm looking into this and will provide an update within 24 hours. Please don't hesitate to reach out if you need anything urgent in the meantime."
-    )
-    textareaRef.current?.focus()
-  }, [])
+    try {
+      const recent = conversation.messages
+        .slice(-6)
+        .map((m) => `${m.role === "user" ? "Me" : contact.name}: ${m.content}`)
+        .join("\n")
+      const prompt =
+        `Draft a brief, professional reply I (the property manager) can send to ${contact.name} ` +
+        `(${contact.type}). Output only the message body, no preamble.\n\nRecent conversation:\n${recent}`
+
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: prompt, workspaceId: workspace?.id }),
+      })
+
+      if (!res.ok) {
+        let msg = "Couldn't draft a reply right now. Please try again."
+        try {
+          const j = await res.json()
+          if (typeof j.error === "string") msg = j.error
+        } catch {
+          /* ignore */
+        }
+        setText(msg)
+        return
+      }
+
+      const reader = res.body?.getReader()
+      if (!reader) {
+        setText(await res.text())
+      } else {
+        const decoder = new TextDecoder()
+        let acc = ""
+        for (;;) {
+          const { done, value } = await reader.read()
+          if (done) break
+          acc += decoder.decode(value, { stream: true })
+          setText(acc)
+        }
+      }
+    } catch {
+      setText("Couldn't draft a reply — check your connection and try again.")
+    } finally {
+      setAiLoading(false)
+      textareaRef.current?.focus()
+    }
+  }, [aiLoading, conversation.messages, contact.name, contact.type, workspace?.id])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -367,7 +396,12 @@ export default function ConversationView({
             </button>
           </div>
         </div>
-        <p className="text-[10px] text-slate-400 mt-1 text-right">Shift+Enter for new line</p>
+        <div className="flex items-center justify-between mt-1 gap-2">
+          <p className="text-[9.5px] text-slate-400 leading-snug">
+            AI drafts are suggestions only — review before sending. Not legal, financial or tax advice.
+          </p>
+          <p className="text-[10px] text-slate-400 shrink-0">Shift+Enter for new line</p>
+        </div>
       </div>
     </div>
   )

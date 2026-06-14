@@ -237,7 +237,14 @@ export default function NotificationBell() {
           id={dropdownId}
           role="dialog"
           aria-label="Notifications"
-          style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999, width: 340 }}
+          style={{
+            position: "fixed",
+            top: pos.top,
+            right: pos.right,
+            zIndex: 9999,
+            width: "min(340px, calc(100vw - 16px))",
+            maxWidth: "calc(100vw - 16px)",
+          }}
           className="bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden"
         >
           {/* Header */}

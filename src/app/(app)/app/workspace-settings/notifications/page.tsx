@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Bell, Mail, Smartphone, Check } from "lucide-react"
+import { Bell, Mail, Smartphone, Check, Loader2, Info } from "lucide-react"
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface AlertToggles {
   workReminders: boolean
@@ -96,20 +97,63 @@ export default function NotificationsPage() {
   const [digest, setDigest] = useState<DigestFrequency>("daily")
   const [isDirty, setIsDirty] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [unavailable, setUnavailable] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  // Hydrate workspace notification defaults from workspace_settings.
+  useEffect(() => {
+    getWorkspaceSettings().then(({ settings: s, unavailable }) => {
+      if (unavailable) setUnavailable(true)
+      if (s) {
+        const na = s.notification_alerts as Partial<AlertToggles> | undefined
+        if (na && typeof na === "object") setAlerts(prev => ({ ...prev, ...na }))
+        const nc = s.notification_channels as Partial<ChannelSettings> | undefined
+        if (nc && typeof nc === "object") setChannels(prev => ({ ...prev, ...nc }))
+        if (typeof s.notification_digest === "string") {
+          setDigest(s.notification_digest as DigestFrequency)
+        }
+      }
+      setLoading(false)
+    })
+  }, [])
 
   const toggleAlert = (key: keyof AlertToggles) => {
     setAlerts(prev => ({ ...prev, [key]: !prev[key] }))
     setIsDirty(true)
     setSaved(false)
+    setSaveError(null)
   }
 
   const toggleChannel = (key: keyof ChannelSettings) => {
     setChannels(prev => ({ ...prev, [key]: !prev[key] }))
     setIsDirty(true)
     setSaved(false)
+    setSaveError(null)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true)
+    setSaveError(null)
+    const res = await saveWorkspaceSettings(
+      {
+        notification_alerts: alerts,
+        notification_channels: channels,
+        notification_digest: digest,
+      },
+      "chat"
+    )
+    setSaving(false)
+    if (res.unavailable) {
+      setUnavailable(true)
+      setSaveError("Settings storage is not configured yet — changes can't be persisted.")
+      return
+    }
+    if (!res.ok) {
+      setSaveError(res.error ?? "Failed to save notification defaults.")
+      return
+    }
     setSaved(true)
     setIsDirty(false)
     setTimeout(() => setSaved(false), 3000)
@@ -134,6 +178,19 @@ export default function NotificationsPage() {
           These are workspace defaults. Individual users can override these in their Account Settings.
         </p>
       </div>
+
+      {unavailable && (
+        <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-700">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          Settings storage is not provisioned in this environment yet. Toggles show defaults and can&apos;t be persisted until the <code className="font-mono">workspace_settings</code> table exists.
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
+        </div>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -261,22 +318,26 @@ export default function NotificationsPage() {
       </div>
 
       {/* Sticky save bar */}
-      {isDirty && (
+      {isDirty && !unavailable && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shadow-lg">
-          <p className="text-[13px] text-slate-600">You have unsaved changes</p>
+          <div>
+            <p className="text-[13px] text-slate-600">You have unsaved changes</p>
+            {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}
+          </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsDirty(false)}
+              onClick={() => { setIsDirty(false); setSaveError(null) }}
               className="px-4 py-2 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Discard
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
             >
-              {saved && <Check className="w-4 h-4" />}
-              Save changes
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
+              {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}
             </button>
           </div>
         </div>

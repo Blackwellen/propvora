@@ -5,31 +5,19 @@ import { PoundSterling, CheckCircle2, Clock, CalendarClock, DoorOpen, Receipt } 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
-import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import {
-  resolveTenantContext, resolveTenantTenancies, tenancyIds,
+  resolveTenantContext, resolveTenantTenancies, tenancyIds, tenancyPropertyIds,
   formatMoney, formatDate, rentFrequencyLabel,
   type TenancyLite,
 } from "../_lib/tenant-context"
+import { getTenantIncome, type PortalIncomeRow } from "@/lib/portal/income"
 
-interface RentRow {
-  id: string
-  amount: number
-  currency: string | null
-  date: string
-  status: string
-  category: string | null
-  description: string | null
-}
+type RentRow = PortalIncomeRow
 
-const STATUS_FILTERS = ["All", "Paid", "Due", "Overdue"] as const
+const STATUS_FILTERS = ["All", "Paid"] as const
 
-function code(e: unknown): string | undefined {
-  return (e as { code?: string } | null)?.code
-}
-
-// Normalise the two possible income tables to one shape.
+// money_transactions rows are realised cash → always paid/received.
 function isPaid(status: string): boolean {
   return status === "received" || status === "reconciled" || status === "paid"
 }
@@ -49,7 +37,6 @@ export default function TenantRentPage() {
   useEffect(() => {
     async function load() {
       try {
-        const supabase = createClient()
         const tenant = await resolveTenantContext()
         if (!tenant) { setNoContext(true); setLoading(false); return }
 
@@ -58,52 +45,11 @@ export default function TenantRentPage() {
         setTenancies(myTenancies)
 
         const tIds = tenancyIds(myTenancies)
+        const pIds = tenancyPropertyIds(myTenancies)
 
-        // LIVE rent scoped STRICTLY to this tenant's tenancies. Try income_records
-        // first (date/status), fall back to money_income (due_date/status).
-        let mapped: RentRow[] = []
-        const { data, error: fetchErr } = await supabase
-          .from("income_records")
-          .select("id, amount, currency, date, status, category, description, tenancy_id")
-          .in("tenancy_id", tIds)
-          .order("date", { ascending: false })
-
-        if (fetchErr && code(fetchErr) !== "42P01") {
-          setError("Could not load your rent records.")
-          setLoading(false)
-          return
-        }
-        if (data && data.length > 0) {
-          mapped = (data as Record<string, unknown>[]).map((r) => ({
-            id: r.id as string,
-            amount: (r.amount as number) ?? 0,
-            currency: (r.currency as string) ?? "GBP",
-            date: r.date as string,
-            status: (r.status as string) ?? "expected",
-            category: (r.category as string) ?? null,
-            description: (r.description as string) ?? null,
-          }))
-        } else {
-          // Fallback to money_income (42P01-safe)
-          try {
-            const { data: mi, error: miErr } = await supabase
-              .from("money_income")
-              .select("id, amount, currency, due_date, received_date, expected_date, status, income_type, description, tenancy_id")
-              .in("tenancy_id", tIds)
-              .order("due_date", { ascending: false })
-            if (!miErr && mi) {
-              mapped = (mi as Record<string, unknown>[]).map((r) => ({
-                id: r.id as string,
-                amount: (r.amount as number) ?? 0,
-                currency: (r.currency as string) ?? "GBP",
-                date: (r.received_date as string) || (r.due_date as string) || (r.expected_date as string) || "",
-                status: (r.status as string) ?? "expected",
-                category: (r.income_type as string) ?? null,
-                description: (r.description as string) ?? null,
-              }))
-            }
-          } catch { /* tolerate */ }
-        }
+        // LIVE rent from money_transactions scoped STRICTLY to this tenant's own
+        // tenancy/property ids (received cash). No phantom income tables.
+        const mapped = await getTenantIncome(tIds, pIds)
         setRows(mapped)
       } catch (err) {
         console.error(err)

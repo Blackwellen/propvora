@@ -13,23 +13,9 @@ import {
   formatMoney, formatDate, propertyLabel,
   type PropertyLite,
 } from "../_lib/landlord-context"
+import { getPropertyIncome, type PortalIncomeRow as IncomeRow } from "@/lib/portal/income"
 
-interface IncomeRow {
-  id: string
-  property_id: string | null
-  amount: number
-  currency: string | null
-  date: string
-  status: string
-  category: string | null
-  description: string | null
-}
-
-const STATUS_FILTERS = ["All", "Received", "Expected", "Late"] as const
-
-function code(e: unknown): string | undefined {
-  return (e as { code?: string } | null)?.code
-}
+const STATUS_FILTERS = ["All", "Received"] as const
 
 export default function LandlordStatementsPage() {
   const [income, setIncome] = useState<IncomeRow[]>([])
@@ -61,21 +47,10 @@ export default function LandlordStatementsPage() {
         }
         setPropLabels(labels)
 
-        // LIVE income scoped strictly to the landlord's properties.
-        // Owner-facing rent/fees ONLY — never expose supplier costs or margins.
-        const { data, error: fetchErr } = await supabase
-          .from("income_records")
-          .select("id, property_id, amount, currency, date, status, category, description")
-          .in("property_id", propertyIds)
-          .order("date", { ascending: false })
-
-        if (fetchErr) {
-          if (code(fetchErr) === "42P01") { setIncome([]) }
-          else { setError("Could not load statements.") }
-          setLoading(false)
-          return
-        }
-        if (data) setIncome(data as unknown as IncomeRow[])
+        // LIVE income from money_transactions scoped strictly to the landlord's
+        // properties. Owner-facing rent/fees ONLY — never expose supplier costs.
+        const data = await getPropertyIncome(propertyIds)
+        setIncome(data)
       } catch (err) {
         console.error(err)
         setError("Unexpected error loading statements.")

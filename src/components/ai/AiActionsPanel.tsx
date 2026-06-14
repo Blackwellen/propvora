@@ -9,7 +9,6 @@ import {
   CheckSquare,
   Search,
 } from "lucide-react"
-import { motion } from "framer-motion"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -31,42 +30,11 @@ interface QuickAction {
   label: string
   desc: string
   icon: React.ElementType
-  credits: number
   colour: string
 }
 
 /* ------------------------------------------------------------------ */
-/* Demo approvals                                                       */
-/* ------------------------------------------------------------------ */
-const DEMO_APPROVALS: ActionApproval[] = [
-  {
-    id: "ap1",
-    actionKey: "draft-chase-email",
-    label: "Draft Arrears Chase — J.Barrett",
-    description: "Email draft for £850 arrears on 5 Tower St",
-    status: "needs_review",
-    draftContent:
-      "Dear Mr Barrett,\n\nI hope this email finds you well. I'm writing regarding the outstanding rent balance of £850 for the property at 5 Tower St...",
-    linkedRecord: "Arrears · 5 Tower St",
-    creditCost: 2,
-    createdAt: "2 minutes ago",
-  },
-  {
-    id: "ap2",
-    actionKey: "create-renewal-tasks",
-    label: "Create Renewal Tasks (3 certs)",
-    description: "Tasks for gas cert, EICR, and EPC renewals",
-    status: "needs_review",
-    draftContent:
-      "3 tasks will be created:\n1. Renew Gas Safety — 8 Clarence Rd — Due 4 Jun\n2. Renew EICR — 16 Rose Gardens — Urgent\n3. Renew EPC — 22 Park Lane — Due 11 Jun",
-    linkedRecord: "Compliance · 3 properties",
-    creditCost: 1,
-    createdAt: "5 minutes ago",
-  },
-]
-
-/* ------------------------------------------------------------------ */
-/* Quick actions grid data                                             */
+/* Quick actions grid data (static command palette — UI config, not data) */
 /* ------------------------------------------------------------------ */
 const QUICK_ACTIONS: QuickAction[] = [
   {
@@ -74,7 +42,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Summarise Page",
     desc: "AI overview of current context",
     icon: BookOpen,
-    credits: 1,
     colour: "#2563EB",
   },
   {
@@ -82,7 +49,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Chase Arrears",
     desc: "Draft arrears chase messages",
     icon: AlertCircle,
-    credits: 2,
     colour: "#DC2626",
   },
   {
@@ -90,7 +56,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Review Compliance",
     desc: "Find gaps and create tasks",
     icon: Shield,
-    credits: 2,
     colour: "#D97706",
   },
   {
@@ -98,7 +63,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Draft Supplier Msg",
     desc: "Message to supplier/contractor",
     icon: Truck,
-    credits: 2,
     colour: "#7C3AED",
   },
   {
@@ -106,7 +70,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Create Task",
     desc: "Task from current context",
     icon: CheckSquare,
-    credits: 1,
     colour: "#059669",
   },
   {
@@ -114,7 +77,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Find Missing Docs",
     desc: "Scan for missing compliance docs",
     icon: Search,
-    credits: 2,
     colour: "#D97706",
   },
 ]
@@ -143,7 +105,6 @@ function ApprovalCard({
             <span className="text-[10px] text-blue-600 mt-1 block">{approval.linkedRecord}</span>
           )}
         </div>
-        <span className="text-[10px] text-violet-500 shrink-0">{approval.creditCost} cr</span>
       </div>
 
       {expanded && (
@@ -180,36 +141,21 @@ function ApprovalCard({
 /* ------------------------------------------------------------------ */
 /* AiActionsPanel                                                       */
 /* ------------------------------------------------------------------ */
-export default function AiActionsPanel() {
-  const [pendingApprovals, setPendingApprovals] =
-    useState<ActionApproval[]>(DEMO_APPROVALS)
-  const [executingAction, setExecutingAction] = useState<string | null>(null)
+export default function AiActionsPanel({
+  onRunAction,
+}: {
+  /** Optional handler to launch a quick action in the Copilot. */
+  onRunAction?: (key: string) => void
+} = {}) {
+  // Approvals are sourced from the AI action queue. Empty until a real action
+  // is queued — no fabricated demo approvals.
+  const [pendingApprovals, setPendingApprovals] = useState<ActionApproval[]>([])
+  const [executingAction] = useState<string | null>(null)
 
-  async function handleRunAction(key: string) {
-    setExecutingAction(key)
-    await new Promise((r) => setTimeout(r, 1500))
-    setExecutingAction(null)
-
-    if (
-      key === "chase-arrears" ||
-      key === "draft-supplier" ||
-      key === "review-compliance"
-    ) {
-      const action = QUICK_ACTIONS.find((a) => a.key === key)
-      setPendingApprovals((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          actionKey: key,
-          label: `AI Draft — ${action?.label ?? key}`,
-          description: "Review and approve before executing",
-          status: "needs_review",
-          draftContent: "AI has prepared a draft. Review carefully before approving.",
-          creditCost: action?.credits ?? 1,
-          createdAt: "Just now",
-        },
-      ])
-    }
+  function handleRunAction(key: string) {
+    // Launch the action in the Copilot (which calls the real /api/ai/chat
+    // route). No simulated draft is fabricated here.
+    onRunAction?.(key)
   }
 
   function handleApprove(id: string) {
@@ -253,24 +199,11 @@ export default function AiActionsPanel() {
                       <Icon className="w-4 h-4" />
                     </div>
                   </div>
-                  <span className="text-[10px] text-violet-500 font-medium">
-                    {action.credits} cr
-                  </span>
                 </div>
                 <div>
                   <p className="text-[12px] font-semibold text-slate-800">{action.label}</p>
                   <p className="text-[11px] text-slate-400 mt-0.5">{action.desc}</p>
                 </div>
-                {isExecuting && (
-                  <div className="h-1 bg-blue-100 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-[#2563EB] rounded-full"
-                      initial={{ width: "0%" }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: 1.5 }}
-                    />
-                  </div>
-                )}
               </button>
             )
           })}
@@ -278,21 +211,26 @@ export default function AiActionsPanel() {
       </div>
 
       {/* Pending approvals */}
-      {needsReview.length > 0 && (
-        <div className="px-4 py-3 border-t border-slate-100 mt-4">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
-            Pending Approval ({needsReview.length})
+      <div className="px-4 py-3 border-t border-slate-100 mt-4">
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+          Pending Approval{needsReview.length > 0 ? ` (${needsReview.length})` : ""}
+        </p>
+        {needsReview.length === 0 ? (
+          <p className="text-[11.5px] text-slate-400 py-4 text-center">
+            No actions awaiting approval. Run a quick action above and any
+            AI-drafted change will appear here for your review.
           </p>
-          {needsReview.map((approval) => (
+        ) : (
+          needsReview.map((approval) => (
             <ApprovalCard
               key={approval.id}
               approval={approval}
               onApprove={handleApprove}
               onReject={handleReject}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
       {/* Bottom padding */}
       <div className="h-4 shrink-0" />

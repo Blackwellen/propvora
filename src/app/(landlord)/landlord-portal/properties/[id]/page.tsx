@@ -17,6 +17,7 @@ import {
   formatMoney, formatDate, propertyLabel, propertyStatusMeta,
   jobStatusMeta,
 } from "../../_lib/landlord-context"
+import { getPropertyIncome } from "@/lib/portal/income"
 
 interface PageProps { params: Promise<{ id: string }> }
 
@@ -102,16 +103,10 @@ export default function LandlordPropertyDetailPage({ params }: PageProps) {
       if (jobErr && code(jobErr) !== "42P01") console.error(jobErr)
       if (jobData) setJobs(jobData as unknown as JobRow[])
 
-      // LIVE rent received on this property (owner-facing income only — no supplier costs/margins)
-      try {
-        const { data: incData, error: incErr } = await supabase
-          .from("income_records")
-          .select("id, amount, currency, date, status, category")
-          .eq("property_id", propertyId)
-          .order("date", { ascending: false })
-          .limit(12)
-        if (!incErr && incData) setIncome(incData as unknown as IncomeRow[])
-      } catch { /* tolerate */ }
+      // LIVE rent received on this property from money_transactions
+      // (owner-facing income only — no supplier costs/margins).
+      const incData = await getPropertyIncome([propertyId])
+      setIncome(incData.slice(0, 12))
     } catch (err) {
       console.error(err)
       setError("Failed to load property.")

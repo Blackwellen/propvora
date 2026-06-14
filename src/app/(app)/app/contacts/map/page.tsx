@@ -1,55 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import {
-  Map, Search, Settings, List, MapPin, Info,
+  Map as MapIcon, Search, Settings, List, MapPin, Info, Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useContacts } from "@/hooks/useContacts"
 
 const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 function avatarBg(name: string): string { let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h); return AVATAR_BG[Math.abs(h)%AVATAR_BG.length] }
 function initials(name: string): string { const p=name.trim().split(/\s+/); return p.length===1?p[0].slice(0,2).toUpperCase():(p[0][0]+p[p.length-1][0]).toUpperCase() }
 
-type ContactType = "tenant" | "landlord" | "supplier" | "professional" | "applicant" | "agent" | "legal"
-type TypeFilter = "all" | ContactType
-
-interface ContactEntry {
-  id: string
-  name: string
-  type: ContactType
-  city: string
-}
-
-const CONTACTS: ContactEntry[] = [
-  { id:"c1",  name:"Sarah Mitchell",      type:"tenant",       city:"Birmingham" },
-  { id:"c2",  name:"James Okafor",        type:"tenant",       city:"Wolverhampton" },
-  { id:"c3",  name:"David Thornton",      type:"landlord",     city:"Coventry" },
-  { id:"c4",  name:"Emily Patel",         type:"applicant",    city:"Leicester" },
-  { id:"c5",  name:"Kevin Walsh",         type:"supplier",     city:"Stoke-on-Trent" },
-  { id:"c6",  name:"Rachel Hughes",       type:"tenant",       city:"Wolverhampton" },
-  { id:"c7",  name:"Premier Electrical",  type:"supplier",     city:"Dudley" },
-  { id:"c8",  name:"Marcus Webb",         type:"landlord",     city:"Birmingham" },
-  { id:"c9",  name:"Priya Sharma",        type:"tenant",       city:"Wolverhampton" },
-  { id:"c10", name:"Connor Bradley",      type:"applicant",    city:"Birmingham" },
-  { id:"c11", name:"Susan Carter",        type:"agent",        city:"Wolverhampton" },
-  { id:"c12", name:"Ahmed Al-Rashid",     type:"applicant",    city:"Leicester" },
-  { id:"c13", name:"Harrison & Co",       type:"legal",        city:"Birmingham" },
-  { id:"c14", name:"GreenLeaf Accounting",type:"professional", city:"Birmingham" },
-]
-
-const CITY_DATA: { city: string; contacts: string[] }[] = [
-  { city:"Birmingham",    contacts:["Sarah Mitchell","Marcus Webb","Harrison & Co","GreenLeaf Accounting"] },
-  { city:"Wolverhampton", contacts:["James Okafor","Rachel Hughes","Priya Sharma","Susan Carter"] },
-  { city:"Coventry",      contacts:["David Thornton"] },
-  { city:"Leicester",     contacts:["Emily Patel","Ahmed Al-Rashid"] },
-  { city:"Stoke-on-Trent",contacts:["Kevin Walsh"] },
-  { city:"Dudley",        contacts:["Premier Electrical"] },
-]
-
-const MAX_CITY_COUNT = Math.max(...CITY_DATA.map(c => c.contacts.length))
+type TypeFilter = "all" | "tenant" | "landlord" | "supplier" | "professional" | "applicant" | "agent"
 
 function typeBadge(type: string): string {
   const map: Record<string, string> = {
@@ -64,34 +30,63 @@ function typeBadge(type: string): string {
   return map[type] ?? "bg-slate-100 text-slate-500"
 }
 
-const TYPE_FILTERS: { key: TypeFilter; label: string }[] = [
-  { key:"all",          label:"All" },
-  { key:"tenant",       label:"Tenants" },
-  { key:"landlord",     label:"Landlords" },
-  { key:"supplier",     label:"Suppliers" },
-  { key:"professional", label:"Professionals" },
-  { key:"agent",        label:"Other" },
+const TYPE_FILTERS: { key: TypeFilter; label: string; types: string[] }[] = [
+  { key:"all",          label:"All",           types: [] },
+  { key:"tenant",       label:"Tenants",       types: ["tenant", "post_tenant"] },
+  { key:"landlord",     label:"Landlords",     types: ["landlord"] },
+  { key:"supplier",     label:"Suppliers",     types: ["supplier", "maintenance", "cleaning", "emergency_contractor"] },
+  { key:"professional", label:"Professionals", types: ["legal", "accountant", "insurer", "agent"] },
+  { key:"applicant",    label:"Applicants",    types: ["applicant"] },
 ]
 
-const CITIES_COUNT = [...new Set(CONTACTS.map(c => c.city))].length
-
 export default function ContactMapPage() {
+  const { workspace } = useWorkspace()
+  const { data: liveContacts = [], isLoading } = useContacts(workspace?.id)
+
   const [search, setSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
   const [selected, setSelected] = useState<string | null>(null)
   const [showMapTip, setShowMapTip] = useState(false)
 
-  const filtered = CONTACTS.filter(c => {
-    const matchType = typeFilter === "all" || c.type === typeFilter || (typeFilter === "agent" && (c.type === "agent" || c.type === "legal" || c.type === "professional"))
-    const matchSearch = search === "" || c.name.toLowerCase().includes(search.toLowerCase()) || c.city.toLowerCase().includes(search.toLowerCase())
-    return matchType && matchSearch
-  })
+  // Map live contacts → entries with a usable city label (city, else postcode).
+  const entries = useMemo(() => {
+    return liveContacts.map((c) => ({
+      id: c.id,
+      name: c.full_name || c.company_name || "Unnamed contact",
+      type: c.contact_type,
+      city: c.city || c.postcode || "Unknown",
+    }))
+  }, [liveContacts])
+
+  const filtered = useMemo(() => {
+    const allowed = TYPE_FILTERS.find((f) => f.key === typeFilter)?.types ?? []
+    return entries.filter((c) => {
+      const matchType = typeFilter === "all" || allowed.includes(c.type)
+      const matchSearch = search === "" || c.name.toLowerCase().includes(search.toLowerCase()) || c.city.toLowerCase().includes(search.toLowerCase())
+      return matchType && matchSearch
+    })
+  }, [entries, typeFilter, search])
+
+  // City breakdown for the summary panel — derived from live data only.
+  const cityData = useMemo(() => {
+    const map = new Map<string, string[]>()
+    for (const c of entries) {
+      if (c.city === "Unknown") continue
+      map.set(c.city, [...(map.get(c.city) ?? []), c.name])
+    }
+    return Array.from(map.entries())
+      .map(([city, names]) => ({ city, contacts: names }))
+      .sort((a, b) => b.contacts.length - a.contacts.length)
+  }, [entries])
+
+  const maxCityCount = Math.max(1, ...cityData.map((c) => c.contacts.length))
+  const citiesCount = cityData.length
 
   return (
     <DashboardContainer>
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Contact Map</h1>
             <p className="text-sm text-slate-500 mt-1">Contacts by location and coverage area</p>
@@ -121,14 +116,14 @@ export default function ContactMapPage() {
 
         <ContactsTabNav />
 
-        {/* Split Pane */}
-        <div className="flex rounded-xl border border-slate-200 bg-white overflow-hidden" style={{ minHeight: "600px" }}>
-          {/* Left Sidebar */}
-          <div className="w-80 shrink-0 border-r border-slate-200 flex flex-col">
+        {/* Split Pane — stacks on mobile, side-by-side on lg+ */}
+        <div className="flex flex-col lg:flex-row rounded-xl border border-slate-200 bg-white overflow-hidden lg:min-h-[600px]">
+          {/* Sidebar */}
+          <div className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col">
             {/* Search */}
             <div className="p-3 border-b border-slate-100">
               <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                <div style={{ color:"#94A3B8" }}><Search className="w-3.5 h-3.5" /></div>
+                <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                 <input
                   value={search}
                   onChange={e => setSearch(e.target.value)}
@@ -159,13 +154,20 @@ export default function ContactMapPage() {
             {/* Location Stats */}
             <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50">
               <p className="text-[11px] text-slate-500">
-                <span className="font-semibold text-slate-700">{CITIES_COUNT} cities</span> represented &middot; {CONTACTS.length} contacts total
+                <span className="font-semibold text-slate-700">{citiesCount} cities</span> represented &middot; {entries.length} contacts total
               </p>
             </div>
 
             {/* Contact List */}
-            <div className="flex-1 overflow-y-auto">
-              {filtered.map(c => (
+            <div className="flex-1 overflow-y-auto max-h-[320px] lg:max-h-none">
+              {isLoading ? (
+                <div className="py-12 text-center text-xs text-slate-400">Loading contacts…</div>
+              ) : filtered.length === 0 ? (
+                <div className="py-12 text-center">
+                  <Users className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                  <p className="text-xs text-slate-400">{entries.length === 0 ? "No contacts yet" : "No contacts found"}</p>
+                </div>
+              ) : filtered.map(c => (
                 <button
                   key={c.id}
                   onClick={() => setSelected(c.id === selected ? null : c.id)}
@@ -184,107 +186,90 @@ export default function ContactMapPage() {
                         {c.type}
                       </span>
                       <div className="flex items-center gap-1">
-                        <div style={{ color:"#94A3B8" }}><MapPin className="w-3 h-3" /></div>
-                        <span className="text-[11px] text-slate-400">{c.city}</span>
+                        <MapPin className="w-3 h-3 text-slate-400" />
+                        <span className="text-[11px] text-slate-400 truncate">{c.city}</span>
                       </div>
                     </div>
                   </div>
                 </button>
               ))}
-              {filtered.length === 0 && (
-                <div className="py-12 text-center">
-                  <p className="text-xs text-slate-400">No contacts found</p>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Right Map Area */}
-          <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50/50">
-            {/* Map Placeholder */}
-            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm mb-6">
-              <div style={{ color:"#94A3B8" }} className="flex justify-center mb-4">
-                <Map className="w-12 h-12" />
+          {/* Map Area */}
+          <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50/50">
+            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 sm:p-8 text-center shadow-sm mb-6">
+              <div className="flex justify-center mb-4 text-slate-400">
+                <MapIcon className="w-12 h-12" />
               </div>
               <h3 className="text-base font-semibold text-slate-700 mb-2">Map view requires configuration</h3>
               <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
                 Connect a map provider (Mapbox or Google Maps) in Settings to enable interactive contact mapping.
               </p>
-              <div className="flex items-center justify-center gap-3">
-                <Link
-                  href="/app/settings"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium px-4 py-2.5 hover:bg-blue-700 transition-colors"
-                >
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <Link href="/app/settings" className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium px-4 py-2.5 hover:bg-blue-700 transition-colors">
                   <Settings className="w-4 h-4" />
                   Configure Map Provider
                 </Link>
-                <Link
-                  href="/app/contacts/people"
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors"
-                >
+                <Link href="/app/contacts/people" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors">
                   <List className="w-4 h-4" />
                   View as List
                 </Link>
               </div>
             </div>
 
-            {/* Contact Location Summary */}
-            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            {/* Contact Location Summary — live */}
+            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
               <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <div style={{ color:"#2563EB" }}><MapPin className="w-4 h-4" /></div>
+                <MapPin className="w-4 h-4 text-[#2563EB]" />
                 Contact Location Summary
               </h4>
-              <div className="space-y-4">
-                {CITY_DATA.map(cityRow => {
-                  const visibleAvatars = cityRow.contacts.slice(0, 3)
-                  const overflow = cityRow.contacts.length - 3
-                  const barWidth = Math.round((cityRow.contacts.length / MAX_CITY_COUNT) * 100)
-                  return (
-                    <div key={cityRow.city}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-slate-700">{cityRow.city}</span>
-                          <span className="text-xs text-slate-400">{cityRow.contacts.length} contact{cityRow.contacts.length !== 1 ? "s" : ""}</span>
-                        </div>
-                        {/* Avatar stack */}
-                        <div className="flex items-center">
-                          <div className="flex -space-x-1.5">
-                            {visibleAvatars.map(name => (
-                              <div
-                                key={name}
-                                className={cn("w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-semibold shrink-0", avatarBg(name))}
-                                title={name}
-                              >
-                                {initials(name)}
-                              </div>
-                            ))}
+              {cityData.length === 0 ? (
+                <p className="text-xs text-slate-400 py-2">No location data yet. Add a city or postcode to your contacts to see them here.</p>
+              ) : (
+                <div className="space-y-4">
+                  {cityData.slice(0, 8).map(cityRow => {
+                    const visibleAvatars = cityRow.contacts.slice(0, 3)
+                    const overflow = cityRow.contacts.length - 3
+                    const barWidth = Math.round((cityRow.contacts.length / maxCityCount) * 100)
+                    return (
+                      <div key={cityRow.city}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-sm font-medium text-slate-700 truncate">{cityRow.city}</span>
+                            <span className="text-xs text-slate-400 shrink-0">{cityRow.contacts.length} contact{cityRow.contacts.length !== 1 ? "s" : ""}</span>
                           </div>
-                          {overflow > 0 && (
-                            <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-slate-600 text-[10px] font-semibold -ml-1.5">
-                              +{overflow}
+                          <div className="flex items-center shrink-0">
+                            <div className="flex -space-x-1.5">
+                              {visibleAvatars.map(name => (
+                                <div key={name} className={cn("w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-semibold shrink-0", avatarBg(name))} title={name}>
+                                  {initials(name)}
+                                </div>
+                              ))}
                             </div>
-                          )}
+                            {overflow > 0 && (
+                              <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-slate-600 text-[10px] font-semibold -ml-1.5">
+                                +{overflow}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-[#2563EB] transition-all" style={{ width:`${barWidth}%` }} />
                         </div>
                       </div>
-                      {/* Bar */}
-                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#2563EB] transition-all"
-                          style={{ width:`${barWidth}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Enable Map View Callout */}
-        <div className="rounded-xl border-l-4 border-l-violet-500 border border-violet-200 bg-violet-50 p-5 flex items-start gap-4">
-          <div style={{ color:"#7C3AED" }} className="shrink-0 mt-0.5">
-            <Map className="w-5 h-5" />
+        <div className="rounded-xl border-l-4 border-l-violet-500 border border-violet-200 bg-violet-50 p-5 flex items-start gap-4 flex-wrap sm:flex-nowrap">
+          <div className="shrink-0 mt-0.5 text-violet-600">
+            <MapIcon className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-violet-900 mb-1">Unlock interactive map features</p>
@@ -292,10 +277,7 @@ export default function ContactMapPage() {
               Pin contacts by address, visualise supplier coverage areas, find nearby contacts for a property, and see landlord portfolios by location.
             </p>
           </div>
-          <Link
-            href="/app/settings"
-            className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-violet-600 text-white text-sm font-medium px-4 py-2.5 hover:bg-violet-700 transition-colors"
-          >
+          <Link href="/app/settings" className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-violet-600 text-white text-sm font-medium px-4 py-2.5 hover:bg-violet-700 transition-colors">
             <Settings className="w-4 h-4" />
             Configure Map
           </Link>

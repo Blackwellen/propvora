@@ -181,7 +181,7 @@ export default function CopilotInboxPage() {
     setSaving(true)
     setSaveError(null)
     const res = await saveWorkspaceSettings({
-      copilot_enabled:         copilot.copilotEnabled,
+      copilot_enabled:         copilot.copilotEnabled, // stored in default "ai" bucket
       copilot_floating_bubble: copilot.floatingBubble,
       copilot_suggestions:     copilot.suggestionDropdown,
       copilot_slash_commands:  copilot.slashCommands,

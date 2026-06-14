@@ -1,21 +1,68 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Copy, Check, CalendarDays, Bell, Globe } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { createClient } from "@/lib/supabase/client"
+
+type NotifPrefs = {
+  emailReminders: boolean
+  inAppAlerts: boolean
+  overdueWarnings: boolean
+  dailyDigest: boolean
+}
+const DEFAULT_NOTIFS: NotifPrefs = { emailReminders: true, inAppAlerts: true, overdueWarnings: true, dailyDigest: false }
+const VIEW_OPTIONS = ["month", "week", "day", "agenda"] as const
 
 export default function CalendarSettingsPage() {
   const { workspace } = useWorkspace()
   const [copied, setCopied] = useState(false)
-  const [notifications, setNotifications] = useState({
-    emailReminders: true,
-    inAppAlerts: true,
-    overdueWarnings: true,
-    dailyDigest: false,
-  })
+  const [notifications, setNotifications] = useState<NotifPrefs>(DEFAULT_NOTIFS)
+  const [defaultView, setDefaultView] = useState<string>("month")
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle")
+
+  // Load persisted calendar_settings (42P01 / RLS tolerant).
+  useEffect(() => {
+    if (!workspace?.id) return
+    ;(async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("calendar_settings")
+        .select("default_view, visible_layers_json")
+        .eq("workspace_id", workspace.id)
+        .maybeSingle()
+      if (error || !data) return
+      if (data.default_view) setDefaultView(data.default_view as string)
+      const layers = (data.visible_layers_json ?? {}) as { notifications?: Partial<NotifPrefs> }
+      if (layers.notifications) setNotifications({ ...DEFAULT_NOTIFS, ...layers.notifications })
+    })()
+  }, [workspace?.id])
+
+  const persist = useCallback(async (next: { defaultView?: string; notifications?: NotifPrefs }) => {
+    if (!workspace?.id) return
+    setSaveState("saving")
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("calendar_settings")
+        .upsert(
+          {
+            workspace_id: workspace.id,
+            default_view: next.defaultView ?? defaultView,
+            visible_layers_json: { notifications: next.notifications ?? notifications },
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "workspace_id" }
+        )
+      setSaveState(error ? "error" : "saved")
+      if (!error) setTimeout(() => setSaveState("idle"), 1800)
+    } catch {
+      setSaveState("error")
+    }
+  }, [workspace?.id, defaultView, notifications])
 
   const icalUrl = workspace?.id
     ? `/api/calendar/ical?workspace_id=${workspace.id}`
@@ -32,8 +79,15 @@ export default function CalendarSettingsPage() {
     })
   }
 
-  function toggle(key: keyof typeof notifications) {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
+  function toggle(key: keyof NotifPrefs) {
+    const updated = { ...notifications, [key]: !notifications[key] }
+    setNotifications(updated)
+    void persist({ notifications: updated })
+  }
+
+  function chooseView(view: string) {
+    setDefaultView(view)
+    void persist({ defaultView: view })
   }
 
   return (
@@ -133,16 +187,24 @@ export default function CalendarSettingsPage() {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {["Month", "Week", "Day", "Agenda"].map(view => (
+            {VIEW_OPTIONS.map(view => (
               <button
                 key={view}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-blue-300 transition-all first:bg-[#EFF6FF] first:border-[#2563EB] first:text-[#2563EB]"
+                onClick={() => chooseView(view)}
+                className={cn(
+                  "px-4 py-2 rounded-lg border text-sm font-medium capitalize transition-all",
+                  defaultView === view
+                    ? "bg-[#EFF6FF] border-[#2563EB] text-[#2563EB]"
+                    : "border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-blue-300"
+                )}
               >
                 {view}
               </button>
             ))}
           </div>
-          <p className="text-xs text-slate-400">Preference saved locally. Full persistence coming soon.</p>
+          <p className="text-xs text-slate-400">
+            {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved." : saveState === "error" ? "Could not save — please retry." : "Preferences save to your workspace."}
+          </p>
         </div>
       </div>
     </DashboardContainer>
