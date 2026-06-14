@@ -164,10 +164,42 @@ body {
 h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
 ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
 
-/* Focus ring — accessible + premium */
+/* Focus ring — accessible + premium.
+   Keeps the existing soft brand ring (box-shadow) but adds a solid 2px outline
+   so the focus indicator is always visible even on elements where a custom
+   box-shadow would otherwise override the ring (WCAG 2.2 — 2.4.7 / 2.4.11). */
 :focus-visible {
-  outline: none;
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
   box-shadow: var(--ring-focus);
+}
+
+/* ============================================================
+   SKIP LINK — visually hidden until focused (WCAG 2.4.1)
+   A keyboard/screen-reader user can jump straight to <main>.
+   ============================================================ */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  margin: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: #2563EB;
+  color: #FFFFFF;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+  /* Hidden off-screen until it receives focus. */
+  transform: translateY(-150%);
+  transition: transform 150ms ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
 }
 
 /* Smooth scrolling */
@@ -175,10 +207,42 @@ ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
 }
 
+/* ============================================================
+   REDUCED MOTION (WCAG 2.3.3) — honour the user's OS preference.
+   Neutralises non-essential animation/transition/scroll motion.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Images */
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
+}
+
+/* ============================================================
+   OVERFLOW SAFETY (mobile/tablet) — conservative.
+   Flex/grid children default to min-width:auto, which means a long
+   unbreakable string or a wide child refuses to shrink below its
+   content size and pushes page-level horizontal scroll. Allowing
+   direct flex/grid items to shrink is the single most effective
+   no-redesign fix. Items that must NOT shrink already opt out with
+   Tailwind's `shrink-0` (flex-shrink:0), so this is non-destructive.
+   Scoped to direct children only to avoid surprising deep layouts.
+   Wrapped in :where() so it has ZERO specificity — any explicit
+   Tailwind `min-w-[...]` / `shrink-0` on the same element always wins
+   (e.g. wide tables inside `overflow-x-auto` keep their min-width). */
+:where(.flex) > *,
+:where(.grid) > * {
+  min-width: 0;
 }
 
 /* ============================================================

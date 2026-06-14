@@ -115,9 +115,11 @@ export default function RolesPage() {
         if (!wsId) return
         setWorkspaceId(wsId)
 
+        // Live schema stores one row per (role, permission_key, allowed).
+        // permission_key encodes the page's "group.perm" path.
         const { data, error } = await supabase
           .from("workspace_role_permissions")
-          .select("role, permissions")
+          .select("role, permission_key, allowed")
           .eq("workspace_id", wsId)
 
         if (error) { setEnforcementNote(true); return }
@@ -125,11 +127,16 @@ export default function RolesPage() {
         if (data && data.length > 0) {
           setOverrides((prev) => {
             const next = { ...prev }
-            for (const row of data as { role: string; permissions: PermissionState }[]) {
+            for (const row of data as { role: string; permission_key: string; allowed: boolean }[]) {
               const matched = ROLES.find(
                 (r) => r.toLowerCase().replace(" ", "_") === row.role
               )
-              if (matched && row.permissions) next[matched] = row.permissions
+              if (!matched || !row.permission_key) continue
+              const [group, perm] = row.permission_key.split(".")
+              if (!group || !perm) continue
+              const role = { ...(next[matched] ?? getDefaultPermissions(matched)) }
+              role[group] = { ...(role[group] ?? {}), [perm]: !!row.allowed }
+              next[matched] = role
             }
             return next
           })
@@ -178,18 +185,34 @@ export default function RolesPage() {
         }
       }
       if (wsId) {
-        const { error } = await supabase
-          .from("workspace_role_permissions")
-          .upsert(
-            {
+        const role = selectedRole.toLowerCase().replace(" ", "_")
+        const now = new Date().toISOString()
+        // Flatten the role's nested permission state into one row per
+        // (workspace_id, role, permission_key=group.perm, allowed).
+        const rows: {
+          workspace_id: string
+          role: string
+          permission_key: string
+          allowed: boolean
+          updated_at: string
+        }[] = []
+        for (const [group, perms] of Object.entries(overrides[selectedRole] ?? {})) {
+          for (const [perm, allowed] of Object.entries(perms)) {
+            rows.push({
               workspace_id: wsId,
-              role: selectedRole.toLowerCase().replace(" ", "_"),
-              permissions: overrides[selectedRole],
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "workspace_id,role" }
-          )
-        if (error) setEnforcementNote(true)
+              role,
+              permission_key: `${group}.${perm}`,
+              allowed: !!allowed,
+              updated_at: now,
+            })
+          }
+        }
+        if (rows.length > 0) {
+          const { error } = await supabase
+            .from("workspace_role_permissions")
+            .upsert(rows, { onConflict: "workspace_id,role,permission_key" })
+          if (error) setEnforcementNote(true)
+        }
       }
     } catch {
       setEnforcementNote(true)

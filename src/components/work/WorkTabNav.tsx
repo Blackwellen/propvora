@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, CheckSquare, Briefcase, LayoutGrid, GanttChart, Users, CalendarClock, FileBarChart2 } from "lucide-react"
+import { BarChart3, CheckSquare, Briefcase, LayoutGrid, GanttChart, Users, CalendarClock, FileBarChart2, MessageSquareWarning } from "lucide-react"
 
 const WORK_TABS = [
   { key: "overview",   label: "Overview",   href: "/app/work",                       icon: BarChart3 },
@@ -13,6 +13,7 @@ const WORK_TABS = [
   { key: "gantt",      label: "Gantt",      href: "/app/work/gantt",                  icon: GanttChart },
   { key: "ppm",        label: "PPM",        href: "/app/work/ppm/overview",           icon: CalendarClock },
   { key: "suppliers",  label: "Suppliers",  href: "/app/work/suppliers/preferred",    icon: Users },
+  { key: "complaints", label: "Complaints", href: "/app/work/complaints",             icon: MessageSquareWarning },
   { key: "reports",    label: "Reports",    href: "/app/work/reports",                icon: FileBarChart2 },
 ]
 

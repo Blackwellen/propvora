@@ -148,10 +148,12 @@ export function usePortalToken(
       }
       const { data, error } = await supabase
         .from("portal_access_tokens")
-        // NOTE: token_hash is intentionally NOT selected — the raw token is
-        // never available client-side. Only status metadata is read.
-        .select("status, expires_at, last_used_at, created_at")
-        .eq("access_id", grantId!)
+        // NOTE: token / token_hash are intentionally NOT selected — the raw
+        // token is never available client-side. Only status metadata is read.
+        // The grant linkage is entity_id (entity_type='portal_grant') on the
+        // live schema; status is derived from `revoked` + `expires_at`.
+        .select("revoked, expires_at, last_used_at, created_at")
+        .eq("entity_id", grantId!)
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -163,9 +165,11 @@ export function usePortalToken(
       }
       if (!data) return empty
       const r = data as Record<string, unknown>
-      let status = (r.status as TokenStatus) ?? "active"
       const exp = (r.expires_at as string) ?? null
-      if (status === "active" && exp && new Date(exp).getTime() < Date.now()) {
+      let status: TokenStatus = "active"
+      if (r.revoked === true) {
+        status = "revoked"
+      } else if (exp && new Date(exp).getTime() < Date.now()) {
         status = "expired"
       }
       return {

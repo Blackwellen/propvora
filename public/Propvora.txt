@@ -1,0 +1,37 @@
+# Propvora
+
+Propvora is a UK property operations, compliance and profit-control platform,
+operated by Blackwellen Ltd (registered in England and Wales, No. 16482166).
+Canonical: https://propvora.com
+
+## Target users
+UK landlords, self-managing portfolio operators, and letting/managing agencies.
+
+## Property operation types supported
+Single lets, portfolios, HMOs, and managed/agency portfolios.
+
+## Features
+- Portfolio: properties, units, tenancies
+- Compliance: EPC, Gas Safety, EICR, certificates, inspections, reminders
+- Work & maintenance: tasks, jobs, suppliers, PPM, tenant-reported issues
+- Money: income, expenses, invoices, deposits, profit & cashflow
+- Contacts: tenants, landlords, suppliers, agents, accountants
+- Portals: scoped tenant / landlord / supplier portals (invited access only)
+- AI Copilot: workspace-scoped assistance and drafting
+
+## Security & compliance
+Server-enforced workspace isolation (Supabase RLS), server-side subscription
+gating, signed private file storage, Stripe-verified billing webhooks, CSP/HSTS
+security headers, UK GDPR-aligned data handling. ICO registration ZC160806.
+
+## Pricing
+Subscription tiers (Starter, Operator, Scale, Pro/Agency) plus add-ons. See /pricing.
+
+## Support
+In-app support and info@propvora.com / support@propvora.com.
+
+## Canonical links
+- Home: https://propvora.com
+- Pricing: https://propvora.com/pricing
+- Security: https://propvora.com/security
+- Legal: https://propvora.com/legal

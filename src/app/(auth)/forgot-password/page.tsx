@@ -16,6 +16,28 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
+/**
+ * Hit the server-side rate gate (/api/auth/rate-check) before a sensitive auth
+ * call. Returns a friendly error string when throttled, or null to proceed.
+ * Fails OPEN on network/parse errors so the gate never blocks a real request.
+ */
+async function checkAuthRateLimit(action: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/rate-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    })
+    if (res.status === 429) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null
+      return body?.error ?? "Too many attempts. Please wait and try again."
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -31,6 +53,15 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
     setAuthError(null)
+
+    // Application-side rate limit (per IP) before requesting a reset email.
+    const gate = await checkAuthRateLimit("password-reset")
+    if (gate) {
+      setAuthError(gate)
+      setIsLoading(false)
+      return
+    }
+
     const supabase = createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(
       data.email.trim().toLowerCase(),

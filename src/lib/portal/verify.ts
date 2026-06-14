@@ -100,7 +100,11 @@ export async function resolveTokenToGrant(rawToken: string): Promise<VerifyOutco
   let portalTypeSource: unknown = token.portal_type ?? null
   let permissions: Record<string, unknown> =
     (token.permissions as Record<string, unknown>) ?? {}
-  const portalAccessId = token.access_id ?? null
+  // The grant linkage is carried by access_id on the legacy lineage, or by
+  // entity_id with entity_type='portal_grant' on the live schema.
+  const portalAccessId =
+    token.access_id ??
+    (token.entity_type === "portal_grant" ? token.entity_id ?? null : null)
 
   if (portalAccessId) {
     try {

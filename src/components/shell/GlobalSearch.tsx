@@ -5,6 +5,7 @@ import { Search, Command, Loader2, Building2, Users, ClipboardList, CornerDownLe
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 interface GlobalSearchProps {
   className?: string
@@ -28,6 +29,7 @@ const KIND_META: Record<ResultKind, { label: string; Icon: typeof Building2; col
 
 export default function GlobalSearch({ className }: GlobalSearchProps) {
   const router = useRouter()
+  const { workspace } = useWorkspace()
   const [query, setQuery] = useState("")
   const [focused, setFocused] = useState(false)
   const [open, setOpen] = useState(false)
@@ -38,8 +40,12 @@ export default function GlobalSearch({ className }: GlobalSearchProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsIdRef = useRef<string | null>(null)
 
-  // Resolve active workspace once
+  // Active workspace from context (reliable); falls back to profile lookup.
   useEffect(() => {
+    if (workspace?.id) {
+      wsIdRef.current = workspace.id
+      return
+    }
     ;(async () => {
       try {
         const supabase = createClient()
@@ -53,7 +59,7 @@ export default function GlobalSearch({ className }: GlobalSearchProps) {
         wsIdRef.current = profile?.current_workspace_id ?? null
       } catch { /* noop */ }
     })()
-  }, [])
+  }, [workspace?.id])
 
   // Cmd/Ctrl+K to focus
   useEffect(() => {

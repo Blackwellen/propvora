@@ -408,7 +408,7 @@ export default function BillDetailPage() {
                     Pay via Stripe
                   </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => showToast("PDF download requires document service — coming soon")}>
+                <Button variant="outline" size="sm" onClick={() => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank")}>
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
                 {bill.job && (
@@ -429,7 +429,7 @@ export default function BillDetailPage() {
                       items={[
                         { label: "Mark as Paid", icon: Check, onClick: () => setBillStatus({ payment_status: "paid", paid_at: new Date().toISOString() }, "Bill marked paid"), disabled: bill.status === "paid" },
                         { label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved"), disabled: bill.status !== "awaiting_review" },
-                        { label: "Download PDF", icon: Download, onClick: () => showToast("PDF download requires document service — coming soon") },
+                        { label: "Download PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank") },
                         { label: "Delete Bill", icon: Trash2, onClick: open, variant: "danger" },
                       ]}
                     />
@@ -515,7 +515,7 @@ export default function BillDetailPage() {
                   <div style={{ color: "#7C3AED" }}><CreditCard className="w-4 h-4" /></div>
                   Pay via Stripe
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => showToast("PDF download requires document service — coming soon")}>
+                <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank")}>
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
               </div>

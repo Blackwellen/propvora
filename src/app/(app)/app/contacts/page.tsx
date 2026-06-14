@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   Users, UserCheck, UserPlus, Home, Wrench, Clock, Globe,
   Search, X, MessageSquare, ChevronDown,
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { SectionHeader } from "@/components/layout/SectionHeader"
+import { downloadCsv, parseCsv } from "@/lib/export/csv"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -806,11 +807,67 @@ export default function ContactsPage() {
   const [activeType, setActiveType] = useState<TypeFilter>("all")
   const [search, setSearch] = useState("")
   const [showAddModal, setShowAddModal] = useState(false)
+  // Open the add-contact modal when arrived via the global "New" quick-create (?new=1).
+  const _searchParams = useSearchParams()
+  useEffect(() => {
+    if (_searchParams.get("new") === "1") setShowAddModal(true)
+  }, [_searchParams])
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 3000)
+  }
+
+  // ── CSV import ────────────────────────────────────────────────────────────
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const importContact = useCreateContact()
+  const [importing, setImporting] = useState(false)
+
+  const VALID_CONTACT_TYPES = ["tenant", "guarantor", "supplier", "owner", "agent", "accountant", "other"] as const
+  function normaliseContactType(raw: string): string {
+    const t = (raw || "").trim().toLowerCase()
+    if ((VALID_CONTACT_TYPES as readonly string[]).includes(t)) return t
+    const alias: Record<string, string> = {
+      landlord: "owner", applicant: "tenant", post_tenant: "tenant",
+      contractor: "supplier", vendor: "supplier", maintenance: "supplier",
+      solicitor: "other", insurer: "other",
+    }
+    return alias[t] ?? "other"
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = "" // allow re-importing the same file
+    if (!file) return
+    if (!workspace?.id) { showToast("Workspace not loaded"); return }
+    setImporting(true)
+    try {
+      const rows = parseCsv(await file.text())
+      if (rows.length === 0) { showToast("No rows found in that CSV"); return }
+      let ok = 0, failed = 0
+      for (const r of rows) {
+        const name = (r.name || r["full name"] || `${r["first name"] ?? ""} ${r["last name"] ?? ""}`).trim()
+        if (!name) { failed++; continue }
+        try {
+          await importContact.mutateAsync({
+            workspace_id: workspace.id,
+            full_name: name,
+            contact_type: normaliseContactType(r.type) as import("@/types/database").ContactType,
+            email: r.email?.trim() || null,
+            phone: r.phone?.trim() || null,
+            status: "active",
+            is_demo: false,
+          })
+          ok++
+        } catch { failed++ }
+      }
+      showToast(failed === 0 ? `Imported ${ok} contacts` : `Imported ${ok} contacts · ${failed} skipped`)
+    } catch {
+      showToast("Could not read that CSV file")
+    } finally {
+      setImporting(false)
+    }
   }
 
   const filtered = useMemo(() => {
@@ -896,18 +953,40 @@ export default function ContactsPage() {
           actions={
             <>
               <button
-                onClick={() => showToast("Export feature coming soon")}
+                onClick={() => {
+                  if (filtered.length === 0) { showToast("No contacts to export"); return }
+                  downloadCsv("contacts", filtered as unknown as Record<string, unknown>[], [
+                    { key: "full_name", label: "Name" },
+                    { key: "contact_type", label: "Type" },
+                    { key: "email", label: "Email" },
+                    { key: "phone", label: "Phone" },
+                    { key: "company_name", label: "Company" },
+                    { key: "city", label: "City" },
+                    { key: "postcode", label: "Postcode" },
+                    { key: "status", label: "Status" },
+                    { key: "tags", label: "Tags", format: (r) => Array.isArray((r as { tags?: string[] }).tags) ? (r as { tags: string[] }).tags.join("; ") : "" },
+                  ])
+                  showToast(`Exported ${filtered.length} contacts`)
+                }}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export
               </button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={handleImportFile}
+              />
               <button
-                onClick={() => showToast("Import feature coming soon")}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                onClick={() => importInputRef.current?.click()}
+                disabled={importing}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 <Upload className="w-4 h-4" />
-                Import
+                {importing ? "Importing…" : "Import"}
               </button>
               <button
                 onClick={() => setShowAddModal(true)}

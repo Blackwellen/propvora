@@ -1,0 +1,49 @@
+# Propvora — FAQ (FAQ.txt)
+
+Operated by Blackwellen Ltd (trading as Propvora). Canonical: https://propvora.com
+
+Q: What is Propvora?
+A: A UK property operations, compliance and profit-control platform that unifies
+   portfolio, tenancies, compliance, maintenance, money and contacts in one workspace.
+
+Q: Who is it for?
+A: UK landlords, self-managing portfolio operators, and letting/managing agencies.
+
+Q: What can it manage?
+A: Properties, units and tenancies; compliance (EPC, Gas Safety, EICR, certificates,
+   inspections); tasks, jobs and suppliers; income, expenses, invoices and deposits;
+   contacts; and scoped tenant/landlord/supplier portals.
+
+Q: How does compliance tracking work?
+A: Certificates and inspections are tracked with due dates and reminders so renewals
+   are not missed.
+
+Q: How do suppliers and jobs work?
+A: Create jobs, assign suppliers, capture before/after evidence, and track status
+   through to completion and invoicing.
+
+Q: How do payments and invoices work?
+A: Income, expenses and invoices are recorded with profit and cashflow views.
+   Subscription billing is handled by Stripe; Propvora is not a payment guarantor.
+
+Q: What does the AI Copilot do?
+A: It answers questions and drafts text using only your own workspace data. It does
+   not give final legal/tax advice and does not take risky actions without approval.
+
+Q: Is my data secure?
+A: Workspace isolation is enforced server-side (Supabase RLS), files are stored
+   privately with signed access, and billing is verified via Stripe webhooks.
+
+Q: How much does it cost?
+A: Subscription tiers (Starter, Operator, Scale, Pro/Agency) plus add-ons. See /pricing.
+
+Q: How is support handled?
+A: In-app support with a target response window; see /contact.
+
+Q: How do I delete my data?
+A: Account deletion and data-export (SAR) requests are available in account settings,
+   subject to identity verification and legal retention requirements.
+
+Q: Does it do HMRC/MTD?
+A: Accounting/MTD features ship behind a feature flag; HMRC submission requires
+   explicit user approval and is disabled until fully tested.

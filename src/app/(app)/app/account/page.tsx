@@ -20,7 +20,7 @@ const SECTIONS = [
   { title: "Preferences",        desc: "Theme, density, defaults, timezone",    href: "/app/account/preferences",        icon: Sliders,  colour: "#059669" },
   { title: "Sessions & Devices", desc: "Active sessions, device management",    href: "/app/account/sessions",           icon: Monitor,  colour: "#2563EB" },
   { title: "Activity",           desc: "Login history, changes, AI actions",    href: "/app/account/activity",           icon: Activity, colour: "#7C3AED" },
-  { title: "Connected Accounts", desc: "Google, Microsoft, OAuth providers",    href: "/app/account/connected-accounts", icon: Link2,    colour: "#059669" },
+  { title: "Connected Accounts", desc: "Google, Apple and OAuth providers",      href: "/app/account/connected-accounts", icon: Link2,    colour: "#059669" },
   { title: "Data & Privacy",     desc: "Export data, delete account, privacy",  href: "/app/account/data-privacy",       icon: Lock,     colour: "#DC2626" },
 ]
 

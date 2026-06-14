@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/client"
 import type { Property, Job, Task } from "@/types/database"
 import { cn } from "@/lib/utils"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
@@ -146,7 +147,7 @@ function useComplianceItems(workspaceId: string | undefined, propertyId: string)
       try {
         const { data, error } = await supabase
           .from("compliance_items")
-          .select("id, title, type, due_date, status")
+          .select("id, title, type:kind, due_date, status")
           .eq("workspace_id", workspaceId)
           .eq("property_id", propertyId)
           .order("due_date", { ascending: true })
@@ -218,8 +219,8 @@ function useActivityLog(workspaceId: string | undefined, entityIds: string[]) {
     ;(async () => {
       try {
         const { data, error } = await supabase
-          .from("activity_log")
-          .select("id, action, entity_type, entity_id, description, created_at")
+          .from("activity_logs")
+          .select("id, action, entity_type:resource_type, entity_id:resource_id, description, created_at")
           .eq("workspace_id", workspaceId)
           .in("entity_id", entityIds)
           .order("created_at", { ascending: false })
@@ -1247,33 +1248,10 @@ function TabDocuments() {
     if (!workspace?.id) return
     setUploading(true)
     try {
-      // 1. Get presigned URL
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workspaceId: workspace.id,
-          folder: "property-documents",
-          filename: file.name,
-          contentType: file.type,
-          size: file.size,
-        }),
-      })
-      const { uploadUrl, key, error } = await res.json()
-      if (error) throw new Error(error)
+      // 1. Server-proxied upload to R2 → authed view URL
+      const { url: publicUrl } = await uploadFile(file, workspace.id, "property-documents")
 
-      // 2. Upload to R2
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      })
-
-      // 3. Compute public URL
-      const r2Base = process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL ?? ""
-      const publicUrl = r2Base ? `${r2Base}/${key}` : uploadUrl.split("?")[0]
-
-      // 4. Save to Supabase (property_documents table, 42P01 fallback)
+      // 2. Save to Supabase (property_documents table, 42P01 fallback)
       try {
         const supabase = createClient()
         await supabase.from("property_documents").insert({
@@ -1795,33 +1773,10 @@ export default function PropertyDetailPage() {
     if (!workspace?.id || !propertyId) return
     setUploadingCover(true)
     try {
-      // 1. Get presigned URL
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workspaceId: workspace.id,
-          folder: "property-covers",
-          filename: file.name,
-          contentType: file.type,
-          size: file.size,
-        }),
-      })
-      const { uploadUrl, key, error } = await res.json()
-      if (error) throw new Error(error)
+      // 1. Server-proxied upload to R2 → authed view URL
+      const { url: publicUrl } = await uploadFile(file, workspace.id, "property-covers")
 
-      // 2. Upload to R2
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      })
-
-      // 3. Compute public URL
-      const r2PublicBase = process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL ?? ""
-      const publicUrl = r2PublicBase ? `${r2PublicBase}/${key}` : uploadUrl.split("?")[0]
-
-      // 4. Save to Supabase
+      // 2. Save to Supabase
       const supabase = createClient()
       await supabase
         .from("properties")

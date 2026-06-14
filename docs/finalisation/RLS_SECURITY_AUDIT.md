@@ -1,6 +1,42 @@
 # RLS Security Audit
 
-**Last Updated:** 2026-06-11
+**Last Updated:** 2026-06-13
+
+## ✅ VERIFIED RESULT (2026-06-13) — `node scripts/audit-rls.mjs`
+
+Live database queried via the Supabase Management API (`pg_class.relrowsecurity`
++ `pg_policy`). Result:
+
+- **229 / 229 base tables in `public` have RLS ENABLED.**
+- **0 tables with RLS disabled** → no table is readable by the authenticated
+  role without a policy. The High pentest finding "RLS not verified on all
+  tables" is now **Verified at the enablement level**.
+- **0 tenant tables (with `workspace_id`) had RLS disabled** — no cross-workspace
+  leakage surface from missing RLS.
+
+### Deny-all (RLS on, 0 policies) — fail-closed, reviewed
+These 7 tables have RLS enabled but no policy, so the authenticated/anon role is
+denied entirely (writes happen via the service-role client, which bypasses RLS).
+This is **safe** (fail-closed); listed only for functional awareness:
+
+| Table | Why deny-all is correct |
+|-------|--------------------------|
+| `edge_rate_limit` | Edge/service-only counter store |
+| `mail_oauth_states` | Server-only OAuth state |
+| `portal_verify_attempts` | Server-only rate-limit ledger |
+| `share_link_rate_limits` | Server-only rate-limit ledger |
+| `stripe_webhook_events` | Written by webhook handler (service role) |
+| `activity_logs` | Written by service role; review if client reads are needed |
+| `supplier_review_responses` | Review: add a policy if suppliers reply via the app |
+
+### Still PENDING (not covered by enablement check)
+Enablement ≠ correctness. The following still require the behavioural test suite
+(TODO 16–18) before the Critical release gate is Passed:
+- Per-table **policy correctness** (does each policy actually scope to the caller's
+  workspace / portal identity, not just "authenticated"?).
+- **Multi-workspace leakage** E2E (Workspace A cannot read/write Workspace B).
+- **Portal isolation** (tenant/supplier see only their scoped rows).
+- **Admin bypass** is intentional + audited only.
 
 ## Status Key: ✅ Verified | ⬜ Pending | ❌ Issue Found
 

@@ -23,6 +23,7 @@ import {
   BookmarkPlus,
   Filter,
   CheckSquare,
+  Loader2,
   TrendingUp,
   Users,
   ChevronLeft,
@@ -43,8 +44,11 @@ import {
 } from "recharts"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { useTasks, useCompleteTask, useDeleteTask } from "@/hooks/useTasks"
+import { useTasks, useCompleteTask, useDeleteTask, useUpdateTask } from "@/hooks/useTasks"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
+import { useCreateSavedView } from "@/hooks/useSavedViews"
+import { openCopilot } from "@/lib/copilot/open"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { Eye, Edit2, CheckCircle2, Trash2 } from "lucide-react"
 import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
@@ -461,6 +465,54 @@ function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
 }
 
 // ---------------------------------------------------------------------------
+// Task card — shared by the Card grid and Kanban board views
+// ---------------------------------------------------------------------------
+function TaskCard({ task, compact = false }: { task: DemoTask; compact?: boolean }) {
+  return (
+    <Link
+      href={`/app/work/tasks/${task.id}`}
+      className="block bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm hover:border-slate-300 transition-all"
+    >
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <WorkPriorityBadge priority={task.priority} showLabel={false} />
+          <p className="text-sm font-semibold text-slate-900 truncate">{task.title}</p>
+        </div>
+        {!compact && <WorkStatusBadge status={task.status} />}
+      </div>
+      <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">{task.category}</span>
+        {task.property && task.property !== "—" && (
+          <span className="truncate max-w-[140px]">{task.property}</span>
+        )}
+      </div>
+      <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center gap-1.5">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold">
+            {task.assigneeInitials}
+          </div>
+          <span className="text-[11px] text-slate-500 truncate max-w-[90px]">{task.assigneeName}</span>
+        </div>
+        <span className={cn(
+          "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold",
+          task.overdue ? "bg-red-50 text-red-600" : task.dueToday ? "bg-amber-50 text-amber-600" : "text-slate-500"
+        )}>
+          <Clock className="w-3 h-3" /> {task.dueDate}
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+const KANBAN_COLUMNS: { key: string; label: string }[] = [
+  { key: "todo", label: "To Do" },
+  { key: "in_progress", label: "In Progress" },
+  { key: "blocked", label: "Blocked" },
+  { key: "done", label: "Done" },
+  { key: "cancelled", label: "Cancelled" },
+]
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function TasksPage() {
@@ -469,6 +521,10 @@ export default function TasksPage() {
   const { data: tasksData, isLoading } = useTasks(workspaceId)
   const completeTask = useCompleteTask()
   const deleteTask = useDeleteTask()
+  const updateTask = useUpdateTask()
+  const createSavedView = useCreateSavedView()
+  const usingLive = !!(tasksData && tasksData.length > 0)
+  const [bulkBusy, setBulkBusy] = useState(false)
 
   const [activeView, setActiveView] = useState<"list" | "card" | "kanban">("list")
   const [search, setSearch] = useState("")
@@ -535,6 +591,63 @@ export default function TasksPage() {
     setCategoryFilter("")
   }
 
+  // ── Saved Views: serialise/apply this list's filter + view state ──────────
+  interface TaskViewConfig extends Record<string, unknown> {
+    search: string; statusFilter: string; priorityFilter: string
+    propertyFilter: string; categoryFilter: string; activeView: "list" | "card" | "kanban"
+  }
+  const viewConfig: TaskViewConfig = {
+    search, statusFilter, priorityFilter, propertyFilter, categoryFilter, activeView,
+  }
+  function applyView(c: TaskViewConfig) {
+    setSearch(c.search ?? "")
+    setStatusFilter(c.statusFilter ?? "")
+    setPriorityFilter(c.priorityFilter ?? "")
+    setPropertyFilter(c.propertyFilter ?? "")
+    setCategoryFilter(c.categoryFilter ?? "")
+    if (c.activeView) setActiveView(c.activeView)
+  }
+  async function saveCurrentView() {
+    if (!workspaceId) return
+    const name = window.prompt("Name this view")?.trim()
+    if (!name) return
+    try {
+      await createSavedView.mutateAsync({ workspaceId, entity: "tasks", name, config: viewConfig })
+    } catch { /* table may be unprovisioned — non-fatal */ }
+  }
+
+  // ── Bulk actions on the current selection ─────────────────────────────────
+  async function bulkSetStatus(status: string) {
+    if (!workspaceId || selectedIds.length === 0 || !usingLive) return
+    setBulkBusy(true)
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          updateTask.mutateAsync({ id, workspaceId, payload: { status } as never })
+        )
+      )
+      setSelectedIds([])
+    } catch {
+      /* optimistic cache already rolled back by the hook on error */
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  function exportSelected() {
+    const chosen = displayTasks.filter((t) => selectedIds.includes(t.id))
+    const rows = chosen.map((t) =>
+      [t.id, t.title, t.status, t.priority, t.property, t.dueDate]
+        .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    const csv = ["ID,Title,Status,Priority,Property,Due Date", ...rows].join("\n")
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }))
+    a.download = "tasks-selected.csv"
+    a.click()
+  }
+
   function handleDelete() {
     if (!pendingDelete || !workspaceId) return
     deleteTask.mutate({ id: pendingDelete.id, workspaceId })
@@ -569,15 +682,20 @@ export default function TasksPage() {
               className="pl-8 pr-3 h-8 w-44 rounded-lg border border-slate-200 bg-white text-[12.5px] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50"
             />
           </div>
-          <Link
-            href="/app/work/tasks"
-            className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
-          >
-            <BookmarkPlus className="w-3.5 h-3.5" /> Saved Views
-          </Link>
-          <button className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50">
-            <Filter className="w-3.5 h-3.5" /> Filters
-          </button>
+          <SavedViewsMenu
+            workspaceId={workspaceId}
+            entity="tasks"
+            currentConfig={viewConfig}
+            onApply={applyView}
+          />
+          {hasFilters && (
+            <button
+              onClick={clearFilters}
+              className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
+            >
+              <Filter className="w-3.5 h-3.5" /> Clear filters
+            </button>
+          )}
           <Link
             href="/app/work/tasks/new"
             className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
@@ -588,7 +706,7 @@ export default function TasksPage() {
             onClick={() => setSelectedIds(displayTasks.map(t => t.id))}
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
-            Bulk Update
+            <CheckSquare className="w-3.5 h-3.5" /> Select All
           </button>
           <button
             onClick={() => {
@@ -600,12 +718,12 @@ export default function TasksPage() {
           >
             <Download className="w-3.5 h-3.5" /> Export
           </button>
-          <Link
-            href="/app/work"
+          <button
+            onClick={() => openCopilot({ prompt: "Help me prioritise my open tasks for this week." })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -672,7 +790,13 @@ export default function TasksPage() {
         {hasFilters && (
           <button onClick={clearFilters} className="text-[12.5px] font-medium text-[#2563EB] hover:underline px-2">Clear</button>
         )}
-        <button className="ml-auto text-[12.5px] font-medium text-[#2563EB] hover:underline px-2">Save View</button>
+        <button
+          onClick={saveCurrentView}
+          disabled={!workspaceId || createSavedView.isPending}
+          className="ml-auto text-[12.5px] font-medium text-[#2563EB] hover:underline px-2 disabled:opacity-50"
+        >
+          {createSavedView.isPending ? "Saving…" : "Save View"}
+        </button>
       </div>
 
       {/* Main layout */}
@@ -686,10 +810,31 @@ export default function TasksPage() {
             <div className="flex items-center gap-3 px-4 py-2.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl">
               <span className="text-sm font-medium text-[#2563EB]">{selectedIds.length} tasks selected</span>
               <div className="w-px h-4 bg-[#BFDBFE]" />
-              <button className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">Bulk Update ▾</button>
-              <button className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">Change Status ▾</button>
-              <button className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">Assign To ▾</button>
-              <button className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">Export Selected</button>
+              {usingLive ? (
+                <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[#2563EB]">
+                  Set status
+                  <select
+                    disabled={bulkBusy}
+                    value=""
+                    onChange={(e) => { if (e.target.value) bulkSetStatus(e.target.value) }}
+                    className="h-7 rounded-md border border-[#BFDBFE] bg-white px-2 text-[12.5px] text-slate-700 disabled:opacity-50"
+                  >
+                    <option value="" disabled>Choose…</option>
+                    {["todo", "in_progress", "blocked", "done", "cancelled"].map((s) => (
+                      <option key={s} value={s}>{s.replace("_", " ")}</option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <span className="text-[12px] text-slate-500">Bulk status changes apply to live tasks</span>
+              )}
+              {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />}
+              <button
+                onClick={exportSelected}
+                className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1"
+              >
+                <Download className="w-3.5 h-3.5" /> Export Selected
+              </button>
               <button onClick={() => setSelectedIds([])} className="ml-auto text-slate-400 hover:text-slate-600">✕</button>
             </div>
           )}
@@ -881,22 +1026,45 @@ export default function TasksPage() {
             </div>
           )}
 
-          {/* Card view placeholder */}
+          {/* Card view */}
           {activeView === "card" && (
-            <WorkEmptyState
-              icon={LayoutGrid}
-              title="Card View"
-              description="Card view coming soon. Switch to List view to see your tasks."
-            />
+            displayTasks.length === 0 ? (
+              <WorkEmptyState
+                icon={LayoutGrid}
+                title="No tasks found"
+                description={hasFilters ? "No tasks match your current filters." : "Create your first task to get started."}
+                ctaLabel={hasFilters ? undefined : "+ Create Task"}
+                ctaHref={hasFilters ? undefined : "/app/work/tasks/new"}
+              />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {displayTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+              </div>
+            )
           )}
 
-          {/* Kanban view placeholder */}
+          {/* Kanban view — columns by status */}
           {activeView === "kanban" && (
-            <WorkEmptyState
-              icon={Columns3}
-              title="Kanban View"
-              description="Kanban view coming soon. Switch to List view to see your tasks."
-            />
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {KANBAN_COLUMNS.map((col) => {
+                const colTasks = displayTasks.filter((t) => t.status === col.key)
+                return (
+                  <div key={col.key} className="w-72 shrink-0">
+                    <div className="flex items-center justify-between px-1 mb-2">
+                      <span className="text-[12.5px] font-semibold text-slate-700">{col.label}</span>
+                      <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">{colTasks.length}</span>
+                    </div>
+                    <div className="space-y-2 min-h-[60px] rounded-xl bg-slate-50/60 p-2">
+                      {colTasks.length === 0 ? (
+                        <p className="text-[11px] text-slate-400 text-center py-4">No tasks</p>
+                      ) : (
+                        colTasks.map((task) => <TaskCard key={task.id} task={task} compact />)
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           )}
 
           {/* Bottom panels */}

@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   TrendingUp,
   AlertTriangle,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
 import MoneyKpiCard from "@/components/money/MoneyKpiCard"
 import MoneyPageHeader from "@/components/money/MoneyPageHeader"
+import { MoneyCalendar } from "@/components/money/MoneyCalendar"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyIncome, useCreateMoneyIncome, useMoneyIncomeSummary } from "@/hooks/useMoneyData"
@@ -312,6 +314,8 @@ export default function MoneyIncomePage() {
   const [viewMode, setViewMode] = useState<ViewMode>("table")
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddModal, setShowAddModal] = useState(false)
+  const _sp = useSearchParams()
+  useEffect(() => { if (_sp.get("new") === "1") setShowAddModal(true) }, [_sp])
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
   const [allSelected, setAllSelected] = useState(false)
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
@@ -762,13 +766,27 @@ export default function MoneyIncomePage() {
               </div>
             )}
 
-            {/* Calendar view placeholder */}
+            {/* Calendar view — live records bucketed by expected date */}
             {viewMode === "calendar" && (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
-                <CalendarDays className="w-12 h-12 text-slate-200" />
-                <p className="text-sm font-medium text-slate-500">Calendar view coming soon</p>
-                <p className="text-xs text-slate-400">Switch to Table or Cards view to see income records.</p>
-              </div>
+              filtered.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
+                  <CalendarDays className="w-12 h-12 text-slate-200" />
+                  <p className="text-sm font-medium text-slate-500">No income records to show</p>
+                  <p className="text-xs text-slate-400">Add an income record to see it on the calendar.</p>
+                </div>
+              ) : (
+                <MoneyCalendar
+                  tone="emerald"
+                  entries={filtered
+                    .filter((r) => r.dueDate && r.dueDate !== "—")
+                    .map((r) => ({
+                      id: r.id,
+                      dateISO: r.dueDate,
+                      amount: Number(String(r.amount).replace(/[^0-9.-]/g, "")) || 0,
+                      label: r.description,
+                    }))}
+                />
+              )
             )}
           </div>
 

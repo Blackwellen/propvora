@@ -1,19 +1,86 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import { CreditCard, AlertTriangle, ExternalLink, Check, X } from "lucide-react"
+import { CreditCard, AlertTriangle, ExternalLink, Check, Loader2, Sparkles } from "lucide-react"
+import { useWorkspace } from "@/providers/AuthProvider"
+import {
+  getPlans,
+  getPriceId,
+  gbp,
+  PLAN_ORDER,
+  type PlanTier,
+  type BillingInterval,
+} from "@/lib/billing/plans"
+import { startCheckout, openBillingPortal } from "@/lib/billing/checkout"
 
-const PLANS = [
-  { name: "Basic",      price: "£29/mo",  users: "3",         credits: "100",       storage: "5GB",       properties: "10",        colour: "#64748B", current: false },
-  { name: "Pro",        price: "£79/mo",  users: "10",        credits: "500",       storage: "10GB",      properties: "50",        colour: "#2563EB", current: true  },
-  { name: "Agency",     price: "£149/mo", users: "25",        credits: "2000",      storage: "50GB",      properties: "200",       colour: "#7C3AED", current: false },
-  { name: "Enterprise", price: "Custom",  users: "Unlimited", credits: "Unlimited", storage: "Unlimited", properties: "Unlimited", colour: "#D97706", current: false },
-]
+const TIER_COLOUR: Record<PlanTier, string> = {
+  starter: "#64748B",
+  operator: "#2563EB",
+  scale: "#0EA5E9",
+  pro_agency: "#7C3AED",
+  enterprise: "#D97706",
+}
+
+function normaliseTier(plan: string | null | undefined): PlanTier {
+  const p = (plan ?? "").toLowerCase()
+  if (PLAN_ORDER.includes(p as PlanTier)) return p as PlanTier
+  // Legacy aliases → closest tier
+  if (p === "trial" || p === "basic") return "starter"
+  if (p === "growth") return "operator"
+  if (p === "pro" || p === "business" || p === "agency") return "pro_agency"
+  return "starter"
+}
 
 export default function SubscriptionPage() {
-  const [showCancelModal, setShowCancelModal] = useState(false)
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+  const { workspace } = useWorkspace()
+  const [billing, setBilling] = useState<BillingInterval>("monthly")
+  const [pendingTier, setPendingTier] = useState<PlanTier | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [portalLoading, setPortalLoading] = useState(false)
+
+  const plans = useMemo(() => getPlans(), [])
+  const currentTier = normaliseTier(workspace?.plan as string | undefined)
+  const statusRaw = (workspace as { plan_status?: string } | null)?.plan_status ?? "trialing"
+  const currentPlan = plans.find((p) => p.tier === currentTier)
+  const currentIdx = PLAN_ORDER.indexOf(currentTier)
+
+  async function handleSelect(tier: PlanTier) {
+    setError(null)
+    if (tier === "enterprise") {
+      window.location.href = "/contact?topic=enterprise"
+      return
+    }
+    const priceId = getPriceId(tier, billing)
+    if (!priceId) {
+      setError("This plan isn’t available for checkout yet. Please contact support.")
+      return
+    }
+    setPendingTier(tier)
+    try {
+      await startCheckout(priceId)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Checkout failed")
+      setPendingTier(null)
+    }
+  }
+
+  async function handlePortal() {
+    setError(null)
+    setPortalLoading(true)
+    try {
+      await openBillingPortal()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Billing portal unavailable")
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
+  const statusLabel =
+    { active: "Active", trialing: "Trial", past_due: "Past due", canceled: "Canceled", suspended: "Suspended" }[
+      statusRaw
+    ] ?? "Active"
 
   return (
     <div>
@@ -23,23 +90,27 @@ export default function SubscriptionPage() {
         <p className="text-[13.5px] text-slate-500 mt-1">Manage your plan, billing cycle and usage limits</p>
       </div>
 
+      {error && (
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">{error}</div>
+      )}
+
       {/* Current plan card */}
       <div className="bg-gradient-to-br from-[#2563EB] to-[#1d4ed8] rounded-2xl p-6 text-white mb-6">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[11px] font-semibold text-blue-200 uppercase tracking-wide">Current Plan</p>
-            <h2 className="text-[22px] font-black mt-1">Pro Plan</h2>
-            <p className="text-[12px] text-blue-200 mt-0.5">Renews 1 January 2027 · Monthly billing</p>
+            <h2 className="text-[22px] font-black mt-1">{currentPlan?.name ?? "Starter"} Plan</h2>
+            <p className="text-[12px] text-blue-200 mt-0.5">{currentPlan?.tagline}</p>
           </div>
-          <span className="bg-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl">Active</span>
+          <span className="bg-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl">{statusLabel}</span>
         </div>
-        <div className="grid grid-cols-4 gap-4 mt-5 pt-5 border-t border-white/20">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 pt-5 border-t border-white/20">
           {[
-            { label: "Users",      value: "3 / 10"        },
-            { label: "AI Credits", value: "247 / 500"     },
-            { label: "Storage",    value: "2.1GB / 10GB"  },
-            { label: "Properties", value: "8 / 50"        },
-          ].map(item => (
+            { label: "Properties", value: String(currentPlan?.features.properties ?? "—") },
+            { label: "Team seats", value: String(currentPlan?.features.teamSeats ?? "—") },
+            { label: "AI Copilot", value: currentPlan?.features.aiCopilot ? "Included" : "—" },
+            { label: "Advanced reports", value: currentPlan?.features.advancedReports ? "Included" : "—" },
+          ].map((item) => (
             <div key={item.label}>
               <p className="text-[10px] text-blue-200 uppercase tracking-wide">{item.label}</p>
               <p className="text-[14px] font-bold mt-0.5">{item.value}</p>
@@ -50,26 +121,24 @@ export default function SubscriptionPage() {
 
       {/* Billing cycle toggle */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h3 className="text-[14px] font-bold text-slate-900">Billing Cycle</h3>
             <p className="text-[12px] text-slate-500 mt-0.5">
-              {billing === "annual" ? "Annual billing — you save 20%" : "Switch to annual billing and save 20%"}
+              {billing === "annual" ? "Annual billing — two months free" : "Switch to annual and get two months free"}
             </p>
           </div>
           <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-            {(["monthly", "annual"] as const).map(cycle => (
+            {(["monthly", "annual"] as const).map((cycle) => (
               <button
                 key={cycle}
                 onClick={() => setBilling(cycle)}
                 className={cn(
                   "px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all",
-                  billing === cycle
-                    ? "bg-white text-[#2563EB] shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                  billing === cycle ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700",
                 )}
               >
-                {cycle === "monthly" ? "Monthly" : "Annual · Save 20%"}
+                {cycle === "monthly" ? "Monthly" : "Annual · 2 months free"}
               </button>
             ))}
           </div>
@@ -77,60 +146,83 @@ export default function SubscriptionPage() {
       </div>
 
       {/* Plan comparison */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {PLANS.map(plan => (
-          <div
-            key={plan.name}
-            className={cn(
-              "bg-white rounded-2xl border p-5 flex flex-col relative",
-              plan.current ? "border-[#2563EB] shadow-[0_0_0_2px_#2563EB20]" : "border-slate-200"
-            )}
-          >
-            {plan.current && (
-              <span
-                className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-0.5 rounded-full text-white"
-                style={{ backgroundColor: plan.colour }}
-              >
-                Current
-              </span>
-            )}
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: plan.colour + "18" }}>
-                <div style={{ color: plan.colour }}><CreditCard className="w-4 h-4" /></div>
-              </div>
-              <h3 className="text-[14px] font-bold text-slate-900">{plan.name}</h3>
-            </div>
-            <p className="text-[22px] font-black mb-4" style={{ color: plan.colour }}>{plan.price}</p>
-            <div className="space-y-2 flex-1 mb-5">
-              {[
-                { label: "Users",      val: plan.users      },
-                { label: "AI Credits", val: plan.credits    },
-                { label: "Storage",    val: plan.storage    },
-                { label: "Properties", val: plan.properties },
-              ].map(row => (
-                <div key={row.label} className="flex items-center justify-between">
-                  <span className="text-[11.5px] text-slate-500">{row.label}</span>
-                  <span className="text-[11.5px] font-semibold text-slate-800">{row.val}</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {plans.map((plan) => {
+          const colour = TIER_COLOUR[plan.tier]
+          const isCurrent = plan.tier === currentTier
+          const idx = PLAN_ORDER.indexOf(plan.tier)
+          const amount = billing === "monthly" ? plan.monthlyAmount : plan.annualAmount
+          const priceLabel = plan.enterprise
+            ? "Custom"
+            : amount != null
+              ? `${gbp(amount)}`
+              : "—"
+          const cycleLabel = plan.enterprise ? "" : billing === "monthly" ? "/mo" : "/yr"
+          const cta = plan.enterprise
+            ? "Contact Sales"
+            : isCurrent
+              ? "Current Plan"
+              : idx < currentIdx
+                ? "Downgrade"
+                : "Upgrade"
+          return (
+            <div
+              key={plan.tier}
+              className={cn(
+                "bg-white rounded-2xl border p-5 flex flex-col relative",
+                isCurrent ? "border-[#2563EB] shadow-[0_0_0_2px_#2563EB20]" : "border-slate-200",
+              )}
+            >
+              {plan.popular && !isCurrent && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-0.5 rounded-full text-white bg-[#2563EB]">
+                  Popular
+                </span>
+              )}
+              {isCurrent && (
+                <span
+                  className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-0.5 rounded-full text-white"
+                  style={{ backgroundColor: colour }}
+                >
+                  Current
+                </span>
+              )}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: colour + "18" }}>
+                  <div style={{ color: colour }}>
+                    {plan.features.aiCopilot ? <Sparkles className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
+                  </div>
                 </div>
-              ))}
+                <h3 className="text-[14px] font-bold text-slate-900">{plan.name}</h3>
+              </div>
+              <div className="mb-4">
+                <span className="text-[22px] font-black" style={{ color: colour }}>{priceLabel}</span>
+                <span className="text-[12px] text-slate-400 font-semibold">{cycleLabel}</span>
+              </div>
+              <div className="space-y-2 flex-1 mb-5">
+                {plan.highlights.map((h) => (
+                  <div key={h} className="flex items-start gap-2">
+                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: colour }} />
+                    <span className="text-[11.5px] text-slate-600">{h}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                disabled={isCurrent || pendingTier === plan.tier}
+                onClick={() => handleSelect(plan.tier)}
+                className={cn(
+                  "w-full py-2.5 rounded-xl text-[12.5px] font-semibold transition-colors flex items-center justify-center gap-1.5",
+                  isCurrent
+                    ? "border border-slate-200 text-slate-400 cursor-default"
+                    : "text-white hover:opacity-90",
+                )}
+                style={isCurrent ? undefined : { backgroundColor: colour }}
+              >
+                {pendingTier === plan.tier && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {cta}
+              </button>
             </div>
-            {plan.current ? (
-              <button
-                className="w-full py-2.5 rounded-xl border border-slate-200 text-[12.5px] font-semibold text-slate-500 cursor-default"
-                disabled
-              >
-                Current Plan
-              </button>
-            ) : (
-              <button
-                className="w-full py-2.5 rounded-xl text-[12.5px] font-semibold text-white transition-colors"
-                style={{ backgroundColor: plan.colour }}
-              >
-                {plan.name === "Basic" ? "Downgrade" : plan.name === "Enterprise" ? "Contact Sales" : "Upgrade"}
-              </button>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Actions */}
@@ -138,74 +230,25 @@ export default function SubscriptionPage() {
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Billing Actions</h3>
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            onClick={async () => {
-              try {
-                const res = await fetch("/api/billing/portal", { method: "POST" })
-                if (!res.ok) throw new Error("not_configured")
-                const { url } = await res.json()
-                if (url) window.open(url, "_blank")
-              } catch {
-                alert("Stripe billing portal is not configured. Set STRIPE_SECRET_KEY and STRIPE_PORTAL_RETURN_URL to enable it.")
-              }
-            }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors"
+            onClick={handlePortal}
+            disabled={portalLoading}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors disabled:opacity-60"
           >
-            <ExternalLink className="w-4 h-4" />
+            {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
             Open Stripe billing portal
           </button>
           <button
-            onClick={() => setShowCancelModal(true)}
+            onClick={handlePortal}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 text-red-600 text-[13px] font-semibold hover:bg-red-50 transition-colors"
           >
             <AlertTriangle className="w-4 h-4" />
-            Cancel subscription
+            Cancel or change in portal
           </button>
         </div>
         <p className="text-[11px] text-slate-400 mt-3">
-          Stripe portal not yet configured — billing portal will open once Stripe keys are set.
+          Plan changes, cancellations, payment methods and receipts are managed securely in the Stripe billing portal.
         </p>
       </div>
-
-      {/* Cancel modal */}
-      {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-[420px] w-full p-6">
-            <div className="flex items-start gap-4 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 text-red-500" />
-              </div>
-              <div>
-                <h3 className="text-[15px] font-bold text-slate-900">Cancel Subscription</h3>
-                <p className="text-[12.5px] text-slate-500 mt-1">
-                  Your workspace will remain active until the end of the current billing period (1 January 2027). After that, your account will be downgraded to a free plan.
-                </p>
-              </div>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5">
-              <p className="text-[12px] font-semibold text-amber-800">What you will lose:</p>
-              <ul className="mt-2 space-y-1">
-                {["AI Credits & Copilot access", "Additional team members", "Advanced features & integrations", "Priority support"].map(item => (
-                  <li key={item} className="flex items-center gap-2 text-[12px] text-amber-700">
-                    <X className="w-3 h-3 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                Keep plan
-              </button>
-              <button className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors">
-                Confirm cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

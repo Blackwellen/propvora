@@ -6,6 +6,7 @@ import {
   reverseCommissionForCustomer,
   stopReferralAccrual,
 } from "@/lib/affiliate/commission"
+import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 
 export const dynamic = "force-dynamic"
 
@@ -36,6 +37,42 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createAdminClient()
+
+  // Best-effort: resolve the workspace id for a Stripe customer (for audit
+  // context). Returns null on any failure — auditing never blocks processing.
+  const workspaceIdForCustomer = async (
+    customerId: string | null
+  ): Promise<string | null> => {
+    if (!customerId) return null
+    try {
+      const { data } = await supabase
+        .from("workspaces")
+        .select("id")
+        .eq("stripe_customer_id", customerId)
+        .maybeSingle()
+      return (data?.id as string | null) ?? null
+    } catch {
+      return null
+    }
+  }
+
+  // ── Idempotency: Stripe delivers at-least-once and may replay events. ──────
+  // If we've already recorded this event id, acknowledge without re-processing
+  // (prevents double affiliate-commission accrual on invoice.paid, etc.). A
+  // failed processing run below returns 500 WITHOUT recording, so Stripe's
+  // retry is reprocessed. The unique index on stripe_event_id is the backstop.
+  try {
+    const { data: seen } = await supabase
+      .from("stripe_webhook_events")
+      .select("stripe_event_id")
+      .eq("stripe_event_id", event.id)
+      .maybeSingle()
+    if (seen) {
+      return NextResponse.json({ received: true, duplicate: true })
+    }
+  } catch {
+    // Dedupe store unavailable — fail open and process (signature already valid).
+  }
 
   try {
     switch (event.type) {
@@ -74,6 +111,14 @@ export async function POST(request: NextRequest) {
           })
           .eq("stripe_customer_id", customerId)
 
+        await recordAudit(supabase, {
+          workspaceId: await workspaceIdForCustomer(customerId),
+          action: AUDIT_ACTIONS.BILLING_SUBSCRIPTION_UPDATED,
+          resourceType: "subscription",
+          resourceId: sub.id,
+          metadata: { plan, planStatus, eventId: event.id },
+        })
+
         break
       }
 
@@ -93,6 +138,14 @@ export async function POST(request: NextRequest) {
 
         // Affiliate: stop future commission accrual for this referred customer.
         await stopReferralAccrual(supabase, { customerId })
+
+        await recordAudit(supabase, {
+          workspaceId: await workspaceIdForCustomer(customerId),
+          action: AUDIT_ACTIONS.BILLING_SUBSCRIPTION_UPDATED,
+          resourceType: "subscription",
+          resourceId: sub.id,
+          metadata: { planStatus: "canceled", eventId: event.id },
+        })
 
         break
       }
@@ -138,6 +191,99 @@ export async function POST(request: NextRequest) {
             .eq("stripe_customer_id", customerId)
         }
 
+        await recordAudit(supabase, {
+          workspaceId: await workspaceIdForCustomer(customerId),
+          action: AUDIT_ACTIONS.BILLING_PAYMENT_FAILED,
+          resourceType: "invoice",
+          resourceId: invoice.id ?? null,
+          metadata: {
+            amountDue: invoice.amount_due ?? null,
+            currency: invoice.currency ?? null,
+            eventId: event.id,
+          },
+        })
+
+        break
+      }
+
+      case "checkout.session.completed": {
+        // Subscription checkout finished. The customer was already linked to the
+        // workspace at checkout-create; mark the plan active promptly (the
+        // subscription.created/updated events set the precise tier). We only
+        // trust the webhook — never a client success redirect.
+        const session = event.data.object as import("stripe").Stripe.Checkout.Session
+        const customerId =
+          typeof session.customer === "string" ? session.customer : session.customer?.id ?? null
+        const wsId = (session.metadata?.workspace_id as string | undefined) ?? null
+        if (session.mode === "subscription" && (customerId || wsId)) {
+          const q = supabase.from("workspaces").update({ plan_status: "active" })
+          await (wsId ? q.eq("id", wsId) : q.eq("stripe_customer_id", customerId!))
+        }
+        break
+      }
+
+      case "payment_intent.succeeded": {
+        // Acknowledged. Subscription revenue is reconciled via invoice.paid;
+        // this is logged for completeness and future Connect/one-off flows.
+        const pi = event.data.object as import("stripe").Stripe.PaymentIntent
+        console.log(`[webhooks/stripe] payment_intent.succeeded ${pi.id} (${pi.amount} ${pi.currency})`)
+        break
+      }
+
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as import("stripe").Stripe.PaymentIntent
+        console.warn(`[webhooks/stripe] payment_intent.payment_failed ${pi.id}: ${pi.last_payment_error?.message ?? "unknown"}`)
+        break
+      }
+
+      case "account.updated": {
+        // Stripe Connect: a connected (owner) account's onboarding/capabilities
+        // changed. Sync our stored status. Separate from SaaS billing.
+        const acct = event.data.object as import("stripe").Stripe.Account
+        const status =
+          acct.requirements?.disabled_reason ? "disabled"
+            : acct.charges_enabled && acct.payouts_enabled ? "active"
+            : acct.details_submitted ? "restricted"
+            : "pending"
+        await supabase
+          .from("stripe_connect_accounts")
+          .update({
+            status,
+            charges_enabled: !!acct.charges_enabled,
+            payouts_enabled: !!acct.payouts_enabled,
+            details_submitted: !!acct.details_submitted,
+            country: acct.country ?? null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("stripe_account_id", acct.id)
+        break
+      }
+
+      case "charge.dispute.created": {
+        // A customer disputed a charge (chargeback). Flag the workspace and
+        // reverse any pending affiliate commission for this customer.
+        const dispute = event.data.object as import("stripe").Stripe.Dispute
+        const customerId =
+          typeof dispute.charge === "string"
+            ? null // charge id only — resolve below if needed
+            : (dispute.charge as import("stripe").Stripe.Charge | null)?.customer as string | null ?? null
+        console.warn(`[webhooks/stripe] charge.dispute.created ${dispute.id} amount=${dispute.amount} reason=${dispute.reason}`)
+        if (customerId) {
+          await supabase.from("workspaces").update({ plan_status: "past_due" }).eq("stripe_customer_id", customerId)
+          await reverseCommissionForCustomer(supabase, { customerId })
+        }
+
+        await recordAudit(supabase, {
+          workspaceId: await workspaceIdForCustomer(customerId),
+          action: AUDIT_ACTIONS.BILLING_DISPUTE_CREATED,
+          resourceType: "dispute",
+          resourceId: dispute.id,
+          metadata: {
+            amount: dispute.amount ?? null,
+            reason: dispute.reason ?? null,
+            eventId: event.id,
+          },
+        })
         break
       }
 
@@ -147,8 +293,21 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     console.error("[webhooks/stripe] Database update failed:", err)
-    // Return 500 so Stripe retries
+    // Return 500 so Stripe retries — we deliberately do NOT record the event id
+    // here, so the retry is reprocessed rather than skipped as a duplicate.
     return NextResponse.json({ error: "Database update failed." }, { status: 500 })
+  }
+
+  // Record the processed event id AFTER success. A concurrent re-delivery that
+  // raced past the dedupe check above hits the unique index and is ignored.
+  try {
+    await supabase.from("stripe_webhook_events").insert({
+      stripe_event_id: event.id,
+      type: event.type,
+      payload: event as unknown as Record<string, unknown>,
+    })
+  } catch {
+    /* unique-violation on concurrent delivery, or store unavailable — non-fatal */
   }
 
   return NextResponse.json({ received: true })

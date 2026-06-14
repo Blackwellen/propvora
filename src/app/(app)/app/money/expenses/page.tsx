@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   TrendingDown,
   Home,
@@ -343,6 +344,8 @@ export default function MoneyExpensesPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("table")
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddModal, setShowAddModal] = useState(false)
+  const _sp = useSearchParams()
+  useEffect(() => { if (_sp.get("new") === "1") setShowAddModal(true) }, [_sp])
   const [showAllRows, setShowAllRows] = useState(false)
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
   const [toastMsg, setToastMsg] = useState<string | null>(null)
@@ -421,6 +424,30 @@ export default function MoneyExpensesPage() {
   )
 
   const visibleRows = showAllRows ? filtered : filtered.slice(0, 10)
+
+  // Grouped breakdown per property for the "by-property" view.
+  const byProperty = React.useMemo(() => {
+    const map = new Map<string, { total: number; count: number; types: Map<string, number> }>()
+    for (const r of filtered) {
+      const key = r.propertyName || "Unassigned"
+      const amount = Number(String(r.amount).replace(/[^0-9.-]/g, "")) || 0
+      const cur = map.get(key) ?? { total: 0, count: 0, types: new Map<string, number>() }
+      cur.total += amount
+      cur.count++
+      cur.types.set(r.expenseType, (cur.types.get(r.expenseType) ?? 0) + amount)
+      map.set(key, cur)
+    }
+    const groups = [...map.entries()]
+      .map(([property, v]) => ({
+        property,
+        total: v.total,
+        count: v.count,
+        topType: [...v.types.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—",
+      }))
+      .sort((a, b) => b.total - a.total)
+    const max = groups.reduce((m, g) => Math.max(m, g.total), 0)
+    return { groups, max }
+  }, [filtered])
 
   function handleExportCSV() {
     downloadCSV(
@@ -771,13 +798,42 @@ export default function MoneyExpensesPage() {
               </div>
             )}
 
-            {/* By Property view */}
+            {/* By Property view — live grouped breakdown */}
             {viewMode === "by-property" && (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
-                <Building className="w-12 h-12 text-slate-200" />
-                <p className="text-sm font-medium text-slate-500">By Property view</p>
-                <p className="text-xs text-slate-400">Grouped expense breakdown per property coming soon.</p>
-              </div>
+              byProperty.groups.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
+                  <Building className="w-12 h-12 text-slate-200" />
+                  <p className="text-sm font-medium text-slate-500">No expenses to group</p>
+                  <p className="text-xs text-slate-400">Add an expense to see the per-property breakdown.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-3">
+                  {byProperty.groups.map((g) => (
+                    <div key={g.property} className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                            <Building className="w-3.5 h-3.5 text-slate-500" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900 truncate">{g.property}</p>
+                            <p className="text-[11px] text-slate-400">
+                              {g.count} expense{g.count > 1 ? "s" : ""} · mostly {g.topType}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-bold text-slate-900 shrink-0">{fmtGBP2(g.total)}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-rose-400"
+                          style={{ width: `${byProperty.max > 0 ? Math.max(4, (g.total / byProperty.max) * 100) : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
           </div>
 

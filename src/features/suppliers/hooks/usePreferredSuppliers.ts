@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 export interface SupplierRow {
   id: string
@@ -16,56 +17,65 @@ export interface SupplierRow {
   jobsCompleted: number
 }
 
-// Seed fallback
-const SEED_SUPPLIERS: SupplierRow[] = [
-  { id: "s1", name: "James Wright Electrical Ltd", primaryTrade: "Electrical Contractor", location: "London",     serviceRadiusMiles: 15, verificationStatus: "verified", complianceStatus: "valid",    averageResponseMinutes: 58,  ratingInternal: 4.9, jobsCompleted: 63 },
-  { id: "s2", name: "AH Plumbing & Heating",       primaryTrade: "Plumbing & Heating",   location: "Manchester", serviceRadiusMiles: 20, verificationStatus: "verified", complianceStatus: "valid",    averageResponseMinutes: 75,  ratingInternal: 4.8, jobsCompleted: 41 },
-  { id: "s3", name: "Sarah Mitchell Gas Services",  primaryTrade: "Gas Engineer",         location: "Birmingham", serviceRadiusMiles: 25, verificationStatus: "verified", complianceStatus: "valid",    averageResponseMinutes: 95,  ratingInternal: 5.0, jobsCompleted: 89 },
-]
+const GENERIC_TAGS = new Set(["preferred", "vip", "portfolio", "regular", "reliable", "source"])
 
+function deriveTrade(tags: string[] | null, company: string | null): string {
+  const tag = (tags ?? []).find((t) => !GENERIC_TAGS.has(t.toLowerCase()))
+  if (tag) return tag.charAt(0).toUpperCase() + tag.slice(1)
+  return company || "Supplier"
+}
+
+/**
+ * Preferred suppliers = live supplier contacts (contacts.type = 'supplier'),
+ * surfacing those tagged "preferred" first. No fabricated data.
+ */
 export function usePreferredSuppliers() {
-  const [suppliers, setSuppliers] = useState<SupplierRow[]>(SEED_SUPPLIERS)
-  const [total, setTotal] = useState(246)
-  const [loading, setLoading] = useState(false)
+  const { workspace } = useWorkspace()
+  const [suppliers, setSuppliers] = useState<SupplierRow[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
+    const wid = workspace?.id
+    if (!wid) { setLoading(false); return }
 
     async function fetchData() {
       setLoading(true)
       try {
         const supabase = createClient()
         const { data, count, error: fetchError } = await supabase
-          .from("suppliers")
-          .select("id, name, primary_trade, postcode, service_radius_miles, verification_status, compliance_status, average_response_minutes, rating_internal, jobs_completed", { count: "exact" })
-          .eq("preferred_status", true)
+          .from("contacts")
+          .select("id, display_name, company, city, postcode, tags, rating, status", { count: "exact" })
+          .eq("workspace_id", wid)
+          .eq("type", "supplier")
+          .order("rating", { ascending: false, nullsFirst: false })
           .limit(10)
 
         if (fetchError) {
-          if (fetchError.code === "42P01") return
+          if (fetchError.code === "42P01") { if (!cancelled) setLoading(false); return }
           throw fetchError
         }
 
-        if (!cancelled && data && data.length > 0) {
-          setTotal(count ?? data.length)
-          setSuppliers(
-            data.map((s) => ({
-              id: s.id,
-              name: s.name,
-              primaryTrade: s.primary_trade ?? "",
-              location: s.postcode ?? "",
-              serviceRadiusMiles: s.service_radius_miles ?? 0,
-              verificationStatus: s.verification_status ?? "unverified",
-              complianceStatus: s.compliance_status ?? "unknown",
-              averageResponseMinutes: s.average_response_minutes ?? 0,
-              ratingInternal: s.rating_internal ?? 0,
-              jobsCompleted: s.jobs_completed ?? 0,
-            }))
-          )
-        }
+        if (cancelled) return
+        setTotal(count ?? (data?.length ?? 0))
+        setSuppliers(
+          (data ?? []).map((s: Record<string, unknown>) => ({
+            id: s.id as string,
+            name: (s.display_name as string) || (s.company as string) || "Supplier",
+            primaryTrade: deriveTrade(s.tags as string[] | null, s.company as string | null),
+            location: [s.city, s.postcode].filter(Boolean).join(", ") || "—",
+            serviceRadiusMiles: 0,
+            verificationStatus: s.status === "active" ? "verified" : "unverified",
+            complianceStatus: "unknown",
+            averageResponseMinutes: 0,
+            ratingInternal: typeof s.rating === "number" ? s.rating : 0,
+            jobsCompleted: 0,
+          })),
+        )
       } catch {
-        if (!cancelled) setError("Failed to load suppliers — showing demo data")
+        if (!cancelled) setError("Failed to load suppliers")
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -73,7 +83,7 @@ export function usePreferredSuppliers() {
 
     fetchData()
     return () => { cancelled = true }
-  }, [])
+  }, [workspace?.id])
 
   return { suppliers, total, loading, error }
 }

@@ -44,6 +44,8 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
 import { useSuppliers, type SupplierView } from "@/features/suppliers/useSuppliers"
+import { useWorkspaceSupplierPreferences } from "@/lib/suppliers/ratings"
+import { Ban } from "lucide-react"
 
 // ─── Static decorative data (charts / right-rail) ─────────────────────────────
 
@@ -143,6 +145,7 @@ export default function SuppliersPage() {
   const router = useRouter()
   const workspaceId = useWorkspaceId()
   const { suppliers, isSeed, loading } = useSuppliers(workspaceId)
+  const { data: preferences } = useWorkspaceSupplierPreferences(workspaceId)
   const updateContact = useUpdateContact()
 
   const [activeView, setActiveView] = useState("directory")
@@ -390,6 +393,9 @@ export default function SuppliersPage() {
                   ) : (
                     filtered.map((s) => {
                       const rating = seededRating(s.id)
+                      const pref = preferences?.get(s.id)
+                      const showPreferred = (pref?.preferred ?? s.preferred) && !pref?.blocked
+                      const showBlocked = pref?.blocked ?? false
                       return (
                         <tr
                           key={s.id}
@@ -402,9 +408,18 @@ export default function SuppliersPage() {
                                 {s.initials}
                               </div>
                               <div className="min-w-0">
-                                <p className="text-[13px] font-semibold text-slate-800">
+                                <p className="text-[13px] font-semibold text-slate-800 flex items-center gap-1.5">
                                   {s.name}
-                                  {s.preferred && <Star className="inline w-3 h-3 text-amber-400 fill-amber-400 ml-1.5 -mt-0.5" />}
+                                  {showPreferred && (
+                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-bold text-amber-700">
+                                      <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> Preferred
+                                    </span>
+                                  )}
+                                  {showBlocked && (
+                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-red-50 border border-red-200 text-[9px] font-bold text-red-700">
+                                      <Ban className="w-2.5 h-2.5" /> Blocked
+                                    </span>
+                                  )}
                                 </p>
                                 <p className="text-[11px] text-slate-400 truncate">{s.email ?? s.company ?? "—"}</p>
                               </div>

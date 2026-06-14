@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { sendEmail } from "@/lib/email"
 import { workspaceInviteEmail } from "@/lib/emails/workspace-invite"
+import { rateLimit, clientKey, RATE_LIMITS } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +36,19 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Rate limit invite sends per inviter (plus IP) to curb invite-spam / email
+    // abuse from a compromised or malicious account.
+    const rl = await rateLimit({
+      key: `invite:${user.id}:${clientKey(request, "ip")}`,
+      ...RATE_LIMITS.invite,
+    })
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please wait and try again." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      )
     }
 
     const body = await request.json() as {

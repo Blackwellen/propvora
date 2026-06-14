@@ -75,44 +75,69 @@ export default function TenantViewingsPage() {
           } catch { /* tolerate */ }
         }
 
-        // LIVE calendar_events scoped STRICTLY to this tenant — by contact_id,
-        // tenancy_id, or one of the tenant's own properties — viewing-type only.
-        // We never load all-workspace events.
+        // LIVE calendar_events scoped STRICTLY to this tenant. The live schema
+        // links events to a subject via related_type/related_id (contact,
+        // tenancy) plus a direct property_id column — there is no status /
+        // location / contact_id / tenancy_id column. We never load
+        // all-workspace events; viewing-type only.
         const collected = new Map<string, ViewingRow>()
+        const SELECT =
+          "id, title, description, event_type, type, start_at, start_date, end_at, property_address, property_id, related_type, related_id"
 
-        async function pull(column: string, values: string[]) {
-          if (values.length === 0) return
+        function collect(rows: Record<string, unknown>[]) {
+          for (const r of rows) {
+            const type = (r.event_type as string) ?? (r.type as string) ?? ""
+            if (!VIEWING_TYPES.includes(type)) continue
+            collected.set(r.id as string, {
+              id: r.id as string,
+              title: (r.title as string) ?? "Viewing",
+              description: (r.description as string) ?? null,
+              event_type: type,
+              status: "scheduled", // no per-event status column in the live schema
+              start_at: (r.start_at as string) ?? (r.start_date as string),
+              end_at: (r.end_at as string) ?? null,
+              location: (r.property_address as string) ?? null,
+              property_id: (r.property_id as string) ?? null,
+            })
+          }
+        }
+
+        // Scope by related_type/related_id (contact + tenancy linkage).
+        async function pullRelated(relatedType: string, ids: string[]) {
+          if (ids.length === 0) return
           try {
             const { data, error: evErr } = await supabase
               .from("calendar_events")
-              .select("id, title, description, event_type, status, start_at, end_at, location, property_id, contact_id, tenancy_id")
-              .in(column, values)
-              .order("start_at", { ascending: true })
+              .select(SELECT)
+              .eq("related_type", relatedType)
+              .in("related_id", ids)
             if (evErr) {
               if (code(evErr) !== "42P01") setError("Could not load your viewings.")
               return
             }
-            for (const r of (data ?? []) as Record<string, unknown>[]) {
-              const type = (r.event_type as string) ?? ""
-              if (!VIEWING_TYPES.includes(type)) continue
-              collected.set(r.id as string, {
-                id: r.id as string,
-                title: (r.title as string) ?? "Viewing",
-                description: (r.description as string) ?? null,
-                event_type: type,
-                status: (r.status as string) ?? "scheduled",
-                start_at: r.start_at as string,
-                end_at: (r.end_at as string) ?? null,
-                location: (r.location as string) ?? null,
-                property_id: (r.property_id as string) ?? null,
-              })
-            }
+            collect((data ?? []) as Record<string, unknown>[])
           } catch { /* tolerate */ }
         }
 
-        await pull("contact_id", [tenant.contactId])
-        await pull("tenancy_id", tIds)
-        await pull("property_id", pIds)
+        // Scope by a direct column (property_id).
+        async function pullColumn(column: string, ids: string[]) {
+          if (ids.length === 0) return
+          try {
+            const { data, error: evErr } = await supabase
+              .from("calendar_events")
+              .select(SELECT)
+              .in(column, ids)
+            if (evErr) {
+              if (code(evErr) !== "42P01") setError("Could not load your viewings.")
+              return
+            }
+            collect((data ?? []) as Record<string, unknown>[])
+          } catch { /* tolerate */ }
+        }
+
+        await pullRelated("contact", [tenant.contactId])
+        await pullRelated("tenancy", tIds)
+        await pullColumn("property_id", pIds)
 
         setEvents(
           Array.from(collected.values()).sort(

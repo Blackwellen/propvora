@@ -3,7 +3,6 @@
 import React, { useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { cn } from "@/lib/utils"
@@ -737,7 +736,6 @@ export default function NewCertificatePage() {
   if (saved) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
           <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
@@ -763,8 +761,6 @@ export default function NewCertificatePage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       {/* Progress bar */}
       <div className="h-1 bg-slate-100">
         <div

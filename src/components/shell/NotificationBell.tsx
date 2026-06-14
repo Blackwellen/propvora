@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useId } from "react"
+import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Bell, CheckCheck, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -67,7 +68,9 @@ export default function NotificationBell() {
   const [loading, setLoading]              = useState(false)
   const [marking, setMarking]              = useState(false)
   const dropdownRef                         = useRef<HTMLDivElement>(null)
+  const buttonRef                           = useRef<HTMLButtonElement>(null)
   const channelRef                          = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null)
+  const [pos, setPos]                       = useState({ top: 0, right: 0 })
 
   // ── Fetch unread count on mount ──────────────────────────────────────────────
   useEffect(() => {
@@ -122,9 +125,11 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!open) return
     function handleOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (
+        buttonRef.current?.contains(e.target as Node) ||
+        dropdownRef.current?.contains(e.target as Node)
+      ) return
+      setOpen(false)
     }
     document.addEventListener("mousedown", handleOutside)
     return () => document.removeEventListener("mousedown", handleOutside)
@@ -133,6 +138,10 @@ export default function NotificationBell() {
   // ── Load recent notifications when dropdown opens (no auto-mark) ────────────
   async function handleOpen() {
     const next = !open
+    if (next && buttonRef.current) {
+      const r = buttonRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 8, right: window.innerWidth - r.right })
+    }
     setOpen(next)
     if (!next) return
 
@@ -145,7 +154,7 @@ export default function NotificationBell() {
       // Fetch 8 most recent (read + unread, newest first)
       const { data } = await supabase
         .from("notifications")
-        .select("id, type, title, body, resource_type, resource_id, read_at, created_at")
+        .select("id, type:kind, title, body, resource_type:entity_type, resource_id:entity_id, read_at, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(8)
@@ -201,10 +210,12 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <>
       {/* ── Bell button ─────────────────────────────────────────────────────── */}
       <button
+        ref={buttonRef}
         onClick={handleOpen}
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={dropdownId}
@@ -218,13 +229,16 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* ── Dropdown ────────────────────────────────────────────────────────── */}
-      {open && (
+      {/* ── Dropdown (portaled to body so the header's backdrop-filter stacking
+            context can't trap it under the page content) ───────────────────── */}
+      {open && typeof window !== "undefined" && createPortal(
         <div
+          ref={dropdownRef}
           id={dropdownId}
           role="dialog"
           aria-label="Notifications"
-          className="absolute top-14 right-0 w-[340px] bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden"
+          style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999, width: 340 }}
+          className="bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
@@ -301,8 +315,9 @@ export default function NotificationBell() {
               View all notifications →
             </a>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
-    </div>
+    </>
   )
 }

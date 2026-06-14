@@ -5,6 +5,7 @@ import OpenAI from "openai"
 import { z } from "zod"
 import { getWorkspaceSnapshot, renderSnapshot } from "@/lib/ai/workspace-context"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
+import { gateAiCopilot } from "@/lib/billing/gates"
 
 const chatSchema = z.object({
   message: z.string().min(1, "message is required").max(4000, "message too long"),
@@ -42,6 +43,15 @@ export async function POST(request: NextRequest) {
         .eq("user_id", user.id)
         .single()
       if (!member) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+      // 3b. Plan gate — AI Copilot is a Scale+ feature.
+      const gate = await gateAiCopilot(supabase, workspaceId)
+      if (!gate.allowed) {
+        return NextResponse.json(
+          { error: gate.reason, upgrade: true, tier: gate.tier },
+          { status: gate.status ?? 402 }
+        )
+      }
     }
 
     // 4. Rate limit (per workspace, best-effort)

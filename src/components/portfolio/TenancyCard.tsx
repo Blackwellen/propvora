@@ -334,7 +334,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
       </div>
 
       {/* KPI metrics row */}
-      <div className="grid grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
+      <div className="grid grid-cols-3 sm:grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
         {[
           { label: "Monthly Rent", value: fmt(tenancy.rent_amount), sub: rentSuffix(tenancy.rent_frequency) },
           { label: "Deposit", value: tenancy.deposit_amount != null ? fmt(tenancy.deposit_amount) : "—", sub: tenancy.deposit_held_by ? "Protected" : undefined },

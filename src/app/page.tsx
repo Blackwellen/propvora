@@ -30,11 +30,13 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       <PublicNav />
-      <HeroSection />
-      <BuiltForSection />
-      <ToolsSection />
-      <WhyTeamsSection />
-      <PricingSection />
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
+        <HeroSection />
+        <BuiltForSection />
+        <ToolsSection />
+        <WhyTeamsSection />
+        <PricingSection />
+      </main>
       <PublicFooter />
     </div>
   )

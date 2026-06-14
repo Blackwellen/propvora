@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs"
@@ -630,7 +629,6 @@ export default function CertificateDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="p-10 text-center text-sm text-slate-400">Loading certificate…</div>
       </div>
     )
@@ -638,8 +636,6 @@ export default function CertificateDetailPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       {/* Breadcrumb */}
       <div className="px-6 py-3 border-b border-slate-100 bg-white">
         <nav className="flex items-center gap-2 text-sm">

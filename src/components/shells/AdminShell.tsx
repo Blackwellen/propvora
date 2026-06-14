@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import SkipLink from "@/components/a11y/SkipLink"
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +18,9 @@ import {
   FileText,
   ShieldCheck,
   Activity,
+  Megaphone,
+  Newspaper,
+  Bug,
   Settings,
   ChevronsLeft,
   ChevronsRight,
@@ -49,6 +53,22 @@ const ADMIN_NAV_GROUPS = [
       { label: "Portfolios", href: "/admin/portfolios", icon: BarChart2 },
       { label: "Work",       href: "/admin/work",       icon: Wrench },
       { label: "Planning",   href: "/admin/planning",   icon: Map },
+    ],
+  },
+  {
+    label: "OPS",
+    items: [
+      { label: "Data Requests", href: "/admin/data-requests", icon: FileText },
+      { label: "Bug Reports",    href: "/admin/bugs",          icon: Bug },
+      { label: "Stripe Events",  href: "/admin/stripe-events",  icon: CreditCard },
+      { label: "AI Usage",       href: "/admin/ai-usage",       icon: Activity },
+    ],
+  },
+  {
+    label: "COMMS",
+    items: [
+      { label: "Changelog",     href: "/admin/changelog",     icon: Newspaper },
+      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
     ],
   },
   {
@@ -123,7 +143,7 @@ function AdminSidebar({
       </div>
 
       {/* Nav */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">
+      <nav aria-label="Admin" className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">
         {ADMIN_NAV_GROUPS.map((group) => (
           <div key={group.label} className="mb-1">
             {!collapsed ? (
@@ -168,7 +188,7 @@ function AdminSidebar({
             })}
           </div>
         ))}
-      </div>
+      </nav>
 
       {/* Bottom: account + sign out + collapse */}
       <div className="shrink-0 p-3 border-t border-white/[0.08]">
@@ -192,6 +212,7 @@ function AdminSidebar({
               onClick={onSignOut}
               className="p-1 rounded-lg text-[#8EA9D8] hover:text-red-400 transition-colors"
               title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -200,6 +221,7 @@ function AdminSidebar({
 
         <button
           onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
             "mt-2 flex items-center gap-2 w-full rounded-xl px-3 py-2 text-[#8EA9D8] hover:text-white hover:bg-white/[0.07] transition-all",
             collapsed ? "justify-center" : ""
@@ -290,6 +312,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="h-dvh overflow-hidden" style={{ background: "#F6FAFF" }}>
+      {/* Skip to main content — first focusable element (WCAG 2.4.1) */}
+      <SkipLink />
+
       {/* Fixed sidebar — desktop */}
       <div className="hidden lg:block">
         <AdminSidebar collapsed={collapsed} onToggle={handleToggle} onSignOut={handleSignOut} />
@@ -323,6 +348,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <div className="lg:hidden flex items-center gap-3 mb-2 pl-4">
             <button
               onClick={() => setMobileOpen(true)}
+              aria-label="Open navigation"
               className="w-[40px] h-[40px] rounded-xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] transition-all shadow-sm"
             >
               <Menu className="w-5 h-5 text-[#071B4D]" />
@@ -332,8 +358,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Page content — no tabs rail */}
-        <main className="flex-1 min-w-0 overflow-y-auto">
-          <div className="px-6 py-6">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          aria-label="Main content"
+          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden focus:outline-none"
+        >
+          <div className="px-4 py-5 sm:px-6 sm:py-6">
             {children}
           </div>
         </main>

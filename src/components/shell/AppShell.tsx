@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
+import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
 import { AnimatePresence } from "framer-motion"
 import { Menu } from "lucide-react"
 import SideNavigation from "./SideNavigation"
@@ -8,6 +9,7 @@ import TopNavigation from "./TopNavigation"
 import ShellContent from "./ShellContent"
 import ChatBubble from "@/components/ai/ChatBubble"
 import ChatPanel from "@/components/ai/ChatPanel"
+import SkipLink from "@/components/a11y/SkipLink"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
@@ -36,6 +38,12 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
   }, [])
 
   const [chatOpen, setChatOpen] = useState(false)
+  // Any page can open the Copilot by dispatching OPEN_COPILOT_EVENT.
+  useEffect(() => {
+    const open = () => setChatOpen(true)
+    window.addEventListener(OPEN_COPILOT_EVENT, open)
+    return () => window.removeEventListener(OPEN_COPILOT_EVENT, open)
+  }, [])
   const [unreadCount] = useState(3)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { workspace } = useWorkspace()
@@ -46,6 +54,9 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
   return (
     <GuidedHelpProvider workspaceId={workspace?.id}>
     <div className="h-dvh overflow-hidden" style={{ background: "#F6FAFF" }}>
+      {/* Skip to main content — first focusable element (WCAG 2.4.1) */}
+      <SkipLink />
+
       {/* Fixed sidebar — floats over content */}
       <div className="hidden lg:block">
         <SideNavigation collapsed={collapsed} onToggle={handleToggle} />

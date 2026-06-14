@@ -138,7 +138,7 @@ export default function AffiliateTermsPage() {
           These Affiliate Terms are governed by the laws of England and Wales. Disputes shall be resolved in the courts of England and Wales.
         </p>
         <p>
-          Questions: <a href="mailto:affiliates@propvora.com">affiliates@propvora.com</a>
+          Questions: <a href="mailto:legal@propvora.com">legal@propvora.com</a>
         </p>
       </Section>
     </LegalLayout>

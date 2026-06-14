@@ -1,0 +1,21 @@
+# Blackwellen Ltd
+
+Blackwellen Ltd is a UK software company registered in England and Wales
+(company number 16482166; registered office 61 Bridge Street, Kington, HR5 3DJ).
+ICO Data Protection registration: ZC160806.
+
+## Products
+- Propvora — UK property operations, compliance and profit-control platform.
+  Canonical: https://propvora.com
+
+(Additional products may be listed here as they launch. Products are only
+described as live when they are live.)
+
+## Contact
+- General: info@propvora.com
+- Legal & data protection: legal@propvora.com
+- Support: support@propvora.com
+
+## Notes
+Blackwellen Ltd trades as Propvora for its property-operations software.
+No exaggerated or guaranteed-outcome claims are made for any product.

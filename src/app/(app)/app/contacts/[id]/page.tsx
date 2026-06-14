@@ -1341,24 +1341,24 @@ function PrimaryActions({ contact, onToast, onArchive, onDelete, editable }: {
         <Button variant="primary" size="sm" leftIcon={<MessageSquare className="w-3.5 h-3.5" />}>Message</Button>
       </Link>
       {type === "tenant" && <>
-        <Button variant="outline" size="sm" leftIcon={<Home className="w-3.5 h-3.5" />} onClick={() => onToast("Tenancy feature coming soon")}>Open Tenancy</Button>
-        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => onToast("Task creation coming soon")}>Create Task</Button>
+        <Button variant="outline" size="sm" leftIcon={<Home className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/portfolio/tenancies/new?contact=${contact.id}`)}>Open Tenancy</Button>
+        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
         <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => onToast("Document upload coming soon")}>Upload Document</Button>
       </>}
       {type === "landlord" && <>
-        <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => onToast("Offer creation coming soon")}>Create Offer</Button>
+        <Button variant="outline" size="sm" leftIcon={<FileText className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/planning/landlord-offers/new?contact=${contact.id}`)}>Create Offer</Button>
         <Button variant="outline" size="sm" leftIcon={<Link2 className="w-3.5 h-3.5" />} onClick={() => onToast("Property linking coming soon")}>Link Property</Button>
-        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => onToast("Task creation coming soon")}>Create Task</Button>
+        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
       </>}
       {type === "supplier" && <>
-        <Button variant="outline" size="sm" leftIcon={<Briefcase className="w-3.5 h-3.5" />} onClick={() => onToast("Job creation coming soon")}>Create Job</Button>
+        <Button variant="outline" size="sm" leftIcon={<Briefcase className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/jobs/new?contact=${contact.id}`)}>Create Job</Button>
         <Button variant="outline" size="sm" leftIcon={<Package className="w-3.5 h-3.5" />} onClick={() => onToast("Request feature coming soon")}>Send Request</Button>
         <Button variant="outline" size="sm" leftIcon={<Globe className="w-3.5 h-3.5" />} onClick={() => onToast("Portal invite requires email configuration")}>Portal Link</Button>
       </>}
       {type === "applicant" && <>
-        <Button variant="outline" size="sm" leftIcon={<CalendarDays className="w-3.5 h-3.5" />} onClick={() => onToast("Viewing booking coming soon")}>Book Viewing</Button>
-        <Button variant="outline" size="sm" leftIcon={<Zap className="w-3.5 h-3.5" />} onClick={() => onToast("Tenant conversion coming soon")}>Convert to Tenant</Button>
-        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => onToast("Follow-up creation coming soon")}>Create Follow-up</Button>
+        <Button variant="outline" size="sm" leftIcon={<CalendarDays className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/calendar/events/new?contact=${contact.id}`)}>Book Viewing</Button>
+        <Button variant="outline" size="sm" leftIcon={<Zap className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/portfolio/tenancies/new?contact=${contact.id}`)}>Convert to Tenant</Button>
+        <Button variant="outline" size="sm" leftIcon={<ListChecks className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Follow-up</Button>
       </>}
       <Link href={`/app/contacts/${contact.id}/edit`}>
         <Button variant="outline" size="sm" leftIcon={<Edit className="w-3.5 h-3.5" />}>Edit</Button>

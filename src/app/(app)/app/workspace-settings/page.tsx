@@ -1,7 +1,10 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { createClient } from "@/lib/supabase/client"
+import { PLAN_DISPLAY, type PlanTier } from "@/lib/billing/plans"
 import {
   Building2,
   Users,
@@ -143,7 +146,53 @@ const CATEGORIES = [
   },
 ]
 
+function normaliseTier(plan: string | null | undefined): PlanTier {
+  const p = (plan ?? "").toLowerCase()
+  const valid: PlanTier[] = ["starter", "operator", "scale", "pro_agency", "enterprise"]
+  if (valid.includes(p as PlanTier)) return p as PlanTier
+  if (p === "trial" || p === "basic") return "starter"
+  if (p === "growth") return "operator"
+  if (p === "pro" || p === "business" || p === "agency") return "pro_agency"
+  return "starter"
+}
+
 export default function WorkspaceSettingsPage() {
+  const { workspace } = useWorkspace()
+  const [teamCount, setTeamCount] = useState<number | null>(null)
+  const [pendingInvites, setPendingInvites] = useState(0)
+
+  useEffect(() => {
+    const wid = workspace?.id
+    if (!wid) return
+    const supabase = createClient()
+    ;(async () => {
+      try {
+        const { count } = await supabase
+          .from("workspace_members").select("id", { head: true, count: "exact" }).eq("workspace_id", wid)
+        setTeamCount(count ?? 0)
+      } catch { /* ignore */ }
+      try {
+        const { count: inv } = await supabase
+          .from("workspace_invitations").select("id", { head: true, count: "exact" })
+          .eq("workspace_id", wid).eq("status", "pending")
+        setPendingInvites(inv ?? 0)
+      } catch { /* ignore */ }
+    })()
+  }, [workspace?.id])
+
+  const tier = normaliseTier(workspace?.plan as string | undefined)
+  const planDef = PLAN_DISPLAY[tier]
+  const planStatus = (workspace as { plan_status?: string } | null)?.plan_status ?? "trialing"
+  const statusLabel = { active: "Active", trialing: "Trial", past_due: "Past due", canceled: "Canceled", suspended: "Suspended" }[planStatus] ?? "Active"
+  const seatLimit = planDef.features.teamSeats
+
+  const STAT_CARDS = [
+    { label: "Subscription", value: `${planDef.name} plan`, sub: statusLabel, colour: "#2563EB", icon: CreditCard, href: "/app/workspace-settings/subscription" },
+    { label: "Team Members", value: teamCount == null ? "—" : `${teamCount} active`, sub: pendingInvites > 0 ? `${pendingInvites} invite pending` : "No pending invites", colour: "#059669", icon: Users, href: "/app/workspace-settings/team" },
+    { label: "Seats", value: teamCount == null ? "—" : `${teamCount} / ${seatLimit}`, sub: typeof seatLimit === "number" && teamCount != null ? `${Math.max(0, seatLimit - teamCount)} available` : "Unlimited", colour: "#7C3AED", icon: Users, href: "/app/workspace-settings/team" },
+    { label: "AI Copilot", value: planDef.features.aiCopilot ? "Included" : "Not on plan", sub: planDef.features.aiCopilot ? "Available on this plan" : "Upgrade to enable", colour: "#D97706", icon: Sparkles, href: "/app/workspace-settings/ai" },
+  ] as const
+
   return (
     <div>
       {/* Header */}

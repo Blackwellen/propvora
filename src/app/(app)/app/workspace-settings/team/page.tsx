@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { changeMemberRole, removeMember } from "@/lib/actions/settings"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { PLAN_DISPLAY, normaliseTier } from "@/lib/billing/plans"
 
 interface TeamMember {
   id: string
@@ -62,14 +63,14 @@ export default function TeamPage() {
 
         const { data, error } = await supabase
           .from("workspace_members")
-          .select("id, role, joined_at, profiles(id, full_name, email, avatar_url)")
+          .select("id, role, joined_at:created_at, profiles(id, full_name:display_name, avatar_url)")
           .eq("workspace_id", wsId)
-          .order("joined_at", { ascending: true })
+          .order("created_at", { ascending: true })
 
         if (error) { setLoadError("Failed to load team members."); setLoading(false); return }
 
         const list: TeamMember[] = (data ?? []).map((row, i) => {
-          const profile = (Array.isArray(row.profiles) ? row.profiles[0] : row.profiles) as { id: string; full_name: string | null; email: string | null } | null
+          const profile = (Array.isArray(row.profiles) ? row.profiles[0] : row.profiles) as unknown as { id: string; full_name: string | null; email?: string | null } | null
           const name = profile?.full_name ?? profile?.email ?? "Unknown"
           return {
             id: row.id as string,
@@ -142,16 +143,36 @@ export default function TeamPage() {
         .maybeSingle()
       const workspaceName: string = wsData?.name ?? "your workspace"
 
+      // ── Seat gate: block if the plan's seat limit is reached ──────────────
+      try {
+        const { data: wsPlan } = await supabase
+          .from("workspaces").select("plan").eq("id", workspaceId).maybeSingle()
+        const tier = normaliseTier((wsPlan as { plan?: string } | null)?.plan)
+        const seatLimit = PLAN_DISPLAY[tier].features.teamSeats
+        if (typeof seatLimit === "number") {
+          const { count: memberCount } = await supabase
+            .from("workspace_members").select("id", { head: true, count: "exact" }).eq("workspace_id", workspaceId)
+          const { count: pendingCount } = await supabase
+            .from("workspace_invitations").select("id", { head: true, count: "exact" })
+            .eq("workspace_id", workspaceId).eq("status", "pending")
+          if ((memberCount ?? 0) + (pendingCount ?? 0) >= seatLimit) {
+            setInviteMsg(`Your ${PLAN_DISPLAY[tier].name} plan includes ${seatLimit} seats. Upgrade to invite more team members.`)
+            return
+          }
+        }
+      } catch { /* if the check fails, fall through and let the insert proceed */ }
+
       // Save invitation record and capture the inserted row's id
       const { data: insertedInvite, error: insertError } = await supabase
-        .from("invitations")
+        .from("workspace_invitations")
         .insert({
           workspace_id: workspaceId,
           email: inviteEmail.trim().toLowerCase(),
           role: inviteRole.toLowerCase().replace(" ", "_"),
           invited_by: user?.id ?? null,
           status: "pending",
-          created_at: new Date().toISOString(),
+          token: crypto.randomUUID(),
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         })
         .select("id")
         .maybeSingle()

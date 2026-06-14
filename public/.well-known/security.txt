@@ -1,0 +1,8 @@
+# Security contact for Propvora (Blackwellen Ltd)
+# https://securitytxt.org/
+Contact: mailto:support@propvora.com
+Policy: https://propvora.com/security
+Preferred-Languages: en
+Canonical: https://propvora.com/.well-known/security.txt
+# Expires must be refreshed periodically (ISO 8601). Update before this date.
+Expires: 2027-06-13T00:00:00.000Z

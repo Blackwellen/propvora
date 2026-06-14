@@ -340,7 +340,7 @@ export function useContactStats(workspaceId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('contacts')
-        .select('contact_type, status, is_organisation')
+        .select('contact_type:type, status, is_organisation:is_business')
         .eq('workspace_id', workspaceId!)
 
       if (error) throw error

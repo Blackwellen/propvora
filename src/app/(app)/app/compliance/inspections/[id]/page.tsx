@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
@@ -205,7 +204,6 @@ export default function InspectionDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="p-10 text-center text-sm text-slate-400">Loading inspection…</div>
       </div>
     )
@@ -213,8 +211,6 @@ export default function InspectionDetailPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       <div className="px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500">
           <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>

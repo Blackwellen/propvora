@@ -151,7 +151,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
         offersRes,
       ] = await Promise.all([
         supabase.from('calendar_events')
-          .select('id, title, description, start_at, end_at, all_day, status, source_module, property_id')
+          .select('id, title, description, start_at, end_at, all_day, property_id')
           .eq('workspace_id', wsId)
           .order('start_at', { ascending: true }),
         supabase.from('tasks')

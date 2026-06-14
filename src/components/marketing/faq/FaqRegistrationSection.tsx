@@ -12,7 +12,7 @@ const items = [
   },
   {
     q: "Can I sign up with Google or another social account?",
-    a: "Currently Propvora supports email and password sign-in only. Single Sign-On (SSO) via Google and Microsoft is on our public roadmap for Q3 2025. In the meantime, we recommend using a strong unique password and enabling two-factor authentication from Settings → Account → Security.",
+    a: "Currently Propvora supports email and password sign-in. Google single sign-on (SSO) is on our roadmap. In the meantime, we recommend using a strong unique password and enabling two-factor authentication from Settings → Account → Security.",
   },
   {
     q: "How do I invite team members to my workspace?",

@@ -248,31 +248,31 @@ export function HomeDashboardPage() {
       const in60days = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
 
       const results = await Promise.allSettled([
-        // 0: properties
+        // 0: properties  (alias live cols → app names the UI expects)
         supabase
           .from("properties")
-          .select("id, name, city, status, target_rent, operation_profile, updated_at")
+          .select("id, name:nickname, city, status, target_rent:target_rent_pcm, updated_at")
           .eq("workspace_id", wid),
 
-        // 1: units
+        // 1: units  (live table is property_units)
         supabase
-          .from("units")
+          .from("property_units")
           .select("id, status, property_id")
           .eq("workspace_id", wid),
 
-        // 2: tenancies
+        // 2: tenancies  (primary_contact_id → contact_id)
         supabase
           .from("tenancies")
-          .select("id, status, rent_amount, end_date, contact_id, property_id, updated_at")
+          .select("id, status, rent_amount, end_date, contact_id:primary_contact_id, property_id, updated_at")
           .eq("workspace_id", wid),
 
-        // 3: tasks (open)
+        // 3: tasks (open)  (due_at → due_date)
         supabase
           .from("tasks")
-          .select("id, title, status, priority, due_date, property_id, updated_at")
+          .select("id, title, status, priority, due_date:due_at, property_id, updated_at")
           .eq("workspace_id", wid)
-          .not("status", "in", "(done,completed,cancelled)")
-          .order("due_date", { ascending: true })
+          .not("status", "in", "(done,cancelled)")
+          .order("due_at", { ascending: true })
           .limit(8),
 
         // 4: jobs (open) — count via exact + rows for activity/preview
@@ -284,10 +284,10 @@ export function HomeDashboardPage() {
           .order("updated_at", { ascending: false })
           .limit(8),
 
-        // 5: contacts (for tenant names)
+        // 5: contacts (for tenant names)  (display_name → full_name)
         supabase
           .from("contacts")
-          .select("id, full_name")
+          .select("id, full_name:display_name")
           .eq("workspace_id", wid),
 
         // 6: calendar events
@@ -299,10 +299,10 @@ export function HomeDashboardPage() {
           .order("start_at", { ascending: true })
           .limit(5),
 
-        // 7: activity log
+        // 7: activity log  (live table is activity_logs)
         supabase
-          .from("activity_log")
-          .select("id, action, entity_type, entity_id, description, created_at")
+          .from("activity_logs")
+          .select("id, action, entity_type:resource_type, entity_id:resource_id, description, created_at")
           .eq("workspace_id", wid)
           .order("created_at", { ascending: false })
           .limit(8),
@@ -310,7 +310,7 @@ export function HomeDashboardPage() {
         // 8: compliance items
         supabase
           .from("compliance_items")
-          .select("id, title, type, due_date, status")
+          .select("id, title, type:kind, due_date, status")
           .eq("workspace_id", wid)
           .lte("due_date", in60days)
           .order("due_date", { ascending: true })
@@ -319,7 +319,7 @@ export function HomeDashboardPage() {
         // 9: invoices (outstanding)
         supabase
           .from("invoices")
-          .select("id, total_amount, status, due_date")
+          .select("id, total_amount:total, status, due_date")
           .eq("workspace_id", wid)
           .eq("status", "unpaid"),
       ])
@@ -437,7 +437,7 @@ export function HomeDashboardPage() {
           "from-emerald-200 to-emerald-400",
           "from-violet-200 to-violet-400",
         ]
-        const snapProperties: HomeProperty[] = activeProps.slice(0, 3).map((p, i) => {
+        const snapProperties: HomeProperty[] = activeProps.slice(0, 6).map((p, i) => {
           const propUnits = units.filter((u: { property_id: string }) => u.property_id === p.id)
           const propOccupied = propUnits.filter((u: { status: string }) => u.status === "occupied").length
           return {

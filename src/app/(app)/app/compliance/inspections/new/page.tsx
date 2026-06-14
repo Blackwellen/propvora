@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
@@ -337,7 +336,6 @@ export default function NewInspectionPage() {
   if (saved) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="min-h-[70vh] flex items-center justify-center p-8">
           <div className="text-center max-w-md">
             <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -369,8 +367,6 @@ export default function NewInspectionPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       {/* Breadcrumb */}
       <div className="px-6 pt-4">
         <nav className="flex items-center gap-2 text-sm text-slate-500">

@@ -93,7 +93,7 @@ export default function AcceptableUsePage() {
 
       <Section num="5" title="Reporting Violations">
         <p>
-          If you become aware of any use of the Propvora platform that violates this AUP, please report it to us at <a href="mailto:abuse@propvora.com">abuse@propvora.com</a>. We take all reports seriously and will investigate within 5 business days.
+          If you become aware of any use of the Propvora platform that violates this AUP, please report it to us at <a href="mailto:support@propvora.com">support@propvora.com</a>. We take all reports seriously and will investigate within 5 business days.
         </p>
       </Section>
 
@@ -117,7 +117,7 @@ export default function AcceptableUsePage() {
         <p>
           Questions about this policy: <a href="mailto:legal@propvora.com">legal@propvora.com</a>
           <br />
-          Report abuse: <a href="mailto:abuse@propvora.com">abuse@propvora.com</a>
+          Report abuse: <a href="mailto:support@propvora.com">support@propvora.com</a>
         </p>
       </Section>
     </LegalLayout>

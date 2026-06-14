@@ -36,17 +36,19 @@ export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-white">
       <PublicNav />
-      <FeaturesHero />
-      <OperatingProfilesSection />
-      <AiCopilotSection />
-      <ComplianceLegalSection />
-      <AccountingInvoicesSection />
-      <WorkingWithTeamsSection />
-      <PortalsSection />
-      <WorkManagementSection />
-      <SchedulingSection />
-      <SaveContactsSection />
-      <SupplierMarketplaceSection />
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
+        <FeaturesHero />
+        <OperatingProfilesSection />
+        <AiCopilotSection />
+        <ComplianceLegalSection />
+        <AccountingInvoicesSection />
+        <WorkingWithTeamsSection />
+        <PortalsSection />
+        <WorkManagementSection />
+        <SchedulingSection />
+        <SaveContactsSection />
+        <SupplierMarketplaceSection />
+      </main>
       <PublicFooter />
     </div>
   )

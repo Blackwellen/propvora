@@ -13,7 +13,7 @@ const SECTIONS: { h: string; body: string[] }[] = [
   {
     h: "1. Programme overview",
     body: [
-      "The Propvora Affiliate / Partner Programme (the “Programme”) is operated by Blackwellen (“we”, “us”). It lets approved partners earn commission for referring new paying customers to Propvora. Participation is governed by these terms.",
+      "The Propvora Affiliate / Partner Programme (the “Programme”) is operated by Blackwellen Ltd, trading as Propvora (“we”, “us”). It lets approved partners earn commission for referring new paying customers to Propvora. Participation is governed by these terms.",
     ],
   },
   {
@@ -72,7 +72,7 @@ export default function AffiliateTermsPage() {
         <div className="max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-[#0D1B2A]">Affiliate Terms</h1>
           <p className="mt-2 text-sm text-slate-500">
-            Last updated 12 June 2026 · Operated by Blackwellen for Propvora.
+            Last updated 12 June 2026 · Operated by Blackwellen Ltd (trading as Propvora).
           </p>
           <div className="mt-8 space-y-7">
             {SECTIONS.map((s) => (

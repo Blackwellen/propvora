@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { buildKey, uploadToR2, fileViewUrl, r2Configured } from "@/lib/r2"
+import { gateStorage } from "@/lib/billing/gates"
+import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -73,6 +75,15 @@ export async function POST(request: Request) {
     if (file.size > MAX_BYTES) {
       return NextResponse.json({ error: `File exceeds ${MAX_BYTES / 1024 / 1024} MB` }, { status: 413 })
     }
+
+    // Plan storage allowance — block uploads that would exceed the workspace quota.
+    const storageGate = await gateStorage(supabase, workspaceId, file.size)
+    if (!storageGate.allowed) {
+      return NextResponse.json(
+        { error: storageGate.reason, upgrade: true, tier: storageGate.tier },
+        { status: storageGate.status ?? 402 }
+      )
+    }
     const mimeBase = (file.type || "application/octet-stream").split(";")[0].trim()
     const isAllowed =
       ALLOWED_CONTENT_TYPES.has(mimeBase) ||
@@ -93,6 +104,15 @@ export async function POST(request: Request) {
 
     const bytes = new Uint8Array(await file.arrayBuffer())
     await uploadToR2(key, bytes, mimeBase)
+
+    await recordAudit(supabase, {
+      workspaceId,
+      userId: user.id,
+      action: AUDIT_ACTIONS.FILE_UPLOADED,
+      resourceType: "file",
+      resourceId: key,
+      metadata: { key, size: file.size, type: mimeBase },
+    })
 
     return NextResponse.json({
       key,

@@ -87,12 +87,6 @@ export default function LoginMethodsPage() {
             <Globe className="w-3.5 h-3.5" />
             Add Google
           </button>
-          <button className="px-4 py-2 rounded-xl border border-slate-200 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/>
-            </svg>
-            Add Microsoft
-          </button>
         </div>
       </div>
 

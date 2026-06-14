@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, business_type, operation_interests, plan, trial_ends_at, owner_id")
+          .select("id, name, slug, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .from("workspace_members")
             .select("workspace_id")
             .eq("user_id", userId)
-            .order("joined_at", { ascending: true })
+            .order("created_at", { ascending: true })
             .limit(1)
             .maybeSingle()
 

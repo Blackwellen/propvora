@@ -141,7 +141,7 @@ export default function SideNavigation({
       <ShellLogo collapsed={collapsed} />
 
       {/* Nav scroll area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">
+      <nav aria-label="Primary" className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">
         {NAV_GROUPS.map((group) => (
           <NavSection
             key={group.label}
@@ -166,7 +166,7 @@ export default function SideNavigation({
             })}
           </NavSection>
         ))}
-      </div>
+      </nav>
 
       {/* Bottom section: workspace + account cards */}
       <div className="shrink-0 p-3 border-t border-white/[0.08]">
@@ -190,7 +190,7 @@ export default function SideNavigation({
 
         {/* Account card — live user, links to account settings */}
         <Link
-          href="/app/account-settings"
+          href="/app/account"
           title="Account settings"
           className={cn(
             "flex items-center gap-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] hover:bg-white/[0.09] transition-colors",
@@ -212,6 +212,7 @@ export default function SideNavigation({
         {/* Collapse toggle button */}
         <button
           onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
             "mt-2 flex items-center gap-2 w-full rounded-xl px-3 py-2 text-[#8EA9D8] hover:text-white hover:bg-white/[0.07] transition-all",
             collapsed ? "justify-center" : ""

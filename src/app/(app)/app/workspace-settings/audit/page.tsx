@@ -75,7 +75,9 @@ export default function AuditPage() {
 
         const { data, error } = await supabase
           .from("audit_logs")
-          .select("id, event, actor_name, module, risk_level, event_type, created_at")
+          // Live schema: action / resource_type / user_id / metadata. The
+          // richer presentational fields (actor name, risk) are derived.
+          .select("id, action, resource_type, user_id, metadata, created_at")
           .eq("workspace_id", wsId)
           .gte("created_at", since)
           .order("created_at", { ascending: false })
@@ -84,19 +86,29 @@ export default function AuditPage() {
         if (error || !data) { setLoading(false); return }
 
         setEntries(
-          data.map((row) => ({
+          data.map((row) => {
+            const meta = (row.metadata as Record<string, unknown> | null) ?? {}
+            const action = (row.action as string) ?? "—"
+            // Coarse risk heuristic from the action verb (delete/remove = high).
+            const risk: RiskLevel = /delete|remove|purge|revoke|destroy/i.test(action)
+              ? "high"
+              : /update|edit|change|disable|invite/i.test(action)
+                ? "medium"
+                : "low"
+            return {
             id:     row.id as string,
-            event:  (row.event as string) ?? "—",
-            user:   (row.actor_name as string) ?? "System",
-            module: (row.module as string) ?? "—",
-            risk:   ((row.risk_level as RiskLevel) ?? "low"),
-            type:   (row.event_type as string) ?? "settings",
+            event:  action,
+            user:   (meta.actor_name as string) ?? (row.user_id ? "Team member" : "System"),
+            module: (row.resource_type as string) ?? "—",
+            risk,
+            type:   (row.resource_type as string) ?? "settings",
             time:   row.created_at
               ? new Date(row.created_at as string).toLocaleString("en-GB", {
                   day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
                 })
               : "—",
-          }))
+            }
+          })
         )
       } catch {
         // graceful — table may not exist yet

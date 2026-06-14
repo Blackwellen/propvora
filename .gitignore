@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# E2E / QA test artifacts (local only)
+e2e/.report/
+e2e/.qa-fixture.json
+e2e/.ids.json
+e2e/.report

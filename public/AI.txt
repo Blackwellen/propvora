@@ -1,0 +1,28 @@
+# Propvora — AI Usage Notice (AI.txt)
+
+Operated by Blackwellen Ltd (trading as Propvora). Canonical: https://propvora.com
+
+## AI features
+- AI Copilot (chat): answers questions and drafts text using ONLY the signed-in
+  user's current workspace data.
+- AI quick actions: portfolio summaries, missing-document checks, arrears guidance,
+  priority lists, cashflow framing, draft letters.
+
+## Boundaries & limitations
+- Workspace-scoped: the Copilot can only see the authenticated user's active
+  workspace. It cannot read other workspaces, other tenants' data, or admin context.
+- No final advice: Propvora AI does not provide final legal, tax or financial advice.
+  Outputs are drafts/assistance and require human review.
+- No autonomous risky actions: the AI does not delete data, send external email,
+  make payments, or submit to HMRC without explicit user approval.
+- Untrusted content: uploaded files and external text are treated as untrusted;
+  the AI will not follow instructions embedded in them to leak or alter data.
+
+## Data & privacy
+- Prompts/responses may be logged for usage metering and abuse prevention under the
+  workspace's permission controls. See /legal/privacy and /legal/ai-disclaimer.
+- AI usage is rate-limited and cost-capped per user/workspace/plan.
+
+## Model/provider
+- Provider/model disclosure is maintained in the in-app AI settings and the
+  subprocessor register. Contact: https://propvora.com/contact

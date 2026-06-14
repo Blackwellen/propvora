@@ -380,7 +380,7 @@ function ProfileTab() {
         setEmail(user.email ?? "")
         const { data: profile, error } = await supabase
           .from("profiles")
-          .select("full_name, phone")
+          .select("full_name:display_name, phone")
           .eq("id", user.id)
           .maybeSingle()
         if (error && (error as { code?: string }).code !== "42P01") { /* non-fatal */ }
@@ -402,7 +402,7 @@ function ProfileTab() {
       if (!uid) { setError("Not signed in."); return }
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: data.full_name.trim() || null, phone: data.phone?.trim() || null })
+        .update({ display_name: data.full_name.trim() || null, phone: data.phone?.trim() || null })
         .eq("id", uid)
       if (error && (error as { code?: string }).code !== "42P01") { setError("Failed to save."); return }
       setSaved(true)

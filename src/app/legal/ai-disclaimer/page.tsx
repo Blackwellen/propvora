@@ -136,7 +136,7 @@ export default function AiDisclaimerPage() {
 
       <Section num="8" title="Contact">
         <p>
-          Questions about the AI Copilot or this disclaimer: <a href="mailto:hello@propvora.com">hello@propvora.com</a>
+          Questions about the AI Copilot or this disclaimer: <a href="mailto:info@propvora.com">info@propvora.com</a>
         </p>
       </Section>
     </LegalLayout>

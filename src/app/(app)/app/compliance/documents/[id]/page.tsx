@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -388,7 +387,6 @@ export default function DocumentDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="p-10 text-center text-sm text-slate-400">Loading document…</div>
       </div>
     )
@@ -396,8 +394,6 @@ export default function DocumentDetailPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       <div className="p-6 space-y-6">
         {/* Hero */}
         <div className="bg-white rounded-xl border border-slate-200 border-l-4 border-l-emerald-500 overflow-hidden">

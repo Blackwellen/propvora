@@ -78,34 +78,28 @@ export default function SupplierInvoiceDetailPage({ params }: PageProps) {
         let propertyLabel: string | null = null
 
         if (row.supplier_job_id) {
-          // supplier_job_id references supplier_jobs(id); resolve through to the job (42P01-safe)
+          // supplier_job_id references supplier_jobs(id). In the live schema the
+          // supplier_jobs row carries title + property_id directly (no separate
+          // jobs hop), so resolve straight off it. 42P01-safe.
           try {
             const { data: sj } = await supabase
               .from("supplier_jobs")
-              .select("job_id")
+              .select("id, title, property_id")
               .eq("id", row.supplier_job_id as string)
               .maybeSingle()
-            const linkedJobId = (sj as Record<string, unknown> | null)?.job_id as string | undefined
-            if (linkedJobId) {
-              const { data: jb } = await supabase
-                .from("jobs")
-                .select("id, title, property_id")
-                .eq("id", linkedJobId)
-                .maybeSingle()
-              if (jb) {
-                const jr = jb as Record<string, unknown>
-                jobId = jr.id as string
-                jobTitle = (jr.title as string) ?? null
-                if (jr.property_id) {
-                  const { data: pr } = await supabase
-                    .from("properties")
-                    .select("nickname, address_line1, city")
-                    .eq("id", jr.property_id as string)
-                    .maybeSingle()
-                  if (pr) {
-                    const p = pr as Record<string, unknown>
-                    propertyLabel = (p.nickname as string) || [p.address_line1, p.city].filter(Boolean).join(", ") || null
-                  }
+            if (sj) {
+              const jr = sj as Record<string, unknown>
+              jobId = jr.id as string
+              jobTitle = (jr.title as string) ?? null
+              if (jr.property_id) {
+                const { data: pr } = await supabase
+                  .from("properties")
+                  .select("nickname, address_line1, city")
+                  .eq("id", jr.property_id as string)
+                  .maybeSingle()
+                if (pr) {
+                  const p = pr as Record<string, unknown>
+                  propertyLabel = (p.nickname as string) || [p.address_line1, p.city].filter(Boolean).join(", ") || null
                 }
               }
             }

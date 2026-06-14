@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Card } from "@/components/ui/Card"
@@ -345,8 +344,6 @@ export default function EditInspectionPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       {/* Breadcrumb */}
       <div className="px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500">

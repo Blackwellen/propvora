@@ -23,7 +23,10 @@ interface TopNavigationProps {
 
 function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   const router = useRouter()
-  const { switchWorkspace } = useWorkspace()
+  const { workspace, switchWorkspace } = useWorkspace()
+  // Active workspace comes from live context first, props as fallback.
+  const activeName = workspace?.name ?? workspaceName
+  const activeId = workspace?.id ?? workspaceId
   const [open, setOpen] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [loading, setLoading] = useState(false)
@@ -70,7 +73,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   }
 
   async function handleSwitch(id: string) {
-    if (id === workspaceId) { setOpen(false); return }
+    if (id === activeId) { setOpen(false); return }
     setSwitching(id)
     try {
       // Clears React Query cache + reloads workspace context (no cross-workspace leak)
@@ -91,7 +94,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
         className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"
       >
         <Building2 className="w-4 h-4 text-[#2563EB] shrink-0" />
-        <span className="max-w-[96px] sm:max-w-[160px] truncate">{workspaceName ?? "Propvora Estates"}</span>
+        <span className="max-w-[96px] sm:max-w-[160px] truncate">{activeName ?? "Your workspace"}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -110,7 +113,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
           ) : (
             <div className="py-1">
               {workspaces.map((ws) => {
-                const isActive = ws.id === workspaceId
+                const isActive = ws.id === activeId
                 const isSwitching = switching === ws.id
                 return (
                   <button

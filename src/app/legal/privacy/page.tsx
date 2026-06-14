@@ -22,13 +22,13 @@ export default function PrivacyPage() {
     <LegalLayout title="Privacy Policy" lastUpdated="2 June 2025">
       <Section num="1" title="Who We Are">
         <p>
-          Propvora Ltd (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is the data controller for personal data collected through the Propvora platform. We are registered with the Information Commissioner&rsquo;s Office (ICO) in the United Kingdom.
+          Propvora is a trading name of Blackwellen Ltd (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166, with its registered office at 61 Bridge Street, Kington, HR5 3DJ. Blackwellen Ltd is the data controller for personal data collected through the Propvora platform and is registered with the UK Information Commissioner&rsquo;s Office (ICO) under reference ZC160806.
         </p>
         <p>
           This Privacy Policy explains what personal data we collect, how we use it, who we share it with, and what rights you have. It applies to all users of the Propvora website and platform.
         </p>
         <p>
-          Contact: <a href="mailto:privacy@propvora.com">privacy@propvora.com</a>
+          Contact: <a href="mailto:legal@propvora.com">legal@propvora.com</a>
         </p>
       </Section>
 
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
           <li><strong>AI Copilot query logs:</strong> 90 days</li>
         </ul>
         <p>
-          You can request deletion of your personal data at any time by contacting us at <a href="mailto:privacy@propvora.com">privacy@propvora.com</a>. Note that we may retain certain data where required by law.
+          You can request deletion of your personal data at any time by contacting us at <a href="mailto:legal@propvora.com">legal@propvora.com</a>. Note that we may retain certain data where required by law.
         </p>
       </Section>
 
@@ -145,7 +145,7 @@ export default function PrivacyPage() {
           <li><strong>Rights related to automated decision-making:</strong> We do not make solely automated decisions with legal or significant effects</li>
         </ul>
         <p>
-          To exercise any of these rights, contact us at <a href="mailto:privacy@propvora.com">privacy@propvora.com</a>. We will respond within 30 days. If you are not satisfied with our response, you have the right to lodge a complaint with the ICO at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a> or by calling 0303 123 1113.
+          To exercise any of these rights, contact us at <a href="mailto:legal@propvora.com">legal@propvora.com</a>. We will respond within 30 days. If you are not satisfied with our response, you have the right to lodge a complaint with the ICO at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a> or by calling 0303 123 1113.
         </p>
       </Section>
 
@@ -171,7 +171,7 @@ export default function PrivacyPage() {
 
       <Section num="9" title="Children">
         <p>
-          The Service is not directed at individuals under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us at <a href="mailto:privacy@propvora.com">privacy@propvora.com</a> and we will delete it promptly.
+          The Service is not directed at individuals under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us at <a href="mailto:legal@propvora.com">legal@propvora.com</a> and we will delete it promptly.
         </p>
       </Section>
 
@@ -184,7 +184,7 @@ export default function PrivacyPage() {
       <Section num="11" title="Contact">
         <p>For privacy-related enquiries:</p>
         <ul>
-          <li>Email: <a href="mailto:privacy@propvora.com">privacy@propvora.com</a></li>
+          <li>Email: <a href="mailto:legal@propvora.com">legal@propvora.com</a></li>
           <li>ICO complaints: <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a></li>
           <li>ICO helpline: 0303 123 1113</li>
         </ul>

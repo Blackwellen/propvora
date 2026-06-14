@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import SkipLink from "@/components/a11y/SkipLink"
 
 const legalLinks = [
   { label: "Terms of Service", href: "/legal/terms" },
@@ -55,6 +56,9 @@ export default function PublicNav() {
   }, [])
 
   return (
+    <>
+    {/* Skip to main content — first focusable element on marketing pages (WCAG 2.4.1) */}
+    <SkipLink />
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -240,5 +244,6 @@ export default function PublicNav() {
         </div>
       )}
     </header>
+    </>
   )
 }

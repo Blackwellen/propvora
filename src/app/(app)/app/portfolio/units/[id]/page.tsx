@@ -99,7 +99,7 @@ function useUnitComplianceItems(workspaceId: string | undefined, unitId: string)
       try {
         const { data, error } = await supabase
           .from("compliance_items")
-          .select("id, title, type, due_date, status")
+          .select("id, title, type:kind, due_date, status")
           .eq("workspace_id", workspaceId)
           .eq("unit_id", unitId)
           .order("due_date", { ascending: true })
@@ -134,8 +134,8 @@ function useActivityLog(workspaceId: string | undefined, entityIds: string[]) {
     ;(async () => {
       try {
         const { data, error } = await supabase
-          .from("activity_log")
-          .select("id, action, entity_type, entity_id, description, created_at")
+          .from("activity_logs")
+          .select("id, action, entity_type:resource_type, entity_id:resource_id, description, created_at")
           .eq("workspace_id", workspaceId)
           .in("entity_id", ids)
           .order("created_at", { ascending: false })

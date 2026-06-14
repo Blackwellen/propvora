@@ -59,6 +59,12 @@ export async function POST(request: Request) {
 
   try {
     await seedDemoData(workspaceId, user.id, variant ?? 'full')
+    try {
+      await supabase
+        .from('workspaces')
+        .update({ demo_data_loaded: true, demo_data_variant: variant ?? 'full' })
+        .eq('id', workspaceId)
+    } catch { /* non-fatal */ }
     return NextResponse.json({ success: true })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'

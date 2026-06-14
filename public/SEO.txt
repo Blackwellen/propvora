@@ -1,0 +1,40 @@
+# Propvora — SEO Plan (SEO.txt)
+
+Operated by Blackwellen Ltd (trading as Propvora). Canonical: https://propvora.com
+
+## Positioning
+UK property operations + compliance + profit-control software for landlords,
+portfolio operators and letting agencies. Not a listings portal; an operations OS.
+
+## Public page map (indexable)
+- /            — home / value proposition
+- /features    — feature overview
+- /pricing     — plans + add-ons
+- /security    — security & compliance posture
+- /affiliate   — affiliate programme
+- /contact     — contact / support
+- /legal/*     — privacy, terms, cookies, AUP, DPA, affiliate terms, AI disclaimer
+
+## Not indexable (blocked in robots.txt)
+/app, /admin, /auth, /login, /signup, /onboarding, all *-portal routes, /api.
+
+## Keyword clusters
+- property compliance software UK; EPC / Gas Safety / EICR tracker
+- landlord portfolio management software; letting agency operations software
+- property maintenance & job management; supplier management for landlords
+- rent, expenses & landlord accounting; deposit tracking
+- tenant portal software; HMO compliance
+
+## Title/meta templates
+- Home: "Propvora — Property Operations, Compliance & Profit Control"
+- Feature: "{Feature} | Propvora"
+- Pricing: "Pricing & Plans | Propvora"
+- Legal: "{Document} | Propvora"
+
+## Structured data plan
+Organization, WebSite, SoftwareApplication, Product/Offer (pricing), FAQPage (/),
+BreadcrumbList on nested pages.
+
+## Content guardrails
+No misleading claims. No "guaranteed" outcomes. No statements that Propvora is a
+landlord, agent or payment guarantor. No "live" claims for staged/portfolio products.

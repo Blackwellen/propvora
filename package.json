@@ -7,7 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:security": "node scripts/test/run-all.mjs",
+    "test:rls": "node scripts/test/rls-isolation.mjs",
+    "test:gates": "node scripts/test/billing-gates.mjs",
+    "test:e2e": "playwright test",
+    "audit:schema": "node scripts/audit-queries.mjs",
+    "audit:rls": "node scripts/audit-rls.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1066.0",
@@ -49,6 +55,7 @@
     "next": "16.2.7",
     "next-themes": "^0.4.6",
     "openai": "^6.41.0",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.77.0",

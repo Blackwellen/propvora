@@ -3,7 +3,6 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { cn } from "@/lib/utils"
@@ -342,8 +341,6 @@ export default function EditCertificatePage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       {/* Breadcrumb */}
       <div className="px-6 py-3 border-b border-slate-100 bg-white">
         <nav className="flex items-center gap-2 text-sm">

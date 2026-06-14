@@ -205,9 +205,9 @@ export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDeta
 
     const { data: memberRows } = await admin
       .from("workspace_members")
-      .select("user_id, role, joined_at")
+      .select("user_id, role, created_at")
       .eq("workspace_id", id)
-      .order("joined_at", { ascending: true })
+      .order("created_at", { ascending: true })
 
     const profileIds = [ws.owner_user_id as string, ...(memberRows ?? []).map((m) => m.user_id as string)]
     const profiles = await profilesMap(profileIds)
@@ -220,7 +220,7 @@ export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDeta
         name: p?.full_name ?? null,
         email: p?.email ?? null,
         role: (m.role as string) ?? "member",
-        joinedAt: (m.joined_at as string) ?? null,
+        joinedAt: (m.created_at as string) ?? null,
       }
     })
 
@@ -268,7 +268,7 @@ export async function listUsers(limit = 500): Promise<AdminUserRow[]> {
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("profiles")
-      .select("id, full_name, email, role, created_at")
+      .select("id, full_name:display_name, role:platform_role, created_at")
       .order("created_at", { ascending: false })
       .limit(limit)
     if (error || !data) return []
@@ -279,7 +279,7 @@ export async function listUsers(limit = 500): Promise<AdminUserRow[]> {
     return data.map((p) => ({
       id: p.id as string,
       name: (p.full_name as string) ?? null,
-      email: (p.email as string) ?? null,
+      email: null, // profiles has no email column (lives on auth.users)
       role: (p.role as string) ?? "user",
       createdAt: (p.created_at as string) ?? null,
       workspaceCount: memberships[p.id as string] ?? 0,
@@ -325,16 +325,16 @@ export async function getUserDetail(id: string): Promise<AdminUserDetail | null>
     const admin = createAdminClient()
     const { data: p, error } = await admin
       .from("profiles")
-      .select("id, full_name, email, role, phone, created_at")
+      .select("id, full_name:display_name, role:platform_role, phone, created_at")
       .eq("id", id)
       .maybeSingle()
     if (error || !p) return null
 
     const { data: memberRows } = await admin
       .from("workspace_members")
-      .select("workspace_id, role, joined_at")
+      .select("workspace_id, role, created_at")
       .eq("user_id", id)
-      .order("joined_at", { ascending: true })
+      .order("created_at", { ascending: true })
 
     const wsNames = await workspaceNameMap()
 
@@ -343,7 +343,7 @@ export async function getUserDetail(id: string): Promise<AdminUserDetail | null>
         workspaceId: m.workspace_id as string,
         workspaceName: wsNames[m.workspace_id as string] ?? "Workspace",
         role: (m.role as string) ?? "member",
-        joinedAt: (m.joined_at as string) ?? null,
+        joinedAt: (m.created_at as string) ?? null,
       }
     })
 
@@ -352,7 +352,7 @@ export async function getUserDetail(id: string): Promise<AdminUserDetail | null>
     return {
       id: p.id as string,
       name: (p.full_name as string) ?? null,
-      email: (p.email as string) ?? null,
+      email: null, // profiles has no email column (lives on auth.users)
       role: (p.role as string) ?? "user",
       phone: (p.phone as string) ?? null,
       createdAt: (p.created_at as string) ?? null,
@@ -478,7 +478,7 @@ export async function listAllProperties(limit = 300): Promise<DiagnosticRow[]> {
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("properties")
-      .select("id, workspace_id, name, address_line1, city, postcode, property_type, status")
+      .select("id, workspace_id, name:nickname, address_line1, city, postcode, template, status")
       .order("created_at", { ascending: false })
       .limit(limit)
     if (error || !data) return []
@@ -490,7 +490,7 @@ export async function listAllProperties(limit = 300): Promise<DiagnosticRow[]> {
       primary: (p.name as string) || (p.address_line1 as string) || "Untitled property",
       secondary: [p.city, p.postcode].filter(Boolean).join(", ") || null,
       status: (p.status as string) ?? null,
-      meta: (p.property_type as string) ?? null,
+      meta: (p.template as string) ?? null,
     }))
   } catch {
     return []
@@ -503,7 +503,7 @@ export async function listAllContacts(limit = 300): Promise<DiagnosticRow[]> {
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("contacts")
-      .select("id, workspace_id, full_name, email, contact_type, status")
+      .select("id, workspace_id, full_name:display_name, email, contact_type:type, status")
       .order("created_at", { ascending: false })
       .limit(limit)
     if (error || !data) return []
@@ -528,7 +528,7 @@ export async function listAllTasks(limit = 300): Promise<DiagnosticRow[]> {
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("tasks")
-      .select("id, workspace_id, title, status, priority, due_date")
+      .select("id, workspace_id, title, status, priority, due_date:due_at")
       .order("created_at", { ascending: false })
       .limit(limit)
     if (error || !data) return []
@@ -818,23 +818,30 @@ export interface PlatformFlag {
 export async function getPlatformFlags(): Promise<{ available: boolean; flags: PlatformFlag[] }> {
   try {
     const admin = createAdminClient()
+    // Live schema: flag_key / name / enabled / description / enabled_for_plans.
     const { data, error } = await admin
       .from("platform_feature_flags")
-      .select("key, enabled, description, workspace_allowlist, plan_gate")
-      .order("key", { ascending: true })
+      .select("flag_key, name, enabled, description, enabled_for_plans")
+      .order("flag_key", { ascending: true })
     if (error) {
       if (isSchemaGap(error.code)) return { available: false, flags: [] }
       return { available: true, flags: [] }
     }
     return {
       available: true,
-      flags: (data ?? []).map((f) => ({
-        key: f.key as string,
-        enabled: Boolean(f.enabled),
-        description: (f.description as string) ?? null,
-        workspaceAllowlist: Array.isArray(f.workspace_allowlist) ? (f.workspace_allowlist as string[]) : [],
-        planGate: (f.plan_gate as string) ?? null,
-      })),
+      flags: (data ?? []).map((f) => {
+        const plans = f.enabled_for_plans
+        const planGate = Array.isArray(plans)
+          ? (plans as string[]).join(", ") || null
+          : (plans as string | null) ?? null
+        return {
+          key: f.flag_key as string,
+          enabled: Boolean(f.enabled),
+          description: (f.description as string) ?? (f.name as string) ?? null,
+          workspaceAllowlist: [], // not modelled in the live schema
+          planGate,
+        }
+      }),
     }
   } catch {
     return { available: false, flags: [] }

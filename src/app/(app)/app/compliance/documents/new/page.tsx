@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client"
 import { uploadFile } from "@/lib/upload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
-import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
 import {
   Upload, FileText, Link2, Tag, Calendar, CheckCircle,
   ChevronRight, ChevronLeft, X, Home, User, Truck,
@@ -683,7 +682,6 @@ export default function UploadDocumentPage() {
   if (uploaded) {
     return (
       <div className="space-y-0">
-        <ComplianceTabNav />
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
             <div style={{ color: "#059669" }}><CheckCircle className="w-8 h-8" /></div>
@@ -720,8 +718,6 @@ export default function UploadDocumentPage() {
 
   return (
     <div className="space-y-0">
-      <ComplianceTabNav />
-
       <div className="p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900">Upload Document</h1>

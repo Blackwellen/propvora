@@ -21,14 +21,6 @@ const PROVIDERS: Provider[] = [
     colour: "#EA4335",
   },
   {
-    id: "microsoft",
-    name: "Microsoft",
-    desc: "Sign in with Microsoft, sync Outlook calendar",
-    status: "not_connected",
-    email: null,
-    colour: "#0078D4",
-  },
-  {
     id: "apple",
     name: "Apple",
     desc: "Sign in with Apple ID",
@@ -49,17 +41,6 @@ function GoogleIcon() {
   )
 }
 
-function MicrosoftIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none">
-      <path d="M11.4 11.4H3V3h8.4v8.4z" fill="#F25022"/>
-      <path d="M21 11.4h-8.4V3H21v8.4z" fill="#7FBA00"/>
-      <path d="M11.4 21H3v-8.4h8.4V21z" fill="#00A4EF"/>
-      <path d="M21 21h-8.4v-8.4H21V21z" fill="#FFB900"/>
-    </svg>
-  )
-}
-
 function AppleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
@@ -70,7 +51,6 @@ function AppleIcon() {
 
 function ProviderIcon({ id }: { id: string }) {
   if (id === "google")    return <GoogleIcon />
-  if (id === "microsoft") return <MicrosoftIcon />
   if (id === "apple")     return <AppleIcon />
   return <Globe className="w-5 h-5 text-slate-500" />
 }

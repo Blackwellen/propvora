@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
   KeyRound, Clock, Upload, XCircle, Plus, Globe, ShieldCheck,
@@ -26,6 +27,11 @@ export default function PortalsOverviewPage() {
   const { workspace } = useWorkspace()
   const { data: grants = [], isLoading } = usePortalGrants(workspace?.id)
   const [showGrant, setShowGrant] = useState(false)
+  // Open the grant modal when arrived via the global "New" quick-create (?new=1).
+  const _searchParams = useSearchParams()
+  useEffect(() => {
+    if (_searchParams.get("new") === "1") setShowGrant(true)
+  }, [_searchParams])
 
   const kpis = useMemo(() => {
     const active = grants.filter((g) => ["active", "opened", "email_sent", "created"].includes(g.status) && g.status !== "revoked").length

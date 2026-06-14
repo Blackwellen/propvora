@@ -22,7 +22,7 @@ export default function TermsPage() {
     <LegalLayout title="Terms of Service" lastUpdated="2 June 2025">
       <Section num="1" title="Introduction and Acceptance">
         <p>
-          These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the Propvora platform, software, and services (collectively, the &ldquo;Service&rdquo;) provided by Propvora Ltd (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales.
+          These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the Propvora platform, software, and services (collectively, the &ldquo;Service&rdquo;) provided by Blackwellen Ltd, trading as Propvora (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166, with its registered office at 61 Bridge Street, Kington, HR5 3DJ.
         </p>
         <p>
           By registering for an account, accessing the Service, or clicking &ldquo;I agree&rdquo;, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree to these Terms, you must not access or use the Service.
@@ -41,7 +41,7 @@ export default function TermsPage() {
           <li><strong>Platform</strong> means the technical infrastructure on which the Service operates, including servers, databases, and third-party integrations.</li>
           <li><strong>Subscription</strong> means a paid plan providing access to the Service, as detailed on the pricing page.</li>
           <li><strong>Content</strong> means any data, text, files, documents, or information submitted to the Service by a User.</li>
-          <li><strong>Propvora Ltd</strong> means the company providing the Service, registered in England and Wales.</li>
+          <li><strong>Blackwellen Ltd</strong> means the company providing the Service (trading as Propvora), registered in England and Wales under company number 16482166.</li>
         </ul>
       </Section>
 
@@ -65,7 +65,7 @@ export default function TermsPage() {
         <ul>
           <li>Provide truthful and accurate registration information</li>
           <li>Keep your password secure and not share it with third parties</li>
-          <li>Notify us immediately at <a href="mailto:security@propvora.com">security@propvora.com</a> of any suspected unauthorised access</li>
+          <li>Notify us immediately at <a href="mailto:support@propvora.com">support@propvora.com</a> of any suspected unauthorised access</li>
           <li>Ensure all team members you invite comply with these Terms</li>
           <li>Be responsible for all actions taken under your Workspace</li>
         </ul>
@@ -167,7 +167,7 @@ export default function TermsPage() {
 
       <Section num="12" title="Termination">
         <p>
-          You may terminate your account at any time from your account settings or by contacting us at <a href="mailto:hello@propvora.com">hello@propvora.com</a>.
+          You may terminate your account at any time from your account settings or by contacting us at <a href="mailto:info@propvora.com">info@propvora.com</a>.
         </p>
         <p>
           We may suspend or terminate your account immediately if you breach these Terms, engage in fraudulent activity, fail to pay subscription fees, or if we are required to do so by law. We will provide notice where practicable unless doing so would be unlawful or cause harm.
@@ -201,7 +201,7 @@ export default function TermsPage() {
         </p>
         <ul>
           <li>Email: <a href="mailto:legal@propvora.com">legal@propvora.com</a></li>
-          <li>General: <a href="mailto:hello@propvora.com">hello@propvora.com</a></li>
+          <li>General: <a href="mailto:info@propvora.com">info@propvora.com</a></li>
           <li>Registered company: Propvora Ltd, England and Wales</li>
         </ul>
       </Section>

@@ -13,6 +13,12 @@ interface AccountMenuProps {
   initials?: string
 }
 
+function initialsOf(name: string): string {
+  return (
+    name.trim().split(/\s+/).map((w) => w[0]).filter(Boolean).join("").slice(0, 2).toUpperCase() || "U"
+  )
+}
+
 export default function AccountMenu({
   name,
   role,
@@ -20,9 +26,34 @@ export default function AccountMenu({
 }: AccountMenuProps) {
   const [open, setOpen] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
+  const [liveUser, setLiveUser] = useState<{ name: string; email: string | null } | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
+  // Live signed-in user (no fake placeholder).
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user: u } } = await supabase.auth.getUser()
+        if (!u || cancelled) return
+        let display = (u.user_metadata?.display_name as string) || ""
+        try {
+          const { data: p } = await supabase
+            .from("profiles")
+            .select("display_name, first_name, last_name")
+            .eq("id", u.id)
+            .maybeSingle()
+          if (p) display = (p.display_name as string) || [p.first_name, p.last_name].filter(Boolean).join(" ") || display
+        } catch { /* ignore */ }
+        if (!display) display = u.email?.split("@")[0] ?? "Your account"
+        if (!cancelled) setLiveUser({ name: display, email: u.email ?? null })
+      } catch { /* ignore */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // Position dropdown relative to button using fixed coords (escapes overflow:hidden)
   useEffect(() => {
@@ -63,9 +94,9 @@ export default function AccountMenu({
     router.push("/login")
   }
 
-  const displayName = name ?? "James Taylor"
-  const displayRole = role ?? "Administrator"
-  const displayInitials = initials ?? "JT"
+  const displayName = name ?? liveUser?.name ?? "Your account"
+  const displayRole = role ?? liveUser?.email ?? "View profile"
+  const displayInitials = initials ?? initialsOf(liveUser?.name ?? "U")
 
   const dropdown = open ? (
     <div
@@ -117,6 +148,7 @@ export default function AccountMenu({
       <button
         ref={buttonRef}
         onClick={() => setOpen((o) => !o)}
+        aria-label="Account menu"
         aria-expanded={open}
         aria-haspopup="true"
         className="flex items-center gap-2.5 h-[44px] px-3 rounded-2xl bg-white border border-[#E2EAF6] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm"

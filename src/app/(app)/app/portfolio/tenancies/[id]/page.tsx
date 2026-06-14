@@ -91,8 +91,8 @@ function useTenancyActivity(workspaceId: string | undefined, tenancyId: string) 
     ;(async () => {
       try {
         const { data, error } = await supabase
-          .from("activity_log")
-          .select("id, action, entity_type, entity_id, description, created_at")
+          .from("activity_logs")
+          .select("id, action, entity_type:resource_type, entity_id:resource_id, description, created_at")
           .eq("workspace_id", workspaceId)
           .eq("entity_id", tenancyId)
           .order("created_at", { ascending: false })

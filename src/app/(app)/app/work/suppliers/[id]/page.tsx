@@ -33,6 +33,10 @@ import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
 import { useSupplierJobs } from "@/hooks/useJobs"
 import { useSupplier, type SupplierView } from "@/features/suppliers/useSuppliers"
+import { SupplierRatingPanel } from "@/components/suppliers/SupplierRatingPanel"
+import { SupplierPreferencePanel } from "@/components/suppliers/SupplierPreferencePanel"
+import { useSupplierPreference } from "@/lib/suppliers/ratings"
+import { Ban } from "lucide-react"
 import type { Job, UpdateContact } from "@/types/database"
 
 // OpenStreetMap (Leaflet) — client-only, premium-styled.
@@ -298,26 +302,6 @@ function TabEmptyState({ tab }: { tab: string }) {
 
 // ─── Right rail cards ─────────────────────────────────────────────────────────
 
-function SupplierRatingCard({ supplier }: { supplier: SupplierView }) {
-  const rating = 4.3 + ((supplier.id.charCodeAt(0) % 7) / 10)
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900 mb-2">Supplier Rating</h3>
-      <div className="flex items-center gap-1 mb-1">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <span key={i} className={i < Math.round(rating) ? "text-amber-400 text-xl" : "text-amber-200 text-xl"}>★</span>
-        ))}
-        <span className="text-xl font-bold text-slate-900 ml-1">{rating.toFixed(1)} / 5</span>
-      </div>
-      <p className="text-[11px] text-slate-400 mb-3">Internal performance rating</p>
-      <div className="pt-3 border-t border-slate-100">
-        <p className="text-[11px] text-slate-400 mb-0.5">Status</p>
-        <p className="text-[12.5px] font-semibold text-slate-800 capitalize">{supplier.status}</p>
-      </div>
-    </div>
-  )
-}
-
 function QuickActionsCard({ supplierId }: { supplierId: string }) {
   const router = useRouter()
   return (
@@ -400,6 +384,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
 
   const { supplier, isSeed, loading } = useSupplier(workspaceId, id)
   const { data: jobs = [] } = useSupplierJobs(workspaceId, isSeed ? undefined : id)
+  const { data: preference } = useSupplierPreference(workspaceId, isSeed ? undefined : id, !isSeed)
   const updateContact = useUpdateContact()
 
   async function handleSaveField(
@@ -521,9 +506,14 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-1">
               <h1 className="text-2xl font-bold text-slate-900">{supplier.name}</h1>
-              {supplier.preferred && (
+              {(preference?.preferred || supplier.preferred) && !preference?.blocked && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-[11px] font-semibold text-amber-700">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Preferred
+                </span>
+              )}
+              {preference?.blocked && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-200 rounded-full text-[11px] font-semibold text-red-700">
+                  <Ban className="w-3.5 h-3.5" /> Blocked
                 </span>
               )}
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-[11px] font-semibold text-emerald-700">
@@ -607,7 +597,16 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
           )}
         </div>
         <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
-          <SupplierRatingCard supplier={supplier} />
+          <SupplierRatingPanel
+            workspaceId={workspaceId}
+            supplierContactId={supplier.isSeed ? undefined : id}
+            disabled={supplier.isSeed}
+          />
+          <SupplierPreferencePanel
+            workspaceId={workspaceId}
+            supplierContactId={supplier.isSeed ? undefined : id}
+            disabled={supplier.isSeed}
+          />
           <QuickActionsCard supplierId={id} />
           <ComplianceCertificatesCard />
         </div>

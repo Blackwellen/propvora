@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { ExternalLink, CreditCard, Mail, FileText } from "lucide-react"
+import { ExternalLink, CreditCard } from "lucide-react"
+import { openBillingPortal } from "@/lib/billing/checkout"
 
 interface BillingForm {
   billingName: string
@@ -15,15 +16,16 @@ interface BillingForm {
 
 export default function BillingPage() {
   const [form, setForm] = useState<BillingForm>({
-    billingName: "Propvora Demo Ltd",
-    billingEmail: "billing@propvora.com",
-    vatNumber: "GB123456789",
-    address: "123 Example Street",
-    city: "London",
-    postcode: "EC1A 1BB",
+    billingName: "",
+    billingEmail: "",
+    vatNumber: "",
+    address: "",
+    city: "",
+    postcode: "",
     country: "United Kingdom",
   })
   const [saved, setSaved] = useState(false)
+  const [portalError, setPortalError] = useState<string | null>(null)
 
   const update = (key: keyof BillingForm, val: string) => {
     setForm(f => ({ ...f, [key]: val }))
@@ -43,47 +45,29 @@ export default function BillingPage() {
         <p className="text-[13.5px] text-slate-500 mt-1">Manage your payment method and billing details</p>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        {[
-          { label: "Next Invoice",     value: "£79.00",            sub: "Due 1 January 2027",      icon: FileText,  colour: "#2563EB" },
-          { label: "Payment Method",   value: "Visa ···· 4242",    sub: "Expires 12/2027",          icon: CreditCard,colour: "#059669" },
-          { label: "Billing Contact",  value: "billing@propvora.com", sub: "Invoices sent here",   icon: Mail,      colour: "#D97706" },
-        ].map(card => {
-          const Icon = card.icon
-          return (
-            <div key={card.label} className="bg-white rounded-2xl border border-slate-200 p-4">
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: card.colour + "15" }}>
-                  <div style={{ color: card.colour }}><Icon className="w-4 h-4" /></div>
-                </div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">{card.label}</p>
-              </div>
-              <p className="text-[14px] font-bold text-slate-900">{card.value}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{card.sub}</p>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Payment method */}
+      {/* Payment method — managed in the Stripe portal (PCI-compliant) */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
-        <h3 className="text-[14px] font-bold text-slate-900 mb-4">Payment Method</h3>
-        <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50">
-          <div className="w-12 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-            <span className="text-white text-[10px] font-black">VISA</span>
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#2563EB]/10">
+            <CreditCard className="w-4 h-4 text-[#2563EB]" />
           </div>
-          <div className="flex-1">
-            <p className="text-[13px] font-semibold text-slate-800">Visa ending 4242</p>
-            <p className="text-[11px] text-slate-400">Expires 12/2027 · Primary</p>
-          </div>
-          <button className="text-[12px] text-[#2563EB] font-semibold hover:text-[#1d4ed8] transition-colors">
-            Update
-          </button>
+          <h3 className="text-[14px] font-bold text-slate-900">Payment Method</h3>
         </div>
-        <button className="mt-3 text-[12px] text-slate-500 font-medium hover:text-slate-700 transition-colors">
-          + Add another payment method
+        <p className="text-[12.5px] text-slate-500 mb-4">
+          Cards and payment methods are stored securely by Stripe. Add, update or remove a
+          card from the Stripe billing portal — Propvora never sees your full card details.
+        </p>
+        <button
+          onClick={async () => {
+            setPortalError(null)
+            try { await openBillingPortal() } catch (e) { setPortalError(e instanceof Error ? e.message : "Portal unavailable") }
+          }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+        >
+          <CreditCard className="w-4 h-4" />
+          Manage payment methods
         </button>
+        {portalError && <p className="text-[11px] text-red-500 mt-2">{portalError}</p>}
       </div>
 
       {/* Billing details form */}

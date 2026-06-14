@@ -4,6 +4,15 @@ import { useState, useEffect } from "react"
 import { Shield, Monitor, Loader2, Check, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import ConfirmDialog from "@/components/account/ConfirmDialog"
+
+/** Password policy: at least 8 characters, one uppercase letter and one number. */
+function validatePassword(pw: string): string | null {
+  if (pw.length < 8) return "New password must be at least 8 characters."
+  if (!/[A-Z]/.test(pw)) return "Include at least one uppercase letter."
+  if (!/[0-9]/.test(pw)) return "Include at least one number."
+  return null
+}
 
 function InputField({
   label, value, onChange, type = "text",
@@ -41,12 +50,21 @@ export default function SecurityPage() {
   const [pwMsg, setPwMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null)
 
   const [email, setEmail] = useState("")
+
+  // Email change
+  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [newEmail, setNewEmail] = useState("")
+  const [emailSaving, setEmailSaving] = useState(false)
+  const [emailMsg, setEmailMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null)
+
   const [factors, setFactors] = useState<MfaFactor[]>([])
   const [mfaSupported, setMfaSupported] = useState(true)
   const [enrolling, setEnrolling] = useState(false)
   const [enrollData, setEnrollData] = useState<{ factorId: string; qr: string; secret: string } | null>(null)
   const [verifyCode, setVerifyCode] = useState("")
   const [mfaMsg, setMfaMsg] = useState<string | null>(null)
+  const [disableTarget, setDisableTarget] = useState<string | null>(null)
+  const [disabling, setDisabling] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -67,7 +85,8 @@ export default function SecurityPage() {
 
   async function handlePasswordChange() {
     setPwMsg(null)
-    if (newPw.length < 8) { setPwMsg({ kind: "err", text: "New password must be at least 8 characters." }); return }
+    const policyError = validatePassword(newPw)
+    if (policyError) { setPwMsg({ kind: "err", text: policyError }); return }
     if (newPw !== confirmPw) { setPwMsg({ kind: "err", text: "Passwords do not match." }); return }
     setPwSaving(true)
     try {
@@ -86,6 +105,32 @@ export default function SecurityPage() {
       setPwMsg({ kind: "err", text: "Something went wrong. Please try again." })
     } finally {
       setPwSaving(false)
+    }
+  }
+
+  async function handleEmailChange() {
+    setEmailMsg(null)
+    const trimmed = newEmail.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailMsg({ kind: "err", text: "Enter a valid email address." }); return
+    }
+    if (trimmed.toLowerCase() === email.toLowerCase()) {
+      setEmailMsg({ kind: "err", text: "That is already your email address." }); return
+    }
+    setEmailSaving(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({ email: trimmed })
+      if (error) { setEmailMsg({ kind: "err", text: error.message }); return }
+      setEmailMsg({
+        kind: "ok",
+        text: `Confirmation links sent. Check both ${email} and ${trimmed} to complete the change.`,
+      })
+      setNewEmail("")
+    } catch {
+      setEmailMsg({ kind: "err", text: "Something went wrong. Please try again." })
+    } finally {
+      setEmailSaving(false)
     }
   }
 
@@ -127,12 +172,21 @@ export default function SecurityPage() {
   }
 
   async function disableMfa(factorId: string) {
+    setDisabling(true)
+    setMfaMsg(null)
     try {
       const supabase = createClient()
-      await supabase.auth.mfa.unenroll({ factorId })
+      const { error } = await supabase.auth.mfa.unenroll({ factorId })
+      if (error) { setMfaMsg(error.message); return }
       const { data } = await supabase.auth.mfa.listFactors()
       setFactors((data?.totp ?? []) as MfaFactor[])
-    } catch { /* noop */ }
+      setMfaMsg("Two-factor authentication disabled.")
+    } catch {
+      setMfaMsg("Could not disable two-factor authentication.")
+    } finally {
+      setDisabling(false)
+      setDisableTarget(null)
+    }
   }
 
   return (
@@ -206,6 +260,46 @@ export default function SecurityPage() {
         )}
       </div>
 
+      {/* Email address */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-[14px] font-bold text-slate-900">Email address</h3>
+            <p className="text-[12px] text-slate-500 mt-0.5">
+              Sign-in email{email ? ` · ${email}` : ""}
+            </p>
+          </div>
+          <button
+            onClick={() => { setShowEmailForm(s => !s); setEmailMsg(null); setNewEmail("") }}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            {showEmailForm ? "Cancel" : "Change email"}
+          </button>
+        </div>
+        {showEmailForm && (
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3.5 py-2.5 text-[12px] text-slate-600">
+              <Info className="w-4 h-4 mt-0.5 shrink-0 text-[#2563EB]" />
+              For your security, changing your email sends a confirmation link to{" "}
+              <span className="font-semibold">both</span> your current and new address. The change
+              only takes effect once you confirm from each inbox.
+            </div>
+            <InputField label="New email address" value={newEmail} onChange={setNewEmail} type="email" />
+            {emailMsg && (
+              <p className={cn("text-[12px]", emailMsg.kind === "ok" ? "text-emerald-600" : "text-red-600")}>{emailMsg.text}</p>
+            )}
+            <button
+              onClick={handleEmailChange}
+              disabled={emailSaving}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors mt-2 disabled:opacity-70"
+            >
+              {emailSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {emailSaving ? "Sending…" : "Send confirmation"}
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* MFA */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center justify-between">
@@ -219,7 +313,7 @@ export default function SecurityPage() {
             <span className="text-[12px] text-slate-400">Unavailable</span>
           ) : mfaEnabled ? (
             <button
-              onClick={() => { const f = factors.find(x => x.status === "verified"); if (f) disableMfa(f.id) }}
+              onClick={() => { const f = factors.find(x => x.status === "verified"); if (f) setDisableTarget(f.id) }}
               className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-[12.5px] font-semibold hover:bg-red-50 transition-colors"
             >
               Disable 2FA
@@ -284,6 +378,17 @@ export default function SecurityPage() {
           <a href="/app/account/sessions" className="text-[#2563EB] font-medium hover:underline">Sessions &amp; Devices</a> page.
         </p>
       </div>
+
+      <ConfirmDialog
+        open={disableTarget !== null}
+        title="Disable two-factor authentication?"
+        description="Your account will no longer require an authenticator code at sign-in. We recommend keeping two-factor authentication on for stronger account security."
+        confirmLabel="Disable 2FA"
+        tone="danger"
+        busy={disabling}
+        onConfirm={() => { if (disableTarget) disableMfa(disableTarget) }}
+        onCancel={() => { if (!disabling) setDisableTarget(null) }}
+      />
     </div>
   )
 }

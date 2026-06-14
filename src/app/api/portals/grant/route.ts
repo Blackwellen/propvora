@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { createHash, randomBytes } from "node:crypto"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -137,9 +138,11 @@ export async function POST(request: NextRequest) {
 
     const { error: tokenErr } = await admin.from("portal_access_tokens").insert({
       workspace_id: workspaceId,
-      access_id: grant.id,
+      portal_type: accessType, // NOT NULL in the live schema
+      entity_type: "portal_grant",
+      entity_id: grant.id,
       token_hash: tokenHash,
-      status: "active",
+      revoked: false,
       expires_at: expiresAt,
       created_by: user.id,
     })
@@ -170,6 +173,16 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       new URL(request.url).origin
     const magicLink = `${base.replace(/\/$/, "")}/portal?token=${rawToken}`
+
+    // Best-effort audit. NEVER log the raw token / magic link.
+    await recordAudit(admin, {
+      workspaceId,
+      userId: user.id,
+      action: AUDIT_ACTIONS.PORTAL_GRANT_CREATED,
+      resourceType: "contact_portal_access",
+      resourceId: grant.id,
+      metadata: { contactId, accessType, expiresAt },
+    })
 
     return NextResponse.json(
       { id: grant.id, token: rawToken, magicLink, expiresAt },

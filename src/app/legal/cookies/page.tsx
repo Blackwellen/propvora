@@ -172,7 +172,7 @@ export default function CookiesPage() {
 
       <Section num="6" title="Contact">
         <p>
-          If you have questions about our use of cookies, please contact us at <a href="mailto:privacy@propvora.com">privacy@propvora.com</a>.
+          If you have questions about our use of cookies, please contact us at <a href="mailto:legal@propvora.com">legal@propvora.com</a>.
         </p>
       </Section>
     </LegalLayout>

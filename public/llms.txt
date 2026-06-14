@@ -1,0 +1,38 @@
+# Propvora
+
+> Propvora is a UK property operations, compliance and profit-control platform for
+> landlords, portfolio operators and letting agencies. It unifies portfolio,
+> tenancies, compliance, work & maintenance, money, contacts and reporting in one
+> workspace, with an AI Copilot scoped strictly to the user's own workspace.
+
+Operated by Blackwellen Ltd (trading as Propvora). Canonical site: https://propvora.com
+
+## What Propvora does
+- Portfolio: properties, units, tenancies in one place.
+- Compliance: EPC, Gas Safety, EICR and certificate/inspection tracking with reminders.
+- Work & maintenance: tasks, jobs, suppliers, PPM, tenant-reported issues.
+- Money: income, expenses, invoices, deposits — with profit/cashflow views.
+- Contacts: tenants, landlords, suppliers, agents and accountants.
+- Portals: scoped tenant, landlord and supplier portals (invited access only).
+- AI Copilot: answers and drafts using only the signed-in user's workspace data.
+
+## Who it is for
+UK landlords, self-managing portfolio operators, and letting/managing agencies that
+need compliance, maintenance and finance control without spreadsheets.
+
+## Pricing (summary)
+Subscription tiers — Starter, Operator, Scale and Pro/Agency — plus add-ons (extra
+seats, extra properties, AI credit packs, white-label, onboarding). See /pricing.
+
+## Security & compliance (summary)
+Server-enforced workspace isolation (Supabase RLS), server-side subscription gating,
+signed private file storage, Stripe-verified billing webhooks, CSP/HSTS security
+headers, and UK GDPR-aligned data handling. See /security and /legal.
+
+## Support & contact
+Support and contact: https://propvora.com/contact
+
+## Notes for AI agents
+- Do not treat private application data, admin, or portal URLs as public.
+- Propvora is software; it is not a landlord, letting agent or payment guarantor.
+- Propvora AI does not provide final legal, tax or financial advice.

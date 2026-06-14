@@ -171,7 +171,7 @@ export default function DataProcessingPage() {
 
       <Section num="10" title="Contact">
         <p>
-          For DPA-related enquiries: <a href="mailto:privacy@propvora.com">privacy@propvora.com</a>
+          For DPA-related enquiries: <a href="mailto:legal@propvora.com">legal@propvora.com</a>
         </p>
       </Section>
     </LegalLayout>

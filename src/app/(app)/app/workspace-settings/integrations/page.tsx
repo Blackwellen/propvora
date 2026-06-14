@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import {
   CreditCard,
   Sparkles,
@@ -85,15 +85,6 @@ const INTEGRATIONS: Integration[] = [
     colour: "#4285F4",
   },
   {
-    key: "microsoft",
-    name: "Microsoft",
-    desc: "Microsoft OAuth and calendar integration",
-    category: "Auth",
-    envCheck: !!process.env.NEXT_PUBLIC_MICROSOFT_OAUTH_ENABLED,
-    icon: Globe,
-    colour: "#00A4EF",
-  },
-  {
     key: "webhooks",
     name: "Webhooks",
     desc: "HTTP callbacks for workspace events",
@@ -114,7 +105,19 @@ const INTEGRATIONS: Integration[] = [
 ]
 
 export default function IntegrationsPage() {
-  const configuredCount = INTEGRATIONS.filter((i) => i.envCheck).length
+  // Real configured state comes from the server (env-based, no secrets exposed).
+  const [serverStatus, setServerStatus] = useState<Record<string, boolean> | null>(null)
+  useEffect(() => {
+    fetch("/api/integrations/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && !d.error) setServerStatus(d) })
+      .catch(() => { /* fall back to env check */ })
+  }, [])
+
+  const isConfigured = (int: Integration): boolean =>
+    serverStatus ? !!serverStatus[int.key] : int.envCheck
+
+  const configuredCount = INTEGRATIONS.filter(isConfigured).length
 
   return (
     <div>
@@ -161,7 +164,7 @@ export default function IntegrationsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {INTEGRATIONS.map((int) => {
           const Icon = int.icon
-          const configured = int.envCheck
+          const configured = isConfigured(int)
           return (
             <div key={int.key} className="bg-white rounded-2xl border border-slate-200 p-5">
               <div className="flex items-start justify-between mb-3">

@@ -6,7 +6,7 @@
  * The authoritative live table is `compliance_items` (~12 real rows). Its
  * lineage differs from the `compliance_certificates` app tables, so we read it
  * directly and map its real columns:
- *   id, workspace_id, property_id, unit_id, title, type, due_date, status
+ *   id, workspace_id, property_id, unit_id, title, type:kind, due_date, status
  *
  * Everything is 42P01-safe: if a table is missing we fall back to empty data
  * so pages render honest empty states instead of crashing.
@@ -123,7 +123,7 @@ export function useComplianceItems(): UseComplianceItemsResult {
         const supabase = createClient()
         const { data, error } = await supabase
           .from("compliance_items")
-          .select("id, workspace_id, property_id, unit_id, title, type, due_date, status")
+          .select("id, workspace_id, property_id, unit_id, title, type:kind, due_date, status")
           .eq("workspace_id", workspaceId)
           .order("due_date", { ascending: true })
         if (!active) return

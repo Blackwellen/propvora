@@ -8,28 +8,16 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import {
-  resolveTenantContext, formatDate,
+  resolveTenantContext, resolveTenantTenancies, tenancyIds, formatDate,
   type TenantContext,
 } from "../_lib/tenant-context"
+import {
+  listPortalThreads, listThreadMessages, sendThreadMessage,
+  type PortalThread, type PortalMessage,
+} from "@/lib/portal/messaging"
 
-interface ConversationRow {
-  id: string
-  subject: string | null
-  last_message_at: string | null
-  created_at: string
-}
-
-interface MessageRow {
-  id: string
-  conversation_id: string
-  sender_type: string
-  body: string
-  created_at: string
-}
-
-function code(e: unknown): string | undefined {
-  return (e as { code?: string } | null)?.code
-}
+type ConversationRow = PortalThread
+type MessageRow = PortalMessage
 
 export default function TenantMessagesPage() {
   const [ctx, setCtx] = useState<TenantContext | null>(null)
@@ -42,34 +30,25 @@ export default function TenantMessagesPage() {
   const [error, setError] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
   const [sending, setSending] = useState(false)
+  const [myUserId, setMyUserId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
         const supabase = createClient()
+        const { data: auth } = await supabase.auth.getUser()
+        setMyUserId(auth.user?.id ?? null)
+
         const tenant = await resolveTenantContext()
         if (!tenant) { setNoContext(true); setLoading(false); return }
         setCtx(tenant)
 
-        // LIVE conversations scoped strictly to this tenant's contact
-        const { data, error: fetchErr } = await supabase
-          .from("conversations")
-          .select("id, subject, last_message_at, created_at")
-          .eq("contact_id", tenant.contactId)
-          .order("last_message_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false })
-
-        if (fetchErr) {
-          if (code(fetchErr) === "42P01") { setConversations([]) }
-          else { setError("Could not load messages.") }
-          setLoading(false)
-          return
-        }
-        if (data) {
-          const rows = data as unknown as ConversationRow[]
-          setConversations(rows)
-          if (rows.length > 0) setActiveId(rows[0].id)
-        }
+        // LIVE threads scoped strictly to this tenant's own tenancies + contact.
+        const tenancies = await resolveTenantTenancies(tenant.contactId, tenant.workspaceId)
+        const relatedIds = [...tenancyIds(tenancies), tenant.contactId]
+        const rows = await listPortalThreads(tenant.workspaceId, relatedIds)
+        setConversations(rows)
+        if (rows.length > 0) setActiveId(rows[0].id)
       } catch (err) {
         console.error(err)
         setError("Unexpected error loading messages.")
@@ -85,14 +64,7 @@ export default function TenantMessagesPage() {
     async function loadThread() {
       setLoadingThread(true)
       try {
-        const supabase = createClient()
-        const { data, error: msgErr } = await supabase
-          .from("messages")
-          .select("id, conversation_id, sender_type, body, created_at")
-          .eq("conversation_id", activeId!)
-          .order("created_at", { ascending: true })
-        if (!msgErr && data) setMessages(data as unknown as MessageRow[])
-        else if (msgErr && code(msgErr) === "42P01") setMessages([])
+        setMessages(await listThreadMessages(activeId!))
       } catch { /* tolerate */ } finally {
         setLoadingThread(false)
       }
@@ -109,20 +81,14 @@ export default function TenantMessagesPage() {
     if (!draft.trim() || !activeId || !ctx?.workspaceId) return
     setSending(true)
     try {
-      const supabase = createClient()
-      const { data, error: sendErr } = await supabase
-        .from("messages")
-        .insert({
-          workspace_id: ctx.workspaceId,
-          conversation_id: activeId,
-          sender_type: "contact",
-          body: draft.trim(),
-          is_demo: false,
-        })
-        .select("id, conversation_id, sender_type, body, created_at")
-        .single()
-      if (sendErr) throw sendErr
-      if (data) setMessages((prev) => [...prev, data as unknown as MessageRow])
+      const sent = await sendThreadMessage({
+        threadId: activeId,
+        workspaceId: ctx.workspaceId,
+        senderId: myUserId,
+        senderName: ctx.displayName,
+        content: draft.trim(),
+      })
+      if (sent) setMessages((prev) => [...prev, sent])
       setDraft("")
     } catch (err) {
       console.error(err)
@@ -218,14 +184,17 @@ export default function TenantMessagesPage() {
                   <p className="text-sm text-slate-400 text-center py-10">No messages in this conversation yet.</p>
                 ) : (
                   messages.map((m) => {
-                    const fromTenant = m.sender_type === "contact"
+                    const fromTenant = myUserId != null && m.sender_id === myUserId
                     return (
                       <div key={m.id} className={cn("flex", fromTenant ? "justify-end" : "justify-start")}>
                         <div className={cn(
                           "max-w-[80%] rounded-2xl px-3.5 py-2",
                           fromTenant ? "bg-[#2563EB] text-white" : "bg-white border border-slate-200 text-slate-800"
                         )}>
-                          <p className="text-sm whitespace-pre-line">{m.body}</p>
+                          {!fromTenant && m.sender_name && (
+                            <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{m.sender_name}</p>
+                          )}
+                          <p className="text-sm whitespace-pre-line">{m.content}</p>
                           <p className={cn("text-[10px] mt-1", fromTenant ? "text-white/70" : "text-slate-400")}>
                             {formatDate(m.created_at, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                           </p>

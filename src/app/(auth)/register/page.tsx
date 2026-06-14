@@ -64,6 +64,28 @@ function mapAuthError(code: string | undefined, message: string): string {
   return "Something went wrong. Please try again."
 }
 
+/**
+ * Hit the server-side rate gate (/api/auth/rate-check) before a sensitive auth
+ * call. Returns a friendly error string when throttled, or null to proceed.
+ * Fails OPEN on network/parse errors so the gate never blocks a real signup.
+ */
+async function checkAuthRateLimit(action: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/rate-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    })
+    if (res.status === 429) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null
+      return body?.error ?? "Too many attempts. Please wait and try again."
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 function getPasswordStrength(password: string): { score: number; label: string; colour: string } {
   if (!password) return { score: 0, label: "", colour: "" }
   let score = 0
@@ -141,6 +163,15 @@ function RegisterForm() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     setAuthError(null)
+
+    // Application-side rate limit (per IP) before hitting Supabase auth.
+    const gate = await checkAuthRateLimit("signup")
+    if (gate) {
+      setAuthError(gate)
+      setIsLoading(false)
+      return
+    }
+
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email: data.email.trim().toLowerCase(),
@@ -237,6 +268,7 @@ function RegisterForm() {
                     </label>
                     <Input
                       type="text"
+                      aria-label="Full name"
                       placeholder="Your full name"
                       autoComplete="name"
                       autoFocus
@@ -251,6 +283,7 @@ function RegisterForm() {
                     </label>
                     <Input
                       type="text"
+                      aria-label="Company"
                       placeholder="Company name"
                       autoComplete="organization"
                       leftElement={<Building2 className="h-4 w-4" />}
@@ -265,6 +298,7 @@ function RegisterForm() {
                   </label>
                   <Input
                     type="email"
+                    aria-label="Work email"
                     placeholder="Enter your work email"
                     autoComplete="email"
                     leftElement={<Mail className="h-4 w-4" />}
@@ -280,6 +314,7 @@ function RegisterForm() {
                   </label>
                   <Input
                     type={showPassword ? "text" : "password"}
+                    aria-label="Password"
                     placeholder="Create a strong password"
                     autoComplete="new-password"
                     leftElement={<Lock className="h-4 w-4" />}
@@ -344,6 +379,7 @@ function RegisterForm() {
                   </label>
                   <Input
                     type={showConfirm ? "text" : "password"}
+                    aria-label="Confirm password"
                     placeholder="Repeat your password"
                     autoComplete="new-password"
                     leftElement={<Lock className="h-4 w-4" />}
@@ -423,21 +459,6 @@ function RegisterForm() {
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
                   Continue with Google
-                  <span className="text-[11px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">Soon</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled
-                  className="w-full flex items-center justify-center gap-3 h-11 rounded-xl border border-slate-200 bg-white text-[13.5px] font-medium text-slate-400 cursor-not-allowed opacity-70"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 21 21" aria-hidden="true">
-                    <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                    <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                    <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                    <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                  </svg>
-                  Continue with Microsoft
                   <span className="text-[11px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">Soon</span>
                 </button>
               </form>

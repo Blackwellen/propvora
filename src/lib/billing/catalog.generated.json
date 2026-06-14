@@ -1,0 +1,90 @@
+{
+  "mode": "LIVE",
+  "generatedAt": "2026-06-12T18:50:01.634Z",
+  "plans": {
+    "starter": {
+      "productId": "prod_Ugy5an6l5e2cVr",
+      "tier": "starter",
+      "monthly": {
+        "priceId": "price_1Tha9UAHC49xkmregURRTaKq",
+        "amount": 2900
+      },
+      "annual": {
+        "priceId": "price_1Tha9UAHC49xkmre9cpnQ4mA",
+        "amount": 29000
+      }
+    },
+    "operator": {
+      "productId": "prod_Ugy5gLeMrFnf8T",
+      "tier": "operator",
+      "monthly": {
+        "priceId": "price_1Tha9VAHC49xkmreov7kdRD6",
+        "amount": 7900
+      },
+      "annual": {
+        "priceId": "price_1Tha9VAHC49xkmre86PXAbuy",
+        "amount": 79000
+      }
+    },
+    "scale": {
+      "productId": "prod_Ugy5Ry00cimmul",
+      "tier": "scale",
+      "monthly": {
+        "priceId": "price_1Tha9WAHC49xkmrefgWf2Qm0",
+        "amount": 14900
+      },
+      "annual": {
+        "priceId": "price_1Tha9WAHC49xkmre58gU39ON",
+        "amount": 149000
+      }
+    },
+    "pro_agency": {
+      "productId": "prod_Ugy5ZoekjlxugM",
+      "tier": "pro_agency",
+      "monthly": {
+        "priceId": "price_1Tha9XAHC49xkmrehzCKZPqM",
+        "amount": 29900
+      },
+      "annual": {
+        "priceId": "price_1Tha9XAHC49xkmreRV5hL1Jm",
+        "amount": 299000
+      }
+    },
+    "enterprise": {
+      "productId": "prod_Ugy5iBXOxhXOro",
+      "tier": "enterprise"
+    }
+  },
+  "addons": {
+    "extra_seat": {
+      "productId": "prod_Ugy5Lvl0gK2bZa",
+      "priceId": "price_1Tha9YAHC49xkmreTn5Hgh9k",
+      "amount": 900,
+      "interval": "month"
+    },
+    "extra_props_10": {
+      "productId": "prod_Ugy5p2xqVynBAK",
+      "priceId": "price_1Tha9ZAHC49xkmreOfs7Z2YR",
+      "amount": 1900,
+      "interval": "month"
+    },
+    "white_label": {
+      "productId": "prod_Ugy5D5u7Rioqvb",
+      "priceId": "price_1Tha9ZAHC49xkmreHQ3FXO77",
+      "amount": 4900,
+      "interval": "month"
+    },
+    "ai_credits_1k": {
+      "productId": "prod_Ugy551u3yt3R7m",
+      "priceId": "price_1Tha9aAHC49xkmrexeZm3jOa",
+      "amount": 1500,
+      "interval": null
+    },
+    "onboarding": {
+      "productId": "prod_Ugy5xAlkMI2Yw4",
+      "priceId": "price_1Tha9aAHC49xkmrei5ZloY3z",
+      "amount": 49900,
+      "interval": null
+    }
+  }
+}

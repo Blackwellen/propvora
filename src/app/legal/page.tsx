@@ -132,7 +132,7 @@ export default function LegalPage() {
               </a>
             </p>
             <p className="text-slate-500 text-xs">
-              Propvora Ltd · Registered in England and Wales · ICO Registered
+              Propvora is a trading name of Blackwellen Ltd · Registered in England and Wales, Company No. 16482166 · Registered office: 61 Bridge Street, Kington, HR5 3DJ · ICO registration ZC160806
             </p>
           </div>
         </div>

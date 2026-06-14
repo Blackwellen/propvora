@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { openCopilot } from "@/lib/copilot/open"
 
 /* ------------------------------------------------------------------ */
 /* Status chip                                                          */
@@ -560,7 +561,7 @@ export default function InvoiceDetailPage() {
                     <td className="px-4 py-3 text-slate-500">{inv.issue_date}</td>
                     <td className="px-4 py-3">
                       <button
-                        onClick={() => showToast("PDF download requires document service — coming soon")}
+                        onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
                         className="text-blue-600 hover:text-blue-800 text-xs font-medium"
                       >Download</button>
                     </td>
@@ -722,13 +723,28 @@ export default function InvoiceDetailPage() {
             </button>
           )}
           <button
-            onClick={() => showToast("Stripe payment link requires Stripe integration — coming soon")}
+            onClick={async () => {
+              if (!id) return
+              showToast("Creating secure payment link…")
+              try {
+                const res = await fetch("/api/billing/pay-invoice", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id, type: "invoice" }),
+                })
+                const json = await res.json()
+                if (!res.ok || !json.url) throw new Error(json.error || "Failed")
+                window.open(json.url, "_blank")
+              } catch (e) {
+                showToast(e instanceof Error ? e.message : "Could not create payment link")
+              }
+            }}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-violet-200 bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-100 transition-colors"
           >
             <div style={{ color: "#7C3AED" }}><Sparkles className="w-4 h-4" /></div> Create Stripe Link
           </button>
           <button
-            onClick={() => showToast("PDF generation requires document service — coming soon")}
+            onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
           >
             <Download className="w-4 h-4 text-slate-400" /> Export PDF
@@ -782,7 +798,7 @@ export default function InvoiceDetailPage() {
               : "No issues detected. This invoice looks healthy."}
           </p>
           <button
-            onClick={() => showToast("AI insights coming soon — Propvora AI module in development")}
+            onClick={() => openCopilot({ prompt: `Review invoice ${invoiceNumber} (status: ${inv.status}). What should I do next to get it settled?` })}
             className="w-full text-center text-xs font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 rounded-lg py-2 transition-colors"
           >
             Ask AI about this invoice
@@ -865,13 +881,28 @@ export default function InvoiceDetailPage() {
               </button>
             )}
             <button
-              onClick={() => showToast("PDF generation requires document service — coming soon")}
+              onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <Download className="w-3.5 h-3.5 text-slate-400" /> Generate PDF
             </button>
             <button
-              onClick={() => showToast("Stripe payment link requires Stripe integration — coming soon")}
+              onClick={async () => {
+              if (!id) return
+              showToast("Creating secure payment link…")
+              try {
+                const res = await fetch("/api/billing/pay-invoice", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id, type: "invoice" }),
+                })
+                const json = await res.json()
+                if (!res.ok || !json.url) throw new Error(json.error || "Failed")
+                window.open(json.url, "_blank")
+              } catch (e) {
+                showToast(e instanceof Error ? e.message : "Could not create payment link")
+              }
+            }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-violet-200 bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-100 transition-colors"
             >
               <div style={{ color: "#7C3AED" }}><Sparkles className="w-3.5 h-3.5" /></div> Stripe Link
@@ -929,7 +960,7 @@ export default function InvoiceDetailPage() {
                 <ActionMenu
                   items={[
                     { label: "View / Edit", icon: Pencil, onClick: () => router.push(`/app/money/invoices/${inv.id}/edit`) },
-                    { label: "Generate PDF", icon: Download, onClick: () => showToast("PDF generation requires document service — coming soon") },
+                    { label: "Generate PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}`, "_blank") },
                     { label: "Delete Invoice", icon: XCircle, onClick: open, variant: "danger" },
                   ]}
                 />

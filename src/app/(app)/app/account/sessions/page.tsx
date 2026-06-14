@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Monitor, LogOut, Loader2, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import ConfirmDialog from "@/components/account/ConfirmDialog"
 
 export default function SessionsPage() {
   const router = useRouter()
@@ -11,6 +12,7 @@ export default function SessionsPage() {
   const [lastSignIn, setLastSignIn] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [signingOut, setSigningOut] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -81,7 +83,7 @@ export default function SessionsPage() {
 
         <div className="pt-4">
           <button
-            onClick={signOutEverywhere}
+            onClick={() => setConfirmOpen(true)}
             disabled={signingOut}
             className="flex items-center gap-2 text-[13px] font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-60"
           >
@@ -105,6 +107,17 @@ export default function SessionsPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Sign out of all devices?"
+        description="This immediately revokes every active session across all of your devices, including this one. You'll need to sign in again everywhere."
+        confirmLabel="Sign out everywhere"
+        tone="danger"
+        busy={signingOut}
+        onConfirm={signOutEverywhere}
+        onCancel={() => { if (!signingOut) setConfirmOpen(false) }}
+      />
     </div>
   )
 }

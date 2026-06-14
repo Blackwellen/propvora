@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 
 export interface InviteDetails {
   status: "ok" | "not_found" | "expired" | "already_accepted" | "revoked" | "error"
@@ -142,17 +143,13 @@ export async function acceptInvite(token: string): Promise<AcceptInviteResult> {
   }
 
   // Best-effort audit trail.
-  try {
-    await supabase.from("audit_logs").insert({
-      workspace_id: invite.workspace_id,
-      user_id: user.id,
-      action: "workspace.invite_accepted",
-      resource_type: "workspace_invitation",
-      resource_id: invite.id,
-    })
-  } catch {
-    // Non-fatal.
-  }
+  await recordAudit(supabase, {
+    workspaceId: invite.workspace_id,
+    userId: user.id,
+    action: AUDIT_ACTIONS.INVITE_ACCEPTED,
+    resourceType: "workspace_invitation",
+    resourceId: invite.id,
+  })
 
   return { ok: true }
 }

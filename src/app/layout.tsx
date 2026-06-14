@@ -7,6 +7,7 @@ import RefCapture from "@/components/marketing/RefCapture"
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister"
 import InstallPrompt from "@/components/pwa/InstallPrompt"
 import OfflineBanner from "@/components/pwa/OfflineBanner"
+import CookieConsent from "@/components/consent/CookieConsent"
 import "./globals.css"
 
 const inter = Inter({
@@ -94,6 +95,7 @@ export default function RootLayout({
               <OfflineBanner />
               <InstallPrompt />
               {children}
+              <CookieConsent />
             </AuthProvider>
           </QueryProvider>
       </body>

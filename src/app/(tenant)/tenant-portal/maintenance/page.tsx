@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Wrench, Plus, DoorOpen, CheckCircle2, Calendar, X } from "lucide-react"
+import { Wrench, Plus, DoorOpen, CheckCircle2, Calendar, X, AlertTriangle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
@@ -11,8 +11,12 @@ import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import {
+  COMPLAINT_CATEGORIES, COMPLAINT_STATUS_META,
+  type ComplaintSeverity, type JobComplaint,
+} from "@/lib/suppliers/complaints"
+import {
   resolveTenantContext, resolveTenantTenancies,
-  tenancyPropertyIds, formatDate, propertyLabel, jobStatusMeta,
+  tenancyPropertyIds, formatDate, propertyLabel, jobStatusMeta, isOpenJob,
   type TenantContext, type TenancyLite, type PropertyLite,
 } from "../_lib/tenant-context"
 
@@ -44,6 +48,125 @@ function code(e: unknown): string | undefined {
   return (e as { code?: string } | null)?.code
 }
 
+// Inline "report an issue / reopen" block shown on a completed job.
+function JobComplaintBlock({
+  complaints,
+  open,
+  onOpen,
+  onClose,
+  onSubmit,
+}: {
+  complaints: JobComplaint[]
+  open: boolean
+  onOpen: () => void
+  onClose: () => void
+  onSubmit: (p: { category: string; description: string; severity: ComplaintSeverity }) => Promise<void>
+}) {
+  const [category, setCategory] = useState<string>(COMPLAINT_CATEGORIES[0])
+  const [description, setDescription] = useState("")
+  const [severity, setSeverity] = useState<ComplaintSeverity>("medium")
+  const [submitting, setSubmitting] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const active = complaints.find((c) => c.status === "open" || c.status === "acknowledged")
+
+  async function handle() {
+    if (!description.trim()) return
+    setSubmitting(true)
+    setErr(null)
+    try {
+      await onSubmit({ category, description: description.trim(), severity })
+      setDescription("")
+      setCategory(COMPLAINT_CATEGORIES[0])
+      setSeverity("medium")
+    } catch {
+      setErr("Could not submit. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-slate-100">
+      {/* Existing complaints */}
+      {complaints.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {complaints.map((c) => {
+            const meta = COMPLAINT_STATUS_META[c.status]
+            return (
+              <div key={c.id} className="flex items-start gap-2 text-xs">
+                <span className={cn("inline-flex px-1.5 py-0.5 rounded-full border text-[10px] font-semibold shrink-0", meta.badge)}>
+                  {meta.label}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-slate-600">{c.description}</p>
+                  {c.resolution_notes && (
+                    <p className="text-slate-400 mt-0.5">Response: {c.resolution_notes}</p>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {!open ? (
+        <button
+          onClick={onOpen}
+          disabled={!!active}
+          className={cn(
+            "inline-flex items-center gap-1.5 text-xs font-semibold",
+            active ? "text-slate-400 cursor-default" : "text-[#2563EB] hover:underline"
+          )}
+        >
+          <AlertTriangle className="w-3.5 h-3.5" />
+          {active ? "Issue reported — awaiting response" : "Report an issue / reopen"}
+        </button>
+      ) : (
+        <div className="space-y-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-slate-700">Report an issue with this job</p>
+            <button onClick={onClose} className="p-0.5 rounded text-slate-400 hover:text-slate-600" aria-label="Close">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <select
+              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {COMPLAINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select
+              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              value={severity}
+              onChange={(e) => setSeverity(e.target.value as ComplaintSeverity)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <textarea
+            className="w-full min-h-16 rounded-lg border border-slate-200 px-2.5 py-2 text-xs text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            placeholder="Describe what's still wrong…"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          {err && <p className="text-[11px] text-red-600">{err}</p>}
+          <div className="flex gap-2">
+            <Button variant="primary" size="sm" onClick={handle} disabled={submitting || !description.trim()}>
+              {submitting ? "Submitting…" : "Submit"}
+            </Button>
+            <Button variant="outline" size="sm" onClick={onClose} disabled={submitting}>Cancel</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TenantMaintenancePage() {
   const [ctx, setCtx] = useState<TenantContext | null>(null)
   const [tenancies, setTenancies] = useState<TenancyLite[]>([])
@@ -53,6 +176,10 @@ export default function TenantMaintenancePage() {
   const [noContext, setNoContext] = useState(false)
   const [noTenancy, setNoTenancy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Complaints raised by this tenant, keyed by job id (latest first per job).
+  const [complaintsByJob, setComplaintsByJob] = useState<Map<string, JobComplaint[]>>(new Map())
+  const [complaintJobId, setComplaintJobId] = useState<string | null>(null)
 
   const [showForm, setShowForm] = useState(false)
   const [title, setTitle] = useState("")
@@ -111,7 +238,65 @@ export default function TenantMaintenancePage() {
       setError("Could not load your maintenance requests.")
       return
     }
-    setJobs((data ?? []) as unknown as JobRow[])
+    const jobRows = (data ?? []) as unknown as JobRow[]
+    setJobs(jobRows)
+    await refreshComplaints(jobRows.map((j) => j.id))
+  }
+
+  // Complaints this tenant raised — scoped to their OWN job ids only.
+  async function refreshComplaints(jobIds: string[]) {
+    if (jobIds.length === 0) { setComplaintsByJob(new Map()); return }
+    const supabase = createClient()
+    try {
+      const { data, error: cErr } = await supabase
+        .from("job_complaints")
+        .select("*")
+        .in("job_id", jobIds)
+        .order("created_at", { ascending: false })
+      if (cErr) {
+        if (code(cErr) !== "42P01") console.error(cErr)
+        return
+      }
+      const m = new Map<string, JobComplaint[]>()
+      for (const c of (data ?? []) as JobComplaint[]) {
+        const arr = m.get(c.job_id) ?? []
+        arr.push(c)
+        m.set(c.job_id, arr)
+      }
+      setComplaintsByJob(m)
+    } catch { /* tolerate */ }
+  }
+
+  async function submitComplaint(job: JobRow, payload: {
+    category: string
+    description: string
+    severity: ComplaintSeverity
+  }) {
+    if (!ctx?.workspaceId) return
+    const supabase = createClient()
+    const { data, error: insErr } = await supabase
+      .from("job_complaints")
+      .insert({
+        workspace_id: ctx.workspaceId,
+        job_id: job.id,
+        tenant_contact_id: ctx.contactId,
+        category: payload.category,
+        description: payload.description,
+        severity: payload.severity,
+        status: "open",
+      })
+      .select("*")
+      .single()
+    if (insErr) throw insErr
+    if (data) {
+      setComplaintsByJob((prev) => {
+        const next = new Map(prev)
+        const arr = next.get(job.id) ?? []
+        next.set(job.id, [data as JobComplaint, ...arr])
+        return next
+      })
+    }
+    setComplaintJobId(null)
   }
 
   async function handleSubmit() {
@@ -345,6 +530,17 @@ export default function TenantMaintenancePage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Completed jobs: tenant can report an issue / reopen */}
+                    {!isOpenJob(job.status) && (
+                      <JobComplaintBlock
+                        complaints={complaintsByJob.get(job.id) ?? []}
+                        open={complaintJobId === job.id}
+                        onOpen={() => setComplaintJobId(job.id)}
+                        onClose={() => setComplaintJobId(null)}
+                        onSubmit={(p) => submitComplaint(job, p)}
+                      />
+                    )}
                   </Card>
                 )
               })}

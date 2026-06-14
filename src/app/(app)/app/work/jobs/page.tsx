@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Filter,
   Activity,
+  Loader2,
 } from "lucide-react"
 import {
   BarChart,
@@ -44,6 +45,9 @@ import { WorkEmptyState } from "@/components/work/WorkEmptyState"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { useJobs, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
+import { useCreateSavedView } from "@/hooks/useSavedViews"
+import { openCopilot } from "@/lib/copilot/open"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { Eye, Edit2, CheckCircle2, Trash2 } from "lucide-react"
 
@@ -373,6 +377,49 @@ const JOB_VIEW_TYPES = [
 ]
 
 // ---------------------------------------------------------------------------
+// Job card — shared by the Card grid and Board views
+// ---------------------------------------------------------------------------
+function JobCard({ job, compact = false }: { job: DemoJob; compact?: boolean }) {
+  return (
+    <Link
+      href={`/app/work/jobs/${job.id}`}
+      className="block bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm hover:border-slate-300 transition-all"
+    >
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <WorkPriorityBadge priority={job.priority} showLabel={false} />
+          <p className="text-sm font-semibold text-slate-900 truncate">{job.title}</p>
+        </div>
+        {!compact && <WorkStatusBadge status={job.status} />}
+      </div>
+      <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+        {job.category && <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">{job.category}</span>}
+        {job.property && job.property !== "—" && <span className="truncate max-w-[140px]">{job.property}</span>}
+      </div>
+      <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center gap-1.5">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-[10px] text-white font-bold">
+            {job.engineerInitials}
+          </div>
+          <span className="text-[11px] text-slate-500 truncate max-w-[90px]">{job.engineer}</span>
+        </div>
+        {job.quoteValue && job.quoteValue !== "—" && (
+          <span className="text-[11px] font-semibold text-slate-700">{job.quoteValue}</span>
+        )}
+      </div>
+    </Link>
+  )
+}
+
+const JOB_BOARD_COLUMNS: { key: string; label: string }[] = [
+  { key: "new", label: "New" },
+  { key: "scheduled", label: "Scheduled" },
+  { key: "in_progress", label: "In Progress" },
+  { key: "complete", label: "Complete" },
+  { key: "cancelled", label: "Cancelled" },
+]
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function JobsPage() {
@@ -381,6 +428,9 @@ export default function JobsPage() {
   const { data: jobsData, isLoading } = useJobs(workspaceId)
   const updateJob = useUpdateJob()
   const deleteJob = useDeleteJob()
+  const createSavedView = useCreateSavedView()
+  const usingLive = !!(jobsData && jobsData.length > 0)
+  const [bulkBusy, setBulkBusy] = useState(false)
 
   const [activeView, setActiveView] = useState("list")
   const [search, setSearch] = useState("")
@@ -452,6 +502,54 @@ export default function JobsPage() {
     setSelectedIds(e.target.checked ? displayJobs.map(j => j.id) : [])
   }
 
+  // ── Saved Views ───────────────────────────────────────────────────────────
+  interface JobViewConfig extends Record<string, unknown> {
+    search: string; statusFilter: string; priorityFilter: string
+    propertyFilter: string; categoryFilter: string; activeView: string
+  }
+  const viewConfig: JobViewConfig = {
+    search, statusFilter, priorityFilter, propertyFilter, categoryFilter, activeView,
+  }
+  function applyView(c: JobViewConfig) {
+    setSearch(c.search ?? "")
+    setStatusFilter(c.statusFilter ?? "")
+    setPriorityFilter(c.priorityFilter ?? "")
+    setPropertyFilter(c.propertyFilter ?? "")
+    setCategoryFilter(c.categoryFilter ?? "")
+    if (c.activeView) setActiveView(c.activeView)
+  }
+
+  // ── Bulk actions ──────────────────────────────────────────────────────────
+  async function bulkSetStatus(status: string) {
+    if (!workspaceId || selectedIds.length === 0 || !usingLive) return
+    setBulkBusy(true)
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          updateJob.mutateAsync({ id, workspaceId, payload: { status } as never })
+        )
+      )
+      setSelectedIds([])
+    } catch {
+      /* hook rolls back optimistic cache on error */
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+  function exportSelected() {
+    const chosen = displayJobs.filter((j) => selectedIds.includes(j.id))
+    const rows = chosen.map((j) =>
+      [j.id, j.title, j.status, j.priority, j.property, j.dueDate]
+        .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    const csv = ["ID,Title,Status,Priority,Property,Due Date", ...rows].join("\n")
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }))
+    a.download = "jobs-selected.csv"
+    a.click()
+  }
+
   return (
     <div className="space-y-5">
 
@@ -480,6 +578,12 @@ export default function JobsPage() {
           >
             Request Quote
           </Link>
+          <SavedViewsMenu
+            workspaceId={workspaceId}
+            entity="jobs"
+            currentConfig={viewConfig}
+            onApply={applyView}
+          />
           <button
             onClick={() => {
               const rows = displayJobs.map(j => [j.id, j.title, j.status, j.priority, j.property, j.dueDate].join(","))
@@ -490,12 +594,12 @@ export default function JobsPage() {
           >
             <Download className="w-3.5 h-3.5" /> Export
           </button>
-          <Link
-            href="/app/work"
+          <button
+            onClick={() => openCopilot({ prompt: "Summarise my open jobs and flag any at risk of an SLA breach." })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -577,9 +681,35 @@ export default function JobsPage() {
           <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <input type="checkbox" className="rounded" onChange={handleSelectAll} checked={selectedIds.length === displayJobs.length && displayJobs.length > 0} />
-              {selectedIds.length > 0 && (
-                <span className="text-sm font-medium text-slate-700">{selectedIds.length} jobs selected</span>
-              )}
+              {selectedIds.length > 0 ? (
+                <>
+                  <span className="text-sm font-medium text-[#2563EB]">{selectedIds.length} jobs selected</span>
+                  <div className="w-px h-4 bg-slate-200" />
+                  {usingLive ? (
+                    <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[#2563EB]">
+                      Set status
+                      <select
+                        disabled={bulkBusy}
+                        value=""
+                        onChange={(e) => { if (e.target.value) bulkSetStatus(e.target.value) }}
+                        className="h-7 rounded-md border border-slate-200 bg-white px-2 text-[12.5px] text-slate-700 disabled:opacity-50"
+                      >
+                        <option value="" disabled>Choose…</option>
+                        {["new", "scheduled", "in_progress", "on_hold", "complete", "cancelled"].map((s) => (
+                          <option key={s} value={s}>{s.replace("_", " ")}</option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <span className="text-[12px] text-slate-500">Bulk status changes apply to live jobs</span>
+                  )}
+                  {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />}
+                  <button onClick={exportSelected} className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                    <Download className="w-3.5 h-3.5" /> Export Selected
+                  </button>
+                  <button onClick={() => setSelectedIds([])} className="text-slate-400 hover:text-slate-600">✕</button>
+                </>
+              ) : null}
             </div>
             <span className="text-xs text-slate-500">Showing {displayJobs.length} of {displayJobs.length} jobs</span>
           </div>
@@ -749,12 +879,47 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* Non-list view placeholder */}
-      {activeView !== "list" && (
+      {/* Card view */}
+      {activeView === "card" && (
+        displayJobs.length === 0 ? (
+          <WorkEmptyState icon={Briefcase} title="No jobs found" description="Switch to List view or create a job." />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            {displayJobs.map((job) => <JobCard key={job.id} job={job} />)}
+          </div>
+        )
+      )}
+
+      {/* Board (kanban) view — columns by status */}
+      {activeView === "gantt" && (
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {JOB_BOARD_COLUMNS.map((col) => {
+            const colJobs = displayJobs.filter((j) => j.status === col.key)
+            return (
+              <div key={col.key} className="w-72 shrink-0">
+                <div className="flex items-center justify-between px-1 mb-2">
+                  <span className="text-[12.5px] font-semibold text-slate-700">{col.label}</span>
+                  <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">{colJobs.length}</span>
+                </div>
+                <div className="space-y-2 min-h-[60px] rounded-xl bg-slate-50/60 p-2">
+                  {colJobs.length === 0 ? (
+                    <p className="text-[11px] text-slate-400 text-center py-4">No jobs</p>
+                  ) : (
+                    colJobs.map((job) => <JobCard key={job.id} job={job} compact />)
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Views still requiring scheduling/geo backends */}
+      {(activeView === "calendar" || activeView === "map" || activeView === "data") && (
         <WorkEmptyState
           icon={Briefcase}
           title={`${JOB_VIEW_TYPES.find(v => v.key === activeView)?.label ?? "View"} coming soon`}
-          description="Switch to List view to see your jobs."
+          description="Use List, Card or Board view to manage your jobs."
         />
       )}
 
