@@ -182,6 +182,9 @@ async function main(): Promise<void> {
   // 3. PROPERTIES (3)
   // =========================================================================
 
+  // Future deadline dates (ISO date) so the calendar surfaces real legal deadlines.
+  const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10)
+
   const propertyRows = [
     {
       workspace_id: workspaceId,
@@ -198,6 +201,8 @@ async function main(): Promise<void> {
       bathrooms: 2,
       floor_area_sqm: 148,
       target_rent: 2750,
+      hmo_licence_expiry: inDays(95),
+      epc_expiry: inDays(280),
       notes: '5-bed HMO. R2R with Gerald Ashworth. Fully licenced.',
       is_demo: true,
       created_by: userId,
@@ -217,6 +222,7 @@ async function main(): Promise<void> {
       bathrooms: 1,
       floor_area_sqm: 68,
       target_rent: 1050,
+      epc_expiry: inDays(45),
       notes: 'Ground-floor flat. Good transport links.',
       is_demo: true,
       created_by: userId,
@@ -236,6 +242,8 @@ async function main(): Promise<void> {
       bathrooms: 2,
       floor_area_sqm: 120,
       target_rent: 2200,
+      hmo_licence_expiry: inDays(160),
+      epc_expiry: inDays(210),
       notes: '4-bed HMO. R2R with Patricia Okafor.',
       is_demo: true,
       created_by: userId,
@@ -335,6 +343,31 @@ async function main(): Promise<void> {
 
   const tenancies = await insert('tenancies', tenancyRows)
   counts['tenancies'] = tenancies.length
+
+  // =========================================================================
+  // 5b. RENT SCHEDULES (rent payments — surfaced on the calendar as Money)
+  // =========================================================================
+  const rentScheduleRows = (tenancies as any[]).flatMap((tn) => {
+    const amt = Number(tn.rent_amount ?? 0)
+    return [
+      { workspace_id: workspaceId, tenancy_id: tn.id, due_date: inDays(-30), amount_due: amt, amount_paid: amt, status: 'paid' },
+      { workspace_id: workspaceId, tenancy_id: tn.id, due_date: inDays(2),   amount_due: amt, amount_paid: 0,   status: 'due' },
+      { workspace_id: workspaceId, tenancy_id: tn.id, due_date: inDays(32),  amount_due: amt, amount_paid: 0,   status: 'due' },
+    ]
+  })
+  const rentSchedules = await insert('rent_schedules', rentScheduleRows)
+  counts['rent_schedules'] = rentSchedules.length
+
+  // =========================================================================
+  // 5c. PPM PLANS (planned preventive maintenance — surfaced as Work)
+  // =========================================================================
+  const ppmRows = [
+    { workspace_id: workspaceId, name: 'Annual gas safety check', category: 'gas', status: 'active', frequency: 'annual', property_id: prop1.id, next_due_date: inDays(40), is_demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'Communal area deep clean', category: 'cleaning', status: 'active', frequency: 'quarterly', property_id: prop1.id, next_due_date: inDays(12), is_demo: true, created_by: userId },
+    { workspace_id: workspaceId, name: 'Boiler service', category: 'heating', status: 'active', frequency: 'annual', property_id: prop3.id, next_due_date: inDays(70), is_demo: true, created_by: userId },
+  ]
+  const ppmPlans = await insert('ppm_plans', ppmRows)
+  counts['ppm_plans'] = ppmPlans.length
 
   // =========================================================================
   // 6. TASKS (5)

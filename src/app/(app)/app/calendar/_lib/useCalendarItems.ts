@@ -6,12 +6,22 @@
 // The calendar OWNS native calendar_events but its real power is aggregating
 // date-linked records from every other live section:
 //   • calendar_events  → /app/calendar/events/{id}        (native, editable)
-//   • tasks.due_date   → /app/work/tasks/{id}
+//   • tasks.due_at        → /app/work/tasks/{id}
 //   • jobs.scheduled_date → /app/work/jobs/{id}
+//   • job_schedules.next_run_at → /app/work/jobs            (recurring scheduled work)
+//   • ppm_plans.next_due_date → /app/work/ppm/{id}          (planned maintenance)
 //   • tenancies.start_date / end_date → /app/portfolio/tenancies/{id}
+//   • rent_schedules.due_date → /app/money/rent-chase       (rent payments due)
+//   • arrears_records.due_date → /app/money/arrears         (rent arrears)
+//   • compliance_items.due_date → /app/compliance/coverage  (the live compliance source)
 //   • compliance_certificates.expiry_date → /app/compliance/certificates/{id}
 //   • compliance_inspections.scheduled_date → /app/compliance/inspections/{id}
+//   • properties.hmo_licence_expiry / epc_expiry → /app/portfolio/properties/{id} (legal deadlines)
 //   • planning_landlord_offers.responded_at/sent_at → /app/planning/landlord-offers/{id}
+//
+// Every column referenced above is verified against the live DB schema
+// (introspected 2026-06-14). possession/HMO-licence have no dedicated table —
+// HMO/EPC legal deadlines are property columns, surfaced as compliance items.
 //
 // Every source query is individually 42P01 / RLS tolerant: a missing table
 // yields an empty contribution instead of throwing, so the calendar always
@@ -145,13 +155,19 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
         eventsRes,
         tasksRes,
         jobsRes,
+        jobSchedulesRes,
+        ppmRes,
         tenanciesRes,
+        rentRes,
+        arrearsRes,
+        complianceItemsRes,
         certsRes,
         inspectionsRes,
+        propsRes,
         offersRes,
       ] = await Promise.all([
         supabase.from('calendar_events')
-          .select('id, title, description, start_at, end_at, all_day, property_id')
+          .select('id, title, description, start_at, end_at, all_day, property_id, metadata')
           .eq('workspace_id', wsId)
           .order('start_at', { ascending: true }),
         supabase.from('tasks')
@@ -162,9 +178,30 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           .select('id, title, description, scheduled_date, status, property_id')
           .eq('workspace_id', wsId)
           .not('scheduled_date', 'is', null),
+        supabase.from('job_schedules')
+          .select('id, title, kind, next_run_at, active, property_id')
+          .eq('workspace_id', wsId)
+          .not('next_run_at', 'is', null),
+        supabase.from('ppm_plans')
+          .select('id, name, description, category, status, next_due_date, property_id')
+          .eq('workspace_id', wsId)
+          .not('next_due_date', 'is', null),
         supabase.from('tenancies')
           .select('id, start_date, end_date, status, property_id')
           .eq('workspace_id', wsId),
+        supabase.from('rent_schedules')
+          .select('id, due_date, amount_due, amount_paid, status, tenancy_id')
+          .eq('workspace_id', wsId)
+          .not('due_date', 'is', null),
+        supabase.from('arrears_records')
+          .select('id, due_date, amount_outstanding, status, property_id')
+          .eq('workspace_id', wsId)
+          .not('due_date', 'is', null),
+        supabase.from('compliance_items')
+          .select('id, title, kind, status, due_date, property_id')
+          .eq('workspace_id', wsId)
+          .is('deleted_at', null)
+          .not('due_date', 'is', null),
         supabase.from('compliance_certificates')
           .select('id, certificate_type, expiry_date, status, property_id')
           .eq('workspace_id', wsId)
@@ -173,24 +210,29 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           .select('id, inspection_type, scheduled_date, status, property_id')
           .eq('workspace_id', wsId)
           .not('scheduled_date', 'is', null),
+        supabase.from('properties')
+          .select('id, nickname, address_line1, hmo_licence_expiry, epc_expiry')
+          .eq('workspace_id', wsId),
         supabase.from('planning_landlord_offers')
           .select('id, property_address, status, sent_at, responded_at, created_at')
           .eq('workspace_id', wsId),
       ])
 
       sourcesLive.calendar = !eventsRes.error
-      sourcesLive.work = !tasksRes.error || !jobsRes.error
+      sourcesLive.work = !tasksRes.error || !jobsRes.error || !jobSchedulesRes.error || !ppmRes.error
       sourcesLive.portfolio = !tenanciesRes.error
-      sourcesLive.compliance = !certsRes.error || !inspectionsRes.error
+      sourcesLive.compliance = !complianceItemsRes.error || !certsRes.error || !inspectionsRes.error || !propsRes.error
       sourcesLive.planning = !offersRes.error
-      // money + contacts surface through native calendar_events source_module
-      sourcesLive.money = !eventsRes.error
+      // money surfaces through rent schedules + arrears (+ native source_module)
+      sourcesLive.money = !rentRes.error || !arrearsRes.error || !eventsRes.error
       sourcesLive.contacts = !eventsRes.error
 
       // ── Native calendar events ───────────────────────────────────────────
       for (const e of tolerant(eventsRes) as Array<Record<string, any>>) {
         if (!e.start_at) continue
-        const sm = (e.source_module ?? 'manual') as string
+        // source_module / status are stored in metadata (not columns).
+        const meta = (e.metadata ?? {}) as Record<string, any>
+        const sm = (meta.source_module ?? 'manual') as string
         const source: CalendarSource =
           sm === 'money' ? 'money'
           : sm === 'contacts' ? 'contacts'
@@ -209,7 +251,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           allDay: Boolean(e.all_day),
           source,
           sourceLabel: SOURCE_META[source].label,
-          status: mapNativeStatus(e.status ?? null),
+          status: mapNativeStatus((meta.status ?? null) as string | null),
           href: `/app/calendar/events/${e.id}`,
           propertyId: e.property_id ?? null,
           isNative: true,
@@ -262,6 +304,50 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
         })
       }
 
+      // ── Job schedules (next recurring run) → Work ────────────────────────
+      for (const s of tolerant(jobSchedulesRes) as Array<Record<string, any>>) {
+        const when = s.next_run_at as string | null
+        if (!when) continue
+        items.push({
+          key: `jobsched:${s.id}`,
+          recordId: s.id,
+          title: s.title ? `${s.title} (recurring)` : 'Scheduled work',
+          description: s.kind ?? null,
+          start: when,
+          end: null,
+          allDay: false,
+          source: 'work',
+          sourceLabel: 'Work',
+          status: deriveStatus(new Date(when), today, { cancelled: s.active === false }),
+          href: `/app/work/jobs`,
+          propertyId: s.property_id ?? null,
+          isNative: false,
+        })
+      }
+
+      // ── PPM plans (next planned-maintenance date) → Work ─────────────────
+      for (const p of tolerant(ppmRes) as Array<Record<string, any>>) {
+        const when = p.next_due_date as string | null
+        if (!when) continue
+        const done = p.status === 'completed' || p.status === 'archived'
+        const cancelled = p.status === 'cancelled' || p.status === 'paused'
+        items.push({
+          key: `ppm:${p.id}`,
+          recordId: p.id,
+          title: `PPM — ${p.name ?? 'Planned maintenance'}`,
+          description: p.category ?? p.description ?? null,
+          start: when,
+          end: null,
+          allDay: true,
+          source: 'work',
+          sourceLabel: 'Work',
+          status: deriveStatus(new Date(when), today, { done, cancelled }),
+          href: `/app/work/ppm/${p.id}`,
+          propertyId: p.property_id ?? null,
+          isNative: false,
+        })
+      }
+
       // ── Tenancies (start_date / end_date) → Portfolio ────────────────────
       for (const tn of tolerant(tenanciesRes) as Array<Record<string, any>>) {
         const ended = tn.status === 'ended' || tn.status === 'surrendered'
@@ -296,6 +382,104 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
             status: deriveStatus(new Date(tn.end_date), today, { done: ended }),
             href: `/app/portfolio/tenancies/${tn.id}`,
             propertyId: tn.property_id ?? null,
+            isNative: false,
+          })
+        }
+      }
+
+      // ── Rent schedules (due date) → Money ────────────────────────────────
+      for (const r of tolerant(rentRes) as Array<Record<string, any>>) {
+        const when = r.due_date as string | null
+        if (!when) continue
+        const paid = r.status === 'paid'
+          || (Number(r.amount_paid ?? 0) >= Number(r.amount_due ?? 0) && Number(r.amount_due ?? 0) > 0)
+        const cancelled = r.status === 'cancelled' || r.status === 'waived'
+        const amt = Number(r.amount_due ?? 0)
+        items.push({
+          key: `rent:${r.id}`,
+          recordId: r.id,
+          title: amt > 0 ? `Rent due — £${amt.toLocaleString('en-GB')}` : 'Rent due',
+          description: null,
+          start: when,
+          end: null,
+          allDay: true,
+          source: 'money',
+          sourceLabel: 'Money',
+          status: deriveStatus(new Date(when), today, { done: paid, cancelled }),
+          href: `/app/money/rent-chase`,
+          propertyId: null,
+          isNative: false,
+        })
+      }
+
+      // ── Arrears (overdue rent) → Money ───────────────────────────────────
+      for (const a of tolerant(arrearsRes) as Array<Record<string, any>>) {
+        const when = a.due_date as string | null
+        if (!when) continue
+        const resolved = a.status === 'resolved' || a.status === 'cleared' || a.status === 'paid' || a.status === 'closed'
+        const out = Number(a.amount_outstanding ?? 0)
+        items.push({
+          key: `arrears:${a.id}`,
+          recordId: a.id,
+          title: out > 0 ? `Arrears — £${out.toLocaleString('en-GB')} outstanding` : 'Arrears',
+          description: null,
+          start: when,
+          end: null,
+          allDay: true,
+          source: 'money',
+          sourceLabel: 'Money',
+          status: resolved ? 'completed' : deriveStatus(new Date(when), today, {}),
+          href: `/app/money/arrears`,
+          propertyId: a.property_id ?? null,
+          isNative: false,
+        })
+      }
+
+      // ── Compliance items (due_date) → Compliance (the live source) ───────
+      for (const ci of tolerant(complianceItemsRes) as Array<Record<string, any>>) {
+        const when = ci.due_date as string | null
+        if (!when) continue
+        const done = ci.status === 'compliant' || ci.status === 'completed' || ci.status === 'passed'
+        const cancelled = ci.status === 'not_applicable' || ci.status === 'exempt'
+        items.push({
+          key: `compitem:${ci.id}`,
+          recordId: ci.id,
+          title: ci.title ?? `${ci.kind ?? 'Compliance'} due`,
+          description: ci.kind ?? null,
+          start: when,
+          end: null,
+          allDay: true,
+          source: 'compliance',
+          sourceLabel: 'Compliance',
+          status: deriveStatus(new Date(when), today, { done, cancelled }),
+          href: `/app/compliance/coverage`,
+          propertyId: ci.property_id ?? null,
+          isNative: false,
+        })
+      }
+
+      // ── Property legal deadlines (HMO licence / EPC expiry) → Compliance ──
+      for (const pr of tolerant(propsRes) as Array<Record<string, any>>) {
+        const label = pr.nickname ?? pr.address_line1 ?? 'Property'
+        const deadlines: Array<[string | null, string]> = [
+          [pr.hmo_licence_expiry as string | null, 'HMO licence expires'],
+          [pr.epc_expiry as string | null, 'EPC expires'],
+        ]
+        for (const [when, kind] of deadlines) {
+          if (!when) continue
+          items.push({
+            key: `propdeadline:${pr.id}:${kind}`,
+            recordId: pr.id,
+            title: `${kind} — ${label}`,
+            description: null,
+            start: when,
+            end: null,
+            allDay: true,
+            source: 'compliance',
+            sourceLabel: 'Compliance',
+            status: deriveStatus(new Date(when), today, {}),
+            href: `/app/portfolio/properties/${pr.id}`,
+            propertyId: pr.id,
             isNative: false,
           })
         }
