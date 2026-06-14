@@ -359,7 +359,7 @@ function KpiCard({
 /* ─────────────────────────────────────────────────────────────────────
    TAB: OVERVIEW (1A)
 ───────────────────────────────────────────────────────────────────── */
-function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complianceLoaded, activity, activityLoaded, jobs, tasks, coverImageUrl, onCoverUpload, uploadingCover, coverInputRef, onSave, onGoTab }: {
+function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complianceLoaded, activity, activityLoaded, jobs, tasks, coverImageUrl, onCoverUpload, uploadingCover, coverError, coverInputRef, onSave, onGoTab }: {
   prop: Property
   unitsList: Unit[]
   tenanciesList: Tenancy[]
@@ -372,6 +372,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
   coverImageUrl: string | null
   onCoverUpload: (file: File) => Promise<void>
   uploadingCover: boolean
+  coverError: string | null
   coverInputRef: React.RefObject<HTMLInputElement | null>
   onSave: (field: string, value: any) => Promise<void>
   onGoTab: (tab: string) => void
@@ -448,7 +449,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
             <input
               ref={coverInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -464,6 +465,11 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
               <Upload size={12} />
               {uploadingCover ? "Uploading…" : "Edit Cover"}
             </button>
+            {coverError && (
+              <div className="absolute top-14 right-3 max-w-[260px] bg-red-600 text-white text-[11px] font-medium px-3 py-2 rounded-lg shadow-lg">
+                {coverError}
+              </div>
+            )}
             {/* Drag-over overlay */}
             {dragOver && (
               <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl border-2 border-blue-400 border-dashed">
@@ -1747,6 +1753,7 @@ export default function PropertyDetailPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null)
   const [uploadingCover, setUploadingCover] = useState(false)
+  const [coverError, setCoverError] = useState<string | null>(null)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
   const { data: property, isLoading: propLoading } = useProperty(workspace?.id, propertyId)
@@ -1783,22 +1790,27 @@ export default function PropertyDetailPage() {
   async function handleCoverUpload(file: File) {
     if (!workspace?.id || !propertyId) return
     setUploadingCover(true)
+    setCoverError(null)
     try {
       // 1. Server-proxied upload to R2 → authed view URL
       const { url: publicUrl } = await uploadFile(file, workspace.id, "property-covers")
 
-      // 2. Save to Supabase
+      // 2. Persist the cover URL — surface a real error rather than silently
+      //    "uploading forever" if the write is rejected.
       const supabase = createClient()
-      await supabase
+      const { error } = await supabase
         .from("properties")
         .update({ cover_image_url: publicUrl })
         .eq("id", propertyId)
         .eq("workspace_id", workspace.id)
+      if (error) throw new Error(error.message)
 
-      // 5. Optimistic update
+      // 3. Optimistic update
       setCoverImageUrl(publicUrl)
     } catch (err) {
+      const msg = err instanceof Error ? err.message : "Cover upload failed"
       console.error("Cover upload failed:", err)
+      setCoverError(msg)
     } finally {
       setUploadingCover(false)
     }
@@ -1973,6 +1985,7 @@ export default function PropertyDetailPage() {
               coverImageUrl={effectiveCoverUrl}
               onCoverUpload={handleCoverUpload}
               uploadingCover={uploadingCover}
+              coverError={coverError}
               coverInputRef={coverInputRef}
               onSave={save}
               onGoTab={setActiveTab}

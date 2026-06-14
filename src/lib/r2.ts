@@ -20,7 +20,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 // ─── Allowed file extensions ─────────────────────────────────────────────────
 
 const ALLOWED_EXTENSIONS = new Set([
-  "pdf", "jpg", "jpeg", "png", "gif", "webp", "svg",
+  "pdf", "jpg", "jpeg", "png", "gif", "webp", "svg", "heic", "heif",
   "doc", "docx", "xls", "xlsx", "csv", "txt",
 ])
 
@@ -43,6 +43,31 @@ export function r2Configured(): boolean {
 
 let _client: S3Client | null = null
 
+/**
+ * Resolve the S3 endpoint **origin only** (scheme + host, no path).
+ *
+ * A common misconfiguration is setting R2_ENDPOINT to the bucket URL, e.g.
+ * `https://<acct>.r2.cloudflarestorage.com/propvora`. The S3 client also
+ * appends `Bucket`, producing `…/propvora/propvora/<key>` → broken uploads.
+ * We strip any path so only the account origin is used. If R2_ENDPOINT is
+ * unset/garbage we fall back to the account-id host (and if R2_ACCOUNT_ID was
+ * mistakenly set to an API token like `cfat_…`, recover the 32-hex account id
+ * from the endpoint host instead).
+ */
+function resolveEndpoint(accountId: string): string {
+  const raw = process.env.R2_ENDPOINT?.trim()
+  if (raw) {
+    try {
+      return new URL(raw).origin // drops any /bucket path + trailing slash
+    } catch {
+      /* fall through to account-id host */
+    }
+  }
+  const looksLikeId = /^[0-9a-f]{32}$/i.test(accountId)
+  if (looksLikeId) return `https://${accountId}.r2.cloudflarestorage.com`
+  throw new Error("R2 endpoint cannot be resolved (set R2_ENDPOINT to the account origin)")
+}
+
 export function getR2Client(): S3Client {
   if (_client) return _client
 
@@ -58,7 +83,7 @@ export function getR2Client(): S3Client {
 
   _client = new S3Client({
     region: "auto",
-    endpoint: process.env.R2_ENDPOINT || `https://${accountId}.r2.cloudflarestorage.com`,
+    endpoint: resolveEndpoint(accountId),
     credentials: { accessKeyId, secretAccessKey },
   })
 

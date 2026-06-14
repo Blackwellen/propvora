@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic"
 
 const ALLOWED_CONTENT_TYPES = new Set([
   "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+  "image/heic", "image/heif", // iPhone photos
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
