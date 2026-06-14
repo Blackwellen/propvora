@@ -174,6 +174,10 @@ export default function OnboardingPage() {
   const [userName, setUserName] = useState("")
   const [progressMessageIndex, setProgressMessageIndex] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // Final-step opt-in for the in-app guided tour. Persisted to the SAME
+  // localStorage key the GuidedHelpProvider reads ("propvora.help.enabled"),
+  // so the choice carries straight into the app shell.
+  const [showTour, setShowTour] = useState(true)
 
   const [state, setState] = useState<WizardState>({
     workspaceName: "",
@@ -258,6 +262,8 @@ export default function OnboardingPage() {
         // Onboarding complete — clear saved progress so it doesn't resume.
         try {
           localStorage.removeItem(STORAGE_KEY)
+          // Carry the tour opt-out into the app (GuidedHelpProvider reads this key).
+          localStorage.setItem("propvora.help.enabled", String(showTour))
         } catch {
           // Non-fatal.
         }
@@ -821,6 +827,34 @@ export default function OnboardingPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Guided tour opt-in / opt-out */}
+              <button
+                type="button"
+                onClick={() => setShowTour((v) => !v)}
+                aria-pressed={showTour}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-all",
+                  showTour
+                    ? "border-[#2563EB] bg-[#EFF6FF]"
+                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                )}
+              >
+                <div
+                  className={cn(
+                    "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-all",
+                    showTour ? "border-[#2563EB] bg-[#2563EB]" : "border-slate-300"
+                  )}
+                >
+                  {showTour && <Check className="h-3 w-3 text-white" />}
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-800">Show me around</span>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Display guided walkthroughs and tips as you explore. Untick to skip the tour — you can re-enable it any time in Preferences.
+                  </p>
+                </div>
+              </button>
 
               <Button
                 type="button"

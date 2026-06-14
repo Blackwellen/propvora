@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Sun, Moon, Monitor, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUserPreferences, saveUserPreferences } from "@/lib/actions/settings"
+import { useGuidedHelp } from "@/guided-help/GuidedHelpProvider"
 
 type Theme   = "light" | "dark" | "system"
 type Density = "compact" | "comfortable" | "spacious"
@@ -29,6 +30,10 @@ export default function PreferencesPage() {
   const [saving, setSaving] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  // Guided product tour / tips toggle — persisted by the guided-help provider
+  // (localStorage "propvora.help.enabled" + best-effort guided_help_state).
+  const { enabled: tourEnabled, setEnabled: setTourEnabled } = useGuidedHelp()
 
   useEffect(() => {
     getUserPreferences().then(({ prefs, unavailable }) => {
@@ -200,7 +205,7 @@ export default function PreferencesPage() {
       </div>
 
       {/* Accessibility */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-24">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <h3 className="text-[14px] font-bold text-slate-900 mb-1">Accessibility</h3>
         <p className="text-[12.5px] text-slate-500 mb-4">Reduce visual motion and animation</p>
         <div className="flex items-center justify-between py-2">
@@ -221,6 +226,35 @@ export default function PreferencesPage() {
               className={cn(
                 "absolute top-1 block w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
                 form.reducedMotion ? "translate-x-5" : "translate-x-1"
+              )}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Guided help / product tour */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-24">
+        <h3 className="text-[14px] font-bold text-slate-900 mb-1">Product Tour &amp; Tips</h3>
+        <p className="text-[12.5px] text-slate-500 mb-4">Show guided walkthroughs and first-use tips as you explore Propvora</p>
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <p className="text-[13px] font-medium text-slate-800">Guided tour &amp; tips</p>
+            <p className="text-[11.5px] text-slate-400">
+              Turn off to stop walkthrough pop-ups appearing on first use of each section
+            </p>
+          </div>
+          <button
+            onClick={() => setTourEnabled(!tourEnabled)}
+            aria-pressed={tourEnabled}
+            className={cn(
+              "w-10 h-6 rounded-full transition-colors relative shrink-0",
+              tourEnabled ? "bg-[#2563EB]" : "bg-slate-200"
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-1 block w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+                tourEnabled ? "translate-x-5" : "translate-x-1"
               )}
             />
           </button>

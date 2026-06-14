@@ -4,7 +4,7 @@ const { tables, enums } = JSON.parse(readFileSync("docs/final-wiring/live-schema
 const seedTables = [
   "activity_logs","affiliate_commissions","affiliate_referrals","affiliates","agreement_signatories",
   "ai_chat_messages","ai_chat_threads","calendar_events","chart_of_accounts","client_accounts",
-  "compliance_certificates","compliance_inspections","contacts","conversations","documents",
+  "compliance_certificates","compliance_inspections","compliance_items","contacts","conversations","documents",
   "expense_records","income_records","invoices","jobs","messages","money_arrears_cases","money_bills",
   "money_deposits","money_expenses","money_income","money_invoice_lines","money_invoices",
   "money_transactions","notifications","planning_assumptions","planning_bill_lines","planning_expense_lines",

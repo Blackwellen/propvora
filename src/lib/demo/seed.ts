@@ -291,16 +291,19 @@ export async function seedDemoData(
   const job5 = jobs.find((j: { reference: string }) => j.reference === 'JOB-005')
 
   // ============================================================
-  // 7. SUPPLIER JOBS (3)
+  // 7. SUPPLIER JOBS (5)
   // ============================================================
-
-  if (job1 && job2 && job5) {
-    await safeInsert(supabase, 'supplier_jobs', [
-      { workspace_id: workspaceId, job_id: job1.id, supplier_contact_id: supplier1.id, status: 'complete', notes: 'Shower replaced, job signed off.', demo: true },
-      { workspace_id: workspaceId, job_id: job2.id, supplier_contact_id: supplier1.id, status: 'in_progress', notes: 'Started painting. Expect 2 more days.', demo: true },
-      { workspace_id: workspaceId, job_id: job5.id, supplier_contact_id: supplier2.id, status: 'complete', notes: 'Clean completed and confirmed.', demo: true },
-    ])
-  }
+  // Base table (not a view). NOT NULL no-default: workspace_id, property_id,
+  // supplier_contact_id, title. status enum = supplier_job_status
+  // (draft|quoted|approved|scheduled|in_progress|completed|invoiced|paid|cancelled).
+  void job1; void job2; void job5
+  await safeInsert(supabase, 'supplier_jobs', [
+    { workspace_id: workspaceId, property_id: prop1.id, supplier_contact_id: supplier1.id, title: 'Replace broken shower — Room 3', description: 'Electric shower unit failed. Full replacement.', status: 'completed', quoted_amount: 380, approved_amount: 380, invoice_amount: 380, scheduled_for: tsDaysAgo(14), completed_at: tsDaysAgo(12), notes: 'Replaced with Triton T80z. Signed off.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop2.id, supplier_contact_id: supplier1.id, title: 'Repaint hallway and landing', description: 'Full repaint in Dulux White Cotton.', status: 'in_progress', quoted_amount: 650, approved_amount: 650, scheduled_for: tsDaysAgo(3), notes: 'Started painting. Expect 2 more days.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop1.id, supplier_contact_id: supplier2.id, title: 'Weekly communal clean — 42 Sycamore Road', description: 'Kitchen, bathrooms, hallways.', status: 'completed', quoted_amount: 80, approved_amount: 80, invoice_amount: 80, scheduled_for: tsDaysAgo(7), completed_at: tsDaysAgo(7), notes: 'Clean completed and confirmed.', demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop3.id, supplier_contact_id: supplier1.id, title: 'Boiler service — 22 Birchfield Lane', description: 'Annual boiler service + gas safety check.', status: 'scheduled', quoted_amount: 180, approved_amount: 180, scheduled_for: isoDateFromNow(7, 9), demo: true, created_by: userId },
+    { workspace_id: workspaceId, property_id: prop4.id, supplier_contact_id: supplier3.id, title: 'Electrical safety check — 7 Redwood Avenue', description: 'Pre-SA NICEIC electrical safety check.', status: 'quoted', quoted_amount: 350, demo: true, created_by: userId },
+  ])
 
   // ============================================================
   // 8. SUPPLIER INVOICES (3)
@@ -575,25 +578,45 @@ export async function seedDemoData(
   // ============================================================
   // 19. MONEY_TRANSACTIONS — 30 bank transactions
   // ============================================================
+  // Base table (not a view). NOT NULL no-default: workspace_id, direction,
+  // category, amount, occurred_on. Enums: direction = money_direction (in|out),
+  // category = money_category (rent|maintenance|cleaning|utility_recharge|
+  // insurance|management_fee|...). amount is always positive; direction signs it.
+
+  const txnProps = [prop1.id, prop2.id, prop3.id, prop4.id, prop1.id]
+  const txnIncome = [
+    { category: 'rent', amount: 550, description: 'ROOM RENT SYCAMORE' },
+    { category: 'rent', amount: 1050, description: 'HAWTHORN ST RENT' },
+    { category: 'rent', amount: 2200, description: 'BIRCHFIELD LANE RENT' },
+    { category: 'rent', amount: 2340, description: 'AIRBNB PAYOUT' },
+    { category: 'rent', amount: 500, description: 'SA BOOKING INCOME' },
+  ]
+  const txnExpense = [
+    { category: 'maintenance', amount: 380, description: 'DPM MAINTENANCE LTD' },
+    { category: 'cleaning', amount: 80, description: 'CLEANBRIGHT SERVICES' },
+    { category: 'utility_recharge', amount: 210, description: 'GAS/ELECTRIC UTILITA' },
+    { category: 'maintenance', amount: 650, description: 'BW ELECTRICAL' },
+    { category: 'insurance', amount: 185, description: 'LANDLORDINSURE UK' },
+  ]
 
   const transactionRows = []
   for (let i = 0; i < 30; i++) {
     const isIncome = i % 3 !== 2
-    const amount = isIncome ? [550, 500, 1050, 2200, 2340][i % 5] : -[380, 80, 210, 650, 185][i % 5]
-    const descriptions = isIncome
-      ? ['ROOM RENT SYCAMORE', 'HAWTHORN ST RENT', 'BIRCHFIELD LANE RENT', 'AIRBNB PAYOUT', 'SA BOOKING INCOME']
-      : ['DPM MAINTENANCE LTD', 'CLEANBRIGHT SERVICES', 'GAS/ELECTRIC UTILITA', 'BW ELECTRICAL', 'LANDLORDINSURE UK']
-    const daysOffset = i * 4
-
+    const spec = isIncome ? txnIncome[i % 5] : txnExpense[i % 5]
     transactionRows.push({
       workspace_id: workspaceId,
-      transaction_date: daysAgo(daysOffset),
-      description: descriptions[i % 5],
-      amount,
+      direction: isIncome ? 'in' : 'out',
+      category: spec.category,
+      amount: spec.amount,
       currency: 'GBP',
-      source: 'barclays_import',
-      status: i < 20 ? 'matched' : i < 25 ? 'suggested' : 'unmatched',
-      matched_entity_type: i < 20 ? (isIncome ? 'income_record' : 'expense_record') : null,
+      occurred_on: daysAgo(i * 4),
+      property_id: txnProps[i % 5],
+      description: spec.description,
+      reference: `BANK-${String(i + 1).padStart(3, '0')}`,
+      reconciled: i < 20,
+      reconciled_at: i < 20 ? tsDaysAgo(i * 4) : null,
+      demo: true,
+      created_by: userId,
     })
   }
 

@@ -111,7 +111,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
           ) : workspaces.length === 0 ? (
             <div className="px-3 py-4 text-[12px] text-slate-400 text-center">No workspaces found</div>
           ) : (
-            <div className="py-1">
+            <div className="py-1 max-h-[min(55vh,340px)] overflow-y-auto overscroll-contain">
               {workspaces.map((ws) => {
                 const isActive = ws.id === activeId
                 const isSwitching = switching === ws.id
