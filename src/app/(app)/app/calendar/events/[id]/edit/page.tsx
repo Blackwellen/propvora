@@ -314,12 +314,18 @@ export default function EventEditPage() {
           description: form.description || null,
           start_at: startIso.toISOString(),
           end_at: endIso.toISOString(),
+          start_date: form.startDate,
+          start_time: form.allDay ? null : (form.startTime || null),
+          end_time: form.allDay ? null : (form.endTime || null),
           event_type: form.eventType || "manual",
           all_day: form.allDay,
-          timezone: form.timezone || "Europe/London",
-          risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
           recurrence_rule: form.recurrence !== "None" ? form.recurrence : null,
-          location: form.location || null,
+          // No dedicated columns for these on calendar_events — keep in metadata.
+          metadata: {
+            timezone: form.timezone || "Europe/London",
+            risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
+            location: form.location || null,
+          },
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)

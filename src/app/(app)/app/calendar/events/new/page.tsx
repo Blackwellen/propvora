@@ -703,15 +703,24 @@ export default function NewEventPage() {
           description: form.notes || null,
           start_at: startIso.toISOString(),
           end_at: endIso.toISOString(),
+          // start_date is NOT NULL on calendar_events; also populate the split
+          // date/time columns the calendar views read.
+          start_date: form.startDate,
+          start_time: form.allDay ? null : (form.startTime || null),
+          end_time: form.allDay ? null : (form.endTime || null),
           event_type: form.eventType || "manual",
-          source_module: sourceModule,
           all_day: form.allDay,
-          timezone: form.timezone || "Europe/London",
-          status: "scheduled",
-          risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
           recurrence_rule: form.recurrence !== "None" ? form.recurrence : null,
           property_id: form.property ? (propertyMap[form.property] ?? null) : null,
-          location: form.location || null,
+          // No dedicated columns on calendar_events for these — preserve in metadata
+          // jsonb instead of failing the insert (source_module/timezone/status/risk/location).
+          metadata: {
+            source_module: sourceModule,
+            timezone: form.timezone || "Europe/London",
+            status: "scheduled",
+            risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
+            location: form.location || null,
+          },
         })
         .select("id")
         .single()

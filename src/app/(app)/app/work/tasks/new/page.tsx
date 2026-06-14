@@ -197,13 +197,16 @@ export default function NewTaskPage() {
           workspace_id: workspace?.id,
           title: data.title,
           description: data.description || null,
-          category: data.category,
-          priority: data.priority,
+          // Map to the real columns/enums: task_kind + task_priority. The wizard's
+          // category/priority option sets are wider than the DB enums, so coerce.
+          kind: (["maintenance", "compliance", "admin", "inspection", "turnover"].includes(data.category) ? data.category : "general"),
+          priority: (data.priority === "medium" ? "normal" : data.priority),
           status: "todo",
           property_id: data.propertyId || null,
-          due_date: data.dueDate || null,
+          due_at: data.dueDate || null,
           estimated_cost: data.estimatedCost || null,
-          assigned_to: data.assignee || null,
+          // No free-text assignee column on tasks; preserve the entered name in metadata.
+          metadata: data.assignee ? { assignee_name: data.assignee } : null,
         })
         .select()
         .single()
