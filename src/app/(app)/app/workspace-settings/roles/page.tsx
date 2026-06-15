@@ -344,7 +344,7 @@ export default function RolesPage() {
       </div>
 
       {/* Save bar */}
-      <div className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
+      <div className="app-save-bar fixed left-0 right-0 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
         <p className="text-[13px] text-slate-500 truncate min-w-0">
           {saved
             ? "Changes saved"

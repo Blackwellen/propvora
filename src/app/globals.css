@@ -337,6 +337,28 @@ img, picture, video, canvas, svg {
   .pwa-safe-bottom { margin-bottom: env(safe-area-inset-bottom); }
 }
 
+/* ── App save-bar / bottom-nav stacking (A8.1) ────────────────────────────
+   Settings/account/detail-edit pages render a sticky "Unsaved changes" bar
+   anchored to the bottom of the viewport. Below `lg` the fixed MobileBottomNav
+   (z-40, ~64px tall + safe-area inset) owns the same edge, so a bar anchored at
+   bottom:0 stacks ON TOP of the nav (making it unusable) — or, when its z-index
+   is below 40, hides BEHIND the nav.
+
+   `.app-save-bar` fixes both: on mobile it lifts the bar to sit cleanly ABOVE
+   the bottom nav and forces it above the nav's z-index; on `lg+` (no bottom nav)
+   it collapses back to a flush bottom:0 bar. Apply alongside the bar's own
+   `fixed left-0 right-0` + visual classes; do NOT also set `bottom-0`/`z-*`. */
+.app-save-bar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+  z-index: 41; /* above MobileBottomNav (z-40) */
+}
+@media (min-width: 1024px) {
+  .app-save-bar {
+    bottom: 0;
+    z-index: 30; /* desktop: no bottom nav to clear */
+  }
+}
+
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
   to   { transform: translateX(0); }

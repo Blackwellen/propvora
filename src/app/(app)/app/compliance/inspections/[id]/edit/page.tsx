@@ -252,7 +252,7 @@ export default function EditInspectionPage() {
   const typeLabel = INSPECTION_TYPES.find((t) => t.value === inspType)?.label ?? "Inspection"
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 pb-[120px] lg:pb-0">
       <div className="px-4 sm:px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
           <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
@@ -383,7 +383,7 @@ export default function EditInspectionPage() {
         <div className="h-20" />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg px-4 sm:px-6 py-3">
+      <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 shadow-lg px-4 sm:px-6 py-3">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             {savedMsg && (

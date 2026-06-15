@@ -209,7 +209,7 @@ export default function SecurityPage() {
 
       {/* Sticky save bar */}
       {isDirty && (
-        <div className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 bg-white border-t border-slate-200 shadow-lg">
+        <div className="app-save-bar fixed left-0 right-0 flex items-center justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 bg-white border-t border-slate-200 shadow-lg">
           <p className="text-[13px] text-slate-600 truncate min-w-0"><span className="hidden sm:inline">You have unsaved security policy changes</span><span className="sm:hidden">Unsaved changes</span></p>
           <div className="flex items-center gap-3">
             <button

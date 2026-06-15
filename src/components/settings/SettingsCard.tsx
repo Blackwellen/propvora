@@ -178,7 +178,7 @@ export function SettingsSaveBar({
           animate={{ y: 0 }}
           exit={{ y: 80 }}
           transition={{ type: "spring", damping: 26, stiffness: 300 }}
-          className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3"
+          className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3"
         >
           <p className="text-[13px] text-slate-600 font-medium truncate">
             <span className="hidden sm:inline">You have unsaved changes</span>

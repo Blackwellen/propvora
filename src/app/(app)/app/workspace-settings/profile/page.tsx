@@ -388,7 +388,7 @@ export default function WorkspaceProfilePage() {
       {/* Save bar */}
       <div
         className={cn(
-          "pwa-safe-bottom fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 transition-all duration-200",
+          "app-save-bar fixed left-0 right-0 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 transition-all duration-200",
           isDirty ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
         )}
       >

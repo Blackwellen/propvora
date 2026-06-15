@@ -151,7 +151,9 @@ export default function WorkspaceSettingsLayout({
           />
         </div>
 
-        <div className="max-w-[1000px]">
+        {/* Bottom clearance below lg so the lifted sticky save bar (which sits
+            above the fixed mobile bottom nav) never covers the last form rows. */}
+        <div className="max-w-[1000px] pb-[120px] lg:pb-0">
           {children}
         </div>
       </main>

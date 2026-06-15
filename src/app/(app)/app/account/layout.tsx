@@ -72,7 +72,7 @@ export default function AccountSettingsLayout({ children }: { children: React.Re
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto min-w-0">
-        <div className="max-w-[900px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
+        <div className="max-w-[900px] mx-auto px-4 sm:px-8 py-6 sm:py-8 pb-[120px] lg:pb-8">
           {/* Mobile section nav — pill strip in place of the desktop side rail */}
           <div className="lg:hidden mb-5">
             <MobileSectionNav

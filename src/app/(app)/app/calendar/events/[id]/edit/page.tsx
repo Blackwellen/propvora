@@ -380,7 +380,7 @@ export default function EventEditPage() {
   }
 
   return (
-    <div className="space-y-0 pb-24">
+    <div className="space-y-0 pb-32 lg:pb-24">
       <MobileTopBar title="Edit Event" subtitle={form.title || "Event"} showBack backHref={`/app/calendar/events/${id}`} />
       <div className="hidden md:block">
         <CalendarTabNav />
@@ -661,7 +661,7 @@ export default function EventEditPage() {
       </div>
 
       {/* Sticky save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur px-8 py-4">
+      <div className="app-save-bar fixed left-0 right-0 border-t border-slate-200 bg-white/95 backdrop-blur px-8 py-4">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <div>
             <span className="text-sm text-slate-500">Editing: <span className="font-medium text-slate-700">{form.title || "Event"}</span></span>

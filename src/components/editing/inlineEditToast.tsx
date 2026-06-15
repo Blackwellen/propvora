@@ -29,10 +29,15 @@ function getContainer(): HTMLElement | null {
   if (!el) {
     el = document.createElement("div")
     el.id = CONTAINER_ID
+    // Lift clear of the fixed mobile bottom nav (≈64px + safe-area) below lg;
+    // drop back to the standard 16px offset on lg+ where there is no bottom nav.
     el.setAttribute(
       "style",
-      "position:fixed;bottom:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none;"
+      "position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none;"
     )
+    if (typeof window !== "undefined" && window.matchMedia?.("(min-width: 1024px)").matches) {
+      el.style.bottom = "16px"
+    }
     document.body.appendChild(el)
   }
   return el

@@ -372,7 +372,7 @@ export default function EditCertificatePage() {
         {saved && <Badge variant="success" size="md" dot>Changes saved</Badge>}
       </div>
 
-      <div className="px-4 sm:px-6 pb-28">
+      <div className="px-4 sm:px-6 pb-32 lg:pb-28">
         <SectionCard title="Certificate Details">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
@@ -462,7 +462,7 @@ export default function EditCertificatePage() {
       </div>
 
       {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-lg flex-wrap">
+      <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-lg flex-wrap">
         <p className="text-sm text-slate-500 truncate">
           Editing: <span className="font-semibold text-slate-700">{typeLabel}</span>
           {saved && <span className="ml-3 text-emerald-600 font-medium">✓ Saved</span>}

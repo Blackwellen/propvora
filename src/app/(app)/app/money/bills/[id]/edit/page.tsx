@@ -161,7 +161,7 @@ export default function BillEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-32 lg:pb-24">
       <MobileTopBar
         title="Edit Bill"
         subtitle={form.bill_number}
@@ -401,7 +401,7 @@ export default function BillEditPage() {
       </div>
 
       {/* Sticky save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-5 md:px-7 py-4 flex items-center justify-between">
+      <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 px-5 md:px-7 py-4 flex items-center justify-between">
         <Link href={`/app/money/bills/${id}`} className="text-sm text-slate-500 hover:text-slate-700">
           Discard changes
         </Link>

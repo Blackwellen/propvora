@@ -14,7 +14,9 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitive.Viewport
     ref={ref}
     className={cn(
-      "fixed bottom-4 right-4 z-[100] flex max-h-screen w-full max-w-sm flex-col gap-2",
+      // Lift clear of the fixed mobile bottom nav below lg; standard offset on lg+.
+      "fixed right-4 z-[100] flex max-h-screen w-full max-w-sm flex-col gap-2",
+      "bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] lg:bottom-4",
       className
     )}
     {...props}

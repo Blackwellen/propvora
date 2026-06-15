@@ -389,7 +389,7 @@ export default function EditInvoicePage() {
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-5 pb-28">
+        <form onSubmit={handleSave} className="space-y-5 pb-32 lg:pb-28">
           {/* Section 1: Invoice Basics */}
           <SectionCard title="Invoice Basics">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -653,7 +653,7 @@ export default function EditInvoicePage() {
         </form>
 
         {/* Sticky save bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg">
+        <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
           <div className="px-5 md:px-7 lg:px-8 py-3.5 max-w-[1600px] mx-auto flex items-center justify-between gap-4">
             <div className="text-sm text-slate-500">
               Editing <span className="font-semibold text-slate-800">{source.invoice_number}</span>
