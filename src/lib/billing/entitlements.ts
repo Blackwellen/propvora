@@ -27,6 +27,23 @@ export interface FeatureFlags {
   ssoSaml: boolean
   portals: boolean
   automation: boolean
+  // ── Layer 2 additions (additive; V1 tiers unaffected for existing keys) ──
+  /** Direct booking management (reservation operations board). */
+  bookingManagement: boolean
+  /** Public direct-booking pages. */
+  directBookingPages: boolean
+  /** Can invite suppliers into a supplier workspace. */
+  supplierWorkspaceInvites: boolean
+  /** Browse the supplier/booking marketplace. */
+  marketplaceBrowsing: boolean
+  /** Publish listings to the marketplace. */
+  marketplacePublishing: boolean
+  /** Canvas Lite automation surface. */
+  canvasLite: boolean
+  /** Supplier procurement rules (agency-grade controls). */
+  procurementRules: boolean
+  /** Owner / client portals (multi-landlord). */
+  ownerPortals: boolean
 }
 
 /** The gated feature keys (used by the generic gate). */
@@ -59,15 +76,59 @@ export interface Entitlements {
  * they are read from PLAN_DISPLAY.features to stay in lock-step with the
  * pricing table.
  */
-const TIER_FEATURES: Record<
-  PlanTier,
-  Pick<FeatureFlags, "whiteLabel" | "ssoSaml" | "portals" | "automation">
-> = {
-  starter: { whiteLabel: false, ssoSaml: false, portals: false, automation: false },
-  operator: { whiteLabel: false, ssoSaml: false, portals: false, automation: false },
-  scale: { whiteLabel: false, ssoSaml: false, portals: true, automation: true },
-  pro_agency: { whiteLabel: true, ssoSaml: true, portals: true, automation: true },
-  enterprise: { whiteLabel: true, ssoSaml: true, portals: true, automation: true },
+type TierFeatureKeys =
+  | "whiteLabel"
+  | "ssoSaml"
+  | "portals"
+  | "automation"
+  | "bookingManagement"
+  | "directBookingPages"
+  | "supplierWorkspaceInvites"
+  | "marketplaceBrowsing"
+  | "marketplacePublishing"
+  | "canvasLite"
+  | "procurementRules"
+  | "ownerPortals"
+
+const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
+  // V1 keys (whiteLabel/ssoSaml/portals/automation) keep their exact prior
+  // values. Layer-2 keys are NEW and additive — they map per the doc §3/§9.
+  starter: {
+    whiteLabel: false, ssoSaml: false, portals: false, automation: false,
+    bookingManagement: false, directBookingPages: false, supplierWorkspaceInvites: false,
+    marketplaceBrowsing: false, marketplacePublishing: false, canvasLite: false,
+    procurementRules: false, ownerPortals: false,
+  },
+  operator: {
+    whiteLabel: false, ssoSaml: false, portals: false, automation: false,
+    // Operator: booking management + supplier/customer portal workflows, no
+    // advanced marketplace controls, no direct booking pages, no Canvas Lite.
+    bookingManagement: true, directBookingPages: false, supplierWorkspaceInvites: false,
+    marketplaceBrowsing: false, marketplacePublishing: false, canvasLite: false,
+    procurementRules: false, ownerPortals: false,
+  },
+  scale: {
+    whiteLabel: false, ssoSaml: false, portals: true, automation: true,
+    // Scale: direct booking pages, supplier workspace invites, Canvas Lite,
+    // marketplace browsing.
+    bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
+    marketplaceBrowsing: true, marketplacePublishing: false, canvasLite: true,
+    procurementRules: false, ownerPortals: false,
+  },
+  pro_agency: {
+    whiteLabel: true, ssoSaml: true, portals: true, automation: true,
+    // Pro / Agency: procurement rules, owner portals, advanced marketplace
+    // controls (publishing).
+    bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
+    marketplaceBrowsing: true, marketplacePublishing: true, canvasLite: true,
+    procurementRules: true, ownerPortals: true,
+  },
+  enterprise: {
+    whiteLabel: true, ssoSaml: true, portals: true, automation: true,
+    bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
+    marketplaceBrowsing: true, marketplacePublishing: true, canvasLite: true,
+    procurementRules: true, ownerPortals: true,
+  },
 }
 
 /** Storage allowance per tier (bytes). Mirrors gates.ts STORAGE_LIMIT_BYTES. */
@@ -94,6 +155,14 @@ export function featuresForTier(tier: PlanTier): FeatureFlags {
     ssoSaml: extra.ssoSaml,
     portals: extra.portals,
     automation: extra.automation,
+    bookingManagement: extra.bookingManagement,
+    directBookingPages: extra.directBookingPages,
+    supplierWorkspaceInvites: extra.supplierWorkspaceInvites,
+    marketplaceBrowsing: extra.marketplaceBrowsing,
+    marketplacePublishing: extra.marketplacePublishing,
+    canvasLite: extra.canvasLite,
+    procurementRules: extra.procurementRules,
+    ownerPortals: extra.ownerPortals,
   }
 }
 
@@ -132,4 +201,96 @@ export async function getEntitlements(
   }
   if (!PLAN_ORDER.includes(tier)) tier = "starter"
   return entitlementsForTier(tier)
+}
+
+// ── Workspace-type dimension (Layer 2) ─────────────────────────────────────
+// Operator workspaces resolve entitlements from their Stripe PLAN TIER (above).
+// Supplier and customer workspaces are NON-Stripe: their entitlements come from
+// a workspace-type role, NOT from a paid subscription. This keeps supplier
+// onboarding free while still giving every supplier feature a server-side gate.
+//
+// This is purely additive: an operator workspace behaves exactly as before.
+
+/** The kind of workspace an entitlement is being resolved for. */
+export type WorkspaceType = "operator" | "supplier" | "customer"
+
+/**
+ * Supplier feature flags. These are SEPARATE from the operator FeatureFlags
+ * because they describe supplier-workspace capabilities (promoted ranking,
+ * emergency availability, team roster, advanced automation), most of which are
+ * unlocked by supplier paid add-ons rather than a base plan.
+ */
+export interface SupplierFeatureFlags {
+  /** Supplier workspace + profile (always true on the free tier). */
+  workspace: boolean
+  /** Public/private supplier profile. */
+  profile: boolean
+  /** Promoted ranking in marketplace results (paid add-on). */
+  promotedRanking: boolean
+  /** Emergency availability badge + dispatch eligibility (paid add-on). */
+  emergencyAvailability: boolean
+  /** Team roster beyond owner/admin (paid add-on). */
+  teamRoster: boolean
+  /** Advanced supplier automation (paid add-on). */
+  advancedAutomation: boolean
+  /** Supplier AI assistant (paid add-on). */
+  aiAssistant: boolean
+}
+
+export interface SupplierEntitlements {
+  workspaceType: "supplier"
+  /** Non-Stripe role label. */
+  role: "supplier_free"
+  features: SupplierFeatureFlags
+  /** Max simultaneously-active marketplace leads. */
+  activeLeadsCap: number
+}
+
+/**
+ * The permanent FREE supplier entitlement. Per doc §4: supplier workspace +
+ * profile + up to 3 active marketplace leads; NO promoted ranking, emergency
+ * badge, extra team roster or advanced automation (those are paid add-ons).
+ * This is a non-Stripe entitlement — it never reads a plan tier.
+ */
+export const SUPPLIER_FREE_ENTITLEMENTS: SupplierEntitlements = {
+  workspaceType: "supplier",
+  role: "supplier_free",
+  features: {
+    workspace: true,
+    profile: true,
+    promotedRanking: false,
+    emergencyAvailability: false,
+    teamRoster: false,
+    advancedAutomation: false,
+    aiAssistant: false,
+  },
+  activeLeadsCap: 3,
+}
+
+/** Resolve a supplier workspace's entitlements (pure — no I/O). */
+export function supplierEntitlements(): SupplierEntitlements {
+  return SUPPLIER_FREE_ENTITLEMENTS
+}
+
+/**
+ * Resolve a workspace's entitlements with the workspace-type dimension applied.
+ *
+ *  - `operator` (default)  → plan-tier-based entitlements (Stripe-backed).
+ *  - `supplier`            → the free supplier entitlement (non-Stripe).
+ *  - `customer`            → minimal; reuses the supplier-free shape's "free"
+ *                            posture but is gated entirely by feature flags, so
+ *                            we resolve it to the operator starter posture for
+ *                            limits and rely on flags for surface area.
+ *
+ * Supplier entitlements resolve INDEPENDENTLY of the Stripe plan, so a supplier
+ * workspace is never charged a subscription to exist.
+ */
+export async function getEntitlementsForType(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  workspaceType: WorkspaceType
+): Promise<Entitlements | SupplierEntitlements> {
+  if (workspaceType === "supplier") return supplierEntitlements()
+  // Operator (and customer fallback) resolve from the Stripe plan tier.
+  return getEntitlements(supabase, workspaceId)
 }

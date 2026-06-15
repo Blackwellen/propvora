@@ -176,13 +176,11 @@ async function maybeApplyRouteContextGuard(
   try {
     const { matchRouteContext } = await import("@/lib/flags/route-registry")
     const routeContext = matchRouteContext(pathname)
-    if (!routeContext) return null
+    if (!routeContext) return null // self-gates: only routes that DECLARE a context are guarded.
 
-    const { isFeatureEnabled } = await import("@/lib/flags")
-    const engineOn = await isFeatureEnabled("contextEngine", { supabase })
-    if (!engineOn) return null // flag OFF (default) → inert.
-
-    // Resolver is owned by a concurrent agent; import lazily and tolerate a
+    // v2 is integrated into core (no feature flags) — the guard runs on any route
+    // that declares a routeContext and enforces workspace-type/country rules.
+    // Resolver imported lazily and tolerant so routing never breaks if absent.
     // missing export so a not-yet-landed `@/lib/context` never breaks routing.
     let resolved: unknown = null
     try {

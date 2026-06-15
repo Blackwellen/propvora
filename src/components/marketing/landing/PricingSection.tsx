@@ -1,57 +1,42 @@
 import Link from "next/link"
 import { CheckCircle2, ArrowRight, Zap, Star } from "lucide-react"
+import { getPlans, gbp, type PlanTier } from "@/lib/billing/plans"
 
-const plans = [
-  {
-    name: "Starter",
-    price: "£29",
-    period: "/mo",
-    tagline: "For operators getting started",
-    highlight: false,
+// Canonical tiers + monthly prices from src/lib/billing/plans.ts (no invented
+// prices). The landing summary shows the three core tiers; the full table lives
+// on /pricing.
+const SUMMARY_TIERS: PlanTier[] = ["starter", "operator", "scale"]
+const EXTRA_FEATURES: Record<PlanTier, string[]> = {
+  starter: ["Portfolio, Work, Contacts & Calendar", "Compliance & rent tracking", "Email support"],
+  operator: ["Advanced reports", "Booking management", "Priority email support"],
+  scale: ["AI Copilot", "Direct booking pages", "Portals & accounting"],
+  pro_agency: [],
+  enterprise: [],
+}
+
+const allPlans = getPlans()
+const plans = SUMMARY_TIERS.map((tier) => {
+  const p = allPlans.find((x) => x.tier === tier)!
+  return {
+    name: p.name,
+    price: p.monthlyAmount != null ? gbp(p.monthlyAmount) : "Custom",
+    period: p.monthlyAmount != null ? "/mo" : "",
+    tagline: p.tagline,
+    highlight: !!p.popular,
+    badge: p.popular ? "Most Popular" : undefined,
     cta: "Start free trial",
     ctaHref: "/register",
     features: [
-      "Up to 5 properties",
-      "Portfolio, Work, Contacts & Calendar",
-      "1 team member",
-      "5GB document storage",
-      "Email support",
+      p.features.properties === "Unlimited"
+        ? "Unlimited properties"
+        : `Up to ${p.features.properties} properties`,
+      p.features.teamSeats === "Unlimited"
+        ? "Unlimited team seats"
+        : `${p.features.teamSeats} team seat${p.features.teamSeats === 1 ? "" : "s"}`,
+      ...EXTRA_FEATURES[tier],
     ],
-  },
-  {
-    name: "Pro",
-    price: "£79",
-    period: "/mo",
-    tagline: "For growing property operators",
-    highlight: true,
-    badge: "Most Popular",
-    cta: "Start free trial",
-    ctaHref: "/register",
-    features: [
-      "Up to 50 properties",
-      "Full planning engine (all profiles)",
-      "AI Copilot (100 queries/mo)",
-      "5 team members + supplier portal",
-      "Priority email support",
-    ],
-  },
-  {
-    name: "Business",
-    price: "£149",
-    period: "/mo",
-    tagline: "For serious operators and teams",
-    highlight: false,
-    cta: "Contact sales",
-    ctaHref: "/contact",
-    features: [
-      "Unlimited properties",
-      "Full planning engine + all modules",
-      "AI Copilot (500 queries/mo)",
-      "20 team members + advanced exports",
-      "Priority phone & email support",
-    ],
-  },
-]
+  }
+})
 
 export default function PricingSection() {
   return (

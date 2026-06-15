@@ -85,6 +85,108 @@
       "priceId": "price_1Tha9aAHC49xkmrei5ZloY3z",
       "amount": 49900,
       "interval": null
+    },
+    "open_banking": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "whatsapp_business": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1500,
+      "interval": "month"
+    },
+    "esignature": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1500,
+      "interval": "month"
+    },
+    "accounting_sync": {
+      "productId": null,
+      "priceId": null,
+      "amount": 2900,
+      "interval": "month"
+    },
+    "mtd_itsa": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "booking_pages": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "automation_pack": {
+      "productId": null,
+      "priceId": null,
+      "amount": 2900,
+      "interval": "month"
+    },
+    "api_access": {
+      "productId": null,
+      "priceId": null,
+      "amount": 4900,
+      "interval": "month"
+    },
+    "country_pack_beta": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "supplier_pro_profile": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "supplier_team": {
+      "productId": null,
+      "priceId": null,
+      "amount": 2900,
+      "interval": "month"
+    },
+    "supplier_emergency": {
+      "productId": null,
+      "priceId": null,
+      "amount": 3900,
+      "interval": "month"
+    },
+    "supplier_verified_plus": {
+      "productId": null,
+      "priceId": null,
+      "amount": 900,
+      "interval": "month"
+    },
+    "supplier_promoted": {
+      "productId": null,
+      "priceId": null,
+      "amount": 4900,
+      "interval": "month"
+    },
+    "supplier_extra_area": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1000,
+      "interval": "month"
+    },
+    "supplier_automation_pack": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1900,
+      "interval": "month"
+    },
+    "supplier_ai_assistant": {
+      "productId": null,
+      "priceId": null,
+      "amount": 1500,
+      "interval": "month"
     }
   }
 }

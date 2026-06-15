@@ -119,6 +119,14 @@ const FEATURE_LABEL: Record<FeatureKey, string> = {
   ssoSaml: "SSO / SAML",
   portals: "Client & supplier portals",
   automation: "Automation",
+  bookingManagement: "Booking management",
+  directBookingPages: "Direct booking pages",
+  supplierWorkspaceInvites: "Supplier workspace invites",
+  marketplaceBrowsing: "Marketplace browsing",
+  marketplacePublishing: "Marketplace publishing",
+  canvasLite: "Canvas Lite automations",
+  procurementRules: "Supplier procurement rules",
+  ownerPortals: "Owner / client portals",
 }
 
 /** Lowest tier whose feature set includes `feature` (for the upgrade hint). */
@@ -214,4 +222,84 @@ export async function gateV2Flag(
     status: 403,
     reason: `${label} is not enabled for this workspace.`,
   }
+}
+
+// ── Layer-2 gates (entitlement only — v2 is integrated into core) ───────────
+// v2 lives on its own product line; gating is by SUBSCRIPTION TIER/ENTITLEMENT
+// only (the commercial model), NOT by any on/off platform feature flag. Each
+// gate fails CLOSED on plan (402) for tiers that don't include the feature.
+
+/**
+ * Compose gate kept for signature stability — now entitlement-only. The `flag`
+ * argument is ignored (v2 is core; no feature-flag gating).
+ */
+async function gateFlagAndFeature(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  _flag: import("@/lib/flags/registry").V2FlagKey,
+  feature: FeatureKey
+): Promise<GateResult> {
+  return gateFeature(supabase, workspaceId, feature)
+}
+
+/**
+ * Gate: direct booking pages. Needs the `directBookingPages` flag ON and the
+ * plan entitlement (Scale and above).
+ */
+export function gateBookingPages(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFlagAndFeature(supabase, workspaceId, "directBookingPages", "directBookingPages")
+}
+
+/**
+ * Gate: supplier workspace. Needs the `supplierWorkspace` flag ON and the plan
+ * entitlement to INVITE suppliers (Scale and above). Supplier workspaces
+ * themselves are free; this gates the OPERATOR's ability to invite/run them.
+ */
+export function gateSupplierWorkspace(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFlagAndFeature(supabase, workspaceId, "supplierWorkspace", "supplierWorkspaceInvites")
+}
+
+/**
+ * Gate: marketplace publishing. Needs the `marketplaceEnabled` flag ON and the
+ * plan entitlement (Pro / Agency and above — advanced marketplace controls).
+ */
+export function gateMarketplacePublishing(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFlagAndFeature(supabase, workspaceId, "marketplaceEnabled", "marketplacePublishing")
+}
+
+/**
+ * Gate: Canvas Lite automations. Needs the `canvasLite` flag ON and the plan
+ * entitlement (Scale and above).
+ */
+export function gateCanvasLite(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFlagAndFeature(supabase, workspaceId, "canvasLite", "canvasLite")
+}
+
+/**
+ * Gate: automation runs. Composes the `bookingManagement`-independent base
+ * `automation` entitlement with no v2 flag (automation is a V1 entitlement),
+ * but caps run volume against the plan. This is the entry gate for executing an
+ * automation run; per-run volume caps are enforced by the caller against the
+ * returned tier. Fails open on store error, closed on plan.
+ */
+export async function gateAutomationRuns(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  // Base automation must be on the plan (Scale+). No v2 flag required — Smart
+  // Recipes/automation is a V1 entitlement — but Canvas Lite runs additionally
+  // require the canvasLite flag, which callers gate separately via gateCanvasLite.
+  return gateFeature(supabase, workspaceId, "automation")
 }

@@ -194,3 +194,53 @@ Conclusion: Propvora should lead with a low, transparent marketplace fee and sup
 5. Reconcile `src/app/pricing/PricingClient.tsx` with `src/lib/billing/plans.ts`.
 6. Ensure every paid feature has a server-side entitlement gate.
 7. Track commission, payment provider fees, refunds and disputes in ledger-safe tables.
+
+---
+
+## 11. Implementation Status — P1 Commercial Model (2026-06-15)
+
+Phase 1 of the Layer 2 commercial model has been built. Summary of what shipped
+and what the OWNER must still do.
+
+### Done in code
+
+- **Pricing reconciliation.** `src/app/pricing/PricingClient.tsx` and the landing
+  summary `src/components/marketing/landing/PricingSection.tsx` now render the
+  canonical `starter / operator / scale / pro_agency / enterprise` tiers, with
+  prices/limits read from `src/lib/billing/plans.ts` (no invented prices). The
+  white-label add-on now reads £49/mo from the canonical catalog (was £99 on the
+  legacy page).
+- **Operator add-ons** added to `catalog.generated.json`, the `ADDON_DISPLAY`
+  map (`plans.ts`) and `scripts/stripe-setup-catalog.mjs`: Open Banking (£19),
+  WhatsApp Business (£15), eSignature (£15), Xero/QuickBooks sync (£29), MTD ITSA
+  pack (£19), Booking pages (£19), Automation pack (£29), API access (£49),
+  Country pack beta (£19). All monthly.
+- **Supplier add-ons** added (same three places, `audience: "supplier"`):
+  Pro Profile (£19), Team (£29), Emergency Availability (£39), Verified Plus
+  Review (£9/mo), Promoted Local Placement (£49), Extra Coverage Area (£10),
+  Automation Pack (£19), AI Assistant (£15). All monthly.
+- **Supplier free tier** is a NON-Stripe entitlement: `SUPPLIER_FREE_ENTITLEMENTS`
+  in `entitlements.ts` (supplier workspace + profile + 3 active-leads cap; no
+  promoted/emergency/team/advanced automation). A `WorkspaceType` dimension
+  (`getEntitlementsForType`) resolves supplier entitlements independently of any
+  Stripe plan.
+- **Layer-2 entitlement matrix.** `FeatureFlags`/`TIER_FEATURES` extended with
+  `bookingManagement, directBookingPages, supplierWorkspaceInvites,
+  marketplaceBrowsing, marketplacePublishing, canvasLite, procurementRules,
+  ownerPortals` mapped per tier (Operator+ booking mgmt; Scale+ booking pages /
+  supplier invites / canvas / browsing; Pro/Agency+ publishing / procurement /
+  owner portals).
+- **New gates** in `gates.ts`: `gateBookingPages, gateSupplierWorkspace,
+  gateMarketplacePublishing, gateCanvasLite, gateAutomationRuns`. The first four
+  compose the P0 v2 feature flag (`isFeatureEnabled`) AND the plan entitlement —
+  a feature needs BOTH. With all v2 flags OFF (the default) they fail CLOSED, so
+  V1 is unchanged.
+- **Tests** extended in `scripts/test/billing-gates.mjs` (63/63 pass) covering
+  flag-off blocking, flag-on tier matrix and the supplier free entitlement.
+
+### OWNER action required
+
+- Run `node scripts/stripe-setup-catalog.mjs` to create the new add-on products
+  in Stripe. Until then their `productId`/`priceId` are `null` in
+  `catalog.generated.json` and `billing-reconcile.mjs` skips them. No live Stripe
+  calls were made by this work.

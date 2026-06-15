@@ -46,11 +46,33 @@ const PLANS = [
 ]
 
 const ADDONS = [
+  // ── Existing operator add-ons (V1 — unchanged) ──────────────────────────
   { key: "extra_seat",     name: "Propvora — Extra Team Seat",        desc: "One additional team member seat.",              amount: 900,   interval: "month" },
   { key: "extra_props_10", name: "Propvora — +10 Properties",         desc: "Increase your property allowance by 10.",       amount: 1900,  interval: "month" },
   { key: "white_label",    name: "Propvora — White-Label Branding",   desc: "Your brand on portals, emails and documents.",  amount: 4900,  interval: "month" },
   { key: "ai_credits_1k",  name: "Propvora — AI Credit Pack (1,000)", desc: "One-time top-up of 1,000 AI credits.",          amount: 1500,  interval: null },
   { key: "onboarding",     name: "Propvora — Onboarding & Migration", desc: "Guided setup and data migration (one-time).",   amount: 49900, interval: null },
+
+  // ── New operator add-ons (Layer 2) ──────────────────────────────────────
+  { key: "open_banking",      name: "Propvora — Open Banking",            desc: "Live bank feeds and reconciliation via Open Banking.",        amount: 1900,  interval: "month" },
+  { key: "whatsapp_business", name: "Propvora — WhatsApp Business",        desc: "Messaging over WhatsApp Business (conversation usage extra).", amount: 1500,  interval: "month" },
+  { key: "esignature",        name: "Propvora — eSignature",              desc: "Send documents for e-signature (envelope usage extra).",      amount: 1500,  interval: "month" },
+  { key: "accounting_sync",   name: "Propvora — Xero / QuickBooks Sync",  desc: "Two-way accounting sync with Xero or QuickBooks.",            amount: 2900,  interval: "month" },
+  { key: "mtd_itsa",          name: "Propvora — MTD ITSA Pack",           desc: "Making Tax Digital for Income Tax Self Assessment pack.",     amount: 1900,  interval: "month" },
+  { key: "booking_pages",     name: "Propvora — Booking Pages",           desc: "Public direct-booking pages (included on Scale+).",           amount: 1900,  interval: "month" },
+  { key: "automation_pack",   name: "Propvora — Automation Pack",         desc: "More recipes, runs and nodes beyond your plan cap.",          amount: 2900,  interval: "month" },
+  { key: "api_access",        name: "Propvora — API Access",              desc: "REST API access with full read/write endpoints.",             amount: 4900,  interval: "month" },
+  { key: "country_pack_beta", name: "Propvora — Country Pack (Beta)",     desc: "Legal/tax/compliance depth for an additional country (beta).",amount: 1900,  interval: "month" },
+
+  // ── Supplier-workspace add-ons (Layer 2) ────────────────────────────────
+  { key: "supplier_pro_profile",     name: "Propvora — Supplier Pro Profile",       desc: "Richer media, case studies, packages and profile analytics.", amount: 1900, interval: "month" },
+  { key: "supplier_team",            name: "Propvora — Supplier Team",              desc: "Team members, team calendar and job assignment.",             amount: 2900, interval: "month" },
+  { key: "supplier_emergency",       name: "Propvora — Emergency Availability",     desc: "24/7 badge, emergency dispatch and response-time SLA fields.",amount: 3900, interval: "month" },
+  { key: "supplier_verified_plus",   name: "Propvora — Verified Plus Review",       desc: "Manual admin evidence review for insurance and licences.",    amount: 900,  interval: "month" },
+  { key: "supplier_promoted",        name: "Propvora — Promoted Local Placement",   desc: "Sponsored, clearly-labelled rotation in local results.",      amount: 4900, interval: "month" },
+  { key: "supplier_extra_area",      name: "Propvora — Extra Coverage Area",        desc: "An additional service-area pack.",                            amount: 1000, interval: "month" },
+  { key: "supplier_automation_pack", name: "Propvora — Supplier Automation Pack",   desc: "Quote follow-ups, evidence reminders and invoice nudges.",    amount: 1900, interval: "month" },
+  { key: "supplier_ai_assistant",    name: "Propvora — Supplier AI Assistant",      desc: "Quote drafting, job summaries and message drafting.",         amount: 1500, interval: "month" },
 ]
 
 async function archiveAll() {

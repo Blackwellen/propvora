@@ -10,7 +10,6 @@ import {
   Building2,
   Brain,
   Users,
-  HardDrive,
   Headphones,
   Store,
   Share2,
@@ -20,120 +19,98 @@ import {
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
 import { cn } from "@/lib/utils"
+import {
+  getPlans,
+  getOperatorAddons,
+  gbp,
+  type PlanTier,
+} from "@/lib/billing/plans"
 
 type BillingCycle = "monthly" | "annual"
 
-const monthlyPrices = { starter: 29, pro: 79, business: 149 }
-const annualPrices = { starter: 24, pro: 66, business: 124 }
+// Canonical tiers + prices come straight from src/lib/billing/plans.ts (which
+// reads catalog.generated.json). No prices are duplicated/invented here, so the
+// public page, Stripe catalog and entitlement gates always agree.
+const canonicalPlans = getPlans()
 
-const plans = [
+// Per-tier display copy + feature checklist for the cards. Limits/prices come
+// from the canonical plan def; this only adds marketing checklist rows.
+const PLAN_CARD: Record<
+  PlanTier,
   {
-    key: "starter" as const,
-    name: "Starter",
-    tagline: "For operators getting started",
-    monthly: monthlyPrices.starter,
-    annual: annualPrices.starter,
-    highlight: false,
+    cta: string
+    ctaHref: string
+    badge?: string
+    extras: { label: string; included: boolean; icon?: typeof Building2 }[]
+  }
+> = {
+  starter: {
     cta: "Start free trial",
     ctaHref: "/register",
-    features: [
-      { label: "Up to 5 properties", included: true, icon: Building2 },
+    extras: [
       { label: "Portfolio, Work, Contacts, Money, Calendar", included: true },
-      { label: "Basic planning (3 profiles)", included: true },
-      { label: "1 team member", included: true, icon: Users },
-      { label: "5GB document storage", included: true, icon: HardDrive },
+      { label: "Compliance & rent tracking", included: true },
       { label: "Email support", included: true, icon: Headphones },
-      { label: "Full planning engine (13 profiles)", included: false },
+      { label: "Advanced reports", included: false, icon: Download },
       { label: "AI Copilot", included: false, icon: Brain },
-      { label: "Supplier portal", included: false, icon: Store },
-      { label: "Affiliate dashboard", included: false, icon: Share2 },
-      { label: "Advanced exports", included: false, icon: Download },
-      { label: "Priority phone support", included: false, icon: Phone },
+      { label: "Portals & accounting", included: false, icon: Store },
+      { label: "White-label branding", included: false, icon: Share2 },
     ],
   },
-  {
-    key: "pro" as const,
-    name: "Pro",
-    tagline: "For growing property operators",
-    monthly: monthlyPrices.pro,
-    annual: annualPrices.pro,
-    highlight: true,
-    badge: "Most Popular",
+  operator: {
     cta: "Start free trial",
     ctaHref: "/register",
-    features: [
-      { label: "Up to 50 properties", included: true, icon: Building2 },
-      { label: "Portfolio, Work, Contacts, Money, Calendar", included: true },
-      { label: "Full planning engine (all 13 profiles)", included: true },
-      { label: "5 team members", included: true, icon: Users },
-      { label: "25GB document storage", included: true, icon: HardDrive },
+    badge: "Most Popular",
+    extras: [
+      { label: "Everything in Starter", included: true },
+      { label: "Advanced reports", included: true, icon: Download },
+      { label: "Booking management", included: true, icon: Building2 },
+      { label: "Work & PPM", included: true },
       { label: "Priority email support", included: true, icon: Headphones },
-      { label: "AI Copilot (100 queries/month)", included: true, icon: Brain },
-      { label: "Supplier portal", included: true, icon: Store },
-      { label: "Affiliate dashboard", included: false, icon: Share2 },
-      { label: "Advanced exports", included: false, icon: Download },
-      { label: "Priority phone support", included: false, icon: Phone },
-      { label: "White-label branding", included: false },
+      { label: "AI Copilot", included: false, icon: Brain },
+      { label: "White-label branding", included: false, icon: Share2 },
     ],
   },
-  {
-    key: "business" as const,
-    name: "Business",
-    tagline: "For serious operators and teams",
-    monthly: monthlyPrices.business,
-    annual: annualPrices.business,
-    highlight: false,
+  scale: {
+    cta: "Start free trial",
+    ctaHref: "/register",
+    extras: [
+      { label: "Everything in Operator", included: true },
+      { label: "AI Copilot", included: true, icon: Brain },
+      { label: "Direct booking pages", included: true, icon: Building2 },
+      { label: "Portals & accounting", included: true, icon: Store },
+      { label: "Canvas Lite automations", included: true },
+      { label: "Phone & email support", included: true, icon: Phone },
+    ],
+  },
+  pro_agency: {
+    cta: "Start free trial",
+    ctaHref: "/register",
+    extras: [
+      { label: "Everything in Scale", included: true },
+      { label: "Multi-landlord / client workspaces", included: true, icon: Users },
+      { label: "Owner portals", included: true, icon: Store },
+      { label: "Supplier procurement rules", included: true },
+      { label: "White-label ready", included: true, icon: Share2 },
+      { label: "Priority phone support", included: true, icon: Phone },
+    ],
+  },
+  enterprise: {
     cta: "Contact sales",
     ctaHref: "/contact",
-    features: [
-      { label: "Unlimited properties", included: true, icon: Building2 },
-      { label: "Portfolio, Work, Contacts, Money, Calendar", included: true },
-      { label: "Full planning engine (all 13 profiles)", included: true },
-      { label: "20 team members", included: true, icon: Users },
-      { label: "100GB document storage", included: true, icon: HardDrive },
-      { label: "Priority support (email + phone)", included: true, icon: Headphones },
-      { label: "AI Copilot (500 queries/month)", included: true, icon: Brain },
-      { label: "Supplier portal", included: true, icon: Store },
-      { label: "Affiliate dashboard", included: true, icon: Share2 },
-      { label: "Advanced exports", included: true, icon: Download },
-      { label: "Priority phone support", included: true, icon: Phone },
-      { label: "White-label branding (add-on)", included: true },
+    extras: [
+      { label: "Everything in Pro / Agency", included: true },
+      { label: "SSO / SAML", included: true },
+      { label: "Custom country packs & API limits", included: true },
+      { label: "Data residency review", included: true },
+      { label: "Dedicated onboarding & SLA", included: true, icon: Headphones },
     ],
   },
-]
+}
 
-const addons = [
-  {
-    name: "Extra AI Query Pack",
-    description: "100 additional AI Copilot queries per month",
-    price: "£15/mo",
-    note: "Pro & Business",
-  },
-  {
-    name: "Storage Expansion",
-    description: "50GB additional document and media storage",
-    price: "£10/mo",
-    note: "All plans",
-  },
-  {
-    name: "Extra Team Members",
-    description: "Add 5 additional workspace members",
-    price: "£20/mo",
-    note: "All plans",
-  },
-  {
-    name: "White-label Branding",
-    description: "Custom logo and colour scheme in supplier portal",
-    price: "£99/mo",
-    note: "Business only",
-  },
-  {
-    name: "Advanced API Access",
-    description: "REST API access with full read/write endpoints",
-    price: "£49/mo",
-    note: "Business only",
-  },
-]
+// Operator add-ons, sourced from the canonical catalog (names/prices/eligibility
+// all from src/lib/billing). Supplier add-ons are shown in the supplier section.
+const operatorAddons = getOperatorAddons()
 
 const faqs = [
   {
@@ -229,65 +206,99 @@ export default function PricingClient() {
       {/* Plan cards */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            {plans.map((plan) => {
-              const price = billing === "monthly" ? plan.monthly : plan.annual
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 items-start">
+            {canonicalPlans.map((plan) => {
+              const card = PLAN_CARD[plan.tier]
+              const monthly = plan.monthlyAmount // minor units or null
+              const annual = plan.annualAmount
+              const isCustom = monthly == null
+              // Annual price shown as an equivalent per-month figure.
+              const annualPerMonth = annual != null ? annual / 12 : null
+              const priceMinor = billing === "monthly" ? monthly : annualPerMonth
+              const features = [
+                {
+                  label:
+                    plan.features.properties === "Unlimited"
+                      ? "Unlimited properties"
+                      : `Up to ${plan.features.properties} properties`,
+                  included: true,
+                  icon: Building2,
+                },
+                {
+                  label:
+                    plan.features.teamSeats === "Unlimited"
+                      ? "Unlimited team seats"
+                      : `${plan.features.teamSeats} team seat${plan.features.teamSeats === 1 ? "" : "s"}`,
+                  included: true,
+                  icon: Users,
+                },
+                ...card.extras,
+              ]
               return (
                 <div
-                  key={plan.key}
+                  key={plan.tier}
                   className={cn(
-                    "relative rounded-2xl border overflow-hidden",
-                    plan.highlight
+                    "relative rounded-2xl border overflow-hidden h-full",
+                    plan.popular
                       ? "border-blue-500 shadow-2xl shadow-blue-600/15 ring-2 ring-blue-500"
                       : "border-slate-200 shadow-sm"
                   )}
                 >
-                  {plan.badge && (
+                  {card.badge && (
                     <div className="absolute top-0 left-0 right-0 bg-blue-600 text-white text-xs font-bold text-center py-1.5 tracking-wider uppercase">
-                      {plan.badge}
+                      {card.badge}
                     </div>
                   )}
 
-                  <div className={cn("p-8", plan.badge && "pt-12")}>
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-slate-900 mb-1">{plan.name}</h2>
-                      <p className="text-slate-500 text-sm">{plan.tagline}</p>
+                  <div className={cn("p-6", card.badge && "pt-10")}>
+                    <div className="mb-5">
+                      <h2 className="text-xl font-bold text-slate-900 mb-1">{plan.name}</h2>
+                      <p className="text-slate-500 text-xs leading-relaxed">{plan.tagline}</p>
                     </div>
 
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-5xl font-bold text-slate-900">£{price}</span>
-                      <span className="text-slate-500 text-sm">/month</span>
+                      {isCustom ? (
+                        <span className="text-3xl font-bold text-slate-900">Custom</span>
+                      ) : (
+                        <>
+                          <span className="text-4xl font-bold text-slate-900">
+                            {gbp(priceMinor ?? 0)}
+                          </span>
+                          <span className="text-slate-500 text-sm">/month</span>
+                        </>
+                      )}
                     </div>
-                    {billing === "annual" && (
-                      <p className="text-emerald-600 text-sm font-medium mb-6">
-                        Billed annually · Save £{(plan.monthly - price) * 12}/year
+                    {!isCustom && billing === "annual" && annual != null ? (
+                      <p className="text-emerald-600 text-xs font-medium mb-5">
+                        Billed annually · {gbp(annual)}/year
                       </p>
+                    ) : (
+                      <div className="mb-5" />
                     )}
-                    {billing === "monthly" && <div className="mb-6" />}
 
                     <Link
-                      href={plan.ctaHref}
+                      href={card.ctaHref}
                       className={cn(
-                        "block w-full text-center py-3 px-6 rounded-xl text-sm font-bold transition-all mb-8",
-                        plan.highlight
+                        "block w-full text-center py-3 px-6 rounded-xl text-sm font-bold transition-all mb-6",
+                        plan.popular
                           ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
                           : "bg-slate-900 hover:bg-slate-800 text-white"
                       )}
                     >
-                      {plan.cta}
+                      {card.cta}
                     </Link>
 
-                    <div className="space-y-3">
-                      {plan.features.map((f) => (
-                        <div key={f.label} className="flex items-start gap-3">
+                    <div className="space-y-2.5">
+                      {features.map((f) => (
+                        <div key={f.label} className="flex items-start gap-2.5">
                           {f.included ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                           ) : (
-                            <X className="h-5 w-5 text-slate-300 flex-shrink-0 mt-0.5" />
+                            <X className="h-4 w-4 text-slate-300 flex-shrink-0 mt-0.5" />
                           )}
                           <span
                             className={cn(
-                              "text-sm",
+                              "text-xs",
                               f.included ? "text-slate-700" : "text-slate-400"
                             )}
                           >
@@ -320,22 +331,31 @@ export default function PricingClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {addons.map((addon) => (
+            {operatorAddons.map((addon) => (
               <div
-                key={addon.name}
+                key={addon.key}
                 className="bg-white rounded-xl p-5 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-slate-900 text-sm">{addon.name}</h3>
-                  <span className="text-blue-600 font-bold text-sm ml-2 flex-shrink-0">{addon.price}</span>
+                  <span className="text-blue-600 font-bold text-sm ml-2 flex-shrink-0">
+                    {gbp(addon.amount)}
+                    {addon.interval ? "/mo" : ""}
+                  </span>
                 </div>
                 <p className="text-slate-500 text-xs leading-relaxed mb-2">{addon.description}</p>
-                <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded-full">
-                  {addon.note}
-                </span>
+                {addon.eligibility && (
+                  <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded-full">
+                    {addon.eligibility}
+                  </span>
+                )}
               </div>
             ))}
           </div>
+          <p className="text-center text-slate-500 text-xs mt-6">
+            Suppliers join Propvora free. Supplier add-ons (Pro Profile, Team, Emergency Availability
+            and more) are managed inside the supplier workspace.
+          </p>
         </div>
       </section>
 

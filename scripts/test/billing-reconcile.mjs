@@ -73,6 +73,13 @@ for (const [tier, p] of Object.entries(catalog.plans)) {
   }
 }
 for (const [key, a] of Object.entries(catalog.addons)) {
+  // Add-ons whose Stripe product/price has not been created yet (priceId null)
+  // are pending — the OWNER must run scripts/stripe-setup-catalog.mjs to create
+  // them. Skip (don't fail) until then; warn so they aren't forgotten.
+  if (!a.priceId) {
+    console.log(`⏭️  SKIP  addon ${key}  — no Stripe price yet (run stripe-setup-catalog.mjs)`)
+    continue
+  }
   expected.push({
     label: `addon ${key}`,
     priceId: a.priceId,

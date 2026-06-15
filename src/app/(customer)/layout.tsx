@@ -1,18 +1,14 @@
 import { redirect } from "next/navigation"
 import CustomerShell from "@/components/shells/CustomerShell"
 import { createClient } from "@/lib/supabase/server"
-import { isFeatureEnabled } from "@/lib/flags"
 
 /**
- * Customer workspace layout (v2 scaffold).
+ * Customer workspace layout (v2, integrated into core — no feature flags).
  *
- * Gated behind the `customerWorkspace` feature flag, which defaults OFF. While
- * the flag is off, the entire route group redirects to /app, so it is INVISIBLE
- * in V1 — no nav entry, no reachable page. When the flag is enabled per
- * workspace (or globally) the lightweight CustomerShell renders.
- *
- * Tolerant: the flag accessor never throws and defaults to OFF, so a missing
- * flags table simply keeps this group hidden.
+ * Access is gated by real product logic: the signed-in user must be a member
+ * of a customer-type workspace (`customer_workspace_members`). Non-customers
+ * are redirected to the operator app. Tolerant: if the membership table isn't
+ * present yet, the group simply isn't reachable.
  */
 export default async function CustomerLayout({
   children,
@@ -26,8 +22,20 @@ export default async function CustomerLayout({
   } = await supabase.auth.getUser()
   if (!user) redirect("/login?redirectTo=/customer")
 
-  const enabled = await isFeatureEnabled("customerWorkspace", { supabase })
-  if (!enabled) redirect("/app")
+  // Core gate: must belong to a customer workspace.
+  let isCustomer = false
+  try {
+    const { data } = await supabase
+      .from("customer_workspace_members")
+      .select("workspace_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle()
+    isCustomer = Boolean(data)
+  } catch {
+    isCustomer = false
+  }
+  if (!isCustomer) redirect("/app")
 
   return <CustomerShell>{children}</CustomerShell>
 }
