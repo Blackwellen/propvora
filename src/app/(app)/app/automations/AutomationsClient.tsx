@@ -1,9 +1,10 @@
 "use client"
 
 import React, { useMemo, useState, useTransition } from "react"
+import Link from "next/link"
 import {
   Sparkles, Plus, Zap, Inbox, History, LayoutTemplate, Play, Check, X as XIcon,
-  ShieldCheck, AlertCircle, Power, Trash2, ChevronRight, CircleDot,
+  ShieldCheck, AlertCircle, Power, Trash2, ChevronRight, CircleDot, Wand2,
 } from "lucide-react"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { triggerLabel, actionLabel } from "@/lib/automation/catalogue"
@@ -97,10 +98,16 @@ export default function AutomationsClient() {
             <p className="text-sm text-slate-500">Automations that watch your portfolio and propose safe next steps — you stay in control.</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button onClick={onEvaluate} disabled={busy === "evaluate"} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-60">
             <Play className="h-4 w-4" /> {busy === "evaluate" ? "Evaluating…" : "Run now"}
           </button>
+          <Link href="/app/automations/builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Wand2 className="h-4 w-4 text-violet-500" /> Describe
+          </Link>
+          <Link href="/app/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <LayoutTemplate className="h-4 w-4 text-blue-500" /> Canvas
+          </Link>
           <button onClick={() => setShowBuilder(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700">
             <Plus className="h-4 w-4" /> New rule
           </button>
