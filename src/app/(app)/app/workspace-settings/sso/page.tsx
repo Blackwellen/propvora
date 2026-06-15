@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { useRouter } from "next/navigation"
 import { Key, Check } from "lucide-react"
 
 const SSO_FEATURES = [
@@ -13,6 +14,7 @@ const SSO_FEATURES = [
 ]
 
 export default function SSOPage() {
+  const router = useRouter()
   return (
     <div>
       {/* Header */}
@@ -50,7 +52,10 @@ export default function SSOPage() {
             </div>
           ))}
         </div>
-        <button className="mt-6 w-full py-3 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-[#6d28d9] transition-colors">
+        <button
+          onClick={() => router.push("/app/workspace-settings/billing")}
+          className="mt-6 w-full py-3 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-[#6d28d9] transition-colors"
+        >
           Upgrade to Enterprise
         </button>
       </div>

@@ -19,6 +19,7 @@ import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { getPropertyTypeOption, PROPERTY_TYPE_OPTIONS } from "@/lib/constants/propertyTypes"
+import { openCopilot } from "@/lib/copilot/open"
 import {
   Building2, Home, Users, PoundSterling, TrendingUp,
   Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
@@ -1899,6 +1900,17 @@ export default function PropertyDetailPage() {
               )}
             </ConfirmDialog>
 
+            {/* AI Portfolio Review — opens the live Copilot seeded with this property's context */}
+            <button
+              onClick={() =>
+                openCopilot({
+                  prompt: `Review this property and flag risks, voids, compliance gaps and rent/cashflow concerns: "${prop.name}"${prop.address_line1 ? ` (${prop.address_line1})` : ""}.`,
+                })
+              }
+              className="flex items-center gap-1.5 text-[13px] font-semibold text-violet-700 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-3 py-2 rounded-lg transition-colors"
+            >
+              <Sparkles size={13} /> AI Portfolio Review
+            </button>
             {/* New tenancy */}
             <Link href={`/app/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
               <Users size={13} /> New Tenancy

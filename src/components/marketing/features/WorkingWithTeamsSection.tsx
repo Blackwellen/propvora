@@ -46,10 +46,12 @@ export default function WorkingWithTeamsSection() {
           </p>
         </div>
 
-        {/* Permission matrix */}
+        {/* Permission matrix — scrolls horizontally on small screens so columns keep their size */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden mb-8">
+          <div className="overflow-x-auto">
+          <div className="min-w-[560px]">
           {/* Column headers */}
-          <div className="grid grid-cols-4 bg-slate-900 px-6 py-4">
+          <div className="grid grid-cols-4 bg-slate-900 px-4 sm:px-6 py-4">
             <div className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Permission</div>
             <div className="text-center">
               <span className="inline-block bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">Administrator</span>
@@ -65,7 +67,7 @@ export default function WorkingWithTeamsSection() {
           {/* Rows */}
           <div className="divide-y divide-slate-100">
             {permissions.map((p) => (
-              <div key={p.label} className="grid grid-cols-4 px-6 py-3.5 items-center hover:bg-slate-50 transition-colors">
+              <div key={p.label} className="grid grid-cols-4 px-4 sm:px-6 py-3.5 items-center hover:bg-slate-50 transition-colors">
                 <span className="text-sm text-slate-700">{p.label}</span>
                 <div className="flex justify-center">
                   {p.admin ? (
@@ -90,6 +92,8 @@ export default function WorkingWithTeamsSection() {
                 </div>
               </div>
             ))}
+          </div>
+          </div>
           </div>
         </div>
 

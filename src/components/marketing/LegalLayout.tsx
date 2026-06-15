@@ -14,7 +14,7 @@ export default function LegalLayout({ title, lastUpdated, children }: LegalLayou
     <div className="min-h-screen bg-white">
       <PublicNav />
 
-      <div className="pt-24 pb-16">
+      <main id="main-content" tabIndex={-1} className="focus:outline-none pt-24 pb-16">
         {/* Header */}
         <div className="bg-slate-50 border-b border-slate-200 py-12">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,7 +36,7 @@ export default function LegalLayout({ title, lastUpdated, children }: LegalLayou
             {children}
           </div>
         </div>
-      </div>
+      </main>
 
       <PublicFooter />
     </div>

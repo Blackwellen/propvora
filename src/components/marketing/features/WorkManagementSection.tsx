@@ -116,8 +116,8 @@ export default function WorkManagementSection() {
             </div>
           </div>
 
-          {/* Right: Kanban mockup */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Right: Kanban mockup — tighter gap on mobile keeps 3 columns within the viewport */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {columns.map((col) => (
               <div key={col.name} className={`bg-slate-50 border border-slate-200 rounded-xl border-t-4 ${col.color} overflow-hidden`}>
                 {/* Column header */}

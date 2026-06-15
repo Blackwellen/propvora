@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
       {/* LEFT: Form panel */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-8 py-5">
+        <div className="flex items-center justify-between px-5 sm:px-8 py-5">
           <Link href="/" className="flex items-center">
             <Image src="/propvora-logo-dark.png" alt="Propvora" width={520} height={130} className="h-10 w-auto" priority />
           </Link>
@@ -73,9 +73,9 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Form content */}
-        <div className="flex-1 flex items-center justify-center px-8 py-10">
+        <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-10">
           <div className="w-full max-w-[420px]">
-            <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-8">
+            <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-6 sm:p-8">
               {/* Heading */}
               <div className="mb-7">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-[#EFF6FF] border border-blue-100 px-3 py-1 mb-3">
@@ -177,7 +177,7 @@ export default function AdminLoginPage() {
           ))}
         </div>
         <div className="absolute bottom-6 left-8">
-          <p className="text-[11.5px] text-white/70">&copy; 2026 Propvora Ltd · Platform Administration</p>
+          <p className="text-[11.5px] text-white/70">&copy; 2026 Blackwellen Ltd, t/a Propvora · Platform Administration</p>
         </div>
       </div>
     </div>

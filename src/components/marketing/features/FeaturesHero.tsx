@@ -63,7 +63,7 @@ export default function FeaturesHero() {
               Full platform overview
             </div>
 
-            <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-[1.1]">
+            <h1 className="text-[34px] sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]">
               Everything you need to run a serious property operation
             </h1>
 

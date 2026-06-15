@@ -128,7 +128,7 @@ export default function PublicFooter() {
           <p className="text-slate-400 text-sm">
             © 2026 Blackwellen Ltd, trading as Propvora. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <span className="text-slate-400 text-xs">Reg. England &amp; Wales No. 16482166</span>
             <span className="text-slate-300">·</span>
             <span className="text-slate-400 text-xs">ICO ZC160806</span>

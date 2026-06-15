@@ -337,6 +337,65 @@ export default function BillsPage() {
     catch (e: unknown) { showToast((e as { code?: string })?.code === "42P01" ? "Bills table not provisioned yet" : "Could not update bill") }
   }
 
+  // ─── Bulk actions over selected ids (workspace-scoped via existing mutations) ───
+  const [bulkBusy, setBulkBusy] = useState(false)
+
+  function selectedLiveIds(): string[] {
+    return Array.from(selectedIds).filter((id) => isLiveBill(id) && !hiddenIds.has(id))
+  }
+
+  async function bulkApprove() {
+    if (selectedIds.size === 0) { showToast("Select one or more bills first"); return }
+    const ids = selectedLiveIds()
+    if (ids.length === 0) { showToast("Sample bills — actions persist once saved"); return }
+    setBulkBusy(true)
+    let ok = 0
+    let failed = 0
+    for (const id of ids) {
+      try { await approveBill.mutateAsync({ id }); ok++ }
+      catch { failed++ }
+    }
+    setBulkBusy(false)
+    setSelectedIds(new Set())
+    showToast(failed === 0 ? `Approved ${ok} bill${ok === 1 ? "" : "s"}` : `Approved ${ok}, ${failed} failed`)
+  }
+
+  async function bulkMarkPaid() {
+    if (selectedIds.size === 0) { showToast("Select one or more bills first"); return }
+    const ids = selectedLiveIds()
+    if (ids.length === 0) { showToast("Sample bills — actions persist once saved"); return }
+    setBulkBusy(true)
+    let ok = 0
+    let failed = 0
+    for (const id of ids) {
+      try { await markPaid.mutateAsync({ id }); ok++ }
+      catch { failed++ }
+    }
+    setBulkBusy(false)
+    setSelectedIds(new Set())
+    showToast(failed === 0 ? `Marked ${ok} bill${ok === 1 ? "" : "s"} as Paid` : `Paid ${ok}, ${failed} failed`)
+  }
+
+  // No bank/BACS rail configured — export selected bills as a BACS-style CSV (a real action).
+  function bulkPaySupplierBACS() {
+    if (selectedIds.size === 0) { showToast("Select one or more bills first"); return }
+    const rows = BILLS_LIVE.filter((b) => selectedIds.has(b.id) && !hiddenIds.has(b.id))
+    if (rows.length === 0) { showToast("No bills selected to export"); return }
+    downloadCSV(
+      rows.map((b) => ({
+        supplier: b.supplierName,
+        bill_number: b.billNumber,
+        reference: b.poRef,
+        amount: b.amount.toFixed(2),
+        currency: "GBP",
+        due_date: b.dueDate,
+        status: b.status,
+      })),
+      "bacs-payment-run.csv"
+    )
+    showToast(`Exported ${rows.length} bill${rows.length === 1 ? "" : "s"} as BACS payment file`)
+  }
+
   // Map live Supabase data to display format — NO mock fallback (honest empty state)
   const BILLS_LIVE: Bill[] = useMemo(() => {
     if (!liveBills) return []
@@ -488,15 +547,15 @@ export default function BillsPage() {
                 Add Bill
                 <ChevronDown className="w-3.5 h-3.5 opacity-70" />
               </button>
-              <button onClick={() => showToast("Bulk Mark Paid requires bill selection — feature coming soon")} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
-                Mark Paid
+              <button onClick={bulkMarkPaid} disabled={bulkBusy} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap disabled:opacity-60">
+                Mark Paid{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
               </button>
-              <button onClick={() => showToast("Bulk Approve requires bill selection — feature coming soon")} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
-                Approve
+              <button onClick={bulkApprove} disabled={bulkBusy} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-60">
+                Approve{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
               </button>
-              <button onClick={() => showToast("Pay Supplier via BACS requires bank integration — coming soon")} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
-                Pay Supplier
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              <button onClick={bulkPaySupplierBACS} disabled={bulkBusy} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap disabled:opacity-60">
+                Pay Supplier (BACS)
+                <Download className="w-3.5 h-3.5 opacity-70" />
               </button>
               <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
                 <Download className="w-4 h-4" />

@@ -70,6 +70,7 @@ export default async function ChangelogPage() {
     <div className="min-h-screen bg-white">
       <PublicNav />
 
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
       {/* Hero */}
       <section className="pt-32 pb-12 bg-gradient-to-b from-[#EFF6FF] to-white border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,6 +158,7 @@ export default async function ChangelogPage() {
           </div>
         </div>
       </section>
+      </main>
 
       <PublicFooter />
     </div>

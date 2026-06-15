@@ -219,12 +219,12 @@ export default function SigningPage() {
 
       {/* Body */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
           {/* ── Left panel: Agreement document ── */}
-          <div className="col-span-8">
+          <div className="lg:col-span-8">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-8 py-6 border-b border-slate-100">
+              <div className="px-5 sm:px-8 py-6 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
                     <FileText className="w-5 h-5 text-blue-600" />
@@ -237,7 +237,7 @@ export default function SigningPage() {
               </div>
 
               {/* Document content — scrollable */}
-              <div className="px-10 py-8 max-h-[680px] overflow-y-auto text-slate-800 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <div className="px-5 sm:px-10 py-8 max-h-[680px] overflow-y-auto text-slate-800 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
                 <div className="max-w-2xl mx-auto space-y-6 font-[Georgia,serif]">
 
                   {/* Header */}
@@ -341,7 +341,7 @@ export default function SigningPage() {
                     <p className="text-[12px] text-slate-500 mb-4">
                       By signing this Agreement, the parties confirm they have read, understood, and agree to be bound by all terms contained herein.
                     </p>
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       {signatories.map((sig) => (
                         <div key={sig.id} className="border border-slate-200 rounded-lg p-4">
                           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">{sig.role}</p>
@@ -366,8 +366,8 @@ export default function SigningPage() {
           </div>
 
           {/* ── Right panel: Signing panel ── */}
-          <div className="col-span-4">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-24">
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-24">
               <div className="px-5 py-4 border-b border-slate-100 bg-slate-50">
                 <h2 className="text-[14px] font-semibold text-slate-900">Sign This Agreement</h2>
                 <p className="text-[12px] text-slate-500 mt-0.5">{agreement.title}</p>

@@ -69,6 +69,7 @@ export default function WalkthroughPage() {
     <div className="min-h-screen bg-white">
       <PublicNav />
 
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
       {/* Hero */}
       <section className="pt-32 pb-16 bg-slate-50 border-b border-slate-200">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -145,6 +146,7 @@ export default function WalkthroughPage() {
           </div>
         </div>
       </section>
+      </main>
 
       <PublicFooter />
     </div>

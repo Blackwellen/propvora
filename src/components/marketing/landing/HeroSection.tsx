@@ -24,8 +24,8 @@ export default function HeroSection() {
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left */}
           <div>
             {/* Badge */}
@@ -36,7 +36,7 @@ export default function HeroSection() {
               </span>
             </div>
 
-            <h1 className="text-[48px] sm:text-[56px] font-bold text-[#06122F] leading-tight tracking-tight mb-6">
+            <h1 className="text-[34px] sm:text-[48px] lg:text-[56px] font-bold text-[#06122F] leading-tight tracking-tight mb-6">
               Run your property
               <br />
               operations.
@@ -59,10 +59,10 @@ export default function HeroSection() {
               invoices, payments, and AI-powered operations.
             </p>
 
-            <div className="flex items-center gap-4 flex-wrap mb-8">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 sm:flex-wrap mb-8">
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-white transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-white transition-all hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(135deg, #2563EB, #1d4ed8)",
                   boxShadow: "0 8px 24px rgba(37,99,235,0.35)",
@@ -73,7 +73,7 @@ export default function HeroSection() {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-slate-700 border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-slate-700 border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all"
               >
                 Book a Demo
                 <CalendarDays className="w-4 h-4 text-slate-400" />

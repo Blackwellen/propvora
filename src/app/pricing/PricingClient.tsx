@@ -181,7 +181,7 @@ export default function PricingClient() {
             <Zap className="h-3.5 w-3.5" />
             14-day free trial · No credit card required
           </div>
-          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-4">
+          <h1 className="text-[34px] sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
             Simple, transparent pricing
           </h1>
           <p className="text-xl text-slate-600 max-w-xl mx-auto mb-10">

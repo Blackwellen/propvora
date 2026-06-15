@@ -46,6 +46,7 @@ export default function ContactClient() {
     <div className="min-h-screen bg-white">
       <PublicNav />
 
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
       {/* Hero */}
       <section className="pt-32 pb-16 bg-slate-50 border-b border-slate-200">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -98,7 +99,7 @@ export default function ContactClient() {
             </div>
           ) : (
             /* Form */
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 sm:p-10">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-10">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5 text-blue-600" />
@@ -214,6 +215,7 @@ export default function ContactClient() {
           </div>
         </div>
       </section>
+      </main>
 
       <PublicFooter />
     </div>

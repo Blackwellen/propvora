@@ -111,7 +111,7 @@ export default function PortalsSection() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-1">Affiliate Portal</h3>
                   <p className="text-white/60 text-sm leading-relaxed">
-                    Earn 20% recurring commission for 12 months on every subscription you refer.
+                    Earn 10% recurring commission for 6 months on every paying customer you refer.
                   </p>
                 </div>
               </div>

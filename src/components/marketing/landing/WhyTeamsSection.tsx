@@ -95,7 +95,7 @@ export default function WhyTeamsSection() {
         <div className="rounded-3xl overflow-hidden border border-white/10">
           {/* Panel header */}
           <div className="grid grid-cols-2">
-            <div className="bg-red-950/60 border-b border-r border-white/10 px-8 py-5 flex items-center gap-3">
+            <div className="bg-red-950/60 border-b border-r border-white/10 px-4 sm:px-8 py-5 flex items-center gap-3">
               <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
                 <X className="w-3.5 h-3.5 text-red-400" />
               </div>
@@ -103,7 +103,7 @@ export default function WhyTeamsSection() {
                 Before Propvora
               </p>
             </div>
-            <div className="bg-emerald-950/60 border-b border-white/10 px-8 py-5 flex items-center gap-3">
+            <div className="bg-emerald-950/60 border-b border-white/10 px-4 sm:px-8 py-5 flex items-center gap-3">
               <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               </div>
@@ -120,14 +120,14 @@ export default function WhyTeamsSection() {
               className={`grid grid-cols-2 ${i < comparisons.length - 1 ? "border-b border-white/8" : ""}`}
             >
               {/* Before */}
-              <div className="px-8 py-5 border-r border-white/8 flex items-center gap-3 bg-red-950/20">
+              <div className="px-4 sm:px-8 py-4 sm:py-5 border-r border-white/8 flex items-center gap-2 sm:gap-3 bg-red-950/20">
                 <X className="w-4 h-4 text-red-500/70 shrink-0" />
-                <span className="text-[14px] text-red-300/80">{row.before}</span>
+                <span className="text-[13px] sm:text-[14px] text-red-300/80">{row.before}</span>
               </div>
               {/* After */}
-              <div className="px-8 py-5 flex items-center gap-3 bg-emerald-950/20">
+              <div className="px-4 sm:px-8 py-4 sm:py-5 flex items-center gap-2 sm:gap-3 bg-emerald-950/20">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-[14px] font-semibold text-emerald-300">{row.after}</span>
+                <span className="text-[13px] sm:text-[14px] font-semibold text-emerald-300">{row.after}</span>
               </div>
             </div>
           ))}

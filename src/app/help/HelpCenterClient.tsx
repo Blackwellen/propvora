@@ -45,7 +45,7 @@ export default function HelpCenterClient({
   }, [filtered, categories])
 
   return (
-    <div className="min-h-screen bg-white">
+    <main id="main-content" tabIndex={-1} className="focus:outline-none min-h-screen bg-white">
       {/* Hero with search */}
       <section className="pt-32 pb-16 bg-slate-50 border-b border-slate-200">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -174,6 +174,6 @@ export default function HelpCenterClient({
           )}
         </div>
       </section>
-    </div>
+    </main>
   )
 }

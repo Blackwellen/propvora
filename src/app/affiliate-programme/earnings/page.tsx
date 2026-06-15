@@ -13,7 +13,7 @@ export default function AffiliateEarningsPage() {
   return (
     <div className="min-h-screen bg-[#F6FAFF] flex flex-col">
       <PublicNav />
-      <main className="flex-1 px-6 pt-28 pb-16">
+      <main id="main-content" tabIndex={-1} className="focus:outline-none flex-1 px-6 pt-28 pb-16">
         <EarningsClient />
       </main>
       <PublicFooter />

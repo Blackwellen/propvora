@@ -25,6 +25,7 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyDeposits, useMoneyDepositsSummary, useCreateMoneyDeposit, type MoneyDepositRow } from "@/hooks/useMoneyData"
 import { createClient } from "@/lib/supabase/client"
+import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 
@@ -511,21 +512,135 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
   )
 }
 
+/* ─── Add Protection Modal ─────────────────────────────────────────────── */
+const PROTECTION_SCHEMES = [
+  "Deposit Protection Service (DPS)",
+  "MyDeposits (Custodial)",
+  "TDS (Custodial)",
+  "MyDeposits (Insured)",
+  "TDS (Insured)",
+]
+
+function AddProtectionModal({
+  deposit,
+  workspaceId,
+  onClose,
+  onSaved,
+}: {
+  deposit: DepositRow
+  workspaceId: string | undefined
+  onClose: () => void
+  onSaved: (msg: string) => void
+}) {
+  const [scheme, setScheme] = useState(PROTECTION_SCHEMES[0])
+  const [reference, setReference] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSave() {
+    if (!workspaceId) { setError("No workspace found — please refresh and try again"); return }
+    if (!reference.trim()) { setError("A scheme reference number is required"); return }
+    setSaving(true)
+    setError(null)
+    const supabase = createClient()
+    const { error: updErr } = await supabase
+      .from("deposits")
+      .update({ status: "protected", protection_scheme: scheme, reference_number: reference.trim() })
+      .eq("id", deposit.id)
+      .eq("workspace_id", workspaceId)
+    setSaving(false)
+    if (updErr) {
+      setError(updErr.code === "42P01" ? "Deposits table not provisioned yet" : (updErr.message ?? "Could not protect deposit"))
+      return
+    }
+    onSaved(`Deposit protected in ${scheme}`)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h3 className="text-base font-semibold text-slate-900">Add Protection</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="px-6 py-4 space-y-4">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-xs font-medium text-slate-500 mb-1">Deposit</p>
+            <p className="text-sm font-semibold text-slate-800">{deposit.tenantName}</p>
+            <p className="text-xs text-slate-500">{deposit.propertyAddress}</p>
+            <p className="text-lg font-bold text-blue-600 mt-1">£{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-600">Protection Scheme</label>
+            <div className="relative">
+              <select
+                value={scheme}
+                onChange={(e) => setScheme(e.target.value)}
+                className="w-full h-9 pl-3 pr-8 rounded-lg text-sm border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              >
+                {PROTECTION_SCHEMES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-600">Scheme Reference Number</label>
+            <input
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder="e.g. DPS20260001"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+            />
+          </div>
+        </div>
+        <div className="px-6 py-4 border-t border-slate-100 space-y-2">
+          {error && <p className="text-xs text-red-600">{error}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 h-9 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-60"
+            >
+              {saving ? "Protecting…" : "Mark Protected"}
+            </button>
+            <button onClick={onClose} disabled={saving} className="h-9 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-60">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Deposit Row ──────────────────────────────────────────────────────── */
 function DepositRowItem({
   deposit,
+  isLive,
   onReturn,
   onToast,
   onDelete,
   onMarkReturned,
+  onProtect,
+  onUploadDoc,
+  uploadingId,
 }: {
   deposit: DepositRow
+  isLive: boolean
   onReturn: (deposit: DepositRow) => void
   onToast: (msg: string) => void
   onDelete: (id: string) => Promise<void>
   onMarkReturned: (id: string) => void
+  onProtect: (deposit: DepositRow) => void
+  onUploadDoc: (deposit: DepositRow, file: File) => void
+  uploadingId: string | null
 }) {
   const sc = getStatusConfig(deposit.status)
+  const docInputRef = React.useRef<HTMLInputElement>(null)
 
   return (
     <div className="bg-white border border-slate-100 rounded-xl px-5 py-4 flex flex-col md:flex-row md:items-center gap-4 hover:shadow-sm hover:border-slate-200 transition-all">
@@ -572,21 +687,31 @@ function DepositRowItem({
             Return Deposit
           </button>
         )}
-        {deposit.status === "unprotected" && (
+        {(deposit.status === "unprotected" || deposit.status === "received") && (
           <button
-            onClick={() => onToast("Add protection via your scheme provider (DPS/TDS/MyDeposits) — protection scheme integration coming soon")}
+            onClick={() => isLive ? onProtect(deposit) : onToast("Sample deposit — actions persist once saved")}
             className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-colors"
           >
             Add Protection
           </button>
         )}
         {deposit.status === "expected" && (
-          <button
-            onClick={() => onToast("Document upload requires storage integration — coming soon")}
-            className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
-          >
-            <Upload className="w-3 h-3" />Upload Docs
-          </button>
+          <>
+            <input
+              ref={docInputRef}
+              type="file"
+              className="hidden"
+              accept="image/*,application/pdf,.doc,.docx,.csv,.xlsx,.txt"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) onUploadDoc(deposit, f); e.target.value = "" }}
+            />
+            <button
+              onClick={() => isLive ? docInputRef.current?.click() : onToast("Sample deposit — actions persist once saved")}
+              disabled={uploadingId === deposit.id}
+              className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1 disabled:opacity-60"
+            >
+              <Upload className="w-3 h-3" />{uploadingId === deposit.id ? "Uploading…" : "Upload Docs"}
+            </button>
+          </>
         )}
         {(deposit.status === "protected" || deposit.status === "disputed") && (
           <button
@@ -649,6 +774,8 @@ export default function DepositsPage() {
   const [selectedProperty, setSelectedProperty] = useState("all")
   const [showTrackModal, setShowTrackModal] = useState(false)
   const [returnDeposit, setReturnDeposit] = useState<DepositRow | null>(null)
+  const [protectDeposit, setProtectDeposit] = useState<DepositRow | null>(null)
+  const [uploadingId, setUploadingId] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
 
@@ -682,11 +809,64 @@ export default function DepositsPage() {
     } catch { showToast("Could not update deposit") }
   }
 
+  async function uploadDepositDoc(deposit: DepositRow, file: File) {
+    if (!workspace?.id) { showToast("No workspace found — please refresh and try again"); return }
+    if (!isLiveDeposit(deposit.id)) { showToast("Sample deposit — actions persist once saved"); return }
+    setUploadingId(deposit.id)
+    try {
+      const uploaded = await uploadFile(file, workspace.id, "deposits")
+      const supabase = createClient()
+      const { data: doc, error: docErr } = await supabase
+        .from("documents")
+        .insert({
+          workspace_id: workspace.id,
+          name: file.name,
+          category: "deposit",
+          mime_type: uploaded.type || file.type || null,
+          size_bytes: uploaded.size ?? file.size,
+          r2_key: uploaded.key,
+          r2_bucket: "propvora",
+          url: uploaded.url,
+          status: "uploaded",
+          metadata: { deposit_id: deposit.id },
+        })
+        .select("id")
+        .single()
+      if (docErr) {
+        showToast(docErr.code === "42P01" ? "Documents table not provisioned yet" : (docErr.message ?? "Could not save document"))
+        return
+      }
+      const { error: updErr } = await supabase
+        .from("deposits")
+        .update({ document_id: doc.id })
+        .eq("id", deposit.id)
+        .eq("workspace_id", workspace.id)
+      if (updErr) {
+        showToast(updErr.message ?? "Document saved but could not link to deposit")
+        return
+      }
+      showToast("Document uploaded and linked to deposit")
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Upload failed")
+    } finally {
+      setUploadingId(null)
+    }
+  }
+
   // Map live Supabase data to display format — no mock fallback
   const DEPOSITS_LIVE: DepositRow[] = useMemo(() => {
     if (!liveDeposits) return []
     return liveDeposits.map(mapDepositRow)
   }, [liveDeposits])
+
+  // Distinct property values from live deposits — replaces hardcoded mock options
+  const propertyOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const d of DEPOSITS_LIVE) {
+      if (d.propertyAddress && d.propertyAddress !== "Unknown Property") set.add(d.propertyAddress)
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [DEPOSITS_LIVE])
 
   function handleExportCSV() {
     downloadCSV(
@@ -722,6 +902,7 @@ export default function DepositsPage() {
     <DashboardContainer>
       {showTrackModal && <TrackDepositModal workspaceId={workspace?.id} onClose={() => setShowTrackModal(false)} onSaved={showToast} />}
       {returnDeposit && <ReturnDepositModal deposit={returnDeposit} onClose={() => setReturnDeposit(null)} onSaved={showToast} />}
+      {protectDeposit && <AddProtectionModal deposit={protectDeposit} workspaceId={workspace?.id} onClose={() => setProtectDeposit(null)} onSaved={showToast} />}
 
       {/* Toast */}
       {toastMsg && (
@@ -866,12 +1047,9 @@ export default function DepositsPage() {
                 className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
               >
                 <option value="all">All Properties</option>
-                <option value="Maple Avenue">Maple Avenue</option>
-                <option value="Riverside Court">Riverside Court</option>
-                <option value="Oakwood Drive">Oakwood Drive</option>
-                <option value="Hilltop Gardens">Hilltop Gardens</option>
-                <option value="Botanic View">Botanic View</option>
-                <option value="Exchange Building">Exchange Building</option>
+                {propertyOptions.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
@@ -889,7 +1067,18 @@ export default function DepositsPage() {
           ) : (
             <div className="space-y-2">
               {filtered.map((deposit) => (
-                <DepositRowItem key={deposit.id} deposit={deposit} onReturn={setReturnDeposit} onToast={showToast} onDelete={deleteDeposit} onMarkReturned={markDepositReturned} />
+                <DepositRowItem
+                  key={deposit.id}
+                  deposit={deposit}
+                  isLive={isLiveDeposit(deposit.id)}
+                  onReturn={setReturnDeposit}
+                  onToast={showToast}
+                  onDelete={deleteDeposit}
+                  onMarkReturned={markDepositReturned}
+                  onProtect={setProtectDeposit}
+                  onUploadDoc={uploadDepositDoc}
+                  uploadingId={uploadingId}
+                />
               ))}
               {filtered.length === 0 && (
                 <div className="py-16 text-center space-y-2 bg-white rounded-xl border border-slate-100">

@@ -66,7 +66,7 @@ export default function AffiliateProgrammePage() {
     <div className="min-h-screen bg-[#F6FAFF] flex flex-col">
       <PublicNav />
 
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="focus:outline-none flex-1">
         {/* Hero */}
         <section className="px-6 pt-28 pb-12 max-w-5xl mx-auto text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 border border-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">

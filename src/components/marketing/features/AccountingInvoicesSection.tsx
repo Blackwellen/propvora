@@ -52,18 +52,18 @@ export default function AccountingInvoicesSection() {
             </ul>
 
             {/* KPI strip */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-100">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-center">
-                <div className="text-xl font-bold text-emerald-700">£48,390</div>
-                <div className="text-xs text-slate-500 mt-0.5">Total Income</div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-slate-100">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 sm:p-3.5 text-center">
+                <div className="text-base sm:text-xl font-bold text-emerald-700">£48,390</div>
+                <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Total Income</div>
               </div>
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 text-center">
-                <div className="text-xl font-bold text-red-600">£12,840</div>
-                <div className="text-xs text-slate-500 mt-0.5">Expenses</div>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 sm:p-3.5 text-center">
+                <div className="text-base sm:text-xl font-bold text-red-600">£12,840</div>
+                <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Expenses</div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-center">
-                <div className="text-xl font-bold text-blue-700">£35,550</div>
-                <div className="text-xs text-slate-500 mt-0.5">Net Profit</div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-2.5 sm:p-3.5 text-center">
+                <div className="text-base sm:text-xl font-bold text-blue-700">£35,550</div>
+                <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Net Profit</div>
               </div>
             </div>
           </div>

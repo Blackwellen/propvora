@@ -141,6 +141,39 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
     } catch { showToast("Could not delete offer") }
   }
 
+  const [duplicating, setDuplicating] = useState(false)
+  async function duplicateOffer() {
+    if (!offer || !workspace?.id) return
+    setDuplicating(true)
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("planning_landlord_offers")
+      .insert({
+        workspace_id: workspace.id,
+        planning_set_id: offer.planning_set_id ?? null,
+        landlord_contact_id: offer.landlord_contact_id ?? null,
+        property_address: offer.property_address,
+        proposed_rent: offer.proposed_rent,
+        proposed_term_months: offer.proposed_term_months ?? null,
+        break_clause_months: offer.break_clause_months ?? null,
+        management_fee_included: offer.management_fee_included ?? null,
+        bills_included: offer.bills_included ?? null,
+        notes: offer.notes ?? null,
+        status: "draft",
+        sent_at: null,
+        responded_at: null,
+        is_demo: false,
+      })
+      .select("id")
+      .single()
+    setDuplicating(false)
+    if (error || !data) {
+      showToast(error?.code === "42P01" ? "Offers table not provisioned yet" : (error?.message ?? "Could not duplicate offer"))
+      return
+    }
+    router.push(`/app/planning/landlord-offers/${data.id}`)
+  }
+
   async function convertToProperty() {
     if (!offer || !workspace?.id) return
     setConverting(true)
@@ -252,7 +285,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   items={[
                     { label: "Mark Accepted", icon: CheckCircle2, onClick: () => setStatus("accepted", "Offer marked as Accepted") },
                     { label: "Mark Rejected", icon: Archive, onClick: () => setStatus("rejected", "Offer marked as Rejected") },
-                    { label: "Duplicate", icon: Copy, onClick: () => showToast("Duplicate offer — coming soon") },
+                    { label: duplicating ? "Duplicating…" : "Duplicate", icon: Copy, onClick: duplicateOffer },
                     { label: "Delete Offer", icon: Trash2, onClick: open, variant: "danger" },
                   ]}
                 />

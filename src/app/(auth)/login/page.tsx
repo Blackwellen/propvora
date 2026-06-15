@@ -154,7 +154,7 @@ function LoginForm() {
       {/* LEFT: Form panel */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-8 py-5">
+        <div className="flex items-center justify-between px-5 sm:px-8 py-5">
           <Link href="/" className="flex items-center">
             <Image
               src="/propvora-logo-dark.png"
@@ -174,10 +174,10 @@ function LoginForm() {
         </div>
 
         {/* Form content */}
-        <div className="flex-1 flex items-center justify-center px-8 py-10">
+        <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-10">
           <div className="w-full max-w-[420px]">
             {/* Card */}
-            <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-8">
+            <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-6 sm:p-8">
               {/* Heading */}
               <div className="mb-7">
                 <h1 className="text-[28px] font-bold text-[#06122F] tracking-tight mb-1.5">
@@ -387,7 +387,7 @@ function LoginForm() {
 
         {/* Bottom copyright */}
         <div className="absolute bottom-6 left-8">
-          <p className="text-[11.5px] text-white/60">&copy; 2026 Propvora Ltd.</p>
+          <p className="text-[11.5px] text-white/60">&copy; 2026 Blackwellen Ltd, t/a Propvora.</p>
         </div>
       </div>
     </div>

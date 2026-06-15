@@ -5,6 +5,10 @@ import { spawnSync } from "node:child_process"
 const suites = [
   ["RLS multi-workspace isolation + IDOR", "scripts/test/rls-isolation.mjs"],
   ["Subscription / feature gates", "scripts/test/billing-gates.mjs"],
+  ["RLS coverage (every workspace_id table)", "scripts/test/rls-coverage.mjs"],
+  ["Anonymous exposure (no leak to anon)", "scripts/test/anon-exposure.mjs"],
+  ["IDOR sweep (cross-workspace object refs)", "scripts/test/idor-sweep.mjs"],
+  ["Role within workspace (RBAC gates)", "scripts/test/role-within-workspace.mjs"],
 ]
 
 let failed = 0
