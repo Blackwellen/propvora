@@ -47,3 +47,4 @@ e2e/.report/
 e2e/.qa-fixture.json
 e2e/.ids.json
 e2e/.report
+supabase/.temp/

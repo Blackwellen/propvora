@@ -184,3 +184,34 @@ export function gateAutomation(
 ): Promise<GateResult> {
   return gateFeature(supabase, workspaceId, "automation")
 }
+
+// ── v2 feature-flag gate (additive) ───────────────────────────────────────
+// Bridges the v2 feature-flag registry into the same GateResult shape the
+// billing gates use, so v2 surfaces (marketplace, customer/supplier workspace,
+// booking, country packs …) can be guarded with one consistent helper. This is
+// PURELY ADDITIVE — it does not touch any existing plan/tier gate. Every v2
+// flag defaults OFF, so this fails CLOSED for v2 features until a flag is on.
+
+/**
+ * Gate: a v2 feature flag. Returns allowed:true only when the flag resolves ON
+ * for this workspace (per-workspace override → global → registry default OFF).
+ * Tolerant: the flag accessor never throws; a missing flags table → OFF.
+ */
+export async function gateV2Flag(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  flag: import("@/lib/flags/registry").V2FlagKey
+): Promise<GateResult> {
+  const tier = await getWorkspaceTier(supabase, workspaceId)
+  const { isFeatureEnabled } = await import("@/lib/flags")
+  const { FLAG_REGISTRY } = await import("@/lib/flags/registry")
+  const on = await isFeatureEnabled(flag, { supabase, workspaceId })
+  if (on) return { allowed: true, tier }
+  const label = FLAG_REGISTRY[flag]?.label ?? flag
+  return {
+    allowed: false,
+    tier,
+    status: 403,
+    reason: `${label} is not enabled for this workspace.`,
+  }
+}

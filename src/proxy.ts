@@ -144,7 +144,76 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/app", request.url))
   }
 
+  // ── v2 routeContext guard (ADDITIVE, flag-gated, fail-open) ────────────────
+  // Composes WITH the auth guard above — it never replaces it. It only ever
+  // acts when ALL of the following hold:
+  //   - the request is authenticated (no point resolving context otherwise),
+  //   - the pathname matches a route with a declared RouteContext, and
+  //   - the `contextEngine` v2 flag is ON (default OFF → this whole block is a
+  //     no-op and V1 behaviour is unchanged).
+  // Every dependency is imported LAZILY and wrapped so that a missing export
+  // (the resolver is owned by a concurrent agent) or any error can NEVER crash
+  // the proxy — on any problem we simply fall through to the normal response.
+  if (user) {
+    const guarded = await maybeApplyRouteContextGuard(supabase, request, pathname)
+    if (guarded) return guarded
+  }
+
   return supabaseResponse
+}
+
+/**
+ * Tolerant scaffold for the v2 routeContext guard. Returns a redirect Response
+ * to enforce a context mismatch, or null to allow the request through. Any
+ * error, missing export or disabled flag returns null (fail-open) so the proxy
+ * is never destabilised by v2 work-in-progress.
+ */
+async function maybeApplyRouteContextGuard(
+  supabase: ProxySupabaseClient,
+  request: NextRequest,
+  pathname: string
+): Promise<NextResponse | null> {
+  try {
+    const { matchRouteContext } = await import("@/lib/flags/route-registry")
+    const routeContext = matchRouteContext(pathname)
+    if (!routeContext) return null
+
+    const { isFeatureEnabled } = await import("@/lib/flags")
+    const engineOn = await isFeatureEnabled("contextEngine", { supabase })
+    if (!engineOn) return null // flag OFF (default) → inert.
+
+    // Resolver is owned by a concurrent agent; import lazily and tolerate a
+    // missing export so a not-yet-landed `@/lib/context` never breaks routing.
+    let resolved: unknown = null
+    try {
+      const contextMod = (await import("@/lib/context")) as {
+        resolvePropvoraContext?: (args: {
+          request: NextRequest
+          route: string
+        }) => Promise<unknown>
+      }
+      if (typeof contextMod.resolvePropvoraContext === "function") {
+        resolved = await contextMod.resolvePropvoraContext({ request, route: pathname })
+      }
+    } catch {
+      return null // resolver missing/failed → fail open.
+    }
+    if (!resolved) return null
+
+    const { evaluateRouteContext } = await import("@/lib/flags/route-context")
+    const outcome = evaluateRouteContext(
+      routeContext,
+      resolved as Parameters<typeof evaluateRouteContext>[1]
+    )
+    if (outcome.ok) return null
+
+    const url = request.nextUrl.clone()
+    url.pathname = outcome.redirectTo ?? "/app"
+    url.search = ""
+    return NextResponse.redirect(url)
+  } catch {
+    return null // any failure → fail open, never crash the proxy.
+  }
 }
 
 export const config = {
