@@ -7,33 +7,23 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
-import {
-  LayoutDashboard,
-  CalendarCheck,
-  MessageSquare,
-  CreditCard,
-  LifeBuoy,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react"
+import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
+import { CUSTOMER_NAV, isCustomerNavActive } from "@/components/customer/nav"
+import CustomerMobileBottomNav from "@/components/customer/CustomerMobileNav"
 
-// ============================================================================
-// CustomerShell — lightweight workspace shell for the v2 customer / guest
-// workspace. Mirrors the SupplierShell pattern (same dark sidebar, same a11y
-// affordances) but with a customer-oriented nav.
-//
-// This shell is ONLY mounted behind the `customerWorkspace` feature flag (OFF
-// by default), so it does not appear anywhere in V1.
-// ============================================================================
+/* ──────────────────────────────────────────────────────────────────────────
+   CustomerShell — chrome for the first-class customer/guest-type workspace
+   (route group `(customer)`). Distinct from the operator AppShell and the
+   recipient/tenant portals.
 
-const customerNav = [
-  { label: "Home", href: "/customer", icon: LayoutDashboard },
-  { label: "My Bookings", href: "/customer/bookings", icon: CalendarCheck },
-  { label: "Messages", href: "/customer/messages", icon: MessageSquare },
-  { label: "Payments", href: "/customer/payments", icon: CreditCard },
-  { label: "Support", href: "/customer/support", icon: LifeBuoy },
-]
+   Access is gated by real product membership (`customer_workspace_members`) in
+   `(customer)/layout.tsx` — there are NO feature flags.
+
+   Desktop: dark fixed sidebar (matching SupplierWorkspaceShell tokens) with the
+   full customer section nav.
+   Mobile (<lg): the sidebar is hidden and a dedicated bottom tab bar
+   (CustomerMobileBottomNav) takes over — Dashboard · Bookings · Orders · More.
+─────────────────────────────────────────────────────────────────────────── */
 
 function initialsOf(name: string): string {
   return (
@@ -76,6 +66,8 @@ export default function CustomerShell({
         />
       )}
 
+      {/* Desktop sidebar (also the drawer target on tablet via the header
+          hamburger; on phones the bottom nav is the primary nav). */}
       <aside
         aria-label="Customer workspace sidebar"
         className={cn(
@@ -91,18 +83,19 @@ export default function CustomerShell({
           <span className="ml-2 px-1.5 py-0.5 bg-[#0EA5E9]/20 text-[#38bdf8] text-[10px] font-semibold rounded shrink-0">
             CUSTOMER
           </span>
-          <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="lg:hidden p-2 rounded text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]">
+          <button
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
+            className="lg:hidden p-2 rounded text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <nav aria-label="Customer workspace" className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
-          {customerNav.map((item) => {
+          {CUSTOMER_NAV.map((item) => {
             const Icon = item.icon
-            const isActive =
-              item.href === "/customer"
-                ? pathname === "/customer"
-                : pathname.startsWith(item.href)
+            const isActive = isCustomerNavActive(pathname, item.href)
             return (
               <Link
                 key={item.href}
@@ -121,6 +114,15 @@ export default function CustomerShell({
               </Link>
             )
           })}
+
+          <Link
+            href="/help"
+            onClick={() => setMobileOpen(false)}
+            className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-white/8 transition-all duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]"
+          >
+            <LifeBuoy className="w-5 h-5 shrink-0" />
+            <span>Help &amp; Guides</span>
+          </Link>
         </nav>
 
         <div className="shrink-0 border-t border-white/8 px-2 py-3">
@@ -130,8 +132,14 @@ export default function CustomerShell({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{customerName}</p>
+              <p className="text-[11px] text-[#64748B] truncate">Customer workspace</p>
             </div>
-            <button onClick={handleSignOut} className="p-2 rounded text-[#64748B] hover:text-red-400 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]" title="Sign out" aria-label="Sign out">
+            <button
+              onClick={handleSignOut}
+              className="p-2 rounded text-[#64748B] hover:text-red-400 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
+              title="Sign out"
+              aria-label="Sign out"
+            >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -139,16 +147,32 @@ export default function CustomerShell({
       </aside>
 
       <div className="flex-1 min-w-0 lg:pl-64 flex flex-col min-h-screen">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 gap-4 shrink-0 sticky top-0 z-30">
-          <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]">
+        {/* Desktop/tablet header — on phones the MobileTopBar in each page +
+            the bottom nav own navigation, so this slim bar is lg-only chrome
+            plus a tablet hamburger to reveal the drawer. */}
+        <header className="hidden md:flex h-16 bg-white border-b border-slate-200 items-center px-4 gap-4 shrink-0 sticky top-0 z-30">
+          <button
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+          >
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-sm font-semibold text-slate-700">Customer Workspace</span>
         </header>
-        <main id="main-content" tabIndex={-1} aria-label="Main content" className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto w-full bg-[#F6FAFF] focus:outline-none">
+
+        <main
+          id="main-content"
+          tabIndex={-1}
+          aria-label="Main content"
+          className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 pb-24 lg:pb-8 max-w-[1400px] mx-auto w-full bg-[#F6FAFF] focus:outline-none"
+        >
           {children}
         </main>
       </div>
+
+      {/* Dedicated mobile bottom nav (below lg only). */}
+      <CustomerMobileBottomNav />
     </div>
   )
 }

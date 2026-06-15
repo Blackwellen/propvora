@@ -29,6 +29,11 @@ import {
   ExternalLink,
   Shield,
   Sparkles,
+  Store,
+  PoundSterling,
+  Gavel,
+  Wallet,
+  ShieldAlert,
 } from "lucide-react"
 
 // ─── Nav config ──────────────────────────────────────────────────────────────
@@ -54,6 +59,17 @@ const ADMIN_NAV_GROUPS = [
       { label: "Portfolios", href: "/admin/portfolios", icon: BarChart2 },
       { label: "Work",       href: "/admin/work",       icon: Wrench },
       { label: "Planning",   href: "/admin/planning",   icon: Map },
+    ],
+  },
+  {
+    label: "MARKETPLACE",
+    items: [
+      { label: "Oversight",    href: "/admin/marketplace",              icon: Store },
+      { label: "Transactions", href: "/admin/marketplace/transactions", icon: PoundSterling },
+      { label: "Disputes",     href: "/admin/marketplace/disputes",     icon: Gavel },
+      { label: "Payouts",      href: "/admin/marketplace/payouts",      icon: Wallet },
+      { label: "Workspaces",   href: "/admin/marketplace/workspaces",   icon: Building2 },
+      { label: "Risk",         href: "/admin/risk",                     icon: ShieldAlert },
     ],
   },
   {

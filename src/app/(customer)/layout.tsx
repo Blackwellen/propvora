@@ -23,7 +23,7 @@ export default async function CustomerLayout({
   if (!user) redirect("/login?redirectTo=/customer")
 
   // Core gate: must belong to a customer workspace.
-  let isCustomer = false
+  let workspaceId: string | null = null
   try {
     const { data } = await supabase
       .from("customer_workspace_members")
@@ -31,11 +31,25 @@ export default async function CustomerLayout({
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle()
-    isCustomer = Boolean(data)
+    workspaceId = (data as { workspace_id?: string } | null)?.workspace_id ?? null
   } catch {
-    isCustomer = false
+    workspaceId = null
   }
-  if (!isCustomer) redirect("/app")
+  if (!workspaceId) redirect("/app")
 
-  return <CustomerShell>{children}</CustomerShell>
+  // Resolve a friendly display name (tolerant — falls back to the account email
+  // then "Customer").
+  let customerName = user.email ?? "Customer"
+  try {
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("name")
+      .eq("id", workspaceId)
+      .maybeSingle()
+    if ((ws as { name?: string } | null)?.name) customerName = (ws as { name: string }).name
+  } catch {
+    // keep default
+  }
+
+  return <CustomerShell customerName={customerName}>{children}</CustomerShell>
 }

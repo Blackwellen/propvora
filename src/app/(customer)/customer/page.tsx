@@ -1,48 +1,205 @@
-import { CalendarCheck, CreditCard, MessageSquare } from "lucide-react"
+import Link from "next/link"
+import {
+  CalendarCheck,
+  ShoppingBag,
+  Heart,
+  ArrowUpRight,
+  Sparkles,
+  MessageSquare,
+  MapPin,
+} from "lucide-react"
+import { MobileTopBar } from "@/components/mobile"
+import {
+  CustomerPageHeader,
+  CustomerCard,
+  CustomerKpiStrip,
+  CustomerEmptyState,
+  CustomerViewLink,
+  CustomerStatusBadge,
+  type CustomerKpi,
+} from "@/components/customer/ui"
+import {
+  moneyPence,
+  shortDate,
+  dayMonth,
+  humanise,
+  toneForStatus,
+  isUpcoming,
+} from "@/components/customer/format"
+import {
+  requireCustomerContext,
+  listCustomerBookings,
+  listCustomerOrders,
+  listSavedListings,
+} from "@/lib/customer"
 
-export const metadata = {
-  title: "Customer Workspace · Propvora",
-}
+export const metadata = { title: "Customer Workspace · Propvora" }
+export const dynamic = "force-dynamic"
 
-/**
- * Customer workspace landing (v2 scaffold / placeholder).
- *
- * Only reachable when the `customerWorkspace` flag is ON (the (customer) layout
- * redirects to /app otherwise). This is a deliberate placeholder for the future
- * customer home (current booking, payments due, messages — audit §7.3 / §15).
- */
-export default function CustomerHomePage() {
+const QUICK_ACTIONS = [
+  { label: "Find a stay", href: "/app/marketplace", icon: MapPin, bg: "bg-blue-50", color: "text-blue-600" },
+  { label: "My bookings", href: "/customer/bookings", icon: CalendarCheck, bg: "bg-emerald-50", color: "text-emerald-600" },
+  { label: "Saved", href: "/customer/saved", icon: Heart, bg: "bg-rose-50", color: "text-rose-600" },
+  { label: "Messages", href: "/customer/messages", icon: MessageSquare, bg: "bg-violet-50", color: "text-violet-600" },
+]
+
+export default async function CustomerHomePage() {
+  const { supabase, workspaceId, email, displayName } = await requireCustomerContext()
+
+  const [bookings, orders, saved] = await Promise.all([
+    listCustomerBookings(supabase, workspaceId, email),
+    listCustomerOrders(supabase, workspaceId),
+    listSavedListings(supabase, workspaceId),
+  ])
+
+  const upcoming = bookings
+    .filter((b) => isUpcoming(b.check_in, b.status))
+    .sort((a, b) => (a.check_in ?? "").localeCompare(b.check_in ?? ""))
+  const recentOrders = orders.slice(0, 4)
+  const firstName = displayName.split(/[\s@]/)[0]
+
+  const kpis: CustomerKpi[] = [
+    {
+      icon: CalendarCheck, iconBg: "bg-blue-50", iconColor: "text-blue-600",
+      value: upcoming.length, label: "Upcoming stays",
+      sub: upcoming.length > 0 ? `Next ${shortDate(upcoming[0].check_in)}` : "Nothing booked",
+      subColor: upcoming.length > 0 ? "text-blue-600" : "text-slate-400",
+      href: "/customer/bookings",
+    },
+    {
+      icon: ShoppingBag, iconBg: "bg-emerald-50", iconColor: "text-emerald-600",
+      value: orders.length, label: "Orders",
+      sub: orders.length > 0 ? "Marketplace purchases" : "No purchases yet",
+      subColor: "text-slate-500",
+      href: "/customer/orders",
+    },
+    {
+      icon: Heart, iconBg: "bg-rose-50", iconColor: "text-rose-600",
+      value: saved.length, label: "Saved listings",
+      sub: saved.length > 0 ? "Your favourites" : "Save listings you like",
+      subColor: "text-slate-500",
+      href: "/customer/saved",
+    },
+  ]
+
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-semibold text-slate-900">Welcome</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Your bookings, messages and payments will appear here.
-        </p>
-      </header>
+    <div className="space-y-5">
+      <MobileTopBar title="Home" subtitle={`Welcome, ${firstName}`} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[
-          { label: "My Bookings", icon: CalendarCheck, hint: "Stays and service requests" },
-          { label: "Messages", icon: MessageSquare, hint: "Talk to your property manager" },
-          { label: "Payments", icon: CreditCard, hint: "Balances due and history" },
-        ].map(({ label, icon: Icon, hint }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+      <CustomerPageHeader
+        title={`Welcome back, ${firstName}`}
+        subtitle="Your stays, orders and saved listings at a glance"
+        actions={
+          <Link
+            href="/app/marketplace"
+            className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
-              <Icon className="h-5 w-5" />
-            </div>
-            <h2 className="mt-3 text-sm font-semibold text-slate-900">{label}</h2>
-            <p className="mt-1 text-xs text-slate-500">{hint}</p>
-          </div>
-        ))}
-      </div>
+            <Sparkles className="w-4 h-4" /> Browse marketplace
+          </Link>
+        }
+      />
 
-      <p className="text-xs text-slate-400">
-        This workspace is in preview. More features are on the way.
-      </p>
+      <CustomerKpiStrip kpis={kpis} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
+        {/* Upcoming stays */}
+        <CustomerCard className="p-5">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h2 className="text-base font-semibold text-slate-900">Upcoming stays</h2>
+            <CustomerViewLink href="/customer/bookings" label="View all" />
+          </div>
+          {upcoming.length === 0 ? (
+            <CustomerEmptyState
+              icon={CalendarCheck}
+              title="No upcoming stays"
+              description="When you book a property, your confirmed and pending stays appear here with dates, guests and the price you paid."
+              action={<CustomerViewLink href="/app/marketplace" label="Find a place to stay" />}
+            />
+          ) : (
+            <ul className="space-y-2.5">
+              {upcoming.slice(0, 5).map((b) => (
+                <li key={b.id}>
+                  <Link
+                    href={`/customer/bookings/${b.id}`}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="w-12 shrink-0 rounded-lg bg-blue-50 px-1 py-1.5 text-center">
+                      <p className="text-[9px] font-bold text-blue-600 leading-none">{dayMonth(b.check_in)}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {b.nights ? `${b.nights} night${b.nights === 1 ? "" : "s"}` : "Stay"}
+                        {b.guests_count ? ` · ${b.guests_count} guest${b.guests_count === 1 ? "" : "s"}` : ""}
+                      </p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {shortDate(b.check_in)} → {shortDate(b.check_out)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold text-slate-800">{moneyPence(b.total_pence, b.currency)}</p>
+                      <CustomerStatusBadge tone={toneForStatus(b.status)}>{humanise(b.status)}</CustomerStatusBadge>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CustomerCard>
+
+        {/* Quick actions + recent orders */}
+        <div className="space-y-4">
+          <CustomerCard className="p-5">
+            <h2 className="text-base font-semibold text-slate-900 mb-4">Quick actions</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {QUICK_ACTIONS.map((a) => {
+                const Icon = a.icon
+                return (
+                  <Link
+                    key={a.label}
+                    href={a.href}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all"
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${a.bg}`}>
+                      <Icon className={`w-5 h-5 ${a.color}`} />
+                    </div>
+                    <span className="text-xs font-medium text-slate-700 text-center leading-tight">{a.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </CustomerCard>
+
+          <CustomerCard className="p-5">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h2 className="text-base font-semibold text-slate-900">Recent orders</h2>
+              <CustomerViewLink href="/customer/orders" label="View all" />
+            </div>
+            {recentOrders.length === 0 ? (
+              <p className="text-sm text-slate-500 py-2">No marketplace purchases yet.</p>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {recentOrders.map((o) => (
+                  <li key={o.id} className="py-3 first:pt-0 last:pb-0">
+                    <Link href="/customer/orders" className="flex items-center gap-3 group">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                        <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 truncate">
+                          {o.listing?.title ?? o.listing?.company_name ?? humanise(o.transaction_type) ?? "Order"}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">{shortDate(o.created_at)}</p>
+                      </div>
+                      <CustomerStatusBadge tone={toneForStatus(o.status)}>{humanise(o.status)}</CustomerStatusBadge>
+                      <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CustomerCard>
+        </div>
+      </div>
     </div>
   )
 }
