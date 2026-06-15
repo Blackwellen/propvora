@@ -7,6 +7,8 @@ import { checkRate, recordUsage } from "@/lib/ai/metering"
 import { checkCaps } from "@/lib/ai/caps"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
+import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
+import { aiJurisdictionClause } from "@/lib/international/guardrails"
 import { gateAiCopilot } from "@/lib/billing/gates"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
@@ -81,6 +83,18 @@ export async function POST(request: NextRequest) {
     // 5. Live workspace snapshot (RLS-scoped, 42P01-safe → real data, never leaks cross-workspace)
     const snapshot = workspaceId ? await getWorkspaceSnapshot(supabase, workspaceId) : {}
 
+    // 5b. Resolve the workspace jurisdiction + country-pack status (GB-safe default).
+    // Drives the jurisdiction clause: GB keeps full review-only depth; non-reviewed
+    // jurisdictions get a stronger disclaimer + generic-only legal/tax framing.
+    const jurisdiction = await getWorkspaceJurisdiction(supabase, workspaceId)
+    const jurisdictionClause = aiJurisdictionClause({
+      countryCode: jurisdiction.countryCode,
+      countryName: jurisdiction.countryName,
+      status: jurisdiction.effectiveStatus,
+      currency: jurisdiction.currency,
+      locale: jurisdiction.locale,
+    })
+
     // 6. Get or create thread
     let thread = threadId ?? null
     if (!thread) {
@@ -131,9 +145,11 @@ ${fencedSnapshot}
 
 ${SAFETY_CLAUSES}
 
+${jurisdictionClause}
+
 Guidelines:
 - Use the live workspace counts above when relevant; if a figure isn't shown, say you don't have it rather than inventing one.
-- Reference UK-specific regulations (EPC, Gas Safety, EICR, AST, Section 21/8) where relevant. Use GBP (£).
+- Follow the JURISDICTION rules above: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
 - Be concise (under 300 words unless asked for detail). Use clear structure for lists.`
 
     // 9. Resolve the provider/model chain and open a streamed completion.

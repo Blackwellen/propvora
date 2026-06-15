@@ -1,0 +1,22 @@
+{
+  "$meta": {
+    "locale": "de-DE",
+    "name": "Deutsch",
+    "note": "PARTIAL STUB. Untranslated keys fall back to en-GB then to the key."
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen"
+  },
+  "nav": {
+    "dashboard": "Übersicht",
+    "settings": "Einstellungen"
+  },
+  "settings": {
+    "language": "Sprache",
+    "regionalFormat": "Regionales Format"
+  }
+}

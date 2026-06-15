@@ -7,6 +7,8 @@ import { checkRate, recordUsage } from "@/lib/ai/metering"
 import { checkCaps } from "@/lib/ai/caps"
 import { resolveModelChain, gatewayComplete, recordUsageEvent } from "@/lib/ai/gateway"
 import { SAFETY_CLAUSES, fenceUntrusted, proposeAction } from "@/lib/ai/safety"
+import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
+import { aiJurisdictionClause } from "@/lib/international/guardrails"
 import { gateAiCopilot } from "@/lib/billing/gates"
 
 const actionsSchema = z.object({
@@ -151,7 +153,20 @@ export async function POST(request: NextRequest) {
     // is fenced + injection-sanitised; safety clauses override anything inside.
     const snapshot = await getWorkspaceSnapshot(supabase, workspaceId)
     const fencedSnapshot = fenceUntrusted("WORKSPACE DATA", renderSnapshot(snapshot))
-    const systemPrompt = `You are the Propvora AI Copilot for UK property operations management.
+
+    // Jurisdiction-aware framing. The canned actions are UK-shaped; for a
+    // non-reviewed jurisdiction this clause downgrades legal/tax depth to generic
+    // and adds the stronger "consult a local professional" disclaimer.
+    const jurisdiction = await getWorkspaceJurisdiction(supabase, workspaceId)
+    const jurisdictionClause = aiJurisdictionClause({
+      countryCode: jurisdiction.countryCode,
+      countryName: jurisdiction.countryName,
+      status: jurisdiction.effectiveStatus,
+      currency: jurisdiction.currency,
+      locale: jurisdiction.locale,
+    })
+
+    const systemPrompt = `You are the Propvora AI Copilot for property operations management.
 You are executing a structured AI action requested by the user.
 ${recordId ? `Record ID context: ${recordId}` : ""}
 
@@ -159,8 +174,10 @@ ${fencedSnapshot}
 
 ${SAFETY_CLAUSES}
 
-Provide expert, actionable, UK-specific property management guidance.
-Use GBP (£) for all financial figures. Reference UK-specific regulations.
+${jurisdictionClause}
+
+Provide expert, actionable property management guidance.
+Follow the JURISDICTION rules above: the action templates assume UK regulations, but if this workspace's jurisdiction is not fully reviewed you MUST keep legal/tax/compliance content generic, avoid citing jurisdiction-specific statutes, and direct the user to a qualified local professional.
 Use the live workspace counts above where relevant; do not invent figures that aren't shown.
 This produces guidance/draft content only — any data change is proposed for the user to approve, never executed here.`
 

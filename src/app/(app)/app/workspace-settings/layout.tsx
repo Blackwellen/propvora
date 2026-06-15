@@ -45,6 +45,7 @@ const WORKSPACE_NAV = [
   { key: "notifications", label: "Notifications",      href: "/app/workspace-settings/notifications",    icon: Bell,          group: "Configuration" },
   { key: "branding",      label: "Branding",           href: "/app/workspace-settings/branding",         icon: Palette,       group: "Configuration" },
   { key: "white-label",   label: "White Label",        href: "/app/workspace-settings/white-label",      icon: Globe,         group: "Configuration" },
+  { key: "jurisdiction",  label: "Jurisdiction",       href: "/app/workspace-settings/jurisdiction",     icon: Globe,         group: "Configuration" },
   { key: "navigation",    label: "Menu Builder",       href: "/app/workspace-settings/navigation",       icon: LayoutGrid,    group: "Configuration" },
   { key: "integrations",  label: "Integrations",       href: "/app/workspace-settings/integrations",     icon: Plug,          group: "Configuration" },
   { key: "email",         label: "Email & SMTP",       href: "/app/workspace-settings/email",            icon: Mail,          group: "Configuration" },

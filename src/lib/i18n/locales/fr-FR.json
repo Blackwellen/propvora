@@ -1,0 +1,43 @@
+{
+  "$meta": {
+    "locale": "fr-FR",
+    "name": "Français",
+    "note": "PARTIAL STUB — example translations only. Untranslated keys fall back to en-GB then to the key. Customer-facing/legal copy still requires professional + counsel review per docs/upgrade/I18N_LOCALIZATION_AND_UX_PLAN.md."
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant"
+  },
+  "status": {
+    "active": "Actif",
+    "pending": "En attente",
+    "draft": "Brouillon",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "paid": "Payé",
+    "overdue": "En retard"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "portfolio": "Portefeuille",
+    "money": "Finances",
+    "settings": "Paramètres"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "greeting": "Bon retour, {name}",
+    "showingCount": "Affichage de {count} sur {total}"
+  },
+  "settings": {
+    "language": "Langue",
+    "regionalFormat": "Format régional"
+  }
+}

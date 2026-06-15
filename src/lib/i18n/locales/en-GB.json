@@ -1,0 +1,85 @@
+{
+  "$meta": {
+    "locale": "en-GB",
+    "name": "English (UK)",
+    "note": "Source-of-truth catalogue. Every other locale falls back to these keys."
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "add": "Add",
+    "remove": "Remove",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "upload": "Upload",
+    "download": "Download",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "retry": "Try again"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "draft": "Draft",
+    "archived": "Archived",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "overdue": "Overdue",
+    "confirmed": "Confirmed",
+    "failed": "Failed",
+    "processing": "Processing"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "portfolio": "Portfolio",
+    "money": "Money",
+    "compliance": "Compliance",
+    "work": "Work",
+    "contacts": "Contacts",
+    "calendar": "Calendar",
+    "messages": "Messages",
+    "reports": "Reports",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "empty": {
+    "noResults": "No results found",
+    "noResultsHint": "Try adjusting your search or filters.",
+    "noData": "Nothing here yet",
+    "noDataHint": "Items you create will appear here.",
+    "errorTitle": "Something went wrong",
+    "errorHint": "Please try again. If the problem persists, contact support."
+  },
+  "common": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "required": "Required",
+    "optional": "Optional",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "of": "of",
+    "showingCount": "Showing {count} of {total}",
+    "lastUpdated": "Last updated {when}",
+    "greeting": "Welcome back, {name}"
+  },
+  "settings": {
+    "language": "Language",
+    "languageHint": "Choose the language and regional formatting used across Propvora.",
+    "regionalFormat": "Regional format"
+  }
+}

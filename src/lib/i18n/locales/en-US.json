@@ -1,0 +1,15 @@
+{
+  "$meta": {
+    "locale": "en-US",
+    "name": "English (US)",
+    "note": "PARTIAL STUB — demonstrates structure + US spelling. Missing keys fall back to en-GB."
+  },
+  "common": {
+    "greeting": "Welcome back, {name}"
+  },
+  "settings": {
+    "language": "Language",
+    "languageHint": "Choose the language and regional formatting used across Propvora.",
+    "regionalFormat": "Regional format"
+  }
+}
