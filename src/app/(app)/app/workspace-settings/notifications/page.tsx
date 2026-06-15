@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Bell, Mail, Smartphone, Check, Loader2, Info } from "lucide-react"
+import { Bell, Mail, Smartphone, Check, Loader2, Info, Lock } from "lucide-react"
 import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface AlertToggles {
@@ -110,7 +110,9 @@ export default function NotificationsPage() {
         const na = s.notification_alerts as Partial<AlertToggles> | undefined
         if (na && typeof na === "object") setAlerts(prev => ({ ...prev, ...na }))
         const nc = s.notification_channels as Partial<ChannelSettings> | undefined
-        if (nc && typeof nc === "object") setChannels(prev => ({ ...prev, ...nc }))
+        // Push is not deliverable without VAPID + service worker, so it is always
+        // forced off regardless of any persisted value — never imply delivery.
+        if (nc && typeof nc === "object") setChannels(prev => ({ ...prev, ...nc, push: false }))
         if (typeof s.notification_digest === "string") {
           setDigest(s.notification_digest as DigestFrequency)
         }
@@ -254,10 +256,10 @@ export default function NotificationsPage() {
         <p className="text-[12px] text-slate-500 mb-4">Where workspace notifications are delivered</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+          {/* In-app + Email: fully functional, persisted */}
           {[
-            { key: "inApp" as const, label: "In-app",          icon: Bell,        desc: "Toast notifications inside the app"    },
-            { key: "email" as const, label: "Email",           icon: Mail,        desc: "Sent to billing & team email addresses" },
-            { key: "push"  as const, label: "Push (mobile)",   icon: Smartphone,  desc: "Push to mobile app (coming soon)"       },
+            { key: "inApp" as const, label: "In-app", icon: Bell, desc: "Toast notifications inside the app" },
+            { key: "email" as const, label: "Email",  icon: Mail, desc: "Sent to billing & team email addresses" },
           ].map(ch => {
             const Icon = ch.icon
             const on = channels[ch.key]
@@ -287,6 +289,30 @@ export default function NotificationsPage() {
               </button>
             )
           })}
+
+          {/* Push: honest "setup required" state — real web-push needs VAPID keys
+              + a registered service worker, which are not configured. Disabled
+              with a clear reason; never toggled on so we don't imply delivery. */}
+          <div
+            aria-disabled="true"
+            title="Web push requires VAPID keys and a registered service worker — not configured in this environment."
+            className="flex flex-col items-start gap-2 p-4 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 cursor-not-allowed select-none"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-100">
+                <Smartphone className="w-4 h-4 text-slate-400" />
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-500">
+                <Lock className="w-3 h-3" /> Setup required
+              </span>
+            </div>
+            <div>
+              <p className="text-[13px] font-semibold text-slate-500">Push</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Requires browser push setup (VAPID keys + service worker) or the mobile app. Not available in this environment.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Digest frequency */}

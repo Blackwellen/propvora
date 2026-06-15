@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   MapPin, CheckCircle, XCircle, ChevronRight,
-  Play, BarChart2, Zap, Download, X
+  Play, BarChart2, Zap, Download, X, RotateCcw, TrendingUp, TrendingDown,
 } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
 import { ProfileKpiCard } from '@/components/planning/profiles'
@@ -13,17 +13,112 @@ interface Props {
   profile: ProfileConfig
 }
 
+/* ── Quick Scenario helpers ───────────────────────────────────────────────── */
+
+/** Parse the first numeric value out of a snapshot string like "-90 GBP" or "5.2%". */
+function parseNum(value: string): number {
+  const m = value.replace(/,/g, '').match(/-?\d+(\.\d+)?/)
+  return m ? parseFloat(m[0]) : 0
+}
+
+/** Find a snapshot line whose label loosely matches any of the given keywords. */
+function findLine(profile: ProfileConfig, keywords: string[]): number | null {
+  const line = profile.modelSnapshot.lines.find((l) =>
+    keywords.some((k) => l.label.toLowerCase().includes(k))
+  )
+  return line ? parseNum(line.value) : null
+}
+
+interface ScenarioBase {
+  grossRent: number   // monthly gross rent (positive)
+  costs: number       // total monthly costs excluding voids (positive)
+  netMonthly: number  // base net monthly cashflow
+  grossYield: number | null
+}
+
+function deriveBase(profile: ProfileConfig): ScenarioBase {
+  const grossRent = findLine(profile, ['monthly rent', 'gross monthly', 'gross rent', 'adr', 'nightly']) ?? 0
+  const net = findLine(profile, ['net monthly', 'net cashflow', 'monthly cashflow', 'net profit']) ?? 0
+  const grossYield = findLine(profile, ['gross yield'])
+  // Costs = everything between gross rent and net (deductions are stored negative).
+  const deductions = profile.modelSnapshot.lines
+    .filter((l) => /less|fee|cost|reserve|void|maintenance|finance|mortgage|cleaning|management/i.test(l.label))
+    .reduce((sum, l) => sum + Math.abs(parseNum(l.value)), 0)
+  const costs = deductions > 0 ? deductions : Math.max(grossRent - net, 0)
+  return { grossRent, costs, netMonthly: net, grossYield }
+}
+
+function fmtGBP(n: number): string {
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(Math.round(n))
+}
+
+function Slider({
+  label, value, min, max, step, suffix, onChange, accent,
+}: {
+  label: string; value: number; min: number; max: number; step: number
+  suffix: string; onChange: (v: number) => void; accent: string
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-sm font-medium text-slate-700">{label}</span>
+        <span className="text-sm font-semibold tabular-nums" style={{ color: accent }}>
+          {value > 0 && suffix === '%' ? '+' : ''}{value}{suffix}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-2 rounded-full appearance-none cursor-pointer bg-slate-200 accent-current"
+        style={{ accentColor: accent }}
+      />
+    </div>
+  )
+}
+
 export default function OverviewTab({ profile }: Props) {
   const [compareOpen, setCompareOpen] = useState(false)
   const [scenarioOpen, setScenarioOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+
+  // ── Quick Scenario state — nudges to the profile's real model figures ──
+  const base = useMemo(() => deriveBase(profile), [profile])
+  const [occDelta, setOccDelta] = useState(0)   // occupancy delta in % points (0 = full base occupancy)
+  const [rentDelta, setRentDelta] = useState(0) // rent delta in %
+  const [costDelta, setCostDelta] = useState(0) // cost delta in %
+
+  // Live recompute from the set's real figures — no fabricated numbers.
+  const scenario = useMemo(() => {
+    const occupancy = Math.max(0, Math.min(100, 100 + occDelta)) / 100
+    const grossRent = base.grossRent * (1 + rentDelta / 100) * occupancy
+    const costs = base.costs * (1 + costDelta / 100)
+    const net = grossRent - costs
+    const baseNet = base.netMonthly
+    const netDelta = net - baseNet
+    // Net yield scales with net income vs the base net (only meaningful when we have a base yield).
+    const netYield =
+      base.grossYield != null && base.grossRent > 0
+        ? base.grossYield * (net / (base.grossRent - base.costs || 1))
+        : null
+    return { grossRent, costs, net, baseNet, netDelta, netYield, occupancy: occupancy * 100 }
+  }, [base, occDelta, rentDelta, costDelta])
+
+  function resetScenario() {
+    setOccDelta(0); setRentDelta(0); setCostDelta(0)
+  }
+
+  const hasModel = base.grossRent > 0 || base.netMonthly !== 0
 
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
   }
 
-  function handleQuickAction(action: string, slug: string) {
+  function handleQuickAction(action: string) {
     if (action === 'compare') setCompareOpen(true)
     else if (action === 'quick-scenario') setScenarioOpen(true)
     else if (action === 'download') showToast('Generating PDF...')
@@ -68,23 +163,108 @@ export default function OverviewTab({ profile }: Props) {
         </div>
       )}
 
-      {/* Quick Scenario Modal */}
+      {/* Quick Scenario Modal — live recompute from the profile's real model figures */}
       {scenarioOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Quick Scenario</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          onClick={() => setScenarioOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Quick Scenario</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Nudge key assumptions and see net cashflow recompute live.</p>
+              </div>
               <button onClick={() => setScenarioOpen(false)} className="p-1 rounded-lg hover:bg-slate-100">
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <p className="text-sm text-slate-600">Quick Scenario coming soon. Start a full Planning Set to model detailed scenarios.</p>
-            <button
-              onClick={() => setScenarioOpen(false)}
-              className="mt-6 w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
-            >
-              Close
-            </button>
+
+            {hasModel ? (
+              <div className="p-5 sm:p-6 space-y-6">
+                {/* Result panel */}
+                <div
+                  className="rounded-2xl p-5"
+                  style={{ backgroundColor: `${profile.accentColor}0D`, border: `1px solid ${profile.accentColor}22` }}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Net Monthly Cashflow</p>
+                      <p className="text-2xl font-bold tabular-nums mt-1" style={{ color: profile.accentColor }}>
+                        {fmtGBP(scenario.net)}
+                      </p>
+                      <p className={`text-xs font-medium mt-0.5 flex items-center gap-1 ${scenario.netDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {scenario.netDelta >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                        {scenario.netDelta >= 0 ? '+' : ''}{fmtGBP(scenario.netDelta)} vs base
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Net Yield</p>
+                      <p className="text-2xl font-bold tabular-nums mt-1 text-slate-900">
+                        {scenario.netYield != null ? `${scenario.netYield.toFixed(1)}%` : '—'}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">{Math.round(scenario.occupancy)}% occupancy</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t grid grid-cols-2 gap-3 text-sm" style={{ borderColor: `${profile.accentColor}22` }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Adj. Gross Income</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">{fmtGBP(scenario.grossRent)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Adj. Costs</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">{fmtGBP(scenario.costs)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Assumption sliders */}
+                <div className="space-y-5">
+                  <Slider label="Occupancy" value={occDelta} min={-50} max={0} step={1} suffix="%" onChange={setOccDelta} accent={profile.accentColor} />
+                  <Slider label="Rent" value={rentDelta} min={-20} max={20} step={1} suffix="%" onChange={setRentDelta} accent={profile.accentColor} />
+                  <Slider label="Operating Costs" value={costDelta} min={-30} max={30} step={1} suffix="%" onChange={setCostDelta} accent={profile.accentColor} />
+                </div>
+
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Indicative only — based on the example model figures for this profile. Start a full Planning Set to model against a real property with full assumptions.
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={resetScenario}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Reset
+                  </button>
+                  <Link
+                    href={`/app/planning/wizard?profile=${profile.slug}`}
+                    onClick={() => setScenarioOpen(false)}
+                    className="flex-1 text-center py-2.5 px-4 rounded-xl text-white text-sm font-semibold"
+                    style={{ backgroundColor: profile.accentColor }}
+                  >
+                    Build a full Planning Set
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              /* No parseable model figures — deep-link to the wizard instead of faking numbers. */
+              <div className="p-6 space-y-5 text-center">
+                <p className="text-sm text-slate-600">
+                  This profile doesn&apos;t have example figures to model against yet. Start a full Planning Set to build a detailed scenario from your own numbers.
+                </p>
+                <Link
+                  href={`/app/planning/wizard?profile=${profile.slug}`}
+                  onClick={() => setScenarioOpen(false)}
+                  className="block w-full text-center py-2.5 px-4 rounded-xl text-white text-sm font-semibold"
+                  style={{ backgroundColor: profile.accentColor }}
+                >
+                  Start Planning Set
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -337,7 +517,7 @@ export default function OverviewTab({ profile }: Props) {
             return (
               <button
                 key={qa.action}
-                onClick={() => handleQuickAction(qa.action, profile.slug)}
+                onClick={() => handleQuickAction(qa.action)}
                 className="flex flex-col items-center text-center gap-2 p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all"
               >
                 <div className="w-9 h-9 rounded-lg bg-slate-200 flex items-center justify-center">

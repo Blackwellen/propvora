@@ -40,6 +40,11 @@ import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
 import { useTask, useUpdateTask, useCompleteTask, useDeleteTask } from "@/hooks/useTasks"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import {
+  useTaskComments, useAddTaskComment, useDeleteTaskComment,
+  useTaskChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem,
+} from "@/hooks/useTaskCollab"
+import { Loader2, Send } from "lucide-react"
 import type { Task, UpdateTask } from "@/types/database"
 
 // ---------------------------------------------------------------------------
@@ -427,8 +432,8 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField }: OverviewT
               </div>
             ))}
           </div>
-          <button className="mt-3 flex items-center gap-1.5 text-[12px] text-[#2563EB] hover:underline">
-            <Plus className="w-3.5 h-3.5" /> Add item
+          <button onClick={() => setActiveTab("Checklist")} className="mt-3 flex items-center gap-1.5 text-[12px] text-[#2563EB] hover:underline">
+            <Plus className="w-3.5 h-3.5" /> Manage checklist
           </button>
         </div>
       )}
@@ -628,6 +633,230 @@ function FilesTab({ task, workspaceId, taskId }: { task: TaskView; workspaceId?:
 }
 
 // ---------------------------------------------------------------------------
+// Live Checklist / Subtasks tab — real task_checklist_items reads + writes
+// ---------------------------------------------------------------------------
+function LiveChecklistTab({ workspaceId, taskId }: { workspaceId?: string; taskId: string }) {
+  const { data: items = [], isLoading } = useTaskChecklist(workspaceId, taskId)
+  const addItem = useAddChecklistItem()
+  const toggleItem = useToggleChecklistItem()
+  const deleteItem = useDeleteChecklistItem()
+  const [label, setLabel] = useState("")
+
+  const done = items.filter((i) => i.done).length
+  const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0
+
+  async function handleAdd() {
+    const text = label.trim()
+    if (!text || !workspaceId || addItem.isPending) return
+    try {
+      await addItem.mutateAsync({ workspaceId, taskId, label: text, position: items.length })
+      setLabel("")
+    } catch { /* surfaced via disabled state */ }
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-semibold text-slate-900">Checklist / Subtasks</h3>
+          <span className="text-[11px] text-slate-400">{done}/{items.length} completed</span>
+        </div>
+        <div className="w-full h-1.5 rounded-full bg-slate-100 mb-4">
+          <div className="h-1.5 rounded-full bg-[#2563EB] transition-all" style={{ width: `${pct}%` }} />
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className="h-9 rounded-lg bg-slate-100 animate-pulse" />)}</div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-8">
+            <CheckSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">No checklist items yet</p>
+            <p className="text-[12px] text-slate-400 mt-0.5">Break this task into subtasks below.</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {items.map((item) => (
+              <div key={item.id} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50">
+                <button
+                  onClick={() => workspaceId && toggleItem.mutate({ workspaceId, taskId, id: item.id, done: !item.done })}
+                  className={cn(
+                    "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors",
+                    item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300 hover:border-[#2563EB]"
+                  )}
+                  aria-label={item.done ? "Mark incomplete" : "Mark complete"}
+                >
+                  {item.done && <CheckSquare className="w-3.5 h-3.5 text-white" />}
+                </button>
+                <p className={cn("flex-1 text-sm", item.done ? "line-through text-slate-400" : "text-slate-700")}>{item.label}</p>
+                <button
+                  onClick={() => workspaceId && deleteItem.mutate({ workspaceId, taskId, id: item.id })}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-300 hover:text-red-500"
+                  aria-label="Delete item"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add item */}
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd() } }}
+            placeholder="Add a subtask…"
+            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50"
+          />
+          <button
+            onClick={handleAdd}
+            disabled={!label.trim() || addItem.isPending || !workspaceId}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          >
+            {addItem.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />} Add
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Live Comments tab — real task_comments reads + writes (the "Activity" tab)
+// ---------------------------------------------------------------------------
+function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: string; taskId: string; baseActivity: TaskView["activity"] }) {
+  const { data: comments = [], isLoading } = useTaskComments(workspaceId, taskId)
+  const addComment = useAddTaskComment()
+  const deleteComment = useDeleteTaskComment()
+  const [body, setBody] = useState("")
+
+  async function handlePost() {
+    const text = body.trim()
+    if (!text || !workspaceId || addComment.isPending) return
+    try {
+      await addComment.mutateAsync({ workspaceId, taskId, body: text })
+      setBody("")
+    } catch { /* disabled state covers it */ }
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Composer */}
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Comments</h3>
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePost() } }}
+          rows={3}
+          placeholder="Add a comment…  (Ctrl/⌘ + Enter to post)"
+          className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 resize-none"
+        />
+        <div className="flex justify-end mt-2">
+          <button
+            onClick={handlePost}
+            disabled={!body.trim() || addComment.isPending || !workspaceId}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {addComment.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Post Comment
+          </button>
+        </div>
+        {addComment.isError && <p className="text-[11px] text-red-500 mt-2">Couldn&apos;t post your comment. Please try again.</p>}
+      </div>
+
+      {/* Thread */}
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity &amp; Comments</h3>
+        {isLoading ? (
+          <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-14 rounded-lg bg-slate-100 animate-pulse" />)}</div>
+        ) : (
+          <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-1 before:bottom-1 before:w-0.5 before:bg-slate-100">
+            {comments.map((c) => (
+              <div key={c.id} className="relative group">
+                <div className="absolute -left-6 w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-white" />
+                </div>
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-[10px] text-slate-400 tabular-nums">
+                      {new Date(c.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {c.edited_at && " · edited"}
+                    </p>
+                    <button
+                      onClick={() => workspaceId && deleteComment.mutate({ workspaceId, taskId, id: c.id })}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-300 hover:text-red-500"
+                      aria-label="Delete comment"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{c.body_md}</p>
+                </div>
+              </div>
+            ))}
+            {/* System lifecycle events (task created) shown beneath the live thread */}
+            {baseActivity.map((item) => (
+              <div key={item.id} className="relative">
+                <div className="absolute -left-6 w-4 h-4 rounded-full bg-slate-300 flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-white" />
+                </div>
+                <div className="bg-slate-50/60 rounded-lg p-3">
+                  <p className="text-[10px] text-slate-400">{item.time}</p>
+                  <p className="text-xs text-slate-600 mt-0.5">{item.text} · {item.user}</p>
+                </div>
+              </div>
+            ))}
+            {comments.length === 0 && (
+              <p className="text-[12px] text-slate-400 pl-1">No comments yet — start the discussion above.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Linked Work tab — real linked records derived from the task
+// ---------------------------------------------------------------------------
+function LinkedWorkTab({ task }: { task: TaskView }) {
+  const records = task.linkedRecords
+  return (
+    <div className="max-w-2xl">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Linked Records</h3>
+        {records.length === 0 ? (
+          <div className="text-center py-10">
+            <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">No linked records</p>
+            <p className="text-[12px] text-slate-400 mt-0.5">Link this task to a property to see it here.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {records.map((rec) => (
+              <div key={rec.label} className="flex items-center justify-between py-2.5 px-3 rounded-lg border border-slate-100 hover:bg-slate-50">
+                <div>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{rec.type}</p>
+                  <p className="text-sm font-medium text-slate-700">{rec.label}</p>
+                </div>
+                <Link href={rec.href} className="text-[12px] text-[#2563EB] hover:underline">View →</Link>
+              </div>
+            ))}
+          </div>
+        )}
+        <Link
+          href={task.propertyId ? `/app/work/jobs/new?propertyId=${task.propertyId}` : "/app/work/jobs/new"}
+          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#2563EB] hover:underline"
+        >
+          <Plus className="w-3.5 h-3.5" /> Raise a job from this task
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Right column
 // ---------------------------------------------------------------------------
 function RightColumn({
@@ -758,6 +987,10 @@ export default function TaskDetailPage() {
   const [copied, setCopied] = useState(false)
   const [completing, setCompleting] = useState(false)
 
+  // Live collaboration counts for the KPI strip (42P01-safe → 0).
+  const { data: liveComments = [] } = useTaskComments(workspaceId, id)
+  const { data: liveChecklist = [] } = useTaskChecklist(workspaceId, id)
+
   if (isLoading) return <TaskDetailSkeleton />
 
   if (error || taskData === null || taskData === undefined) {
@@ -778,7 +1011,18 @@ export default function TaskDetailPage() {
     )
   }
 
-  const task = buildTaskView(taskData)
+  const baseView = buildTaskView(taskData)
+  const task: TaskView = {
+    ...baseView,
+    comments: liveComments.length,
+    checklist: liveChecklist.map((c) => ({
+      id: c.id,
+      text: c.label,
+      done: c.done,
+      assignee: "",
+      date: c.done_at ? new Date(c.done_at).toLocaleDateString("en-GB") : "",
+    })),
+  }
 
   function handleCopy() {
     navigator.clipboard.writeText(task.id).catch(() => {})
@@ -959,61 +1203,16 @@ export default function TaskDetailPage() {
               </div>
             </div>
           )}
-          {activeTab === "Checklist" && (
-            <div className="max-w-2xl">
-              {task.checklist.length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm text-slate-500">No checklist items yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {task.checklist.map((item) => (
-                    <div key={item.id} className="flex items-start gap-3 p-3 border border-slate-100 rounded-xl">
-                      <div
-                        className={cn(
-                          "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5",
-                          item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300"
-                        )}
-                      >
-                        {item.done && <CheckSquare className="w-3.5 h-3.5 text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className={cn("text-sm font-medium", item.done ? "line-through text-slate-400" : "text-slate-700")}>
-                          {item.text}
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          {item.assignee}
-                          {item.date ? ` · ${item.date}` : ""}
-                        </p>
-                      </div>
-                      <span
-                        className={cn(
-                          "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                          item.done ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
-                        )}
-                      >
-                        {item.done ? "Done" : "Pending"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab === "Activity" && <ActivityTab task={task} />}
+          {activeTab === "Checklist" && <LiveChecklistTab workspaceId={workspaceId} taskId={id} />}
+          {activeTab === "Activity" && <LiveCommentsTab workspaceId={workspaceId} taskId={id} baseActivity={task.activity} />}
           {activeTab === "Files" && <FilesTab task={task} workspaceId={workspaceId} taskId={id} />}
           {activeTab === "Notes" && (
             <div className="max-w-2xl">
               <NotesSection rawTask={taskData} onSaveField={saveField} setActiveTab={setActiveTab} />
             </div>
           )}
-          {(activeTab === "Linked Work" || activeTab === "History") && (
-            <div className="text-center py-12">
-              <Activity className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">{activeTab} content coming soon</p>
-            </div>
-          )}
+          {activeTab === "Linked Work" && <LinkedWorkTab task={task} />}
+          {activeTab === "History" && <ActivityTab task={task} />}
         </div>
       </div>
 

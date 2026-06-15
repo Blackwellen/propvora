@@ -28,6 +28,7 @@ import { createClient } from "@/lib/supabase/client"
 import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { DepositDetailDrawer } from "./DepositDetailDrawer"
 
 function downloadCSV(data: Record<string, unknown>[], filename: string) {
   if (!data.length) return
@@ -627,6 +628,7 @@ function DepositRowItem({
   onMarkReturned,
   onProtect,
   onUploadDoc,
+  onViewDetails,
   uploadingId,
 }: {
   deposit: DepositRow
@@ -637,6 +639,7 @@ function DepositRowItem({
   onMarkReturned: (id: string) => void
   onProtect: (deposit: DepositRow) => void
   onUploadDoc: (deposit: DepositRow, file: File) => void
+  onViewDetails: (deposit: DepositRow) => void
   uploadingId: string | null
 }) {
   const sc = getStatusConfig(deposit.status)
@@ -715,7 +718,7 @@ function DepositRowItem({
         )}
         {(deposit.status === "protected" || deposit.status === "disputed") && (
           <button
-            onClick={() => onToast("Deposit detail view coming soon")}
+            onClick={() => isLive ? onViewDetails(deposit) : onToast("Sample deposit — details available once saved")}
             className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 transition-colors"
           >
             View Details
@@ -730,7 +733,7 @@ function DepositRowItem({
           {(open) => (
             <ActionMenu
               items={[
-                { label: "View Details", icon: Eye, onClick: () => onToast("Deposit detail view coming soon") },
+                { label: "View Details", icon: Eye, onClick: () => isLive ? onViewDetails(deposit) : onToast("Sample deposit — details available once saved") },
                 { label: "Mark Returned", icon: CheckCircle, onClick: () => onMarkReturned(deposit.id) },
                 { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
               ]}
@@ -775,6 +778,7 @@ export default function DepositsPage() {
   const [showTrackModal, setShowTrackModal] = useState(false)
   const [returnDeposit, setReturnDeposit] = useState<DepositRow | null>(null)
   const [protectDeposit, setProtectDeposit] = useState<DepositRow | null>(null)
+  const [detailDepositId, setDetailDepositId] = useState<string | null>(null)
   const [uploadingId, setUploadingId] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
@@ -903,6 +907,7 @@ export default function DepositsPage() {
       {showTrackModal && <TrackDepositModal workspaceId={workspace?.id} onClose={() => setShowTrackModal(false)} onSaved={showToast} />}
       {returnDeposit && <ReturnDepositModal deposit={returnDeposit} onClose={() => setReturnDeposit(null)} onSaved={showToast} />}
       {protectDeposit && <AddProtectionModal deposit={protectDeposit} workspaceId={workspace?.id} onClose={() => setProtectDeposit(null)} onSaved={showToast} />}
+      {detailDepositId && <DepositDetailDrawer depositId={detailDepositId} workspaceId={workspace?.id} onClose={() => setDetailDepositId(null)} />}
 
       {/* Toast */}
       {toastMsg && (
@@ -1077,6 +1082,7 @@ export default function DepositsPage() {
                   onMarkReturned={markDepositReturned}
                   onProtect={setProtectDeposit}
                   onUploadDoc={uploadDepositDoc}
+                  onViewDetails={(d) => setDetailDepositId(d.id)}
                   uploadingId={uploadingId}
                 />
               ))}

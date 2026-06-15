@@ -36,7 +36,8 @@ import { useSupplier, type SupplierView } from "@/features/suppliers/useSupplier
 import { SupplierRatingPanel } from "@/components/suppliers/SupplierRatingPanel"
 import { SupplierPreferencePanel } from "@/components/suppliers/SupplierPreferencePanel"
 import { useSupplierPreference } from "@/lib/suppliers/ratings"
-import { Ban } from "lucide-react"
+import { useSupplierDocuments, useContactActivity } from "@/features/suppliers/useSupplierTabs"
+import { Ban, Activity, CheckCircle, FileCheck2 } from "lucide-react"
 import type { Job, UpdateContact } from "@/types/database"
 
 // OpenStreetMap (Leaflet) — client-only, premium-styled.
@@ -288,14 +289,253 @@ function JobsTabContent({ supplier, jobs, compact }: { supplier: SupplierView; j
   )
 }
 
-function TabEmptyState({ tab }: { tab: string }) {
+// ─── Quotes / Invoices tab — derived from the supplier's live jobs ────────────
+
+function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierView; jobs: Job[]; mode: "quotes" | "invoices" }) {
+  const rows = mode === "quotes"
+    ? jobs.filter((j) => j.quoted_amount != null || j.approved_amount != null)
+    : jobs.filter((j) => j.invoiced_amount != null && Number(j.invoiced_amount) > 0)
+
+  const total = rows.reduce((s, j) => {
+    const v = mode === "quotes" ? (j.approved_amount ?? j.quoted_amount ?? 0) : (j.invoiced_amount ?? 0)
+    return s + Number(v)
+  }, 0)
+
+  const title = mode === "quotes" ? "Quotes" : "Invoices"
+  const emptyCopy = mode === "quotes"
+    ? "No quotes recorded against this supplier's jobs yet."
+    : "No invoices recorded against this supplier's jobs yet."
+
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col items-center justify-center py-20 px-4 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-        <FileText className="w-7 h-7 text-slate-400" />
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-900">
+          {title} <span className="text-slate-400 font-normal ml-1">({rows.length})</span>
+        </h3>
+        {rows.length > 0 && (
+          <span className="text-[12px] font-semibold text-slate-700">Total £{total.toLocaleString()}</span>
+        )}
       </div>
-      <h3 className="text-base font-semibold text-slate-900 mb-1">{tab} coming soon</h3>
-      <p className="text-sm text-slate-500 max-w-xs">The {tab.toLowerCase()} section for this supplier will be available here.</p>
+      {rows.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+            <Receipt className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-900 mb-1">No {title.toLowerCase()} yet</p>
+          <p className="text-[12.5px] text-slate-500">{emptyCopy}</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Job</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Status</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Date</th>
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((j) => {
+                const amount = mode === "quotes" ? (j.approved_amount ?? j.quoted_amount ?? 0) : (j.invoiced_amount ?? 0)
+                return (
+                  <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3">
+                      <Link href={`/app/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">{j.title}</Link>
+                      {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize", statusColor(j.status))}>{j.status.replace("_", " ")}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell text-[12px] text-slate-600">
+                      {j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB") : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right text-[12.5px] font-semibold text-slate-800">£{Number(amount).toLocaleString()}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Documents / Compliance tab — live supplier_documents ─────────────────────
+
+function docExpiryState(expiry: string | null): { label: string; cls: string } | null {
+  if (!expiry) return null
+  const days = Math.ceil((new Date(expiry).getTime() - Date.now()) / 86_400_000)
+  if (days < 0) return { label: "Expired", cls: "text-red-600 bg-red-50 border-red-100" }
+  if (days <= 30) return { label: `Expires in ${days}d`, cls: "text-amber-600 bg-amber-50 border-amber-100" }
+  return { label: `Valid · ${new Date(expiry).toLocaleDateString("en-GB")}`, cls: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+}
+
+function DocumentsTabContent({
+  workspaceId,
+  supplierId,
+  complianceOnly,
+}: {
+  workspaceId: string | undefined
+  supplierId: string | undefined
+  complianceOnly?: boolean
+}) {
+  const { data: docs = [], isLoading } = useSupplierDocuments(workspaceId, supplierId)
+  const filtered = complianceOnly
+    ? docs.filter((d) => /insurance|certificate|registration|gas|electrical|compliance|dbs|liability|qualification/i.test(`${d.doc_type} ${d.name}`))
+    : docs
+  const title = complianceOnly ? "Compliance Documents" : "Documents"
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-900">
+          {title} <span className="text-slate-400 font-normal ml-1">({filtered.length})</span>
+        </h3>
+      </div>
+      {isLoading ? (
+        <div className="p-5 space-y-2">
+          {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-xl bg-slate-100 animate-pulse" />)}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+            <FileCheck2 className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-900 mb-1">No {title.toLowerCase()} on file</p>
+          <p className="text-[12.5px] text-slate-500">Verified certificates and documents for this supplier will appear here.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {filtered.map((d) => {
+            const exp = docExpiryState(d.expiry_date)
+            return (
+              <div key={d.id} className="flex items-start gap-3 px-5 py-3.5">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-4.5 h-4.5 text-slate-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-[13px] font-semibold text-slate-800 truncate">{d.name}</p>
+                    {d.is_verified && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                        <CheckCircle className="w-3 h-3" /> Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-400 capitalize">{d.doc_type.replace(/_/g, " ")}</p>
+                  {d.notes && <p className="text-[11px] text-slate-500 mt-0.5">{d.notes}</p>}
+                </div>
+                {exp && (
+                  <span className={cn("shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full border", exp.cls)}>{exp.label}</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Activity tab — live contact_activity for this supplier contact ───────────
+
+function ActivityTabContent({ workspaceId, supplierId }: { workspaceId: string | undefined; supplierId: string | undefined }) {
+  const { data: events = [], isLoading } = useContactActivity(workspaceId, supplierId)
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 py-3 border-b border-slate-100">
+        <h3 className="text-sm font-semibold text-slate-900">Activity</h3>
+      </div>
+      {isLoading ? (
+        <div className="p-5 space-y-3">
+          {[0, 1, 2].map((i) => <div key={i} className="h-10 rounded-lg bg-slate-100 animate-pulse" />)}
+        </div>
+      ) : events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+            <Activity className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-900 mb-1">No activity yet</p>
+          <p className="text-[12.5px] text-slate-500">Logged actions and notes for this supplier will appear here.</p>
+        </div>
+      ) : (
+        <div className="relative px-5 py-4 pl-8 before:absolute before:left-[22px] before:top-5 before:bottom-5 before:w-0.5 before:bg-slate-100">
+          {events.map((ev) => (
+            <div key={ev.id} className="relative mb-4 last:mb-0">
+              <div className="absolute -left-[18px] w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white mt-1" />
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-slate-800">{ev.title}</p>
+                  {ev.description && <p className="text-[12px] text-slate-600 mt-0.5">{ev.description}</p>}
+                  <p className="text-[10px] text-slate-400 mt-0.5 capitalize">{ev.activity_type.replace(/_/g, " ")}</p>
+                </div>
+                <span className="text-[11px] text-slate-400 tabular-nums whitespace-nowrap shrink-0">
+                  {new Date(ev.created_at).toLocaleDateString("en-GB")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Performance tab — live job-derived supplier metrics ──────────────────────
+
+function PerformanceTabContent({ jobs }: { jobs: Job[] }) {
+  const total = jobs.length
+  const completed = jobs.filter((j) => ["complete", "invoiced", "closed"].includes(j.status)).length
+  const active = jobs.filter((j) => !["complete", "invoiced", "closed"].includes(j.status)).length
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
+  const totalQuoted = jobs.reduce((s, j) => s + Number(j.quoted_amount ?? 0), 0)
+  const totalInvoiced = jobs.reduce((s, j) => s + Number(j.invoiced_amount ?? 0), 0)
+  const avgJobValue = total > 0 ? Math.round((jobs.reduce((s, j) => s + Number(j.approved_amount ?? j.quoted_amount ?? 0), 0)) / total) : 0
+
+  const stats = [
+    { label: "Total Jobs", value: String(total) },
+    { label: "Completed", value: String(completed) },
+    { label: "Active", value: String(active) },
+    { label: "Completion Rate", value: total > 0 ? `${completionRate}%` : "—" },
+    { label: "Total Quoted", value: `£${totalQuoted.toLocaleString()}` },
+    { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}` },
+    { label: "Avg Job Value", value: total > 0 ? `£${avgJobValue.toLocaleString()}` : "—" },
+  ]
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+      <h3 className="text-sm font-semibold text-slate-900 mb-4">Performance Summary</h3>
+      {total === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+            <TrendingUp className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-900 mb-1">No performance data yet</p>
+          <p className="text-[12.5px] text-slate-500">Assign jobs to this supplier to build a performance picture.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                <p className="text-[18px] font-bold text-slate-900 tabular-nums">{s.value}</p>
+                <p className="text-[11px] font-medium text-slate-500 mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+              <span>Completion rate</span><span>{completionRate}%</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-slate-100">
+              <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${completionRate}%` }} />
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-3">Derived from this supplier&apos;s live job records.</p>
+        </>
+      )}
     </div>
   )
 }
@@ -592,8 +832,18 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
             <OverviewTabContent supplier={supplier} jobs={jobs} onSaveField={handleSaveField} onSaveTrade={handleSaveTrade} />
           ) : activeTab === "Jobs" ? (
             <JobsTabContent supplier={supplier} jobs={jobs} />
+          ) : activeTab === "Quotes" ? (
+            <MoneyTabContent supplier={supplier} jobs={jobs} mode="quotes" />
+          ) : activeTab === "Invoices" ? (
+            <MoneyTabContent supplier={supplier} jobs={jobs} mode="invoices" />
+          ) : activeTab === "Compliance" ? (
+            <DocumentsTabContent workspaceId={workspaceId} supplierId={supplier.isSeed ? undefined : id} complianceOnly />
+          ) : activeTab === "Documents" ? (
+            <DocumentsTabContent workspaceId={workspaceId} supplierId={supplier.isSeed ? undefined : id} />
+          ) : activeTab === "Performance" ? (
+            <PerformanceTabContent jobs={jobs} />
           ) : (
-            <TabEmptyState tab={activeTab} />
+            <ActivityTabContent workspaceId={workspaceId} supplierId={supplier.isSeed ? undefined : id} />
           )}
         </div>
         <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">

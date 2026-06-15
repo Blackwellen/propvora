@@ -7,10 +7,8 @@ import {
   Calendar,
   List,
   LayoutGrid,
-  Map,
   GanttChart,
   Database,
-  MoreHorizontal,
   AlertTriangle,
   Clock,
   Download,
@@ -66,6 +64,7 @@ interface DemoJob {
   team: string
   scheduledStart: string
   scheduledEnd: string
+  scheduledDateIso?: string | null
   dueDate: string
   status: string
   category?: string
@@ -370,9 +369,9 @@ function RecentUpdatesPanel() {
 const JOB_VIEW_TYPES = [
   { key: "list", label: "List", icon: List },
   { key: "card", label: "Card", icon: LayoutGrid },
-  { key: "calendar", label: "Calendar", icon: Calendar },
-  { key: "map", label: "Map", icon: Map },
   { key: "gantt", label: "Board", icon: GanttChart },
+  { key: "calendar", label: "Calendar", icon: Calendar },
+  { key: "timeline", label: "Timeline", icon: Activity },
   { key: "data", label: "Data", icon: Database },
 ]
 
@@ -419,6 +418,192 @@ const JOB_BOARD_COLUMNS: { key: string; label: string }[] = [
   { key: "invoiced", label: "Invoiced" },
 ]
 
+const STATUS_DOT: Record<string, string> = {
+  new: "bg-slate-400",
+  scheduled: "bg-blue-500",
+  in_progress: "bg-indigo-500",
+  waiting: "bg-amber-500",
+  overdue: "bg-red-500",
+  complete: "bg-emerald-500",
+  invoiced: "bg-violet-500",
+  closed: "bg-slate-400",
+}
+
+// ─── Calendar view — month grid grouped by scheduled_date ─────────────────────
+function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
+  const [cursor, setCursor] = useState(() => {
+    const d = new Date(); d.setDate(1); return d
+  })
+
+  const byDay = useMemo(() => {
+    const map: Record<string, DemoJob[]> = {}
+    for (const j of jobs) {
+      if (!j.scheduledDateIso) continue
+      ;(map[j.scheduledDateIso] ??= []).push(j)
+    }
+    return map
+  }, [jobs])
+
+  const monthLabel = cursor.toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+  const year = cursor.getFullYear()
+  const month = cursor.getMonth()
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7 // Mon=0
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const todayIso = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` })()
+
+  const cells: ({ day: number; iso: string } | null)[] = []
+  for (let i = 0; i < firstWeekday; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, iso: `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}` })
+  }
+  const unscheduled = jobs.filter(j => !j.scheduledDateIso).length
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-slate-100">
+        <h3 className="text-sm font-semibold text-slate-900">{monthLabel}</h3>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500">
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button onClick={() => { const d = new Date(); d.setDate(1); setCursor(d) }} className="h-8 px-3 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50">Today</button>
+          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500">
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+          <div key={d} className="px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wide text-center">{d}</div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7">
+        {cells.map((cell, i) => {
+          const dayJobs = cell ? (byDay[cell.iso] ?? []) : []
+          const isToday = cell?.iso === todayIso
+          return (
+            <div key={i} className={cn("min-h-[84px] sm:min-h-[104px] border-b border-r border-slate-100 p-1.5 align-top", !cell && "bg-slate-50/40")}>
+              {cell && (
+                <>
+                  <div className={cn("text-[11px] font-semibold mb-1 w-6 h-6 flex items-center justify-center rounded-full", isToday ? "bg-[#2563EB] text-white" : "text-slate-500")}>{cell.day}</div>
+                  <div className="space-y-1">
+                    {dayJobs.slice(0, 3).map((j) => (
+                      <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-1 rounded-md bg-slate-50 hover:bg-slate-100 px-1.5 py-1 transition-colors">
+                        <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
+                        <span className="text-[10px] text-slate-600 truncate">{j.title}</span>
+                      </Link>
+                    ))}
+                    {dayJobs.length > 3 && <p className="text-[9px] text-slate-400 pl-1">+{dayJobs.length - 3} more</p>}
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {unscheduled > 0 && (
+        <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
+          <p className="text-[11px] text-slate-400">{unscheduled} job{unscheduled === 1 ? "" : "s"} with no scheduled date — set one on the job to place it on the calendar.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Timeline view — jobs laid out chronologically by scheduled date ──────────
+function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
+  const groups = useMemo(() => {
+    const dated = jobs.filter((j) => j.scheduledDateIso).sort((a, b) => (a.scheduledDateIso! < b.scheduledDateIso! ? -1 : 1))
+    const map = new globalThis.Map<string, DemoJob[]>()
+    for (const j of dated) {
+      const label = new Date(j.scheduledDateIso!).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })
+      const arr = map.get(label) ?? []
+      arr.push(j)
+      map.set(label, arr)
+    }
+    return Array.from(map.entries())
+  }, [jobs])
+
+  const unscheduled = jobs.filter((j) => !j.scheduledDateIso)
+
+  if (groups.length === 0 && unscheduled.length === 0) {
+    return <WorkEmptyState icon={Briefcase} title="No jobs to show" description="Create a job to see it on the timeline." />
+  }
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5">
+      <div className="relative pl-5 before:absolute before:left-1.5 before:top-1 before:bottom-1 before:w-0.5 before:bg-slate-100">
+        {groups.map(([label, items]) => (
+          <div key={label} className="relative mb-5 last:mb-0">
+            <div className="absolute -left-[18px] w-3.5 h-3.5 rounded-full bg-[#2563EB] border-2 border-white mt-0.5" />
+            <p className="text-[12px] font-semibold text-slate-700 mb-2">{label}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+              {items.map((j) => (
+                <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm px-3 py-2 transition-all">
+                  <span className={cn("w-2 h-2 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
+                  <span className="text-[12.5px] font-medium text-slate-800 truncate flex-1">{j.title}</span>
+                  {j.quoteValue !== "—" && <span className="text-[11px] font-semibold text-slate-500 shrink-0">{j.quoteValue}</span>}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+        {unscheduled.length > 0 && (
+          <div className="relative mb-0">
+            <div className="absolute -left-[18px] w-3.5 h-3.5 rounded-full bg-slate-300 border-2 border-white mt-0.5" />
+            <p className="text-[12px] font-semibold text-slate-500 mb-2">No scheduled date ({unscheduled.length})</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+              {unscheduled.map((j) => (
+                <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 px-3 py-2 transition-colors">
+                  <span className={cn("w-2 h-2 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
+                  <span className="text-[12.5px] font-medium text-slate-700 truncate flex-1">{j.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Data view — dense, sortable, every column on one grid ────────────────────
+function JobsDataView({ jobs }: { jobs: DemoJob[] }) {
+  if (jobs.length === 0) {
+    return <WorkEmptyState icon={Briefcase} title="No jobs found" description="No jobs match your current filters." />
+  }
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-[12px]">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              {["Reference", "Title", "Status", "Priority", "Category", "Property", "Scheduled", "Quote", "Invoice"].map((h) => (
+                <th key={h} className="px-3 py-2.5 text-left text-[10.5px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {jobs.map((j) => (
+              <tr key={j.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td className="px-3 py-2 font-mono text-[11px] text-slate-400 whitespace-nowrap">{String(j.id).slice(0, 10)}</td>
+                <td className="px-3 py-2"><Link href={`/app/work/jobs/${j.id}`} className="font-medium text-slate-800 hover:text-[#2563EB] whitespace-nowrap">{j.title}</Link></td>
+                <td className="px-3 py-2"><JobStatusBadge status={j.status} /></td>
+                <td className="px-3 py-2 capitalize text-slate-600">{j.priority}</td>
+                <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{j.category ?? "—"}</td>
+                <td className="px-3 py-2 text-slate-600 truncate max-w-[140px]">{j.property}</td>
+                <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{j.scheduledDateIso ? new Date(j.scheduledDateIso).toLocaleDateString("en-GB") : "—"}</td>
+                <td className="px-3 py-2 font-medium text-slate-700 whitespace-nowrap">{j.quoteValue}</td>
+                <td className="px-3 py-2"><InvoiceBadge status={j.invoiceStatus} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
@@ -455,6 +640,7 @@ export default function JobsPage() {
         team: "—",
         scheduledStart: j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", 09:00" : "—",
         scheduledEnd: j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", 17:00" : "—",
+        scheduledDateIso: j.scheduled_date ?? null,
         dueDate: j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—",
         status: j.status ?? "new",
         category: j.category ?? "General",
@@ -466,7 +652,19 @@ export default function JobsPage() {
         notes: 0,
       }))
     }
-    return DEMO_JOBS
+    // Demo rows: derive an ISO scheduled date from the "16 May" style label so
+    // the Calendar/Timeline views have something real to lay out against.
+    const year = new Date().getFullYear()
+    return DEMO_JOBS.map((j) => {
+      const datePart = j.scheduledStart.split(",")[0]?.trim()
+      const parsed = datePart ? new Date(`${datePart} ${year}`) : null
+      return {
+        ...j,
+        scheduledDateIso: parsed && !isNaN(parsed.getTime())
+          ? `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`
+          : null,
+      }
+    })
   }, [jobsData])
 
   const propertyOptions = useMemo(
@@ -914,14 +1112,14 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* Views still requiring scheduling/geo backends */}
-      {(activeView === "calendar" || activeView === "map" || activeView === "data") && (
-        <WorkEmptyState
-          icon={Briefcase}
-          title={`${JOB_VIEW_TYPES.find(v => v.key === activeView)?.label ?? "View"} coming soon`}
-          description="Use List, Card or Board view to manage your jobs."
-        />
-      )}
+      {/* Calendar view — month grid by scheduled date */}
+      {activeView === "calendar" && <JobsCalendarView jobs={displayJobs} />}
+
+      {/* Timeline view — chronological by scheduled date */}
+      {activeView === "timeline" && <JobsTimelineView jobs={displayJobs} />}
+
+      {/* Data view — dense, every column */}
+      {activeView === "data" && <JobsDataView jobs={displayJobs} />}
 
       {/* Bottom panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

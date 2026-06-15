@@ -15,6 +15,7 @@ import {
   Sparkles,
   Loader2,
   ArrowRight,
+  Upload,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
@@ -522,17 +523,32 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-3">
-                {/* Import (disabled) */}
-                <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 opacity-60 cursor-not-allowed">
-                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-300" />
+                {/* Bulk CSV import is not part of the guided onboarding flow. Rather
+                    than a fake unavailable placeholder, this is an honest disabled
+                    option that explains the real alternative (manual setup) and
+                    lets the user switch to it in one click. */}
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-4">
+                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-300">
+                    <Upload className="h-2.5 w-2.5 text-slate-400" />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-500">Import my properties</span>
-                      <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-500">
-                        Coming soon
+                      <span className="text-sm font-semibold text-slate-700">Import my properties</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+                        Not in setup
                       </span>
                     </div>
-                    <p className="mt-0.5 text-xs text-slate-400">CSV or spreadsheet import</p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      Spreadsheet import isn&apos;t part of the guided setup.{" "}
+                      <button
+                        type="button"
+                        onClick={() => update("portfolioChoice", "manual")}
+                        className="font-semibold text-[#2563EB] hover:text-[#1d4ed8] underline underline-offset-2"
+                      >
+                        Start with manual setup
+                      </button>{" "}
+                      to add your first properties now.
+                    </p>
                   </div>
                 </div>
 

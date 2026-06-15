@@ -1,25 +1,43 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Mail, ChevronDown, ChevronRight, Send, Eye, Edit2, Loader2 } from "lucide-react"
+import { Mail, ChevronDown, ChevronRight, Send, Eye, Edit2, Loader2, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
+import { TemplateEditor, type TemplateContent, type TemplateDef } from "./TemplateEditor"
 
 interface EmailTemplate {
   key: string
   name: string
   editable: boolean
+  tokens: string[]
+  default: TemplateContent
 }
 
 const TEMPLATES: EmailTemplate[] = [
-  { key: "welcome",      name: "Welcome Email",         editable: true },
-  { key: "invite",       name: "Team Invite",           editable: true },
-  { key: "arrears",      name: "Arrears Chase",         editable: true },
-  { key: "compliance",   name: "Compliance Reminder",   editable: true },
-  { key: "invoice",      name: "Invoice Notification",  editable: true },
-  { key: "supplier",     name: "Supplier Request",      editable: true },
-  { key: "portal-reply", name: "Supplier Portal Reply", editable: true },
-  { key: "magic-link",   name: "Magic Link Login",      editable: false },
+  { key: "welcome", name: "Welcome Email", editable: true,
+    tokens: ["contact_name", "workspace_name"],
+    default: { subject: "Welcome to {{workspace_name}}", body: "Hi {{contact_name}},\n\nWelcome aboard! Your workspace is ready — log in any time to manage your portfolio.\n\nThe {{workspace_name}} team" } },
+  { key: "invite", name: "Team Invite", editable: true,
+    tokens: ["contact_name", "workspace_name", "invite_link"],
+    default: { subject: "You've been invited to {{workspace_name}}", body: "Hi {{contact_name}},\n\nYou've been invited to join {{workspace_name}} on Propvora.\n\nAccept your invite: {{invite_link}}" } },
+  { key: "arrears", name: "Arrears Chase", editable: true,
+    tokens: ["tenant_name", "property_address", "amount", "due_date"],
+    default: { subject: "Overdue rent — {{amount}} for {{property_address}}", body: "Hi {{tenant_name}},\n\nOur records show {{amount}} is overdue for {{property_address}} (due {{due_date}}). Please arrange payment as soon as possible.\n\nThank you." } },
+  { key: "compliance", name: "Compliance Reminder", editable: true,
+    tokens: ["property_address", "certificate_type", "expiry_date"],
+    default: { subject: "{{certificate_type}} expiring on {{expiry_date}}", body: "The {{certificate_type}} certificate for {{property_address}} expires on {{expiry_date}}. Please arrange a renewal to stay compliant." } },
+  { key: "invoice", name: "Invoice Notification", editable: true,
+    tokens: ["contact_name", "invoice_number", "amount", "due_date", "property_address"],
+    default: { subject: "Invoice {{invoice_number}} — {{amount}} due {{due_date}}", body: "Hi {{contact_name}},\n\nPlease find your invoice {{invoice_number}} for {{amount}}, due {{due_date}}{{property_address}}.\n\nThank you." } },
+  { key: "supplier", name: "Supplier Request", editable: true,
+    tokens: ["supplier_name", "property_address", "sender_name"],
+    default: { subject: "Work request for {{property_address}}", body: "Hi {{supplier_name}},\n\nWe'd like to request work at {{property_address}}. Please reply with your availability and a quote.\n\n{{sender_name}}" } },
+  { key: "portal-reply", name: "Supplier Portal Reply", editable: true,
+    tokens: ["supplier_name", "property_address"],
+    default: { subject: "Reply on your {{property_address}} job", body: "Hi {{supplier_name}},\n\nThere's a new message on your job for {{property_address}}. Log in to the supplier portal to view and reply." } },
+  { key: "magic-link", name: "Magic Link Login", editable: false,
+    tokens: [], default: { subject: "", body: "" } },
 ]
 
 export default function EmailPage() {
@@ -32,8 +50,12 @@ export default function EmailPage() {
   const [isDirty, setIsDirty]         = useState(false)
   const [saving, setSaving]           = useState(false)
   const [unavailable, setUnavailable] = useState(false)
+  // Persisted template overrides, keyed by template key, from workspace_settings.mail.email_templates
+  const [savedTemplates, setSavedTemplates] = useState<Record<string, TemplateContent>>({})
+  const [editingKey, setEditingKey]   = useState<string | null>(null)
+  const [previewKey, setPreviewKey]   = useState<string | null>(null)
 
-  // Hydrate email settings from workspace_settings.
+  // Hydrate email settings + template overrides from workspace_settings.
   useEffect(() => {
     getWorkspaceSettings().then(({ settings: s, unavailable }) => {
       if (unavailable) setUnavailable(true)
@@ -41,9 +63,28 @@ export default function EmailPage() {
         if (typeof s.email_from === "string") setFromEmail(s.email_from)
         if (typeof s.email_reply_to === "string") setReplyTo(s.email_reply_to)
         if (typeof s.email_support === "string") setSupportEmail(s.email_support)
+        const tpl = s.email_templates
+        if (tpl && typeof tpl === "object" && !Array.isArray(tpl)) {
+          setSavedTemplates(tpl as Record<string, TemplateContent>)
+        }
       }
     })
   }, [])
+
+  async function saveTemplate(key: string, content: TemplateContent): Promise<{ ok: boolean; error?: string }> {
+    // Merge this template into the existing email_templates map and persist into
+    // the `mail` jsonb bucket alongside the email address settings.
+    const nextTemplates = { ...savedTemplates, [key]: content }
+    const res = await saveWorkspaceSettings({ email_templates: nextTemplates }, "mail")
+    if (res.unavailable) {
+      setUnavailable(true)
+      return { ok: false, error: "Settings storage is not configured yet — template can't be saved." }
+    }
+    if (!res.ok) return { ok: false, error: res.error ?? "Failed to save template." }
+    setSavedTemplates(nextTemplates)
+    showToast("Template saved")
+    return { ok: true }
+  }
 
   function showToast(msg: string) {
     setToast(msg)
@@ -86,7 +127,11 @@ export default function EmailPage() {
       showToast("This template cannot be edited")
       return
     }
-    showToast("Template editor coming soon")
+    if (unavailable) {
+      showToast("Settings storage is not configured yet — templates can't be saved.")
+      return
+    }
+    setEditingKey(template.key)
   }
 
   return (
@@ -210,11 +255,15 @@ export default function EmailPage() {
                     <Mail className="w-4 h-4" />
                   </div>
                   <span className="text-[13px] font-medium text-slate-800">{template.name}</span>
-                  {!template.editable && (
+                  {!template.editable ? (
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
                       System
                     </span>
-                  )}
+                  ) : savedTemplates[template.key] ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
+                      <CheckCircle2 className="w-3 h-3" /> Customised
+                    </span>
+                  ) : null}
                 </div>
                 <div style={{ color: "#64748B" }}>
                   {expandedTemplate === template.key ? (
@@ -245,17 +294,50 @@ export default function EmailPage() {
                       <Edit2 className="w-3.5 h-3.5" />
                       Edit template
                     </button>
-                    <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-[12px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+                    <button
+                      onClick={() => setPreviewKey(previewKey === template.key ? null : template.key)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-[12px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                    >
                       <Eye className="w-3.5 h-3.5" />
-                      Preview
+                      {previewKey === template.key ? "Hide preview" : "Preview"}
                     </button>
                   </div>
+                  {previewKey === template.key && (
+                    <div className="mt-3 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                      <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100">
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Subject</p>
+                        <p className="text-[12.5px] font-semibold text-slate-800 mt-0.5">
+                          {(savedTemplates[template.key]?.subject ?? template.default.subject) || "(no subject)"}
+                        </p>
+                      </div>
+                      <div className="px-3.5 py-3">
+                        <p className="text-[12.5px] text-slate-600 whitespace-pre-wrap leading-relaxed">
+                          {(savedTemplates[template.key]?.body ?? template.default.body) || "(empty body)"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           ))}
         </div>
       </div>
+
+      {/* Template editor */}
+      {editingKey && (() => {
+        const t = TEMPLATES.find((x) => x.key === editingKey)
+        if (!t) return null
+        const def: TemplateDef = { key: t.key, name: t.name, tokens: t.tokens, default: t.default }
+        return (
+          <TemplateEditor
+            def={def}
+            initial={savedTemplates[t.key] ?? null}
+            onClose={() => setEditingKey(null)}
+            onSave={(content) => saveTemplate(t.key, content)}
+          />
+        )
+      })()}
 
       {/* Toast */}
       {toast && (

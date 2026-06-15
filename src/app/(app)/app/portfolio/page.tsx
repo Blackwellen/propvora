@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus, normalisePropertyType, exportCsv } from "@/lib/portfolio/helpers"
 import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls, resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
+import { openCopilot } from "@/lib/copilot/open"
 
 /* ------------------------------------------------------------------ */
 /* 13 Operational Profiles                                              */
@@ -377,6 +378,32 @@ export default function PortfolioPage() {
 
   /* Unique property list for dropdowns */
   const propertyOptions = properties.map(p => ({ id: p.id, name: p.name }))
+
+  /* AI Portfolio Review — seed the Copilot with real portfolio-level context.
+     Guidance only: the assistant advises, it never performs actions itself. */
+  function runPortfolioReview() {
+    const segCounts = ALL_PROFILES
+      .map(p => ({ label: p.label, n: properties.filter(x => x.operationProfile === p.key).length }))
+      .filter(s => s.n > 0)
+      .map(s => `${s.label}: ${s.n}`)
+      .join(", ")
+    const lines = [
+      "Review my property portfolio and summarise its performance, risks and opportunities. Give guidance only — do not claim to have made any changes.",
+      "",
+      "Current portfolio snapshot:",
+      `- Properties: ${properties.length}${segCounts ? ` (${segCounts})` : ""}`,
+      `- Units: ${totalUnits} (${vacantUnits} vacant, ${occupiedUnits} occupied)`,
+      `- Active tenancies: ${activeTenancies}`,
+      `- Occupancy: ${totalUnits > 0 ? `${occupancyPct}%` : "n/a"}`,
+      `- Monthly rent roll: ${totalRentRoll > 0 ? fmtGBP(totalRentRoll) : "£0"}`,
+      `- Arrears: ${arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0"} across ${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}`,
+      `- Tenancies ending within 60 days: ${endingSoon.length}`,
+      `- Open work orders: ${openWorkTotal}`,
+      "",
+      "Please flag the top risks, highlight quick wins, and suggest where to focus next.",
+    ]
+    openCopilot({ prompt: lines.join("\n") })
+  }
 
   /* CSV export — client-side, derived from the live (or seeded) rows */
   function exportPortfolio() {
@@ -873,12 +900,13 @@ export default function PortfolioPage() {
                   ))}
                 </div>
                 <button
-                  disabled
-                  title="AI Portfolio Review is coming soon"
-                  className="w-full py-2.5 rounded-xl bg-white/90 text-[13px] font-bold flex items-center justify-center gap-2 cursor-not-allowed opacity-80"
+                  onClick={runPortfolioReview}
+                  disabled={properties.length === 0}
+                  title={properties.length === 0 ? "Add a property to run a review" : "Open the AI Copilot with your portfolio context"}
+                  className="w-full py-2.5 rounded-xl bg-white/90 hover:bg-white text-[13px] font-bold flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ color: "#5B21B6" }}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />Coming soon
+                  <Sparkles className="w-3.5 h-3.5" />Run AI review
                 </button>
               </div>
             </div>

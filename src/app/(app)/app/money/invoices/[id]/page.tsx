@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyInvoice, useUpdateInvoiceStatus } from "@/hooks/useMoneyData"
 import { createClient } from "@/lib/supabase/client"
+import { uploadFile } from "@/lib/upload"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
@@ -98,6 +99,14 @@ interface AuditRow {
   user: string
   action: string
   detail: string
+}
+
+interface InvoiceDoc {
+  id: string
+  name: string
+  url: string | null
+  mime: string | null
+  created_at: string | null
 }
 
 /* ------------------------------------------------------------------ */
@@ -202,6 +211,93 @@ export default function InvoiceDetailPage() {
   // Live data state
   const [payments, setPayments] = useState<PaymentRow[]>([])
   const [auditRows, setAuditRows] = useState<AuditRow[]>([])
+  const [docs, setDocs] = useState<InvoiceDoc[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const docInputRef = React.useRef<HTMLInputElement>(null)
+
+  // Load documents attached to this invoice (metadata.invoice_id === id).
+  const loadDocs = React.useCallback(async () => {
+    if (!id || !workspace?.id) return
+    const supabase = createClient()
+    try {
+      const { data, error } = await supabase
+        .from("documents")
+        .select("id, name, url, mime_type, created_at, metadata")
+        .eq("workspace_id", workspace.id)
+        .eq("category", "invoice")
+        .order("created_at", { ascending: false })
+      if (error) return
+      const linked = (data ?? []).filter((r: Record<string, unknown>) => {
+        const m = r.metadata as { invoice_id?: string } | null
+        return m?.invoice_id === id
+      })
+      setDocs(linked.map((r: Record<string, unknown>) => ({
+        id: r.id as string,
+        name: r.name as string,
+        url: (r.url as string) ?? null,
+        mime: (r.mime_type as string) ?? null,
+        created_at: (r.created_at as string) ?? null,
+      })))
+    } catch { /* documents table may not exist — stay empty */ }
+  }, [id, workspace?.id])
+
+  useEffect(() => { loadDocs() }, [loadDocs])
+
+  // Upload a file to R2, persist a `documents` row linked to this invoice.
+  async function uploadInvoiceDoc(file: File) {
+    if (!id || !workspace?.id) { showToast("No workspace found — please refresh and try again"); return }
+    setUploading(true)
+    try {
+      const uploaded = await uploadFile(file, workspace.id, "invoices")
+      const supabase = createClient()
+      const { error: docErr } = await supabase
+        .from("documents")
+        .insert({
+          workspace_id: workspace.id,
+          name: file.name,
+          category: "invoice",
+          mime_type: uploaded.type || file.type || null,
+          size_bytes: uploaded.size ?? file.size,
+          r2_key: uploaded.key,
+          r2_bucket: "propvora",
+          url: uploaded.url,
+          status: "uploaded",
+          metadata: { invoice_id: id },
+        })
+      if (docErr) {
+        showToast(docErr.code === "42P01" ? "Documents table not provisioned yet" : (docErr.message ?? "Could not save document"))
+        return
+      }
+      showToast("Document uploaded and linked to invoice")
+      await loadDocs()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Re-send the invoice email via the server route (real Resend send).
+  async function resendInvoice() {
+    if (!id) return
+    setResending(true)
+    try {
+      const res = await fetch(`/api/invoices/${id}/resend`, { method: "POST" })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        showToast(json.error || "Could not resend invoice")
+        return
+      }
+      showToast(`Invoice resent to ${json.to ?? "the contact"}`)
+      // Surface the new email event in the Email/Activity/Audit tabs.
+      qc.invalidateQueries({ queryKey: ["money_invoice", workspace?.id, id] })
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "Could not resend invoice")
+    } finally {
+      setResending(false)
+    }
+  }
 
   useEffect(() => {
     if (!id) return
@@ -570,12 +666,13 @@ export default function InvoiceDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Generated PDF — always available from the live record */}
                   <tr className="border-b border-slate-100">
                     <td className="px-4 py-3 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-red-400" />
                       <span className="font-medium text-slate-800">{invoiceNumber}.pdf</span>
                     </td>
-                    <td className="px-4 py-3 text-slate-500">PDF Invoice</td>
+                    <td className="px-4 py-3 text-slate-500">Generated PDF</td>
                     <td className="px-4 py-3 text-slate-500">{inv.issue_date}</td>
                     <td className="px-4 py-3">
                       <button
@@ -584,22 +681,46 @@ export default function InvoiceDetailPage() {
                       >Download</button>
                     </td>
                   </tr>
+                  {/* Uploaded attachments (live from `documents`) */}
+                  {docs.map((d) => (
+                    <tr key={d.id} className="border-b border-slate-100">
+                      <td className="px-4 py-3 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-slate-400" />
+                        <span className="font-medium text-slate-800 truncate max-w-[220px]">{d.name}</span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">{d.mime ?? "Attachment"}</td>
+                      <td className="px-4 py-3 text-slate-500">{d.created_at ? d.created_at.slice(0, 10) : "—"}</td>
+                      <td className="px-4 py-3">
+                        {d.url ? (
+                          <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-xs font-medium">Download</a>
+                        ) : <span className="text-xs text-slate-400">—</span>}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center gap-3 text-center bg-slate-50">
+            <input
+              ref={docInputRef}
+              type="file"
+              className="hidden"
+              accept="image/*,application/pdf,.doc,.docx,.csv,.xlsx,.txt"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadInvoiceDoc(f); e.target.value = "" }}
+            />
+            <button
+              type="button"
+              onClick={() => !uploading && docInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center gap-3 text-center bg-slate-50 hover:bg-slate-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                <Upload className="w-5 h-5 text-slate-400" />
+                {uploading ? <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" /> : <Upload className="w-5 h-5 text-slate-400" />}
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">Drag & drop files here</p>
-                <p className="text-xs text-slate-400 mt-0.5">PDF, JPG, PNG up to 10MB</p>
+                <p className="text-sm font-medium text-slate-700">{uploading ? "Uploading…" : "Click to upload a file"}</p>
+                <p className="text-xs text-slate-400 mt-0.5">PDF, JPG, PNG, DOCX, CSV, XLSX up to 10MB</p>
               </div>
-              <button
-                onClick={() => showToast("File upload requires storage integration — coming soon")}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-              >Browse Files</button>
-            </div>
+            </button>
           </div>
         )
 
@@ -608,10 +729,11 @@ export default function InvoiceDetailPage() {
           <div className="space-y-4">
             <div className="flex justify-end">
               <button
-                onClick={() => showToast("Resend Invoice requires email configuration — coming soon")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                onClick={resendInvoice}
+                disabled={resending}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <RefreshCw className="w-4 h-4 text-slate-400" /> Resend Invoice
+                <RefreshCw className={cn("w-4 h-4 text-slate-400", resending && "animate-spin")} /> {resending ? "Sending…" : "Resend Invoice"}
               </button>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">

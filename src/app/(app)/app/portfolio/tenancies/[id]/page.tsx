@@ -8,6 +8,7 @@ import { useTenancy, useUpdateTenancy, useDeleteTenancy } from "@/hooks/useTenan
 import { useContact } from "@/hooks/useContacts"
 import { useProperty } from "@/hooks/useProperties"
 import { useUnit } from "@/hooks/useUnits"
+import { useTenancyMessages, useSendTenancyMessage } from "@/hooks/useTenancyThread"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
@@ -758,8 +759,29 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
 
 /* ─────────────────────── TAB: COMMUNICATIONS (3H) ─────────────────────── */
 
-function CommunicationsTab({ t }: { t: TenancyDisplay }) {
+function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: string }) {
+  const { workspace } = useWorkspace()
   const hasContact = !!(t.tenantEmail || t.tenantPhone)
+  const { data: messages = [], isLoading } = useTenancyMessages(workspace?.id, tenancyId)
+  const sendMessage = useSendTenancyMessage()
+  const [draft, setDraft] = useState("")
+
+  async function handleSend() {
+    const body = draft.trim()
+    if (!body || !workspace?.id || sendMessage.isPending) return
+    try {
+      await sendMessage.mutateAsync({
+        workspaceId: workspace.id,
+        tenancyId,
+        title: `${t.tenantName} — ${t.property}`,
+        body,
+      })
+      setDraft("")
+    } catch {
+      /* mutation surfaces error state below */
+    }
+  }
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <SectionCard className="p-5">
@@ -794,13 +816,75 @@ function CommunicationsTab({ t }: { t: TenancyDisplay }) {
         )}
       </SectionCard>
 
-      <SectionCard className="p-10 flex flex-col items-center justify-center text-center gap-3">
-        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center">
-          <MessageCircle className="w-6 h-6 text-slate-300" />
+      {/* In-app message thread — real messages on this tenancy's thread */}
+      <SectionCard className="flex flex-col overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
+          <MessageCircle className="w-4 h-4 text-blue-600" />
+          <h3 className="text-[14px] font-bold text-slate-900">Message Thread</h3>
+          {messages.length > 0 && (
+            <span className="text-[11px] font-semibold text-slate-400">{messages.length} message{messages.length === 1 ? "" : "s"}</span>
+          )}
         </div>
-        <div>
-          <p className="text-[14px] font-semibold text-slate-600">In-app messaging coming soon</p>
-          <p className="text-[12px] text-slate-400 mt-1">Threaded tenant conversations will appear here. For now, use email or phone above.</p>
+
+        {/* Message list */}
+        <div className="max-h-[420px] overflow-y-auto px-5 py-4 flex flex-col gap-3 bg-slate-50/40">
+          {isLoading ? (
+            <div className="flex flex-col gap-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={cn("h-12 rounded-2xl bg-slate-100 animate-pulse", i % 2 ? "self-end w-1/2" : "self-start w-2/3")} />
+              ))}
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="py-10 text-center">
+              <MessageCircle className="w-7 h-7 text-slate-200 mx-auto mb-2" />
+              <p className="text-[13px] text-slate-500">No messages yet</p>
+              <p className="text-[12px] text-slate-400 mt-1">Start the conversation with a message below.</p>
+            </div>
+          ) : (
+            messages.map((m) => (
+              <div key={m.id} className={cn("flex flex-col max-w-[80%]", m.mine ? "self-end items-end" : "self-start items-start")}>
+                <div
+                  className={cn(
+                    "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words",
+                    m.mine ? "bg-blue-600 text-white rounded-br-sm" : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm"
+                  )}
+                >
+                  {m.content}
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 px-1">
+                  {m.mine ? "You" : m.sender_name} · {fmtDate(m.created_at)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Composer */}
+        <div className="border-t border-slate-100 p-3 bg-white">
+          {sendMessage.isError && (
+            <p className="text-[11px] text-red-500 mb-2 px-1">Couldn&apos;t send your message. Please try again.</p>
+          )}
+          <div className="flex items-end gap-2">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleSend() }
+              }}
+              rows={2}
+              placeholder="Write a message…  (Ctrl/⌘ + Enter to send)"
+              className="flex-1 resize-none border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!draft.trim() || sendMessage.isPending || !workspace?.id}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              <Send className="w-4 h-4" />
+              <span className="hidden sm:inline">{sendMessage.isPending ? "Sending…" : "Send"}</span>
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-400 mt-2 px-1">Internal thread for this tenancy. Tenant-facing delivery is handled by the portal where enabled.</p>
         </div>
       </SectionCard>
     </div>
@@ -977,7 +1061,7 @@ export default function TenancyDetailPage() {
         {activeTab === "notes" && <NotesTab notes={tenancy?.notes} />}
         {activeTab === "activity" && <ActivityTab events={activityEvents} loaded={activityLoaded} />}
         {activeTab === "deposit" && <DepositTab t={t} onSave={save} />}
-        {activeTab === "communications" && <CommunicationsTab t={t} />}
+        {activeTab === "communications" && <CommunicationsTab t={t} tenancyId={tenancyId} />}
       </div>
     </div>
   )
