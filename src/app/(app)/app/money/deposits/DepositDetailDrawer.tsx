@@ -72,7 +72,7 @@ function buildHistory(d: DepositDetail): { label: string; date: string | null }[
 function Field({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div>
-      <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">{label}</p>
       <p className={cn("text-sm text-slate-800 mt-0.5", mono && "font-mono")}>{value}</p>
     </div>
   )
@@ -203,10 +203,10 @@ export function DepositDetailDrawer({
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900">Deposit Details</h3>
-              {detail && <p className="text-[11px] text-slate-400 font-mono">{detail.id.slice(0, 10).toUpperCase()}</p>}
+              {detail && <p className="text-[11px] text-slate-500 font-mono">{detail.id.slice(0, 10).toUpperCase()}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -227,7 +227,7 @@ export function DepositDetailDrawer({
               {/* Amount + status */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Amount held</p>
+                  <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Amount held</p>
                   <p className="text-2xl font-bold text-slate-900 mt-0.5">
                     £{detail.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}
                   </p>
@@ -244,7 +244,7 @@ export function DepositDetailDrawer({
                 <div className="flex items-start gap-3 p-3.5">
                   <User className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Tenant / Contact</p>
+                    <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Tenant / Contact</p>
                     <p className="text-sm text-slate-800 mt-0.5 truncate">{detail.contact_name ?? "Not linked"}</p>
                     {detail.contact_email && <p className="text-xs text-slate-500 truncate">{detail.contact_email}</p>}
                   </div>
@@ -252,7 +252,7 @@ export function DepositDetailDrawer({
                 <div className="flex items-start gap-3 p-3.5">
                   <Building2 className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Property</p>
+                    <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Property</p>
                     <p className="text-sm text-slate-800 mt-0.5">{detail.property_line ?? "Not linked"}</p>
                     {detail.tenancy_status && (
                       <p className="text-xs text-slate-500 mt-0.5">
@@ -316,7 +316,7 @@ export function DepositDetailDrawer({
                     <Download className="w-3.5 h-3.5 text-slate-400" />
                   </a>
                 ) : (
-                  <p className="text-sm text-slate-400">No document attached.</p>
+                  <p className="text-sm text-slate-500">No document attached.</p>
                 )}
               </div>
 
@@ -336,7 +336,7 @@ export function DepositDetailDrawer({
                   <Clock className="w-4 h-4 text-slate-400" /> Status history
                 </p>
                 {history.length === 0 ? (
-                  <p className="text-sm text-slate-400">No history recorded yet.</p>
+                  <p className="text-sm text-slate-500">No history recorded yet.</p>
                 ) : (
                   <div className="space-y-3">
                     {history.map((h, i) => (
@@ -346,7 +346,7 @@ export function DepositDetailDrawer({
                         </div>
                         <div>
                           <p className="text-sm font-medium text-slate-800">{h.label}</p>
-                          <p className="text-xs text-slate-400">{fmtDate(h.date)}</p>
+                          <p className="text-xs text-slate-500">{fmtDate(h.date)}</p>
                         </div>
                       </div>
                     ))}

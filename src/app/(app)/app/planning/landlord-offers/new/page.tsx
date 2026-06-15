@@ -497,7 +497,7 @@ Kind regards,
 
                   <div className="flex flex-col gap-4">
                     <TextInput label="Property Address" value={data.landlordAddress} onChange={v => update({ landlordAddress: v })} placeholder="48 Talbot Street, Nottingham" required />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <TextInput label="Landlord Name" value={data.landlordName} onChange={v => update({ landlordName: v })} placeholder="Mr John Smith" />
                       <TextInput label="Phone" value={data.landlordPhone} onChange={v => update({ landlordPhone: v })} placeholder="07700 900000" />
                     </div>
@@ -635,7 +635,7 @@ Kind regards,
                 <div>
                   <h2 className="text-base font-semibold text-slate-900 mb-1">Contract Terms</h2>
                   <p className="text-sm text-slate-500 mb-5">Define the lease duration and exit provisions.</p>
-                  <div className="grid grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1.5">Contract Length (months)</label>
                       <input

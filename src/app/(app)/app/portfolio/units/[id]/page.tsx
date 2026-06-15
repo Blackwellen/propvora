@@ -171,7 +171,7 @@ function KpiCard({ label, value, sub, icon: Icon, accent }: {
         {Icon && <Icon className="w-4 h-4 text-slate-300" />}
       </div>
       <div className={cn("text-xl font-bold tabular-nums", accent ?? "text-slate-900")}>{value}</div>
-      {sub && <div className="text-[11px] text-slate-400">{sub}</div>}
+      {sub && <div className="text-[11px] text-slate-500">{sub}</div>}
     </div>
   )
 }
@@ -180,7 +180,8 @@ function EditPen({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 p-0.5 rounded hover:bg-slate-100"
+      aria-label="Edit field"
+      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ml-1.5 p-0.5 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
     >
       <Edit2 className="w-3 h-3 text-slate-400" />
     </button>
@@ -263,7 +264,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
           {/* Spec Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 pt-2 border-t border-slate-100">
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Unit Type</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Unit Type</div>
               <InlineEditField
                 value={unit.unit_type ?? ""}
                 onSave={(v) => onSave("unit_type", v)}
@@ -280,7 +281,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               />
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Floor</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Floor</div>
               <InlineEditField
                 value={unit.floor ?? ""}
                 onSave={(v) => onSave("floor", v ? Number(v) : null)}
@@ -289,7 +290,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               />
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Bedrooms</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Bedrooms</div>
               <InlineEditField
                 value={unit.bedrooms ?? ""}
                 onSave={(v) => onSave("bedrooms", v ? Number(v) : null)}
@@ -298,7 +299,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               />
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Floor Area (m²)</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Floor Area (m²)</div>
               <InlineEditField
                 value={unit.floor_area_sqm ?? ""}
                 onSave={(v) => onSave("floor_area_sqm", v ? Number(v) : null)}
@@ -307,7 +308,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               />
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">Target Rent (£)</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Target Rent (£)</div>
               <InlineEditField
                 value={unit.target_rent ?? ""}
                 onSave={(v) => onSave("target_rent", v ? Number(v) : null)}
@@ -366,7 +367,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
 
         {/* Current Tenant — live */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Current Tenant</div>
+          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Current Tenant</div>
           {tenancy && tenant ? (
             <>
               <div className="flex items-center gap-3 mb-3">
@@ -407,7 +408,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
         {/* Income Summary — live */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Income Summary</div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Income Summary</div>
             <Link href="/app/money" className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
               Money <ArrowUpRight className="w-3 h-3" />
             </Link>
@@ -426,7 +427,7 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               <span className="tabular-nums text-emerald-600">{rent != null ? fmtGBP(rent * 12) : "—"}</span>
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">Detailed transactions live in the Money section.</p>
+          <p className="text-[11px] text-slate-500 mt-2">Detailed transactions live in the Money section.</p>
         </div>
       </div>
     </div>
@@ -445,7 +446,7 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
         </div>
         <div>
           <p className="text-[14px] font-semibold text-slate-600">No tenancy for this unit</p>
-          <p className="text-[12px] text-slate-400 mt-1">Create a tenancy to track the tenant, rent and deposit.</p>
+          <p className="text-[12px] text-slate-500 mt-1">Create a tenancy to track the tenant, rent and deposit.</p>
         </div>
         <Link href={`/app/portfolio/tenancies/new?unitId=${unitId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" /> New Tenancy
@@ -468,34 +469,34 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Tenant</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Tenant</div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[10px]">{tenant ? avatarInitials(tenant.full_name) : "—"}</div>
                 <span className="text-[13px] font-semibold text-slate-800">{tenant?.full_name ?? "Unassigned"}</span>
               </div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Tenancy Type</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Tenancy Type</div>
               <div className="text-[13px] font-semibold text-slate-800 capitalize">{(tenancy.tenancy_type ?? "—").replace(/_/g, " ")}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Tenancy Start</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Tenancy Start</div>
               <div className="text-[13px] font-semibold text-slate-800">{fmtDate(tenancy.start_date)}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Tenancy End</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Tenancy End</div>
               <div className="text-[13px] font-semibold text-slate-800">{tenancy.end_date ? fmtDate(tenancy.end_date) : "Periodic"}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Rent</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Rent</div>
               <div className="text-[13px] font-semibold text-slate-800 tabular-nums">{fmtGBP(tenancy.rent_amount)}/{tenancy.rent_frequency === "monthly" ? "month" : tenancy.rent_frequency}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Reference</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Reference</div>
               <div className="text-[13px] font-semibold text-slate-800">{tenancy.reference ?? "—"}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Status</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Status</div>
               <StatusPill label={tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1)} color={statusColor} />
             </div>
           </div>
@@ -505,16 +506,16 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
           <h3 className="text-[14px] font-bold text-slate-900 mb-4">Deposit</h3>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Deposit Held</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Deposit Held</div>
               <div className="text-[16px] font-bold tabular-nums text-slate-900">{tenancy.deposit_amount != null ? fmtGBP(tenancy.deposit_amount) : "—"}</div>
               {tenancy.deposit_scheme && <div className="text-[10px] text-emerald-600 font-medium">Protected ({tenancy.deposit_scheme})</div>}
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Scheme</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Scheme</div>
               <div className="text-[13px] font-semibold text-slate-800">{tenancy.deposit_scheme ?? "—"}</div>
             </div>
             <div>
-              <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">Reference</div>
+              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Reference</div>
               <div className="text-[13px] font-semibold text-slate-800">{tenancy.deposit_reference ?? "—"}</div>
             </div>
           </div>
@@ -532,7 +533,7 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
                   <Phone className="w-4 h-4 text-slate-400" />
                   <div>
                     <div className="text-[12px] font-semibold text-slate-800">{tenant.phone}</div>
-                    <div className="text-[10px] text-slate-400">Phone</div>
+                    <div className="text-[10px] text-slate-500">Phone</div>
                   </div>
                 </a>
               )}
@@ -541,14 +542,14 @@ function TabTenancy({ unitId, tenancy, tenant }: { unitId: string; tenancy: Tena
                   <Mail className="w-4 h-4 text-slate-400" />
                   <div>
                     <div className="text-[12px] font-semibold text-slate-800">{tenant.email}</div>
-                    <div className="text-[10px] text-slate-400">Email</div>
+                    <div className="text-[10px] text-slate-500">Email</div>
                   </div>
                 </a>
               )}
-              {!tenant.phone && !tenant.email && <p className="text-[12px] text-slate-400">No contact details recorded.</p>}
+              {!tenant.phone && !tenant.email && <p className="text-[12px] text-slate-500">No contact details recorded.</p>}
             </div>
           ) : (
-            <p className="text-[12px] text-slate-400">No tenant contact linked.</p>
+            <p className="text-[12px] text-slate-500">No tenant contact linked.</p>
           )}
         </div>
 
@@ -587,7 +588,7 @@ function TabDocuments({ unitId }: { unitId: string }) {
           extra={{ unit_id: unitId }}
           accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"
         />
-        <p className="text-[11px] text-slate-400 mt-3">Photos, floorplans, certificates and reports for this unit. Files are stored securely.</p>
+        <p className="text-[11px] text-slate-500 mt-3">Photos, floorplans, certificates and reports for this unit. Files are stored securely.</p>
       </div>
     </div>
   )
@@ -605,7 +606,7 @@ function TabTimeline({ events, loaded }: { events: ActivityRow[]; loaded: boolea
         </div>
         <div>
           <p className="text-[14px] font-semibold text-slate-600">{loaded ? "No timeline events yet" : "Loading timeline…"}</p>
-          <p className="text-[12px] text-slate-400 mt-1">Events for this unit and its tenancy will appear here.</p>
+          <p className="text-[12px] text-slate-500 mt-1">Events for this unit and its tenancy will appear here.</p>
         </div>
       </div>
     )
@@ -629,7 +630,7 @@ function TabTimeline({ events, loaded }: { events: ActivityRow[]; loaded: boolea
                     )}
                   </div>
                   {item.description && <div className="text-[12px] text-slate-500">{item.description}</div>}
-                  <div className="text-[11px] text-slate-400 mt-0.5">{fmtDate(item.created_at)}</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">{fmtDate(item.created_at)}</div>
                 </div>
               </div>
             ))}
@@ -652,7 +653,7 @@ function TabActivity({ events, loaded }: { events: ActivityRow[]; loaded: boolea
         </div>
         <div>
           <p className="text-[14px] font-semibold text-slate-600">{loaded ? "No activity yet" : "Loading activity…"}</p>
-          <p className="text-[12px] text-slate-400 mt-1">Actions on this unit and its tenancy will appear here.</p>
+          <p className="text-[12px] text-slate-500 mt-1">Actions on this unit and its tenancy will appear here.</p>
         </div>
       </div>
     )
@@ -668,8 +669,8 @@ function TabActivity({ events, loaded }: { events: ActivityRow[]; loaded: boolea
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[13px] font-semibold text-slate-900">{a.action ?? "Activity"}</span>
-                <span className="text-[11px] text-slate-400">·</span>
-                <span className="text-[11px] text-slate-400">{fmtDate(a.created_at)}</span>
+                <span className="text-[11px] text-slate-500">·</span>
+                <span className="text-[11px] text-slate-500">{fmtDate(a.created_at)}</span>
               </div>
               {a.description && <div className="text-[12px] text-slate-500 mt-0.5">{a.description}</div>}
             </div>
@@ -705,9 +706,9 @@ function TabFinance({ incomeChart, tenancy, unit }: { incomeChart: IncomeChartPo
           { label: "Status", value: tenancy ? (tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1)) : "Vacant", sub: "Tenancy" },
         ].map((k) => (
           <div key={k.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{k.label}</div>
+            <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">{k.label}</div>
             <div className="text-[20px] font-bold tabular-nums text-slate-900 mt-1">{k.value}</div>
-            <div className="text-[11px] text-slate-400 mt-0.5">{k.sub}</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">{k.sub}</div>
           </div>
         ))}
       </div>
@@ -730,7 +731,7 @@ function TabFinance({ incomeChart, tenancy, unit }: { incomeChart: IncomeChartPo
           <div className="py-10 flex flex-col items-center justify-center text-center">
             <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />
             <p className="text-[13px] font-semibold text-slate-500">No income recorded yet</p>
-            <p className="text-[12px] text-slate-400 mt-1">Logged payments will chart here. Track income in the Money section.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Logged payments will chart here. Track income in the Money section.</p>
           </div>
         )}
       </div>
@@ -910,7 +911,7 @@ export default function UnitDetailPage() {
           </div>
           <div>
             <p className="text-[15px] font-bold text-slate-700">Unit not found</p>
-            <p className="text-[13px] text-slate-400 mt-1">This unit doesn’t exist or you don’t have access to it.</p>
+            <p className="text-[13px] text-slate-500 mt-1">This unit doesn’t exist or you don’t have access to it.</p>
           </div>
           <Link href="/app/portfolio/units" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Units

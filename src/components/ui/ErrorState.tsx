@@ -38,8 +38,9 @@ export function ErrorState({
   const s = sizeClasses[size]
 
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center", s.wrapper, className)}>
+    <div role="alert" className={cn("flex flex-col items-center justify-center text-center", s.wrapper, className)}>
       <div
+        aria-hidden="true"
         className={cn(
           "flex items-center justify-center rounded-2xl bg-[#FEF2F2] mb-4",
           s.iconWrap

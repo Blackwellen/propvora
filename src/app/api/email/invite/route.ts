@@ -4,6 +4,10 @@ import { cookies } from "next/headers"
 import { sendEmail } from "@/lib/email"
 import { workspaceInviteEmail } from "@/lib/emails/workspace-invite"
 import { rateLimit, clientKey, RATE_LIMITS } from "@/lib/rate-limit"
+import { createAdminClient } from "@/lib/supabase/admin"
+
+/** Roles permitted to invite teammates. */
+const INVITER_ROLES = new Set(["owner", "admin"])
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,6 +75,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // ── Authorisation: the caller must be an OWNER/ADMIN of the workspace that
+    // the invitation belongs to — not merely authenticated. We resolve the
+    // invitation's workspace via the service-role client (authoritative, RLS
+    // bypass), then verify the caller's role IN THAT workspace. This stops a
+    // logged-in user from triggering invite emails for a workspace they don't
+    // administer (or don't belong to at all). Fail-closed on any uncertainty.
+    const admin = createAdminClient()
+    const { data: invitation, error: invErr } = await admin
+      .from("workspace_invitations")
+      .select("workspace_id, email")
+      .eq("id", invitationId)
+      .maybeSingle()
+
+    if (invErr || !invitation?.workspace_id) {
+      return NextResponse.json({ error: "Invitation not found" }, { status: 404 })
+    }
+
+    const { data: membership, error: memErr } = await admin
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", invitation.workspace_id)
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    const callerRole = (membership?.role as string | undefined)?.toLowerCase()
+    if (memErr || !callerRole || !INVITER_ROLES.has(callerRole)) {
+      return NextResponse.json(
+        { error: "You must be an owner or admin of this workspace to send invites." },
+        { status: 403 }
+      )
+    }
+
+    // Bind the email we send to the invitation's recorded address — don't let
+    // the caller redirect the invite to an arbitrary recipient.
+    const recordedEmail = (invitation.email as string | null)?.trim().toLowerCase()
+    const targetEmail = recordedEmail || inviteeEmail.trim().toLowerCase()
+
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ??
       (request.headers.get("origin") || "https://app.propvora.com")
@@ -83,7 +124,7 @@ export async function POST(request: NextRequest) {
       inviteUrl,
     })
 
-    const result = await sendEmail({ to: inviteeEmail, subject, html })
+    const result = await sendEmail({ to: targetEmail, subject, html })
 
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: 500 })

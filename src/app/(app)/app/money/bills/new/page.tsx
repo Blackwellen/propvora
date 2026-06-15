@@ -396,7 +396,7 @@ export default function NewBillPage() {
                         </td>
                         <td className="py-2 pr-1">
                           <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">£</span>
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-xs">£</span>
                             <input
                               type="number"
                               min={0}
@@ -487,7 +487,7 @@ export default function NewBillPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-700">Upload Supplier Invoice PDF</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Drag and drop or click to browse</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Drag and drop or click to browse</p>
                   </div>
                   <p className="text-xs text-slate-300">PDF up to 25 MB</p>
                 </div>
@@ -504,7 +504,7 @@ export default function NewBillPage() {
             )}
             <button
               onClick={() => setStep(6)}
-              className="text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2"
+              className="text-sm text-slate-500 hover:text-slate-600 underline underline-offset-2"
             >
               Skip this step
             </button>
@@ -736,7 +736,7 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 function SummaryRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-xs text-slate-400">{label}</span>
+      <span className="text-xs text-slate-500">{label}</span>
       <span className={cn("text-xs font-medium text-slate-700 text-right truncate max-w-[140px]", mono && "font-mono")}>
         {value}
       </span>

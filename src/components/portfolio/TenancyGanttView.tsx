@@ -146,7 +146,7 @@ function TenancyKpi({ icon: Icon, label, value, sub, change, changePos, iconBg, 
       <div>
         <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">{value}</p>
         <p className="text-[11.5px] text-slate-500 mt-0.5 font-medium">{label}</p>
-        {sub && <p className="text-[10.5px] text-slate-400 mt-0.5">{sub}</p>}
+        {sub && <p className="text-[10.5px] text-slate-500 mt-0.5">{sub}</p>}
       </div>
       {change && (
         <div className={cn("flex items-center gap-1 text-[11px] font-semibold",
@@ -224,7 +224,7 @@ function GanttRow({ t, viewStart, totalDays, pct, nowPct, selected, onSelect, we
             className="text-[12px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block leading-tight">
             {t.tenant_name ?? "Unknown"}
           </Link>
-          <p className="text-[10px] text-slate-400 truncate leading-tight">
+          <p className="text-[10px] text-slate-500 truncate leading-tight">
             {t.property_name ?? "—"}{t.unit_name ? ` / ${t.unit_name}` : ""}
           </p>
           <p className="text-[10px] font-semibold text-slate-600">{fmtGBP(t.rent_amount)}/mo</p>
@@ -248,7 +248,7 @@ function GanttRow({ t, viewStart, totalDays, pct, nowPct, selected, onSelect, we
             <p className="text-[9.5px] text-violet-600 font-medium">Ends {fmtShort(t.end_date)}</p>
           )}
           {status === "expired" && t.end_date && (
-            <p className="text-[9.5px] text-slate-400 font-medium">Ended {fmtShort(t.end_date)}</p>
+            <p className="text-[9.5px] text-slate-500 font-medium">Ended {fmtShort(t.end_date)}</p>
           )}
         </div>
       </div>
@@ -524,7 +524,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
               {cfg.label}
             </span>
           ))}
-          <div className="ml-auto flex items-center gap-3 text-[10.5px] text-slate-400">
+          <div className="ml-auto flex items-center gap-3 text-[10.5px] text-slate-500">
             {Object.entries(EVENT_CFG).slice(0, 4).map(([k, ecfg]) => (
               <span key={k} className="flex items-center gap-1">
                 <span className="w-3.5 h-3.5 rounded-sm flex items-center justify-center text-[7px] font-bold text-white"
@@ -550,11 +550,11 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
               </div>
               {/* Tenant col */}
               <div className="w-[220px] shrink-0 px-3 py-2 border-r border-slate-100">
-                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Tenant</p>
+                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">Tenant</p>
               </div>
               {/* Status col */}
               <div className="w-[120px] shrink-0 px-2.5 py-2 border-r border-slate-100">
-                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Status</p>
+                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">Status</p>
               </div>
               {/* Month/week header */}
               <div className="flex-1 border-r border-slate-100 overflow-hidden">
@@ -583,7 +583,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
               </div>
               {/* End date col */}
               <div className="w-[90px] shrink-0 px-2.5 py-2">
-                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400 text-center">End</p>
+                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500 text-center">End</p>
               </div>
             </div>
 
@@ -591,7 +591,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             {tenancies.length === 0 ? (
               <div className="flex flex-col items-center py-16 gap-3">
                 <Users className="w-10 h-10 text-slate-200" />
-                <p className="text-[13px] text-slate-400 font-medium">No tenancies to display</p>
+                <p className="text-[13px] text-slate-500 font-medium">No tenancies to display</p>
               </div>
             ) : tenancies.map(t => (
               <GanttRow
@@ -650,7 +650,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             <p className="text-[11px] font-semibold text-slate-500">Leases Ending Soon</p>
           </div>
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">{endingSoon.length || 8}</p>
-          <p className="text-[10.5px] text-slate-400 mt-0.5">
+          <p className="text-[10.5px] text-slate-500 mt-0.5">
             Next expiry: {endingSoon[0]?.end_date ? fmtShort(endingSoon[0].end_date) : "30 Jun 2026"}
           </p>
           <div className="h-8 mt-2">
@@ -669,7 +669,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             <p className="text-[11px] font-semibold text-slate-500">Renewals Due</p>
           </div>
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">{renewalsDue.length || 11}</p>
-          <p className="text-[10.5px] text-slate-400 mt-0.5">Within 60 days</p>
+          <p className="text-[10.5px] text-slate-500 mt-0.5">Within 60 days</p>
           <div className="h-8 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={[5,8,6,9,7,10,9].map((v,i)=>({i,v}))}>
@@ -686,7 +686,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             <p className="text-[11px] font-semibold text-slate-500">Occupancy Forecast</p>
           </div>
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">91%</p>
-          <p className="text-[10.5px] text-slate-400 mt-0.5">Peak: Aug 2026 (96%)</p>
+          <p className="text-[10.5px] text-slate-500 mt-0.5">Peak: Aug 2026 (96%)</p>
           <div className="h-8 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={[88,90,91,93,95,96,94].map((v,i)=>({i,v}))}>
@@ -705,7 +705,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
           <p className="text-[22px] font-black text-red-600 tabular-nums leading-none">
             {rentAtRisk > 0 ? fmtGBP(rentAtRisk) : "£18,640"}
           </p>
-          <p className="text-[10.5px] text-slate-400 mt-0.5">Potential loss</p>
+          <p className="text-[10.5px] text-slate-500 mt-0.5">Potential loss</p>
           <div className="h-8 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={[22,19,21,18,20,16,18].map((v,i)=>({i,v}))}>

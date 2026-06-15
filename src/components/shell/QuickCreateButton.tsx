@@ -79,7 +79,9 @@ export default function QuickCreateButton() {
     ? createPortal(
         <div
           ref={menuRef}
-          style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999, width: 264 }}
+          role="menu"
+          aria-label="Create new"
+          style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999, width: "min(264px, calc(100vw - 16px))" }}
           className="bg-white rounded-2xl border border-[#E2EAF6] shadow-[0_16px_48px_rgba(15,23,42,0.16)] max-h-[min(70vh,440px)] overflow-y-auto overscroll-contain"
         >
           {contextual.length > 0 && (
@@ -108,7 +110,7 @@ export default function QuickCreateButton() {
         aria-label="Create new"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-2 h-[44px] px-4 sm:px-5 rounded-2xl bg-[#2563EB] text-white text-[13.5px] font-semibold hover:bg-[#1d4ed8] active:scale-95 transition-all shadow-[0_4px_14px_rgba(37,99,235,0.30)] shrink-0"
+        className="flex items-center gap-2 h-[44px] px-4 sm:px-5 rounded-2xl bg-[#2563EB] text-white text-[13.5px] font-semibold hover:bg-[#1d4ed8] active:scale-95 transition-all shadow-[0_4px_14px_rgba(37,99,235,0.30)] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB] motion-reduce:active:scale-100"
       >
         <Plus className="w-4 h-4" />
         <span className="hidden sm:inline">New</span>
@@ -124,7 +126,8 @@ function QuickRow({ action, onClick, accent }: { action: QuickAction; onClick: (
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition-colors"
+      role="menuitem"
+      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:bg-slate-100"
     >
       <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", accent ? "bg-[#EFF6FF]" : "bg-slate-100")}>
         <Icon className={cn("w-4 h-4", accent ? "text-[#2563EB]" : "text-slate-500")} />

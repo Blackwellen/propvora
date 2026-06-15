@@ -215,7 +215,7 @@ export default function StripePage() {
                     ? <div style={{ color: "#059669" }}><CheckCircle className="w-4 h-4" /></div>
                     : <XCircle className="w-4 h-4 text-red-400" />}
                   <code className="text-xs font-mono font-semibold text-slate-700 flex-1">{v.key}</code>
-                  <span className="text-[11px] text-slate-400">{v.description}</span>
+                  <span className="text-[11px] text-slate-500">{v.description}</span>
                   <span className={cn(
                     "text-[11px] font-semibold px-1.5 py-0.5 rounded-full",
                     v.configured ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
@@ -225,7 +225,7 @@ export default function StripePage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-slate-400 mt-3 flex items-center gap-1">
+            <p className="text-xs text-slate-500 mt-3 flex items-center gap-1">
               <Info className="w-3.5 h-3.5" />
               Variable values are never displayed. Status only shows whether the key is present.
             </p>
@@ -263,7 +263,7 @@ export default function StripePage() {
                           <div style={{ color: "#7C3AED" }}><CreditCard className="w-6 h-6" /></div>
                         </div>
                         <p className="text-sm font-medium text-slate-600">No payment events yet</p>
-                        <p className="text-xs text-slate-400 max-w-xs">Connect Stripe to start receiving payment data and automatic status updates.</p>
+                        <p className="text-xs text-slate-500 max-w-xs">Connect Stripe to start receiving payment data and automatic status updates.</p>
                       </div>
                     </td>
                   </tr>

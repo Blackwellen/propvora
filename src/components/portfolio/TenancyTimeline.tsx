@@ -126,7 +126,7 @@ export function TenancyTimeline({ stages, currentStageDetail, className }: Tenan
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-[#2563EB]" />
               <p className="text-[13px] font-bold text-slate-900">{currentStageDetail.label}</p>
-              <span className="text-[11px] text-slate-400">{fmtDate(currentStageDetail.date)}</span>
+              <span className="text-[11px] text-slate-500">{fmtDate(currentStageDetail.date)}</span>
             </div>
             <p className="text-[12px] text-slate-600 leading-relaxed">{currentStageDetail.message}</p>
           </div>

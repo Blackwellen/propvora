@@ -171,7 +171,7 @@ function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onC
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-slate-900">Record Payment</h3>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><X className="w-4 h-4" /></button>
+          <button aria-label="Close" onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={handle} className="space-y-3">
           <div className="space-y-1.5">
@@ -415,7 +415,7 @@ export default function BillDetailPage() {
                   ) : (
                     <p className="text-3xl font-bold text-slate-900">£{bill.amount.toLocaleString()}</p>
                   )}
-                  <p className="text-xs text-slate-400 mt-0.5">{TYPE_LABEL[bill.type]}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{TYPE_LABEL[bill.type]}</p>
                 </div>
               </div>
 
@@ -561,7 +561,7 @@ export default function BillDetailPage() {
                 <RailRow label="Bill Type" value={TYPE_LABEL[bill.type]} />
                 <RailRow label="Issue Date" value={bill.issue_date} />
                 <div className="flex items-start justify-between gap-2">
-                  <span className="text-xs text-slate-400 shrink-0">Status</span>
+                  <span className="text-xs text-slate-500 shrink-0">Status</span>
                   <InlineEditField
                     value={bill.status}
                     type="select"
@@ -585,7 +585,7 @@ export default function BillDetailPage() {
                   />
                 </div>
                 <div className="flex items-start justify-between gap-2">
-                  <span className="text-xs text-slate-400 shrink-0">Due Date</span>
+                  <span className="text-xs text-slate-500 shrink-0">Due Date</span>
                   <InlineEditField
                     value={bill.due_date}
                     type="date"
@@ -696,7 +696,7 @@ function OverviewTab({ bill, paidPct, outstanding, isLive, onSaveNotes }: { bill
                 {step.done && <Check className="w-3 h-3 text-white" />}
               </div>
               <span className={cn("text-sm", step.done ? "text-slate-700" : "text-slate-400")}>{step.label}</span>
-              <span className="ml-auto text-xs text-slate-400">{step.date}</span>
+              <span className="ml-auto text-xs text-slate-500">{step.date}</span>
             </div>
           ))}
         </div>
@@ -763,7 +763,8 @@ function PaymentTab({ bill, onRecordPayment }: { bill: BillDetail; onRecordPayme
         </Button>
       </div>
       {bill.paid > 0 ? (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
               {["Date","Method","Amount","Reference"].map((h) => (
@@ -780,6 +781,7 @@ function PaymentTab({ bill, onRecordPayment }: { bill: BillDetail; onRecordPayme
             </tr>
           </tbody>
         </table>
+        </div>
       ) : (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
@@ -810,7 +812,7 @@ function SupplierInvoiceTab({ bill }: { bill: BillDetail }) {
             </div>
           </div>
           <div className="rounded-xl bg-slate-100 h-64 flex items-center justify-center">
-            <p className="text-sm text-slate-400">PDF preview</p>
+            <p className="text-sm text-slate-500">PDF preview</p>
           </div>
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4" /> Download Invoice
@@ -823,7 +825,7 @@ function SupplierInvoiceTab({ bill }: { bill: BillDetail }) {
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-700">No invoice uploaded</p>
-            <p className="text-xs text-slate-400 mt-0.5">Upload the supplier&apos;s PDF invoice for your records</p>
+            <p className="text-xs text-slate-500 mt-0.5">Upload the supplier&apos;s PDF invoice for your records</p>
           </div>
           <Button variant="soft" size="sm">
             <Plus className="w-4 h-4" /> Upload Invoice
@@ -919,7 +921,7 @@ function ActivityTab({ bill }: { bill: BillDetail }) {
           </div>
           <div>
             <p className="text-sm text-slate-700">{e.action}</p>
-            <p className="text-xs text-slate-400">{e.date} · {e.user}</p>
+            <p className="text-xs text-slate-500">{e.date} · {e.user}</p>
           </div>
         </div>
       ))}
@@ -956,7 +958,7 @@ function AuditTab({ bill }: { bill: BillDetail }) {
 function RailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="text-xs text-slate-400 shrink-0">{label}</span>
+      <span className="text-xs text-slate-500 shrink-0">{label}</span>
       <span className="text-xs font-medium text-slate-700 text-right">{value}</span>
     </div>
   )

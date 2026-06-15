@@ -122,7 +122,7 @@ export default function UnitEditPage() {
 
   return (
     <DashboardContainer>
-      <nav className="flex items-center gap-1.5 text-sm text-slate-400 mb-6">
+      <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-6">
         <Link href="/app/portfolio" className="hover:text-slate-600">Portfolio</Link>
         <span>/</span>
         <Link href={`/app/portfolio/units/${id}`} className="hover:text-slate-600">{unit?.unit_name ?? "Unit"}</Link>
@@ -196,7 +196,7 @@ export default function UnitEditPage() {
               <div className="flex flex-col gap-4">
                 <Field label="Target monthly rent (£)">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">£</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">£</span>
                     <TextInput {...register("target_rent")} type="number" min={0} className="pl-7" placeholder="550" />
                   </div>
                 </Field>

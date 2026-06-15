@@ -221,7 +221,7 @@ export default function Step07Forecast() {
   return (
     <div className="flex flex-col">
       {/* ── KPI Strip ──────────────────────────────────────────────────────────── */}
-      <div className="px-8 py-5 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-5 border-b border-slate-100">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {kpis.map(kpi => {
             const Icon = kpi.icon
@@ -249,7 +249,7 @@ export default function Step07Forecast() {
       </div>
 
       {/* ── Scenario Tabs + View Controls ──────────────────────────────────────── */}
-      <div className="px-8 py-4 border-b border-slate-100 flex items-center gap-4 flex-wrap">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {(["best", "base", "worst"] as const).map(s => (
             <button
@@ -297,7 +297,7 @@ export default function Step07Forecast() {
       </div>
 
       {/* ── Main Charts ─────────────────────────────────────────────────────────── */}
-      <div className="px-8 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6 border-b border-slate-100">
         {/* Chart A: Income vs Cost vs Net */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-[14px] font-bold text-slate-900 mb-1">
@@ -315,7 +315,7 @@ export default function Step07Forecast() {
               </div>
             ))}
           </div>
-          <div className="h-[240px]">
+          <div className="h-[240px]" role="img" aria-label="5-year forecast chart of projected income, costs and net cashflow">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={chartData}
@@ -374,7 +374,7 @@ export default function Step07Forecast() {
               </span>
             </div>
           </div>
-          <div className="h-[240px]">
+          <div className="h-[240px]" role="img" aria-label="Cumulative cashflow projection area chart over the forecast period">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                 <defs>
@@ -427,7 +427,7 @@ export default function Step07Forecast() {
       </div>
 
       {/* ── Breakeven + Yield + Occupancy Sensitivity ─────────────────────────── */}
-      <div className="px-8 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 border-b border-slate-100">
         {/* Breakeven Timeline */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-[13.5px] font-bold text-slate-900 mb-1">Breakeven Timeline</h3>
@@ -533,7 +533,7 @@ export default function Step07Forecast() {
       </div>
 
       {/* ── Forecast Assumptions Sliders ───────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[15px] font-bold text-slate-900">Forecast Assumptions</h2>
           <p className="text-[12.5px] text-slate-400">Edit the key drivers of your forecast</p>

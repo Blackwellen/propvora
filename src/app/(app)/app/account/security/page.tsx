@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useId } from "react"
 import { Shield, Monitor, Loader2, Check, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -22,10 +22,12 @@ function InputField({
   onChange: (v: string) => void
   type?: string
 }) {
+  const id = useId()
   return (
     <div>
-      <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -212,7 +214,7 @@ export default function SecurityPage() {
             {mfaEnabled ? "2FA enabled" : "2FA not enabled"}
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl border bg-emerald-50 border-emerald-200">
             <p className="text-[11px] font-semibold text-slate-600">Password</p>
             <p className="text-[12px] font-bold mt-1 text-emerald-700">Set</p>
@@ -348,6 +350,7 @@ export default function SecurityPage() {
             <p className="text-[11px] text-slate-400 mt-2">Manual key: <span className="font-mono">{enrollData.secret}</span></p>
             <div className="flex items-center gap-2 mt-3 max-w-xs">
               <input
+                aria-label="6-digit verification code"
                 value={verifyCode}
                 onChange={e => setVerifyCode(e.target.value)}
                 placeholder="123456"

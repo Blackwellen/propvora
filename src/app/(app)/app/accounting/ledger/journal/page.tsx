@@ -54,20 +54,20 @@ export default function JournalPage() {
             <Link href="/app/accounting/ledger/journal/new">New Journal Entry</Link>
           </Button>
         ) : (
-          <span className="text-xs text-slate-400 flex items-center gap-1"><Lock className="w-3 h-3" /> Read-only access</span>
+          <span className="text-xs text-slate-500 flex items-center gap-1"><Lock className="w-3 h-3" /> Read-only access</span>
         )}
       </div>
 
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Loading journal…</div>
+          <div className="p-12 text-center text-slate-500 text-sm">Loading journal…</div>
         ) : entries.length === 0 ? (
           <div className="p-12 flex flex-col items-center gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
               <FileText className="w-5 h-5 text-[#2563EB]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No journal entries yet</p>
-            <p className="text-xs text-slate-400 max-w-sm">Post your first balanced entry to start the ledger.</p>
+            <p className="text-xs text-slate-500 max-w-sm">Post your first balanced entry to start the ledger.</p>
             {canPost && (
               <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
                 <Link href="/app/accounting/ledger/journal/new">New Journal Entry</Link>
@@ -75,7 +75,8 @@ export default function JournalPage() {
             )}
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
             <thead>
               <tr className="bg-slate-50 border-b border-[#E2E8F0]">
                 <th className="px-5 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide w-20">No.</th>
@@ -121,6 +122,7 @@ export default function JournalPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

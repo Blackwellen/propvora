@@ -115,7 +115,7 @@ function RoomCard({ room, propertyId }: { room: Unit; propertyId: string }) {
           <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center">
             <Home className="w-3.5 h-3.5 text-slate-400" />
           </div>
-          <span className="text-sm text-slate-400 italic">No tenant</span>
+          <span className="text-sm text-slate-500 italic">No tenant</span>
         </div>
       )}
 

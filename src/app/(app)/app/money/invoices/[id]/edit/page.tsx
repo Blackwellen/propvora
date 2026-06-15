@@ -85,7 +85,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <div className="space-y-1.5">
       <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide">{label}</label>
-      {hint && <p className="text-[11px] text-slate-400">{hint}</p>}
+      {hint && <p className="text-[11px] text-slate-500">{hint}</p>}
       {children}
     </div>
   )
@@ -178,7 +178,8 @@ function EditLineItemRow({
         <button
           type="button"
           onClick={onRemove}
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+          aria-label="Remove line item"
+          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -238,7 +239,7 @@ function DeleteConfirmModal({
           >
             Delete Invoice
           </button>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
@@ -271,7 +272,7 @@ function CancelConfirmModal({ onClose, onConfirm }: { onClose: () => void; onCon
           <button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">
             Cancel Invoice
           </button>
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+          <button aria-label="Close" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
             Keep Invoice
           </button>
         </div>
@@ -441,7 +442,7 @@ export default function EditInvoicePage() {
           {/* Section 3: Line Items */}
           <SectionCard title="Line Items">
             <div className="border border-slate-200 rounded-xl overflow-hidden mb-3">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
                     <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">Description</th>
@@ -485,7 +486,7 @@ export default function EditInvoicePage() {
                     <td />
                   </tr>
                 </tfoot>
-              </table>
+              </table></div>
             </div>
             <button
               type="button"

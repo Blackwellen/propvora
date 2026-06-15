@@ -15,15 +15,22 @@ const SelectTrigger = React.forwardRef<
     label?: string
     error?: string
   }
->(({ className, children, label, error, ...props }, ref) => (
+>(({ className, children, label, error, id, ...props }, ref) => {
+  const reactId = React.useId()
+  const triggerId = id ?? `${reactId}-select`
+  const errorId = `${triggerId}-error`
+  return (
   <div className="flex flex-col gap-1.5">
     {label && (
-      <label className="text-sm font-medium text-slate-700">
+      <label htmlFor={triggerId} className="text-sm font-medium text-slate-700">
         {label}
       </label>
     )}
     <SelectPrimitive.Trigger
       ref={ref}
+      id={triggerId}
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error ? errorId : undefined}
       className={cn(
         "flex h-9 w-full items-center justify-between rounded-lg",
         "border bg-white px-3 py-2 text-sm",
@@ -45,9 +52,10 @@ const SelectTrigger = React.forwardRef<
         <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
-    {error && <p className="text-xs text-[#EF4444]">{error}</p>}
+    {error && <p id={errorId} role="alert" className="text-xs text-[#EF4444]">{error}</p>}
   </div>
-))
+  )
+})
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
 const SelectScrollUpButton = React.forwardRef<

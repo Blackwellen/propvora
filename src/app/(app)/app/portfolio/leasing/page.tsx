@@ -177,7 +177,7 @@ export default function LeasingOverviewPage() {
           <div className="col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Vacancy Board</h2>
-              <span className="text-[11px] text-slate-400">7 active</span>
+              <span className="text-[11px] text-slate-500">7 active</span>
             </div>
             <div className="p-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <div className="flex gap-3 min-w-max">
@@ -190,7 +190,7 @@ export default function LeasingOverviewPage() {
                     <div className="space-y-2">
                       {col.cards.length === 0 && (
                         <div className="border-2 border-dashed border-slate-200 rounded-lg p-3 text-center">
-                          <p className="text-[11px] text-slate-400">No vacancies</p>
+                          <p className="text-[11px] text-slate-500">No vacancies</p>
                         </div>
                       )}
                       {col.cards.map((card) => (
@@ -201,10 +201,10 @@ export default function LeasingOverviewPage() {
                           <p className="text-[11px] font-semibold text-slate-800 leading-tight line-clamp-2">{card.address}</p>
                           <p className="text-[13px] font-bold text-blue-600 mt-1">{card.rent}</p>
                           <div className="flex items-center gap-2 mt-1.5">
-                            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                            <span className="flex items-center gap-1 text-[10px] text-slate-500">
                               <Clock className="w-2.5 h-2.5" />{card.daysListed}d
                             </span>
-                            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                            <span className="flex items-center gap-1 text-[10px] text-slate-500">
                               <Users className="w-2.5 h-2.5" />{card.prospectCount}
                             </span>
                           </div>
@@ -231,7 +231,7 @@ export default function LeasingOverviewPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[12px] font-semibold text-slate-800">{p.name}</p>
-                    <p className="text-[11px] text-slate-400 truncate">{p.property}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{p.property}</p>
                     <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                       <span className={`border px-2 py-0.5 rounded-full text-[10px] font-medium ${colorMap[p.statusColor]}`}>
                         {p.status}
@@ -241,7 +241,7 @@ export default function LeasingOverviewPage() {
                       </span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0">{p.timeAgo}</span>
+                  <span className="text-[10px] text-slate-500 whitespace-nowrap shrink-0">{p.timeAgo}</span>
                 </div>
               ))}
             </div>
@@ -251,7 +251,7 @@ export default function LeasingOverviewPage() {
           <div className="col-span-3 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Today&apos;s Viewings</h2>
-              <span className="text-[11px] text-slate-400">{TODAYS_VIEWINGS.length} today</span>
+              <span className="text-[11px] text-slate-500">{TODAYS_VIEWINGS.length} today</span>
             </div>
             <div className="divide-y divide-slate-50">
               {TODAYS_VIEWINGS.map((v) => (
@@ -260,7 +260,7 @@ export default function LeasingOverviewPage() {
                     <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md shrink-0">{v.time}</span>
                   </div>
                   <p className="text-[12px] font-medium text-slate-800 mt-1.5 leading-tight">{v.property}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{v.prospect}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{v.prospect}</p>
                 </div>
               ))}
             </div>

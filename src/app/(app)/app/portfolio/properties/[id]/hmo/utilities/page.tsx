@@ -174,7 +174,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <h2 className="text-sm font-bold text-slate-900">Add Utility Bill</h2>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
           >
@@ -330,7 +330,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
@@ -402,7 +402,7 @@ export default function HmoUtilitiesPage({
               <div className="min-w-0">
                 <p className="text-[11px] text-slate-500 font-medium">{label}</p>
                 <p className="text-lg font-bold text-slate-900 leading-tight">{value}</p>
-                <p className="text-[10px] text-slate-400">{sub}</p>
+                <p className="text-[10px] text-slate-500">{sub}</p>
               </div>
             </div>
           ))}
@@ -478,7 +478,7 @@ export default function HmoUtilitiesPage({
                       {row.tenant ? (
                         <p className="text-[11px] text-slate-500">{row.tenant}</p>
                       ) : (
-                        <p className="text-[11px] text-slate-400 italic">Vacant</p>
+                        <p className="text-[11px] text-slate-500 italic">Vacant</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">

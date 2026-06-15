@@ -29,7 +29,7 @@ export default function ManualTransactionPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Transaction Details</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Enter the core details for this transaction.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Enter the core details for this transaction.</p>
           </div>
           <Button variant="outline" size="sm">Templates ▼</Button>
         </div>
@@ -137,7 +137,7 @@ export default function ManualTransactionPage() {
             { label: "Last Updated", value: "Just now" },
           ].map((item) => (
             <div key={item.label} className="flex items-center justify-between gap-2">
-              <span className="text-xs text-slate-400">{item.label}</span>
+              <span className="text-xs text-slate-500">{item.label}</span>
               {typeof item.value === "string"
                 ? <span className="text-xs font-semibold text-slate-900">{item.value}</span>
                 : item.value}
@@ -160,7 +160,7 @@ export default function ManualTransactionPage() {
             <div key={item.label} className="flex items-start gap-2.5">
               <span className="text-sm shrink-0">{item.icon}</span>
               <div>
-                <p className="text-[11px] text-slate-400">{item.label}</p>
+                <p className="text-[11px] text-slate-500">{item.label}</p>
                 <p className="text-xs font-semibold text-slate-900">{item.value}</p>
               </div>
             </div>
@@ -178,12 +178,12 @@ export default function ManualTransactionPage() {
             { label: "Total Gross Amount", value: `£${lines.reduce((s, l) => s + l.grossAmount, 0).toFixed(2)}` },
           ].map((item) => (
             <div key={item.label} className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">{item.label}</span>
+              <span className="text-xs text-slate-500">{item.label}</span>
               <span className="text-xs font-bold text-slate-900">{item.value}</span>
             </div>
           ))}
           <div className="flex items-center justify-between pt-2 border-t border-[#E2E8F0]">
-            <span className="text-xs text-slate-400">Balance</span>
+            <span className="text-xs text-slate-500">Balance</span>
             <span className={cn("text-xs font-bold", isBalanced ? "text-[#10B981]" : "text-[#EF4444]")}>
               {lines.length === 0 ? "No lines" : isBalanced ? "Balanced ✓" : "Unbalanced"}
             </span>

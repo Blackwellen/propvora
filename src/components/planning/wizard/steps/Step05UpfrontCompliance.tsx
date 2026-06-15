@@ -166,7 +166,7 @@ export default function Step05UpfrontCompliance() {
       <div className="flex-1 min-w-0 overflow-y-auto">
 
         {/* Header */}
-        <div className="px-8 py-6 border-b border-slate-100">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
           <h1 className="text-[22px] font-bold text-slate-900 mb-1">
             Upfront &amp; Compliance
           </h1>
@@ -177,7 +177,7 @@ export default function Step05UpfrontCompliance() {
         </div>
 
         {/* ── SECTION 1: Upfront Investment Builder ──────────────────────────── */}
-        <div className="px-8 py-6 border-b border-slate-100">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
           {/* Section header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function Step05UpfrontCompliance() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: summary metrics + card */}
             <div>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 {[
                   {
                     label: "Total Upfront Cash Required",
@@ -351,7 +351,11 @@ export default function Step05UpfrontCompliance() {
               </div>
               <div className="flex items-center gap-4">
                 {/* Donut */}
-                <div className="w-[90px] h-[90px] shrink-0">
+                <div
+                  className="w-[90px] h-[90px] shrink-0"
+                  role="img"
+                  aria-label={`Funding split: Equity ${state.fundingEquityPct}%, Mortgage ${state.fundingMortgagePct}%, Other ${state.fundingOtherPct}%`}
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -417,7 +421,7 @@ export default function Step05UpfrontCompliance() {
         </div>
 
         {/* ── SECTION 2: Compliance Requirements Checklist ───────────────────── */}
-        <div className="px-8 py-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
           {/* Section header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">

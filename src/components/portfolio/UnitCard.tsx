@@ -150,7 +150,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
 
           {/* Property name */}
           {unit.property_name && (
-            <p className="text-[11px] text-slate-400 truncate mb-2">{unit.property_name}</p>
+            <p className="text-[11px] text-slate-500 truncate mb-2">{unit.property_name}</p>
           )}
 
           {/* Specs + rent row */}
@@ -187,7 +187,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
               <p className="text-[14px] font-black text-slate-900 leading-none">
                 {unit.target_rent ? fmt(unit.target_rent) : <span className="text-slate-300 text-xs">—</span>}
               </p>
-              {unit.target_rent && <p className="text-[9.5px] text-slate-400 mt-0.5">/mo</p>}
+              {unit.target_rent && <p className="text-[9.5px] text-slate-500 mt-0.5">/mo</p>}
             </div>
           </div>
 

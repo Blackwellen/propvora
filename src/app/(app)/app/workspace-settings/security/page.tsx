@@ -80,7 +80,7 @@ export default function SecurityPage() {
       {/* Security status widget */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Workspace Security Status</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {[
             { label: "MFA Policy",       status: "Not enforced", ok: false },
             { label: "Session Timeout",  status: "24 hours",     ok: true },
@@ -133,7 +133,7 @@ export default function SecurityPage() {
         <p className="text-[12px] text-slate-400 mb-4">
           Control how long sessions and invite links remain valid
         </p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { label: "Session timeout (minutes)", field: "sessionTimeoutMinutes" as const, min: 60, max: 10080 },
             { label: "Invite expiry (hours)",      field: "inviteExpiryHours" as const,      min: 1,  max: 168  },
@@ -141,8 +141,9 @@ export default function SecurityPage() {
             { label: "Supplier link expiry (days)",field: "supplierLinkExpiryDays" as const, min: 1,  max: 365  },
           ].map(({ label, field, min, max }) => (
             <div key={field}>
-              <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
+              <label htmlFor={`sec-${field}`} className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
               <input
+                id={`sec-${field}`}
                 type="number"
                 min={min}
                 max={max}

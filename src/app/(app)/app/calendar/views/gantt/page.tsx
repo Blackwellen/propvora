@@ -69,9 +69,9 @@ export default function CalendarGanttPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={prevMonth} className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500"><ChevronLeft className="w-4 h-4" /></button>
+          <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronLeft className="w-4 h-4" /></button>
           <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">This month</button>
-          <button onClick={nextMonth} className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500"><ChevronRight className="w-4 h-4" /></button>
+          <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronRight className="w-4 h-4" /></button>
           <Link href="/app/calendar/events/new" className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
             <Plus className="w-3.5 h-3.5" />New Event
           </Link>

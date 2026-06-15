@@ -4,7 +4,7 @@ export default function LedgerLayout({ children }: { children: React.ReactNode }
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
           <span>Accounting</span>
           <span>/</span>
           <span>General Ledger</span>

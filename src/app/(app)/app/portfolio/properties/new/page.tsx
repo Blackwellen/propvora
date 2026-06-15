@@ -236,7 +236,7 @@ function StepProfile({ data, onChange }: { data: PropertyWizardData; onChange: (
                   <Check className="w-3.5 h-3.5" style={{ color: profile.colour }} />
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{profile.description}</p>
+              <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{profile.description}</p>
             </div>
           </button>
         ))}
@@ -283,7 +283,7 @@ function StepFinancials({ data, onChange }: { data: PropertyWizardData; onChange
         <div key={field.key}>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">{field.label}</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">£</span>
             <input
               type="number"
               min={0}
@@ -325,7 +325,7 @@ function StepUnits({ data, onChange }: { data: PropertyWizardData; onChange: (d:
       {data.units.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 gap-3 border-2 border-dashed border-slate-200 rounded-2xl text-center">
           <Layers className="w-8 h-8 text-slate-200" />
-          <p className="text-sm text-slate-400">No units added yet</p>
+          <p className="text-sm text-slate-500">No units added yet</p>
           <Button variant="soft" size="sm" onClick={addUnit}>
             <Plus className="w-4 h-4" />
             Add first unit
@@ -353,7 +353,7 @@ function StepUnits({ data, onChange }: { data: PropertyWizardData; onChange: (d:
                 <option>1-bed flat</option>
               </select>
               <div className="relative">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">£</span>
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-xs">£</span>
                 <input
                   type="number"
                   value={unit.targetRent}
@@ -417,7 +417,7 @@ function StepDocuments() {
       <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[#2563EB]/50 hover:bg-blue-50/30 transition-all cursor-pointer">
         <Upload className="w-10 h-10 text-slate-200 mx-auto mb-3" />
         <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
-        <p className="text-xs text-slate-400 mt-1">EPC, Gas Safety, EICR, Tenancy agreements, etc.</p>
+        <p className="text-xs text-slate-500 mt-1">EPC, Gas Safety, EICR, Tenancy agreements, etc.</p>
         <Button variant="soft" size="sm" className="mt-4">Browse files</Button>
       </div>
       <div className="p-3 rounded-xl bg-slate-50 text-xs text-slate-500">

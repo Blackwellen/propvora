@@ -212,6 +212,8 @@ function DonutChart({ events }: { events: TimelineEvent[] }) {
     <div>
       <div className="flex justify-center mb-3">
         <div
+          role="img"
+          aria-label={`Event type distribution: ${segments.filter(s => s.pct > 0).map(s => `${s.label} ${s.pct}%`).join(", ")}`}
           className="w-24 h-24 rounded-full"
           style={{ background: gradient }}
         >
@@ -253,7 +255,7 @@ function BarChart({ events }: { events: TimelineEvent[] }) {
   const max = Math.max(1, ...bars.map((b) => b.value))
 
   return (
-    <div className="flex items-end gap-1.5 h-16">
+    <div className="flex items-end gap-1.5 h-16" role="img" aria-label={`Activity over time: ${bars.map((b) => `${b.label} ${b.value} events`).join(", ")}`}>
       {bars.map((bar) => (
         <div key={bar.label} className="flex-1 flex flex-col items-center gap-1">
           <div
@@ -473,13 +475,14 @@ export default function TimelinePage() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
+            aria-label="Search events"
             placeholder="Search events..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-52 transition-all"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -507,14 +510,18 @@ export default function TimelinePage() {
         <div className="relative">
           <button
             onClick={() => setContactDropOpen((o) => !o)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors min-w-[140px] justify-between shadow-sm"
+            aria-haspopup="menu"
+            aria-expanded={contactDropOpen}
+            aria-label="Filter by contact"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors min-w-[140px] justify-between shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
           >
             <span className="truncate">{selectedContactName}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           </button>
           {contactDropOpen && (
             <div
-              className="absolute right-0 top-9 z-30 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 max-h-64 overflow-y-auto"
+              role="menu"
+              className="absolute right-0 top-9 z-30 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 max-h-64 overflow-y-auto overscroll-contain"
               onMouseLeave={() => setContactDropOpen(false)}
             >
               <button

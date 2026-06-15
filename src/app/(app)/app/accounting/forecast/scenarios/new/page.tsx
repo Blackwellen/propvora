@@ -78,7 +78,7 @@ export default function AddForecastScenarioPage() {
     <div className="w-full max-w-[1400px] mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link href="/app/accounting" className="hover:text-slate-600">Accounting</Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-500 font-medium">10 · Add Forecast Scenario</span>
@@ -151,7 +151,7 @@ export default function AddForecastScenarioPage() {
                 <label className="text-sm font-medium text-slate-700">Date Range</label>
                 <div className="h-9 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 flex items-center">
                   <span className="text-sm text-slate-600">Aug 2026 → Jul 2027</span>
-                  <span className="ml-auto text-[11px] text-slate-400">12 months starting Aug 2026</span>
+                  <span className="ml-auto text-[11px] text-slate-500">12 months starting Aug 2026</span>
                 </div>
               </div>
 
@@ -174,7 +174,7 @@ export default function AddForecastScenarioPage() {
                     maxLength={250}
                     className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
                   />
-                  <span className="absolute bottom-2 right-3 text-[11px] text-slate-400">{description.length}/250</span>
+                  <span className="absolute bottom-2 right-3 text-[11px] text-slate-500">{description.length}/250</span>
                 </div>
               </div>
 
@@ -207,14 +207,14 @@ export default function AddForecastScenarioPage() {
         <div className="w-64 shrink-0">
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-1">Key Assumptions Snapshot</h3>
-            <p className="text-xs text-slate-400 mb-4">These will be configured in the next step.</p>
+            <p className="text-xs text-slate-500 mb-4">These will be configured in the next step.</p>
             <div className="space-y-3">
               {ASSUMPTIONS.map((a) => (
                 <div key={a.label} className="flex items-center gap-3">
                   <span className="text-base shrink-0">{a.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-slate-800">{a.label}</p>
-                    <p className="text-[11px] text-slate-400 truncate">{a.desc}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{a.desc}</p>
                   </div>
                   <span className={cn("text-sm font-bold shrink-0", a.color)}>{a.value}</span>
                 </div>
@@ -236,7 +236,7 @@ export default function AddForecastScenarioPage() {
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[10px] font-bold text-[#059669]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" /> Live
               </span>
-              <span className="text-[11px] text-slate-400 ml-1">Changes update instantly</span>
+              <span className="text-[11px] text-slate-500 ml-1">Changes update instantly</span>
             </div>
 
             {/* 4 mini KPI cards */}
@@ -248,7 +248,7 @@ export default function AddForecastScenarioPage() {
                 { label: "Yield on Cost", value: "7.8%", delta: "+1.6pp", up: true },
               ].map((m) => (
                 <div key={m.label} className="bg-slate-50 rounded-xl p-3 border border-[#E2E8F0]">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">{m.label}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{m.label}</p>
                   <p className="text-lg font-black text-slate-900">{m.value}</p>
                   <p className="text-[11px] font-medium text-[#10B981] mt-0.5">{m.delta}</p>
                 </div>
@@ -267,13 +267,13 @@ export default function AddForecastScenarioPage() {
               <div className="flex gap-4 mt-2">
                 <div className="flex items-center gap-1.5">
                   <span className="w-6 h-0.5 bg-[#2563EB] inline-block" />
-                  <span className="text-[10px] text-slate-400">Upside Case – Strong Leasing</span>
+                  <span className="text-[10px] text-slate-500">Upside Case – Strong Leasing</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-6 flex items-center">
                     <span className="w-full h-0.5 border-t border-dashed border-slate-400 inline-block" />
                   </div>
-                  <span className="text-[10px] text-slate-400">Base Plan (Jul 2026)</span>
+                  <span className="text-[10px] text-slate-500">Base Plan (Jul 2026)</span>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@ export default function AddForecastScenarioPage() {
               </table>
             </div>
 
-            <p className="mt-3 text-[10px] text-slate-400">
+            <p className="mt-3 text-[10px] text-slate-500">
               This preview uses current assumptions. Final results may vary after all drivers are configured.
             </p>
           </div>

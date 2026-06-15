@@ -37,23 +37,28 @@ function check(name, pass, detail) {
 const ROLES = ["owner", "admin", "manager", "member", "accountant"]
 
 // EFFECTIVE matrix (verified against pg_policies, accounting for how Postgres OR's
-// PERMISSIVE policies). IMPORTANT FINDING: the `properties` table carries BOTH a
-// strict role-gated policy set (properties_insert_ops / _update_ops / _delete_admin,
-// which restrict writes to owner/admin[/manager/member]) AND legacy PERMISSIVE
-// policies ("Workspace members can access properties" = FOR ALL, plus
-// "Members insert/update/delete properties") that allow ANY workspace member.
-// Because permissive policies are combined with OR, the broad "any member" policies
-// WIN — so on `properties`, role differentiation is NOT enforced: every member
-// (including accountant) can INSERT/UPDATE/DELETE. We assert that EFFECTIVE truth
-// here, and separately record the un-enforced role gating as an OBSERVATION.
+// PERMISSIVE policies).
 //
-// By contrast `workspace_settings` and `workspace_members` have NO permissive
-// "any member" override, so their owner/admin gating IS effective — we assert it.
+// SECURITY-HARDENING UPDATE (audit fix #6, migration 20260615060000):
+// We DROPPED the two legacy PERMISSIVE policies that re-opened DESTRUCTIVE
+// DELETE to any member — "Workspace members can access properties" (FOR ALL) and
+// "Members delete properties" (DELETE, any member). Effective result:
+//   properties DELETE → owner/admin ONLY (properties_delete_admin) — HARDENED.
+//
+// INSERT/UPDATE are INTENTIONALLY left open to any workspace member: the legacy
+// "Members insert/update properties" (is_workspace_member) policies remain and
+// OR-combine with the granular *_ops policies, so every member — including the
+// accountant role — can still create/edit properties. That is the intended,
+// NON-BREAKING product behaviour (members manage properties); only the
+// destructive op was tightened. We assert that EFFECTIVE truth here.
+//
+// `workspace_settings` and `workspace_members` have NO permissive "any member"
+// override, so their owner/admin gating IS effective — we assert it.
 const EXPECT = {
   "properties.SELECT": { owner: true,  admin: true,  manager: true,  member: true,  accountant: true },
-  "properties.INSERT": { owner: true,  admin: true,  manager: true,  member: true,  accountant: true }, // any member (no role gate effective)
+  "properties.INSERT": { owner: true,  admin: true,  manager: true,  member: true,  accountant: true }, // any member (legacy insert policy retained — intended)
   "properties.UPDATE": { owner: true,  admin: true,  manager: true,  member: true,  accountant: true },
-  "properties.DELETE": { owner: true,  admin: true,  manager: true,  member: true,  accountant: true },
+  "properties.DELETE": { owner: true,  admin: true,  manager: false, member: false, accountant: false }, // owner/admin-only (HARDENED, fix #6)
   "workspace_settings.WRITE": { owner: true, admin: true, manager: false, member: false, accountant: false }, // ENFORCED admin-only
   "workspace_members.INVITE": { owner: true, admin: true, manager: false, member: false, accountant: false }, // ENFORCED admin-only
 }

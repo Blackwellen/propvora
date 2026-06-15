@@ -109,7 +109,7 @@ function InvoiceDonut({ segments }: { segments: DonutSegment[] }) {
   let accumulated = 0
 
   if (total === 0) {
-    return <p className="text-xs text-slate-400 text-center py-8">No invoices to chart yet.</p>
+    return <p className="text-xs text-slate-500 text-center py-8">No invoices to chart yet.</p>
   }
 
   return (
@@ -505,7 +505,7 @@ export default function InvoicesPage() {
                               <FileText className="w-6 h-6 text-slate-400" />
                             </div>
                             <p className="text-sm font-medium text-slate-600">No invoices yet</p>
-                            <p className="text-xs text-slate-400">Get started by adding your first invoice.</p>
+                            <p className="text-xs text-slate-500">Get started by adding your first invoice.</p>
                           </div>
                         </td>
                       </tr>
@@ -532,7 +532,7 @@ export default function InvoicesPage() {
                             <Link href={`/app/money/invoices/${inv.id}`} className="text-blue-600 font-semibold hover:underline text-[13px]">
                               {inv.invoiceNumber}
                             </Link>
-                            <div className="text-[11px] text-slate-400 mt-0.5">
+                            <div className="text-[11px] text-slate-500 mt-0.5">
                               {inv.poRef}
                             </div>
                           </td>
@@ -550,7 +550,7 @@ export default function InvoicesPage() {
                                 <div className="text-[13px] font-medium text-slate-900">
                                   {inv.recipientName}
                                 </div>
-                                <div className="text-[11px] text-slate-400">
+                                <div className="text-[11px] text-slate-500">
                                   {inv.recipientEmail}
                                 </div>
                               </div>
@@ -560,7 +560,7 @@ export default function InvoicesPage() {
                             <div className="text-[13px] text-slate-900 leading-tight">
                               {inv.propertyAddress}
                             </div>
-                            <div className="text-[11px] text-slate-400">
+                            <div className="text-[11px] text-slate-500">
                               {inv.propertyCity}
                             </div>
                           </td>
@@ -703,7 +703,7 @@ export default function InvoicesPage() {
                   .sort((a, b) => new Date(b.paid_at ?? b.updated_at).getTime() - new Date(a.paid_at ?? a.updated_at).getTime())
                   .slice(0, 4)
                 if (paid.length === 0) {
-                  return <p className="text-[12px] text-slate-400 text-center py-4">No payments recorded yet.</p>
+                  return <p className="text-[12px] text-slate-500 text-center py-4">No payments recorded yet.</p>
                 }
                 return (
                   <div className="flex flex-col gap-3">
@@ -716,7 +716,7 @@ export default function InvoicesPage() {
                           <div className="text-[12px] font-medium text-slate-900 truncate">
                             INV-{p.id.slice(0, 8).toUpperCase()}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-[11px] text-slate-500">
                             {p.paid_at ? new Date(p.paid_at).toLocaleDateString("en-GB") : "—"}
                           </div>
                         </div>

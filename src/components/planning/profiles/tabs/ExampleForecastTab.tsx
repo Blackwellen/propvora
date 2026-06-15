@@ -191,8 +191,8 @@ export default function ExampleForecastTab({ profile }: Props) {
       {/* 5. Sensitivity Analysis */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Sensitivity Analysis</h2>
-        <div className="rounded-xl overflow-hidden border border-slate-100">
-          <table className="w-full text-sm">
+        <div className="rounded-xl overflow-x-auto border border-slate-100">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Variable</th>

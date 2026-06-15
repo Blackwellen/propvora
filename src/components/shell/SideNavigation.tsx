@@ -32,6 +32,8 @@ import NavSection from "./NavSection"
 interface SideNavigationProps {
   collapsed: boolean
   onToggle: () => void
+  /** Called when a nav link is followed — used to close the mobile drawer. */
+  onNavigate?: () => void
 }
 
 const NAV_GROUPS = [
@@ -91,6 +93,7 @@ function initialsOf(name: string): string {
 export default function SideNavigation({
   collapsed,
   onToggle,
+  onNavigate,
 }: SideNavigationProps) {
   const pathname = usePathname()
   const { workspace } = useWorkspace()
@@ -163,6 +166,7 @@ export default function SideNavigation({
                   icon={item.icon}
                   collapsed={collapsed}
                   active={active}
+                  onClick={onNavigate}
                 />
               )
             })}
@@ -176,7 +180,8 @@ export default function SideNavigation({
         {!collapsed && (
           <Link
             href="/app/workspace-settings"
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2 hover:bg-white/[0.09] transition-colors"
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2 hover:bg-white/[0.09] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60"
             title="Workspace settings"
           >
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm">
@@ -193,9 +198,10 @@ export default function SideNavigation({
         {/* Account card — live user, links to account settings */}
         <Link
           href="/app/account"
+          onClick={onNavigate}
           title="Account settings"
           className={cn(
-            "flex items-center gap-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] hover:bg-white/[0.09] transition-colors",
+            "flex items-center gap-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] hover:bg-white/[0.09] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60",
             collapsed ? "px-2 py-2 justify-center" : "px-3 py-2.5"
           )}
         >
@@ -216,7 +222,7 @@ export default function SideNavigation({
           onClick={onToggle}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
-            "mt-2 flex items-center gap-2 w-full rounded-xl px-3 py-2 text-[#8EA9D8] hover:text-white hover:bg-white/[0.07] transition-all",
+            "mt-2 flex items-center gap-2 w-full min-h-[40px] rounded-xl px-3 py-2 text-[#8EA9D8] hover:text-white hover:bg-white/[0.07] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60 motion-reduce:transition-none",
             collapsed ? "justify-center" : ""
           )}
         >

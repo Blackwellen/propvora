@@ -47,7 +47,7 @@ export default async function AdminCustomersPage() {
       ) : (
         <Card noPadding>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">
                   {["Customer", "Workspaces", "Primary plan", "Since", ""].map((h) => (

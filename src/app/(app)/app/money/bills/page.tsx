@@ -160,7 +160,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="text-lg font-semibold text-slate-900">Add Bill</h2>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
           >
@@ -269,7 +269,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
         <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 space-y-2">
           {formError && <p className="text-xs text-red-600">{formError}</p>}
           <div className="flex items-center justify-between">
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
@@ -711,7 +711,7 @@ export default function BillsPage() {
               <button className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 ml-auto">
                 Saved Views <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
-              <button className="p-1.5 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <button aria-label="Configure columns" className="p-1.5 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <Columns3 className="w-4 h-4" />
               </button>
             </div>
@@ -794,7 +794,7 @@ export default function BillsPage() {
                                 <CheckSquare className="w-6 h-6 text-slate-400" />
                               </div>
                               <p className="text-sm font-medium text-slate-600">No bills yet</p>
-                              <p className="text-xs text-slate-400">Use “Add Bill” to record your first supplier bill.</p>
+                              <p className="text-xs text-slate-500">Use “Add Bill” to record your first supplier bill.</p>
                             </div>
                           </td>
                         </tr>
@@ -832,7 +832,7 @@ export default function BillsPage() {
                                   <div className="text-[13px] font-medium text-slate-900">
                                     {bill.supplierName}
                                   </div>
-                                  <div className="text-[11px] text-slate-400">
+                                  <div className="text-[11px] text-slate-500">
                                     {bill.supplierSubtitle}
                                   </div>
                                 </div>
@@ -845,7 +845,7 @@ export default function BillsPage() {
                               >
                                 {bill.billNumber}
                               </div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">
+                              <div className="text-[11px] text-slate-500 mt-0.5">
                                 {bill.poRef}
                               </div>
                             </td>
@@ -981,7 +981,7 @@ export default function BillsPage() {
                             <div className="flex flex-col items-center justify-center py-12 gap-2">
                               <Users className="w-8 h-8 text-slate-300" />
                               <p className="text-sm font-medium text-slate-500">No supplier payments queued</p>
-                              <p className="text-xs text-slate-400">Approve unpaid bills to build the payment queue.</p>
+                              <p className="text-xs text-slate-500">Approve unpaid bills to build the payment queue.</p>
                             </div>
                           </td>
                         </tr>
@@ -1072,7 +1072,7 @@ export default function BillsPage() {
                         </div>
                         <div className="text-right shrink-0">
                           <span className="font-semibold text-slate-900 text-[12px]">{fmtGBP(s.amount)}</span>
-                          <span className="text-slate-400 text-[11px] ml-1">{s.pct}%</span>
+                          <span className="text-slate-500 text-[11px] ml-1">{s.pct}%</span>
                         </div>
                       </div>
                       <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -1082,7 +1082,7 @@ export default function BillsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-[12px] text-slate-400 text-center py-4">No supplier spend recorded yet.</p>
+                <p className="text-[12px] text-slate-500 text-center py-4">No supplier spend recorded yet.</p>
               )}
             </div>
 
@@ -1138,7 +1138,7 @@ export default function BillsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[12px] font-medium text-slate-900">{row.label}</div>
-                      <div className="text-[11px] text-slate-400">{row.count} bill{row.count === 1 ? "" : "s"}</div>
+                      <div className="text-[11px] text-slate-500">{row.count} bill{row.count === 1 ? "" : "s"}</div>
                     </div>
                     {row.amount !== null && (
                       <span className="text-[12px] font-semibold text-slate-900 shrink-0">

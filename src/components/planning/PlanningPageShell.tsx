@@ -21,8 +21,8 @@ export function PlanningPageShell({
   return (
     <div className="min-h-full">
       {/* Canonical order: page header (title + actions) first … */}
-      <div className="flex items-start justify-between px-8 pt-6 pb-4 bg-white">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 px-4 sm:px-6 lg:px-8 pt-6 pb-4 bg-white">
+        <div className="flex items-center gap-3 min-w-0">
           {badge && (
             <div
               style={{ background: badge.colour + "22", color: badge.colour }}
@@ -39,7 +39,7 @@ export function PlanningPageShell({
           </div>
         </div>
         {actions && (
-          <div className="flex items-center gap-2 shrink-0 ml-4 flex-wrap justify-end">{actions}</div>
+          <div className="flex items-center gap-2 shrink-0 sm:ml-4 flex-wrap sm:justify-end">{actions}</div>
         )}
       </div>
 
@@ -47,7 +47,7 @@ export function PlanningPageShell({
       <PlanningTabNav />
 
       {/* … then page content */}
-      <div className="px-8 py-6">{children}</div>
+      <div className="px-4 sm:px-6 lg:px-8 py-6">{children}</div>
     </div>
   )
 }

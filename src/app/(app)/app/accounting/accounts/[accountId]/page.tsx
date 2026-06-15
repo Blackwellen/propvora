@@ -101,7 +101,7 @@ function BalanceTrendSvg({ data }: { data: number[] }) {
   const padY = 8
   if (data.length < 2) {
     return (
-      <div className="h-20 flex items-center justify-center text-xs text-slate-400">
+      <div className="h-20 flex items-center justify-center text-xs text-slate-500">
         Not enough activity to chart
       </div>
     )
@@ -329,7 +329,7 @@ export default function AccountDetailPage({
         </div>
       )}
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-4">
+      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
         <Link href="/app/accounting" className="hover:text-slate-600 transition-colors">
           Accounting
         </Link>
@@ -470,7 +470,7 @@ export default function AccountDetailPage({
                     <tr>
                       <td colSpan={6} className="px-4 py-10 text-center">
                         <p className="text-sm font-medium text-slate-600">No posted transactions yet</p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                           Activity appears here once journal entries touching this account are posted.
                         </p>
                         <Link
@@ -553,13 +553,13 @@ export default function AccountDetailPage({
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900">Balance Trend</h3>
-              <span className="text-xs text-slate-400">Running balance</span>
+              <span className="text-xs text-slate-500">Running balance</span>
             </div>
             <BalanceTrendSvg data={trendData} />
             {trendData.length >= 2 && (
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-slate-400">{txns[txns.length - 1]?.date}</span>
-                <span className="text-xs text-slate-400">{txns[0]?.date}</span>
+                <span className="text-xs text-slate-500">{txns[txns.length - 1]?.date}</span>
+                <span className="text-xs text-slate-500">{txns[0]?.date}</span>
               </div>
             )}
           </div>

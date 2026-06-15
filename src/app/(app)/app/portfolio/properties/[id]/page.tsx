@@ -244,7 +244,7 @@ function StatusPill({ status }: { status: string }) {
 /* Edit pen */
 function EditPen({ className }: { className?: string }) {
   return (
-    <button className={cn("opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100", className)}>
+    <button aria-label="Edit field" className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500", className)}>
       <Edit2 size={12} className="text-slate-400" />
     </button>
   )
@@ -294,7 +294,7 @@ function KpiCard({
       </div>
       <p className="text-[20px] font-bold text-slate-900 tabular-nums leading-tight">{value}</p>
       <p className="text-[12px] font-medium text-slate-500 mt-0.5">{label}</p>
-      {sub && <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>}
+      {sub && <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>}
       {change && (
         <div className={cn("flex items-center gap-0.5 mt-1 text-[11px] font-semibold", positive ? "text-emerald-600" : "text-red-500")}>
           {positive ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
@@ -522,7 +522,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                     <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-blue-500" />
                     <div>
                       <p className="text-[12px] text-slate-700 leading-snug">{item.description ?? item.action ?? "Activity"}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{fmtDate(item.created_at)}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{fmtDate(item.created_at)}</p>
                     </div>
                   </div>
                 ))}
@@ -649,7 +649,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-slate-400 mt-3">
+            <p className="text-[11px] text-slate-500 mt-3">
               Full income, expenses and yield tracking lives in the Money section.
             </p>
           </Card>
@@ -695,7 +695,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 View on OpenStreetMap <ArrowUpRight size={12} />
               </a>
             ) : (
-              <span className="text-[12px] text-slate-400">Add address to enable maps</span>
+              <span className="text-[12px] text-slate-500">Add address to enable maps</span>
             )}
           </Card>
         </div>
@@ -793,7 +793,7 @@ function TabUnits({ unitsList, propertyId }: { unitsList: Unit[]; propertyId: st
                       </div>
                       <div>
                         <p className="font-medium text-slate-800">{unit.unit_name}</p>
-                        <p className="text-[11px] text-slate-400">Floor {unit.floor}</p>
+                        <p className="text-[11px] text-slate-500">Floor {unit.floor}</p>
                       </div>
                     </Link>
                   </td>
@@ -1009,7 +1009,7 @@ function TabFinances({ tenanciesList, unitsList, prop }: { tenanciesList: Tenanc
           <Card key={k.label} className="p-4">
             <p className="text-[11px] text-slate-500 mb-1">{k.label}</p>
             <p className="text-[20px] font-bold text-slate-900 tabular-nums">{k.value}</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">{k.sub}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{k.sub}</p>
           </Card>
         ))}
       </div>
@@ -1023,7 +1023,7 @@ function TabFinances({ tenanciesList, unitsList, prop }: { tenanciesList: Tenanc
           <div className="p-10 flex flex-col items-center justify-center text-center">
             <PoundSterling size={32} className="text-slate-200 mb-3" />
             <p className="text-[13px] font-semibold text-slate-500">No active tenancies</p>
-            <p className="text-[12px] text-slate-400 mt-1">Add a tenancy to start tracking rent for this property.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Add a tenancy to start tracking rent for this property.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -1109,7 +1109,7 @@ function TabCompliance({ items, loaded, propertyId }: { items: ComplianceItemRow
             <div>
               <p className="text-[22px] font-bold text-slate-900 tabular-nums leading-tight">{k.value}</p>
               <p className="text-[12px] font-medium text-slate-700">{k.label}</p>
-              <p className="text-[11px] text-slate-400">{k.sub}</p>
+              <p className="text-[11px] text-slate-500">{k.sub}</p>
             </div>
           </Card>
         ))}
@@ -1127,7 +1127,7 @@ function TabCompliance({ items, loaded, propertyId }: { items: ComplianceItemRow
           <div className="p-10 flex flex-col items-center justify-center text-center">
             <Shield size={32} className="text-slate-200 mb-3" />
             <p className="text-[13px] font-semibold text-slate-500">{loaded ? "No compliance items yet" : "Loading…"}</p>
-            <p className="text-[12px] text-slate-400 mt-1">Track certificates and inspections in the Compliance section.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Track certificates and inspections in the Compliance section.</p>
             <Link href={`/app/compliance?property=${propertyId}`} className="mt-3 text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
               Open Compliance <ArrowUpRight size={12} />
             </Link>
@@ -1324,7 +1324,7 @@ function TabDocuments() {
           <p className="text-[13px] font-semibold text-slate-700">
             {uploading ? "Uploading…" : "Drop files here or click to browse"}
           </p>
-          <p className="text-[12px] text-slate-400 mt-0.5">PDF, images, Word, Excel — up to 10MB each</p>
+          <p className="text-[12px] text-slate-500 mt-0.5">PDF, images, Word, Excel — up to 10MB each</p>
         </div>
       </div>
 
@@ -1337,7 +1337,7 @@ function TabDocuments() {
           <div className="p-10 flex flex-col items-center justify-center text-center">
             <FileText size={32} className="text-slate-200 mb-3" />
             <p className="text-[13px] font-semibold text-slate-500">No documents uploaded yet</p>
-            <p className="text-[12px] text-slate-400 mt-1">Upload certificates, plans and reports above. Files are stored securely.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Upload certificates, plans and reports above. Files are stored securely.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -1414,7 +1414,7 @@ function TabActivity({ events, loaded }: { events: ActivityRow[]; loaded: boolea
         </div>
         <div>
           <p className="text-[14px] font-semibold text-slate-600">{loaded ? "No activity yet" : "Loading activity…"}</p>
-          <p className="text-[12px] text-slate-400 mt-1">Actions taken on this property and its units, tenancies and work will appear here.</p>
+          <p className="text-[12px] text-slate-500 mt-1">Actions taken on this property and its units, tenancies and work will appear here.</p>
         </div>
       </Card>
     )
@@ -1434,7 +1434,7 @@ function TabActivity({ events, loaded }: { events: ActivityRow[]; loaded: boolea
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] text-slate-800">{item.description ?? item.action ?? "Activity"}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[11px] text-slate-400">{new Date(item.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>
+                    <span className="text-[11px] text-slate-500">{new Date(item.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>
                     {item.entity_type && (<><span className="text-slate-300">·</span><span className="text-[11px] text-slate-500 font-medium capitalize">{item.entity_type}</span></>)}
                   </div>
                 </div>
@@ -1477,7 +1477,7 @@ function TabWork({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[]; prop
             <div>
               <p className="text-[22px] font-bold text-slate-900 tabular-nums leading-tight">{k.value}</p>
               <p className="text-[12px] font-medium text-slate-700">{k.label}</p>
-              <p className="text-[11px] text-slate-400">{k.sub}</p>
+              <p className="text-[11px] text-slate-500">{k.sub}</p>
             </div>
           </Card>
         ))}
@@ -1500,7 +1500,7 @@ function TabWork({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[]; prop
           <div className="p-10 flex flex-col items-center justify-center text-center">
             <Wrench size={32} className="text-slate-200 mb-3" />
             <p className="text-[13px] font-semibold text-slate-500">No jobs for this property</p>
-            <p className="text-[12px] text-slate-400 mt-1">Raise a job to track maintenance and works.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Raise a job to track maintenance and works.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -1622,7 +1622,7 @@ function TabContacts({ contacts }: { contacts: import("@/types/database").Contac
           </div>
           <div>
             <p className="text-[14px] font-semibold text-slate-600">No contacts yet</p>
-            <p className="text-[12px] text-slate-400 mt-1">Add tenants, suppliers and owners in the Contacts section.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Add tenants, suppliers and owners in the Contacts section.</p>
           </div>
         </Card>
       ) : (
@@ -1777,7 +1777,7 @@ export default function PropertyDetailPage() {
           </div>
           <div>
             <p className="text-[15px] font-bold text-slate-700">Property not found</p>
-            <p className="text-[13px] text-slate-400 mt-1">This property doesn’t exist or you don’t have access to it.</p>
+            <p className="text-[13px] text-slate-500 mt-1">This property doesn’t exist or you don’t have access to it.</p>
           </div>
           <Link href="/app/portfolio/properties" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft size={14} /> Back to Properties
@@ -1858,7 +1858,7 @@ export default function PropertyDetailPage() {
                 />
               </div>
               <span className="text-slate-300">·</span>
-              <span className="text-[12px] text-slate-400 font-mono">{prop.id}</span>
+              <span className="text-[12px] text-slate-500 font-mono">{prop.id}</span>
             </div>
 
             {/* Tags — derived from the real property record (operation + dwelling). */}

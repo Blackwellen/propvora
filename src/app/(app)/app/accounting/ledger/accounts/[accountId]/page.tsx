@@ -121,11 +121,12 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
 
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Loading ledger…</div>
+          <div className="p-12 text-center text-slate-500 text-sm">Loading ledger…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 text-sm">No posted lines for this account yet.</div>
+          <div className="p-12 text-center text-slate-500 text-sm">No posted lines for this account yet.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
             <thead>
               <tr className="bg-slate-50 border-b border-[#E2E8F0]">
                 <th className="px-5 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide w-20">Entry</th>
@@ -151,6 +152,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

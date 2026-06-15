@@ -104,7 +104,7 @@ export default function Step06LLOffer() {
       <div className="flex-1 min-w-0 overflow-y-auto">
 
         {/* ── TOP HEADER + OFFER STATUS ────────────────────────────────────── */}
-        <div className="px-8 py-6 border-b border-slate-100">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
               <h1 className="text-[22px] font-bold text-slate-900 mb-1">
@@ -114,11 +114,11 @@ export default function Step06LLOffer() {
                 Configure terms and commercial package for the landlord.
               </p>
             </div>
-            <div className="shrink-0">
+            <div className="shrink-0 max-w-full">
               <p className="text-[11px] text-slate-400 mb-2 text-center">
                 Offer Status
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-1">
                 {statusLabels.map((s, i) => {
                   const isActive = state.offerStatus === statusOrder[i]
                   const isComplete = currentStatusIndex > i
@@ -158,7 +158,7 @@ export default function Step06LLOffer() {
         </div>
 
         {/* ── MAIN 12-FIELD FORM ───────────────────────────────────────────── */}
-        <div className="px-8 py-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             {/* ── FIELD 1: Rent Offer ────────────────────────────────────── */}

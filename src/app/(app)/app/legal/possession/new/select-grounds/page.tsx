@@ -203,7 +203,7 @@ function SelectGroundsInner() {
         <LegalDisclaimer variant="inline" className="mb-4" />
 
         {/* Route selector */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           {[
             {
               id: "section_8" as NoticeRoute,

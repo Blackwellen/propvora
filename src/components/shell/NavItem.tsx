@@ -24,8 +24,11 @@ export default function NavItem({
     <Link
       href={href}
       onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      title={collapsed ? label : undefined}
       className={cn(
-        "flex items-center py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative mx-2 mb-0.5",
+        "flex items-center min-h-[40px] py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative mx-2 mb-0.5",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/70 motion-reduce:transition-none",
         // When collapsed, centre the icon (and its highlight) within the rail.
         collapsed ? "justify-center px-0" : "gap-3 px-3",
         active
@@ -43,7 +46,10 @@ export default function NavItem({
       />
       {!collapsed && <span className="truncate">{label}</span>}
       {collapsed && (
-        <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#0F172A] text-white text-[12px] font-medium rounded-xl whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-white/10">
+        <div
+          aria-hidden="true"
+          className="absolute left-full ml-3 px-3 py-1.5 bg-[#0F172A] text-white text-[12px] font-medium rounded-xl whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-white/10"
+        >
           {label}
         </div>
       )}

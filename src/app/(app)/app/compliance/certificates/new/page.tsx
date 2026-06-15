@@ -262,7 +262,7 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-bold text-slate-900">Issue & Expiry Dates</h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Issue Date <span className="text-red-500">*</span></label>
           <input
@@ -826,9 +826,9 @@ export default function NewCertificatePage() {
         </aside>
 
         {/* Center Card */}
-        <main className="flex-1 min-w-0 p-6">
+        <main className="flex-1 min-w-0 p-4 sm:p-6">
           <div className="max-w-2xl">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 mb-6">
               {step === 1 && <Step1 state={state} update={update} />}
               {step === 2 && <Step2 state={state} update={update} properties={properties} />}
               {step === 3 && <Step3 state={state} update={update} />}

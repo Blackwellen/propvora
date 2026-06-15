@@ -159,7 +159,8 @@ export default function AgreementsPage() {
 
       <div className="py-6">
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-          <table className="w-full text-left">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[820px]">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
                 <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Agreement Title</th>
@@ -214,7 +215,7 @@ export default function AgreementsPage() {
                               <span className="text-[11px] text-slate-500">{signedCount}/{totalCount} signed</span>
                             </>
                           ) : (
-                            <span className="text-[11px] text-slate-400">0/0</span>
+                            <span className="text-[11px] text-slate-500">0/0</span>
                           )}
                         </div>
                       </div>
@@ -262,6 +263,7 @@ export default function AgreementsPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -297,7 +299,7 @@ export default function AgreementsPage() {
                 </div>
                 <div>
                   <p className="text-[12px] font-semibold text-slate-800">Agreement sent</p>
-                  <p className="text-[11px] text-slate-400">{drawerAgreement.created}</p>
+                  <p className="text-[11px] text-slate-500">{drawerAgreement.created}</p>
                 </div>
               </div>
 
@@ -319,9 +321,9 @@ export default function AgreementsPage() {
                         {getInitials(sig.name)}
                       </div>
                       <p className="text-[12px] font-semibold text-slate-800">{sig.name}</p>
-                      <span className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded">{sig.role}</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded">{sig.role}</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{sig.email}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">{sig.email}</p>
                     {sig.signed && sig.signedAt ? (
                       <p className="text-[11px] text-green-600 mt-0.5 font-medium">Signed at {sig.signedAt}</p>
                     ) : (

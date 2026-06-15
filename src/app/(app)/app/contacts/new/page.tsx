@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useCallback, KeyboardEvent } from "react"
+import React, { useState, useCallback, useId, KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 import {
   UserCheck,
@@ -296,9 +296,10 @@ function InputField({
   hint?: string
   error?: string
 }) {
+  const fieldId = useId()
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-slate-700">
+      <label htmlFor={fieldId} className="text-sm font-medium text-slate-700">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -307,6 +308,7 @@ function InputField({
           <span className="absolute left-3 text-slate-500 text-sm select-none pointer-events-none">{prefix}</span>
         )}
         <input
+          id={fieldId}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -338,10 +340,12 @@ function TextareaField({
   placeholder?: string
   rows?: number
 }) {
+  const fieldId = useId()
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={fieldId} className="text-sm font-medium text-slate-700">{label}</label>
       <textarea
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -365,10 +369,12 @@ function SelectField({
   options: { value: string; label: string }[]
   placeholder?: string
 }) {
+  const fieldId = useId()
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={fieldId} className="text-sm font-medium text-slate-700">{label}</label>
       <select
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -519,7 +525,7 @@ function Step1TypeSelector({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {CONTACT_TYPE_OPTIONS.map(({ value, label, icon: Icon, desc, colour }) => {
           const selected = state.contactType === value
           return (
@@ -680,7 +686,7 @@ function Step2Details({
               className="flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 text-xs px-2.5 py-0.5"
             >
               {tag.label}
-              <button type="button" onClick={() => removeTag(tag.id)} className="ml-0.5 hover:text-blue-900">
+              <button type="button" onClick={() => removeTag(tag.id)} aria-label={`Remove tag ${tag.label}`} className="ml-0.5 hover:text-blue-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -689,6 +695,7 @@ function Step2Details({
         <div className="flex gap-2">
           <input
             type="text"
+            aria-label="Add a tag"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
@@ -698,7 +705,8 @@ function Step2Details({
           <button
             type="button"
             onClick={addTag}
-            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+            aria-label="Add tag"
+            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <Tag className="w-4 h-4" />
           </button>
@@ -789,7 +797,7 @@ function Step3Communication({
           onChange={(v) => setState((s) => ({ ...s, addressLine1: v }))}
           placeholder="Street address"
         />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <InputField
             label="City"
             value={state.city}
@@ -1454,7 +1462,7 @@ function SummaryRail({
       : [state.firstName, state.lastName].filter(Boolean).join(" ")
 
   return (
-    <div className="w-[280px] flex-shrink-0 sticky top-[60px] self-start space-y-4">
+    <div className="w-full xl:w-[280px] flex-shrink-0 xl:sticky xl:top-[60px] self-start space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Contact Summary</p>
@@ -1530,7 +1538,7 @@ function StepperRail({
   completedSteps: Set<number>
 }) {
   return (
-    <div className="w-[240px] flex-shrink-0 sticky top-[60px] self-start">
+    <div className="w-full xl:w-[240px] flex-shrink-0 xl:sticky xl:top-[60px] self-start">
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm px-4 py-5">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">Steps</p>
         <ol className="space-y-0">
@@ -1775,12 +1783,12 @@ export default function NewContactPage() {
       </div>
 
       {/* Main layout */}
-      <div className="flex gap-6 px-6 py-6 max-w-[1200px] mx-auto">
+      <div className="flex flex-col xl:flex-row gap-6 px-4 sm:px-6 py-6 max-w-[1200px] mx-auto">
         {/* Left stepper */}
         <StepperRail currentStep={step} completedSteps={completedSteps} />
 
         {/* Center step card */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 order-first xl:order-none">
           {!workspace && (
             <div className="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
               <div style={{ color: "#f59e0b" }}><AlertCircle className="w-4 h-4" /></div>

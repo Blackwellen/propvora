@@ -77,7 +77,7 @@ function StepProperty({ data, onChange, properties }: {
         {properties.length === 0 ? (
           <div className="flex flex-col items-center py-8 gap-3 border-2 border-dashed border-slate-200 rounded-2xl">
             <Building2 className="w-8 h-8 text-slate-200" />
-            <p className="text-sm text-slate-400">No properties yet</p>
+            <p className="text-sm text-slate-500">No properties yet</p>
             <Button variant="soft" size="sm" asChild>
               <Link href="/app/portfolio/properties/new">Add a property first</Link>
             </Button>
@@ -99,7 +99,7 @@ function StepProperty({ data, onChange, properties }: {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-900 truncate">{p.name}</p>
-                {p.address_line1 && <p className="text-xs text-slate-400 truncate">{p.address_line1}</p>}
+                {p.address_line1 && <p className="text-xs text-slate-500 truncate">{p.address_line1}</p>}
               </div>
               {data.property_id === p.id && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
             </button>
@@ -193,7 +193,7 @@ function StepRent({ data, onChange }: { data: UnitWizardData; onChange: (d: Part
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Target monthly rent (£)</label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">£</span>
           <input
             type="number"
             min={0}

@@ -23,7 +23,7 @@ export default function MoneyPageHeader({
       {/* Left: breadcrumb + title + subtitle */}
       <div className="flex flex-col gap-1 min-w-0">
         {breadcrumb && (
-          <div className="flex items-center gap-1 text-sm text-slate-400">
+          <div className="flex items-center gap-1 text-sm text-slate-500">
             <span>Money</span>
             <ChevronRight className="w-3.5 h-3.5 shrink-0" />
             <span>{breadcrumb}</span>
@@ -31,7 +31,7 @@ export default function MoneyPageHeader({
         )}
         <h1 className="text-2xl font-bold text-slate-900 leading-tight">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-slate-400">{subtitle}</p>
+          <p className="text-sm text-slate-500">{subtitle}</p>
         )}
       </div>
 

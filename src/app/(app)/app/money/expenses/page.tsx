@@ -155,7 +155,7 @@ function ExpenseDonut({ segments, total }: { segments: DonutSeg[]; total: number
   })
 
   return (
-    <svg viewBox="0 0 160 160" className="w-full max-w-[160px]" aria-hidden="true">
+    <svg viewBox="0 0 160 160" className="w-full max-w-[160px]" role="img" aria-label={`Cost breakdown donut chart, total ${fmtGBP(total)} across ${segments.length} ${segments.length === 1 ? "category" : "categories"}`}>
       {total > 0 ? (
         segs.map((seg) => <path key={seg.label} d={seg.d} fill={seg.color} opacity="0.85" />)
       ) : (
@@ -233,24 +233,24 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white">
           <h2 className="text-lg font-semibold text-slate-900">Add Expense</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
         <div className="p-6 flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Expense Type</label>
-              <select name="expense_type" value={form.expense_type} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="exp-type" className="text-xs font-medium text-slate-600">Expense Type</label>
+              <select id="exp-type" name="expense_type" value={form.expense_type} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select type…</option>
                 {EXPENSE_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Cost Behaviour</label>
-              <select name="cost_behaviour" value={form.cost_behaviour} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="exp-behaviour" className="text-xs font-medium text-slate-600">Cost Behaviour</label>
+              <select id="exp-behaviour" name="cost_behaviour" value={form.cost_behaviour} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select…</option>
                 <option value="Fixed">Fixed</option>
                 <option value="Variable">Variable</option>
@@ -260,15 +260,15 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Supplier</label>
-              <input name="supplier" type="text" value={form.supplier} onChange={handleChange}
+              <label htmlFor="exp-supplier" className="text-xs font-medium text-slate-600">Supplier</label>
+              <input id="exp-supplier" name="supplier" type="text" value={form.supplier} onChange={handleChange}
                 placeholder="Supplier name…"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Property</label>
-              <select name="property" value={form.property} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="exp-property" className="text-xs font-medium text-slate-600">Property</label>
+              <select id="exp-property" name="property" value={form.property} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
                 {PROPERTIES_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -276,21 +276,21 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Amount (£)</label>
-              <input name="amount" type="number" value={form.amount} onChange={handleChange}
+              <label htmlFor="exp-amount" className="text-xs font-medium text-slate-600">Amount (£)</label>
+              <input id="exp-amount" name="amount" type="number" value={form.amount} onChange={handleChange}
                 placeholder="0.00"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Date</label>
-              <input name="date" type="date" value={form.date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label htmlFor="exp-date" className="text-xs font-medium text-slate-600">Date</label>
+              <input id="exp-date" name="date" type="date" value={form.date} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Status</label>
-            <select name="status" value={form.status} onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label htmlFor="exp-status" className="text-xs font-medium text-slate-600">Status</label>
+            <select id="exp-status" name="status" value={form.status} onChange={handleChange}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
               <option value="">Select status…</option>
               <option value="paid">Paid</option>
               <option value="approved">Approved</option>
@@ -299,19 +299,19 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Description</label>
-            <input name="description" type="text" value={form.description} onChange={handleChange}
+            <label htmlFor="exp-description" className="text-xs font-medium text-slate-600">Description</label>
+            <input id="exp-description" name="description" type="text" value={form.description} onChange={handleChange}
               placeholder="Brief description…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Notes</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange} rows={2}
+            <label htmlFor="exp-notes" className="text-xs font-medium text-slate-600">Notes</label>
+            <textarea id="exp-notes" name="notes" value={form.notes} onChange={handleChange} rows={2}
               placeholder="Optional notes…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Receipt</label>
+            <span className="text-xs font-medium text-slate-600">Receipt</span>
             <label className="flex items-center gap-3 border-2 border-dashed border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-blue-300 transition-colors">
               <Paperclip className="w-4 h-4 text-slate-400" />
               <span className="text-xs text-slate-500">
@@ -323,7 +323,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
         </div>
         {formError && <p className="text-xs text-red-500 px-6 pb-2">{formError}</p>}
         <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
+          <button aria-label="Close" onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-70">
@@ -556,10 +556,11 @@ export default function MoneyExpensesPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
+                    aria-label="Search expenses"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search expenses by description, supplier or property..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                 </div>
                 <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
@@ -579,7 +580,7 @@ export default function MoneyExpensesPage() {
                   <Filter className="w-3.5 h-3.5" />
                   More filters
                 </button>
-                <button className="text-xs text-slate-400 hover:text-slate-600 transition-colors px-1">
+                <button className="text-xs text-slate-500 hover:text-slate-700 transition-colors px-1">
                   Clear
                 </button>
 
@@ -587,22 +588,28 @@ export default function MoneyExpensesPage() {
                 <div className="flex items-center bg-slate-100 rounded-lg p-0.5 ml-auto">
                   <button
                     onClick={() => setViewMode("table")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="Table view"
+                    aria-pressed={viewMode === "table"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Table2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("cards")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="Card view"
+                    aria-pressed={viewMode === "cards"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("by-property")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "by-property" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="By property view"
+                    aria-pressed={viewMode === "by-property"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "by-property" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Building className="w-4 h-4" />
                   </button>
@@ -638,7 +645,7 @@ export default function MoneyExpensesPage() {
                           <th
                             key={col}
                             className={cn(
-                              "p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400",
+                              "p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500",
                               col === "Amount" ? "text-right" : "text-left"
                             )}
                           >
@@ -649,7 +656,7 @@ export default function MoneyExpensesPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {isLoading && visibleRows.length === 0 && (
-                        <tr><td colSpan={10} className="p-10 text-center text-sm text-slate-400">Loading expenses…</td></tr>
+                        <tr><td colSpan={10} className="p-10 text-center text-sm text-slate-500">Loading expenses…</td></tr>
                       )}
                       {!isLoading && filtered.length === 0 && (
                         <tr>
@@ -659,7 +666,7 @@ export default function MoneyExpensesPage() {
                                 <TrendingDown className="w-6 h-6 text-slate-400" />
                               </div>
                               <p className="text-sm font-medium text-slate-600">No expenses recorded yet</p>
-                              <p className="text-xs text-slate-400">Use “Add Expense” to log your first cost.</p>
+                              <p className="text-xs text-slate-500">Use “Add Expense” to log your first cost.</p>
                             </div>
                           </td>
                         </tr>
@@ -684,7 +691,7 @@ export default function MoneyExpensesPage() {
                               <p className="text-xs font-medium text-slate-900 truncate max-w-[120px]">
                                 {row.propertyName}
                               </p>
-                              <p className="text-[10px] text-slate-400">{row.propertyAddress}</p>
+                              <p className="text-[10px] text-slate-500">{row.propertyAddress}</p>
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">
@@ -777,7 +784,7 @@ export default function MoneyExpensesPage() {
                             </span>
                           </div>
                           <p className="text-sm font-semibold text-slate-900 truncate">{row.description}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">{row.propertyName}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{row.propertyName}</p>
                         </div>
                         <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0", sc.className)}>
                           {sc.label}
@@ -792,7 +799,7 @@ export default function MoneyExpensesPage() {
                         </div>
                         <span className="text-base font-bold text-slate-900">{row.amount}</span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-2">{row.date}</p>
+                      <p className="text-[11px] text-slate-500 mt-2">{row.date}</p>
                     </div>
                   )
                 })}
@@ -805,7 +812,7 @@ export default function MoneyExpensesPage() {
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
                   <Building className="w-12 h-12 text-slate-200" />
                   <p className="text-sm font-medium text-slate-500">No expenses to group</p>
-                  <p className="text-xs text-slate-400">Add an expense to see the per-property breakdown.</p>
+                  <p className="text-xs text-slate-500">Add an expense to see the per-property breakdown.</p>
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-3">
@@ -818,7 +825,7 @@ export default function MoneyExpensesPage() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-slate-900 truncate">{g.property}</p>
-                            <p className="text-[11px] text-slate-400">
+                            <p className="text-[11px] text-slate-500">
                               {g.count} expense{g.count > 1 ? "s" : ""} · mostly {g.topType}
                             </p>
                           </div>
@@ -848,7 +855,7 @@ export default function MoneyExpensesPage() {
               </div>
               <div className="mb-4">
                 <p className="text-2xl font-bold text-slate-900">{fmtGBP2(totalExpensesAll)}</p>
-                <p className="text-xs text-slate-400 font-medium mt-0.5">Total recorded</p>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">Total recorded</p>
               </div>
               <div className="flex flex-col gap-2.5">
                 {[
@@ -885,14 +892,14 @@ export default function MoneyExpensesPage() {
                             <span className="text-[11px] font-medium text-slate-700 truncate">{seg.label}</span>
                             <span className="text-[11px] font-semibold text-slate-900 shrink-0">{seg.pct}%</span>
                           </div>
-                          <p className="text-[10px] text-slate-400">{seg.amount}</p>
+                          <p className="text-[10px] text-slate-500">{seg.amount}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 text-center py-8">No expense data to chart yet.</p>
+                <p className="text-xs text-slate-500 text-center py-8">No expense data to chart yet.</p>
               )}
             </div>
           </div>

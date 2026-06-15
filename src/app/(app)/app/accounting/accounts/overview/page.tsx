@@ -339,7 +339,7 @@ export default function AccountsOverviewPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Accounts Overview</span>
@@ -392,7 +392,7 @@ export default function AccountsOverviewPage() {
           />
         ) : (
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex items-center justify-center">
-            <p className="text-xs text-slate-400 text-center">No accounts yet</p>
+            <p className="text-xs text-slate-500 text-center">No accounts yet</p>
           </div>
         )}
       </div>
@@ -479,7 +479,7 @@ export default function AccountsOverviewPage() {
                 <Plus className="w-5 h-5 text-[#2563EB]" />
               </div>
               <p className="text-sm font-semibold text-slate-700">No accounts yet</p>
-              <p className="text-xs text-slate-400 max-w-xs">
+              <p className="text-xs text-slate-500 max-w-xs">
                 Your chart of accounts is empty. Create your first account to start
                 building the ledger — balances are computed live from posted journal entries.
               </p>
@@ -490,7 +490,7 @@ export default function AccountsOverviewPage() {
           ) : filteredGroups.length === 0 ? (
             <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex flex-col items-center justify-center gap-3">
               <p className="text-sm font-medium text-slate-600">No accounts match your filters</p>
-              <p className="text-xs text-slate-400">Try adjusting your search or filters.</p>
+              <p className="text-xs text-slate-500">Try adjusting your search or filters.</p>
             </div>
           ) : (
             filteredGroups.map((group) => (
@@ -514,7 +514,7 @@ export default function AccountsOverviewPage() {
               <h3 className="text-sm font-semibold text-slate-900">Balances by Type</h3>
             </div>
             {accounts.length === 0 ? (
-              <p className="text-xs text-slate-400">No accounts yet.</p>
+              <p className="text-xs text-slate-500">No accounts yet.</p>
             ) : (
               <div className="space-y-3">
                 {TYPE_ORDER.map((t) => {
@@ -526,7 +526,7 @@ export default function AccountsOverviewPage() {
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: TYPE_COLORS[t] }} />
                         <span className="text-xs text-slate-600">{t}</span>
-                        <span className="text-[10px] text-slate-400">({group.length})</span>
+                        <span className="text-[10px] text-slate-500">({group.length})</span>
                       </div>
                       <span className="text-xs font-semibold text-slate-900">{fmtCurrency(total)}</span>
                     </div>

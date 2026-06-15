@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import SkipLink from "@/components/a11y/SkipLink"
 import {
   LayoutDashboard,
   Wrench,
@@ -98,17 +99,20 @@ export default function PortalShell({
 
   return (
     <div className="min-h-screen bg-[#F6FAFF] flex">
+      <SkipLink />
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       <aside
+        aria-label={`${BADGE[kind]} portal sidebar`}
         className={cn(
           "fixed top-0 left-0 bottom-0 z-50 w-64 flex flex-col bg-[#0D1B2A]",
-          "transition-transform duration-200 lg:translate-x-0",
+          "transition-transform duration-200 motion-reduce:transition-none lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -127,14 +131,14 @@ export default function PortalShell({
           </span>
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden ml-auto p-1 rounded text-white/60 hover:text-white"
+            className="lg:hidden ml-auto p-2 rounded text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
+        <nav aria-label={`${BADGE[kind]} portal`} className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
           {items.map((item) => {
             const Icon = item.icon
             const active = isActive(item.segment)
@@ -142,9 +146,12 @@ export default function PortalShell({
               <Link
                 key={item.segment || "home"}
                 href={hrefFor(item.segment)}
+                onClick={() => setMobileOpen(false)}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
                   "text-[#94A3B8] hover:text-white hover:bg-white/10",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]",
                   active && "text-white bg-[#1E3A5F]"
                 )}
               >
@@ -167,7 +174,7 @@ export default function PortalShell({
             <form method="POST" action="/api/portal/logout">
               <button
                 type="submit"
-                className="p-1 rounded text-[#64748B] hover:text-red-400 transition-colors"
+                className="p-2 rounded text-[#64748B] hover:text-red-400 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
                 title="Sign out"
                 aria-label="Sign out"
               >
@@ -182,7 +189,7 @@ export default function PortalShell({
         <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 gap-4 shrink-0 sticky top-0 z-30">
           <button
             onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500"
+            className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
@@ -194,7 +201,7 @@ export default function PortalShell({
             {BADGE[kind]} PORTAL
           </span>
         </header>
-        <main className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto w-full">
+        <main id="main-content" tabIndex={-1} aria-label="Main content" className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto w-full focus:outline-none">
           {children}
         </main>
       </div>

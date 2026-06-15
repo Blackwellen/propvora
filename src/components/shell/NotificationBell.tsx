@@ -140,7 +140,7 @@ export default function NotificationBell() {
     }
   }, [])
 
-  // ── Close dropdown on outside click ─────────────────────────────────────────
+  // ── Close dropdown on outside click or Escape ───────────────────────────────
   useEffect(() => {
     if (!open) return
     function handleOutside(e: MouseEvent) {
@@ -150,8 +150,18 @@ export default function NotificationBell() {
       ) return
       setOpen(false)
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false)
+        buttonRef.current?.focus()
+      }
+    }
     document.addEventListener("mousedown", handleOutside)
-    return () => document.removeEventListener("mousedown", handleOutside)
+    document.addEventListener("keydown", handleKey)
+    return () => {
+      document.removeEventListener("mousedown", handleOutside)
+      document.removeEventListener("keydown", handleKey)
+    }
   }, [open])
 
   // ── Load recent notifications when dropdown opens (no auto-mark) ────────────
@@ -238,7 +248,7 @@ export default function NotificationBell() {
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={dropdownId}
-        className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm"
+        className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
       >
         <Bell className="w-5 h-5 text-[#071B4D]" />
         {unreadCount > 0 && (

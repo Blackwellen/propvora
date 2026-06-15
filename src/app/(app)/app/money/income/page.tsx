@@ -144,7 +144,7 @@ function DonutChart({ segments, total }: { segments: DonutSegment[]; total: numb
   })
 
   return (
-    <svg viewBox="0 0 160 160" className="w-full max-w-[160px]" aria-hidden="true">
+    <svg viewBox="0 0 160 160" className="w-full max-w-[160px]" role="img" aria-label={`Income by type donut chart, total ${fmtGBP(total)} across ${segments.length} ${segments.length === 1 ? "type" : "types"}`}>
       {total > 0 ? (
         paths.map((seg) => <path key={seg.label} d={seg.d} fill={seg.color} opacity="0.85" />)
       ) : (
@@ -218,7 +218,8 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
           <h2 className="text-lg font-semibold text-slate-900">Add Income</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Close"
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <X className="w-4 h-4 text-slate-500" />
           </button>
@@ -226,17 +227,17 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
         <div className="p-6 flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Income Type</label>
-              <select name="income_type" value={form.income_type} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="inc-income-type" className="text-xs font-medium text-slate-600">Income Type</label>
+              <select id="inc-income-type" name="income_type" value={form.income_type} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select type…</option>
                 {INCOME_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Property</label>
-              <select name="property" value={form.property} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="inc-property" className="text-xs font-medium text-slate-600">Property</label>
+              <select id="inc-property" name="property" value={form.property} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
                 {PROPERTIES_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -244,54 +245,54 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Amount (£)</label>
-              <input name="amount" type="number" value={form.amount} onChange={handleChange}
+              <label htmlFor="inc-amount" className="text-xs font-medium text-slate-600">Amount (£)</label>
+              <input id="inc-amount" name="amount" type="number" value={form.amount} onChange={handleChange}
                 placeholder="0.00"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Status</label>
-              <select name="status" value={form.status} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label htmlFor="inc-status" className="text-xs font-medium text-slate-600">Status</label>
+              <select id="inc-status" name="status" value={form.status} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select status…</option>
                 {STATUS_OPTIONS.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
               </select>
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Description</label>
-            <input name="description" type="text" value={form.description} onChange={handleChange}
+            <label htmlFor="inc-description" className="text-xs font-medium text-slate-600">Description</label>
+            <input id="inc-description" name="description" type="text" value={form.description} onChange={handleChange}
               placeholder="e.g. Monthly Rent – Jun 2026"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Expected Date</label>
-              <input name="expected_date" type="date" value={form.expected_date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label htmlFor="inc-expected-date" className="text-xs font-medium text-slate-600">Expected Date</label>
+              <input id="inc-expected-date" name="expected_date" type="date" value={form.expected_date} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-600">Received Date</label>
-              <input name="received_date" type="date" value={form.received_date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label htmlFor="inc-received-date" className="text-xs font-medium text-slate-600">Received Date</label>
+              <input id="inc-received-date" name="received_date" type="date" value={form.received_date} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Reference</label>
-            <input name="reference" type="text" value={form.reference} onChange={handleChange}
+            <label htmlFor="inc-reference" className="text-xs font-medium text-slate-600">Reference</label>
+            <input id="inc-reference" name="reference" type="text" value={form.reference} onChange={handleChange}
               placeholder="e.g. INC-2026-1342"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-600">Notes</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange} rows={2}
+            <label htmlFor="inc-notes" className="text-xs font-medium text-slate-600">Notes</label>
+            <textarea id="inc-notes" name="notes" value={form.notes} onChange={handleChange} rows={2}
               placeholder="Optional notes…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
           </div>
         </div>
         {formError && <p className="text-xs text-red-500 px-6 pb-2">{formError}</p>}
         <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={onClose} disabled={saving}
+          <button aria-label="Close" onClick={onClose} disabled={saving}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
             Cancel
           </button>
@@ -521,10 +522,11 @@ export default function MoneyIncomePage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
+                    aria-label="Search income"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search income..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                 </div>
 
@@ -532,22 +534,28 @@ export default function MoneyIncomePage() {
                 <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                   <button
                     onClick={() => setViewMode("table")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="Table view"
+                    aria-pressed={viewMode === "table"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Table2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("cards")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="Card view"
+                    aria-pressed={viewMode === "cards"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("calendar")}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all",
-                      viewMode === "calendar" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                    aria-label="Calendar view"
+                    aria-pressed={viewMode === "calendar"}
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                      viewMode === "calendar" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <CalendarDays className="w-4 h-4" />
                   </button>
@@ -567,7 +575,7 @@ export default function MoneyIncomePage() {
                   <CalendarDays className="w-3.5 h-3.5" />
                   Jun 1 – Jun 30, 2026
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <button aria-label="More filters" className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                   <Filter className="w-4 h-4 text-slate-400" />
                 </button>
               </div>
@@ -588,41 +596,41 @@ export default function MoneyIncomePage() {
                             className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                           />
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Date ↑
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Description
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Contact
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Property
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Type
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Due Date
                         </th>
-                        <th className="text-right p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-right p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Amount
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Status
                         </th>
-                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                           Reference
                         </th>
-                        <th className="text-center p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400 w-10">
+                        <th className="text-center p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500 w-10">
                           ⋯
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {isLoading && filtered.length === 0 && (
-                        <tr><td colSpan={11} className="p-10 text-center text-sm text-slate-400">Loading income…</td></tr>
+                        <tr><td colSpan={11} className="p-10 text-center text-sm text-slate-500">Loading income…</td></tr>
                       )}
                       {!isLoading && filtered.length === 0 && (
                         <tr>
@@ -632,7 +640,7 @@ export default function MoneyIncomePage() {
                                 <TrendingUp className="w-6 h-6 text-slate-400" />
                               </div>
                               <p className="text-sm font-medium text-slate-600">No income recorded yet</p>
-                              <p className="text-xs text-slate-400">Use “Add Income” to record your first payment.</p>
+                              <p className="text-xs text-slate-500">Use “Add Income” to record your first payment.</p>
                             </div>
                           </td>
                         </tr>
@@ -672,7 +680,7 @@ export default function MoneyIncomePage() {
                                   <p className="text-xs font-medium text-slate-900 leading-tight">
                                     {row.contactName}
                                   </p>
-                                  <p className="text-[10px] text-slate-400">{row.contactRole}</p>
+                                  <p className="text-[10px] text-slate-500">{row.contactRole}</p>
                                 </div>
                               </div>
                             </td>
@@ -695,7 +703,7 @@ export default function MoneyIncomePage() {
                                 {sc.label}
                               </span>
                             </td>
-                            <td className="p-4 text-xs text-slate-400">{row.reference}</td>
+                            <td className="p-4 text-xs text-slate-500">{row.reference}</td>
                             <td className="p-4 text-center">
                               <ConfirmDialog
                                 title="Delete income record?"
@@ -742,7 +750,7 @@ export default function MoneyIncomePage() {
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-slate-900 truncate">{row.description}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">{row.propertyName}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{row.propertyName}</p>
                         </div>
                         <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0", sc.className)}>
                           {sc.label}
@@ -757,7 +765,7 @@ export default function MoneyIncomePage() {
                         </div>
                         <span className="text-base font-bold text-slate-900">{row.amount}</span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-2">{row.date} • {row.reference}</p>
+                      <p className="text-[11px] text-slate-500 mt-2">{row.date} • {row.reference}</p>
                     </div>
                   )
                 })}
@@ -770,7 +778,7 @@ export default function MoneyIncomePage() {
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
                   <CalendarDays className="w-12 h-12 text-slate-200" />
                   <p className="text-sm font-medium text-slate-500">No income records to show</p>
-                  <p className="text-xs text-slate-400">Add an income record to see it on the calendar.</p>
+                  <p className="text-xs text-slate-500">Add an income record to see it on the calendar.</p>
                 </div>
               ) : (
                 <MoneyCalendar
@@ -798,7 +806,7 @@ export default function MoneyIncomePage() {
               </div>
               <div className="mb-4">
                 <p className="text-2xl font-bold text-slate-900">{fmtGBP2(totalIncomeAll)}</p>
-                <p className="text-xs text-slate-400 font-medium mt-0.5">Across all statuses</p>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">Across all statuses</p>
               </div>
               <div className="flex flex-col gap-2">
                 {[
@@ -835,14 +843,14 @@ export default function MoneyIncomePage() {
                             <span className="text-[11px] font-medium text-slate-700 truncate">{seg.label}</span>
                             <span className="text-[11px] font-semibold text-slate-900 shrink-0">{seg.pct}%</span>
                           </div>
-                          <p className="text-[10px] text-slate-400">{seg.amount}</p>
+                          <p className="text-[10px] text-slate-500">{seg.amount}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 text-center py-8">No income data to chart yet.</p>
+                <p className="text-xs text-slate-500 text-center py-8">No income data to chart yet.</p>
               )}
             </div>
           </div>

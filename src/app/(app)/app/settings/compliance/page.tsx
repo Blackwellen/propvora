@@ -236,7 +236,7 @@ export default function ComplianceSettingsPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-6 px-6 pb-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 pb-6 mt-6">
 
         <SettingsCard iconBg="bg-violet-100" icon={<Bell className="w-4 h-4 text-violet-600" />} title="Renewal reminder rules" subtitle="Configure when and how renewal reminders are generated.">
           <div className="flex flex-col gap-3">
@@ -413,7 +413,7 @@ export default function ComplianceSettingsPage() {
         </SettingsCard>
 
         <SettingsCard iconBg="bg-blue-100" icon={<Truck className="w-4 h-4 text-blue-600" />} title="Supplier compliance requirements" subtitle="Set minimum compliance and documentation standards for suppliers.">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
               <div>
                 <label className="text-xs font-medium text-slate-600 block mb-1">Minimum overall compliance score</label>
@@ -427,10 +427,10 @@ export default function ComplianceSettingsPage() {
                 <Select value={insurance} onChange={setInsurance} options={["Public Liability", "Employers Liability", "Professional Indemnity"]} className="w-full" />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Insurance minimum cover</label>
+                <label htmlFor="min-cover" className="text-xs font-medium text-slate-600 block mb-1">Insurance minimum cover</label>
                 <div className="flex items-center gap-1">
                   <span className="text-sm text-slate-500">£</span>
-                  <input type="text" value={minCover} onChange={(e) => setMinCover(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-28" />
+                  <input id="min-cover" type="text" value={minCover} onChange={(e) => setMinCover(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-28" />
                 </div>
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function ComplianceSettingsPage() {
         </SettingsCard>
 
         <SettingsCard iconBg="bg-slate-100" icon={<Archive className="w-4 h-4 text-slate-600" />} title="Evidence retention" subtitle="Set how long evidence and documents are retained.">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
               <div>
                 <label className="text-xs font-medium text-slate-600 block mb-1">Document retention period</label>
@@ -574,7 +574,7 @@ export default function ComplianceSettingsPage() {
               <label className="text-xs font-medium text-slate-600 block mb-1">Day &amp; time</label>
               <div className="flex items-center gap-2">
                 <Select value={reportDay} onChange={setReportDay} options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]} className="w-32" />
-                <input type="time" defaultValue="09:00" className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input aria-label="Report time" type="time" defaultValue="09:00" className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
           </div>

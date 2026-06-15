@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
 import { AnimatePresence } from "framer-motion"
 import { Menu } from "lucide-react"
@@ -49,6 +49,59 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
   const [mobileOpen, setMobileOpen] = useState(false)
   const { workspace } = useWorkspace()
 
+  const mobileDrawerRef = useRef<HTMLDivElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const closeMobile = useCallback(() => setMobileOpen(false), [])
+
+  // Mobile drawer behaviour: Esc to close, body-scroll lock, focus-trap, and
+  // return focus to the hamburger on close (WCAG 2.4.3 / 2.1.2).
+  useEffect(() => {
+    if (!mobileOpen) return
+    const drawer = mobileDrawerRef.current
+    const focusables = () =>
+      drawer
+        ? Array.from(
+            drawer.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+          ).filter((el) => el.offsetParent !== null)
+        : []
+
+    // Move focus into the drawer.
+    const t = setTimeout(() => focusables()[0]?.focus(), 20)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        setMobileOpen(false)
+        return
+      }
+      if (e.key === "Tab") {
+        const items = focusables()
+        if (items.length === 0) return
+        const first = items[0]
+        const last = items[items.length - 1]
+        const activeEl = document.activeElement as HTMLElement | null
+        if (e.shiftKey && activeEl === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && activeEl === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      clearTimeout(t)
+      document.body.style.overflow = prevOverflow
+      document.removeEventListener("keydown", onKeyDown)
+      hamburgerRef.current?.focus()
+    }
+  }, [mobileOpen])
+
   /* sidebar total footprint: width + left-margin + right-gap */
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16
 
@@ -66,17 +119,29 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm"
-          onClick={() => setMobileOpen(false)}
+          className="lg:hidden fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm motion-reduce:transition-none"
+          onClick={closeMobile}
+          aria-hidden="true"
         />
       )}
 
       {/* Mobile sidebar drawer — conditionally mounted so it's truly hidden when
           closed. (The SideNavigation is position:fixed, so a translate wrapper of
-          auto width can't move it off-screen — mounting on demand is correct.) */}
+          auto width can't move it off-screen — mounting on demand is correct.)
+          role=dialog + aria-modal + focus-trap + Esc are wired in AppShell. */}
       {mobileOpen && (
-        <div className="lg:hidden animate-[slideInLeft_0.2s_ease-out]">
-          <SideNavigation collapsed={false} onToggle={() => setMobileOpen(false)} />
+        <div
+          ref={mobileDrawerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          className="lg:hidden motion-safe:animate-[slideInLeft_0.2s_ease-out]"
+        >
+          <SideNavigation
+            collapsed={false}
+            onToggle={closeMobile}
+            onNavigate={closeMobile}
+          />
         </div>
       )}
 
@@ -91,9 +156,12 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
           {/* Mobile hamburger */}
           <div className="lg:hidden flex items-center gap-3 mb-2 pl-4">
             <button
+              ref={hamburgerRef}
               onClick={() => setMobileOpen(true)}
-              className="w-[40px] h-[40px] rounded-xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] transition-all shadow-sm"
-              aria-label="Open navigation"
+              className="w-[44px] h-[44px] rounded-xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              aria-label="Open navigation menu"
+              aria-expanded={mobileOpen}
+              aria-haspopup="dialog"
             >
               <Menu className="w-5 h-5 text-[#071B4D]" />
             </button>

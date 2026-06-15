@@ -121,12 +121,12 @@ export default function CalendarDayPage() {
       </div>
 
       <div className="px-6 py-3 bg-white border-b border-slate-100 flex items-center gap-3">
-        <button onClick={prevDay} className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={prevDay} aria-label="Previous day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronLeft className="w-4 h-4" /></button>
         <div className="flex-1 text-center">
           <h2 className="text-[15px] font-bold text-slate-900">{dayLabel}</h2>
           {isToday && <p className="text-[11px] text-blue-600 font-semibold">Today</p>}
         </div>
-        <button onClick={nextDay} className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={nextDay} aria-label="Next day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronRight className="w-4 h-4" /></button>
         <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium ml-2">Today</button>
       </div>
 

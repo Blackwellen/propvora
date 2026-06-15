@@ -349,7 +349,7 @@ export default function InspectionDetailPage() {
                   <div className="space-y-5">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-900 mb-3">Inspection Details</h3>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
                           { label: "Type", node: <InlineEditField value={row.inspection_type} type="select" options={TYPE_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ inspection_type: v })} /> },
                           { label: "Property", node: <span className="text-sm font-medium text-slate-800">{row.property_name ?? "—"}</span> },

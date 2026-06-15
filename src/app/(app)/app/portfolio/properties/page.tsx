@@ -277,7 +277,7 @@ export default function PropertiesListPage() {
       ) : workspace?.id && allProperties.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
           <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center"><Building2 className="w-10 h-10 text-slate-300" /></div>
-          <div><p className="text-base font-bold text-slate-700">No properties yet</p><p className="text-sm text-slate-400 mt-1">Add your first property to get started</p></div>
+          <div><p className="text-base font-bold text-slate-700">No properties yet</p><p className="text-sm text-slate-500 mt-1">Add your first property to get started</p></div>
           <Button variant="primary" size="md" asChild><Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link></Button>
         </div>
       ) : paginated.length === 0 ? (

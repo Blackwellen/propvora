@@ -330,7 +330,7 @@ function DonutChart({ segments, total }: { segments: PieSegment[]; total: number
     <div className="flex flex-col sm:flex-row gap-6 items-start">
       {/* SVG */}
       <div className="w-[180px] shrink-0 mx-auto sm:mx-0">
-        <svg viewBox="0 0 180 180" className="w-full h-auto">
+        <svg viewBox="0 0 180 180" className="w-full h-auto" role="img" aria-label={`Contact type breakdown — ${total} contacts total`}>
           {segments.length === 0 ? (
             <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="#E2E8F0" strokeWidth={rOuter - rInner} />
           ) : (
@@ -642,12 +642,15 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-contact-title"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-slate-900">Add Contact</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <h2 id="add-contact-title" className="text-lg font-bold text-slate-900">Add Contact</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -655,8 +658,9 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">First Name</label>
+              <label htmlFor="add-contact-first" className="block text-xs font-medium text-slate-700 mb-1">First Name</label>
               <input
+                id="add-contact-first"
                 type="text"
                 value={firstName}
                 onChange={e => setFirstName(e.target.value)}
@@ -665,8 +669,9 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Last Name</label>
+              <label htmlFor="add-contact-last" className="block text-xs font-medium text-slate-700 mb-1">Last Name</label>
               <input
+                id="add-contact-last"
                 type="text"
                 value={lastName}
                 onChange={e => setLastName(e.target.value)}
@@ -677,8 +682,9 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
+            <label htmlFor="add-contact-type" className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
             <select
+              id="add-contact-type"
               value={type}
               onChange={e => setType(e.target.value)}
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all"
@@ -697,8 +703,9 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
+            <label htmlFor="add-contact-email" className="block text-xs font-medium text-slate-700 mb-1">Email</label>
             <input
+              id="add-contact-email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -708,8 +715,9 @@ function AddContactModal({ onClose, onSuccess, workspaceId }: AddContactModalPro
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
+            <label htmlFor="add-contact-phone" className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
             <input
+              id="add-contact-phone"
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
@@ -751,7 +759,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
     <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-slate-900 text-white rounded-xl shadow-xl text-sm font-medium animate-in slide-in-from-bottom-2">
       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
       {message}
-      <button onClick={onDismiss} className="ml-2 text-slate-400 hover:text-white transition-colors">
+      <button onClick={onDismiss} aria-label="Dismiss notification" className="ml-2 text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded">
         <X className="w-3.5 h-3.5" />
       </button>
     </div>
@@ -784,7 +792,7 @@ function RelHealthRing({ contactCount }: { contactCount: number }) {
       <div className="flex items-center gap-6">
         {/* Ring */}
         <div className="relative shrink-0">
-          <svg viewBox="0 0 100 100" className="w-24 h-24 -rotate-90">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 -rotate-90" role="img" aria-label={`Relationship health score ${score} out of 100`}>
             <circle cx="50" cy="50" r="40" fill="none" stroke="#F1F5F9" strokeWidth="12" />
             <circle
               cx="50" cy="50" r="40" fill="none"
@@ -1133,6 +1141,7 @@ export default function ContactsPage() {
               <div className="relative">
                 <Wrench className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
                 <select
+                  aria-label="Filter by service category"
                   value={serviceCategory}
                   onChange={e => setServiceCategory(e.target.value)}
                   className={cn(
@@ -1152,6 +1161,7 @@ export default function ContactsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
+                aria-label="Search contacts"
                 placeholder="Search contacts…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -1160,7 +1170,8 @@ export default function ContactsPage() {
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>

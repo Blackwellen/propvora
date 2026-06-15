@@ -493,8 +493,9 @@ function NotesTab({ contact }: { contact: ContactDetail }) {
     <div className="space-y-4">
       {editable ? (
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-medium text-slate-600 mb-2">Add note</p>
+          <label htmlFor="contact-add-note" className="block text-xs font-medium text-slate-600 mb-2">Add note</label>
           <textarea
+            id="contact-add-note"
             value={note}
             onChange={e => setNote(e.target.value)}
             rows={3}
@@ -547,13 +548,13 @@ function TasksTab() {
       {showForm && (
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Task title *</label>
-            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Send rental statement"
+            <label htmlFor="contact-task-title" className="block text-xs font-medium text-slate-700 mb-1">Task title *</label>
+            <input id="contact-task-title" type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Send rental statement"
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" autoFocus />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Due date</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
+            <label htmlFor="contact-task-due" className="block text-xs font-medium text-slate-700 mb-1">Due date</label>
+            <input id="contact-task-due" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
           </div>
           <div className="flex gap-2">
@@ -1763,16 +1764,18 @@ export default function ContactDetailPage() {
         {/* Left: tabs + content */}
         <div className="flex-1 min-w-0">
           {/* Tab bar */}
-          <div className="overflow-x-auto -mx-1 px-1 mb-0">
-            <div className="flex items-center gap-1 min-w-max border-b border-slate-200">
+          <div className="overflow-x-auto -mx-1 px-1 mb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex items-center gap-1 min-w-max border-b border-slate-200" role="tablist" aria-label="Contact detail sections">
               {tabs.map(tab => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
+                    role="tab"
+                    aria-selected={activeTab === tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-all whitespace-nowrap border-b-2 -mb-px",
+                      "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-all whitespace-nowrap border-b-2 -mb-px outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded-t",
                       activeTab === tab.id
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300"
@@ -1803,8 +1806,8 @@ export default function ContactDetailPage() {
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-slate-900 text-white rounded-xl shadow-xl text-sm font-medium animate-in slide-in-from-bottom-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           {toastMsg}
-          <button onClick={() => setToastMsg(null)} className="ml-2 text-slate-400 hover:text-white transition-colors">
-            <span aria-label="dismiss">×</span>
+          <button onClick={() => setToastMsg(null)} aria-label="Dismiss notification" className="ml-2 text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded">
+            <span aria-hidden="true">×</span>
           </button>
         </div>
       )}

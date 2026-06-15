@@ -316,7 +316,7 @@ export default function Step01Profile() {
   return (
     <div className="flex flex-col min-h-0">
       {/* Top header */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <h1 className="text-[22px] font-bold text-slate-900 mb-1">
           Select an Operation Profile
         </h1>
@@ -327,7 +327,7 @@ export default function Step01Profile() {
       </div>
 
       {/* Filters bar */}
-      <div className="px-8 py-4 border-b border-slate-100 flex items-center gap-3 bg-white sticky top-0 z-10 flex-wrap">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 flex items-center gap-3 bg-white sticky top-0 z-10 flex-wrap">
         {/* Search */}
         <div className="relative flex-1 min-w-[220px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
@@ -458,7 +458,7 @@ export default function Step01Profile() {
 
       {/* Selected summary bar */}
       {state.profileKey && (
-        <div className="px-8 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-8 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
           {(() => {
             const p = PLANNING_PROFILES.find((x) => x.key === state.profileKey)
             if (!p) return null

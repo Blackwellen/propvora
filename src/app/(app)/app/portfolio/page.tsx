@@ -155,14 +155,14 @@ function Chip({ active, onClick, children, color }: {
 
 /* ── Filter label ── */
 function FLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400 mb-1">{children}</p>
+  return <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{children}</p>
 }
 
 /* ── Filter input ── */
 function FInput({ value, onChange, placeholder, prefix }: { value: string; onChange: (v: string) => void; placeholder?: string; prefix?: string }) {
   return (
     <div className="relative">
-      {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400 font-medium">{prefix}</span>}
+      {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-500 font-medium">{prefix}</span>}
       <input
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -558,7 +558,7 @@ export default function PortfolioPage() {
           </div>
           <div>
             <p className="text-base font-bold text-slate-700">Your portfolio is empty</p>
-            <p className="text-sm text-slate-400 mt-1">Add your first property to start tracking units, tenancies and occupancy.</p>
+            <p className="text-sm text-slate-500 mt-1">Add your first property to start tracking units, tenancies and occupancy.</p>
           </div>
           <Button variant="primary" size="md" asChild>
             <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link>
@@ -749,17 +749,17 @@ export default function PortfolioPage() {
                           <div className="p-3 flex flex-col gap-1.5 flex-1">
                             <div>
                               <p className="text-[12.5px] font-bold text-slate-900 leading-tight truncate">{p.name}</p>
-                              <p className="text-[10.5px] text-slate-400 truncate mt-0.5">{p.address}</p>
+                              <p className="text-[10.5px] text-slate-500 truncate mt-0.5">{p.address}</p>
                             </div>
                             <p className="text-[15px] font-black text-slate-900 tabular-nums leading-none">
-                              {p.monthlyRent > 0 ? <>{fmtGBP(p.monthlyRent)}<span className="text-[11px] text-slate-400 font-medium">/mo</span></> : <span className="text-slate-300">—</span>}
+                              {p.monthlyRent > 0 ? <>{fmtGBP(p.monthlyRent)}<span className="text-[11px] text-slate-500 font-medium">/mo</span></> : <span className="text-slate-300">—</span>}
                             </p>
                             <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
-                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.units}</p><p className="text-[9px] text-slate-400">Units</p></div>
+                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.units}</p><p className="text-[9px] text-slate-500">Units</p></div>
                               <div className="w-px h-5 bg-slate-100" />
-                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.bedrooms ?? p.units}</p><p className="text-[9px] text-slate-400">Beds</p></div>
+                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.bedrooms ?? p.units}</p><p className="text-[9px] text-slate-500">Beds</p></div>
                               <div className="w-px h-5 bg-slate-100" />
-                              <div className="flex flex-col items-center flex-1"><p className={cn("text-[11px] font-bold tabular-nums", occ >= 90 ? "text-emerald-600" : occ >= 70 ? "text-amber-600" : "text-red-600")}>{occ}%</p><p className="text-[9px] text-slate-400">Occ.</p></div>
+                              <div className="flex flex-col items-center flex-1"><p className={cn("text-[11px] font-bold tabular-nums", occ >= 90 ? "text-emerald-600" : occ >= 70 ? "text-amber-600" : "text-red-600")}>{occ}%</p><p className="text-[9px] text-slate-500">Occ.</p></div>
                             </div>
                           </div>
                         </Link>
@@ -798,12 +798,12 @@ export default function PortfolioPage() {
                         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 px-5 py-3.5 flex items-center gap-4">
                           <div className="text-center">
                             <p className="text-[18px] font-black text-slate-900 tabular-nums leading-none">{properties.length}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">Properties</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">Properties</p>
                           </div>
                           <div className="w-px h-8 bg-slate-200" />
                           <div className="text-center">
                             <p className="text-[18px] font-black text-slate-900 tabular-nums leading-none">{cities.length || "—"}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{cities.length === 1 ? "Location" : "Locations"}</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">{cities.length === 1 ? "Location" : "Locations"}</p>
                           </div>
                           <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2563EB] pl-1">
                             <Map className="w-4 h-4" />View map
@@ -988,7 +988,7 @@ export default function PortfolioPage() {
                   <div className="flex items-center justify-between">
                     <p className="text-[12px] text-slate-500">{filteredProperties.length} of {properties.length} properties</p>
                     <button onClick={() => { setPropSearch(""); setPropFStatus("all"); setPropFProfile("all"); setPropFCity(""); setPropFMinRent(""); setPropFMaxRent("") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600 transition-colors">
+                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600 transition-colors">
                       <X className="w-3.5 h-3.5" />Clear all
                     </button>
                   </div>
@@ -1084,7 +1084,7 @@ export default function PortfolioPage() {
                   <div className="flex items-center justify-between">
                     <p className="text-[12px] text-slate-500">{filteredUnits.length} of {units.length} units</p>
                     <button onClick={() => { setUnitSearch(""); setUnitFStatus("all"); setUnitFType("all"); setUnitFProp("all") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600">
+                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600">
                       <X className="w-3.5 h-3.5" />Clear all
                     </button>
                   </div>
@@ -1136,7 +1136,7 @@ export default function PortfolioPage() {
                         <tr key={u.id} className="hover:bg-slate-50/60 transition-colors group">
                           <td className="px-4 py-3">
                             <Link href={`/app/portfolio/units/${u.id}`} className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors">{u.unit_name}</Link>
-                            <p className="text-[11px] text-slate-400">{u.unit_type ?? "Unit"}</p>
+                            <p className="text-[11px] text-slate-500">{u.unit_type ?? "Unit"}</p>
                           </td>
                           <td className="px-4 py-3 text-[12.5px] text-slate-600">{u.property_name ?? "—"}</td>
                           <td className="px-4 py-3">
@@ -1156,7 +1156,7 @@ export default function PortfolioPage() {
                       )
                     })}
                     {filteredUnits.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-slate-400">No units match your filters</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-slate-500">No units match your filters</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1241,7 +1241,7 @@ export default function PortfolioPage() {
                   <div className="flex items-center justify-between">
                     <p className="text-[12px] text-slate-500">{filteredTenancies.length} of {tenancies.length} tenancies</p>
                     <button onClick={() => { setTenSearch(""); setTenFStatus("all"); setTenFArrears(false); setTenFEndingSoon(false); setTenFProp("all"); setTenFProfile("all"); setTenFMinRent(""); setTenFMaxRent("") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600">
+                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600">
                       <X className="w-3.5 h-3.5" />Clear all
                     </button>
                   </div>

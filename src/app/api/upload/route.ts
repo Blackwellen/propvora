@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { buildKey, uploadToR2, fileViewUrl, r2Configured } from "@/lib/r2"
+import {
+  buildKey,
+  uploadToR2,
+  fileViewUrl,
+  r2Configured,
+  sniffContent,
+  isExecutable,
+  sanitizeSvg,
+} from "@/lib/r2"
 import { gateStorage } from "@/lib/billing/gates"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 
@@ -103,8 +111,41 @@ export async function POST(request: Request) {
       )
     }
 
-    const bytes = new Uint8Array(await file.arrayBuffer())
-    await uploadToR2(key, bytes, mimeBase)
+    let bytes: Uint8Array = new Uint8Array(await file.arrayBuffer())
+
+    // ── Content validation: sniff magic bytes (do NOT trust the client MIME) ──
+    // Reject anything that *is* an executable regardless of declared type, then
+    // confirm the real bytes match one of our allowed signatures so a file can't
+    // claim image/png while carrying disguised content.
+    if (isExecutable(bytes)) {
+      return NextResponse.json(
+        { error: "Executable files are not allowed" },
+        { status: 415 }
+      )
+    }
+    const sniff = sniffContent(bytes, mimeBase)
+    if (!sniff.ok) {
+      return NextResponse.json(
+        { error: "File content does not match an allowed type (possible mismatch or disguised file)" },
+        { status: 415 }
+      )
+    }
+
+    // ── Active-SVG neutralisation ─────────────────────────────────────────────
+    // SVG is XML and can carry <script>/on*/javascript: — sanitise before store.
+    let storeType = mimeBase
+    if (sniff.detected === "image/svg+xml") {
+      bytes = sanitizeSvg(bytes)
+      storeType = "image/svg+xml"
+    }
+
+    await uploadToR2(key, Buffer.from(bytes), storeType)
+
+    // Quarantine-ready: every freshly uploaded object starts as scan_status
+    // 'pending'. A downstream AV/scan worker can flip this to 'clean'/'infected'
+    // and gate downloads. Persisted into the audit trail and returned so the
+    // caller can store it on the document metadata row it creates.
+    const scanStatus = "pending"
 
     await recordAudit(supabase, {
       workspaceId,
@@ -112,15 +153,22 @@ export async function POST(request: Request) {
       action: AUDIT_ACTIONS.FILE_UPLOADED,
       resourceType: "file",
       resourceId: key,
-      metadata: { key, size: file.size, type: mimeBase },
+      metadata: {
+        key,
+        size: file.size,
+        type: storeType,
+        detected: sniff.detected,
+        scan_status: scanStatus,
+      },
     })
 
     return NextResponse.json({
       key,
       url: fileViewUrl(key),
       name: file.name,
-      type: mimeBase,
-      size: file.size,
+      type: storeType,
+      size: bytes.byteLength,
+      scanStatus,
     })
   } catch (err) {
     console.error("[api/upload]", err)

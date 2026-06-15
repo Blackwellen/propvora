@@ -44,7 +44,11 @@ function MiniSparkline({ color, trend }: { color: string; trend: number }) {
       ]
 
   return (
-    <div className="w-16 h-8">
+    <div
+      className="w-16 h-8"
+      role="img"
+      aria-label={`Trend ${trend >= 0 ? "up" : "down"}`}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <Line

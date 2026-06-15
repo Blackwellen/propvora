@@ -394,7 +394,7 @@ function DonutChart({
               style={{ background: seg.color }}
             />
             <span className="text-slate-600 flex-1 truncate">{seg.label}</span>
-            <span className="text-slate-400 text-[11px]">{seg.pct}%</span>
+            <span className="text-slate-500 text-[11px]">{seg.pct}%</span>
           </div>
         ))}
       </div>
@@ -565,7 +565,7 @@ export default function ActivityPage() {
               {/* Date header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex-1 h-px bg-slate-100" />
-                <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
                   Today — 10 June 2026
                 </span>
                 <div className="flex-1 h-px bg-slate-100" />
@@ -579,7 +579,7 @@ export default function ActivityPage() {
                     className="flex items-center gap-3 py-3 hover:bg-slate-50/50 transition-colors rounded-xl px-2 -mx-2 group"
                   >
                     {/* Time */}
-                    <span className="text-xs text-slate-400 w-12 shrink-0 text-right">
+                    <span className="text-xs text-slate-500 w-12 shrink-0 text-right">
                       {row.time}
                     </span>
 
@@ -630,7 +630,7 @@ export default function ActivityPage() {
                       <p className="text-sm font-medium text-slate-900 leading-tight">
                         {row.eventTitle}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">
+                      <p className="text-xs text-slate-500 truncate">
                         {row.description}
                       </p>
                     </div>
@@ -668,7 +668,7 @@ export default function ActivityPage() {
                 ))}
 
                 {filteredRows.length === 0 && (
-                  <div className="py-12 text-center text-slate-400 text-sm">
+                  <div className="py-12 text-center text-slate-500 text-sm">
                     No activity matches your filters.
                   </div>
                 )}
@@ -735,7 +735,7 @@ export default function ActivityPage() {
                 {WEEK_BARS.map((bar) => (
                   <span
                     key={bar.day}
-                    className="text-[9px] text-slate-400 flex-1 text-center"
+                    className="text-[9px] text-slate-500 flex-1 text-center"
                   >
                     {bar.day}
                   </span>
@@ -756,7 +756,7 @@ export default function ActivityPage() {
               <div className="flex flex-col gap-3">
                 {MOST_ACTIVE.map((c) => (
                   <div key={c.rank} className="flex items-center gap-3">
-                    <span className="text-xs text-slate-400 w-4 text-center shrink-0">
+                    <span className="text-xs text-slate-500 w-4 text-center shrink-0">
                       {c.rank}
                     </span>
                     <div
@@ -804,7 +804,7 @@ export default function ActivityPage() {
                 <h3 className="text-sm font-semibold text-slate-900">
                   Event Types
                 </h3>
-                <span className="text-xs text-slate-400">This Month</span>
+                <span className="text-xs text-slate-500">This Month</span>
               </div>
               <DonutChart segments={DONUT_SEGMENTS} center="248" />
             </div>

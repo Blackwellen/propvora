@@ -129,12 +129,13 @@ export default function DataPage() {
         <p className="text-[12.5px] text-slate-500 mb-5">
           Configure how long inactive data is retained before archiving
         </p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+            <label htmlFor="data-archive-policy" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
               Archive inactive records
             </label>
             <select
+              id="data-archive-policy"
               value={archivePolicy}
               onChange={(e) => setArchivePolicy(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -146,10 +147,11 @@ export default function DataPage() {
             </select>
           </div>
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+            <label htmlFor="data-document-policy" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
               Document retention
             </label>
             <select
+              id="data-document-policy"
               value={documentPolicy}
               onChange={(e) => setDocumentPolicy(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"

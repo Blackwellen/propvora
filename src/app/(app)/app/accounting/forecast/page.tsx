@@ -88,7 +88,7 @@ export default function ForecastPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Forecast</span>
@@ -119,18 +119,18 @@ export default function ForecastPage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-[#E2E8F0]">
           <h3 className="text-sm font-semibold text-slate-900">Forecast Scenarios</h3>
-          <p className="text-xs text-slate-400 mt-0.5">Scenario definitions stored for this workspace.</p>
+          <p className="text-xs text-slate-500 mt-0.5">Scenario definitions stored for this workspace.</p>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-sm text-slate-400">Loading scenarios…</div>
+          <div className="p-12 text-center text-sm text-slate-500">Loading scenarios…</div>
         ) : scenarios.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
               <LineChart className="w-5 h-5 text-[#2563EB]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No forecast scenarios yet</p>
-            <p className="text-xs text-slate-400 max-w-md">
+            <p className="text-xs text-slate-500 max-w-md">
               Create a base plan to forecast income and expenses, then compare against actuals from the ledger.
               No projections are shown until a scenario is defined.
             </p>
@@ -159,7 +159,7 @@ export default function ForecastPage() {
                         {s.is_base && <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />}
                         <div>
                           <p className="text-[13px] font-semibold text-slate-900">{s.name}</p>
-                          {s.description && <p className="text-[11px] text-slate-400 max-w-md truncate">{s.description}</p>}
+                          {s.description && <p className="text-[11px] text-slate-500 max-w-md truncate">{s.description}</p>}
                         </div>
                       </div>
                     </td>

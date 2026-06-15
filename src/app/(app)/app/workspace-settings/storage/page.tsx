@@ -103,10 +103,11 @@ export default function StoragePage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-5">Upload Limits</h3>
         <div className="mb-5">
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-2">
+          <label htmlFor="ws-max-file-size" className="block text-[12.5px] font-semibold text-slate-700 mb-2">
             Maximum file size
           </label>
           <select
+            id="ws-max-file-size"
             value={fileSizeLimit}
             onChange={(e) => { setFileSizeLimit(e.target.value); setIsDirty(true) }}
             className="w-full max-w-[240px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -148,12 +149,13 @@ export default function StoragePage() {
       {/* Retention policy */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-5">Retention Policy</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-2">
+            <label htmlFor="ws-archive-policy" className="block text-[12.5px] font-semibold text-slate-700 mb-2">
               Archive inactive records
             </label>
             <select
+              id="ws-archive-policy"
               value={retentionPolicy}
               onChange={(e) => { setRetentionPolicy(e.target.value); setIsDirty(true) }}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -165,10 +167,11 @@ export default function StoragePage() {
             </select>
           </div>
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-2">
+            <label htmlFor="ws-doc-retention" className="block text-[12.5px] font-semibold text-slate-700 mb-2">
               Document retention
             </label>
             <select
+              id="ws-doc-retention"
               onChange={() => setIsDirty(true)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
             >

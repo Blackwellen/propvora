@@ -197,7 +197,7 @@ export default function CommandPalette() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[10000] flex items-start justify-center px-4 pt-[12vh]"
+      className="fixed inset-0 z-[10000] flex items-start justify-center px-3 pt-[6vh] sm:px-4 sm:pt-[12vh]"
       role="presentation"
       onMouseDown={(e) => { if (e.target === e.currentTarget) doClose() }}
     >
@@ -240,7 +240,7 @@ export default function CommandPalette() {
           id="cmdk-listbox"
           role="listbox"
           aria-label="Search results"
-          className="max-h-[min(60vh,460px)] overflow-y-auto overscroll-contain py-2"
+          className="max-h-[min(70vh,460px)] sm:max-h-[min(60vh,460px)] overflow-y-auto overscroll-contain py-2"
         >
           {flat.length === 0 ? (
             <div className="px-4 py-12 text-center">

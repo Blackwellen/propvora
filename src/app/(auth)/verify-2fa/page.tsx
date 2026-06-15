@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { AlertCircle, ArrowLeft, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
@@ -10,8 +10,14 @@ import { cn } from "@/lib/utils"
 
 const OTP_LENGTH = 6
 
-export default function Verify2FAPage() {
+function Verify2FAInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // Only honour same-origin relative paths to avoid open-redirects.
+  const rawRedirect = searchParams.get("redirectTo") ?? "/app"
+  const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+    ? rawRedirect
+    : "/app"
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""))
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
@@ -109,7 +115,7 @@ export default function Verify2FAPage() {
       return
     }
 
-    router.push("/app")
+    router.push(redirectTo)
     router.refresh()
   }
 
@@ -228,5 +234,13 @@ export default function Verify2FAPage() {
         </Link>
       </div>
     </>
+  )
+}
+
+export default function Verify2FAPage() {
+  return (
+    <Suspense fallback={null}>
+      <Verify2FAInner />
+    </Suspense>
   )
 }

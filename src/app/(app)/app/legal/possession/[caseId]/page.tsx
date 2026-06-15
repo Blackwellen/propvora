@@ -124,7 +124,7 @@ export default function PossessionCaseDetailPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
           <Link href="/app/legal/possession" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -184,7 +184,7 @@ export default function PossessionCaseDetailPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-slate-200 bg-white px-6">
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
         <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
@@ -206,15 +206,15 @@ export default function PossessionCaseDetailPage() {
       </div>
 
       {/* Persistent disclaimer */}
-      <div className="px-6 pt-4">
+      <div className="px-4 sm:px-6 pt-4">
         <LegalDisclaimer />
       </div>
 
       {/* Tab content */}
-      <div className="px-6 py-6">
+      <div className="px-4 sm:px-6 py-6">
         {activeTab === "Overview" && (
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-8 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8 space-y-4 min-w-0">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-100">
                   <h2 className="text-[13px] font-semibold text-slate-800">Case Summary</h2>
@@ -258,7 +258,7 @@ export default function PossessionCaseDetailPage() {
               </div>
             </div>
 
-            <div className="col-span-4 space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <h3 className="text-[13px] font-semibold text-slate-800 mb-3">Quick Actions</h3>
                 <div className="space-y-2">
@@ -312,8 +312,8 @@ export default function PossessionCaseDetailPage() {
         )}
 
         {activeTab === "Evidence" && (
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-8 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8 space-y-4 min-w-0">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-[13px] font-semibold text-slate-800">Evidence Chain</h2>
@@ -378,7 +378,7 @@ export default function PossessionCaseDetailPage() {
                 </div>
               </div>
             </div>
-            <div className="col-span-4">
+            <div className="lg:col-span-4">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <h3 className="text-[13px] font-semibold text-slate-800 mb-2">Evidence Coverage</h3>
                 <p className="text-2xl font-bold text-slate-900">{evidence.length}</p>

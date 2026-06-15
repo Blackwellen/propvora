@@ -135,7 +135,7 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                           className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block">
                           {p.name}
                         </Link>
-                        <p className="text-[11px] text-slate-400 truncate">
+                        <p className="text-[11px] text-slate-500 truncate">
                           {p.address}{p.postcode ? `, ${p.postcode}` : ""}
                         </p>
                       </div>
@@ -156,10 +156,10 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                           {badge.label}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-slate-400">{p.type}</span>
+                        <span className="text-[11px] text-slate-500">{p.type}</span>
                       )}
                       {dwellingLabel && (
-                        <span className="text-[10px] text-slate-400 whitespace-nowrap">{dwellingLabel}</span>
+                        <span className="text-[10px] text-slate-500 whitespace-nowrap">{dwellingLabel}</span>
                       )}
                     </div>
                   </td>
@@ -218,7 +218,7 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-sm text-slate-400">No properties found</td>
+                <td colSpan={8} className="px-4 py-12 text-center text-sm text-slate-500">No properties found</td>
               </tr>
             )}
           </tbody>

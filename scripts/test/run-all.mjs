@@ -9,6 +9,7 @@ const suites = [
   ["Anonymous exposure (no leak to anon)", "scripts/test/anon-exposure.mjs"],
   ["IDOR sweep (cross-workspace object refs)", "scripts/test/idor-sweep.mjs"],
   ["Role within workspace (RBAC gates)", "scripts/test/role-within-workspace.mjs"],
+  ["Supplier portal scoping (RLS per-supplier)", "scripts/test/supplier-scope.mjs"],
 ]
 
 let failed = 0

@@ -178,7 +178,7 @@ export default function AIPage() {
 
       {/* Sticky save bar */}
       {isDirty && !unavailable && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shadow-lg">
           <div>
             <p className="text-[13px] text-slate-600">You have unsaved changes</p>
             {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}

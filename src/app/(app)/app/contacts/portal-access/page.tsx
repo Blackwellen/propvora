@@ -12,6 +12,7 @@ import ContactsKpiCard from "@/components/contacts/ContactsKpiCard"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/hooks/useWorkspace"
+import ShareLinksPanel from "./ShareLinksPanel"
 
 // ─── Avatar helpers ────────────────────────────────────────────────────────────
 const AVATAR_BG = [
@@ -128,18 +129,19 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="create-link-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-slate-900">Create Portal Link</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
+          <h2 id="create-link-title" className="text-base font-bold text-slate-900">Create Portal Link</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
+            <label htmlFor="create-link-contact" className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
             <select
+              id="create-link-contact"
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all max-h-60"
@@ -150,8 +152,9 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Purpose</label>
+            <label htmlFor="create-link-purpose" className="block text-xs font-semibold text-slate-700 mb-1.5">Purpose</label>
             <select
+              id="create-link-purpose"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all"
@@ -167,8 +170,9 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Expiry</label>
+            <label htmlFor="create-link-expiry" className="block text-xs font-semibold text-slate-700 mb-1.5">Expiry</label>
             <select
+              id="create-link-expiry"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all"
@@ -404,7 +408,7 @@ export default function PortalAccessPage() {
         </div>
 
         {/* Main 2-col layout */}
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col xl:flex-row gap-6 items-start">
           {/* Main content */}
           <div className="flex-1 min-w-0 space-y-4">
             {/* Filters */}
@@ -429,13 +433,16 @@ export default function PortalAccessPage() {
               <div className="relative">
                 <button
                   onClick={() => setTypeDropOpen((o) => !o)}
-                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+                  aria-haspopup="menu"
+                  aria-expanded={typeDropOpen}
+                  aria-label="Filter by contact type"
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                 >
                   {TYPE_OPTIONS.find((o) => o.key === typeFilter)?.label ?? "All Types"}
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
                 {typeDropOpen && (
-                  <div className="absolute top-full mt-1 left-0 z-20 w-40 rounded-lg border border-slate-200 bg-white shadow-lg py-1">
+                  <div role="menu" className="absolute top-full mt-1 left-0 z-20 w-40 rounded-lg border border-slate-200 bg-white shadow-lg py-1">
                     {TYPE_OPTIONS.map((o) => (
                       <button
                         key={o.key}
@@ -459,13 +466,14 @@ export default function PortalAccessPage() {
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <input
                   type="text"
+                  aria-label="Search links"
                   placeholder="Search links..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-48 transition-all"
                 />
                 {search && (
-                  <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -551,18 +559,20 @@ export default function PortalAccessPage() {
                               <button
                                 onClick={() => handleCopy(link.id)}
                                 title="Copy Link"
-                                className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                aria-label={`Copy portal link for ${link.contactName}`}
+                                className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                               >
                                 {copiedId === link.id ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                               </button>
-                              <button title="Regenerate" className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors">
+                              <button title="Regenerate" aria-label={`Regenerate link for ${link.contactName}`} className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40">
                                 <RefreshCw className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleRevoke(link.id)}
                                 title={confirmRevokeId === link.id ? "Confirm revoke" : "Revoke"}
+                                aria-label={confirmRevokeId === link.id ? `Confirm revoke link for ${link.contactName}` : `Revoke link for ${link.contactName}`}
                                 className={cn(
-                                  "p-1.5 rounded-md transition-colors",
+                                  "p-1.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40",
                                   confirmRevokeId === link.id
                                     ? "text-red-600 bg-red-50"
                                     : "text-slate-400 hover:text-red-600 hover:bg-red-50"
@@ -570,7 +580,7 @@ export default function PortalAccessPage() {
                               >
                                 <XCircle className="w-4 h-4" />
                               </button>
-                              <button title="Open" className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                              <button title="Open" aria-label={`Open portal link for ${link.contactName}`} className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
                                 <ExternalLink className="w-4 h-4" />
                               </button>
                             </div>
@@ -614,10 +624,13 @@ export default function PortalAccessPage() {
                 ))}
               </div>
             </div>
+
+            {/* Recipient share links (resource-scoped /p/ links) */}
+            <ShareLinksPanel workspaceId={workspace?.id} />
           </div>
 
           {/* Right panel */}
-          <aside className="w-72 shrink-0 sticky top-6 space-y-4">
+          <aside className="w-full xl:w-72 shrink-0 xl:sticky xl:top-6 space-y-4">
             {/* Create Link Wizard */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">

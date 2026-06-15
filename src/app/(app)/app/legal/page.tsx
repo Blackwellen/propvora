@@ -92,7 +92,7 @@ export default function LegalOverviewPage() {
 
   return (
     <>
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
             <Scale className="w-5 h-5 text-slate-600" />
@@ -111,7 +111,7 @@ export default function LegalOverviewPage() {
         </Link>
       </div>
 
-      <div className="px-6 pt-4 grid grid-cols-4 gap-4">
+      <div className="px-4 sm:px-6 pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {CARDS.map((c) => {
           const Icon = c.icon
           return (
@@ -131,9 +131,9 @@ export default function LegalOverviewPage() {
         })}
       </div>
 
-      <div className="px-6 pt-4 pb-6 grid grid-cols-12 gap-4">
+      <div className="px-4 sm:px-6 pt-4 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Upcoming licence expiries */}
-        <div className="col-span-8">
+        <div className="lg:col-span-8 min-w-0">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Upcoming Licence Expiries</h2>
@@ -168,7 +168,7 @@ export default function LegalOverviewPage() {
         </div>
 
         {/* Legal safety */}
-        <div className="col-span-4">
+        <div className="lg:col-span-4">
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>

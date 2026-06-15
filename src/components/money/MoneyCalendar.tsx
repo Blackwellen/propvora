@@ -108,20 +108,20 @@ export function MoneyCalendar({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
-            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
             aria-label="Previous month"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => setMonth(new Date())}
-            className="h-7 px-2.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50"
+            className="h-7 px-2.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
           >
             Today
           </button>
           <button
             onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
-            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
             aria-label="Next month"
           >
             <ChevronRight className="w-4 h-4" />
@@ -132,7 +132,7 @@ export function MoneyCalendar({
       {/* Day-of-week header */}
       <div className="grid grid-cols-7 mb-1">
         {DOW.map((d) => (
-          <div key={d} className="text-[10.5px] font-semibold text-slate-400 text-center py-1">{d}</div>
+          <div key={d} className="text-[10.5px] font-semibold text-slate-500 text-center py-1">{d}</div>
         ))}
       </div>
 

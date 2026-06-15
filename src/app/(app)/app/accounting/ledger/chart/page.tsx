@@ -108,7 +108,7 @@ export default function ChartOfAccountsPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center text-slate-400 text-sm">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center text-slate-500 text-sm">
           Loading chart of accounts…
         </div>
       ) : accounts.length === 0 ? (
@@ -117,7 +117,7 @@ export default function ChartOfAccountsPage() {
             <Plus className="w-5 h-5 text-[#2563EB]" />
           </div>
           <p className="text-sm font-semibold text-slate-700">No accounts yet</p>
-          <p className="text-xs text-slate-400 max-w-sm">
+          <p className="text-xs text-slate-500 max-w-sm">
             Seed the default UK property chart of accounts to start posting. Balances are computed live from posted journal entries.
           </p>
           {canPost ? (
@@ -125,7 +125,7 @@ export default function ChartOfAccountsPage() {
               Seed Default Chart
             </Button>
           ) : (
-            <p className="text-xs text-slate-400 flex items-center gap-1"><Lock className="w-3 h-3" /> Ask a finance-capable member to set this up.</p>
+            <p className="text-xs text-slate-500 flex items-center gap-1"><Lock className="w-3 h-3" /> Ask a finance-capable member to set this up.</p>
           )}
         </div>
       ) : (
@@ -179,7 +179,7 @@ function AccountTypeSection({
                     <Link href={`/app/accounting/ledger/accounts/${a.id}`} className="text-[13px] font-medium text-slate-900 hover:text-[#2563EB]">
                       {a.name}
                     </Link>
-                    {a.is_system && <span className="ml-2 text-[10px] text-slate-400">system</span>}
+                    {a.is_system && <span className="ml-2 text-[10px] text-slate-500">system</span>}
                   </td>
                   <td className="px-4 py-3"><span className="text-[11px] font-medium text-slate-500 capitalize">{a.normal_side}</span></td>
                   <td className="px-4 py-3 text-right">

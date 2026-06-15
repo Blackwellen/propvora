@@ -55,7 +55,7 @@ export default function ChatBubble({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ type: "spring", stiffness: 420, damping: 30 }}
-          className="pwa-safe-bottom fixed bottom-7 right-7 z-50"
+          className="group pwa-safe-bottom fixed bottom-7 right-7 z-50"
         >
           {/* Tooltip */}
           <div
@@ -66,8 +66,7 @@ export default function ChatBubble({
               "px-3 py-1.5 rounded-lg",
               "bg-gray-900 text-white text-xs font-medium whitespace-nowrap",
               "shadow-lg pointer-events-none",
-              "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-              // always visible on focus via peer
+              "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200",
             )}
           >
             Propvora Copilot &amp; Inbox
@@ -77,7 +76,8 @@ export default function ChatBubble({
 
           {/* Breathing outer glow ring */}
           <motion.div
-            className="absolute -inset-2 rounded-full"
+            className="absolute -inset-2 rounded-full motion-reduce:!opacity-50 motion-reduce:![transform:none]"
+            aria-hidden
             style={{
               background:
                 "radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0) 70%)",
@@ -95,7 +95,8 @@ export default function ChatBubble({
 
           {/* Animated ring — outer */}
           <motion.div
-            className="absolute inset-0 rounded-full ring-4 ring-[#2563EB]/40"
+            className="absolute inset-0 rounded-full ring-4 ring-[#2563EB]/40 motion-reduce:!opacity-60 motion-reduce:![transform:none]"
+            aria-hidden
             animate={{
               opacity: [0.4, 0.85, 0.4],
               scale: [1, 1.05, 1],

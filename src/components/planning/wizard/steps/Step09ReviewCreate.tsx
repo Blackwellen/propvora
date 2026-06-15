@@ -291,7 +291,7 @@ export default function Step09ReviewCreate() {
   return (
     <div className="flex flex-col">
       {/* ── Top Readiness Banner ─────────────────────────────────────────────────── */}
-      <div className="px-8 py-5 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-5 border-b border-slate-100">
         <h1 className="text-[22px] font-bold text-slate-900 mb-1">Review &amp; Create</h1>
         <p className="text-[13.5px] text-slate-500 mb-5">
           Review your complete plan. Make any final edits and create the planning set when
@@ -335,9 +335,9 @@ export default function Step09ReviewCreate() {
       </div>
 
       {/* ── Main Content: Review Cards + Right Panel ────────────────────────────── */}
-      <div className="flex gap-0">
+      <div className="flex flex-col xl:flex-row gap-0">
         {/* Left: review cards grid */}
-        <div className="flex-1 px-8 py-6 min-w-0">
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 min-w-0">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 1: Selected Profile */}
             <ReviewCard
@@ -686,7 +686,7 @@ export default function Step09ReviewCreate() {
         </div>
 
         {/* Right: 260px create panel */}
-        <div className="w-[260px] shrink-0 border-l border-slate-100 flex flex-col">
+        <div className="w-full xl:w-[260px] shrink-0 border-t xl:border-t-0 xl:border-l border-slate-100 flex flex-col">
           <div className="p-4 flex flex-col gap-4 overflow-y-auto flex-1">
             {/* Live Summary */}
             <div>
@@ -886,7 +886,7 @@ export default function Step09ReviewCreate() {
       </div>
 
       {/* ── Bottom Action Bar ────────────────────────────────────────────────────── */}
-      <div className="px-8 py-4 border-t border-slate-100 flex items-center justify-between bg-white flex-wrap gap-3">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-slate-100 flex items-center justify-between bg-white flex-wrap gap-3">
         <button
           onClick={() => setStep(8)}
           className="flex items-center gap-2 h-10 px-5 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"

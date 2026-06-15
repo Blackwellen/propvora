@@ -138,7 +138,7 @@ export default function ViewingsPage() {
               {DAY_LABELS.map((day, i) => (
                 <div key={day} className="px-3 py-3 border-r border-slate-100 last:border-r-0 text-center">
                   <p className="text-[11px] font-semibold text-slate-800">{day}</p>
-                  <p className="text-[10px] text-slate-400">{DAY_DATES[i]}</p>
+                  <p className="text-[10px] text-slate-500">{DAY_DATES[i]}</p>
                 </div>
               ))}
             </div>
@@ -155,7 +155,7 @@ export default function ViewingsPage() {
                       style={{ gridColumn: 1, gridRow: rowIdx + 1, height: 40 }}
                     >
                       {rowIdx % 2 === 0 && (
-                        <span className="text-[10px] text-slate-400 pt-1">{slot}</span>
+                        <span className="text-[10px] text-slate-500 pt-1">{slot}</span>
                       )}
                     </div>
                     {/* Day cells */}
@@ -195,7 +195,8 @@ export default function ViewingsPage() {
         ) : (
           /* ── List view ── */
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-            <table className="w-full text-left">
+            <div className="overflow-x-auto">
+            <table className="w-full text-left min-w-[760px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
                   {LIST_COLUMNS.map((col) => (
@@ -220,7 +221,7 @@ export default function ViewingsPage() {
                       <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium">{v.status}</span>
                     </td>
                     <td className="px-4 py-3 text-[12px] text-slate-600">{v.agent}</td>
-                    <td className="px-4 py-3 text-[12px] text-slate-400">{v.feedback}</td>
+                    <td className="px-4 py-3 text-[12px] text-slate-500">{v.feedback}</td>
                     <td className="px-4 py-3">
                       <button className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors">
                         View
@@ -230,6 +231,7 @@ export default function ViewingsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

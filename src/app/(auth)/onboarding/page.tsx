@@ -134,7 +134,7 @@ const PROGRESS_MESSAGES = [
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5" role="img" aria-label={`Step ${current} of ${total}`}>
         {Array.from({ length: total }, (_, i) => i + 1).map((step) => (
           <React.Fragment key={step}>
             <div
@@ -421,6 +421,7 @@ export default function OnboardingPage() {
                     <button
                       key={bt.value}
                       type="button"
+                      aria-pressed={state.businessType === bt.value}
                       onClick={() => update("businessType", bt.value)}
                       className={cn(
                         "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-all",
@@ -447,6 +448,7 @@ export default function OnboardingPage() {
                     <button
                       key={pc.value}
                       type="button"
+                      aria-pressed={state.propertyCount === pc.value}
                       onClick={() => update("propertyCount", pc.value)}
                       className={cn(
                         "rounded-lg border px-4 py-2 text-sm font-medium transition-all",
@@ -483,6 +485,7 @@ export default function OnboardingPage() {
                     <button
                       key={op.value}
                       type="button"
+                      aria-pressed={checked}
                       onClick={() => toggleInterest(op.value)}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
@@ -555,6 +558,7 @@ export default function OnboardingPage() {
                 {/* Add manually */}
                 <button
                   type="button"
+                  aria-pressed={state.portfolioChoice === "manual"}
                   onClick={() => update("portfolioChoice", "manual")}
                   className={cn(
                     "flex w-full items-start gap-3 rounded-xl border px-4 py-4 text-left transition-all",
@@ -584,6 +588,7 @@ export default function OnboardingPage() {
                 {/* Demo data */}
                 <button
                   type="button"
+                  aria-pressed={state.portfolioChoice === "demo"}
                   onClick={() => update("portfolioChoice", "demo")}
                   className={cn(
                     "flex w-full items-start gap-3 rounded-xl border px-4 py-4 text-left transition-all",
@@ -638,6 +643,7 @@ export default function OnboardingPage() {
                   <button
                     key={dv.value}
                     type="button"
+                    aria-pressed={state.demoVariant === dv.value}
                     onClick={() => update("demoVariant", dv.value)}
                     className={cn(
                       "flex w-full items-start gap-3 rounded-xl border px-4 py-4 text-left transition-all",
@@ -691,6 +697,7 @@ export default function OnboardingPage() {
                   <button
                     key={plan.id}
                     type="button"
+                    aria-pressed={state.planId === plan.id}
                     onClick={() => update("planId", plan.id)}
                     className={cn(
                       "w-full rounded-xl border px-4 py-4 text-left transition-all",

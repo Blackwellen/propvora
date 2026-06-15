@@ -224,7 +224,7 @@ function StepFinancials({ register, errors }: { register: ReturnType<typeof useF
     <div className="flex flex-col gap-5">
       <Field label="Target monthly rent (£)" error={errors.target_rent?.message}>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">£</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">£</span>
           <TextInput {...register("target_rent")} type="number" min={0} className="pl-7" placeholder="2850" />
         </div>
       </Field>
@@ -354,7 +354,7 @@ export default function PropertyEditPage() {
   return (
     <DashboardContainer>
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-slate-400 mb-6">
+      <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-6">
         <Link href="/app/portfolio" className="hover:text-slate-600 transition-colors">Portfolio</Link>
         <span>/</span>
         <Link href={`/app/portfolio/properties/${id}`} className="hover:text-slate-600 transition-colors truncate max-w-[140px]">
@@ -433,7 +433,7 @@ export default function PropertyEditPage() {
             </Button>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Step {step} of {STEPS.length}</span>
+              <span className="text-xs text-slate-500">Step {step} of {STEPS.length}</span>
               <Button
                 type="submit"
                 variant="primary"

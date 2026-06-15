@@ -37,7 +37,7 @@ export function AiInsightPanel({ suggestions }: { suggestions: AiSuggestion[] })
         </div>
         <div className="ml-auto">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-400/20 border border-violet-400/30 text-violet-300 text-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse motion-reduce:animate-none" aria-hidden />
             Live
           </span>
         </div>

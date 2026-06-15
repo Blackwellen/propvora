@@ -140,7 +140,7 @@ function NoticePreviewInner() {
           </div>
 
           <div className="p-6 space-y-5">
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Item icon={Building2} label="Property" value={property} sub={caseData?.ground} />
               <Item icon={User} label="Respondent" value={tenant} />
               <Item icon={FileText} label="Ground(s)" value={caseData?.ground ?? "—"} />

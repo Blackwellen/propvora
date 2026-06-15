@@ -139,7 +139,7 @@ function PropertyListItem({
           </div>
         </div>
         <p className="text-[12.5px] font-semibold text-slate-900 truncate">{p.name}</p>
-        <p className="text-[10.5px] text-slate-400 truncate">{p.address}</p>
+        <p className="text-[10.5px] text-slate-500 truncate">{p.address}</p>
         <div className="flex items-center gap-1.5 mt-1 text-[10.5px]">
           <span className="text-slate-500">{p.units} units</span>
           <span className="text-slate-300">·</span>
@@ -157,7 +157,7 @@ function PropertyListItem({
           <span className={cn("inline-flex items-center gap-1 text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full", statusCfg.bg, statusCfg.text)}>
             <span className={cn("w-1 h-1 rounded-full", statusCfg.dot)} />{statusCfg.label}
           </span>
-          {p.updatedAt && <span className="text-[9.5px] text-slate-400">Updated {p.updatedAt}</span>}
+          {p.updatedAt && <span className="text-[9.5px] text-slate-500">Updated {p.updatedAt}</span>}
         </div>
       </div>
     </button>
@@ -244,7 +244,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
                   {getInitials(p.manager)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-slate-400 font-medium">Property Manager</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Property Manager</p>
                   <p className="text-[12px] font-semibold text-slate-800 truncate">{p.manager}</p>
                 </div>
               </div>
@@ -255,7 +255,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
                   <Building2 className="w-3.5 h-3.5 text-slate-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-slate-400 font-medium">Owner / Landlord</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Owner / Landlord</p>
                   <p className="text-[12px] font-semibold text-slate-800 truncate">{p.owner}</p>
                 </div>
               </div>
@@ -276,7 +276,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
             return (
               <div key={s.label} className="bg-slate-50 rounded-xl p-2.5 text-center">
                 <p className={cn("text-[13px] font-bold tabular-nums leading-none", s.color)}>{s.value}</p>
-                <p className="text-[9.5px] text-slate-400 mt-0.5 font-medium leading-tight">{s.label}</p>
+                <p className="text-[9.5px] text-slate-500 mt-0.5 font-medium leading-tight">{s.label}</p>
               </div>
             )
           })}
@@ -304,7 +304,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
         </div>
 
         {/* Metadata footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10.5px] text-slate-400">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10.5px] text-slate-500">
           <span>{p.updatedAt ? `Last updated ${p.updatedAt}` : ""}</span>
           <span className="font-mono">{p.propertyId ?? p.id.slice(0, 8)}</span>
           <ActionMenu
@@ -358,7 +358,7 @@ function InsightStrip({ properties }: { properties: PropertyMapData[] }) {
               <p className="text-[11px] font-semibold text-slate-700">{c.label}</p>
             </div>
             <p className="text-[20px] font-black text-slate-900 tabular-nums leading-none">{c.value}</p>
-            <p className="text-[10.5px] text-slate-400 mt-0.5">{c.sub}</p>
+            <p className="text-[10.5px] text-slate-500 mt-0.5">{c.sub}</p>
           </div>
         )
       })}
@@ -459,7 +459,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
             </div>
             {/* Sort row */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-400 font-medium">Sort by:</span>
+              <span className="text-[11px] text-slate-500 font-medium">Sort by:</span>
               <button className="text-[11px] font-semibold text-slate-600 hover:text-[#2563EB] transition-colors flex items-center gap-0.5">
                 Recently updated <ChevronRight className="w-3 h-3" />
               </button>
@@ -479,7 +479,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center py-10 gap-2">
                 <Building2 className="w-8 h-8 text-slate-200" />
-                <p className="text-[12px] text-slate-400">No properties match filters</p>
+                <p className="text-[12px] text-slate-500">No properties match filters</p>
               </div>
             ) : filtered.map(p => (
               <PropertyListItem
@@ -492,7 +492,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
 
           {/* Pagination footer */}
           <div className="px-3 py-2.5 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-[11px] text-slate-400">Showing 1–{Math.min(4, filtered.length)} of {properties.length}</p>
+            <p className="text-[11px] text-slate-500">Showing 1–{Math.min(4, filtered.length)} of {properties.length}</p>
             <div className="flex items-center gap-0.5">
               {[1, 2, 3].map(n => (
                 <button key={n} className={cn("w-5 h-5 rounded text-[10px] font-semibold transition-all",
@@ -501,7 +501,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
                 </button>
               ))}
               <span className="text-[10px] text-slate-300 px-0.5">…</span>
-              <button className="w-5 h-5 rounded text-[10px] font-semibold text-slate-400 hover:bg-slate-100">6</button>
+              <button className="w-5 h-5 rounded text-[10px] font-semibold text-slate-500 hover:bg-slate-100">6</button>
             </div>
           </div>
         </div>
@@ -582,7 +582,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
           </div>
 
           {/* Attribution */}
-          <div className="absolute bottom-2 right-2 text-[9px] text-slate-400/70 z-20">
+          <div className="absolute bottom-2 right-2 text-[9px] text-slate-500/70 z-20">
             © CartoDB · OpenStreetMap
           </div>
         </div>

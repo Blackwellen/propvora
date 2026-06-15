@@ -123,7 +123,7 @@ function NewEntryModal({
             <h2 className="text-base font-bold text-slate-900">New Journal Entry</h2>
             <p className="text-xs text-slate-500 mt-0.5">Debits must equal credits before the entry can be posted.</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -161,7 +161,8 @@ function NewEntryModal({
 
           {/* Lines */}
           <div className="rounded-xl border border-[#E2E8F0] overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-[#E2E8F0]">
                   <th className="px-3 py-2 text-left text-[11px] font-semibold text-slate-500 uppercase">Account</th>
@@ -220,7 +221,8 @@ function NewEntryModal({
                       <button
                         onClick={() => remove(r.id)}
                         disabled={rows.length <= 2}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30"
+                        aria-label="Remove line"
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -229,6 +231,7 @@ function NewEntryModal({
                 ))}
               </tbody>
             </table>
+            </div>
             <div className="px-3 py-2 border-t border-[#E2E8F0]">
               <button onClick={() => setRows((p) => [...p, newRow()])} className="text-xs font-medium text-[#2563EB] hover:underline">
                 + Add line
@@ -263,7 +266,7 @@ function NewEntryModal({
         </div>
 
         <div className="px-6 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
-          <p className="text-xs text-slate-400">Posted entries are immutable — correct via reversal.</p>
+          <p className="text-xs text-slate-500">Posted entries are immutable — correct via reversal.</p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
             <Button variant="primary" size="sm" onClick={submit} disabled={!balanced || posting || accounts.length === 0}>
@@ -375,7 +378,7 @@ export default function JournalLedgerPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Journal Ledger</span>
@@ -412,7 +415,7 @@ export default function JournalLedgerPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
-            <span className="text-slate-400 text-sm">–</span>
+            <span className="text-slate-500 text-sm">–</span>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
           </div>
           <div className="relative flex-1 min-w-[180px] max-w-xs">
@@ -460,7 +463,7 @@ export default function JournalLedgerPage() {
                       <p className="text-sm font-semibold text-slate-700">
                         {rows.length === 0 ? "No journal entries yet" : "No entries match your filters"}
                       </p>
-                      <p className="text-xs text-slate-400 max-w-sm">
+                      <p className="text-xs text-slate-500 max-w-sm">
                         {rows.length === 0
                           ? "Post your first balanced double-entry transaction to start building the ledger. Trial balance and reports compute from these lines."
                           : "Adjust your date range or search to see entries."}

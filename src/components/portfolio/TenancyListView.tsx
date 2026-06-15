@@ -194,7 +194,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                   {/* Rent */}
                   <td className="px-4 py-3 text-right">
                     <p className="text-[13px] font-bold text-slate-900 tabular-nums">{fmt(t.rent_amount)}</p>
-                    <p className="text-[10px] text-slate-400">{rentFreq}</p>
+                    <p className="text-[10px] text-slate-500">{rentFreq}</p>
                   </td>
                   {/* Deposit */}
                   <td className="px-4 py-3 text-right">
@@ -202,7 +202,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                       ? <div>
                           <p className="text-[12px] font-semibold text-slate-700 tabular-nums">{fmt(t.deposit_amount)}</p>
                           {t.deposit_held_by && (
-                            <p className="text-[9.5px] text-slate-400 flex items-center justify-end gap-0.5">
+                            <p className="text-[9.5px] text-slate-500 flex items-center justify-end gap-0.5">
                               <Shield className="w-2.5 h-2.5" />Protected
                             </p>
                           )}
@@ -243,7 +243,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-400">No tenancies found</td>
+                <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-500">No tenancies found</td>
               </tr>
             )}
           </tbody>

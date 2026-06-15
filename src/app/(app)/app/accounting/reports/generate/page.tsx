@@ -58,7 +58,7 @@ export default function ReportGeneratePage() {
     <div key="step1" className="space-y-4">
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Select Reports</h3>
-        <p className="text-xs text-slate-400 mb-5">Choose one or more reports to include in this pack.</p>
+        <p className="text-xs text-slate-500 mb-5">Choose one or more reports to include in this pack.</p>
         <div className="grid grid-cols-2 gap-3">
           {ALL_REPORTS.map((r) => {
             const selected = selectedReports.has(r.id)
@@ -76,15 +76,15 @@ export default function ReportGeneratePage() {
                   : <Square className="w-4 h-4 text-slate-300 shrink-0 mt-0.5" />}
                 <div>
                   <p className={cn("text-sm font-semibold", selected ? "text-[#2563EB]" : "text-slate-800")}>{r.name}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{r.desc}</p>
-                  <span className="text-[10px] font-semibold text-slate-400 mt-1 block">{r.category}</span>
+                  <p className="text-xs text-slate-500 mt-0.5">{r.desc}</p>
+                  <span className="text-[10px] font-semibold text-slate-500 mt-1 block">{r.category}</span>
                 </div>
               </div>
             )
           })}
         </div>
         <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
-          <span className="text-xs text-slate-400">{selectedReports.size} of {ALL_REPORTS.length} selected</span>
+          <span className="text-xs text-slate-500">{selectedReports.size} of {ALL_REPORTS.length} selected</span>
           <div className="flex gap-2">
             <button
               onClick={() => setSelectedReports(new Set(ALL_REPORTS.map((r) => r.id)))}
@@ -108,7 +108,7 @@ export default function ReportGeneratePage() {
     <div key="step2" className="space-y-4">
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Filters &amp; Options</h3>
-        <p className="text-xs text-slate-400 mb-5">Configure how this report pack will be generated.</p>
+        <p className="text-xs text-slate-500 mb-5">Configure how this report pack will be generated.</p>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Period</label>
@@ -179,7 +179,7 @@ export default function ReportGeneratePage() {
     <div key="step3" className="space-y-4">
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Recipients</h3>
-        <p className="text-xs text-slate-400 mb-5">Choose who will receive this report pack.</p>
+        <p className="text-xs text-slate-500 mb-5">Choose who will receive this report pack.</p>
         <div className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Add Email Address</label>
@@ -228,10 +228,10 @@ export default function ReportGeneratePage() {
     <div key="step4" className="space-y-4">
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Review &amp; Generate</h3>
-        <p className="text-xs text-slate-400 mb-5">Review your report pack configuration before generating.</p>
+        <p className="text-xs text-slate-500 mb-5">Review your report pack configuration before generating.</p>
         <div className="space-y-4">
           <div className="bg-slate-50 rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Selected Reports ({selectedReports.size})</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Selected Reports ({selectedReports.size})</p>
             <div className="flex flex-wrap gap-2">
               {ALL_REPORTS.filter((r) => selectedReports.has(r.id)).map((r) => (
                 <span key={r.id} className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#2563EB] text-xs font-semibold">{r.name}</span>
@@ -245,7 +245,7 @@ export default function ReportGeneratePage() {
               { label: "Recipients", value: recipients.length > 0 ? `${recipients.length} added` : "None" },
             ].map((item) => (
               <div key={item.label} className="bg-slate-50 rounded-xl border border-[#E2E8F0] p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">{item.label}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{item.label}</p>
                 <p className="text-sm font-bold text-slate-900">{item.value}</p>
               </div>
             ))}

@@ -46,8 +46,9 @@ export default function AccountSettingsLayout({ children }: { children: React.Re
               <Link
                 key={item.key}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5",
+                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1",
                   active
                     ? "bg-[#EFF6FF] text-[#2563EB]"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -73,8 +74,9 @@ export default function AccountSettingsLayout({ children }: { children: React.Re
               <Link
                 key={item.key}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap transition-colors shrink-0",
+                  "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
                   active
                     ? "bg-[#EFF6FF] text-[#2563EB]"
                     : "text-slate-500 hover:bg-slate-100"
@@ -89,8 +91,8 @@ export default function AccountSettingsLayout({ children }: { children: React.Re
       </div>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-[900px] mx-auto px-8 py-8 lg:pt-8 pt-20">
+      <main className="flex-1 overflow-y-auto min-w-0">
+        <div className="max-w-[900px] mx-auto px-4 sm:px-8 py-6 sm:py-8 lg:pt-8 pt-20">
           {children}
         </div>
       </main>

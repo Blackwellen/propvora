@@ -23,7 +23,7 @@ export default function NewDisbursementPage() {
   const leftContent = (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
       <h3 className="text-sm font-bold text-slate-900 mb-1">Disbursement Details</h3>
-      <p className="text-xs text-slate-400 mb-5">Enter the details for this client money disbursement.</p>
+      <p className="text-xs text-slate-500 mb-5">Enter the details for this client money disbursement.</p>
 
       <div className="space-y-4">
         <div className="space-y-1.5">
@@ -63,7 +63,7 @@ export default function NewDisbursementPage() {
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Amount <span className="text-[#EF4444]">*</span></label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">£</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">£</span>
               <input
                 type="number"
                 value={amount}
@@ -145,7 +145,7 @@ export default function NewDisbursementPage() {
           { label: "Approval", value: "Pending" },
         ].map((item) => (
           <div key={item.label} className="flex items-start justify-between gap-2">
-            <span className="text-xs text-slate-400">{item.label}</span>
+            <span className="text-xs text-slate-500">{item.label}</span>
             <span className="text-xs font-semibold text-slate-900 text-right">{item.value}</span>
           </div>
         ))}

@@ -171,7 +171,7 @@ export default function HmoLicenceDetailPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
           <Link href="/app/legal/hmo-licences" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -243,8 +243,8 @@ export default function HmoLicenceDetailPage() {
       )}
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 bg-white px-6 mt-4">
-        <div className="flex items-center gap-1">
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 mt-4">
+        <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           {(["Overview", "Conditions"] as const).map((tab) => (
             <button
               key={tab}
@@ -262,10 +262,10 @@ export default function HmoLicenceDetailPage() {
         </div>
       </div>
 
-      <div className="px-6 py-6">
+      <div className="px-4 sm:px-6 py-6">
         {activeTab === "Overview" && (
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8 min-w-0">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-100">
                   <h2 className="text-[13px] font-semibold text-slate-800">Licence Details</h2>
@@ -316,7 +316,7 @@ export default function HmoLicenceDetailPage() {
               </div>
             </div>
 
-            <div className="col-span-4 space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               {/* HMO / SA / R2R compliance checks (review-only) */}
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-100">

@@ -165,8 +165,9 @@ function AdminSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative mx-2 mb-0.5",
+                    "flex items-center py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 motion-reduce:transition-none group relative mx-2 mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]",
                     collapsed ? "justify-center px-0" : "gap-3 px-3",
                     active
                       ? "bg-[rgba(37,99,235,0.26)] border border-[rgba(56,189,248,0.55)] text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]"

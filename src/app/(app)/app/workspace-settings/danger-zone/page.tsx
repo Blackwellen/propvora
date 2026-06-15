@@ -223,6 +223,7 @@ export default function DangerZonePage() {
             Type <strong>LEAVE</strong> to confirm:
           </p>
           <input
+            aria-label="Type LEAVE to confirm"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="LEAVE"
@@ -255,8 +256,9 @@ export default function DangerZonePage() {
           <p className="text-[13px] text-slate-500 mb-4">
             Select the member who should become the new owner. You will be downgraded to admin.
           </p>
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">New owner</label>
+          <label htmlFor="transfer-new-owner" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">New owner</label>
           <select
+            id="transfer-new-owner"
             value={transferTarget}
             onChange={(e) => setTransferTarget(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] mb-4 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -304,6 +306,7 @@ export default function DangerZonePage() {
             Type <strong>ARCHIVE</strong> to confirm:
           </p>
           <input
+            aria-label="Type ARCHIVE to confirm"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="ARCHIVE"
@@ -341,6 +344,7 @@ export default function DangerZonePage() {
             Type the workspace name <strong>{ctx?.workspaceName}</strong> to confirm:
           </p>
           <input
+            aria-label="Type the workspace name to confirm deletion"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={ctx?.workspaceName}

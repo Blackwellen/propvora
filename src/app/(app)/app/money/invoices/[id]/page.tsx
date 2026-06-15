@@ -54,7 +54,7 @@ function InvoiceStatusChip({ status }: { status: string }) {
 function KpiCard({ label, value, colour }: { label: string; value: string; colour: string }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 px-4 py-3 flex flex-col gap-0.5">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</p>
       <p className={`text-xl font-bold ${colour}`}>{value}</p>
     </div>
   )
@@ -508,7 +508,7 @@ export default function InvoiceDetailPage() {
                     style={{ width: `${paidPct}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-slate-400">
+                <div className="flex justify-between text-xs text-slate-500">
                   <span>Outstanding: £{outstanding.toLocaleString("en-GB")}</span>
                   <span>{inv.status === "paid" ? "Fully paid" : `Due: ${inv.due_date}`}</span>
                 </div>
@@ -518,7 +518,7 @@ export default function InvoiceDetailPage() {
             {/* Status timeline */}
             <SectionCard title="Status Timeline">
               {auditRows.length === 0 ? (
-                <p className="text-sm text-slate-400 text-center py-4">No audit events recorded yet.</p>
+                <p className="text-sm text-slate-500 text-center py-4">No audit events recorded yet.</p>
               ) : (
                 <div className="space-y-3">
                   {auditRows.map((ev) => (
@@ -528,7 +528,7 @@ export default function InvoiceDetailPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-800">{ev.action}</p>
-                        <p className="text-xs text-slate-400">{ev.ts} · {ev.user}</p>
+                        <p className="text-xs text-slate-500">{ev.ts} · {ev.user}</p>
                       </div>
                     </div>
                   ))}
@@ -542,9 +542,9 @@ export default function InvoiceDetailPage() {
         return (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             {lineItems.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-sm">No line items recorded. Add line items when editing the invoice.</div>
+              <div className="py-12 text-center text-slate-500 text-sm">No line items recorded. Add line items when editing the invoice.</div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
                     {["Description", "Qty", "Unit Price", "Tax %", "Line Total"].map(h => (
@@ -577,7 +577,7 @@ export default function InvoiceDetailPage() {
                     <td className="px-4 py-3 text-base font-bold text-slate-900">£{total.toLocaleString("en-GB")}</td>
                   </tr>
                 </tfoot>
-              </table>
+              </table></div>
             )}
           </div>
         )
@@ -594,7 +594,7 @@ export default function InvoiceDetailPage() {
               </button>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
                     {["Date", "Method", "Amount", "Reference", "Recorded By"].map(h => (
@@ -615,11 +615,11 @@ export default function InvoiceDetailPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-slate-400 text-sm">No payments recorded yet.</td>
+                      <td colSpan={5} className="py-12 text-center text-slate-500 text-sm">No payments recorded yet.</td>
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         )
@@ -640,7 +640,7 @@ export default function InvoiceDetailPage() {
                   </Link>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400">Not linked</p>
+                <p className="text-sm text-slate-500">Not linked</p>
               )}
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
@@ -648,7 +648,7 @@ export default function InvoiceDetailPage() {
                 <Link2 className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Tenancy</span>
               </div>
-              <p className="text-sm text-slate-400">Not linked</p>
+              <p className="text-sm text-slate-500">Not linked</p>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
               <div className="flex items-center gap-2 text-slate-500">
@@ -690,7 +690,7 @@ export default function InvoiceDetailPage() {
                 </div>
               )}
               <p className="text-sm font-semibold text-slate-700">{uploading ? "Uploading…" : "Drag & drop a file, or click to browse"}</p>
-              <p className="text-[11px] text-slate-400">PDF, JPG, PNG, DOCX, CSV, XLSX · up to 10 MB</p>
+              <p className="text-[11px] text-slate-500">PDF, JPG, PNG, DOCX, CSV, XLSX · up to 10 MB</p>
             </button>
 
             {/* Attachment cards */}
@@ -702,7 +702,7 @@ export default function InvoiceDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-800 truncate">{invoiceNumber}.pdf</p>
-                  <p className="text-[11px] text-slate-400">Generated PDF · {inv.issue_date}</p>
+                  <p className="text-[11px] text-slate-500">Generated PDF · {inv.issue_date}</p>
                 </div>
                 <button
                   onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
@@ -722,7 +722,7 @@ export default function InvoiceDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-800 truncate">{d.name}</p>
-                      <p className="text-[11px] text-slate-400 truncate">{d.mime ?? "Attachment"}{d.created_at ? ` · ${d.created_at.slice(0, 10)}` : ""}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{d.mime ?? "Attachment"}{d.created_at ? ` · ${d.created_at.slice(0, 10)}` : ""}</p>
                     </div>
                     {d.url ? (
                       <a
@@ -734,7 +734,7 @@ export default function InvoiceDetailPage() {
                         <Download className="w-3.5 h-3.5 text-slate-400" /> Download
                       </a>
                     ) : (
-                      <span className="shrink-0 text-xs text-slate-400 px-2">—</span>
+                      <span className="shrink-0 text-xs text-slate-500 px-2">—</span>
                     )}
                   </div>
                 )
@@ -758,7 +758,7 @@ export default function InvoiceDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
               <div className="divide-y divide-slate-100">
                 {auditRows.length === 0 ? (
-                  <div className="py-12 text-center text-slate-400 text-sm">No email history available.</div>
+                  <div className="py-12 text-center text-slate-500 text-sm">No email history available.</div>
                 ) : auditRows.map((ev) => (
                   <div key={ev.id} className="flex items-start gap-4 px-5 py-3.5">
                     <div className={cn(
@@ -774,7 +774,7 @@ export default function InvoiceDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-slate-800 capitalize">{ev.action}</p>
                       <p className="text-xs text-slate-500 mt-0.5">{ev.detail}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{ev.ts}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{ev.ts}</p>
                     </div>
                   </div>
                 ))}
@@ -787,7 +787,7 @@ export default function InvoiceDetailPage() {
         return (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             {auditRows.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-sm">No activity recorded yet.</div>
+              <div className="py-12 text-center text-slate-500 text-sm">No activity recorded yet.</div>
             ) : (
               <div className="divide-y divide-slate-100">
                 {auditRows.map((ev) => (
@@ -797,7 +797,7 @@ export default function InvoiceDetailPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-slate-800">{ev.action}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{ev.ts} · {ev.user}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{ev.ts} · {ev.user}</p>
                     </div>
                   </div>
                 ))}
@@ -810,9 +810,9 @@ export default function InvoiceDetailPage() {
         return (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             {auditRows.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-sm">No audit log entries yet.</div>
+              <div className="py-12 text-center text-slate-500 text-sm">No audit log entries yet.</div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
                     {["Timestamp", "User", "Action", "Detail"].map(h => (
@@ -832,7 +832,7 @@ export default function InvoiceDetailPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         )
@@ -850,7 +850,7 @@ export default function InvoiceDetailPage() {
       <div className="space-y-4">
         {/* Quick actions */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Quick Actions</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Quick Actions</p>
           {(inv.status === "draft" || (inv.status as string) === "planned") && (
             <button
               onClick={async () => {
@@ -912,7 +912,7 @@ export default function InvoiceDetailPage() {
 
         {/* Invoice info */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Invoice Info</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Invoice Info</p>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-500 text-xs">Created by</span>
@@ -931,7 +931,7 @@ export default function InvoiceDetailPage() {
 
         {/* Related */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Related</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Related</p>
           <Link href="#" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
             <Building2 className="w-3.5 h-3.5" /> {property}
           </Link>
@@ -999,7 +999,7 @@ export default function InvoiceDetailPage() {
                   <span className="font-mono text-sm font-bold text-slate-500">{invoiceNumber}</span>
                   <InvoiceStatusChip status={inv.status} />
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">{invoiceType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{invoiceType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</p>
               </div>
             </div>
             <div className="flex items-center gap-2.5">
@@ -1008,12 +1008,12 @@ export default function InvoiceDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-slate-900 text-sm">{recipient}</p>
-                <p className="text-xs text-slate-400">{property}</p>
+                <p className="text-xs text-slate-500">{property}</p>
               </div>
             </div>
             <div>
               <p className="text-3xl font-bold text-slate-900">£{inv.amount.toLocaleString("en-GB")}</p>
-              <p className="text-xs text-slate-400 mt-0.5">Due {inv.due_date}</p>
+              <p className="text-xs text-slate-500 mt-0.5">Due {inv.due_date}</p>
             </div>
           </div>
           {/* Right actions */}

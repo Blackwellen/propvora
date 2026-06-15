@@ -196,7 +196,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug truncate group-hover:text-[#2563EB] transition-colors">
             {property.name}
           </h3>
-          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+          <p className="text-[11px] text-slate-500 mt-0.5 truncate">
             {property.address}{property.postcode ? `, ${property.postcode}` : ""}
           </p>
 
@@ -214,17 +214,17 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
               <p className="text-[15px] font-black text-slate-900 leading-none">
                 {property.monthlyRent > 0 ? fmt(property.monthlyRent) : <span className="text-slate-300 text-sm">—</span>}
               </p>
-              <p className="text-[9.5px] text-slate-400 mt-0.5 uppercase tracking-wide font-medium">Monthly</p>
+              <p className="text-[9.5px] text-slate-500 mt-0.5 uppercase tracking-wide font-medium">Monthly</p>
             </div>
             <div className="flex items-center gap-3 text-center shrink-0">
               <div>
                 <p className="text-[12px] font-bold text-slate-800">{property.units}</p>
-                <p className="text-[9.5px] text-slate-400">Units</p>
+                <p className="text-[9.5px] text-slate-500">Units</p>
               </div>
               {property.bedrooms != null && (
                 <div>
                   <p className="text-[12px] font-bold text-slate-800">{property.bedrooms}</p>
-                  <p className="text-[9.5px] text-slate-400">Beds</p>
+                  <p className="text-[9.5px] text-slate-500">Beds</p>
                 </div>
               )}
               {yieldVal && (
@@ -232,7 +232,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
                   <p className="text-[12px] font-bold text-emerald-700 flex items-center gap-0.5">
                     <TrendingUp className="w-2.5 h-2.5" />{yieldVal}%
                   </p>
-                  <p className="text-[9.5px] text-slate-400">Yield</p>
+                  <p className="text-[9.5px] text-slate-500">Yield</p>
                 </div>
               )}
             </div>

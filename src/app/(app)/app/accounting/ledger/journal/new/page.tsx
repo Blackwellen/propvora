@@ -84,7 +84,7 @@ export default function NewJournalEntryPage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex flex-col items-center gap-3 text-center">
         <Lock className="w-6 h-6 text-slate-400" />
         <p className="text-sm font-semibold text-slate-700">Posting is restricted</p>
-        <p className="text-xs text-slate-400 max-w-sm">Only finance-capable roles (owner, admin, manager, accountant) can post journal entries.</p>
+        <p className="text-xs text-slate-500 max-w-sm">Only finance-capable roles (owner, admin, manager, accountant) can post journal entries.</p>
         <Button variant="outline" size="sm" onClick={() => router.push("/app/accounting/ledger/journal")}>Back to Journal</Button>
       </div>
     )
@@ -200,7 +200,7 @@ export default function NewJournalEntryPage() {
         </Button>
       </div>
       {!canSave && (
-        <p className="text-right text-xs text-slate-400">
+        <p className="text-right text-xs text-slate-500">
           {balance.lineCount < 2 ? "Add at least two lines with amounts." : !balance.balanced ? "Debits must equal credits to post." : "Every line with an amount needs an account."}
         </p>
       )}

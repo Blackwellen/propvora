@@ -9,8 +9,9 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Skeleton({ className, circle, ...props }: SkeletonProps) {
   return (
     <div
+      aria-hidden="true"
       className={cn(
-        "animate-pulse bg-slate-200",
+        "animate-pulse bg-slate-200 motion-reduce:animate-none",
         circle ? "rounded-full" : "rounded-md",
         className
       )}

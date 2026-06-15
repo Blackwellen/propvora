@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { useAffiliate } from "../_useAffiliate"
 import { formatPence, levelByBand, MIN_PAYOUT_PENCE } from "@/lib/affiliate/levels"
+import { isAffiliatePayoutsEnabled } from "@/lib/affiliate/payout-flag"
+import { requestAffiliatePayout } from "@/lib/affiliate/payouts"
+import { Loader2 } from "lucide-react"
 
 interface PayoutRow {
   id: string
@@ -21,16 +24,42 @@ interface PayoutRow {
 
 function payoutBadge(s: string) {
   if (s === "paid") return <Badge variant="success" dot>Paid</Badge>
+  if (s === "approved") return <Badge variant="success" dot>Approved</Badge>
   if (s === "processing" || s === "scheduled") return <Badge variant="sky" dot>{s}</Badge>
+  if (s === "requested") return <Badge variant="sky" dot>Requested</Badge>
   if (s === "on_hold" || s === "pending_review") return <Badge variant="warning" dot>{s}</Badge>
-  if (s === "failed" || s === "cancelled") return <Badge variant="danger" dot>{s}</Badge>
+  if (s === "failed" || s === "cancelled" || s === "rejected") return <Badge variant="danger" dot>{s}</Badge>
   return <Badge dot>{s}</Badge>
 }
 
 export default function AffiliateEarningsPage() {
-  const { loading: affLoading, affiliate, workspaceId } = useAffiliate()
+  const { loading: affLoading, affiliate, workspaceId, reload } = useAffiliate()
   const [payouts, setPayouts] = useState<PayoutRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [requesting, setRequesting] = useState(false)
+  const [requestMsg, setRequestMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const payoutsEnabled = isAffiliatePayoutsEnabled()
+
+  async function loadPayouts() {
+    if (!workspaceId) return
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("affiliate_payouts")
+      .select("id, period, amount_pence, status, paid_at, created_at")
+      .eq("affiliate_workspace_id", workspaceId)
+      .order("created_at", { ascending: false })
+    if (data) setPayouts(data as PayoutRow[])
+  }
+
+  async function handleRequest() {
+    if (!workspaceId) return
+    setRequesting(true)
+    setRequestMsg(null)
+    const res = await requestAffiliatePayout(workspaceId)
+    setRequesting(false)
+    setRequestMsg({ ok: res.ok, text: res.ok ? "Payout requested. We'll review it shortly." : res.error ?? "Could not request payout." })
+    if (res.ok) { await loadPayouts(); await reload() }
+  }
 
   useEffect(() => {
     if (affLoading) return
@@ -107,10 +136,44 @@ export default function AffiliateEarningsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2 rounded-xl bg-violet-50 border border-violet-100 p-3 text-xs text-violet-700">
-            <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-            Payouts are reviewed and processed manually during early release. You'll be notified when a payout is scheduled. You are responsible for your own taxes.
-          </div>
+          {/* Request payout — flag-aware */}
+          {(() => {
+            const inFlight = payouts.find((p) => ["requested", "approved", "processing"].includes(p.status))
+            if (inFlight) {
+              return (
+                <div className="flex items-start gap-2 rounded-xl bg-sky-50 border border-sky-100 p-3 text-xs text-sky-700">
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  You have a payout request {inFlight.status === "approved" ? "approved and awaiting payment" : "under review"} for {formatPence(inFlight.amount_pence ?? 0)}.
+                </div>
+              )
+            }
+            if (!payoutsEnabled) {
+              return (
+                <div className="flex items-start gap-2 rounded-xl bg-violet-50 border border-violet-100 p-3 text-xs text-violet-700">
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  Payout requests open once payouts are enabled for the programme. Your cleared balance keeps accruing in the meantime, and you'll be able to request a payout from here. You are responsible for your own taxes.
+                </div>
+              )
+            }
+            return (
+              <div className="space-y-2">
+                <button
+                  onClick={handleRequest}
+                  disabled={!canPayout || requesting}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {requesting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {requesting ? "Requesting…" : `Request payout of ${formatPence(cleared)}`}
+                </button>
+                {!canPayout && (
+                  <p className="text-xs text-slate-400">Reach {formatPence(MIN_PAYOUT_PENCE)} cleared to request a payout.</p>
+                )}
+                {requestMsg && (
+                  <p className={`text-xs ${requestMsg.ok ? "text-emerald-600" : "text-red-500"}`}>{requestMsg.text}</p>
+                )}
+              </div>
+            )
+          })()}
         </CardContent>
       </Card>
 

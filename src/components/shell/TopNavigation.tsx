@@ -33,15 +33,24 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   const [switching, setSwitching] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Close on outside click
+  // Close on outside click or Escape
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
-    if (open) document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false)
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClick)
+      document.addEventListener("keydown", handleKey)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClick)
+      document.removeEventListener("keydown", handleKey)
+    }
   }, [open])
 
   async function fetchWorkspaces() {
@@ -91,7 +100,10 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
     <div className="relative shrink-0" ref={dropdownRef}>
       <button
         onClick={() => { setOpen((v) => !v); fetchWorkspaces() }}
-        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"
+        aria-label="Switch workspace"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
       >
         <Building2 className="w-4 h-4 text-[#2563EB] shrink-0" />
         <span className="max-w-[96px] sm:max-w-[160px] truncate">{activeName ?? "Your workspace"}</span>
@@ -169,6 +181,7 @@ export default function TopNavigation({ workspaceName, workspaceId }: TopNavigat
         WebkitBackdropFilter: "blur(18px)",
       }}
       className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 mb-3 sm:mb-4 shrink-0 h-14 sm:h-[72px]"
+      aria-label="Workspace toolbar"
     >
       {/* Left: Workspace chip with switcher */}
       <WorkspaceSwitcher workspaceName={workspaceName} workspaceId={workspaceId} />
@@ -190,7 +203,7 @@ export default function TopNavigation({ workspaceName, workspaceId }: TopNavigat
         <button
           onClick={() => router.push("/app/calendar")}
           aria-label="Open calendar"
-          className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm"
+          className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
         >
           <CalendarIcon className="w-5 h-5 text-[#071B4D]" />
         </button>

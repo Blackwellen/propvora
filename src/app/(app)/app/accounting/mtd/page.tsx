@@ -135,7 +135,7 @@ export default function MtdPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Making Tax Digital</span>
@@ -168,7 +168,7 @@ export default function MtdPage() {
 
       {/* Connection state */}
       {loading ? (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-8 text-center text-sm text-slate-400">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-8 text-center text-sm text-slate-500">
           Checking HMRC connection…
         </div>
       ) : isConnected ? (
@@ -182,7 +182,7 @@ export default function MtdPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" /> Live
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-slate-500 mt-1">
                 {connection?.utr_id ? `UTR: ${connection.utr_id} · ` : ""}
                 {connection?.agent_id ? `Agent: ${connection.agent_id} · ` : ""}
                 {connection?.last_synced_at ? `Last synced: ${new Date(connection.last_synced_at).toLocaleString("en-GB")}` : "Awaiting first sync"}
@@ -248,12 +248,12 @@ export default function MtdPage() {
                       ? `${Math.abs(deadline.daysToDue)}d overdue`
                       : deadline.daysToDue === 0 ? "Due today" : `${deadline.daysToDue} days`}
                   </span>
-                  <span className="text-xs text-slate-400 truncate">{deadline.period.label.split(" · ")[0]} · {fmtDate(deadline.period.dueDate)}</span>
+                  <span className="text-xs text-slate-500 truncate">{deadline.period.label.split(" · ")[0]} · {fmtDate(deadline.period.dueDate)}</span>
                 </>
               ) : (
                 <>
                   <span className="text-2xl font-bold text-slate-900 leading-tight">—</span>
-                  <span className="text-xs text-slate-400">{computing ? "Computing…" : "No update due"}</span>
+                  <span className="text-xs text-slate-500">{computing ? "Computing…" : "No update due"}</span>
                 </>
               )}
             </div>
@@ -271,13 +271,13 @@ export default function MtdPage() {
             <Calendar className="w-4 h-4 text-slate-400" />
             <h3 className="text-sm font-semibold text-slate-900">Quarterly obligations{mtd ? ` · ${mtd.taxYearLabel}` : ""}</h3>
           </div>
-          <span className="text-[11px] text-slate-400">Standard MTD ITSA periods</span>
+          <span className="text-[11px] text-slate-500">Standard MTD ITSA periods</span>
         </div>
 
         {computing ? (
-          <div className="p-8 text-center text-sm text-slate-400">Computing quarterly figures from your ledger…</div>
+          <div className="p-8 text-center text-sm text-slate-500">Computing quarterly figures from your ledger…</div>
         ) : !mtd ? (
-          <div className="p-8 text-center text-sm text-slate-400">Quarterly figures are unavailable.</div>
+          <div className="p-8 text-center text-sm text-slate-500">Quarterly figures are unavailable.</div>
         ) : (
           <>
             {mtd.noData && (
@@ -364,7 +364,7 @@ export default function MtdPage() {
                       <div className={`h-full rounded-full ${progColor} motion-safe:transition-all`} style={{ width: `${prog}%` }} />
                     </div>
                     <div className="flex items-center justify-between pt-0.5">
-                      <p className="text-[11px] text-slate-400">Due {fmtDate(p.dueDate)}</p>
+                      <p className="text-[11px] text-slate-500">Due {fmtDate(p.dueDate)}</p>
                       <button
                         disabled={!canFile}
                         onClick={() => canFile && showToast("Submitting to HMRC requires the live connection — figures are ready to file")}
@@ -394,7 +394,7 @@ export default function MtdPage() {
               <FileText className="w-5 h-5 text-slate-400" />
             </div>
             <p className="text-sm text-slate-600 font-semibold">No submissions yet</p>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
               Filed quarterly updates and their HMRC acknowledgement references will appear here once you connect and submit.
             </p>
           </div>
@@ -411,7 +411,7 @@ export default function MtdPage() {
                     <p className="text-sm font-semibold text-slate-800">{s.period_label}</p>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-600 capitalize">{s.status}</span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Submitted {s.submitted_at ? fmtDate(s.submitted_at) : "—"}
                     {s.hmrc_reference ? <> · <span className="font-mono text-slate-500">{s.hmrc_reference}</span></> : null}
                   </p>

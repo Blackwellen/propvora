@@ -42,8 +42,8 @@ export default function Step08RiskAIReview() {
   return (
     <div className="flex flex-col">
       {/* ── Top Header ──────────────────────────────────────────────────────────── */}
-      <div className="px-8 py-5 border-b border-slate-100">
-        <div className="flex items-center justify-between">
+      <div className="px-4 sm:px-6 lg:px-8 py-5 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 mb-1">Risk &amp; AI Review</h1>
             <p className="text-[13.5px] text-slate-500">
@@ -63,10 +63,10 @@ export default function Step08RiskAIReview() {
         </div>
       </div>
 
-      {/* ── Three-Column Layout ─────────────────────────────────────────────────── */}
-      <div className="flex flex-1 min-h-0">
+      {/* ── Three-Column Layout (stacks on mobile/tablet) ───────────────────────── */}
+      <div className="flex flex-col xl:flex-row flex-1 min-h-0">
         {/* LEFT: Risk Categories (240px) */}
-        <div className="w-[240px] shrink-0 border-r border-slate-100 overflow-y-auto">
+        <div className="w-full xl:w-[240px] shrink-0 border-b xl:border-b-0 xl:border-r border-slate-100 overflow-y-auto">
           <div className="p-5">
             <h2 className="text-[14px] font-bold text-slate-900 mb-4">Risk Categories</h2>
             <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 text-[10px] font-semibold text-slate-400 uppercase mb-3">
@@ -153,7 +153,7 @@ export default function Step08RiskAIReview() {
         </div>
 
         {/* CENTER: Charts + Tables */}
-        <div className="flex-1 min-w-0 overflow-y-auto p-6 border-r border-slate-100">
+        <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 border-b xl:border-b-0 xl:border-r border-slate-100">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[15px] font-bold text-slate-900">Risk Overview</h2>
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
@@ -178,7 +178,11 @@ export default function Step08RiskAIReview() {
           <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-5">
             {riskTab === "Risk Radar" && (
               <>
-                <div className="h-[260px]">
+                <div
+                  className="h-[260px]"
+                  role="img"
+                  aria-label="Risk radar chart comparing your risk score against the industry benchmark across all risk categories"
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart data={radarData}>
                       <PolarGrid stroke="#E2E8F0" />
@@ -495,7 +499,7 @@ export default function Step08RiskAIReview() {
         </div>
 
         {/* RIGHT: AI Review Summary (260px) */}
-        <div className="w-[260px] shrink-0 overflow-y-auto">
+        <div className="w-full xl:w-[260px] shrink-0 overflow-y-auto">
           <div className="p-4 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <p className="text-[13px] font-bold text-slate-900">AI Review Summary</p>

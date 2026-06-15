@@ -202,7 +202,7 @@ function Step2({ state, setState }: { state: WizardState; setState: (s: WizardSt
         <h2 className="text-lg font-semibold text-slate-900">Document Type</h2>
         <p className="text-sm text-slate-500 mt-1">Select the type that best describes this document.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {DOC_TYPE_OPTIONS.map(opt => {
           const Icon = opt.icon
           const selected = state.docType === opt.key

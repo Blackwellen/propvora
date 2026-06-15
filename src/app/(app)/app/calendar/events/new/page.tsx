@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useId } from "react"
 import { useRouter } from "next/navigation"
 import {
   Calendar,
@@ -155,13 +155,15 @@ function calcDuration(startDate: string, startTime: string, endDate: string, end
 /* ------------------------------------------------------------------ */
 /* Input helpers                                                        */
 /* ------------------------------------------------------------------ */
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-xs font-medium text-slate-600 mb-1">{children}</label>
+function FieldLabel({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
+  return <label htmlFor={htmlFor} className="block text-xs font-medium text-slate-600 mb-1">{children}</label>
 }
 
-function TextInput({ value, onChange, placeholder, type = "text" }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+function TextInput({ value, onChange, placeholder, type = "text", id, "aria-label": ariaLabel }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string; id?: string; "aria-label"?: string }) {
   return (
     <input
+      id={id}
+      aria-label={ariaLabel}
       type={type}
       value={value}
       onChange={e => onChange(e.target.value)}
@@ -171,9 +173,11 @@ function TextInput({ value, onChange, placeholder, type = "text" }: { value: str
   )
 }
 
-function SelectInput({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) {
+function SelectInput({ value, onChange, options, id, "aria-label": ariaLabel }: { value: string; onChange: (v: string) => void; options: string[]; id?: string; "aria-label"?: string }) {
   return (
     <select
+      id={id}
+      aria-label={ariaLabel}
       value={value}
       onChange={e => onChange(e.target.value)}
       className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
@@ -218,8 +222,8 @@ function Step1({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
       </div>
 
       <div>
-        <FieldLabel>Event Title</FieldLabel>
-        <TextInput value={form.title} onChange={(v) => setForm({ ...form, title: v })} placeholder="e.g. Annual boiler service — 12 Oak St" />
+        <FieldLabel htmlFor="event-title">Event Title</FieldLabel>
+        <TextInput id="event-title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} placeholder="e.g. Annual boiler service — 12 Oak St" />
         <p className="text-[11px] text-slate-400 mt-1">A short, clear name for this event.</p>
       </div>
     </div>
@@ -245,9 +249,13 @@ function Step2({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
           <p className="text-xs text-slate-500">No specific start/end time</p>
         </div>
         <button
+          type="button"
+          role="switch"
+          aria-checked={form.allDay}
+          aria-label="All-day event"
           onClick={() => setForm({ ...form, allDay: !form.allDay })}
           className={cn(
-            "w-11 h-6 rounded-full transition-colors relative",
+            "w-11 h-6 rounded-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40",
             form.allDay ? "bg-[#2563EB]" : "bg-slate-300"
           )}
         >
@@ -257,30 +265,30 @@ function Step2({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FieldLabel>Start Date</FieldLabel>
-          <TextInput type="date" value={form.startDate} onChange={v => setForm({ ...form, startDate: v })} />
+          <FieldLabel htmlFor="event-start-date">Start Date</FieldLabel>
+          <TextInput id="event-start-date" type="date" value={form.startDate} onChange={v => setForm({ ...form, startDate: v })} />
         </div>
         {!form.allDay && (
           <div>
-            <FieldLabel>Start Time</FieldLabel>
-            <TextInput type="time" value={form.startTime} onChange={v => setForm({ ...form, startTime: v })} />
+            <FieldLabel htmlFor="event-start-time">Start Time</FieldLabel>
+            <TextInput id="event-start-time" type="time" value={form.startTime} onChange={v => setForm({ ...form, startTime: v })} />
           </div>
         )}
         <div>
-          <FieldLabel>End Date</FieldLabel>
-          <TextInput type="date" value={form.endDate} onChange={v => setForm({ ...form, endDate: v })} />
+          <FieldLabel htmlFor="event-end-date">End Date</FieldLabel>
+          <TextInput id="event-end-date" type="date" value={form.endDate} onChange={v => setForm({ ...form, endDate: v })} />
         </div>
         {!form.allDay && (
           <div>
-            <FieldLabel>End Time</FieldLabel>
-            <TextInput type="time" value={form.endTime} onChange={v => setForm({ ...form, endTime: v })} />
+            <FieldLabel htmlFor="event-end-time">End Time</FieldLabel>
+            <TextInput id="event-end-time" type="time" value={form.endTime} onChange={v => setForm({ ...form, endTime: v })} />
           </div>
         )}
       </div>
 
       <div>
-        <FieldLabel>Timezone</FieldLabel>
-        <SelectInput value={form.timezone} onChange={v => setForm({ ...form, timezone: v })} options={TIMEZONES} />
+        <FieldLabel htmlFor="event-timezone">Timezone</FieldLabel>
+        <SelectInput id="event-timezone" value={form.timezone} onChange={v => setForm({ ...form, timezone: v })} options={TIMEZONES} />
       </div>
 
       {!form.allDay && (
@@ -305,8 +313,9 @@ function Step3({ form, setForm, properties }: { form: FormData; setForm: (f: For
       </div>
 
       <div>
-        <FieldLabel>Property</FieldLabel>
+        <FieldLabel htmlFor="event-property">Property</FieldLabel>
         <SelectInput
+          id="event-property"
           value={form.property}
           onChange={v => setForm({ ...form, property: v, unit: "" })}
           options={properties.length > 0 ? properties : ["No properties found"]}
@@ -315,8 +324,8 @@ function Step3({ form, setForm, properties }: { form: FormData; setForm: (f: For
 
       {form.property && (
         <div>
-          <FieldLabel>Unit (optional)</FieldLabel>
-          <SelectInput value={form.unit} onChange={v => setForm({ ...form, unit: v })} options={["Unit 1", "Unit 2", "Unit 3", "Ground Floor", "First Floor"]} />
+          <FieldLabel htmlFor="event-unit">Unit (optional)</FieldLabel>
+          <SelectInput id="event-unit" value={form.unit} onChange={v => setForm({ ...form, unit: v })} options={["Unit 1", "Unit 2", "Unit 3", "Ground Floor", "First Floor"]} />
         </div>
       )}
     </div>
@@ -341,12 +350,12 @@ function Step4({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <FieldLabel>Type</FieldLabel>
-            <SelectInput value={form.reminderType} onChange={v => setForm({ ...form, reminderType: v })} options={REMINDER_TYPES} />
+            <FieldLabel htmlFor="event-reminder-type">Type</FieldLabel>
+            <SelectInput id="event-reminder-type" value={form.reminderType} onChange={v => setForm({ ...form, reminderType: v })} options={REMINDER_TYPES} />
           </div>
           <div>
-            <FieldLabel>Timing</FieldLabel>
-            <SelectInput value={form.reminderTiming} onChange={v => setForm({ ...form, reminderTiming: v })} options={REMINDER_TIMINGS} />
+            <FieldLabel htmlFor="event-reminder-timing">Timing</FieldLabel>
+            <SelectInput id="event-reminder-timing" value={form.reminderTiming} onChange={v => setForm({ ...form, reminderTiming: v })} options={REMINDER_TIMINGS} />
           </div>
         </div>
       </div>
@@ -378,8 +387,8 @@ function Step4({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
 
         {form.recurrence !== "None" && (
           <div>
-            <FieldLabel>End Date (or leave blank for no end)</FieldLabel>
-            <TextInput type="date" value={form.recurrenceEnd} onChange={v => setForm({ ...form, recurrenceEnd: v })} />
+            <FieldLabel htmlFor="event-recurrence-end">End Date (or leave blank for no end)</FieldLabel>
+            <TextInput id="event-recurrence-end" type="date" value={form.recurrenceEnd} onChange={v => setForm({ ...form, recurrenceEnd: v })} />
           </div>
         )}
       </div>
@@ -399,15 +408,16 @@ function Step5({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
       </div>
 
       <div>
-        <FieldLabel>Assignee (optional)</FieldLabel>
-        <TextInput value={form.assignee} onChange={v => setForm({ ...form, assignee: v })} placeholder="Name or email..." />
+        <FieldLabel htmlFor="event-assignee">Assignee (optional)</FieldLabel>
+        <TextInput id="event-assignee" value={form.assignee} onChange={v => setForm({ ...form, assignee: v })} placeholder="Name or email..." />
       </div>
 
       <div>
-        <FieldLabel>Location (optional)</FieldLabel>
+        <FieldLabel htmlFor="event-location">Location (optional)</FieldLabel>
         <div className="relative">
           <MapPin className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
           <input
+            id="event-location"
             type="text"
             value={form.location}
             onChange={e => setForm({ ...form, location: e.target.value })}
@@ -418,8 +428,9 @@ function Step5({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
       </div>
 
       <div>
-        <FieldLabel>Notes</FieldLabel>
+        <FieldLabel htmlFor="event-notes">Notes</FieldLabel>
         <textarea
+          id="event-notes"
           value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })}
           placeholder="Add any notes or instructions for this event…"
@@ -754,9 +765,9 @@ export default function NewEventPage() {
         <div className="h-1 bg-[#2563EB] transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="flex gap-0 min-h-screen">
+      <div className="flex flex-col lg:flex-row gap-0 min-h-screen">
         {/* Left stepper */}
-        <div className="w-[220px] shrink-0 border-r border-slate-200 bg-white pt-6 px-4 space-y-1">
+        <div className="w-full lg:w-[220px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white py-3 lg:pt-6 px-4 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {STEPS.map(s => {
             const Icon = s.Icon
             const done = step > s.num
@@ -766,7 +777,7 @@ export default function NewEventPage() {
                 key={s.num}
                 onClick={() => s.num < step ? goTo(s.num) : undefined}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-sm",
+                  "shrink-0 lg:w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-sm whitespace-nowrap",
                   active ? "bg-[#EFF6FF] text-[#2563EB] font-semibold" :
                   done ? "text-slate-600 hover:bg-slate-100 cursor-pointer" :
                   "text-slate-400 cursor-default"
@@ -790,7 +801,7 @@ export default function NewEventPage() {
         </div>
 
         {/* Center card */}
-        <div className="flex-1 min-w-0 py-6 px-8">
+        <div className="flex-1 min-w-0 py-6 px-4 sm:px-8">
           <div className="max-w-[640px] mx-auto">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm min-h-[500px]">
               {step === 1 && <Step1 form={form} setForm={setForm} />}
@@ -837,7 +848,7 @@ export default function NewEventPage() {
 
         {/* Right summary rail */}
         {step < 7 && (
-          <div className="w-[260px] shrink-0 border-l border-slate-200 bg-slate-50 pt-6 px-4">
+          <div className="w-full lg:w-[260px] shrink-0 border-t lg:border-t-0 lg:border-l border-slate-200 bg-slate-50 pt-6 px-4 pb-6">
             <SummaryRail form={form} step={step} />
           </div>
         )}

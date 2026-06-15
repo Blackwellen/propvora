@@ -89,11 +89,11 @@ function WizardStepRail() {
 }
 
 function WizardTopBar({ planName, onClose }: { planName: string; onClose: () => void }) {
-  const { state } = useWizard()
+  const { state, setStep } = useWizard()
   const progressPct = ((state.currentStep - 1) / (WIZARD_STEPS.length - 1)) * 100
 
   return (
-    <header className="h-14 shrink-0 flex items-center gap-4 px-5 border-b border-slate-100 bg-white">
+    <header className="h-14 shrink-0 flex items-center gap-3 sm:gap-4 px-3 sm:px-5 border-b border-slate-100 bg-white">
       {/* Logo */}
       <Link href="/app" className="flex items-center gap-2 shrink-0">
         <div className="relative h-8 w-[120px]">
@@ -153,17 +153,37 @@ function WizardTopBar({ planName, onClose }: { planName: string; onClose: () => 
         </div>
       </div>
 
-      {/* Step counter */}
+      {/* Step counter + mobile step jump */}
       <div className="shrink-0 text-right">
-        <p className="text-[11.5px] font-semibold text-slate-500">
+        <p className="text-[11.5px] font-semibold text-slate-500 hidden xl:block">
           Step {state.currentStep} of {WIZARD_STEPS.length}
         </p>
+        {/* Mobile / tablet step picker — lets users jump between completed steps */}
+        <label htmlFor="wizard-step-select" className="sr-only">
+          Jump to wizard step
+        </label>
+        <select
+          id="wizard-step-select"
+          value={state.currentStep}
+          onChange={(e) => {
+            const target = Number(e.target.value)
+            if (target <= state.currentStep) setStep(target)
+          }}
+          className="xl:hidden h-9 min-h-[40px] px-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30 max-w-[150px]"
+        >
+          {WIZARD_STEPS.map((s) => (
+            <option key={s.num} value={s.num} disabled={s.num > state.currentStep}>
+              Step {s.num}/{WIZARD_STEPS.length} · {s.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Close */}
       <button
         onClick={onClose}
-        className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0 ml-2"
+        aria-label="Close wizard"
+        className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0 ml-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30"
       >
         <X className="w-4 h-4 text-slate-400" />
       </button>
@@ -188,22 +208,25 @@ function WizardBottomBar({
 }) {
   const { state, isSaving } = useWizard()
   return (
-    <footer className="h-16 shrink-0 flex items-center justify-between px-5 border-t border-slate-100 bg-white">
+    <footer className="h-16 shrink-0 flex items-center justify-between px-3 sm:px-5 border-t border-slate-100 bg-white">
       <button
         onClick={onPrev}
         disabled={state.currentStep === 1}
         className={cn(
-          "flex items-center gap-2 h-10 px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all",
+          "flex items-center gap-2 h-10 px-3 sm:px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30",
           state.currentStep === 1
             ? "opacity-40 cursor-not-allowed text-slate-400"
             : "text-slate-700 hover:bg-slate-50"
         )}
       >
-        <ChevronLeft className="w-4 h-4" />
-        {state.currentStep === 1 ? "Previous" : `Back to Step ${state.currentStep - 1}`}
+        <ChevronLeft className="w-4 h-4 shrink-0" />
+        <span className="hidden sm:inline">
+          {state.currentStep === 1 ? "Previous" : `Back to Step ${state.currentStep - 1}`}
+        </span>
+        <span className="sm:hidden">Back</span>
       </button>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Autosave indicator */}
         <div className="flex items-center gap-1.5 text-[11.5px] text-slate-400">
           {isSaving ? (
@@ -221,10 +244,11 @@ function WizardBottomBar({
 
         <button
           onClick={onSave}
-          className="flex items-center gap-1.5 h-10 px-4 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+          className="flex items-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30"
         >
-          <Save className="w-3.5 h-3.5" />
-          Save Draft
+          <Save className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Save Draft</span>
+          <span className="sm:hidden">Save</span>
         </button>
 
         {!isLastStep && (
@@ -232,14 +256,14 @@ function WizardBottomBar({
             onClick={onNext}
             disabled={!canContinue}
             className={cn(
-              "flex items-center gap-2 h-10 px-6 rounded-xl text-[13.5px] font-semibold transition-all",
+              "flex items-center gap-2 h-10 px-4 sm:px-6 rounded-xl text-[13.5px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/40",
               canContinue
                 ? "bg-[#7C3AED] text-white hover:bg-violet-700 shadow-sm"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             )}
           >
             {nextLabel}
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 shrink-0" />
           </button>
         )}
       </div>

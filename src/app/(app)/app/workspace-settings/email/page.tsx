@@ -184,8 +184,9 @@ export default function EmailPage() {
             { label: "Support Email", value: supportEmail, setter: setSupportEmail, placeholder: "support@yourcompany.com" },
           ].map(({ label, value, setter, placeholder }) => (
             <div key={label}>
-              <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
+              <label htmlFor={`email-${label.replace(/\s+/g, "-").toLowerCase()}`} className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
               <input
+                id={`email-${label.replace(/\s+/g, "-").toLowerCase()}`}
                 type="email"
                 value={value}
                 placeholder={placeholder}
@@ -196,9 +197,10 @@ export default function EmailPage() {
           ))}
         </div>
         <div className="pt-4 border-t border-slate-100">
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Send test email</label>
+          <label htmlFor="email-send-test" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Send test email</label>
           <div className="flex items-center gap-3">
             <input
+              id="email-send-test"
               type="email"
               value={testEmail}
               placeholder="your@email.com"

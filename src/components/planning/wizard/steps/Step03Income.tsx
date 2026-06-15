@@ -159,7 +159,7 @@ export default function Step03Income() {
     <div className="flex flex-col min-h-full">
 
       {/* ── Top Header ───────────────────────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <div className="flex items-center justify-between mb-1">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 mb-1">Revenue Model Builder</h1>
@@ -182,7 +182,7 @@ export default function Step03Income() {
 
       {/* ── Income Type Tabs ─────────────────────────────────────────────────── */}
       <div className="border-b border-slate-100 overflow-x-auto">
-        <div className="flex items-center px-8 gap-0 min-w-max">
+        <div className="flex items-center px-4 sm:px-6 lg:px-8 gap-0 min-w-max">
           {INCOME_TABS.map((tab) => (
             <button
               key={tab}
@@ -201,7 +201,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── Live KPI Bar ──────────────────────────────────────────────────────── */}
-      <div className="px-8 py-4 bg-[#F6FAFF] border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 bg-[#F6FAFF] border-b border-slate-100">
         <div className="flex items-center gap-8 flex-wrap">
           <div>
             <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-0.5">
@@ -248,7 +248,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── Room Table Section ───────────────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-[15px] font-bold text-slate-900">Rent per room assumptions</h2>
@@ -466,7 +466,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── Void Allowance ───────────────────────────────────────────────────── */}
-      <div className="px-8 py-4 border-b border-slate-100 flex items-center gap-6 bg-[#F6FAFF]">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 flex items-center gap-6 bg-[#F6FAFF]">
         <div>
           <label className="text-[12px] font-semibold text-slate-600 block mb-1">
             Void Allowance (%)
@@ -490,7 +490,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── Charts Row ───────────────────────────────────────────────────────── */}
-      <div className="px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-5 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-5 border-b border-slate-100">
 
         {/* Monthly Gross Income Projection */}
         <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4">
@@ -506,7 +506,7 @@ export default function Step03Income() {
               View Details
             </button>
           </div>
-          <div className="h-[80px]">
+          <div className="h-[80px]" role="img" aria-label="Monthly income breakdown bar chart">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
                 <XAxis
@@ -538,7 +538,7 @@ export default function Step03Income() {
         <div className="bg-white rounded-2xl border border-slate-200 p-4">
           <h3 className="text-[13px] font-bold text-slate-900 mb-3">Occupancy Distribution</h3>
           <div className="flex items-center gap-3">
-            <div className="h-[80px] w-[80px] shrink-0">
+            <div className="h-[80px] w-[80px] shrink-0" role="img" aria-label="Occupancy distribution donut chart">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -615,7 +615,7 @@ export default function Step03Income() {
               Low (±3%)
             </span>
           </div>
-          <div className="h-[80px]">
+          <div className="h-[80px]" role="img" aria-label="Income sensitivity projection area chart">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={seasonalityData}
@@ -667,7 +667,7 @@ export default function Step03Income() {
           <div key={section.label} className="border-b border-slate-100 last:border-0">
             <button
               onClick={() => setOpenAccordion(openAccordion === i ? null : i)}
-              className="w-full flex items-center justify-between px-8 py-4 hover:bg-slate-50 transition-colors"
+              className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 hover:bg-slate-50 transition-colors"
             >
               <span className="text-[13.5px] font-semibold text-slate-700">{section.label}</span>
               <div className="flex items-center gap-3">
@@ -681,7 +681,7 @@ export default function Step03Income() {
               </div>
             </button>
             {openAccordion === i && (
-              <div className="px-8 pb-5 text-[13px] text-slate-400">
+              <div className="px-4 sm:px-6 lg:px-8 pb-5 text-[13px] text-slate-400">
                 Configure {section.label.toLowerCase()} for this planning set.
               </div>
             )}
@@ -690,7 +690,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── AI Assistant Panel ───────────────────────────────────────────────── */}
-      <div className="px-8 py-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-5">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-xl bg-[#7C3AED] flex items-center justify-center">

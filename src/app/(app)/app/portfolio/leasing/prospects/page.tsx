@@ -167,7 +167,7 @@ export default function ProspectsPage() {
                     <div className="space-y-2">
                       {colProspects.length === 0 && (
                         <div className="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center">
-                          <p className="text-[11px] text-slate-400">Empty</p>
+                          <p className="text-[11px] text-slate-500">Empty</p>
                         </div>
                       )}
                       {colProspects.map((p, idx) => (
@@ -188,7 +188,7 @@ export default function ProspectsPage() {
                             <span className={cn("border px-1.5 py-0.5 rounded text-[10px] font-medium", sourceColor[p.source] ?? "bg-slate-50 text-slate-500 border-slate-200")}>
                               {p.source}
                             </span>
-                            <span className="flex items-center gap-0.5 text-[10px] text-slate-400 ml-auto">
+                            <span className="flex items-center gap-0.5 text-[10px] text-slate-500 ml-auto">
                               <Clock className="w-2.5 h-2.5" />{p.timeInStage}
                             </span>
                           </div>
@@ -203,7 +203,8 @@ export default function ProspectsPage() {
         ) : (
           /* Table */
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-            <table className="w-full text-left">
+            <div className="overflow-x-auto">
+            <table className="w-full text-left min-w-[760px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
                   <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Name</th>
@@ -230,7 +231,7 @@ export default function ProspectsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-[11px] text-slate-600">{p.email}</p>
-                      <p className="text-[11px] text-slate-400">{p.phone}</p>
+                      <p className="text-[11px] text-slate-500">{p.phone}</p>
                     </td>
                     <td className="px-4 py-3 text-[11px] text-slate-600 max-w-[160px] truncate">{p.property}</td>
                     <td className="px-4 py-3">
@@ -255,6 +256,7 @@ export default function ProspectsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

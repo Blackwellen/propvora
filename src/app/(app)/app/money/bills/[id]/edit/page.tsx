@@ -250,7 +250,7 @@ export default function BillEditPage() {
                         </td>
                         <td className="py-2 pr-1">
                           <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">£</span>
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-xs">£</span>
                             <input type="number" min={0} step={0.01} value={li.unit_price} onChange={(e) => updateLineItem(li.id, "unit_price", Number(e.target.value))} className="w-full h-8 pl-5 pr-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/30" />
                           </div>
                         </td>

@@ -183,7 +183,7 @@ function DepositDonut({ rows }: { rows: DepositRow[] }) {
         <h3 className="text-sm font-semibold text-slate-800">Deposit Status</h3>
       </div>
       {total === 0 ? (
-        <p className="text-xs text-slate-400 text-center py-8">No deposits to chart yet.</p>
+        <p className="text-xs text-slate-500 text-center py-8">No deposits to chart yet.</p>
       ) : (
         <>
           <div className="flex items-center justify-center mb-4">
@@ -207,7 +207,7 @@ function DepositDonut({ rows }: { rows: DepositRow[] }) {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-2xl font-bold text-slate-900">{total}</span>
-                <span className="text-[10px] text-slate-400 font-medium">Total</span>
+                <span className="text-[10px] text-slate-500 font-medium">Total</span>
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ function DepositDonut({ rows }: { rows: DepositRow[] }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-slate-800">{seg.count}</span>
-                  <span className="text-[10px] text-slate-400">({seg.pct}%)</span>
+                  <span className="text-[10px] text-slate-500">({seg.pct}%)</span>
                 </div>
               </div>
             ))}
@@ -290,7 +290,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Track Deposit</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -409,7 +409,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
             >
               {createDeposit.isPending ? "Saving..." : "Save Deposit"}
             </button>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               disabled={createDeposit.isPending}
               className="h-9 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-60"
@@ -450,7 +450,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Return Deposit</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -504,7 +504,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
             <button onClick={handleConfirm} className="flex-1 h-9 rounded-xl text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors">
               Confirm Return
             </button>
-            <button onClick={onClose} className="h-9 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">
+            <button aria-label="Close" onClick={onClose} className="h-9 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">
               Cancel
             </button>
           </div>
@@ -579,10 +579,10 @@ function AddProtectionModal({
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900">Add Protection</h3>
-              <p className="text-[11px] text-slate-400">Register this deposit with an approved scheme</p>
+              <p className="text-[11px] text-slate-500">Register this deposit with an approved scheme</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -622,7 +622,7 @@ function AddProtectionModal({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-semibold text-slate-800 truncate">{meta.short}</p>
-                      <p className="text-[11px] text-slate-400">{meta.type} scheme</p>
+                      <p className="text-[11px] text-slate-500">{meta.type} scheme</p>
                     </div>
                     <span className={cn(
                       "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors",
@@ -645,7 +645,7 @@ function AddProtectionModal({
               placeholder="e.g. DPS20260001"
               className="w-full h-10 px-3.5 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all"
             />
-            <p className="text-[11px] text-slate-400">The certificate or membership reference issued by the scheme when the deposit was lodged.</p>
+            <p className="text-[11px] text-slate-500">The certificate or membership reference issued by the scheme when the deposit was lodged.</p>
           </div>
         </div>
 
@@ -661,7 +661,7 @@ function AddProtectionModal({
               <Shield className="w-4 h-4" />
               {saving ? "Protecting…" : "Mark Protected"}
             </button>
-            <button onClick={onClose} disabled={saving} className="h-10 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-colors disabled:opacity-60">
+            <button aria-label="Close" onClick={onClose} disabled={saving} className="h-10 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-colors disabled:opacity-60">
               Cancel
             </button>
           </div>
@@ -707,14 +707,14 @@ function DepositRowItem({
         </div>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-900 truncate">{deposit.tenantName}</p>
-          <p className="text-[11px] text-slate-400">{deposit.tenantRef}</p>
+          <p className="text-[11px] text-slate-500">{deposit.tenantRef}</p>
         </div>
       </div>
 
       {/* Property */}
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium text-slate-700 truncate">{deposit.propertyAddress}</p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
+        <p className="text-[11px] text-slate-500 mt-0.5">
           £{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })} · Received {deposit.receivedDate}
         </p>
       </div>
@@ -1143,7 +1143,7 @@ export default function DepositsPage() {
                 <div className="py-16 text-center space-y-2 bg-white rounded-xl border border-slate-100">
                   <Shield className="w-8 h-8 text-slate-300 mx-auto" />
                   <p className="text-slate-500 text-sm font-medium">No deposits tracked yet</p>
-                  <p className="text-slate-400 text-xs">
+                  <p className="text-slate-500 text-xs">
                     {DEPOSITS_LIVE.length === 0
                       ? "Use the Track Deposit button to record your first deposit."
                       : "No deposits match your current filters."}
@@ -1193,13 +1193,13 @@ export default function DepositsPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-slate-800 truncate">{r.tenantName}</p>
-                          <p className="text-[11px] text-slate-400 truncate">{r.propertyAddress}</p>
+                          <p className="text-[11px] text-slate-500 truncate">{r.propertyAddress}</p>
                           <p className="text-xs font-bold text-blue-600 mt-0.5">£{r.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
                         </div>
                       </div>
                     )
                   }) : (
-                    <p className="text-xs text-slate-400 text-center py-4">No returns due.</p>
+                    <p className="text-xs text-slate-500 text-center py-4">No returns due.</p>
                   )}
                 </div>
               </div>
@@ -1253,7 +1253,7 @@ export default function DepositsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 text-center py-4">Nothing needs attention.</p>
+                  <p className="text-xs text-slate-500 text-center py-4">Nothing needs attention.</p>
                 )}
               </div>
             )

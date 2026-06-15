@@ -22,7 +22,9 @@ const TabsList = React.forwardRef<
     <TabsPrimitive.List
       ref={ref}
       className={cn(
-        "inline-flex items-center",
+        // Horizontal scroll on narrow viewports so tab bars never overflow.
+        "flex items-center max-w-full overflow-x-auto overscroll-x-contain",
+        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         variantClasses[variant],
         className
       )}
@@ -40,8 +42,8 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-      "text-sm font-medium transition-all duration-150",
+      "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap",
+      "text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
       "disabled:pointer-events-none disabled:opacity-50",
       // Underline variant

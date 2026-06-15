@@ -24,6 +24,140 @@ const ALLOWED_EXTENSIONS = new Set([
   "doc", "docx", "xls", "xlsx", "csv", "txt",
 ])
 
+// ─── Magic-byte (content sniffing) validation ────────────────────────────────
+//
+// The client-sent content-type is attacker-controlled — a malicious file can
+// claim image/png while carrying an executable or an active-content SVG. We
+// sniff the leading bytes and verify the *true* type matches the declared MIME
+// allowlist. This is a defence-in-depth layer on top of the extension + MIME
+// checks in the upload route.
+
+export interface SniffResult {
+  /** Best-effort detected category, or null if unrecognised. */
+  detected: string | null
+  /** True if the bytes match one of our allowed signatures. */
+  ok: boolean
+}
+
+function startsWith(bytes: Uint8Array, sig: number[], offset = 0): boolean {
+  if (bytes.length < offset + sig.length) return false
+  for (let i = 0; i < sig.length; i++) {
+    if (bytes[offset + i] !== sig[i]) return false
+  }
+  return true
+}
+
+/** Decode the first N bytes as latin1/ascii text for text-format sniffing. */
+function asciiHead(bytes: Uint8Array, n = 1024): string {
+  const len = Math.min(bytes.length, n)
+  let s = ""
+  for (let i = 0; i < len; i++) s += String.fromCharCode(bytes[i])
+  return s
+}
+
+/**
+ * Sniff the real content type from magic bytes and confirm it is one of the
+ * formats we permit. `declaredMime` is the (untrusted) client content-type and
+ * is only used to disambiguate text formats that share no binary signature
+ * (csv vs plain) — never to bypass the binary checks.
+ *
+ * Returns { ok:false } when the bytes don't match an allowed signature so the
+ * caller can reject the upload (content/extension mismatch or disguised file).
+ */
+export function sniffContent(bytes: Uint8Array, declaredMime: string): SniffResult {
+  const mime = (declaredMime || "").split(";")[0].trim().toLowerCase()
+
+  // ── Binary image / document signatures ────────────────────────────────────
+  if (startsWith(bytes, [0x25, 0x50, 0x44, 0x46])) return { detected: "application/pdf", ok: true } // %PDF
+  if (startsWith(bytes, [0xff, 0xd8, 0xff])) return { detected: "image/jpeg", ok: true } // JPEG
+  if (startsWith(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return { detected: "image/png", ok: true } // PNG
+  if (startsWith(bytes, [0x47, 0x49, 0x46, 0x38])) return { detected: "image/gif", ok: true } // GIF8
+  // RIFF....WEBP
+  if (startsWith(bytes, [0x52, 0x49, 0x46, 0x46]) && startsWith(bytes, [0x57, 0x45, 0x42, 0x50], 8)) {
+    return { detected: "image/webp", ok: true }
+  }
+  // HEIC/HEIF: ....ftyp + heic/heif/heix/mif1/msf1 brand at offset 8
+  if (startsWith(bytes, [0x66, 0x74, 0x79, 0x70], 4)) {
+    const brand = asciiHead(bytes.slice(8, 12))
+    if (/heic|heif|heix|hevc|mif1|msf1/i.test(brand)) return { detected: "image/heic", ok: true }
+  }
+  // ZIP container (docx/xlsx and other OOXML) — PK\x03\x04 / PK\x05\x06 / PK\x07\x08
+  if (
+    startsWith(bytes, [0x50, 0x4b, 0x03, 0x04]) ||
+    startsWith(bytes, [0x50, 0x4b, 0x05, 0x06]) ||
+    startsWith(bytes, [0x50, 0x4b, 0x07, 0x08])
+  ) {
+    return { detected: "application/zip", ok: true }
+  }
+  // Legacy MS Office (doc/xls) OLE compound file: D0 CF 11 E0 A1 B1 1A E1
+  if (startsWith(bytes, [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])) {
+    return { detected: "application/x-ole-storage", ok: true }
+  }
+
+  // ── Text formats (svg / csv / txt) — no reliable binary signature ─────────
+  const head = asciiHead(bytes).trimStart()
+  const looksXml = head.startsWith("<?xml") || /<svg[\s>]/i.test(head)
+  if (mime === "image/svg+xml" || looksXml) {
+    // SVG is text/XML; we accept it ONLY after sanitisation (active content is
+    // stripped by sanitizeSvg in the route). Detect it here so plain-text
+    // bombs can't masquerade as another binary type.
+    if (looksXml) return { detected: "image/svg+xml", ok: true }
+  }
+  if (mime === "text/csv" || mime === "text/plain") {
+    // Reject if the "text" actually starts with a binary/exec signature.
+    if (isExecutable(bytes) || head.startsWith("<svg") || head.startsWith("<?xml")) {
+      return { detected: null, ok: false }
+    }
+    return { detected: mime, ok: true }
+  }
+
+  return { detected: null, ok: false }
+}
+
+/** Recognise common executable / script container magic numbers (always block). */
+export function isExecutable(bytes: Uint8Array): boolean {
+  return (
+    startsWith(bytes, [0x4d, 0x5a]) ||                   // MZ — Windows PE/EXE/DLL
+    startsWith(bytes, [0x7f, 0x45, 0x4c, 0x46]) ||       // ELF
+    startsWith(bytes, [0xfe, 0xed, 0xfa]) ||             // Mach-O (32)
+    startsWith(bytes, [0xcf, 0xfa, 0xed, 0xfe]) ||       // Mach-O (64 LE)
+    startsWith(bytes, [0xca, 0xfe, 0xba, 0xbe]) ||       // Mach-O fat / Java class
+    startsWith(bytes, [0x23, 0x21])                      // #! shebang script
+  )
+}
+
+/**
+ * Strip active/script content from an SVG so it can't run in a browser context
+ * when later viewed. Removes <script> blocks, on* event-handler attributes,
+ * javascript: URIs, <foreignObject>, and external entity declarations. Returns
+ * the sanitised bytes. Conservative: when in doubt, neutralise.
+ */
+export function sanitizeSvg(bytes: Uint8Array): Uint8Array {
+  let text = new TextDecoder("utf-8").decode(bytes)
+  text = text
+    // <script>…</script> (any case, across lines)
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, "")
+    .replace(/<script[\s\S]*?\/>/gi, "")
+    // event handler attributes: on…="…" / on…='…' / on…=value
+    .replace(/\son[a-z]+\s*=\s*"(?:[^"]*)"/gi, "")
+    .replace(/\son[a-z]+\s*=\s*'(?:[^']*)'/gi, "")
+    .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
+    // javascript: / data:text/html URIs inside href / xlink:href / src
+    .replace(/(href|xlink:href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1=$2#$2')
+    .replace(/(href|xlink:href|src)\s*=\s*("|')\s*data:text\/html[^"']*\2/gi, '$1=$2#$2')
+    // foreignObject can embed arbitrary HTML
+    .replace(/<foreignObject[\s\S]*?<\/foreignObject\s*>/gi, "")
+    // external entity / DOCTYPE (XXE surface)
+    .replace(/<!DOCTYPE[\s\S]*?>/gi, "")
+    .replace(/<!ENTITY[\s\S]*?>/gi, "")
+  // Copy into a fresh ArrayBuffer-backed Uint8Array so the return type matches
+  // callers that hold a Uint8Array<ArrayBuffer> (encode() yields ArrayBufferLike).
+  const encoded = new TextEncoder().encode(text)
+  const out = new Uint8Array(encoded.byteLength)
+  out.set(encoded)
+  return out
+}
+
 // ─── Config helpers ──────────────────────────────────────────────────────────
 
 function r2Bucket(): string | undefined {

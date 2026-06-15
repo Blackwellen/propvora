@@ -110,14 +110,14 @@ export default function CalendarMonthPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1">
-            <button onClick={prevMonth} className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+            <button onClick={prevMonth} aria-label="Previous month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button onClick={goToday} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors shadow-sm">
+            <button onClick={goToday} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
               <CalendarDays className="w-3.5 h-3.5" />
               Today
             </button>
-            <button onClick={nextMonth} className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+            <button onClick={nextMonth} aria-label="Next month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

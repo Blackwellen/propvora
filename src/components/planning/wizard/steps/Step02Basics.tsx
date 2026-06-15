@@ -23,7 +23,7 @@ export default function Step02Basics() {
   return (
     <div className="flex flex-col min-h-0 overflow-y-auto">
       {/* ── Top header ─────────────────────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 mb-1">
@@ -47,13 +47,13 @@ export default function Step02Basics() {
       </div>
 
       {/* ── Section A: Opportunity Basics ──────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <h2 className="text-[15px] font-bold text-slate-900 mb-5">
           Opportunity Basics
         </h2>
 
         {/* Row 1 */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Planning Set Name */}
           <div className="lg:col-span-2">
             <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
@@ -150,7 +150,7 @@ export default function Step02Basics() {
         </div>
 
         {/* Row 2 */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
           {/* Status */}
           <div>
             <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
@@ -242,7 +242,7 @@ export default function Step02Basics() {
       </div>
 
       {/* ── Section B: Location Context ─────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <h2 className="text-[15px] font-bold text-slate-900 mb-1.5">
           Location Context
         </h2>
@@ -350,7 +350,7 @@ export default function Step02Basics() {
       </div>
 
       {/* ── Section C: Property Details ─────────────────────────────────────── */}
-      <div className="px-8 py-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
         <h2 className="text-[15px] font-bold text-slate-900 mb-1.5">
           Property Details
         </h2>
@@ -359,7 +359,7 @@ export default function Step02Basics() {
         </p>
 
         {/* Row 1 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           {/* Property Type */}
           <div>
             <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
@@ -467,7 +467,7 @@ export default function Step02Basics() {
         </div>
 
         {/* Row 2 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           {/* Asking Price */}
           <div>
             <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
@@ -543,7 +543,7 @@ export default function Step02Basics() {
         </div>
 
         {/* Row 3 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {/* Intended Start Date */}
           <div>
             <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">

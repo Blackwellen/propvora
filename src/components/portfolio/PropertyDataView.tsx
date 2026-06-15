@@ -140,7 +140,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
                       className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors block truncate max-w-[200px]">
                       {p.name}
                     </Link>
-                    <p className="text-[11px] text-slate-400 truncate max-w-[200px]">{p.address}</p>
+                    <p className="text-[11px] text-slate-500 truncate max-w-[200px]">{p.address}</p>
                   </td>
                   {/* Occupancy */}
                   <td className="px-4 py-3 text-right">

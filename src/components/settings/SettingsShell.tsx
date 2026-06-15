@@ -40,8 +40,9 @@ function NavItem({ item, pathname }: { item: SettingsNavItem; pathname: string }
     <Link
       href={item.locked ? "#" : item.href}
       aria-disabled={item.locked}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5",
+        "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1",
         active
           ? "bg-[#EFF6FF] text-[#2563EB]"
           : item.locked
@@ -145,7 +146,7 @@ export function SettingsShell({
       <main className="flex-1 overflow-y-auto min-w-0">
         {/* Sticky page header */}
         <div className="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200">
-          <div className="max-w-[1120px] mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="max-w-[1120px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">
                 {title}
@@ -155,7 +156,7 @@ export function SettingsShell({
           </div>
         </div>
         {/* Page content */}
-        <div className="max-w-[1120px] mx-auto px-8 py-8">{children}</div>
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-8 py-6 sm:py-8">{children}</div>
       </main>
     </div>
   )

@@ -292,7 +292,7 @@ export default function AffiliateDashboardPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm min-w-[480px]">
                     <thead>
                       <tr className="border-b border-[#E2E8F0]">
                         <th className="text-left text-xs font-semibold text-slate-500 pb-2">Referral</th>

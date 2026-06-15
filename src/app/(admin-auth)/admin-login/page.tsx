@@ -98,9 +98,11 @@ export default function AdminLoginPage() {
                 className="space-y-4 [&_input]:!bg-white [&_input]:!text-slate-900 [&_input]:!border-[#E2E8F0]"
               >
                 <div>
-                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Admin email</label>
+                  <label htmlFor="admin-email" className="block text-[13px] font-semibold text-slate-700 mb-1.5">Admin email</label>
                   <Input
+                    id="admin-email"
                     type="email"
+                    aria-label="Admin email"
                     placeholder="admin@propvora.com"
                     autoComplete="email"
                     autoFocus
@@ -112,9 +114,11 @@ export default function AdminLoginPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Password</label>
+                  <label htmlFor="admin-password" className="block text-[13px] font-semibold text-slate-700 mb-1.5">Password</label>
                   <Input
+                    id="admin-password"
                     type={showPassword ? "text" : "password"}
+                    aria-label="Password"
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     leftElement={<Lock className="h-4 w-4" />}

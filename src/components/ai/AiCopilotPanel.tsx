@@ -109,7 +109,10 @@ export default function AiCopilotPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    messagesEndRef.current?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" })
   }, [messages, isThinking])
 
   /* ------ Live usage meter: today's token total for this workspace ------ */
@@ -261,7 +264,7 @@ export default function AiCopilotPanel() {
               <Image src="/propvora-favicon.png" alt="Propvora" width={24} height={24} className="w-6 h-6 object-contain" />
             </div>
             <div className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 motion-reduce:hidden" role="status" aria-label="Copilot is thinking">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
@@ -271,6 +274,7 @@ export default function AiCopilotPanel() {
                   />
                 ))}
               </div>
+              <span className="hidden motion-reduce:inline text-[11px] text-slate-400">Thinking…</span>
             </div>
           </div>
         )}
@@ -284,7 +288,7 @@ export default function AiCopilotPanel() {
           <button
             key={s}
             onClick={() => setInput(s)}
-            className="text-[11.5px] px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-100 font-medium"
+            className="text-[11.5px] px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1 transition-colors border border-blue-100 font-medium"
           >
             {s}
           </button>
@@ -296,7 +300,7 @@ export default function AiCopilotPanel() {
         <div className="relative">
           {/* Slash command menu */}
           {showSlashMenu && filteredCommands.length > 0 && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-10 max-h-64 overflow-y-auto">
+            <div role="menu" aria-label="Slash commands" className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-10 max-h-64 overflow-y-auto">
               <div className="px-3 py-2 border-b border-slate-100 bg-slate-50">
                 <p className="text-[11px] font-semibold text-slate-500">Slash Commands</p>
               </div>
@@ -305,8 +309,9 @@ export default function AiCopilotPanel() {
                 return (
                   <button
                     key={cmd.key}
+                    role="menuitem"
                     onClick={() => handleSlashCommand(cmd)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 focus-visible:bg-blue-50 focus-visible:outline-none transition-colors text-left"
                   >
                     <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
                       <Icon className="w-3.5 h-3.5 text-slate-500" />
@@ -329,11 +334,16 @@ export default function AiCopilotPanel() {
                 setShowSlashMenu(e.target.value.startsWith("/"))
               }}
               onKeyDown={(e) => {
+                if (e.key === "Escape" && showSlashMenu) {
+                  setShowSlashMenu(false)
+                  return
+                }
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
                   handleSend()
                 }
               }}
+              aria-label="Ask Propvora Copilot"
               placeholder="Ask Propvora Copilot or type /"
               className="flex-1 bg-transparent text-[13px] text-slate-800 placeholder:text-slate-400 resize-none outline-none min-h-[20px] max-h-[100px]"
               rows={1}
@@ -341,7 +351,8 @@ export default function AiCopilotPanel() {
             <button
               onClick={handleSend}
               disabled={!input.trim() || isThinking}
-              className="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center disabled:opacity-40 transition-all hover:bg-[#1d4ed8] shrink-0"
+              aria-label="Send message"
+              className="w-8 h-8 min-w-[32px] rounded-xl bg-[#2563EB] text-white flex items-center justify-center disabled:opacity-40 transition-all hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1 shrink-0"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

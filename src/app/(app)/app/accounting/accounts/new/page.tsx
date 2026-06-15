@@ -43,7 +43,7 @@ export default function NewAccountPage() {
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Account Details</h3>
-        <p className="text-xs text-slate-400 mb-5">Define the core properties of this account.</p>
+        <p className="text-xs text-slate-500 mb-5">Define the core properties of this account.</p>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
@@ -149,7 +149,7 @@ export default function NewAccountPage() {
               className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
               placeholder="Optional description for this account..."
             />
-            <span className="absolute bottom-2 right-3 text-[11px] text-slate-400">{description.length}/255</span>
+            <span className="absolute bottom-2 right-3 text-[11px] text-slate-500">{description.length}/255</span>
           </div>
         </div>
 
@@ -181,12 +181,12 @@ export default function NewAccountPage() {
             { label: "Property Scope", value: scope },
           ].map((item) => (
             <div key={item.label} className="flex items-start justify-between gap-2">
-              <span className="text-xs text-slate-400 shrink-0">{item.label}</span>
+              <span className="text-xs text-slate-500 shrink-0">{item.label}</span>
               <span className="text-xs font-semibold text-slate-900 text-right">{item.value}</span>
             </div>
           ))}
           <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E2E8F0]">
-            <span className="text-xs text-slate-400">Default Status</span>
+            <span className="text-xs text-slate-500">Default Status</span>
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ECFDF5] text-[#059669]">Active</span>
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function NewAccountPage() {
               <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0" />
               <div>
                 <p className="text-xs font-semibold text-slate-700">{item.step}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{item.desc}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{item.desc}</p>
               </div>
             </div>
           ))}

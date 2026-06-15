@@ -138,7 +138,7 @@ function ChaseDrawer({
       <div className="w-[420px] bg-white shadow-2xl flex flex-col h-full">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-900">Chase Arrears</h2>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
           >
@@ -225,7 +225,7 @@ function ChaseDrawer({
         </div>
 
         <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50">
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
           >
@@ -280,10 +280,10 @@ function ArrearCard({
                 <div className="text-[13px] font-semibold text-slate-900 leading-tight">
                   {arrearCase.tenantName}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-[11px] text-slate-500 mt-0.5">
                   {arrearCase.tenantEmail}
                 </div>
-                <div className="text-[11px] text-slate-400">
+                <div className="text-[11px] text-slate-500">
                   {arrearCase.tenantPhone}
                 </div>
               </div>
@@ -301,14 +301,14 @@ function ArrearCard({
           {/* Center: Property + Invoice */}
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
             <div className="w-full h-16 bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
-              <div className="text-[11px] text-slate-400 font-medium px-3 text-center leading-tight">
+              <div className="text-[11px] text-slate-500 font-medium px-3 text-center leading-tight">
                 {arrearCase.propertyName}
               </div>
             </div>
             <div className="text-[12px] text-slate-600 leading-tight">
               {arrearCase.propertyAddress}
             </div>
-            <div className="text-[11px] text-slate-400">
+            <div className="text-[11px] text-slate-500">
               {arrearCase.invoiceRef} · {arrearCase.invoiceLabel} · Due{" "}
               {arrearCase.dueDate}
             </div>
@@ -680,7 +680,7 @@ export default function ArrearsPage() {
                       <CheckCircle className="w-6 h-6 text-emerald-500" />
                     </div>
                     <p className="text-sm font-medium text-slate-600">No arrears cases</p>
-                    <p className="text-xs text-slate-400">Overdue balances will appear here when tenants fall behind.</p>
+                    <p className="text-xs text-slate-500">Overdue balances will appear here when tenants fall behind.</p>
                   </div>
                 )}
               </div>
@@ -739,7 +739,7 @@ export default function ArrearsPage() {
                                   <div className="text-[13px] font-medium text-slate-900">
                                     {c.tenantName}
                                   </div>
-                                  <div className="text-[11px] text-slate-400">
+                                  <div className="text-[11px] text-slate-500">
                                     {c.tenantEmail}
                                   </div>
                                 </div>
@@ -807,7 +807,7 @@ export default function ArrearsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-[13px] font-semibold text-slate-900 mb-2">Arrears Exposure</h3>
               <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalArrears)}</p>
-              <p className="text-[12px] text-slate-400 mt-0.5">Total outstanding across all open cases</p>
+              <p className="text-[12px] text-slate-500 mt-0.5">Total outstanding across all open cases</p>
               <div className="mt-4 flex flex-col gap-2">
                 {[
                   { label: "Open", value: summary?.openCases ?? 0, dot: "bg-amber-500" },
@@ -844,17 +844,17 @@ export default function ArrearsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[12px] font-medium text-slate-900 truncate">{c.name}</div>
-                        <div className="text-[11px] text-slate-400 truncate">{c.property}</div>
+                        <div className="text-[11px] text-slate-500 truncate">{c.property}</div>
                       </div>
                       <div className="text-right shrink-0">
                         <div className="text-[12px] font-bold text-red-600">{formatCurrency(c.amount)}</div>
-                        <div className="text-[10px] text-slate-400">{c.daysOverdue}d</div>
+                        <div className="text-[10px] text-slate-500">{c.daysOverdue}d</div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-[12px] text-slate-400 text-center py-4">No high-risk cases.</p>
+                <p className="text-[12px] text-slate-500 text-center py-4">No high-risk cases.</p>
               )}
             </div>
           </div>

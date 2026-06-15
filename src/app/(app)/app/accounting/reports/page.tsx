@@ -117,7 +117,7 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Financial Reports</span>
@@ -167,19 +167,19 @@ export default function ReportsPage() {
         <div className="px-5 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">{tab}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">As at {today} · GBP · computed from the ledger</p>
+            <p className="text-xs text-slate-500 mt-0.5">As at {today} · GBP · computed from the ledger</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Computing report from ledger…</div>
+          <div className="p-12 text-center text-slate-500 text-sm">Computing report from ledger…</div>
         ) : !hasData ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
               <Scale className="w-5 h-5 text-[#2563EB]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No ledger data yet</p>
-            <p className="text-xs text-slate-400 max-w-md">
+            <p className="text-xs text-slate-500 max-w-md">
               Reports are derived entirely from your chart of accounts and posted journal lines.
               Create accounts and post entries to generate a live Trial Balance, P&amp;L and Balance Sheet.
             </p>
@@ -214,7 +214,7 @@ function TrialBalanceTable({ data }: { data: ReturnType<typeof buildTrialBalance
         </thead>
         <tbody>
           {data.rows.length === 0 ? (
-            <tr><td colSpan={5} className="px-5 py-10 text-center text-sm text-slate-400">No non-zero balances yet.</td></tr>
+            <tr><td colSpan={5} className="px-5 py-10 text-center text-sm text-slate-500">No non-zero balances yet.</td></tr>
           ) : (
             data.rows.map((r) => (
               <tr key={r.account.id} className="border-b border-[#E2E8F0] hover:bg-slate-50/50">
@@ -253,7 +253,7 @@ function PLTable({ data }: { data: ReturnType<typeof buildProfitAndLoss> }) {
             <td className="px-4 py-2" />
           </tr>
           {data.income.rows.length === 0 ? (
-            <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-400">No income accounts.</td></tr>
+            <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-500">No income accounts.</td></tr>
           ) : data.income.rows.map((r) => (
             <tr key={r.account.id} className="border-b border-[#E2E8F0] hover:bg-slate-50/50">
               <td className="px-5 py-3 text-[13px] text-slate-700">{r.account.name}</td>
@@ -270,7 +270,7 @@ function PLTable({ data }: { data: ReturnType<typeof buildProfitAndLoss> }) {
             <td className="px-4 py-2" />
           </tr>
           {data.expenses.rows.length === 0 ? (
-            <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-400">No expense accounts.</td></tr>
+            <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-500">No expense accounts.</td></tr>
           ) : data.expenses.rows.map((r) => (
             <tr key={r.account.id} className="border-b border-[#E2E8F0] hover:bg-slate-50/50">
               <td className="px-5 py-3 text-[13px] text-slate-700">{r.account.name}</td>
@@ -302,7 +302,7 @@ function BalanceSheetTable({ data, netProfit }: { data: ReturnType<typeof buildB
         <td className="px-4 py-2" />
       </tr>
       {rows.length === 0 ? (
-        <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-400">No {title.toLowerCase()} accounts.</td></tr>
+        <tr><td colSpan={2} className="px-5 py-3 text-[13px] text-slate-500">No {title.toLowerCase()} accounts.</td></tr>
       ) : rows.map((r) => (
         <tr key={r.account.id} className="border-b border-[#E2E8F0] hover:bg-slate-50/50">
           <td className="px-5 py-3 text-[13px] text-slate-700">{r.account.name}</td>

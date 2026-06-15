@@ -83,12 +83,15 @@ function levelBadgeClass(level: EscalationLevel): string {
 
 // ─── Toggle Switch ────────────────────────────────────────────────────────────
 
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; label?: string }) {
   return (
     <button
       onClick={onToggle}
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
       className={cn(
-        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none",
+        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
         on ? "bg-emerald-500" : "bg-slate-300"
       )}
     >
@@ -291,7 +294,7 @@ export default function RentChasePage() {
             <span className={cn("text-xs font-semibold", aiChaseOn ? "text-emerald-700" : "text-slate-500")}>
               Auto Chase: {aiChaseOn ? "ON" : "OFF"}
             </span>
-            <Toggle on={aiChaseOn} onToggle={() => setAiChaseOn((v) => !v)} />
+            <Toggle label="AI rent chasing" on={aiChaseOn} onToggle={() => setAiChaseOn((v) => !v)} />
           </div>
         </div>
 
@@ -350,7 +353,7 @@ export default function RentChasePage() {
                   </thead>
                   <tbody>
                     {isLoading && chaseCases.length === 0 && (
-                      <tr><td colSpan={7} className="px-5 py-10 text-center text-sm text-slate-400">Loading chase cases…</td></tr>
+                      <tr><td colSpan={7} className="px-5 py-10 text-center text-sm text-slate-500">Loading chase cases…</td></tr>
                     )}
                     {!isLoading && chaseCases.length === 0 && (
                       <tr>
@@ -360,7 +363,7 @@ export default function RentChasePage() {
                               <CheckCircle className="w-6 h-6 text-emerald-500" />
                             </div>
                             <p className="text-sm font-medium text-slate-600">No active chase cases</p>
-                            <p className="text-xs text-slate-400">Open arrears cases appear here for chasing.</p>
+                            <p className="text-xs text-slate-500">Open arrears cases appear here for chasing.</p>
                           </div>
                         </td>
                       </tr>
@@ -381,7 +384,7 @@ export default function RentChasePage() {
 
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-700">Auto-chase</span>
-                <Toggle on={aiChaseOn} onToggle={() => setAiChaseOn((v) => !v)} />
+                <Toggle label="AI rent chasing" on={aiChaseOn} onToggle={() => setAiChaseOn((v) => !v)} />
               </div>
 
               <div className="flex flex-col gap-2">
@@ -418,7 +421,7 @@ export default function RentChasePage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[12px] font-medium text-slate-800">{day.label}</p>
-                        <p className="text-[11px] text-slate-400">{day.channels.join(" · ")}</p>
+                        <p className="text-[11px] text-slate-500">{day.channels.join(" · ")}</p>
                       </div>
                     </div>
                   ))}
@@ -432,9 +435,9 @@ export default function RentChasePage() {
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-slate-400" />
                     <span className="text-sm text-slate-700">Email</span>
-                    <span className="text-[10px] text-slate-400">(always on)</span>
+                    <span className="text-[10px] text-slate-500">(always on)</span>
                   </div>
-                  <Toggle on={emailOn} onToggle={() => {}} />
+                  <Toggle label="Email reminders" on={emailOn} onToggle={() => {}} />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -444,9 +447,9 @@ export default function RentChasePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {!smsOn && (
-                      <span className="text-[10px] text-slate-400">Add-on</span>
+                      <span className="text-[10px] text-slate-500">Add-on</span>
                     )}
-                    <Toggle on={smsOn} onToggle={() => setSmsOn((v) => !v)} />
+                    <Toggle label="SMS reminders" on={smsOn} onToggle={() => setSmsOn((v) => !v)} />
                   </div>
                 </div>
 
@@ -457,9 +460,9 @@ export default function RentChasePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {!whatsappOn && (
-                      <span className="text-[10px] text-slate-400">Add-on</span>
+                      <span className="text-[10px] text-slate-500">Add-on</span>
                     )}
-                    <Toggle on={whatsappOn} onToggle={() => setWhatsappOn((v) => !v)} />
+                    <Toggle label="WhatsApp reminders" on={whatsappOn} onToggle={() => setWhatsappOn((v) => !v)} />
                   </div>
                 </div>
 
@@ -468,7 +471,7 @@ export default function RentChasePage() {
                     <Gavel className="w-4 h-4 text-slate-400" />
                     <span className="text-sm text-slate-700">Auto evidence filing</span>
                   </div>
-                  <Toggle on={evidenceOn} onToggle={() => setEvidenceOn((v) => !v)} />
+                  <Toggle label="Attach evidence" on={evidenceOn} onToggle={() => setEvidenceOn((v) => !v)} />
                 </div>
               </div>
 

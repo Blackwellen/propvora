@@ -57,7 +57,7 @@ function Chip({ active, onClick, children, color }: { active: boolean; onClick: 
 }
 
 function FLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400 mb-1">{children}</p>
+  return <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{children}</p>
 }
 
 /* ------------------------------------------------------------------ */
@@ -275,7 +275,7 @@ export default function TenanciesListPage() {
               <div>
                 <FLabel>Min rent / mo</FLabel>
                 <div className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] text-slate-400 font-medium">£</span>
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] text-slate-500 font-medium">£</span>
                   <input
                     type="number"
                     value={filterMinRent}
@@ -288,7 +288,7 @@ export default function TenanciesListPage() {
               <div>
                 <FLabel>Max rent / mo</FLabel>
                 <div className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] text-slate-400 font-medium">£</span>
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] text-slate-500 font-medium">£</span>
                   <input
                     type="number"
                     value={filterMaxRent}
@@ -303,7 +303,7 @@ export default function TenanciesListPage() {
             {activeFilters > 0 && (
               <div className="flex items-center justify-between pt-1">
                 <p className="text-[12px] text-slate-500">{filtered.length} of {allTenancies.length} tenancies</p>
-                <button onClick={clearAll} className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600 transition-colors">
+                <button onClick={clearAll} className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600 transition-colors">
                   <X className="w-3.5 h-3.5" />Clear all filters
                 </button>
               </div>
@@ -331,7 +331,7 @@ export default function TenanciesListPage() {
             <Users className="w-8 h-8 text-slate-300" />
           </div>
           <p className="text-sm font-semibold text-slate-600">No tenancies found</p>
-          <p className="text-xs text-slate-400">Try adjusting your filters or create a new tenancy</p>
+          <p className="text-xs text-slate-500">Try adjusting your filters or create a new tenancy</p>
           <div className="flex items-center gap-2">
             {activeFilters > 0 && (
               <button onClick={clearAll} className="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
@@ -375,7 +375,7 @@ export default function TenanciesListPage() {
                 </button>
               )
             })}
-            {totalPages > 5 && <span className="text-slate-400 text-sm">…{totalPages}</span>}
+            {totalPages > 5 && <span className="text-slate-500 text-sm">…{totalPages}</span>}
             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
               <ChevronRight className="w-4 h-4" />
             </Button>

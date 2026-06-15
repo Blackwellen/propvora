@@ -123,7 +123,7 @@ export function PropertyTable({
     return (
       <th
         onClick={() => toggleSort(k)}
-        className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-slate-600 whitespace-nowrap select-none"
+        className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-600 whitespace-nowrap select-none"
       >
         {children}<SortIcon k={k} />
       </th>
@@ -138,12 +138,12 @@ export function PropertyTable({
             <tr className="border-b border-slate-100 bg-slate-50/80">
               <Th k="name">Property</Th>
               <Th k="type">Type</Th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">Dwelling</th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">Dwelling</th>
               <Th k="units">Units</Th>
               <Th k="occupancy">Occupancy</Th>
               <Th k="monthlyRent">Rent / mo</Th>
               <Th k="status">Status</Th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Manager</th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Manager</th>
               <th className="px-4 py-3 w-10" />
             </tr>
           </thead>
@@ -174,7 +174,7 @@ export function PropertyTable({
                         <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-[#2563EB] transition-colors">
                           {p.name}
                         </p>
-                        <p className="text-[11px] text-slate-400 truncate max-w-[180px]">
+                        <p className="text-[11px] text-slate-500 truncate max-w-[180px]">
                           {p.address}
                         </p>
                       </div>
@@ -289,7 +289,7 @@ export function PropertyTable({
 
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-16 text-center text-sm text-slate-400">
+                <td colSpan={9} className="px-4 py-16 text-center text-sm text-slate-500">
                   No properties found
                 </td>
               </tr>

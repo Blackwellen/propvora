@@ -180,7 +180,10 @@ export function ContactTable({ contacts, onEdit, onMessage, onDelete }: ContactT
           return (
             <div className="relative flex justify-end">
               <button
-                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                aria-label="Contact actions"
+                aria-haspopup="menu"
+                aria-expanded={isOpen}
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
                 onClick={(e) => {
                   e.stopPropagation()
                   setOpenDropdown(isOpen ? null : id)
@@ -191,7 +194,7 @@ export function ContactTable({ contacts, onEdit, onMessage, onDelete }: ContactT
               {isOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
-                  <div className="absolute right-0 top-8 z-20 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
+                  <div role="menu" className="absolute right-0 top-8 z-20 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                     <button
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                       onClick={() => { onMessage?.(id); setOpenDropdown(null) }}

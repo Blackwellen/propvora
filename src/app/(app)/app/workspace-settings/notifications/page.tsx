@@ -210,7 +210,7 @@ export default function NotificationsPage() {
       )}
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
         {[
           { label: "Alert types active", value: `${enabledCount} / ${ALERT_ROWS.length}` },
           { label: "Channels enabled",   value: Object.values(channels).filter(Boolean).length.toString() },
@@ -362,7 +362,7 @@ export default function NotificationsPage() {
 
       {/* Sticky save bar */}
       {isDirty && !unavailable && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shadow-lg">
           <div>
             <p className="text-[13px] text-slate-600">You have unsaved changes</p>
             {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}

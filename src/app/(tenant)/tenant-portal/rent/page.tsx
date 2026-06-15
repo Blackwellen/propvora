@@ -194,7 +194,7 @@ export default function TenantRentPage() {
           {/* Table */}
           <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[520px]">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
                     {["Date", "Description", "Status", "Amount"].map((h) => (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useId } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 function InputField({
@@ -18,10 +18,12 @@ function InputField({
   className?: string
   type?: string
 }) {
+  const id = useId()
   return (
     <div className={className}>
-      <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -43,10 +45,12 @@ function SelectField({
   options: { value: string; label: string }[]
   onChange: (v: string) => void
 }) {
+  const id = useId()
   return (
     <div>
-      <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">{label}</label>
       <select
+        id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -170,7 +174,7 @@ export default function ProfilePage() {
       {/* Personal details */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <h3 className="text-[14px] font-bold text-slate-900 mb-5">Personal Details</h3>
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <InputField
             label="First name"
             value={form.firstName}
@@ -188,8 +192,9 @@ export default function ProfilePage() {
           onChange={v => update("displayName", v)}
         />
         <div className="mt-4">
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Email address</label>
+          <label htmlFor="profile-email" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Email address</label>
           <input
+            id="profile-email"
             type="email"
             value={form.email}
             readOnly
@@ -247,10 +252,11 @@ export default function ProfilePage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-24">
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Bio</h3>
         <div>
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+          <label htmlFor="profile-bio" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
             Short bio
           </label>
           <textarea
+            id="profile-bio"
             value={form.bio}
             onChange={e => { setForm(f => ({ ...f, bio: e.target.value })); setIsDirty(true) }}
             rows={3}
@@ -263,7 +269,7 @@ export default function ProfilePage() {
 
       {/* Sticky save bar */}
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="pwa-safe-bottom fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
           <div>
             <p className="text-[13px] text-slate-600">You have unsaved changes</p>
             {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}

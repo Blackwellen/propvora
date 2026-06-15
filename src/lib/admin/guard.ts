@@ -92,3 +92,55 @@ export async function requireAdmin(): Promise<AdminIdentity> {
   if (!identity) throw new Error("Forbidden: platform admin access required")
   return identity
 }
+
+// ─── MFA assurance gate for the admin console ────────────────────────────────
+
+export type AdminMfaState =
+  | "ok"            // aal2 satisfied (or no MFA configured to enforce) → allow
+  | "challenge"     // a TOTP factor is enrolled but the session is only aal1 → must verify
+  | "unknown"       // could not determine — treat as allow (fail-open ONLY for the
+                    //   assurance check; the role check above is still fail-closed)
+
+/**
+ * Determine whether the current admin session has satisfied MFA.
+ *
+ * Supabase exposes an Authenticator Assurance Level (AAL). A session that has
+ * verified a TOTP factor is `aal2`; one that has only a password is `aal1`.
+ *
+ * Policy (non-breaking):
+ *   - If the admin has a VERIFIED TOTP factor enrolled but the current session
+ *     is not yet aal2 → "challenge": the layout redirects to the verify step so
+ *     privileged console access always requires the second factor.
+ *   - If the admin has NO verified factor enrolled, we do not lock them out
+ *     (they can still reach the console and should enrol MFA) → "ok". This keeps
+ *     existing admins working while enforcing 2FA for anyone who has set it up.
+ *
+ * Any error determining the state returns "unknown" (allow) so an Auth/API
+ * hiccup never bricks the console — the authoritative role gate already ran.
+ */
+export async function getAdminMfaState(): Promise<AdminMfaState> {
+  try {
+    const supabase = await createClient()
+
+    const { data: aal, error: aalErr } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalErr) return "unknown"
+
+    // Already stepped up — nothing to do.
+    if (aal?.currentLevel === "aal2") return "ok"
+
+    // If Supabase says the next required level is aal2 while the current session
+    // is below it, an enrolled factor must be satisfied → force the challenge.
+    if (aal?.nextLevel === "aal2" && aal?.currentLevel !== "aal2") {
+      return "challenge"
+    }
+
+    // Cross-check enrolled factors directly in case nextLevel is stale.
+    const { data: factors, error: facErr } = await supabase.auth.mfa.listFactors()
+    if (facErr) return "unknown"
+    const hasVerifiedTotp = (factors?.totp ?? []).some((f) => f.status === "verified")
+    return hasVerifiedTotp ? "challenge" : "ok"
+  } catch {
+    return "unknown"
+  }
+}

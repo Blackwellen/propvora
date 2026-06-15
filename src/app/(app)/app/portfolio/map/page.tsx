@@ -120,7 +120,7 @@ function PropertyListCard({ property, selected, onClick }: { property: MapProper
               {STATUS_LABELS[property.status]}
             </Badge>
           </div>
-          <p className="text-[11px] text-slate-400 truncate mt-0.5">{property.city} · {property.postcode}</p>
+          <p className="text-[11px] text-slate-500 truncate mt-0.5">{property.city} · {property.postcode}</p>
 
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md", health.bg, health.color)}>
@@ -258,7 +258,7 @@ export default function PortfolioMapPage() {
           <div key={label} className="flex items-center gap-1.5 text-sm">
             <Icon className={cn("w-4 h-4", color)} />
             <span className={cn("font-semibold", color)}>{value}</span>
-            <span className="text-slate-400 text-xs">{label}</span>
+            <span className="text-slate-500 text-xs">{label}</span>
           </div>
         ))}
       </div>
@@ -277,7 +277,7 @@ export default function PortfolioMapPage() {
             <p className="text-base font-bold text-slate-700">
               {allProperties.length === 0 ? "No properties to map yet" : "No mapped properties"}
             </p>
-            <p className="text-sm text-slate-400 mt-1 max-w-sm">
+            <p className="text-sm text-slate-500 mt-1 max-w-sm">
               {allProperties.length === 0
                 ? "Add a property to see it plotted on the map."
                 : `${unmappedCount} propert${unmappedCount === 1 ? "y has" : "ies have"} no coordinates. Add a latitude and longitude to plot ${unmappedCount === 1 ? "it" : "them"}.`}
@@ -338,7 +338,7 @@ export default function PortfolioMapPage() {
                 </div>
               )}
 
-              <p className="text-[10px] text-slate-400">{filtered.length} propert{filtered.length !== 1 ? "ies" : "y"}</p>
+              <p className="text-[10px] text-slate-500">{filtered.length} propert{filtered.length !== 1 ? "ies" : "y"}</p>
             </div>
 
             {/* Scrollable property list */}
@@ -346,7 +346,7 @@ export default function PortfolioMapPage() {
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center flex-1 gap-3 py-12">
                   <Building2 className="w-10 h-10 text-slate-200" />
-                  <p className="text-xs text-slate-400 text-center">No properties match your filters</p>
+                  <p className="text-xs text-slate-500 text-center">No properties match your filters</p>
                   <button
                     onClick={() => { setSearch(""); setFilterStatus("all"); setFilterHealth("all") }}
                     className="text-xs text-[#2563EB] hover:underline"

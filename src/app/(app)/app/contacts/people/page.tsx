@@ -345,13 +345,13 @@ function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="add-person-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Add Person</h2>
+            <h2 id="add-person-title" className="text-lg font-bold text-slate-900">Add Person</h2>
             <p className="text-xs text-slate-500 mt-0.5">Create a new person contact</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -359,20 +359,20 @@ function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonModalProps
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">First Name <span className="text-red-400">*</span></label>
-              <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="James"
+              <label htmlFor="add-person-first" className="block text-xs font-medium text-slate-700 mb-1">First Name <span className="text-red-400">*</span></label>
+              <input id="add-person-first" type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="James"
                 className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Last Name <span className="text-red-400">*</span></label>
-              <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Okafor"
+              <label htmlFor="add-person-last" className="block text-xs font-medium text-slate-700 mb-1">Last Name <span className="text-red-400">*</span></label>
+              <input id="add-person-last" type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Okafor"
                 className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
-            <select value={type} onChange={e => setType(e.target.value)}
+            <label htmlFor="add-person-type" className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
+            <select id="add-person-type" value={type} onChange={e => setType(e.target.value)}
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all">
               <option value="tenant">Tenant</option>
               <option value="landlord">Landlord</option>
@@ -385,20 +385,20 @@ function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonModalProps
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="james@example.com"
+            <label htmlFor="add-person-email" className="block text-xs font-medium text-slate-700 mb-1">Email</label>
+            <input id="add-person-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="james@example.com"
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
-              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07700 900000"
+              <label htmlFor="add-person-phone" className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
+              <input id="add-person-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07700 900000"
                 className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">City</label>
-              <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="Birmingham"
+              <label htmlFor="add-person-city" className="block text-xs font-medium text-slate-700 mb-1">City</label>
+              <input id="add-person-city" type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="Birmingham"
                 className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
             </div>
           </div>
@@ -432,7 +432,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
     <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-slate-900 text-white rounded-xl shadow-xl text-sm font-medium">
       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
       {message}
-      <button onClick={onDismiss} className="ml-2 text-slate-400 hover:text-white transition-colors">
+      <button onClick={onDismiss} aria-label="Dismiss notification" className="ml-2 text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded">
         <X className="w-3.5 h-3.5" />
       </button>
     </div>
@@ -649,13 +649,14 @@ export default function PeoplePage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
+                aria-label="Search people"
                 placeholder="Search people…"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
               />
               {searchQuery && (
-                <button onClick={() => handleSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <button onClick={() => handleSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -683,6 +684,7 @@ export default function PeoplePage() {
               {/* Sort */}
               <div className="relative">
                 <select
+                  aria-label="Sort people"
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as SortKey)}
                   className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] cursor-pointer appearance-none"
@@ -710,6 +712,8 @@ export default function PeoplePage() {
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
+                    aria-label={`${mode.charAt(0).toUpperCase() + mode.slice(1)} view`}
+                    aria-pressed={viewMode === mode}
                     className={cn(
                       "p-1.5 rounded-md transition-colors",
                       viewMode === mode ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-400 hover:text-slate-600"

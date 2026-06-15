@@ -68,7 +68,7 @@ export default async function AdminAffiliatesPage() {
       ) : (
         <Card noPadding>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[920px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">
                   {["Affiliate", "Code", "Origin", "Status", "Rate", "Active refs", "Pending", "Cleared", "Paid"].map((h) => (

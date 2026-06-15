@@ -93,7 +93,8 @@ export default async function AdminWorkspaceDetailPage({ params }: PageProps) {
             {ws.members.length === 0 ? (
               <div className="text-center py-8 text-sm text-slate-400">No members</div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[420px]">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">
                     {["Member", "Role", "Joined"].map((h) => (
@@ -116,6 +117,7 @@ export default async function AdminWorkspaceDetailPage({ params }: PageProps) {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </Card>
 

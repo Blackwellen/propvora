@@ -108,7 +108,7 @@ export default function ConversationPage() {
           <ArrowLeft className="w-4 h-4" /> Back to Messages
         </Link>
 
-        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 220px)", minHeight: "480px" }}>
+        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col h-[calc(100dvh-200px)] min-h-[440px] sm:h-[calc(100vh-220px)] sm:min-h-[480px]">
           {/* Header */}
           <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
             <div className="flex items-center gap-3 min-w-0">
@@ -158,6 +158,7 @@ export default function ConversationPage() {
           <div className="border-t border-slate-200 bg-white p-4">
             <div className="rounded-xl border border-slate-200 bg-white p-3">
               <textarea
+                aria-label="Type a message"
                 placeholder="Type a message…"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

@@ -166,7 +166,8 @@ function EditPen({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100"
+      aria-label="Edit field"
+      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
     >
       <Edit2 className="w-3.5 h-3.5 text-slate-400" />
     </button>
@@ -290,7 +291,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
           {/* Editable fields grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Deposit (£)</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Deposit (£)</span>
               <InlineEditField
                 value={t.deposit}
                 onSave={(v) => onSave("deposit_amount", v ? Number(v) : null)}
@@ -300,7 +301,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Lease Start</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Lease Start</span>
               <InlineEditField
                 value={t.leaseStart}
                 onSave={(v) => onSave("start_date", v)}
@@ -309,7 +310,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Lease End</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Lease End</span>
               <InlineEditField
                 value={t.leaseEnd}
                 onSave={(v) => onSave("end_date", v)}
@@ -318,7 +319,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Rent (£/mo)</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Rent (£/mo)</span>
               <InlineEditField
                 value={t.rent}
                 onSave={(v) => onSave("rent_amount", v ? Number(v) : null)}
@@ -328,7 +329,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Status</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Status</span>
               <InlineEditField
                 value={t.rawStatus ?? "active"}
                 onSave={(v) => onSave("status", v)}
@@ -402,12 +403,12 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               { label: "Annualised", value: t.rent != null ? fmtGBP(t.rent * 12) : "—", color: "text-emerald-600" },
             ].map((s) => (
               <div key={s.label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">{s.label}</span>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">{s.label}</span>
                 <p className={cn("text-lg font-bold tabular-nums mt-0.5", s.color)}>{s.value}</p>
               </div>
             ))}
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">Payments, arrears and statements are tracked in the Money section.</p>
+          <p className="text-[11px] text-slate-500 mt-3">Payments, arrears and statements are tracked in the Money section.</p>
         </SectionCard>
       </div>
 
@@ -430,7 +431,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
                   <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800">{a.action ?? a.description ?? "Activity"}</p>
-                    <p className="text-xs text-slate-400">{fmtDate(a.created_at)}</p>
+                    <p className="text-xs text-slate-500">{fmtDate(a.created_at)}</p>
                   </div>
                 </div>
               ))}
@@ -489,7 +490,7 @@ function PaymentsTab({ t }: { t: TenancyDisplay }) {
           <div key={k.label} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">{k.label}</p>
             <p className="text-xl font-bold text-slate-900 tabular-nums mt-1">{k.value}</p>
-            <p className="text-[11px] text-slate-400 font-medium mt-0.5">{k.sub}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-0.5">{k.sub}</p>
           </div>
         ))}
       </div>
@@ -500,7 +501,7 @@ function PaymentsTab({ t }: { t: TenancyDisplay }) {
         </div>
         <div>
           <p className="text-[14px] font-semibold text-slate-600">Payment history is tracked in Money</p>
-          <p className="text-[12px] text-slate-400 mt-1">Record rent receipts, charges and arrears against this tenancy in the Money section.</p>
+          <p className="text-[12px] text-slate-500 mt-1">Record rent receipts, charges and arrears against this tenancy in the Money section.</p>
         </div>
         <Link href="/app/money" className="text-[12px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
           Go to Money <ArrowUpRight className="w-3.5 h-3.5" />
@@ -525,7 +526,7 @@ function DocumentsTab({ tenancyId }: { tenancyId: string }) {
           extra={{ tenancy_id: tenancyId }}
           accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"
         />
-        <p className="text-[11px] text-slate-400 mt-3">Lease agreements, right-to-rent checks, guarantor and inventory documents. Files are stored securely.</p>
+        <p className="text-[11px] text-slate-500 mt-3">Lease agreements, right-to-rent checks, guarantor and inventory documents. Files are stored securely.</p>
       </SectionCard>
     </div>
   )
@@ -543,7 +544,7 @@ function TimelineTab({ events, loaded }: { events: TenancyActivityRow[]; loaded:
           </div>
           <div>
             <p className="text-[14px] font-semibold text-slate-600">{loaded ? "No timeline events yet" : "Loading timeline…"}</p>
-            <p className="text-[12px] text-slate-400 mt-1">Lifecycle events for this tenancy will appear here.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Lifecycle events for this tenancy will appear here.</p>
           </div>
         </SectionCard>
       </div>
@@ -563,7 +564,7 @@ function TimelineTab({ events, loaded }: { events: TenancyActivityRow[]; loaded:
                 <div className="flex-1 pt-1 pb-0.5">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-sm font-semibold text-slate-900">{ev.action ?? "Activity"}</span>
-                    <span className="text-xs text-slate-400 tabular-nums">{fmtDate(ev.created_at)}</span>
+                    <span className="text-xs text-slate-500 tabular-nums">{fmtDate(ev.created_at)}</span>
                   </div>
                   {ev.description && <p className="text-sm text-slate-600">{ev.description}</p>}
                 </div>
@@ -591,7 +592,7 @@ function NotesTab({ notes }: { notes: string | null | undefined }) {
           <div className="py-8 text-center">
             <FileText className="w-7 h-7 text-slate-200 mx-auto mb-2" />
             <p className="text-[13px] text-slate-500">No notes recorded for this tenancy</p>
-            <p className="text-[12px] text-slate-400 mt-1">Add notes from the tenancy record to keep context in one place.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Add notes from the tenancy record to keep context in one place.</p>
           </div>
         )}
       </SectionCard>
@@ -611,7 +612,7 @@ function ActivityTab({ events, loaded }: { events: TenancyActivityRow[]; loaded:
           </div>
           <div>
             <p className="text-[14px] font-semibold text-slate-600">{loaded ? "No activity yet" : "Loading activity…"}</p>
-            <p className="text-[12px] text-slate-400 mt-1">Actions taken on this tenancy will appear here.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Actions taken on this tenancy will appear here.</p>
           </div>
         </SectionCard>
       </div>
@@ -633,7 +634,7 @@ function ActivityTab({ events, loaded }: { events: TenancyActivityRow[]; loaded:
                     <span className="text-sm font-semibold text-slate-900">{a.action ?? "Activity"}</span>
                     {a.description && <span className="text-sm text-slate-600 ml-2">— {a.description}</span>}
                   </div>
-                  <span className="text-xs text-slate-400 tabular-nums whitespace-nowrap">{fmtDate(a.created_at)}</span>
+                  <span className="text-xs text-slate-500 tabular-nums whitespace-nowrap">{fmtDate(a.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -735,7 +736,7 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
           <SectionCard className="p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-bold text-slate-800">Release Workflow</span>
-              <span className="text-xs text-slate-400">0 of 4 steps</span>
+              <span className="text-xs text-slate-500">0 of 4 steps</span>
             </div>
             <div className="flex flex-col gap-3">
               {[
@@ -756,7 +757,7 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
                     {step.status === "done" && <Check className="w-3 h-3 text-emerald-600" />}
                   </div>
                   <span className="text-sm text-slate-700">{step.label}</span>
-                  <span className="ml-auto text-xs text-slate-400 capitalize">{step.status.replace("_", " ")}</span>
+                  <span className="ml-auto text-xs text-slate-500 capitalize">{step.status.replace("_", " ")}</span>
                 </div>
               ))}
             </div>
@@ -826,7 +827,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                 <Mail className="w-4 h-4 text-blue-600" />
                 <div>
                   <div className="text-[13px] font-semibold text-slate-800">{t.tenantEmail}</div>
-                  <div className="text-[11px] text-slate-400">Send email</div>
+                  <div className="text-[11px] text-slate-500">Send email</div>
                 </div>
               </a>
             )}
@@ -835,7 +836,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                 <Phone className="w-4 h-4 text-blue-600" />
                 <div>
                   <div className="text-[13px] font-semibold text-slate-800">{t.tenantPhone}</div>
-                  <div className="text-[11px] text-slate-400">Call tenant</div>
+                  <div className="text-[11px] text-slate-500">Call tenant</div>
                 </div>
               </a>
             )}
@@ -844,7 +845,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
           <div className="py-8 text-center">
             <MessageCircle className="w-7 h-7 text-slate-200 mx-auto mb-2" />
             <p className="text-[13px] text-slate-500">No contact details for this tenant</p>
-            <p className="text-[12px] text-slate-400 mt-1">Add a phone or email to the tenant contact to enable communication.</p>
+            <p className="text-[12px] text-slate-500 mt-1">Add a phone or email to the tenant contact to enable communication.</p>
           </div>
         )}
       </SectionCard>
@@ -855,7 +856,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
           <MessageCircle className="w-4 h-4 text-blue-600" />
           <h3 className="text-[14px] font-bold text-slate-900">Message Thread</h3>
           {messages.length > 0 && (
-            <span className="text-[11px] font-semibold text-slate-400">{messages.length} message{messages.length === 1 ? "" : "s"}</span>
+            <span className="text-[11px] font-semibold text-slate-500">{messages.length} message{messages.length === 1 ? "" : "s"}</span>
           )}
         </div>
 
@@ -873,7 +874,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                 <MessageCircle className="w-7 h-7 text-slate-300" />
               </div>
               <p className="text-[13px] font-semibold text-slate-600">No messages yet</p>
-              <p className="text-[12px] text-slate-400 mt-1">Start the conversation with a message below.</p>
+              <p className="text-[12px] text-slate-500 mt-1">Start the conversation with a message below.</p>
             </div>
           ) : (
             messages.map((m, i) => {
@@ -887,7 +888,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                   {showDay && (
                     <div className="flex items-center gap-3 my-3">
                       <div className="flex-1 h-px bg-slate-200/70" />
-                      <span className="text-[10px] font-semibold text-slate-400 bg-white border border-slate-200 rounded-full px-2.5 py-0.5">{dayLabel(m.created_at)}</span>
+                      <span className="text-[10px] font-semibold text-slate-500 bg-white border border-slate-200 rounded-full px-2.5 py-0.5">{dayLabel(m.created_at)}</span>
                       <div className="flex-1 h-px bg-slate-200/70" />
                     </div>
                   )}
@@ -900,7 +901,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                     )}
                     <div className={cn("flex flex-col min-w-0", m.mine ? "items-end" : "items-start")}>
                       {!grouped && (
-                        <span className="text-[10px] font-medium text-slate-400 mb-0.5 px-1">{senderLabel}</span>
+                        <span className="text-[10px] font-medium text-slate-500 mb-0.5 px-1">{senderLabel}</span>
                       )}
                       <div
                         className={cn(
@@ -912,7 +913,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
                       >
                         {m.content}
                       </div>
-                      <span className="text-[10px] text-slate-400 mt-1 px-1 tabular-nums">{fmtTime(m.created_at)}</span>
+                      <span className="text-[10px] text-slate-500 mt-1 px-1 tabular-nums">{fmtTime(m.created_at)}</span>
                     </div>
                   </div>
                 </React.Fragment>
@@ -946,7 +947,7 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
               <span className="hidden sm:inline">{sendMessage.isPending ? "Sending…" : "Send"}</span>
             </button>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 px-1">Internal thread for this tenancy. Tenant-facing delivery is handled by the portal where enabled.</p>
+          <p className="text-[10px] text-slate-500 mt-2 px-1">Internal thread for this tenancy. Tenant-facing delivery is handled by the portal where enabled.</p>
         </div>
       </SectionCard>
     </div>
@@ -995,7 +996,7 @@ export default function TenancyDetailPage() {
           </div>
           <div>
             <p className="text-[15px] font-bold text-slate-700">Tenancy not found</p>
-            <p className="text-[13px] text-slate-400 mt-1">This tenancy doesn’t exist or you don’t have access to it.</p>
+            <p className="text-[13px] text-slate-500 mt-1">This tenancy doesn’t exist or you don’t have access to it.</p>
           </div>
           <Link href="/app/portfolio/tenancies" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Tenancies

@@ -8,6 +8,8 @@ export interface UploadedFile {
   name: string
   type: string
   size: number
+  /** Quarantine status set server-side at upload time ('pending' until scanned). */
+  scanStatus?: string
 }
 
 export async function uploadFile(

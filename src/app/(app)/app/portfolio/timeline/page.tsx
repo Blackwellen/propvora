@@ -249,7 +249,7 @@ export default function PortfolioTimelinePage() {
         <div className="flex border-b border-slate-200 bg-slate-50/80">
           {/* Left col header */}
           <div style={{ width: leftColW, minWidth: leftColW }} className="px-4 py-3 border-r border-slate-200 shrink-0">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tenancy</p>
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tenancy</p>
           </div>
 
           {/* Month cells */}
@@ -257,7 +257,7 @@ export default function PortfolioTimelinePage() {
             {months.map((m, i) => (
               <div key={i} className="flex-1 py-3 px-2 border-r border-slate-100 last:border-0 text-center">
                 <p className="text-[11px] font-bold text-slate-700">{monthLabel(m)}</p>
-                <p className="text-[10px] text-slate-400">{yearLabel(m)}</p>
+                <p className="text-[10px] text-slate-500">{yearLabel(m)}</p>
               </div>
             ))}
           </div>
@@ -307,7 +307,7 @@ export default function PortfolioTimelinePage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[12px] font-bold text-slate-900 truncate">{t.tenantName}</p>
-                      <p className="text-[10px] text-slate-400 truncate">{t.propertyName}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{t.propertyName}</p>
                     </div>
                   </div>
 

@@ -29,7 +29,7 @@ export function SettingsCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl border p-6",
+        "bg-white rounded-2xl border p-5 sm:p-6",
         variant === "danger"
           ? "border-red-200 bg-red-50/30"
           : variant === "locked"
@@ -78,8 +78,8 @@ export function SettingsFieldRow({
   required,
 }: SettingsFieldRowProps) {
   return (
-    <div className="flex items-start gap-6 py-4 border-b border-slate-100 last:border-0">
-      <div className="w-[220px] shrink-0">
+    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 py-4 border-b border-slate-100 last:border-0">
+      <div className="w-full sm:w-[220px] shrink-0">
         <label className="text-[13px] font-semibold text-slate-700">
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
@@ -88,7 +88,7 @@ export function SettingsFieldRow({
           <p className="text-[11.5px] text-slate-400 mt-0.5">{description}</p>
         )}
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 w-full min-w-0">{children}</div>
     </div>
   )
 }
@@ -178,10 +178,11 @@ export function SettingsSaveBar({
           animate={{ y: 0 }}
           exit={{ y: 80 }}
           transition={{ type: "spring", damping: 26, stiffness: 300 }}
-          className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-8 py-4 flex items-center justify-between"
+          className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3"
         >
-          <p className="text-[13px] text-slate-600 font-medium">
-            You have unsaved changes
+          <p className="text-[13px] text-slate-600 font-medium truncate">
+            <span className="hidden sm:inline">You have unsaved changes</span>
+            <span className="sm:hidden">Unsaved changes</span>
           </p>
           <div className="flex items-center gap-3">
             <button

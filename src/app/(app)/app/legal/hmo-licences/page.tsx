@@ -114,7 +114,7 @@ export default function HmoLicencesPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center">
             <Key className="w-5 h-5 text-green-600" />
@@ -146,7 +146,7 @@ export default function HmoLicencesPage() {
       </div>
 
       {/* KPI Row */}
-      <div className="px-6 pt-4 grid grid-cols-4 gap-4">
+      <div className="px-4 sm:px-6 pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {KPIS.map(({ icon: Icon, value, label, sub, iconCls }) => (
           <div key={label} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-start gap-4">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${iconCls}`}>
@@ -162,8 +162,8 @@ export default function HmoLicencesPage() {
       </div>
 
       {/* Main Grid */}
-      <div className="px-6 pb-6 pt-4 grid grid-cols-12 gap-4">
-        <div className="col-span-8">
+      <div className="px-4 sm:px-6 pb-6 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-8 min-w-0">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-3">
               <div className="relative flex-1 max-w-xs">
@@ -282,7 +282,7 @@ export default function HmoLicencesPage() {
         </div>
 
         {/* Right Rail */}
-        <div className="col-span-4 space-y-4">
+        <div className="lg:col-span-4 space-y-4">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center">

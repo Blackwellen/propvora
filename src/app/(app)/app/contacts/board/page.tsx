@@ -447,13 +447,14 @@ export default function ContactsBoardPage() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
+            aria-label="Search contacts"
             placeholder="Search contacts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-52 transition-all"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded">
               <X className="w-3.5 h-3.5" />
             </button>
           )}

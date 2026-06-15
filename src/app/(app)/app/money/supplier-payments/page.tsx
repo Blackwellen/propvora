@@ -79,7 +79,7 @@ function KpiCard({ label, value, sub, colour }: { label: string; value: string; 
     <div className="rounded-2xl border border-slate-200 bg-white p-5">
       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">{label}</p>
       <p className={cn("text-3xl font-bold", colour)}>{value}</p>
-      {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -266,7 +266,7 @@ export default function SupplierPaymentsPage() {
                             </button>
                           </>
                         )}
-                        <button className="p-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400">
+                        <button aria-label="View payment details" className="p-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -275,7 +275,7 @@ export default function SupplierPaymentsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-400">
+                    <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-500">
                       No payments match the current filters.
                     </td>
                   </tr>
@@ -298,12 +298,12 @@ export default function SupplierPaymentsPage() {
                   <div key={s.name}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold text-slate-400 w-4">{i + 1}</span>
+                        <span className="text-[11px] font-bold text-slate-500 w-4">{i + 1}</span>
                         <span className="text-xs font-medium text-slate-700">{s.name}</span>
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-bold text-slate-800">£{s.spend.toLocaleString("en-GB")}</span>
-                        <span className="text-[10px] text-slate-400 ml-1">{s.bills} bill{s.bills !== 1 ? "s" : ""}</span>
+                        <span className="text-[10px] text-slate-500 ml-1">{s.bills} bill{s.bills !== 1 ? "s" : ""}</span>
                       </div>
                     </div>
                     <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">

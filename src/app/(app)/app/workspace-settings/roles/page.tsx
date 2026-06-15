@@ -341,7 +341,7 @@ export default function RolesPage() {
       </div>
 
       {/* Save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-8 py-4 flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
         <p className="text-[13px] text-slate-500">
           {saved
             ? "Changes saved"

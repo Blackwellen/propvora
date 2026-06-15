@@ -110,13 +110,15 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
           {/* Navigation arrows */}
           <button
             onClick={onPrev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
+            aria-label="Previous image"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={onNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
+            aria-label="Next image"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -132,10 +134,10 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-white/50 text-xs">{index + 1} / {images.length}</span>
-            <button className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <button aria-label="Download image" className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
               <Download className="w-4 h-4" />
             </button>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             >
@@ -290,7 +292,7 @@ export default function PortfolioGalleryPage() {
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-600">No images found</p>
-            <p className="text-xs text-slate-400 mt-1">Try adjusting your search or filters</p>
+            <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filters</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => { setSearch(""); setFilterCat("all"); setFilterProp("all") }}>
             Clear filters
@@ -314,7 +316,7 @@ export default function PortfolioGalleryPage() {
         </div>
         <div className="text-center">
           <p className="text-sm font-semibold text-slate-600 group-hover:text-[#2563EB] transition-colors">Upload property or unit images</p>
-          <p className="text-xs text-slate-400 mt-1">JPG, PNG, WebP · max 10 MB per file</p>
+          <p className="text-xs text-slate-500 mt-1">JPG, PNG, WebP · max 10 MB per file</p>
         </div>
         <Button variant="outline" size="sm"><Upload className="w-3.5 h-3.5" />Choose files</Button>
       </div>

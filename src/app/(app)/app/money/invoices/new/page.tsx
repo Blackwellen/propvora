@@ -185,7 +185,7 @@ function LineItemRow({
         £{lineTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
       <td className="px-3 py-2 w-10">
-        <button onClick={onRemove} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+        <button onClick={onRemove} aria-label="Remove line item" className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
           <X className="w-3.5 h-3.5" />
         </button>
       </td>
@@ -448,7 +448,7 @@ export default function NewInvoicePage() {
               <p className="text-sm text-slate-500 mt-0.5">Add the charges for this invoice.</p>
             </div>
             <div className="border border-slate-200 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
                     <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">Description</th>
@@ -492,7 +492,7 @@ export default function NewInvoicePage() {
                     <td />
                   </tr>
                 </tfoot>
-              </table>
+              </table></div>
             </div>
             <button
               onClick={addLineItem}
@@ -575,6 +575,9 @@ export default function NewInvoicePage() {
               <button
                 type="button"
                 disabled
+                role="switch"
+                aria-checked={formData.stripe_enabled}
+                aria-label="Enable Stripe payments"
                 className={cn(
                   "relative inline-flex h-5 w-9 items-center rounded-full transition-colors border-2 border-transparent opacity-40 cursor-not-allowed",
                   formData.stripe_enabled ? "bg-blue-600" : "bg-slate-200"
@@ -635,7 +638,7 @@ export default function NewInvoicePage() {
                 <Eye className="w-4 h-4 text-slate-400" />
                 Preview PDF
               </button>
-              <p className="text-xs text-slate-400 mt-1.5">Opens a formatted invoice preview panel.</p>
+              <p className="text-xs text-slate-500 mt-1.5">Opens a formatted invoice preview panel.</p>
             </div>
             {/* PDF preview card */}
             <div className="mt-2 p-5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-500 space-y-2">
@@ -791,7 +794,7 @@ export default function NewInvoicePage() {
         {/* Left stepper rail */}
         <aside className="w-[240px] shrink-0 sticky top-6">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-3">Steps</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 mb-3">Steps</p>
             {STEPS.map(step => {
               const isDone = currentStep > step.num
               const isActive = currentStep === step.num
@@ -876,7 +879,7 @@ export default function NewInvoicePage() {
         <aside className="w-[260px] shrink-0 sticky top-6 space-y-4">
           {/* Live preview card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Preview</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Live Preview</p>
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Invoice #</span>
@@ -917,7 +920,7 @@ export default function NewInvoicePage() {
 
           {/* Invoice health */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Invoice Health</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Invoice Health</p>
             <div className="space-y-2">
               {healthItems.map(item => (
                 <div key={item.label} className="flex items-center gap-2">

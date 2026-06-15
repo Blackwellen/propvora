@@ -170,7 +170,7 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
             <p className="text-[13.5px] font-bold text-slate-900 truncate">{data.tenant_name}</p>
           )}
           {(data.property_name || data.unit_name) && (
-            <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            <p className="text-[11px] text-slate-500 mt-0.5 truncate">
               {data.property_name}{data.unit_name ? ` · ${data.unit_name}` : ""}
             </p>
           )}
@@ -180,7 +180,7 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
             <p className="text-[15px] font-black text-slate-900">
               {new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(data.current_rent)}
             </p>
-            <p className="text-[10px] text-slate-400">/mo</p>
+            <p className="text-[10px] text-slate-500">/mo</p>
           </div>
         )}
       </div>

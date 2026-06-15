@@ -231,8 +231,9 @@ export default function NotificationsPage() {
         </p>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Start time</label>
+            <label htmlFor="quiet-start" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Start time</label>
             <input
+              id="quiet-start"
               type="time"
               value={quietStart}
               onChange={e => { setQuietStart(e.target.value); setIsDirty(true) }}
@@ -240,8 +241,9 @@ export default function NotificationsPage() {
             />
           </div>
           <div>
-            <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">End time</label>
+            <label htmlFor="quiet-end" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">End time</label>
             <input
+              id="quiet-end"
               type="time"
               value={quietEnd}
               onChange={e => { setQuietEnd(e.target.value); setIsDirty(true) }}
@@ -253,7 +255,7 @@ export default function NotificationsPage() {
 
       {/* Sticky save bar */}
       {isDirty && !unavailable && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
           <div>
             <p className="text-[13px] text-slate-600">You have unsaved changes</p>
             {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}

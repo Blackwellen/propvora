@@ -187,10 +187,11 @@ export default function PreferencesPage() {
         <h3 className="text-[14px] font-bold text-slate-900 mb-1">Default Landing Page</h3>
         <p className="text-[12.5px] text-slate-500 mb-4">Which page opens after you log in</p>
         <div>
-          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+          <label htmlFor="pref-landing-page" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
             Landing page
           </label>
           <select
+            id="pref-landing-page"
             value={form.landingPage}
             onChange={e => update("landingPage", e.target.value)}
             className="w-full max-w-xs px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -263,7 +264,7 @@ export default function PreferencesPage() {
 
       {/* Sticky save bar */}
       {isDirty && !unavailable && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
           <div>
             <p className="text-[13px] text-slate-600">You have unsaved changes</p>
             {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}

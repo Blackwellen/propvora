@@ -8,9 +8,12 @@ import { Loader2 } from "lucide-react"
 export function Spinner({
   size = "md",
   className,
+  decorative = false,
 }: {
   size?: "xs" | "sm" | "md" | "lg" | "xl"
   className?: string
+  /** When the spinner sits inside its own live region, set this to avoid double announcements. */
+  decorative?: boolean
 }) {
   const sizeClasses = {
     xs: "w-3 h-3",
@@ -21,7 +24,10 @@ export function Spinner({
   }
   return (
     <Loader2
-      className={cn("animate-spin text-[#2563EB]", sizeClasses[size], className)}
+      role={decorative ? undefined : "status"}
+      aria-label={decorative ? undefined : "Loading"}
+      aria-hidden={decorative || undefined}
+      className={cn("animate-spin text-[#2563EB] motion-reduce:animate-none", sizeClasses[size], className)}
     />
   )
 }
@@ -31,8 +37,8 @@ export function Spinner({
 /* ------------------------------------------------------------------ */
 export function LoadingPage({ message = "Loading…" }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <Spinner size="lg" />
+    <div role="status" aria-live="polite" className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <Spinner size="lg" decorative />
       <p className="text-sm text-slate-500">{message}</p>
     </div>
   )
@@ -50,12 +56,14 @@ export function LoadingSection({
 }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={cn(
         "flex flex-col items-center justify-center py-12 gap-3",
         className
       )}
     >
-      <Spinner size="md" />
+      <Spinner size="md" decorative />
       {message && <p className="text-sm text-slate-500">{message}</p>}
     </div>
   )
@@ -66,8 +74,8 @@ export function LoadingSection({
 /* ------------------------------------------------------------------ */
 export function LoadingRow({ text = "Loading…" }: { text?: string }) {
   return (
-    <div className="flex items-center gap-2 py-3 px-4 text-sm text-slate-500">
-      <Spinner size="sm" />
+    <div role="status" aria-live="polite" className="flex items-center gap-2 py-3 px-4 text-sm text-slate-500">
+      <Spinner size="sm" decorative />
       {text}
     </div>
   )

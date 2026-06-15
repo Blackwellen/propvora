@@ -98,7 +98,7 @@ export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[]
 
       <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 {["Invoice #", "Amount", "Submitted", "Status", "Approved / Paid"].map((h) => (

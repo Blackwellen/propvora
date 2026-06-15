@@ -142,8 +142,8 @@ export default function StarterChecklistTab({ profile }: Props) {
 
             {/* Phase Tasks */}
             {isExpanded && (
-              <div className="border-t border-slate-100">
-                <table className="w-full text-sm">
+              <div className="border-t border-slate-100 overflow-x-auto">
+                <table className="w-full text-sm min-w-[560px]">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-100">
                       <th className="px-4 py-3 text-left w-8" />
@@ -167,7 +167,8 @@ export default function StarterChecklistTab({ profile }: Props) {
                               type="checkbox"
                               checked={isDone}
                               onChange={() => toggleTask(taskId)}
-                              className="w-4 h-4 rounded cursor-pointer accent-emerald-500"
+                              aria-label={`Mark task complete: ${task.label}`}
+                              className="w-4 h-4 rounded cursor-pointer accent-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-emerald-500/40"
                               style={{ accentColor: profile.accentColor }}
                             />
                           </td>

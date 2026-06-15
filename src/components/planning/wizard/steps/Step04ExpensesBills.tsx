@@ -305,7 +305,7 @@ function SectionWrapper({
   return (
     <div>
       {/* Section header */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-slate-100">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <button
             onClick={onToggle}
@@ -444,7 +444,7 @@ export default function Step04ExpensesBills() {
     <div className="flex flex-col min-h-full">
 
       {/* ── Top Header ───────────────────────────────────────────────────────── */}
-      <div className="px-8 py-6 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 mb-1">Expenses & Bills</h1>
@@ -484,7 +484,7 @@ export default function Step04ExpensesBills() {
       </div>
 
       {/* ── Quick Templates ───────────────────────────────────────────────────── */}
-      <div className="px-8 py-3 border-b border-slate-100 flex items-center gap-2 flex-wrap">
+      <div className="px-4 sm:px-6 lg:px-8 py-3 border-b border-slate-100 flex items-center gap-2 flex-wrap">
         <span className="text-[12.5px] font-semibold text-slate-500">Quick Templates:</span>
         {[
           { label: "HMO Cost Template", colour: "#7C3AED" },
@@ -507,7 +507,7 @@ export default function Step04ExpensesBills() {
       </div>
 
       {/* ── Main 2-col layout ─────────────────────────────────────────────────── */}
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-col xl:flex-row flex-1 min-h-0">
 
         {/* Left: tables */}
         <div className="flex-1 min-w-0 divide-y divide-slate-100">
@@ -574,7 +574,7 @@ export default function Step04ExpensesBills() {
         </div>
 
         {/* Right: benchmark + analytics */}
-        <div className="w-[280px] shrink-0 border-l border-slate-100 flex flex-col divide-y divide-slate-100 overflow-y-auto">
+        <div className="w-full xl:w-[280px] shrink-0 border-t xl:border-t-0 xl:border-l border-slate-100 flex flex-col divide-y divide-slate-100 overflow-y-auto">
           <div className="p-4 flex flex-col gap-4">
 
             {/* Live Summary */}
@@ -755,7 +755,7 @@ export default function Step04ExpensesBills() {
       </div>
 
       {/* ── Bottom Summary Cards ──────────────────────────────────────────────── */}
-      <div className="px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-100 bg-slate-50/50">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-100 bg-slate-50/50">
 
         {/* Total Operating Cost Summary */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4">

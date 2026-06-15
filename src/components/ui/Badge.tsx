@@ -56,6 +56,7 @@ export function Badge({ className, variant, size, dot, children, ...props }: Bad
     <span className={cn(badgeVariants({ variant, size }), className)} {...props}>
       {dot && (
         <span
+          aria-hidden="true"
           className={cn(
             "w-1.5 h-1.5 rounded-full shrink-0",
             dotColour[variant ?? "default"] ?? "bg-slate-400"

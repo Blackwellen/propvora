@@ -56,7 +56,7 @@ export default async function AdminSubscriptionsPage() {
       ) : (
         <Card noPadding>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[720px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">
                   {["Workspace", "Plan", "Status", "Renewal", "Stripe Subscription ID"].map((h) => (

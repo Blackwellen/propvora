@@ -164,9 +164,9 @@ interface EditFormValues {
 /* Small helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-function FieldLabel({ children, optional }: { children: React.ReactNode; optional?: boolean }) {
+function FieldLabel({ children, optional, htmlFor }: { children: React.ReactNode; optional?: boolean; htmlFor?: string }) {
   return (
-    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-slate-700 mb-1.5">
       {children}
       {optional && <span className="ml-1 text-xs font-normal text-slate-400">(optional)</span>}
     </label>
@@ -223,13 +223,13 @@ function DeleteConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 space-y-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="delete-contact-title" className="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
             <Trash2 className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">Delete Contact</h3>
+            <h3 id="delete-contact-title" className="text-sm font-semibold text-slate-900">Delete Contact</h3>
             <p className="text-sm text-slate-600 mt-1">This action is permanent and cannot be undone.</p>
           </div>
         </div>
@@ -566,9 +566,10 @@ export default function ContactEditPage() {
 
               {/* Contact Type */}
               <div>
-                <FieldLabel>Contact Type</FieldLabel>
+                <FieldLabel htmlFor="edit-contact-type">Contact Type</FieldLabel>
                 <div className="relative">
                   <select
+                    id="edit-contact-type"
                     {...register("contact_type")}
                     className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                   >
@@ -582,9 +583,10 @@ export default function ContactEditPage() {
 
               {/* Status */}
               <div>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel htmlFor="edit-status">Status</FieldLabel>
                 <div className="relative">
                   <select
+                    id="edit-status"
                     {...register("status")}
                     className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                   >
@@ -806,7 +808,8 @@ export default function ContactEditPage() {
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="hover:text-blue-900 transition-colors"
+                        aria-label={`Remove tag ${tag}`}
+                        className="hover:text-blue-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -816,6 +819,7 @@ export default function ContactEditPage() {
                     value={tagInput}
                     onChange={e => setTagInput(e.target.value)}
                     onKeyDown={addTag}
+                    aria-label="Add tags"
                     placeholder={tags.length === 0 ? "Add tags (press Enter)" : ""}
                     className="flex-1 min-w-[120px] bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
                   />
@@ -930,9 +934,10 @@ export default function ContactEditPage() {
 
                 {/* Enquiry source */}
                 <div>
-                  <FieldLabel>Enquiry Source</FieldLabel>
+                  <FieldLabel htmlFor="edit-enquiry-source">Enquiry Source</FieldLabel>
                   <div className="relative">
                     <select
+                      id="edit-enquiry-source"
                       {...register("enquiry_source")}
                       className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                     >
@@ -947,9 +952,10 @@ export default function ContactEditPage() {
 
                 {/* Applicant status */}
                 <div>
-                  <FieldLabel>Applicant Status</FieldLabel>
+                  <FieldLabel htmlFor="edit-applicant-status">Applicant Status</FieldLabel>
                   <div className="relative">
                     <select
+                      id="edit-applicant-status"
                       {...register("applicant_status")}
                       className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                     >
@@ -1028,6 +1034,7 @@ export default function ContactEditPage() {
           <button
             type="button"
             onClick={() => setDangerOpen(v => !v)}
+            aria-expanded={dangerOpen}
             className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-sm font-medium text-red-700 hover:bg-red-100 transition-colors"
           >
             <span>Dangerous Actions</span>

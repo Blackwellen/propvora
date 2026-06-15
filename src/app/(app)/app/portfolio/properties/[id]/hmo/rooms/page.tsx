@@ -220,7 +220,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
               Step {currentStep} of 10 — {WIZARD_STEPS[currentStep - 1].label}
             </p>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
           >
@@ -652,7 +652,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           ) : (
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="bg-green-600 text-white hover:bg-green-700 text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
             >
@@ -754,7 +754,7 @@ export default function HmoRoomsPage({
                             <span className="text-sm text-slate-700">{room.tenant}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-slate-400 italic">Vacant</span>
+                          <span className="text-sm text-slate-500 italic">Vacant</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-700">{room.rentLabel}</td>
@@ -772,7 +772,7 @@ export default function HmoRoomsPage({
                             )}
                           </div>
                         ) : (
-                          <span className="text-sm text-slate-400">—</span>
+                          <span className="text-sm text-slate-500">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">

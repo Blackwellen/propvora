@@ -75,8 +75,9 @@ function NavItem({
   return (
     <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5",
+        "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1",
         active
           ? "bg-[#EFF6FF] text-[#2563EB]"
           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -146,8 +147,9 @@ export default function WorkspaceSettingsLayout({
                 <Link
                   key={item.key}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap shrink-0 transition-colors",
+                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
                     active ? "bg-[#EFF6FF] text-[#2563EB]" : "text-slate-500 hover:bg-slate-100"
                   )}
                 >

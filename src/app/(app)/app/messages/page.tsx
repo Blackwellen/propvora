@@ -164,7 +164,7 @@ export default function MessagesInboxPage() {
 
           {/* KPIs */}
           {isLoading ? (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="rounded-2xl border border-slate-200 bg-white p-4 h-24 animate-pulse">
                   <div className="w-9 h-9 rounded-xl bg-slate-100 mb-3" />
@@ -173,7 +173,7 @@ export default function MessagesInboxPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <KpiCard label="Conversations" value={conversations.length} icon={<MessageSquare className="w-5 h-5 text-blue-600" />} bg="bg-blue-50" />
               <KpiCard label="Unread" value={totalUnread} alert={totalUnread > 0 ? "Action needed" : undefined} icon={<AlertTriangle className="w-5 h-5 text-amber-600" />} bg="bg-amber-50" />
               <KpiCard label="Contacts in Threads" value={new Set(conversations.map((c) => c.contact?.id).filter(Boolean)).size} icon={<Users className="w-5 h-5 text-emerald-600" />} bg="bg-emerald-50" />
@@ -197,16 +197,17 @@ export default function MessagesInboxPage() {
               ))}
             </div>
             <div className="ml-auto relative min-w-[200px] max-w-xs w-full sm:w-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
               <input
                 type="text"
+                aria-label="Search conversations"
                 placeholder="Search conversations…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}

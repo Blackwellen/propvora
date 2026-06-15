@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { levelByBand, formatPence } from "@/lib/affiliate/levels"
 import AffiliateActions from "./AffiliateActions"
+import PayoutReview, { type PayoutReviewRow } from "./PayoutReview"
 
 export const dynamic = "force-dynamic"
 
@@ -34,11 +35,26 @@ async function getAffiliate(workspaceId: string) {
   }
 }
 
+async function getPayouts(workspaceId: string): Promise<PayoutReviewRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from("affiliate_payouts")
+      .select("id, period, amount_pence, status, requested_at, paid_at, payout_email, payout_reference, review_note")
+      .eq("affiliate_workspace_id", workspaceId)
+      .order("created_at", { ascending: false })
+    return (data as PayoutReviewRow[]) ?? []
+  } catch {
+    return []
+  }
+}
+
 export default async function AdminAffiliateDetailPage({ params }: PageProps) {
   const { id } = await params
   const result = await getAffiliate(id)
   if (!result) notFound()
   const { data: aff, workspaceName } = result
+  const payouts = await getPayouts(id)
 
   const enrolled = !!aff.enrolled
   const approved = !!aff.approved
@@ -105,6 +121,8 @@ export default async function AdminAffiliateDetailPage({ params }: PageProps) {
           ))}
         </CardContent>
       </Card>
+
+      <PayoutReview payouts={payouts} />
 
       <Card className="p-4 border-amber-200 bg-[#FFFBEB]">
         <p className="text-xs text-amber-700">

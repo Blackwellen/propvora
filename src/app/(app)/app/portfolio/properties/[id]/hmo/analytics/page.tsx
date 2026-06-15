@@ -430,7 +430,7 @@ export default function HmoAnalyticsPage({
                               <span className="text-xs text-slate-700">{row.tenant}</span>
                             </div>
                           ) : (
-                            <span className="text-xs text-slate-400 italic">Vacant</span>
+                            <span className="text-xs text-slate-500 italic">Vacant</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">{row.monthlyRentLabel}</td>

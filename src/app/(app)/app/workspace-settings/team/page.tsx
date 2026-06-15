@@ -264,10 +264,11 @@ export default function TeamPage() {
       )}
 
       {/* Search + filter */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1 max-w-[320px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <div className="relative flex-1 min-w-[180px] max-w-[320px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
+            aria-label="Search team"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search team..."
@@ -275,6 +276,7 @@ export default function TeamPage() {
           />
         </div>
         <select
+          aria-label="Filter by role"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
           className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
@@ -345,6 +347,7 @@ export default function TeamPage() {
                       </span>
                     ) : (
                       <select
+                        aria-label={`Change role for ${member.name ?? "member"}`}
                         value={member.role.toLowerCase()}
                         disabled={busyId === member.id}
                         onChange={(e) => handleRoleChange(member.id, e.target.value)}
@@ -450,10 +453,11 @@ export default function TeamPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+                <label htmlFor="invite-email" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
                   Email address
                 </label>
                 <input
+                  id="invite-email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="name@example.com"
@@ -462,10 +466,11 @@ export default function TeamPage() {
                 />
               </div>
               <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+                <label htmlFor="invite-role" className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
                   Role
                 </label>
                 <select
+                  id="invite-role"
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-white focus:outline-none focus:border-[#2563EB] transition-all"

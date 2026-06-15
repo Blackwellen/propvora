@@ -329,7 +329,7 @@ export default function DocumentDetailPage() {
       <div className="space-y-4">
         <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
           <h3 className="text-sm font-semibold text-slate-700">Renewal Details</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div className="space-y-1">
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Document Type</p>
               <p className="font-medium text-slate-800">{label}</p>
@@ -382,7 +382,8 @@ export default function DocumentDetailPage() {
     ]
     return (
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50">
               {["Event", "Detail", "Actor", "Date"].map((h) => (
@@ -401,6 +402,7 @@ export default function DocumentDetailPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     )
   }

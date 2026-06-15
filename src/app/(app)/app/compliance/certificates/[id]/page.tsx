@@ -462,7 +462,8 @@ export default function CertificateDetailPage() {
               </Link>
             </Button>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 {["Certificate", "Issue Date", "Expiry Date", "Status", ""].map((h) => (
@@ -484,6 +485,7 @@ export default function CertificateDetailPage() {
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     )
@@ -556,7 +558,8 @@ export default function CertificateDetailPage() {
     ]
     return (
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50">
               {["Date", "Action", "Actor", "Details"].map((h) => (
@@ -575,6 +578,7 @@ export default function CertificateDetailPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     )
   }
@@ -675,8 +679,8 @@ export default function CertificateDetailPage() {
   return (
     <div className="space-y-0">
       {/* Breadcrumb */}
-      <div className="px-6 py-3 border-b border-slate-100 bg-white">
-        <nav className="flex items-center gap-2 text-sm">
+      <div className="px-4 sm:px-6 py-3 border-b border-slate-100 bg-white">
+        <nav className="flex items-center gap-2 text-sm overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap">
           <Link href="/app/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <Link href="/app/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>

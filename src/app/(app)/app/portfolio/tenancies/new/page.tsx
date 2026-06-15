@@ -96,7 +96,7 @@ function StepProperty({ data, onChange, properties, units }: {
         <label className="block text-sm font-medium text-slate-700 mb-2">Property <span className="text-red-500">*</span></label>
         <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
           {properties.length === 0 ? (
-            <div className="py-6 text-center text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
+            <div className="py-6 text-center text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
               No properties — <Link href="/app/portfolio/properties/new" className="text-[#2563EB] underline">add one first</Link>
             </div>
           ) : (
@@ -112,7 +112,7 @@ function StepProperty({ data, onChange, properties, units }: {
                 <Building2 className={cn("w-4 h-4 shrink-0", data.property_id === p.id ? "text-[#2563EB]" : "text-slate-400")} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
-                  {p.address_line1 && <p className="text-xs text-slate-400 truncate">{p.address_line1}</p>}
+                  {p.address_line1 && <p className="text-xs text-slate-500 truncate">{p.address_line1}</p>}
                 </div>
                 {data.property_id === p.id && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
               </button>
@@ -220,7 +220,7 @@ function StepDates({ data, onChange }: { data: TenancyWizardData; onChange: (d: 
             onChange={(e) => onChange({ end_date: e.target.value })}
             className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
           />
-          <p className="text-xs text-slate-400 mt-1">Leave blank for periodic</p>
+          <p className="text-xs text-slate-500 mt-1">Leave blank for periodic</p>
         </div>
       </div>
     </div>
@@ -234,7 +234,7 @@ function StepFinancials({ data, onChange }: { data: TenancyWizardData; onChange:
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Rent amount (£) <span className="text-red-500">*</span></label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">£</span>
             <input
               type="number"
               min={0}
@@ -261,7 +261,7 @@ function StepFinancials({ data, onChange }: { data: TenancyWizardData; onChange:
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Deposit amount (£)</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">£</span>
             <input
               type="number"
               min={0}
@@ -326,7 +326,7 @@ function StepDocuments() {
       <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[#2563EB]/40 hover:bg-blue-50/20 transition-all cursor-pointer">
         <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
         <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
-        <p className="text-xs text-slate-400 mt-1">Tenancy agreement, deposit protection, move-in photos…</p>
+        <p className="text-xs text-slate-500 mt-1">Tenancy agreement, deposit protection, move-in photos…</p>
         <Button variant="soft" size="sm" className="mt-4">Browse files</Button>
       </div>
       <div className="p-3 rounded-xl bg-blue-50 text-xs text-[#2563EB]">

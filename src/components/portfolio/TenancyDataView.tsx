@@ -177,13 +177,13 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
                   </td>
                   <td className="px-4 py-3 text-right">
                     <p className="text-[13px] font-bold text-slate-900 tabular-nums">{fmt(t.rent_amount)}</p>
-                    <p className="text-[9.5px] text-slate-400">{t.rent_frequency === "weekly" ? "/wk" : "/mo"}</p>
+                    <p className="text-[9.5px] text-slate-500">{t.rent_frequency === "weekly" ? "/wk" : "/mo"}</p>
                   </td>
                   <td className="px-4 py-3 text-right">
                     {t.deposit_amount != null ? (
                       <div>
                         <p className="text-[12px] font-semibold text-slate-700 tabular-nums">{fmt(t.deposit_amount)}</p>
-                        {t.deposit_held_by && <p className="text-[9px] text-slate-400 flex items-center justify-end gap-0.5"><Shield className="w-2.5 h-2.5" />Protected</p>}
+                        {t.deposit_held_by && <p className="text-[9px] text-slate-500 flex items-center justify-end gap-0.5"><Shield className="w-2.5 h-2.5" />Protected</p>}
                       </div>
                     ) : <span className="text-slate-300">—</span>}
                   </td>
@@ -200,7 +200,7 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
                       ? <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Up to date</span>
                       : t.status === "draft"
                       ? <span className="text-[11px] font-semibold text-amber-700">Draft</span>
-                      : <span className="text-[11px] text-slate-400">—</span>
+                      : <span className="text-[11px] text-slate-500">—</span>
                     }
                   </td>
                   <td className="px-4 py-3">
@@ -213,7 +213,7 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
               )
             })}
             {sorted.length === 0 && (
-              <tr><td colSpan={10} className="px-4 py-12 text-center text-sm text-slate-400">No tenancies found</td></tr>
+              <tr><td colSpan={10} className="px-4 py-12 text-center text-sm text-slate-500">No tenancies found</td></tr>
             )}
           </tbody>
         </table>

@@ -91,8 +91,8 @@ export default function CostDriversTab({ profile }: Props) {
       {costDrivers.categories.map((category) => (
         <div key={category.name} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">{category.name}</h2>
-          <div className="rounded-xl overflow-hidden border border-slate-100">
-            <table className="w-full text-sm">
+          <div className="rounded-xl overflow-x-auto border border-slate-100">
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Cost Item</th>

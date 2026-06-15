@@ -116,7 +116,7 @@ export default function ReconciliationPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
             <ChevronRight className="w-3 h-3" />
             <span>Reconciliation</span>
@@ -174,22 +174,22 @@ export default function ReconciliationPage() {
         ))}
       </div>
 
-      <div className="flex gap-4 items-start">
+      <div className="flex flex-col lg:flex-row gap-4 items-start">
         {/* Statement lines list */}
-        <div className="flex-1 min-w-0 bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+        <div className="w-full lg:flex-1 min-w-0 bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900">Bank Statement Lines</h3>
-            <span className="text-xs text-slate-400">{filtered.length} shown</span>
+            <span className="text-xs text-slate-500">{filtered.length} shown</span>
           </div>
           {loading ? (
-            <div className="p-12 text-center text-slate-400 text-sm">Loading statement lines…</div>
+            <div className="p-12 text-center text-slate-500 text-sm">Loading statement lines…</div>
           ) : lines.length === 0 ? (
             <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
                 <Banknote className="w-5 h-5 text-[#2563EB]" />
               </div>
               <p className="text-sm font-semibold text-slate-700">No bank statement imported yet</p>
-              <p className="text-xs text-slate-400 max-w-sm">
+              <p className="text-xs text-slate-500 max-w-sm">
                 Import a bank statement to begin reconciliation. Lines will appear here ready to match
                 against posted journal entries — nothing is fabricated.
               </p>
@@ -198,9 +198,10 @@ export default function ReconciliationPage() {
               </Button>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-sm text-slate-400">No lines in this view.</div>
+            <div className="p-12 text-center text-sm text-slate-500">No lines in this view.</div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-[#E2E8F0]">
                   <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Date</th>
@@ -226,11 +227,12 @@ export default function ReconciliationPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
         {/* Right rail */}
-        <div className="w-72 shrink-0 space-y-4">
+        <div className="w-full lg:w-72 shrink-0 space-y-4">
           <AccountingDonutCard
             title="Reconciliation Progress"
             subtitle={lines.length > 0 ? `${reconciledPct}% matched` : "No statement yet"}
@@ -256,7 +258,7 @@ export default function ReconciliationPage() {
               <li>Each line is matched to a posted journal entry.</li>
               <li>Unmatched lines become manual transactions you post to the ledger.</li>
             </ol>
-            <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
               <Calendar className="w-3.5 h-3.5" />
               <span>Matches are stored and audited.</span>
             </div>
