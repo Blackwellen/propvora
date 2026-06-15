@@ -1,0 +1,6 @@
+export { default as AcceptanceGate } from "./AcceptanceGate"
+export type { AcceptanceGateProps } from "./AcceptanceGate"
+export { default as PolicyBanner } from "./PolicyBanner"
+export type { PolicyBannerProps } from "./PolicyBanner"
+export { LegalSection, LegalCallout } from "./LegalPrimitives"
+export { PolicyIntro, PolicyEntityFooter } from "./PolicyMeta"

@@ -9,13 +9,20 @@ import {
   Share2,
   Brain,
   ChevronRight,
+  Store,
+  Tag,
+  ShoppingBag,
+  Undo2,
+  CalendarX,
+  ShieldAlert,
 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
+import { POLICY_LIST } from "@/lib/legal/policies"
 
 export const metadata: Metadata = {
   title: "Legal | Propvora",
-  description: "Propvora legal documents: Terms of Service, Privacy Policy, Cookie Policy, Acceptable Use, Data Processing Agreement, Affiliate Terms and AI Disclaimer.",
+  description: "Propvora legal documents: Terms of Service, Privacy Policy, Cookie Policy, Acceptable Use, Data Processing Agreement, Affiliate Terms, AI Disclaimer, and marketplace policies (Marketplace Terms, Seller Agreement, Buyer Terms, Refund and Cancellation policies).",
 }
 
 const documents = [
@@ -84,6 +91,25 @@ const documents = [
   },
 ]
 
+const marketplaceIcons: Record<string, typeof Store> = {
+  "marketplace-terms": Store,
+  "seller-agreement": Tag,
+  "buyer-terms": ShoppingBag,
+  "refund-policy": Undo2,
+  "cancellation-policy": CalendarX,
+  "acceptable-use": ShieldAlert,
+}
+
+const marketplaceDocuments = POLICY_LIST.map((p) => ({
+  icon: marketplaceIcons[p.slug] ?? Store,
+  title: p.title,
+  description: p.summary,
+  href: p.href,
+  color: "text-indigo-600",
+  bg: "bg-indigo-50",
+  border: "border-indigo-200",
+}))
+
 export default function LegalPage() {
   return (
     <div className="min-h-screen bg-white">
@@ -122,6 +148,36 @@ export default function LegalPage() {
                 <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
               </Link>
             ))}
+          </div>
+
+          {/* Marketplace policies */}
+          <div className="mt-14">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Marketplace policies</h2>
+            <p className="text-slate-600 text-sm mb-5">
+              Policies for the Propvora marketplace — booking stays and ordering supplier services.
+              Propvora facilitates the marketplace; the contract for each stay or service is with the
+              operator or supplier providing it.
+            </p>
+            <div className="space-y-4">
+              {marketplaceDocuments.map((doc) => (
+                <Link
+                  key={doc.href}
+                  href={doc.href}
+                  className="group flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all"
+                >
+                  <div className={`w-12 h-12 rounded-xl ${doc.bg} border ${doc.border} flex items-center justify-center flex-shrink-0`}>
+                    <doc.icon className={`h-6 w-6 ${doc.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      {doc.title}
+                    </h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{doc.description}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
+                </Link>
+              ))}
+            </div>
           </div>
 
           <div className="mt-12 p-6 rounded-2xl bg-slate-50 border border-slate-200">
