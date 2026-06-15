@@ -341,3 +341,11 @@ img, picture, video, canvas, svg {
   from { transform: translateX(-100%); }
   to   { transform: translateX(0); }
 }
+
+/* ── Mobile component system ──────────────────────────────────────────────
+   Full-height bottom-sheet entrance (MobileSheet). Distinct from the subtle
+   `slideUp` content fade above. Always gated on motion-safe at call sites. */
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}

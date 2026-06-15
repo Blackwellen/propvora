@@ -55,7 +55,8 @@ export default function ChatBubble({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ type: "spring", stiffness: 420, damping: 30 }}
-          className="group pwa-safe-bottom fixed bottom-7 right-7 z-50"
+          /* Lift clear of the fixed MobileBottomNav below lg; desktop unchanged. */
+          className="group pwa-safe-bottom fixed bottom-[calc(env(safe-area-inset-bottom,0px)+76px)] right-5 lg:bottom-7 lg:right-7 z-50"
         >
           {/* Tooltip */}
           <div

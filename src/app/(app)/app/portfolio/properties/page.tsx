@@ -17,6 +17,10 @@ import { useUnits } from "@/hooks/useUnits"
 import { useTenancies } from "@/hooks/useTenancies"
 import { LayoutGrid, List, Plus, Search, Building2, ChevronLeft, ChevronRight, X, SlidersHorizontal, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileFilterSheet"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus, normalisePropertyType, exportCsv } from "@/lib/portfolio/helpers"
 import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls } from "@/lib/files/coverUrl"
@@ -44,6 +48,7 @@ export default function PropertiesListPage() {
   const [sortBy, setSortBy] = useState("name")
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   const { data: rawProps, isLoading: propsLoading, error } = useProperties(workspace?.id)
   const { data: rawUnits } = useUnits(workspace?.id)
@@ -135,8 +140,118 @@ export default function PropertiesListPage() {
     )
   }
 
+  /* ── Mobile filter groups (mirror the desktop filter panel) ───────────── */
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: filterStatus,
+      onChange: (v) => { setFilterStatus(v); setPage(1) },
+      options: [
+        { value: "all", label: "All" },
+        { value: "Active", label: "Active" },
+        { value: "Vacant", label: "Vacant" },
+        { value: "Under Works", label: "Under Works" },
+        { value: "Archived", label: "Archived" },
+      ],
+    },
+    {
+      key: "profile",
+      label: "Operation Profile",
+      value: filterProfile,
+      onChange: (v) => { setFilterProfile(v); setPage(1) },
+      options: [
+        { value: "all", label: "All" },
+        ...ALL_OPERATION_PROFILES.filter((p) => p !== "Unassigned").map((p) => ({ value: p, label: p })),
+      ],
+    },
+    ...(typeOptions.length > 0
+      ? [{
+          key: "type",
+          label: "Property Type",
+          value: filterType,
+          onChange: (v: string) => { setFilterType(v); setPage(1) },
+          options: [{ value: "all", label: "All" }, ...typeOptions],
+        } as FilterGroup]
+      : []),
+  ]
+
+  /* ── Row → card mapping for the mobile card list ──────────────────────── */
+  const STATUS_CHIP: Record<string, { label: string; cls: string }> = {
+    Active: { label: "Occupied", cls: "bg-emerald-50 text-emerald-700" },
+    Vacant: { label: "Vacant", cls: "bg-amber-50 text-amber-700" },
+    "Under Works": { label: "In Progress", cls: "bg-blue-50 text-blue-700" },
+    Archived: { label: "Archived", cls: "bg-slate-100 text-slate-600" },
+  }
+  const propertyCardMapping: MobileCardMapping<PropertyCardData> = {
+    getKey: (p) => p.id,
+    title: (p) => p.name,
+    subtitle: (p) => [p.address, p.postcode].filter(Boolean).join(", ") || "—",
+    leading: (p) => (
+      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0">
+        <Building2 className="w-5 h-5 text-white/80" />
+      </div>
+    ),
+    badge: (p) => {
+      const s = STATUS_CHIP[p.status] ?? STATUS_CHIP.Active
+      return <span className={cn("inline-flex text-[10.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", s.cls)}>{s.label}</span>
+    },
+    fields: [
+      { label: "Type", render: (p) => p.type },
+      { label: "Units", render: (p) => String(p.units) },
+      {
+        label: "Occupancy",
+        render: (p) => p.units > 0 ? `${Math.round(((p.occupied ?? p.tenants) / p.units) * 100)}%` : "—",
+      },
+      {
+        label: "Rent / mo",
+        render: (p) => p.monthlyRent > 0
+          ? new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(p.monthlyRent)
+          : "—",
+      },
+    ],
+    onRowClick: (p) => router.push(`/app/portfolio/properties/${p.id}`),
+  }
+
   return (
     <DashboardContainer>
+      {/* Mobile top bar — compact title + primary "Add" + Export overflow */}
+      <MobileTopBar
+        title="Properties"
+        subtitle={`${filtered.length} propert${filtered.length !== 1 ? "ies" : "y"}`}
+        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+        overflowActions={[
+          { label: "Export CSV", icon: Download, onClick: handleExport },
+        ]}
+      />
+
+      {/* Mobile page header — search + filter sheet trigger (replaces desktop toolbar on phones) */}
+      <MobilePageHeader
+        title="Properties"
+        count={`${filtered.length} shown`}
+        search={search}
+        onSearchChange={(v) => { setSearch(v); setPage(1) }}
+        searchPlaceholder="Search properties…"
+        onOpenFilters={() => setShowMobileFilters(true)}
+        activeFilterCount={activeFilters}
+        actions={
+          <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100">
+            <button onClick={() => setView("cards")} aria-label="Card view" aria-pressed={view === "cards"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400")}><LayoutGrid className="w-4 h-4" /></button>
+            <button onClick={() => setView("table")} aria-label="List view" aria-pressed={view === "table"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "table" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400")}><List className="w-4 h-4" /></button>
+          </div>
+        }
+      />
+
+      <MobileFilterSheet
+        open={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilters}
+        onClear={clearFilters}
+      />
+
+      {/* Desktop header — hidden on phones (MobileTopBar/Header own mobile) */}
+      <div className="hidden md:block">
       <PageHeader
         title="Properties"
         description={`${filtered.length} propert${filtered.length !== 1 ? "ies" : "y"}`}
@@ -263,6 +378,8 @@ export default function PropertiesListPage() {
           )}
         </div>
       )}
+      </div>
+      {/* end desktop header/toolbar (hidden on phones) */}
 
       {/* Content */}
       {loading ? (
@@ -291,7 +408,11 @@ export default function PropertiesListPage() {
           {paginated.map((p) => <PropertyCard key={p.id} property={p} />)}
         </div>
       ) : (
-        <PropertyTable properties={paginated} onRowClick={(id) => router.push(`/app/portfolio/properties/${id}`)} />
+        /* Desktop renders the existing PropertyTable; phones get a stacked card
+           list via the column→card mapping. No data/logic change. */
+        <ResponsiveTable rows={paginated} mobile={propertyCardMapping}>
+          <PropertyTable properties={paginated} onRowClick={(id) => router.push(`/app/portfolio/properties/${id}`)} />
+        </ResponsiveTable>
       )}
 
       {/* Pagination */}

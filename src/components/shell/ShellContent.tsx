@@ -16,7 +16,9 @@ export default function ShellContent({ children }: ShellContentProps) {
       style={{ background: "transparent" }}
     >
       <ShellTabsRail />
-      <div className="px-4 py-5 sm:px-6 sm:py-6">
+      {/* Bottom padding below lg keeps content clear of the fixed MobileBottomNav
+          (its height + safe-area inset). Desktop (lg+) padding is unchanged. */}
+      <div className="px-4 py-5 pb-[calc(env(safe-area-inset-bottom,0px)+72px)] sm:px-6 sm:py-6 sm:pb-[calc(env(safe-area-inset-bottom,0px)+72px)] lg:pb-6">
         {children}
       </div>
     </main>

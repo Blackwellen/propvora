@@ -18,6 +18,7 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import MobileTabs from "@/components/mobile/MobileTabs"
 import { getPropertyTypeOption, PROPERTY_TYPE_OPTIONS } from "@/lib/constants/propertyTypes"
 import { openCopilot } from "@/lib/copilot/open"
 import {
@@ -1925,8 +1926,8 @@ export default function PropertyDetailPage() {
 
       {/* ── Tabs + content ──────────────────────────────────────────── */}
       <div className="px-6 pb-8">
-        {/* Tab bar */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6 overflow-x-auto scrollbar-hide">
+        {/* Tab bar — desktop strip (md+) */}
+        <div className="hidden md:flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6 overflow-x-auto scrollbar-hide">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -1941,6 +1942,16 @@ export default function PropertyDetailPage() {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Mobile — same tab state, scrollable segmented pills */}
+        <div className="md:hidden mb-4">
+          <MobileTabs
+            tabs={TABS}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="Property sections"
+          />
         </div>
 
         {/* Tab content */}
