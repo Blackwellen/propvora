@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { recordCoreAcceptances } from "@/lib/legal/acceptance"
 
 const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/affiliate", "/onboarding"]
 
@@ -31,6 +32,32 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
+  }
+
+  // ── Legal-acceptance logging ──────────────────────────────────────────────
+  // The register form requires ticking "I agree to the Terms & Privacy Policy"
+  // before signup. This callback fires when the verification link is opened —
+  // the first server-side moment we have an authenticated session — so we record
+  // acceptance of the current Terms + Privacy versions here. Idempotent on
+  // (user, document, version), so re-opening the link never duplicates. Best-
+  // effort: never block the redirect on a logging failure.
+  try {
+    const {
+      data: { user: acceptingUser },
+    } = await supabase.auth.getUser()
+    if (acceptingUser) {
+      const ip =
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        request.headers.get("x-real-ip")?.trim() ||
+        null
+      await recordCoreAcceptances(supabase, acceptingUser.id, {
+        context: "signup",
+        ip,
+        userAgent: request.headers.get("user-agent"),
+      })
+    }
+  } catch {
+    /* non-fatal — acceptance logging must never block account verification */
   }
 
   // If the link carried an invite token, send them to accept it.

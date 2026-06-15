@@ -81,13 +81,16 @@ export async function listThreadMessages(threadId: string): Promise<PortalMessag
   if (!threadId) return []
   const supabase = createClient()
   try {
+    // Bound the read: newest 200 (descending) restored to chronological order.
+    // Caps worst-case payload on long portal threads; no change for normal ones.
     const { data, error } = await supabase
       .from("messages")
       .select("id, thread_id, sender_id, sender_name, content, created_at")
       .eq("thread_id", threadId)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(200)
     if (error && code(error) !== "42P01") return []
-    return (data ?? []) as PortalMessage[]
+    return ((data ?? []) as PortalMessage[]).slice().reverse()
   } catch {
     return []
   }

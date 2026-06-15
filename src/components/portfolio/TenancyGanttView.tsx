@@ -10,7 +10,7 @@ import {
   Home, Users, PoundSterling, ArrowUpRight, CheckSquare, Square,
   Sparkles,
 } from "lucide-react"
-import { LineChart, Line, ResponsiveContainer } from "recharts"
+import { Sparkline } from "@/components/charts/Sparkline"
 import type { TenancyCardData } from "./TenancyCard"
 
 /* ------------------------------------------------------------------ */
@@ -654,11 +654,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             Next expiry: {endingSoon[0]?.end_date ? fmtShort(endingSoon[0].end_date) : "30 Jun 2026"}
           </p>
           <div className="h-8 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={[4,7,5,8,6,9,8].map((v,i)=>({i,v}))}>
-                <Line type="monotone" dataKey="v" stroke="#F97316" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <Sparkline data={[4,7,5,8,6,9,8].map(v=>({v}))} color="#F97316" />
           </div>
         </div>
 
@@ -671,11 +667,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">{renewalsDue.length || 11}</p>
           <p className="text-[10.5px] text-slate-500 mt-0.5">Within 60 days</p>
           <div className="h-8 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={[5,8,6,9,7,10,9].map((v,i)=>({i,v}))}>
-                <Line type="monotone" dataKey="v" stroke="#2563EB" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <Sparkline data={[5,8,6,9,7,10,9].map(v=>({v}))} color="#2563EB" />
           </div>
         </div>
 
@@ -688,11 +680,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">91%</p>
           <p className="text-[10.5px] text-slate-500 mt-0.5">Peak: Aug 2026 (96%)</p>
           <div className="h-8 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={[88,90,91,93,95,96,94].map((v,i)=>({i,v}))}>
-                <Line type="monotone" dataKey="v" stroke="#10B981" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <Sparkline data={[88,90,91,93,95,96,94].map(v=>({v}))} color="#10B981" />
           </div>
         </div>
 
@@ -707,11 +695,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
           </p>
           <p className="text-[10.5px] text-slate-500 mt-0.5">Potential loss</p>
           <div className="h-8 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={[22,19,21,18,20,16,18].map((v,i)=>({i,v}))}>
-                <Line type="monotone" dataKey="v" stroke="#EF4444" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <Sparkline data={[22,19,21,18,20,16,18].map(v=>({v}))} color="#EF4444" />
           </div>
         </div>
 

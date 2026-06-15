@@ -654,6 +654,9 @@ export function useMoneyIncome(
         .eq('workspace_id', workspaceId!)
         .eq('direction', 'in')
         .order('occurred_on', { ascending: false })
+        // Bound the list view on this high-volume table; date/property filters
+        // narrow further. 500 newest rows is ample for the income screen.
+        .limit(500)
 
       if (filters?.property_id) q = q.eq('property_id', filters.property_id)
       if (filters?.income_type) q = q.eq('category', filters.income_type)
@@ -1480,6 +1483,8 @@ export function useMoneyTransactions(
         .select('*')
         .eq('workspace_id', workspaceId!)
         .order('occurred_on', { ascending: false })
+        // Bound the transactions list on this high-volume table (newest 500).
+        .limit(500)
 
       // status maps to the boolean `reconciled` column
       if (filters?.status === 'matched' || filters?.status === 'posted') q = q.eq('reconciled', true)
@@ -1581,7 +1586,9 @@ export function useMoneyActivity(
         .eq('workspace_id', workspaceId!)
         .order('created_at', { ascending: false })
 
-      if (filters?.limit) q = q.limit(filters.limit)
+      // Always bound this activity feed; callers may request fewer, but never
+      // an unbounded scan of the ledger.
+      q = q.limit(filters?.limit ?? 100)
 
       const { data, error } = await q
       if (error) {

@@ -1,71 +1,105 @@
 # PROPVORA — RELEASE SIGNOFF
 
 **Product:** Propvora · **Legal owner:** Blackwellen Ltd (Reg. England & Wales No. 16482166; ICO ZC160806)
-**Document owner:** Founder (Blackwellen Ltd) · **Last updated:** 2026-06-13
+**Document owner:** Founder (Blackwellen Ltd) · **Last updated:** 2026-06-15
 
 ## Decision
 
-> ❌ **NOT RELEASE-READY.** This product is **not** approved for public/general
-> availability. Multiple Critical and High items in `PROP-VORA-MAX-RELEASE-TODO.md`
-> are not yet Implemented/Tested/Passed. See the gate table below.
+> 🟡 **NOT YET PRODUCTION-READY — but materially advanced.** The application, data layer
+> and security suite are in strong shape; the remaining blockers are **owner-controlled
+> infrastructure, CI gates, and external assurance** (pen-test, WCAG, performance), not
+> core application defects.
+>
+> A **controlled private beta** is supportable now. **General availability is NOT yet
+> approved** until the No-Go checklist below is cleared.
 
-A **controlled private beta** may be considered only after the Critical gates below
-are Passed (see "Minimum beta gate").
+The binding rule is unchanged: no sign-off below constitutes GA approval until every
+**Go gate** is Passed.
 
-## Release gate — Critical items (all must be **Passed**)
+---
 
-| Gate | Status | Blocker summary |
-|------|--------|-----------------|
-| RLS enforced + tested on every table | ⬜ Not Passed | No automated multi-workspace leakage test suite yet (TODO 16–18). |
-| Multi-workspace data isolation proven | ⬜ Not Passed | Needs role/workspace boundary E2E (TODO 17). |
-| Server-side subscription gating (no client-only) | 🟡 Partial | Seat/AI/storage gates implemented server-side; full entitlement service + tests pending (TODO 19–21, 234). |
-| Payments are webhook-sourced, no client-redirect unlock | ✅ Implemented | Webhook updates plan; signature + replay protection in place (TODO 93, 95). Test pass pending. |
-| IDOR tested on all detail pages + API routes | ⬜ Not Passed | No IDOR sweep yet (TODO 41). |
-| File upload abuse controlled (MIME/size/path) | 🟡 Partial | Allowlist + size + sanitised key done; scan pipeline + signed-URL + per-role access tests pending (TODO 42–44, 117). |
-| Admin protected (role + MFA + audit) | 🟡 Partial | Server role check exists; MFA + full audit coverage pending (TODO 72). |
-| No secrets in client; service role server-only | ✅ Implemented | Audited; see pentest doc (TODO 48 partial). |
-| Auth abuse protection (brute-force/OTP/reset) | ⬜ Not Passed | Needs rate-limit store + Turnstile (TODO 24–34, 52, 55). |
-| Account deletion + SAR flows exist | ⬜ Not Passed | Not built (TODO 130–136). |
-| GDPR compliance pack + cookie consent | 🟡 Partial | Entity facts + legal pages corrected; doc pack + consent gating pending (TODO 137–157). |
-| DR/backup/maintenance-mode | ⬜ Not Passed | Not built (TODO 188–197). |
+## ✅ DONE (verified this cycle)
 
-## Minimum beta gate (controlled private beta only)
+| Area | Status | Evidence |
+|---|---|---|
+| **Data layer aligned** — schema-correct, no phantom tables, no mock paths | ✅ | `npm run audit:schema` = **0** · `docs/finalisation/DB_FRONTEND_ALIGNMENT.md` |
+| **RLS 7/7** — every `workspace_id` table RLS-enabled | ✅ | **195/195** · `docs/finalisation/RLS_POLICY_MATRIX.md` |
+| **Cross-workspace isolation proven live** (IDOR + anon) | ✅ | IDOR **0/96 leaks**, anon **0/31** · `idor-sweep.mjs`, `anon-exposure.mjs` |
+| **API defence-in-depth** — auth + membership/role on top of RLS | ✅ | `docs/finalisation/API_SECURITY_MATRIX.md` (32 routes) |
+| **Security suite green** (10 suites) | ✅ | `npm run test:security` (`run-all.mjs`) |
+| **Billing reconciliation** — app catalog ↔ LIVE Stripe | ✅ | **54/54** · `billing-reconcile.mjs` |
+| **Webhook-sourced billing** — signed, idempotent, full lifecycle | ✅ | **17/17** · `billing-webhooks.mjs` |
+| **Entitlement gates E2E** — every tier + live storage | ✅ | **66/66** · `billing-entitlements-e2e.mjs` |
+| **Admin protected** — server role check + MFA + audit | ✅ | `docs/finalisation/ADMIN_AUDIT.md` |
+| **AI safety** — server-only keys, fail-closed caps, metering, human approval | ✅ | `docs/finalisation/AI_SAFETY_AUDIT.md` |
+| **The five systems** — AI gateway, double-entry ledger, smart-rules, legal/possession/court-bundle, notifications + ⌘K | ✅ | shipped; see FINAL_PRODUCTION_AUDIT §1 |
+| **Recipient portals** — tenant/landlord/supplier + `/p/[token]` share links | ✅ | flag-gated; supplier scope **passes** (`supplier-scope.mjs`) |
+| **Affiliate payout ledger** — accrual + refund/dispute reversal (payout flag off) | ✅ | `BILLING_E2E.md` §4 |
+| **Mobile component system** | ✅ | `src/components/mobile/*` |
+| **Upload hardening** — MIME sniffing, size cap, sanitised key, quota gate | ✅ | `/api/upload`, API matrix |
+| **GDPR + consent + maintenance + health/ready** | ✅ | account request flow, `src/lib/consent.ts`, `/api/health`+`/api/ready` |
+| **Correct legal entity** | ✅ | `src/lib/legal/company.ts` (ICO ZC160806) |
+| **TypeScript clean** | ✅ | `npm run typecheck` = 0 |
 
-Before inviting **trusted** beta users:
-1. ⬜ RLS multi-workspace isolation **test suite** green (TODO 16–18). _Enablement verified (241/241); behavioural tests still needed._
-2. ⬜ IDOR sweep on detail pages + API routes (TODO 41).
-3. 🟡 Auth + form rate limiting — ✅ **app-side limiter live** (login/signup/reset/OTP/invite/data-request, Supabase store); still need a shared edge store + Turnstile keys on public forms (TODO 52, 55 — external).
-4. ✅ Account deletion + data-export request flow — **built** (re-auth request flow + dry-run gated worker; TODO 130–136).
-5. ✅ Cookie consent gating analytics/marketing — **built** (banner + `hasConsent()`; TODO 155).
-6. ✅ Maintenance mode + safe error pages — **built** (TODO 187, 194).
-7. 🟡 Stripe webhook event coverage — ✅ all key events + idempotency handled; manual replay/failed-payment **test** still to run (TODO 94–98).
-8. ✅ `/api/health` + `/api/ready` — **built** (monitoring wiring still external).
+---
 
-Remaining beta blockers: items 1, 2, and the external keys for 3.
+## ❌ REMAINS before GA (No-Go until cleared)
 
-## Evidence already on file (build-green this pass — 227 pages, tsc clean)
-- Schema audit **0** (`scripts/audit-queries.mjs`); RLS **241/241 enabled** (`scripts/audit-rls.mjs`).
-- Server-side gates + entitlement service (`src/lib/billing/gates.ts`, `entitlements.ts`).
-- Webhook signature + idempotency + full event coverage (`src/app/api/webhooks/stripe/route.ts` + migration).
-- Security headers (`next.config.ts`); upload hardening (`src/app/api/upload/route.ts`).
-- Correct legal entity (`src/lib/legal/company.ts`; legal pages + footer; ICO ZC160806).
-- App-side rate limiting (`src/lib/rate-limit.ts`); audit-log coverage (`src/lib/audit/log.ts`).
-- Account deletion + SAR (`/api/account/request` + erasure/export worker, dry-run gated).
-- Cookie consent (`src/lib/consent.ts`); maintenance mode + safe error pages; `/api/health`+`/api/ready`.
-- Admin ops views (data-requests, bugs, stripe-events, ai-usage); changelog + announcements.
-- Account security + TOTP MFA; newsletter (consent/double-opt-in); supplier ratings + tenant complaints.
-- Bug-catcher; WCAG first conformance pass (`docs/compliance/wcag-2-2-aa-audit.md`).
-- Stripe Connect (Standard, owners' own accounts) scaffold — feature-flagged off (`docs/release/stripe-connect-setup.md`).
-- Compliance pack (11 docs in `docs/compliance/`); release docs (`docs/release/`).
+### Engineering / CI
+- ⬜ **Lint + CI gates** — wire `lint`, `typecheck`, and `test:security` into the deploy
+  pipeline as **blocking** checks (currently run manually).
+- ⬜ **Full browser E2E breadth** (Playwright) across the critical journeys.
+- ⬜ **Performance deep-pass** — Core Web Vitals on real routes; bundle/LCP budget.
+- ⬜ **Formal WCAG 2.2 AA audit** — first conformance pass done
+  (`docs/compliance/wcag-2-2-aa-audit.md`); contrast / screen-reader / keyboard sweeps remain.
+- ⬜ **External penetration test** — brief ready (`docs/release/external-pentest-brief.md`).
 
-## What is NOT done (must close before GA)
-Behavioural test suites (RLS leakage E2E, IDOR sweep, role/subscription tests, full browser E2E), external pen-test, and the external/founder items: Cloudflare+Turnstile, Stripe Connect activation, Resend DNS (SPF/DKIM/DMARC), Supabase MFA add-on + backups/DR test, HMRC/MTD. WCAG full AA (first pass done; contrast/SR/keyboard sweeps remain).
+### Owner infrastructure (external, not code)
+- ⬜ **Cloudflare** production R2 + **Turnstile** keys (`docs/release/cloudflare-production-setup.md`).
+- ⬜ **Vercel** production environment + custom domain (`docs/release/vercel-production-readiness.md`).
+- ⬜ **Supabase** PITR / backups enabled + a **restore test** (`docs/release/disaster-recovery-plan.md`).
+- ⬜ **Resend** sending domain verified (SPF / DKIM / DMARC).
+- ⬜ **Stripe LIVE** verification — run the TEST-mode card + lifecycle matrix
+  (`docs/finalisation/BILLING_E2E.md` §2–3) and register the LIVE webhook endpoint.
+
+### Intentionally OFF for V1 (confirm, don't enable)
+- Stripe **Connect** + **affiliate payouts** stay flagged off (accrual/reversal run live).
+- External recipient **portals** stay behind `NEXT_PUBLIC_PORTALS_EXTERNAL_ENABLED` until verified.
+
+---
+
+## 🚧 Scope gate — international expansion is POST-V1
+
+The plans in `docs/upgrade/` (country packs, i18n, global marketplace, KYC/escrow,
+booking) are **GATED — NOT ELIGIBLE TO START** until UK V1 is signed off, and every
+country pack additionally requires **qualified local legal/tax review** before
+enablement. **None of it is part of the V1 release surface.**
+
+---
+
+## Go / No-Go checklist (GA)
+
+GA is approved only when **all** of the following are ✅:
+
+1. ⬜ CI runs `lint` + `typecheck` + `test:security` as blocking gates, all green.
+2. ⬜ Stripe **LIVE** card + lifecycle matrix passed in TEST mode; LIVE webhook registered.
+3. ⬜ Cloudflare/Turnstile + Vercel prod env + domain live.
+4. ⬜ Supabase PITR/backups on, restore test passed.
+5. ⬜ Resend domain authenticated (SPF/DKIM/DMARC).
+6. ⬜ External pen-test completed; criticals/highs closed.
+7. ⬜ WCAG 2.2 AA formal audit passed.
+8. ⬜ Performance deep-pass within budget.
+
+**Until items 1–8 are ✅, the decision is No-Go for GA (Beta-only).**
+
+---
 
 ## Sign-off record
+
 | Role | Name | Decision | Date |
 |------|------|----------|------|
 | Founder / Director, Blackwellen Ltd | — | Pending | — |
 | Security reviewer | — | Pending | — |
 | Data protection (ICO ZC160806) | — | Pending | — |
 
-_No signature below constitutes release approval until every Critical gate above is **Passed**._
+_No signature below constitutes GA approval until every Go gate above is **Passed**._

@@ -1,11 +1,25 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Download, AlertTriangle, Lock, FileText, X, Loader2 } from "lucide-react"
+import { Download, AlertTriangle, Lock, FileText, X, Loader2, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+
+interface AcceptanceStatusRow {
+  documentType: string
+  acceptedVersion: string | null
+  acceptedAt: string | null
+  currentVersion: string
+  needsReacceptance: boolean
+}
+
+const DOC_LABELS: Record<string, string> = {
+  terms_of_service: "Terms of Service",
+  privacy_policy: "Privacy Policy",
+}
 
 export default function DataPrivacyPage() {
   const [email, setEmail] = useState<string | null>(null)
+  const [acceptances, setAcceptances] = useState<AcceptanceStatusRow[] | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteText, setDeleteText] = useState("")
   const [deletePassword, setDeletePassword] = useState("")
@@ -21,7 +35,21 @@ export default function DataPrivacyPage() {
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null))
+    fetch("/api/legal/accept", { headers: { "Cache-Control": "no-store" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (j?.status) setAcceptances(j.status as AcceptanceStatusRow[]) })
+      .catch(() => {})
   }, [])
+
+  async function reaccept() {
+    try {
+      const res = await fetch("/api/legal/accept", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+      if (res.ok) {
+        const refreshed = await fetch("/api/legal/accept", { headers: { "Cache-Control": "no-store" } }).then((r) => r.json()).catch(() => null)
+        if (refreshed?.status) setAcceptances(refreshed.status as AcceptanceStatusRow[])
+      }
+    } catch { /* surfaced via unchanged state */ }
+  }
 
   const canDelete = deleteText === "DELETE" && deletePassword.length > 0 && !deleteBusy
 
@@ -87,6 +115,47 @@ export default function DataPrivacyPage() {
           ))}
         </div>
       </div>
+
+      {/* Legal acceptances */}
+      {acceptances && acceptances.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div style={{ color: "#7C3AED" }}><ShieldCheck className="w-4 h-4" /></div>
+            <h3 className="text-[14px] font-bold text-slate-900">Policy Acceptances</h3>
+          </div>
+          <div className="space-y-2.5">
+            {acceptances.map((a) => (
+              <div key={a.documentType} className="flex items-center justify-between gap-4 p-3.5 rounded-xl border border-slate-200 bg-slate-50/60">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-slate-800">{DOC_LABELS[a.documentType] ?? a.documentType}</p>
+                  <p className="text-[11.5px] text-slate-500 mt-0.5">
+                    {a.acceptedVersion
+                      ? `Accepted version ${a.acceptedVersion}${a.acceptedAt ? ` on ${new Date(a.acceptedAt).toLocaleDateString("en-GB")}` : ""}`
+                      : "Not yet recorded"}
+                  </p>
+                </div>
+                {a.needsReacceptance ? (
+                  <span className="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                    Update available (v{a.currentVersion})
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Current
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          {acceptances.some((a) => a.needsReacceptance) && (
+            <button
+              onClick={reaccept}
+              className="mt-4 px-4 py-2.5 rounded-xl bg-violet-600 text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors"
+            >
+              Accept latest policies
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Export data */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">

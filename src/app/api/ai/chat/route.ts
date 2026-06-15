@@ -8,6 +8,10 @@ import { checkCaps } from "@/lib/ai/caps"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
 import { gateAiCopilot } from "@/lib/billing/gates"
+import { captureException, requestIdFrom } from "@/lib/observability"
+
+// Authenticated, per-request streamed completion — never statically optimised.
+export const dynamic = "force-dynamic"
 
 const chatSchema = z.object({
   message: z.string().min(1, "message is required").max(4000, "message too long"),
@@ -17,6 +21,7 @@ const chatSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  const requestId = requestIdFrom(request.headers)
   try {
     // 1. Authenticate user
     const supabase = await createClient()
@@ -154,7 +159,7 @@ Guidelines:
             controller.enqueue(encoder.encode(delta))
           }
         } catch (streamErr) {
-          console.error("[AI Chat] stream error:", streamErr)
+          captureException(streamErr, { source: "api/ai/chat:stream", requestId })
           controller.enqueue(encoder.encode("\n\n[The response was interrupted. Please try again.]"))
         } finally {
           controller.close()
@@ -207,7 +212,10 @@ Guidelines:
       },
     })
   } catch (err: unknown) {
-    console.error("[AI Chat] Error:", err)
-    return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 })
+    captureException(err, { source: "api/ai/chat", requestId })
+    return NextResponse.json(
+      { error: "An unexpected error occurred. Please try again.", requestId },
+      { status: 500 }
+    )
   }
 }

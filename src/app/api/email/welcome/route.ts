@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { sendEmail } from "@/lib/email"
 import { welcomeEmail } from "@/lib/emails/welcome"
 import { rateLimit, clientKey, RATE_LIMITS } from "@/lib/rate-limit"
+import { captureException, requestIdFrom } from "@/lib/observability"
 
 /**
  * POST /api/email/welcome
@@ -20,12 +21,16 @@ import { rateLimit, clientKey, RATE_LIMITS } from "@/lib/rate-limit"
  * Body: { email: string; userName?: string; workspaceName?: string }
  */
 
+// Per-request, rate-limited side-effect (sends email) — always dynamic.
+export const dynamic = "force-dynamic"
+
 // Basic, conservative email shape check (defence-in-depth, not full RFC5322).
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MAX_EMAIL_LEN = 254
 const MAX_NAME_LEN = 200
 
 export async function POST(request: NextRequest) {
+  const requestId = requestIdFrom(request.headers)
   try {
     // Per-IP throttle FIRST — before any work — so the route can't be abused as
     // a spam relay. Uses the signup limit profile (5 / 10 min per IP).
@@ -74,15 +79,15 @@ export async function POST(request: NextRequest) {
     const result = await sendEmail({ to: cleanEmail, subject, html })
 
     if (result.error) {
-      // Log but don't surface details to client — welcome email is non-critical
-      console.error("[api/email/welcome] Send failed:", result.error)
+      // Log but don't surface details to client — welcome email is non-critical.
+      // Never include the recipient email (PII) in the captured event.
+      captureException(result.error, { source: "api/email/welcome:send", requestId })
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, emailId: result.id ?? null })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal server error"
-    console.error("[api/email/welcome] Error:", message)
-    return NextResponse.json({ error: message }, { status: 500 })
+    captureException(err, { source: "api/email/welcome", requestId })
+    return NextResponse.json({ error: "Internal server error", requestId }, { status: 500 })
   }
 }

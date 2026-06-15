@@ -77,17 +77,20 @@ export function useTenancyMessages(
       const threadId = await findThreadId(supabase, workspaceId!, tenancyId!)
       if (!threadId) return []
       const me = await currentUser(supabase)
+      // Bound the thread read: newest 200 (descending) restored to chronological
+      // order. Caps worst-case payload on long threads; no change for normal ones.
       const { data, error } = await supabase
         .from('messages')
         .select('id, thread_id, workspace_id, sender_id, sender_name, content, created_at')
         .eq('workspace_id', workspaceId!)
         .eq('thread_id', threadId)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(200)
       if (error) {
         if (code(error) === '42P01') return []
         throw error
       }
-      return (data ?? []).map((r: Record<string, unknown>) => ({
+      return (data ?? []).slice().reverse().map((r: Record<string, unknown>) => ({
         id: r.id as string,
         thread_id: r.thread_id as string,
         workspace_id: r.workspace_id as string,

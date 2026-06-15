@@ -7,10 +7,12 @@ import {
   stopReferralAccrual,
 } from "@/lib/affiliate/commission"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
+import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
+  const requestId = requestIdFrom(request.headers)
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 })
   }
@@ -32,7 +34,12 @@ export async function POST(request: NextRequest) {
     })
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
-    console.error("[webhooks/stripe] Signature verification failed:", err)
+    // Log the failure for observability but never echo the signature/secret.
+    captureException(err, {
+      source: "api/webhooks/stripe:verify",
+      requestId,
+      tags: { stage: "signature" },
+    })
     return NextResponse.json({ error: "Webhook signature verification failed." }, { status: 400 })
   }
 
@@ -292,7 +299,12 @@ export async function POST(request: NextRequest) {
         console.log(`[webhooks/stripe] Unhandled event type: ${event.type}`)
     }
   } catch (err) {
-    console.error("[webhooks/stripe] Database update failed:", err)
+    // event.id and event.type are non-sensitive correlation metadata.
+    captureException(err, {
+      source: "api/webhooks/stripe",
+      requestId,
+      tags: { eventType: event.type, eventId: event.id },
+    })
     // Return 500 so Stripe retries — we deliberately do NOT record the event id
     // here, so the retry is reprocessed rather than skipped as a duplicate.
     return NextResponse.json({ error: "Database update failed." }, { status: 500 })

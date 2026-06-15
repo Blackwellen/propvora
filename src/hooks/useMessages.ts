@@ -152,18 +152,25 @@ export function useConversationMessages(
     enabled: !!workspaceId && !!conversationId,
     queryFn: async () => {
       const meId = await currentUserId(supabase)
+      // Bound the thread read: fetch the newest 200 (descending) then restore
+      // chronological order in memory. Caps worst-case payload on very long
+      // threads while preserving the oldest→newest display for normal ones.
       const { data, error } = await supabase
         .from('messages')
         .select('id, thread_id, workspace_id, sender_id, content, demo, created_at')
         .eq('workspace_id', workspaceId!)
         .eq('thread_id', conversationId!)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(200)
 
       if (error) {
         if (is42P01(error)) return []
         throw error
       }
-      return (data ?? []).map((r: Record<string, any>) => toUiMessage(r, meId))
+      return (data ?? [])
+        .slice()
+        .reverse()
+        .map((r: Record<string, any>) => toUiMessage(r, meId))
     },
     staleTime: 15 * 1000,
   })

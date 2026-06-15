@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -12,7 +13,11 @@ export const dynamic = "force-dynamic"
  * database. Detailed readiness (env presence, provider config) lives in the
  * admin-only /api/ready endpoint.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  // Correlation handle only — echoes an upstream x-request-id or mints one. It
+  // carries no user data and exposes no internal config.
+  const requestId = requestIdFrom(request.headers)
+
   let db: "ok" | "down" = "down"
   try {
     const admin = createAdminClient()
@@ -25,7 +30,10 @@ export async function GET() {
 
   const healthy = db === "ok"
   return NextResponse.json(
-    { status: healthy ? "ok" : "degraded", db, time: new Date().toISOString() },
-    { status: healthy ? 200 : 503, headers: { "Cache-Control": "no-store" } }
+    { status: healthy ? "ok" : "degraded", db, requestId, time: new Date().toISOString() },
+    {
+      status: healthy ? 200 : 503,
+      headers: { "Cache-Control": "no-store", "x-request-id": requestId },
+    }
   )
 }

@@ -8,6 +8,7 @@ import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister"
 import InstallPrompt from "@/components/pwa/InstallPrompt"
 import OfflineBanner from "@/components/pwa/OfflineBanner"
 import CookieConsent from "@/components/consent/CookieConsent"
+import Analytics from "@/components/consent/Analytics"
 import "./globals.css"
 
 const inter = Inter({
@@ -96,6 +97,7 @@ export default function RootLayout({
               <InstallPrompt />
               {children}
               <CookieConsent />
+              <Analytics />
             </AuthProvider>
           </QueryProvider>
       </body>

@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import { AlertTriangle } from "lucide-react"
+import { captureException, newRequestId } from "@/lib/observability"
 
 /**
  * Global error boundary (App Router). Renders a safe, generic message only —
@@ -17,8 +18,18 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    // Diagnostic log only (not shown to the user). Never surfaced in the UI.
-    console.error("Unhandled application error", error.digest ?? error)
+    // Structured capture (degrades to console; Sentry-ready). Never surfaced in
+    // the UI. A request id correlates this with any related server logs.
+    const requestId = newRequestId()
+    captureException(error, {
+      source: "app-error-boundary",
+      requestId,
+      tags: {
+        digest: error.digest ?? null,
+        route:
+          typeof window !== "undefined" ? window.location.pathname : null,
+      },
+    })
 
     // Best-effort, fire-and-forget bug report. We send only a truncated message
     // and the Next.js digest — never a stack trace. Failures are ignored so the
@@ -34,6 +45,7 @@ export default function GlobalError({
             typeof window !== "undefined" ? window.location.pathname : null,
           message: error.message?.slice(0, 2000),
           digest: error.digest,
+          requestId,
         }),
       }).catch(() => {})
     } catch {

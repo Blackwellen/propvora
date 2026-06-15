@@ -172,3 +172,57 @@ The project uses Tailwind CSS v4 with default breakpoints:
 | P2 | Add `@next/bundle-analyzer` to analyze bundle | Low | High (diagnostics) |
 | P3 | Split planning wizard into step components | High | Low (DX only) |
 | P3 | Mobile card view for wide tables | High | Medium (mobile UX) |
+
+---
+
+## Implemented — Performance + Observability pass
+
+### Recharts lazy-loading (code-splitting)
+Recharts is a large client-only library that was statically imported into many
+pages. It is now code-split behind a single dynamic boundary per chart.
+
+- `src/components/charts/LazyChart.tsx` — `lazyChart()` helper wrapping
+  `next/dynamic(loader, { ssr: false, loading: <ChartSkeleton/> })`.
+- `src/components/charts/ChartSkeleton.tsx` — dependency-free placeholder
+  (no Recharts in the initial bundle; prevents layout shift).
+- Reusable lazy primitives: `Sparkline` (LineChart) and `Donut` (PieChart),
+  each backed by a `*Impl.tsx` that is the only module importing Recharts.
+
+Why per-chart and not per-primitive: Recharts 3 still matches chart children by
+`type.displayName` (`findChildByType`), so wrapping individual primitives in
+`next/dynamic` breaks rendering. Whole self-contained charts are lazy-loaded
+instead — internal structure stays intact, `ssr:false` is safe (decorative,
+browser-only charts; surrounding page SSR unaffected).
+
+Converted high-traffic wrappers: `TenancyCard` (payment donut) and
+`TenancyGanttView` (4 insight sparklines) — Recharts removed from their initial
+chunks. `Sparkline`/`Donut` are drop-in for the remaining inline patterns.
+
+### Bundle analyzer
+`next.config.ts` wires `@next/bundle-analyzer` behind `ANALYZE=true`, guarded so
+a missing package is a no-op (it is NOT a hard dependency). To use:
+
+```
+npm i -D @next/bundle-analyzer
+ANALYZE=true npm run build      # Windows: use cross-env or set ANALYZE in shell
+```
+
+### Observability (pluggable, no hard dependency)
+`src/lib/observability/` — `captureException` / `captureMessage` + request-id
+helpers. Sentry-ready via `registerSink()`; degrades to structured
+`console.error` when no DSN (`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` /
+`OBSERVABILITY_DSN`) is set. Never throws; scrubs sensitive tag keys; emits only
+a bounded shape (message, name, truncated stack, request id, scalar tags).
+
+Wired into: `app/global-error.tsx`, `app/error.tsx`, and the API catch-blocks of
+`api/upload`, `api/ai/chat` (+ stream), `api/webhooks/stripe` (signature + DB),
+`api/email/welcome`. `/api/health` now echoes an `x-request-id` for correlation.
+
+### Query bounds (high-volume tables)
+Added default `.limit()` to previously-unbounded list reads:
+- `messages` thread reads — newest 200, reversed to chronological
+  (`useMessages.useConversationMessages`, `useTenancyThread`, `lib/portal/messaging`).
+- `money_transactions` — newest 500 for income + transactions lists; activity
+  feed now always bounded (default 100) in `hooks/useMoneyData`.
+Aggregations (sums) and small dashboard widgets were intentionally left
+unbounded to preserve correctness.

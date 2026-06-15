@@ -11,6 +11,7 @@ import {
 } from "@/lib/r2"
 import { gateStorage } from "@/lib/billing/gates"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
+import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -36,6 +37,7 @@ const MAX_BYTES = 10_485_760 // 10 MB
  * where url is an app-internal authed streaming URL.
  */
 export async function POST(request: Request) {
+  const requestId = requestIdFrom(request.headers)
   try {
     if (!r2Configured()) {
       return NextResponse.json(
@@ -171,7 +173,7 @@ export async function POST(request: Request) {
       scanStatus,
     })
   } catch (err) {
-    console.error("[api/upload]", err)
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 })
+    captureException(err, { source: "api/upload", requestId })
+    return NextResponse.json({ error: "Upload failed", requestId }, { status: 500 })
   }
 }

@@ -13,9 +13,11 @@
  *
  * Everything here is SSR-safe: every browser API access guards `window`.
  *
- * ── HOW TO GATE FUTURE ANALYTICS / MARKETING SCRIPTS ────────────────────────
- * No analytics or marketing scripts load today. Any future GTM / GA / pixel
- * MUST be gated behind explicit consent, e.g.:
+ * ── HOW ANALYTICS / MARKETING SCRIPTS ARE GATED ─────────────────────────────
+ * Google Analytics (GA4) is loaded by <Analytics/> (src/components/consent/
+ * Analytics.tsx) ONLY after the `analytics` category is granted, and is
+ * disabled again on withdrawal. Any future GTM / GA / pixel MUST follow the
+ * same pattern — gated behind explicit consent, e.g.:
  *
  *   import { hasConsent, onConsentChange } from "@/lib/consent"
  *
@@ -52,6 +54,9 @@ export const CONSENT_VERSION = 1
 /** First-party cookie / localStorage key holding the consent record. */
 export const CONSENT_COOKIE_NAME = "propvora_cookie_consent"
 
+/** Anonymous, rotating client id used to evidence consent for logged-out users. */
+const CONSENT_CLIENT_ID_KEY = "propvora_consent_cid"
+
 /** Cookie lifetime: 6 months (ICO guidance for re-confirming consent). */
 const CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
@@ -86,6 +91,51 @@ function writeCookie(name: string, value: string): void {
   document.cookie =
     `${name}=${encodeURIComponent(value)}; Max-Age=${CONSENT_MAX_AGE_SECONDS}` +
     `; Path=/; SameSite=Lax${secure}`
+}
+
+/**
+ * Get (or lazily create) a stable anonymous client id used purely to associate
+ * a logged-out visitor's consent-log rows. Not PII on its own. SSR-safe.
+ */
+function getOrCreateClientId(): string | null {
+  if (!isBrowser()) return null
+  try {
+    let id = window.localStorage.getItem(CONSENT_CLIENT_ID_KEY)
+    if (!id) {
+      id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `cid_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      window.localStorage.setItem(CONSENT_CLIENT_ID_KEY, id)
+    }
+    return id
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Best-effort, fire-and-forget mirror of a consent choice to the server for
+ * PECR evidence. Never throws and never blocks the UI; the cookie/localStorage
+ * copy remains the authoritative source for gating.
+ */
+function logConsentToServer(record: ConsentRecord): void {
+  if (!isBrowser()) return
+  try {
+    void fetch("/api/consent/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        clientId: getOrCreateClientId(),
+        policyVersion: record.version,
+        analytics: record.analytics,
+        marketing: record.marketing,
+      }),
+    }).catch(() => {})
+  } catch {
+    /* evidence logging is best-effort */
+  }
 }
 
 function parseRecord(raw: string | null): ConsentRecord | null {
@@ -168,6 +218,8 @@ export function setConsent(
     window.dispatchEvent(
       new CustomEvent<ConsentRecord>(CONSENT_CHANGED_EVENT, { detail: record }),
     )
+    // Mirror the choice to the server as durable PECR evidence (best-effort).
+    logConsentToServer(record)
   }
   return record
 }

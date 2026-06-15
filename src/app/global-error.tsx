@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { captureException, newRequestId } from "@/lib/observability"
 
 /**
  * Root-level error boundary. This replaces the entire root layout when a fatal
@@ -16,7 +17,19 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error("Fatal application error", error.digest ?? error)
+    // Structured capture (degrades to console; Sentry-ready). A request id
+    // correlates this fatal with any server logs. No PII/stack is sent anywhere
+    // beyond the captured event's bounded shape.
+    const requestId = newRequestId()
+    captureException(error, {
+      source: "global-error",
+      requestId,
+      tags: {
+        digest: error.digest ?? null,
+        route:
+          typeof window !== "undefined" ? window.location.pathname : null,
+      },
+    })
 
     // Best-effort, fire-and-forget bug report. Only a truncated message + the
     // Next.js digest are sent — never a stack trace. Failures are swallowed so
@@ -32,6 +45,7 @@ export default function GlobalError({
             typeof window !== "undefined" ? window.location.pathname : null,
           message: error.message?.slice(0, 2000),
           digest: error.digest,
+          requestId,
         }),
       }).catch(() => {})
     } catch {

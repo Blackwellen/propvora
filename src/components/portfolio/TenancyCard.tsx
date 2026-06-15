@@ -11,7 +11,7 @@ import {
   TrendingUp, ArrowRight, CheckSquare, Square, PoundSterling,
   Eye, RefreshCw, LogOut, Trash2,
 } from "lucide-react"
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+import { Donut } from "@/components/charts/Donut"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 
 /* ------------------------------------------------------------------ */
@@ -872,21 +872,7 @@ export function TenancyCardPaymentSummary({ tenancy }: { tenancy: TenancyCardDat
         {/* Donut chart */}
         <div className="shrink-0 flex flex-col items-center">
           <div className="w-[120px] h-[120px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={donutData.length > 0 ? donutData : [{ name: "No data", value: 1, color: "#E2E8F0" }]}
-                  cx="50%" cy="50%"
-                  innerRadius={36} outerRadius={54}
-                  dataKey="value"
-                  strokeWidth={2}
-                >
-                  {(donutData.length > 0 ? donutData : [{ color: "#E2E8F0" }]).map((entry, i) => (
-                    <Cell key={i} fill={entry.color} stroke="white" />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+            <Donut data={donutData} innerRadius={36} outerRadius={54} />
           </div>
           {total > 0 && (
             <p className="text-[10px] text-slate-500 text-center mt-1 tabular-nums font-semibold">

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { createRequire } from "node:module";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -67,4 +68,33 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default nextConfig;
+/**
+ * Bundle analyzer — opt-in via `ANALYZE=true npm run build`.
+ *
+ * `@next/bundle-analyzer` is intentionally NOT a hard dependency. When it isn't
+ * installed (or ANALYZE isn't set) this is a complete no-op and the plain
+ * config is exported unchanged. To use it:
+ *
+ *   1. npm i -D @next/bundle-analyzer
+ *   2. ANALYZE=true npm run build      (cross-env on Windows, or set in shell)
+ *
+ * The require is wrapped so a missing package never breaks a normal build.
+ */
+function withAnalyzer(config: NextConfig): NextConfig {
+  if (process.env.ANALYZE !== "true") return config;
+  try {
+    const require = createRequire(import.meta.url);
+    const bundleAnalyzer = require("@next/bundle-analyzer") as (
+      opts: { enabled: boolean }
+    ) => (cfg: NextConfig) => NextConfig;
+    return bundleAnalyzer({ enabled: true })(config);
+  } catch {
+    // Package not installed — analysis silently skipped, build proceeds normally.
+    console.warn(
+      "[next.config] ANALYZE=true but @next/bundle-analyzer is not installed; skipping. Run: npm i -D @next/bundle-analyzer"
+    );
+    return config;
+  }
+}
+
+export default withAnalyzer(nextConfig);
