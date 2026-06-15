@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, Suspense } from "react"
+import React, { Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Building2,
@@ -10,31 +10,18 @@ import {
   CheckCircle,
   Download,
   AlertTriangle,
+  Clock,
 } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
+import { LegalDisclaimer, DraftBadge } from "@/components/legal/LegalDisclaimer"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { usePossessionCase, formatDate } from "../../../legal-data"
+import { usePossessionCase, usePossessionEvidence, formatDate } from "../../../legal-data"
+import { openCourtBundle } from "@/lib/legal/bundle"
+import type { ValiditySnapshot } from "@/lib/legal/validity"
 
 function money(n: number | null | undefined): string {
   if (n == null) return "£0"
   return `£${Number(n).toLocaleString("en-GB")}`
-}
-
-function NoticeDisclaimer() {
-  const [dismissed, setDismissed] = useState(false)
-  if (dismissed) return null
-  return (
-    <div className="bg-amber-50 border border-amber-300 rounded-xl px-5 py-4 flex items-start gap-3 mb-4">
-      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-      <div className="flex-1">
-        <p className="text-[12px] text-amber-800 leading-relaxed">
-          This is a review-only draft summary — not a legally served notice. Propvora never auto-serves. Seek independent
-          legal advice from a qualified solicitor, and verify all deadlines and notice periods before service.
-        </p>
-      </div>
-      <button onClick={() => setDismissed(true)} className="text-amber-500 hover:text-amber-700">×</button>
-    </div>
-  )
 }
 
 export default function NoticePreviewPage() {
@@ -52,49 +39,58 @@ function NoticePreviewInner() {
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
   const { data: caseData } = usePossessionCase(workspaceId, caseId)
+  const { data: evidence = [] } = usePossessionEvidence(workspaceId, caseId)
 
   const tenant = caseData?.contact?.display_name ?? "Respondent"
   const property = caseData?.property?.nickname ?? "Property"
+  const isS21 = caseData?.notice_type === "section_21"
+  const validity = (caseData?.validity_snapshot as ValiditySnapshot | null) ?? null
+  const warnings = validity?.checks.filter((c) => c.status === "warn").length ?? 0
 
-  function downloadDraft() {
+  function downloadBundle() {
     if (!caseData) return
-    const summary = {
-      type: "Section 8 — review-only draft summary",
-      respondent: tenant,
-      property,
-      ground: caseData.ground,
-      arrears: money(caseData.arrears_amount),
-      notice_served_date: caseData.notice_served_date,
-      notice_expiry_date: caseData.notice_expiry_date,
-      disclaimer: "Not a legally served notice. Obtain independent legal advice before service.",
-    }
-    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `section8-draft-${caseId || "case"}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    openCourtBundle({
+      caseData,
+      evidence,
+      tenantName: tenant,
+      propertyName: property,
+      validity,
+    })
   }
 
   const rightRail = (
     <>
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold text-slate-800">Pre-service Checks</h3>
-          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-medium rounded-full">Manual review</span>
+          <h3 className="text-[13px] font-semibold text-slate-800">Validity Snapshot</h3>
+          <span
+            className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
+              warnings > 0 ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"
+            }`}
+          >
+            {warnings > 0 ? `${warnings} to review` : "No blockers"}
+          </span>
         </div>
-        <div className="p-4 space-y-2">
-          {[
-            "Confirm respondent and property details",
-            "Confirm ground(s) and arrears figures",
-            "Confirm notice period with your solicitor",
-          ].map((check, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-              <span className="text-[12px] text-slate-700 flex-1">{check}</span>
-            </div>
-          ))}
+        <div className="p-4 space-y-2.5">
+          {!validity || validity.checks.length === 0 ? (
+            <p className="text-[11px] text-slate-400">
+              No validity snapshot captured. Revisit the grounds step to run the checks.
+            </p>
+          ) : (
+            validity.checks.map((c) => (
+              <div key={c.id} className="flex items-start gap-2">
+                {c.status === "pass" ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${c.status === "warn" ? "text-red-500" : "text-amber-500"}`} />
+                )}
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium text-slate-700">{c.label}</p>
+                  <p className="text-[10px] text-slate-400 leading-snug">{c.detail}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -124,13 +120,23 @@ function NoticePreviewInner() {
       onNext={() => router.push(`/app/legal/possession/new/record-service?case=${caseId}`)}
     >
       <div>
-        <h2 className="text-[15px] font-semibold text-slate-900 mb-3">Notice Preview</h2>
-        <NoticeDisclaimer />
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[15px] font-semibold text-slate-900">Notice Preview</h2>
+          <DraftBadge />
+        </div>
+        <LegalDisclaimer
+          className="mb-4"
+          message="This is a review-only draft summary — not a legally served notice. Propvora never auto-serves. Verify all details, grounds and notice periods with a qualified solicitor before service."
+        />
 
         <div className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
-          <div className="bg-[#071B4D] px-6 py-5 text-center">
-            <p className="text-white font-bold text-[15px] uppercase tracking-widest">Section 8 — Draft Summary</p>
-            <p className="text-blue-200 text-[12px] mt-1">Notice Seeking Possession (review only)</p>
+          <div className="bg-[#071B4D] px-6 py-5 text-center relative">
+            <p className="text-white font-bold text-[15px] uppercase tracking-widest">
+              {isS21 ? "Section 21 — Draft Summary" : "Section 8 — Draft Summary"}
+            </p>
+            <p className="text-blue-200 text-[12px] mt-1">
+              {isS21 ? "Notice Seeking Possession — no-fault (review only)" : "Notice Seeking Possession (review only)"}
+            </p>
           </div>
 
           <div className="p-6 space-y-5">
@@ -139,24 +145,30 @@ function NoticePreviewInner() {
               <Item icon={User} label="Respondent" value={tenant} />
               <Item icon={FileText} label="Ground(s)" value={caseData?.ground ?? "—"} />
               <Item icon={DollarSign} label="Rent Arrears" value={money(caseData?.arrears_amount)} highlight />
+              <Item
+                icon={Clock}
+                label="Indicative Notice Period"
+                value={caseData?.notice_period_days != null ? `${caseData.notice_period_days} days` : "—"}
+                sub="Verify with solicitor"
+              />
               <Item icon={Calendar} label="Notice Served" value={formatDate(caseData?.notice_served_date)} />
               <Item icon={Calendar} label="Notice Expiry" value={formatDate(caseData?.notice_expiry_date)} />
             </div>
 
             <div className="border-t border-slate-100 pt-4">
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                Draft summary for <strong>{property}</strong>. This is generated from your live case data for review
-                purposes only and does not constitute a served legal notice.
+                Draft summary for <strong>{property}</strong>. Generated from your live case data for review purposes
+                only — this is not a served legal notice.
               </p>
             </div>
 
             <div className="flex items-center gap-3 pt-2">
               <button
-                onClick={downloadDraft}
+                onClick={downloadBundle}
                 className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                Download Draft Summary
+                Generate Draft Court Bundle
               </button>
             </div>
           </div>

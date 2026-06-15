@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Invoice, InsertInvoice, UpdateInvoice, InvoiceStatus, InvoiceType } from '@/types/database'
+import { useNotify } from '@/hooks/useNotify'
 
 const QUERY_KEY = 'invoices'
 
@@ -100,6 +101,7 @@ export function useCreateInvoice() {
 export function useUpdateInvoice() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const { notify, actorId } = useNotify()
 
   return useMutation<Invoice, Error, { id: string; workspaceId: string; payload: UpdateInvoice }>({
     mutationFn: async ({ id, payload }) => {
@@ -111,6 +113,19 @@ export function useUpdateInvoice() {
         .single()
 
       if (error) throw error
+      // EVENT: invoice paid — fire when this update transitions status to paid.
+      if ((payload as { status?: string }).status === 'paid') {
+        const recipient = (data as { created_by?: string | null }).created_by ?? actorId
+        const total = (data as { total?: number | null }).total
+        if (recipient) {
+          notify('notifyInvoicePaid', {
+            invoiceId: id,
+            userId: recipient,
+            label: `Invoice ${(data as { invoice_number?: string }).invoice_number ?? ''}`.trim(),
+            amount: total != null ? `£${Number(total).toLocaleString()}` : null,
+          })
+        }
+      }
       return data
     },
     onMutate: async ({ id, workspaceId, payload }) => {

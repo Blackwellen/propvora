@@ -18,6 +18,7 @@ import {
   Scale,
   MessageSquare,
   Globe,
+  Workflow,
   Settings,
   ChevronRight,
   ChevronsLeft,
@@ -62,6 +63,7 @@ const NAV_GROUPS = [
       { label: "Calendar", href: "/app/calendar", icon: Calendar },
       { label: "Compliance", href: "/app/compliance", icon: ShieldCheck },
       { label: "Legal", href: "/app/legal", icon: Scale },
+      { label: "Smart Rules", href: "/app/automations", icon: Workflow },
     ],
   },
   {

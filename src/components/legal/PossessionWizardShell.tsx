@@ -2,7 +2,7 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import { Gavel, Check, ChevronLeft, Save, ChevronRight } from "lucide-react"
-import { LegalDisclaimerBanner } from "./LegalDisclaimerBanner"
+import { LegalDisclaimer } from "./LegalDisclaimer"
 
 const WIZARD_STEPS = [
   { label: "Select Tenancy", href: "/app/legal/possession/new/select-tenancy" },
@@ -127,9 +127,9 @@ export function PossessionWizardShell({
         </div>
       </div>
 
-      {/* Disclaimer */}
+      {/* Disclaimer (persistent, non-dismissible) */}
       <div className="px-6 pt-4">
-        <LegalDisclaimerBanner />
+        <LegalDisclaimer />
       </div>
 
       {/* Main Content */}

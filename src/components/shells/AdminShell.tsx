@@ -28,6 +28,7 @@ import {
   Menu,
   ExternalLink,
   Shield,
+  Sparkles,
 } from "lucide-react"
 
 // ─── Nav config ──────────────────────────────────────────────────────────────
@@ -62,6 +63,7 @@ const ADMIN_NAV_GROUPS = [
       { label: "Bug Reports",    href: "/admin/bugs",          icon: Bug },
       { label: "Stripe Events",  href: "/admin/stripe-events",  icon: CreditCard },
       { label: "AI Usage",       href: "/admin/ai-usage",       icon: Activity },
+      { label: "AI Models",      href: "/admin/ai-models",      icon: Sparkles },
     ],
   },
   {

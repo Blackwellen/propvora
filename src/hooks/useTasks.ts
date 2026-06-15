@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Task, InsertTask, UpdateTask, TaskStatus, TaskPriority } from '@/types/database'
+import { useNotify } from '@/hooks/useNotify'
 
 const QUERY_KEY = 'tasks'
 
@@ -132,6 +133,7 @@ export function useTask(workspaceId: string | undefined, taskId: string | undefi
 export function useCreateTask() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const { notify, actorId } = useNotify()
   return useMutation<Task, Error, InsertTask>({
     mutationFn: async (payload) => {
       const { data, error } = await supabase
@@ -144,6 +146,14 @@ export function useCreateTask() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, data.workspace_id] })
+      // EVENT: task assigned — only when assigned to someone other than the actor
+      if (data.assigned_to && data.assigned_to !== actorId) {
+        notify('notifyTaskAssigned', {
+          taskId: data.id,
+          assigneeUserId: data.assigned_to,
+          title: data.title,
+        })
+      }
     },
   })
 }
@@ -155,6 +165,7 @@ export function useCreateTask() {
 export function useUpdateTask() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const { notify, actorId } = useNotify()
   return useMutation<Task, Error, { id: string; workspaceId: string; payload: UpdateTask }>({
     mutationFn: async ({ id, payload }) => {
       const { data, error } = await supabase
@@ -164,6 +175,15 @@ export function useUpdateTask() {
         .select()
         .single()
       if (error) throw error
+      // EVENT: task (re)assigned via update — fire when the payload sets a new
+      // assignee that isn't the actor. Idempotent guard prevents double-fire.
+      if ('assigned_to' in payload && payload.assigned_to && payload.assigned_to !== actorId) {
+        notify('notifyTaskAssigned', {
+          taskId: id,
+          assigneeUserId: payload.assigned_to,
+          title: data.title ?? '',
+        })
+      }
       return fromDb(data)
     },
     onMutate: async ({ id, workspaceId, payload }) => {

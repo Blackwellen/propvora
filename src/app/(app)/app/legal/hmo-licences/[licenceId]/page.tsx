@@ -36,6 +36,68 @@ const STATUS_OPTIONS = [
   { value: "pending", label: "Pending" },
   { value: "revoked", label: "Revoked" },
 ]
+const ARRANGEMENT_OPTIONS = [
+  { value: "standard", label: "Standard (own portfolio)" },
+  { value: "serviced_accommodation", label: "Serviced Accommodation" },
+  { value: "rent_to_rent", label: "Rent-to-Rent" },
+]
+
+type CheckStatus = "pass" | "warn" | "unknown"
+interface ComplianceCheck {
+  id: string
+  label: string
+  status: CheckStatus
+  detail: string
+}
+
+/** Review-only HMO / SA / R2R compliance checks from the licence record. */
+function computeHmoChecks(lic: HmoLicence): ComplianceCheck[] {
+  const checks: ComplianceCheck[] = []
+  const days = daysUntil(lic.expiry_date)
+
+  // Licence validity / expiry.
+  if (days == null) {
+    checks.push({ id: "expiry", label: "Licence validity", status: "unknown", detail: "No expiry date recorded." })
+  } else if (days < 0) {
+    checks.push({ id: "expiry", label: "Licence validity", status: "warn", detail: `Expired ${Math.abs(days)} days ago — renew with the council.` })
+  } else if (days <= 90) {
+    checks.push({ id: "expiry", label: "Licence validity", status: "warn", detail: `Expires in ${days} days — begin renewal.` })
+  } else {
+    checks.push({ id: "expiry", label: "Licence validity", status: "pass", detail: `Valid for ${days} more days.` })
+  }
+
+  // Occupancy vs max.
+  if (lic.occupancy_current != null && lic.max_occupants != null) {
+    if (lic.occupancy_current > lic.max_occupants) {
+      checks.push({ id: "occupancy", label: "Occupancy", status: "warn", detail: `Over-occupied: ${lic.occupancy_current} in use vs ${lic.max_occupants} permitted.` })
+    } else {
+      checks.push({ id: "occupancy", label: "Occupancy", status: "pass", detail: `${lic.occupancy_current} of ${lic.max_occupants} permitted occupants.` })
+    }
+  } else {
+    checks.push({ id: "occupancy", label: "Occupancy", status: "unknown", detail: "Record current occupancy to check against the permitted maximum." })
+  }
+
+  // SA-specific reminder.
+  if (lic.arrangement_type === "serviced_accommodation") {
+    checks.push({ id: "sa", label: "Serviced accommodation", status: "unknown", detail: "Confirm planning use class / 90-day limits with the local authority." })
+  }
+
+  // R2R head-agreement expiry.
+  if (lic.arrangement_type === "rent_to_rent") {
+    const r2rDays = daysUntil(lic.r2r_agreement_end)
+    if (r2rDays == null) {
+      checks.push({ id: "r2r", label: "Rent-to-Rent agreement", status: "unknown", detail: "Record the head-agreement end date to track exposure." })
+    } else if (r2rDays < 0) {
+      checks.push({ id: "r2r", label: "Rent-to-Rent agreement", status: "warn", detail: `Head agreement ended ${Math.abs(r2rDays)} days ago.` })
+    } else if (r2rDays <= 120) {
+      checks.push({ id: "r2r", label: "Rent-to-Rent agreement", status: "warn", detail: `Head agreement ends in ${r2rDays} days — plan renewal/exit.` })
+    } else {
+      checks.push({ id: "r2r", label: "Rent-to-Rent agreement", status: "pass", detail: `Head agreement runs for ${r2rDays} more days.` })
+    }
+  }
+
+  return checks
+}
 
 function statusCls(s: string) {
   switch (s) {
@@ -76,7 +138,8 @@ export default function HmoLicenceDetailPage() {
   async function save(field: string, raw: string) {
     if (!workspaceId || !lic) return
     let value: unknown = raw
-    if (field === "max_occupants" || field === "max_households") value = raw === "" ? null : Number(raw)
+    if (field === "max_occupants" || field === "max_households" || field === "occupancy_current")
+      value = raw === "" ? null : Number(raw)
     await updateLicence.mutateAsync({ id: lic.id, workspaceId, payload: { [field]: value } as never })
   }
 
@@ -238,11 +301,46 @@ export default function HmoLicenceDetailPage() {
                       {days == null ? "—" : days < 0 ? `Expired ${Math.abs(days)}d ago` : `${days} days`}
                     </span>
                   </Field>
+                  <Field label="Arrangement">
+                    <InlineEditField value={lic.arrangement_type} type="select" options={ARRANGEMENT_OPTIONS} onSave={(v) => save("arrangement_type", v)} />
+                  </Field>
+                  <Field label="Current Occupancy">
+                    <InlineEditField value={lic.occupancy_current} type="number" placeholder="—" onSave={(v) => save("occupancy_current", v)} />
+                  </Field>
+                  {lic.arrangement_type === "rent_to_rent" && (
+                    <Field label="R2R Agreement End">
+                      <InlineEditField value={lic.r2r_agreement_end ?? ""} type="date" placeholder="—" onSave={(v) => save("r2r_agreement_end", v)} />
+                    </Field>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="col-span-4 space-y-4">
+              {/* HMO / SA / R2R compliance checks (review-only) */}
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-slate-100">
+                  <h3 className="text-[13px] font-semibold text-slate-800">Compliance Checks</h3>
+                </div>
+                <div className="p-4 space-y-2.5">
+                  {computeHmoChecks(lic).map((c) => (
+                    <div key={c.id} className="flex items-start gap-2">
+                      {c.status === "pass" ? (
+                        <span className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-full bg-emerald-500" />
+                      ) : c.status === "warn" ? (
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+                      ) : (
+                        <span className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-amber-400" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-medium text-slate-700">{c.label}</p>
+                        <p className="text-[10px] text-slate-400 leading-snug">{c.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-slate-500" />

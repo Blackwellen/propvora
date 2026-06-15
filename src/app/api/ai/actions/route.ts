@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import OpenAI from "openai"
 import { z } from "zod"
 import { getWorkspaceSnapshot, renderSnapshot } from "@/lib/ai/workspace-context"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
+import { checkCaps } from "@/lib/ai/caps"
+import { resolveModelChain, gatewayComplete, recordUsageEvent } from "@/lib/ai/gateway"
+import { SAFETY_CLAUSES, fenceUntrusted, proposeAction } from "@/lib/ai/safety"
 import { gateAiCopilot } from "@/lib/billing/gates"
 
 const actionsSchema = z.object({
@@ -12,9 +14,6 @@ const actionsSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId is required").max(100),
   recordId: z.string().min(1).max(100).optional(),
 })
-
-// OpenAI client — server-side only, key never reaches the browser
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 /* ------------------------------------------------------------------ */
 /* Supported action types and their prompts                            */
@@ -128,9 +127,18 @@ export async function POST(request: NextRequest) {
           { status: gate.status ?? 402 }
         )
       }
+
+      // HARD CAPS — fail closed. Refuse over any rolling-window or cost limit.
+      const caps = await checkCaps(supabase, workspaceId)
+      if (!caps.allowed) {
+        return NextResponse.json(
+          { error: caps.reason, quotaExceeded: true, limit: caps.exceeded, tier: caps.tier },
+          { status: 429 }
+        )
+      }
     }
 
-    // 3b. Rate limit (per workspace, best-effort)
+    // 3b. Burst rate limit (per workspace, best-effort)
     const rate = await checkRate(supabase, workspaceId)
     if (!rate.allowed) {
       return NextResponse.json(
@@ -139,33 +147,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. Build contextual system prompt with LIVE workspace data
+    // 4. Build contextual system prompt with LIVE workspace data. The snapshot
+    // is fenced + injection-sanitised; safety clauses override anything inside.
     const snapshot = await getWorkspaceSnapshot(supabase, workspaceId)
+    const fencedSnapshot = fenceUntrusted("WORKSPACE DATA", renderSnapshot(snapshot))
     const systemPrompt = `You are the Propvora AI Copilot for UK property operations management.
 You are executing a structured AI action requested by the user.
 ${recordId ? `Record ID context: ${recordId}` : ""}
 
-${renderSnapshot(snapshot)}
+${fencedSnapshot}
+
+${SAFETY_CLAUSES}
 
 Provide expert, actionable, UK-specific property management guidance.
 Use GBP (£) for all financial figures. Reference UK-specific regulations.
 Use the live workspace counts above where relevant; do not invent figures that aren't shown.
 This produces guidance/draft content only — any data change is proposed for the user to approve, never executed here.`
 
-    // 5. Call OpenAI
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+    // 5. Call the multi-provider gateway (provider/model from the catalogue,
+    // graceful fallback to OpenAI). Keys come from env only.
+    const chain = await resolveModelChain(supabase)
+    const result = await gatewayComplete(chain, {
+      maxTokens: 600,
+      temperature: 0.65,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: actionConfig.prompt },
       ],
-      max_tokens: 600,
-      temperature: 0.65,
     })
-
-    const content =
-      completion.choices[0]?.message?.content ??
-      "Unable to generate a response at this time."
+    const content = result.text || "Unable to generate a response at this time."
 
     // 6. Log action (best-effort) — ai_action_logs uses `approved` (no status col)
     try {
@@ -178,7 +188,10 @@ This produces guidance/draft content only — any data change is proposed for th
           content_length: content.length,
           requires_approval: actionConfig.requiresApproval,
           mutation_type: actionConfig.mutationType ?? null,
-          usage: completion.usage,
+          provider: result.provider,
+          model: result.model,
+          tokens_in: result.tokensIn,
+          tokens_out: result.tokensOut,
         },
         approved: actionConfig.requiresApproval ? false : true,
       })
@@ -186,14 +199,26 @@ This produces guidance/draft content only — any data change is proposed for th
       // Non-fatal — table may not exist in early builds
     }
 
-    // 6b. Meter token usage
+    // 6b. Meter token usage — new per-call ledger + legacy tables.
+    await recordUsageEvent(supabase, {
+      workspaceId,
+      userId: user.id,
+      route: `ai/actions:${action}`,
+      usage: {
+        provider: result.provider,
+        model: result.model,
+        tokensIn: result.tokensIn,
+        tokensOut: result.tokensOut,
+        costPence: result.costPence,
+      },
+    })
     await recordUsage(supabase, {
       workspaceId,
       userId: user.id,
       actionType: `action:${action}`,
-      model: completion.model,
-      inputTokens: completion.usage?.prompt_tokens ?? 0,
-      outputTokens: completion.usage?.completion_tokens ?? 0,
+      model: result.model,
+      inputTokens: result.tokensIn,
+      outputTokens: result.tokensOut,
       entityType: recordId ? "record" : undefined,
       entityId: recordId,
     })
@@ -223,31 +248,28 @@ This produces guidance/draft content only — any data change is proposed for th
       }
     }
 
-    // 7. Return structured response — only expose safe fields to client
+    // 7. Return structured response — only expose safe fields to client.
+    // Mutation actions are returned as a PROPOSED action requiring explicit
+    // human approval; nothing is auto-executed here.
+    const proposed = actionConfig.requiresApproval
+      ? proposeAction({
+          actionType: action,
+          summary: `Copilot proposed: ${action.replace(/-/g, " ")}`,
+          rationale:
+            "This proposes a draft/operation that requires your explicit approval before anything is created or changed.",
+          payload: { approvalId, recordId: recordId ?? null, mutationType: actionConfig.mutationType ?? null },
+        })
+      : null
     return NextResponse.json({
       action,
       content,
+      provider: result.provider,
+      model: result.model,
       requiresApproval: actionConfig.requiresApproval,
-      pendingMutation: actionConfig.requiresApproval
-        ? {
-            approvalId,
-            description:
-              "This proposes a draft/operation that requires your explicit approval before anything is created or changed.",
-            approvalRequired: true,
-          }
-        : null,
+      pendingMutation: proposed,
     })
   } catch (err: unknown) {
     console.error("[AI Actions] Error:", err)
-
-    if (err instanceof OpenAI.APIError) {
-      if (err.status === 429) {
-        return NextResponse.json(
-          { error: "AI rate limit reached. Please try again in a moment." },
-          { status: 429 }
-        )
-      }
-    }
 
     return NextResponse.json(
       { error: "An unexpected error occurred. Please try again." },

@@ -6,6 +6,9 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import { LegalDisclaimer, DraftBadge } from "@/components/legal/LegalDisclaimer"
+import { openCourtBundle } from "@/lib/legal/bundle"
+import type { ValiditySnapshot } from "@/lib/legal/validity"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   Gavel,
@@ -25,6 +28,7 @@ import {
   useCreatePossessionEvidence,
   formatDate,
   type PossessionCase,
+  type PossessionEvidence,
 } from "../../legal-data"
 
 const TABS = ["Overview", "Evidence", "Timeline", "Notice (Review)"] as const
@@ -62,14 +66,14 @@ function money(n: number | null | undefined): string {
   return `£${Number(n).toLocaleString("en-GB")}`
 }
 
-function generateBundle(c: PossessionCase) {
-  const blob = new Blob([JSON.stringify(c, null, 2)], { type: "application/json" })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `possession-case-${c.id}.json`
-  a.click()
-  URL.revokeObjectURL(url)
+function buildBundle(c: PossessionCase, evidence: PossessionEvidence[]) {
+  openCourtBundle({
+    caseData: c,
+    evidence,
+    tenantName: c.contact?.display_name ?? "Respondent",
+    propertyName: c.property?.nickname ?? "Property",
+    validity: (c.validity_snapshot as ValiditySnapshot | null) ?? null,
+  })
 }
 
 export default function PossessionCaseDetailPage() {
@@ -148,7 +152,7 @@ export default function PossessionCaseDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => generateBundle(caseData)}
+              onClick={() => buildBundle(caseData, evidence)}
               className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
@@ -169,7 +173,7 @@ export default function PossessionCaseDetailPage() {
                 <ActionMenu
                   items={[
                     { label: "Open Property", icon: Building2, onClick: () => router.push(caseData.property_id ? `/app/properties/${caseData.property_id}` : "/app/properties") },
-                    { label: "Generate Bundle", icon: Download, onClick: () => generateBundle(caseData) },
+                    { label: "Generate Bundle", icon: Download, onClick: () => buildBundle(caseData, evidence) },
                     { label: "Delete Case", icon: Trash2, variant: "danger", onClick: open },
                   ]}
                 />
@@ -199,6 +203,11 @@ export default function PossessionCaseDetailPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Persistent disclaimer */}
+      <div className="px-6 pt-4">
+        <LegalDisclaimer />
       </div>
 
       {/* Tab content */}
@@ -261,7 +270,7 @@ export default function PossessionCaseDetailPage() {
                     Manage Evidence
                   </button>
                   <button
-                    onClick={() => generateBundle(caseData)}
+                    onClick={() => buildBundle(caseData, evidence)}
                     className="w-full border border-slate-200 text-slate-700 hover:bg-slate-50 text-[12px] font-medium px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -421,8 +430,13 @@ export default function PossessionCaseDetailPage() {
               </p>
             </div>
             <div className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
-              <div className="bg-[#071B4D] px-6 py-5 text-center">
-                <p className="text-white font-bold text-[15px] uppercase tracking-widest">Section 8 — Draft Summary</p>
+              <div className="bg-[#071B4D] px-6 py-5 text-center relative">
+                <div className="absolute top-3 right-3">
+                  <DraftBadge />
+                </div>
+                <p className="text-white font-bold text-[15px] uppercase tracking-widest">
+                  {caseData.notice_type === "section_21" ? "Section 21 — Draft Summary" : "Section 8 — Draft Summary"}
+                </p>
                 <p className="text-blue-200 text-[12px] mt-1">Notice Seeking Possession (review only)</p>
               </div>
               <div className="p-6 grid grid-cols-2 gap-5 text-[12px]">
@@ -435,7 +449,7 @@ export default function PossessionCaseDetailPage() {
               </div>
               <div className="px-6 pb-6">
                 <button
-                  onClick={() => generateBundle(caseData)}
+                  onClick={() => buildBundle(caseData, evidence)}
                   className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />

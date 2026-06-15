@@ -3,6 +3,7 @@ import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { User, Mail, Briefcase, CheckCircle, Target, AlertTriangle } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
+import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -10,6 +11,7 @@ import {
   useUpdatePossessionCase,
   useCreatePossessionEvidence,
 } from "../../../legal-data"
+import { computeExpiry } from "@/lib/legal/grounds"
 
 const SERVICE_METHODS = [
   { id: "hand", label: "Hand Delivered", icon: User, iconCls: "bg-blue-100 text-blue-600", desc: "Delivered in person to the tenant." },
@@ -45,6 +47,12 @@ function RecordServiceInner() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Suggested expiry = served date + indicative notice period (review-only).
+  const suggestedExpiry =
+    caseData?.notice_period_days != null && servedDate
+      ? computeExpiry(servedDate, caseData.notice_period_days)
+      : ""
+
   async function complete() {
     if (!workspaceId || !caseId) {
       router.push("/app/legal/possession")
@@ -60,7 +68,9 @@ function RecordServiceInner() {
         payload: {
           status: "notice_served",
           notice_served_date: servedDate || null,
-          notice_expiry_date: expiryDate || null,
+          notice_expiry_date: (expiryDate || suggestedExpiry) || null,
+          service_method: methodLabel,
+          service_recipient: recipient || null,
           notes: [caseData?.notes, `Served by ${methodLabel}${recipient ? ` to ${recipient}` : ""}. ${notes}`.trim()]
             .filter(Boolean)
             .join("\n"),
@@ -141,7 +151,15 @@ function RecordServiceInner() {
     >
       <div>
         <h2 className="text-[15px] font-semibold text-slate-900 mb-0.5">Record Service</h2>
-        <p className="text-xs text-slate-500 mb-5">Confirm how, when and to whom the notice was served.</p>
+        <p className="text-xs text-slate-500 mb-3">
+          Log how, when and to whom <strong>you</strong> served the notice offline. Propvora records this — it never
+          serves on your behalf.
+        </p>
+        <LegalDisclaimer
+          variant="inline"
+          className="mb-5"
+          message="Recording service logs what you did offline. It does not serve, file, or validate the notice. Verify with a qualified solicitor."
+        />
 
         <div className="mb-5">
           <label className="block text-[12px] font-semibold text-slate-700 mb-3">How was the notice served?</label>
@@ -183,10 +201,15 @@ function RecordServiceInner() {
             <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Notice expiry</label>
             <input
               type="date"
-              value={expiryDate}
+              value={expiryDate || suggestedExpiry}
               onChange={(e) => setExpiryDate(e.target.value)}
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
+            {suggestedExpiry && !expiryDate && (
+              <p className="text-[10px] text-slate-400 mt-1">
+                Suggested from {caseData?.notice_period_days}-day indicative period — verify.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Recipient</label>

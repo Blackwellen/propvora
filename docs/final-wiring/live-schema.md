@@ -1,6 +1,6 @@
 # Propvora — Live DB Schema Map
 
-_Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of truth for aligning the seeder and app data layer._
+_Generated 2026-06-15T04:46:32.828Z from the live Supabase project. Source of truth for aligning the seeder and app data layer._
 
 ## Enums (34)
 
@@ -39,7 +39,24 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 - **tenancy_status**: `draft, active, ended, terminated, uncollectable`
 - **work_entity_kind**: `task, supplier_job`
 
-## Tables (229)
+## Tables (246)
+
+### account_deletion_requests
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| user_id | uuid | **N** |  |
+| workspace_id | uuid | Y |  |
+| request_type | text | **N** | `'user_account'::text` |
+| requested_by | uuid | **N** |  |
+| requested_at | timestamptz | **N** | `now()` |
+| scheduled_for | timestamptz | **N** | `(now() + '30 days'::interval)` |
+| completed_at | timestamptz | Y |  |
+| status | text | **N** | `'pending'::text` |
+| retention_reason | text | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### account_rate_limits
 
@@ -558,6 +575,33 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | properties | jsonb | **N** | `'{}'::jsonb` |
 | created_at | timestamptz | **N** | `now()` |
 
+### announcement_dismissals
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| announcement_id | uuid | **N** |  |
+| user_id | uuid | **N** |  |
+| dismissed_at | timestamptz | **N** | `now()` |
+
+### announcements
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | Y |  |
+| title | text | **N** |  |
+| body_html | text | Y |  |
+| severity | text | **N** | `'info'::text` |
+| audience | text | **N** | `'all'::text` |
+| starts_at | timestamptz | Y |  |
+| ends_at | timestamptz | Y |  |
+| dismissible | bool | **N** | `true` |
+| published | bool | **N** | `false` |
+| created_by | uuid | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
 ### api_keys
 
 | column | type | null | default |
@@ -574,6 +618,15 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | revoked_at | timestamptz | Y |  |
 | created_at | timestamptz | Y | `now()` |
 | is_active | bool | **N** | `true` |
+| updated_at | timestamptz | **N** | `now()` |
+
+### app_rate_limits
+
+| column | type | null | default |
+|---|---|---|---|
+| key | text | **N** |  |
+| window_start | timestamptz | **N** |  |
+| count | int4 | **N** | `0` |
 | updated_at | timestamptz | **N** | `now()` |
 
 ### arrears_records
@@ -824,6 +877,22 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | created_at | timestamptz | **N** | `now()` |
 | updated_at | timestamptz | **N** | `now()` |
 
+### bug_reports
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | Y |  |
+| user_id | uuid | Y |  |
+| kind | text | **N** | `'error'::text` |
+| route | text | Y |  |
+| message | text | Y |  |
+| digest | text | Y |  |
+| context | jsonb | Y |  |
+| user_agent | text | Y |  |
+| status | text | **N** | `'new'::text` |
+| created_at | timestamptz | **N** | `now()` |
+
 ### calendar_events
 
 | column | type | null | default |
@@ -870,6 +939,59 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | scopes | jsonb | **N** | `'{"tasks": true, "schedules": true, "sup` |
 | last_used_at | timestamptz | Y |  |
 | revoked_at | timestamptz | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
+### calendar_reminders
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| event_id | uuid | Y |  |
+| title | text | **N** |  |
+| reminder_type | text | **N** | `'standard'::text` |
+| channel | text | **N** | `'in_app'::text` |
+| due_at | timestamptz | **N** |  |
+| status | text | **N** | `'pending'::text` |
+| sent_at | timestamptz | Y |  |
+| error | text | Y |  |
+| created_by | uuid | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
+
+### calendar_settings
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| default_view | text | **N** | `'month'::text` |
+| timezone | text | **N** | `'Europe/London'::text` |
+| working_hours_json | jsonb | **N** | `'{}'::jsonb` |
+| default_reminder_offsets_json | jsonb | **N** | `'[]'::jsonb` |
+| visible_layers_json | jsonb | **N** | `'{}'::jsonb` |
+| ai_suggestions_enabled | bool | **N** | `true` |
+| external_sync_enabled | bool | **N** | `false` |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
+### changelog_entries
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| version | text | Y |  |
+| title | text | **N** |  |
+| body_html | text | Y |  |
+| category | text | Y |  |
+| tags | _text | **N** | `'{}'::text[]` |
+| published | bool | **N** | `false` |
+| published_at | timestamptz | Y |  |
+| created_by | uuid | Y |  |
 | created_at | timestamptz | **N** | `now()` |
 | updated_at | timestamptz | **N** | `now()` |
 
@@ -1012,6 +1134,8 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | updated_at | timestamptz | **N** | `now()` |
 | deleted_at | timestamptz | Y |  |
 | demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
 
 ### contact_activity
 
@@ -1152,6 +1276,21 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | status | text | Y | `'active'::text` |
 | demo_batch_id | uuid | Y |  |
 | demo_expires_at | timestamptz | Y |  |
+
+### data_export_requests
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| user_id | uuid | **N** |  |
+| workspace_id | uuid | Y |  |
+| status | text | **N** | `'pending'::text` |
+| requested_at | timestamptz | **N** | `now()` |
+| ready_at | timestamptz | Y |  |
+| expires_at | timestamptz | Y |  |
+| download_key | text | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### debt_snapshots
 
@@ -1702,6 +1841,30 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | updated_at | timestamptz | **N** | `now()` |
 | created_at | timestamptz | **N** | `now()` |
 
+### hmo_licences
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| property_id | uuid | **N** |  |
+| licence_type | text | **N** | `'mandatory'::text` |
+| licence_number | text | Y |  |
+| issuing_council | text | Y |  |
+| issue_date | date | Y |  |
+| expiry_date | date | **N** |  |
+| max_occupants | int4 | Y |  |
+| max_households | int4 | Y |  |
+| conditions | jsonb | **N** | `'[]'::jsonb` |
+| document_path | text | Y |  |
+| status | text | **N** | `'active'::text` |
+| renewal_reminder_days | int4 | **N** | `90` |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
 ### insight_snapshots
 
 | column | type | null | default |
@@ -1781,6 +1944,23 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | demo | bool | **N** | `false` |
 | demo_batch_id | uuid | Y |  |
 | demo_expires_at | timestamptz | Y |  |
+
+### job_complaints
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| job_id | uuid | **N** |  |
+| tenant_contact_id | uuid | Y |  |
+| category | text | Y |  |
+| description | text | **N** |  |
+| severity | text | **N** | `'medium'::text` |
+| status | text | **N** | `'open'::text` |
+| resolution_notes | text | Y |  |
+| resolved_at | timestamptz | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### job_documents
 
@@ -2044,6 +2224,9 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | created_by | uuid | Y |  |
 | created_at | timestamptz | Y | `now()` |
 | updated_at | timestamptz | Y | `now()` |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
 
 ### messages
 
@@ -2188,6 +2371,22 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | body | text | **N** |  |
 | read_at | timestamptz | Y |  |
 | created_at | timestamptz | **N** | `now()` |
+
+### newsletter_subscribers
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| email | citext | **N** |  |
+| status | text | **N** | `'pending'::text` |
+| consent | bool | **N** | `false` |
+| source | text | Y |  |
+| confirm_token | uuid | Y | `gen_random_uuid()` |
+| confirmed_at | timestamptz | Y |  |
+| unsubscribed_at | timestamptz | Y |  |
+| ip | text | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### notification_preferences
 
@@ -2628,6 +2827,51 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | metadata | jsonb | **N** | `'{}'::jsonb` |
 | created_at | timestamptz | **N** | `now()` |
 
+### possession_cases
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| tenancy_id | uuid | Y |  |
+| property_id | uuid | Y |  |
+| contact_id | uuid | Y |  |
+| ground | text | **N** | `'Ground 8 (rent arrears)'::text` |
+| arrears_amount | numeric | Y |  |
+| arrears_weeks | numeric | Y |  |
+| status | text | **N** | `'gathering_evidence'::text` |
+| notice_served_date | date | Y |  |
+| notice_expiry_date | date | Y |  |
+| court_applied_date | date | Y |  |
+| hearing_date | date | Y |  |
+| court_reference | text | Y |  |
+| evidence_bundle_path | text | Y |  |
+| notes | text | Y |  |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
+### possession_evidence
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| possession_case_id | uuid | **N** |  |
+| evidence_type | text | **N** | `'other'::text` |
+| description | text | **N** |  |
+| amount | numeric | Y |  |
+| event_date | timestamptz | **N** | `now()` |
+| document_path | text | Y |  |
+| source | text | Y |  |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
 ### ppm_plans
 
 | column | type | null | default |
@@ -2655,6 +2899,8 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | created_by | uuid | Y |  |
 | created_at | timestamptz | **N** | `now()` |
 | updated_at | timestamptz | **N** | `now()` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
 
 ### preferred_suppliers
 
@@ -3018,6 +3264,9 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | notes | text | Y |  |
 | created_at | timestamptz | **N** | `now()` |
 | updated_at | timestamptz | **N** | `now()` |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
 
 ### report_runs
 
@@ -3251,6 +3500,23 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | created_at | timestamptz | Y | `now()` |
 | updated_at | timestamptz | Y | `now()` |
 | metadata | jsonb | Y | `'{}'::jsonb` |
+
+### stripe_connect_accounts
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| stripe_account_id | text | **N** |  |
+| account_type | text | **N** | `'standard'::text` |
+| status | text | **N** | `'pending'::text` |
+| charges_enabled | bool | **N** | `false` |
+| payouts_enabled | bool | **N** | `false` |
+| details_submitted | bool | **N** | `false` |
+| country | text | Y |  |
+| created_by | uuid | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### stripe_payment_intents
 
@@ -3508,6 +3774,23 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | created_at | timestamptz | **N** | `now()` |
 | updated_at | timestamptz | **N** | `now()` |
 
+### supplier_preferences
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| supplier_contact_id | uuid | **N** |  |
+| preferred | bool | **N** | `false` |
+| blocked | bool | **N** | `false` |
+| reason | text | Y |  |
+| categories | _text | **N** | `'{}'::text[]` |
+| review_date | date | Y |  |
+| created_by | uuid | Y |  |
+| updated_by | uuid | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
+
 ### supplier_profiles
 
 | column | type | null | default |
@@ -3546,6 +3829,28 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | notes | text | Y |  |
 | submitted_at | timestamptz | **N** | `now()` |
 | created_at | timestamptz | **N** | `now()` |
+
+### supplier_ratings
+
+| column | type | null | default |
+|---|---|---|---|
+| id | uuid | **N** | `gen_random_uuid()` |
+| workspace_id | uuid | **N** |  |
+| supplier_contact_id | uuid | **N** |  |
+| quality | int2 | Y |  |
+| speed | int2 | Y |  |
+| communication | int2 | Y |  |
+| reliability | int2 | Y |  |
+| price_value | int2 | Y |  |
+| compliance | int2 | Y |  |
+| tenant_satisfaction | int2 | Y |  |
+| would_use_again | bool | Y |  |
+| internal_notes | text | Y |  |
+| last_job_id | uuid | Y |  |
+| created_by | uuid | Y |  |
+| updated_by | uuid | Y |  |
+| created_at | timestamptz | **N** | `now()` |
+| updated_at | timestamptz | **N** | `now()` |
 
 ### supplier_review_responses
 
@@ -3907,6 +4212,9 @@ _Generated 2026-06-12T20:51:52.675Z from the live Supabase project. Source of tr
 | accessibility | jsonb | Y |  |
 | deposit_amount | numeric | Y |  |
 | notes | text | Y |  |
+| demo | bool | **N** | `false` |
+| demo_batch_id | uuid | Y |  |
+| demo_expires_at | timestamptz | Y |  |
 
 ### usage_counters
 

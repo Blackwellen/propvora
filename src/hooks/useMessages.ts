@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Conversation, Message } from '@/types/database'
+import { notifyMessageReceived } from '@/lib/notifications/emitters'
 
 /**
  * Shared messaging data layer for the Inbox.
@@ -255,6 +256,36 @@ export function useSendMessage() {
           .from('message_threads')
           .update({ updated_at: new Date().toISOString() })
           .eq('id', conversationId)
+      } catch {
+        /* non-fatal */
+      }
+
+      // EVENT: message received — notify the other thread participants (internal
+      // users only). Best-effort and 42P01-safe; never blocks the send.
+      try {
+        const { data: parts } = await supabase
+          .from('message_thread_participants')
+          .select('user_id')
+          .eq('thread_id', conversationId)
+        const recipients = (parts ?? [])
+          .map((p) => (p as { user_id: string | null }).user_id)
+          .filter((uid): uid is string => !!uid && uid !== meId)
+        if (recipients.length) {
+          const preview = body.trim().slice(0, 120)
+          // Fan out to every recipient. The emitter's dedupe key is per
+          // (conversation, user), so a burst collapses to one ping each.
+          await Promise.all(
+            recipients.map((uid) =>
+              notifyMessageReceived({
+                workspaceId,
+                conversationId,
+                userId: uid,
+                fromName: senderName,
+                preview,
+              }),
+            ),
+          )
+        }
       } catch {
         /* non-fatal */
       }

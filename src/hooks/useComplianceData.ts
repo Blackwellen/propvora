@@ -24,6 +24,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { useNotify } from '@/hooks/useNotify'
 
 // ─────────────────────────────────────────────
 // View-model types (stable shapes the UI renders)
@@ -987,9 +988,33 @@ function toItemStatus(status: string): string {
   }
 }
 
+// Fires a compliance due_soon / overdue notification based on the live item
+// status. Recipient = the item's assignee, else the supplied fallback (creator).
+function emitComplianceStatus(
+  notify: ReturnType<typeof useNotify>['notify'],
+  row: ComplianceItemRow,
+  fallbackUserId: string | null,
+) {
+  const recipient =
+    (row as { assignee_user_id?: string | null }).assignee_user_id ?? fallbackUserId
+  if (!recipient) return
+  const label = row.title || row.kind || 'Compliance item'
+  if (row.status === 'overdue') {
+    notify('notifyComplianceOverdue', { itemId: row.id, userId: recipient, title: label })
+  } else if (row.status === 'due_soon') {
+    notify('notifyComplianceDueSoon', {
+      itemId: row.id,
+      userId: recipient,
+      title: label,
+      dueDate: row.due_date ?? null,
+    })
+  }
+}
+
 export function useCreateCertificate() {
   const supabase = createClient()
   const qc = useQueryClient()
+  const { notify } = useNotify()
 
   return useMutation<ComplianceCertificate, Error, Omit<ComplianceCertificate, 'id' | 'created_at'>>({
     mutationFn: async (payload) => {
@@ -1014,6 +1039,9 @@ export function useCreateCertificate() {
         .select('*, properties(name:nickname, address_line1)')
         .single()
       if (error) throw error
+      // EVENT: compliance due_soon / overdue — fire if the new item lands in a
+      // warning/danger state, addressed to the assignee or the creator.
+      emitComplianceStatus(notify, data as ComplianceItemRow, user?.id ?? null)
       return mapItemToCertificate(data as ComplianceItemRow)
     },
     onSuccess: () => {
@@ -1030,6 +1058,7 @@ export function useCreateCertificate() {
 export function useUpdateCertificate() {
   const supabase = createClient()
   const qc = useQueryClient()
+  const { notify } = useNotify()
 
   return useMutation<ComplianceCertificate, Error, { id: string } & Partial<ComplianceCertificate>>({
     mutationFn: async ({ id, ...payload }) => {
@@ -1049,6 +1078,11 @@ export function useUpdateCertificate() {
         .select('*, properties(name:nickname, address_line1)')
         .single()
       if (error) throw error
+      // EVENT: compliance due_soon / overdue — fire when an update lands the
+      // item in a warning/danger state.
+      if (payload.status !== undefined) {
+        emitComplianceStatus(notify, data as ComplianceItemRow, null)
+      }
       return mapItemToCertificate(data as ComplianceItemRow)
     },
     onSuccess: (_data, vars) => {

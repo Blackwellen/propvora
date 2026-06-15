@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { useNotify } from '@/hooks/useNotify'
 
 // ─────────────────────────────────────────────
 // Real-table rewire (live schema)
@@ -1109,6 +1110,7 @@ export function useMoneyBillsSummary(workspaceId: string | undefined) {
 export function useApproveBill(workspaceId: string | undefined) {
   const supabase = createClient()
   const qc = useQueryClient()
+  const { notify, actorId } = useNotify()
 
   return useMutation<MoneyBillRow, Error, { id: string }>({
     mutationFn: async ({ id }) => {
@@ -1120,7 +1122,17 @@ export function useApproveBill(workspaceId: string | undefined) {
         .select()
         .single()
       if (error) throw error
-      return mapBill(data as RawRow)
+      const bill = mapBill(data as RawRow)
+      // EVENT: bill approved
+      const recipient = (data as { created_by?: string | null }).created_by ?? actorId
+      if (recipient) {
+        notify('notifyBillApproved', {
+          billId: bill.id,
+          userId: recipient,
+          label: `Bill ${bill.reference ?? ''}`.trim(),
+        })
+      }
+      return bill
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.bills(workspaceId) })
@@ -1156,6 +1168,7 @@ export function useMarkBillPaid(workspaceId: string | undefined) {
 export function useCreateMoneyBill(workspaceId: string | undefined) {
   const supabase = createClient()
   const qc = useQueryClient()
+  const { notify, actorId } = useNotify()
 
   return useMutation<MoneyBillRow, Error, InsertMoneyBill>({
     mutationFn: async (payload) => {
@@ -1182,7 +1195,17 @@ export function useCreateMoneyBill(workspaceId: string | undefined) {
         .select()
         .single()
       if (error) throw error
-      return mapBill(data as RawRow)
+      const bill = mapBill(data as RawRow)
+      // EVENT: bill due — surface a heads-up to the creator when a dated bill is logged
+      if (bill.due_date && actorId) {
+        notify('notifyBillDue', {
+          billId: bill.id,
+          userId: actorId,
+          label: `Bill ${bill.reference ?? ''}`.trim(),
+          dueDate: bill.due_date,
+        })
+      }
+      return bill
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.bills(workspaceId) })

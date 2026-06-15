@@ -3,6 +3,7 @@ import React, { Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FileText, Shield } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
+import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -78,6 +79,8 @@ function ReviewEvidenceInner() {
         <p className="text-xs text-slate-500 mb-4">
           Record the documents and events that support your ground. Items are saved live against this case.
         </p>
+
+        <LegalDisclaimer variant="inline" className="mb-4" />
 
         {/* Recorded evidence */}
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-4">

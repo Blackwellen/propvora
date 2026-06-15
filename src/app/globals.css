@@ -311,6 +311,12 @@ img, picture, video, canvas, svg {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Command palette entrance — subtle pop. Gated on motion-safe at call sites. */
+@keyframes scaleIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ── PWA safe-area helpers ────────────────────────────────────────────────
    viewport-fit=cover (set in the root viewport export) exposes the notch /
    home-indicator insets. These utilities let fixed/edge elements respect them. */

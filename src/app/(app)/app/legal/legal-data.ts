@@ -55,6 +55,14 @@ export interface PossessionCase {
   court_reference: string | null
   evidence_bundle_path: string | null
   notes: string | null
+  // hardening columns (20260615040000_legal_hardening.sql)
+  notice_type: string
+  grounds: unknown
+  notice_period_days: number | null
+  service_method: string | null
+  service_recipient: string | null
+  validity_snapshot: unknown
+  bundle_generated_at: string | null
   created_at: string
   updated_at: string
   // joined (best-effort)
@@ -74,6 +82,14 @@ export interface InsertPossessionCase {
   notice_served_date?: string | null
   notice_expiry_date?: string | null
   notes?: string | null
+  // hardening columns
+  notice_type?: string
+  grounds?: unknown
+  notice_period_days?: number | null
+  service_method?: string | null
+  service_recipient?: string | null
+  validity_snapshot?: unknown
+  bundle_generated_at?: string | null
 }
 
 const PC_KEY = 'legal-possession-cases'
@@ -290,6 +306,10 @@ export interface HmoLicence {
   document_path: string | null
   status: string
   renewal_reminder_days: number
+  // hardening columns (20260615040000_legal_hardening.sql)
+  arrangement_type: string
+  occupancy_current: number | null
+  r2r_agreement_end: string | null
   created_at: string
   updated_at: string
   property?: { nickname: string | null } | null
@@ -306,6 +326,9 @@ export interface InsertHmoLicence {
   max_occupants?: number | null
   max_households?: number | null
   status?: string
+  arrangement_type?: string
+  occupancy_current?: number | null
+  r2r_agreement_end?: string | null
 }
 
 const HMO_KEY = 'legal-hmo-licences'
@@ -424,6 +447,108 @@ export function useDeleteHmoLicence() {
     onSuccess: (_d, { workspaceId }) => {
       qc.invalidateQueries({ queryKey: [HMO_KEY, workspaceId] })
     },
+  })
+}
+
+// ============================================================
+// VALIDITY SIGNALS — live data feeding the possession-route checks.
+// Reads deposit fields off the tenancy, gas/EPC coverage off compliance_items,
+// and licence validity off hmo_licences. All 42P01-safe. Used by the wizard to
+// build a review-only ValiditySnapshot. NOT legal advice.
+// ============================================================
+
+export interface ValiditySignals {
+  depositAmount: number | null
+  depositScheme: string | null
+  depositProtectedAt: string | null
+  epcValid: boolean | null
+  gasValid: boolean | null
+  licenceValid: boolean | null
+  licenceRequired: boolean
+}
+
+const VS_KEY = 'legal-validity-signals'
+
+function complianceItemValid(items: Array<Record<string, unknown>>, kinds: string[]): boolean | null {
+  const matches = items.filter((i) => kinds.includes(String(i.kind ?? '')))
+  if (matches.length === 0) return null
+  // Valid when at least one matching item is not overdue/expired.
+  return matches.some((i) => {
+    const status = String(i.status ?? '')
+    const due = i.due_date ? new Date(String(i.due_date)) : null
+    const notOverdue = status !== 'overdue' && status !== 'expired'
+    const inDate = !due || due.getTime() >= Date.now()
+    return notOverdue && inDate
+  })
+}
+
+export function useTenancyValiditySignals(
+  workspaceId: string | undefined,
+  tenancyId: string | undefined,
+  propertyId: string | null | undefined
+) {
+  const supabase = createClient()
+  return useQuery<ValiditySignals>({
+    queryKey: [VS_KEY, workspaceId, tenancyId, propertyId],
+    enabled: !!workspaceId && !!tenancyId,
+    queryFn: async () => {
+      const result: ValiditySignals = {
+        depositAmount: null,
+        depositScheme: null,
+        depositProtectedAt: null,
+        epcValid: null,
+        gasValid: null,
+        licenceValid: null,
+        licenceRequired: false,
+      }
+
+      // Deposit fields off the tenancy (live column names).
+      if (tenancyId && tenancyId !== NIL_UUID) {
+        const ten = await supabase
+          .from('tenancies')
+          .select('deposit_amount, deposit_scheme, deposit_protected_at')
+          .eq('id', tenancyId)
+          .maybeSingle()
+        if (!ten.error && ten.data) {
+          const r = ten.data as Record<string, unknown>
+          result.depositAmount = (r.deposit_amount as number) ?? null
+          result.depositScheme = (r.deposit_scheme as string) ?? null
+          result.depositProtectedAt = (r.deposit_protected_at as string) ?? null
+        }
+      }
+
+      // Compliance coverage (gas / EPC) for the property.
+      if (propertyId) {
+        const comp = await supabase
+          .from('compliance_items')
+          .select('kind, status, due_date')
+          .eq('workspace_id', workspaceId!)
+          .eq('property_id', propertyId)
+        if (!comp.error && comp.data) {
+          const items = comp.data as Array<Record<string, unknown>>
+          result.epcValid = complianceItemValid(items, ['epc'])
+          result.gasValid = complianceItemValid(items, ['gas_safety', 'gas'])
+        }
+
+        // Licence validity off hmo_licences.
+        const lic = await supabase
+          .from('hmo_licences')
+          .select('expiry_date, status')
+          .eq('workspace_id', workspaceId!)
+          .eq('property_id', propertyId)
+        if (!lic.error && lic.data && lic.data.length > 0) {
+          result.licenceRequired = true
+          result.licenceValid = (lic.data as Array<Record<string, unknown>>).some((l) => {
+            const exp = l.expiry_date ? new Date(String(l.expiry_date)) : null
+            const inDate = !exp || exp.getTime() >= Date.now()
+            return String(l.status ?? '') === 'active' && inDate
+          })
+        }
+      }
+
+      return result
+    },
+    staleTime: 30 * 1000,
   })
 }
 

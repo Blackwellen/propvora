@@ -10,6 +10,7 @@ import {
   FileText,
   BarChart3,
   TrendingUp,
+  Scale,
 } from "lucide-react"
 
 const ACCOUNTING_TABS = [
@@ -32,6 +33,13 @@ const ACCOUNTING_TABS = [
     href: "/app/accounting/accounts/journal-ledger",
     icon: BookText,
     matchPaths: ["/app/accounting/accounts/journal-ledger"],
+  },
+  {
+    key: "ledger",
+    label: "General Ledger",
+    href: "/app/accounting/ledger/chart",
+    icon: Scale,
+    matchPrefix: "/app/accounting/ledger",
   },
   {
     key: "reconciliation",

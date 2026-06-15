@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Job, InsertJob, UpdateJob } from '@/types/database'
+import { useNotify } from '@/hooks/useNotify'
 
 const QUERY_KEY = 'jobs'
 
@@ -213,6 +214,7 @@ export function useCreateJob() {
 export function useUpdateJob() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const { notify, actorId } = useNotify()
 
   return useMutation<Job, Error, { id: string; workspaceId: string; payload: UpdateJob }>({
     mutationFn: async ({ id, payload }) => {
@@ -224,6 +226,22 @@ export function useUpdateJob() {
         .single()
 
       if (error) throw error
+      // EVENT: job completed — fire when this update transitions status to a
+      // terminal "complete/done" state. Notifies the job owner/assignee.
+      const newStatus = (payload as { status?: string }).status
+      if (newStatus && (newStatus === 'completed' || newStatus === 'done')) {
+        const recipient =
+          (data as { assigned_to?: string | null }).assigned_to ??
+          (data as { created_by?: string | null }).created_by ??
+          actorId
+        if (recipient) {
+          notify('notifyJobCompleted', {
+            jobId: id,
+            userId: recipient,
+            title: (data as { title?: string }).title ?? 'Job',
+          })
+        }
+      }
       return data
     },
     onMutate: async ({ id, workspaceId, payload }) => {

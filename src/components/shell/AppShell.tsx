@@ -10,6 +10,7 @@ import ShellContent from "./ShellContent"
 import ChatBubble from "@/components/ai/ChatBubble"
 import ChatPanel from "@/components/ai/ChatPanel"
 import SkipLink from "@/components/a11y/SkipLink"
+import CommandPalette from "@/components/search/CommandPalette"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
@@ -119,6 +120,9 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
           />
         )}
       </AnimatePresence>
+
+      {/* Global command palette (⌘K) */}
+      <CommandPalette />
 
       {/* Guided Help — first-use popups + help launcher */}
       <FirstUseModal />

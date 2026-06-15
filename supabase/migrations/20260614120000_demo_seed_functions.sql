@@ -64,6 +64,8 @@ DECLARE
   tn1 uuid; tn2 uuid; tn3 uuid;
   -- thread ids
   th1 uuid; th2 uuid;
+  -- legal ids
+  pcase1 uuid;
 BEGIN
   -- Membership guard: only seed workspaces the caller belongs to.
   IF NOT EXISTS (
@@ -240,6 +242,54 @@ BEGIN
     (p_workspace_id, p_user_id, 'compliance', 'HMO licence renewal — 95 days remaining', 'Submit renewal to Birmingham City Council.', 'warning', true, v_batch, v_exp),
     (p_workspace_id, p_user_id, 'money', 'Rent due in 2 days', '3 tenancies have rent due this week.', 'info', true, v_batch, v_exp);
 
+  -- ── Legal: HMO licences (review-only records) ─────────────────────────────
+  -- Two realistic licences: one valid (Sycamore Road HMO, R2R), one expiring
+  -- soon (Birchfield Lane). Stamped demo + 30-day expiry like every other row.
+  INSERT INTO hmo_licences (workspace_id, property_id, licence_type, licence_number, issuing_council,
+      issue_date, expiry_date, max_occupants, max_households, occupancy_current, arrangement_type,
+      r2r_agreement_end, status, conditions, demo, demo_batch_id, demo_expires_at)
+  VALUES
+    (p_workspace_id, p1, 'mandatory', 'HMO/2024/0412', 'Birmingham City Council',
+      d - 270, d + 95, 5, 2, 5, 'rent_to_rent', d + 280, 'active',
+      '["Annual gas safety certificate required", "Mains-wired smoke alarms on each floor", "Minimum room sizes per schedule"]'::jsonb,
+      true, v_batch, v_exp),
+    (p_workspace_id, p2, 'additional', 'HMO/2023/0188', 'Wolverhampton City Council',
+      d - 700, d + 40, 4, 2, 4, 'standard', NULL, 'active',
+      '["Communal areas kept clear", "Fire doors maintained"]'::jsonb,
+      true, v_batch, v_exp);
+
+  -- ── Legal: possession cases (review-only drafts) ──────────────────────────
+  -- Case 1: Section 8 rent-arrears draft against tn1 (gathering evidence).
+  INSERT INTO possession_cases (workspace_id, tenancy_id, property_id, contact_id, ground, notice_type,
+      grounds, notice_period_days, arrears_amount, arrears_weeks, status, notes,
+      demo, demo_batch_id, demo_expires_at)
+  VALUES
+    (p_workspace_id, tn1, p1, ten1, 'Ground 8, Ground 10', 'section_8',
+      '[{"id":"g8","number":"Ground 8","name":"Substantial rent arrears","type":"Mandatory","noticeDays":14},{"id":"g10","number":"Ground 10","name":"Some rent arrears","type":"Discretionary","noticeDays":14}]'::jsonb,
+      14, 1725, 3, 'gathering_evidence',
+      'Demo draft — Room 1 arrears. Review with solicitor before serving.',
+      true, v_batch, v_exp) RETURNING id INTO pcase1;
+
+  -- Evidence for case 1 (rent ledger).
+  INSERT INTO possession_evidence (workspace_id, possession_case_id, evidence_type, description, amount,
+      event_date, source, demo, demo_batch_id, demo_expires_at)
+  VALUES
+    (p_workspace_id, pcase1, 'other', 'Rent ledger showing 3 weeks arrears', 1725,
+      (now() - interval '20 days'), 'manual', true, v_batch, v_exp),
+    (p_workspace_id, pcase1, 'other', 'Reminder letter sent to tenant', NULL,
+      (now() - interval '10 days'), 'manual', true, v_batch, v_exp);
+
+  -- Case 2: Section 21 no-fault draft against tn3 (notice served, recorded).
+  INSERT INTO possession_cases (workspace_id, tenancy_id, property_id, contact_id, ground, notice_type,
+      grounds, notice_period_days, status, notice_served_date, notice_expiry_date,
+      service_method, service_recipient, notes, demo, demo_batch_id, demo_expires_at)
+  VALUES
+    (p_workspace_id, tn3, p3, ten3, 'Section 21 (no-fault)', 'section_21',
+      '[]'::jsonb, 60, 'notice_served', d - 10, d + 50,
+      'First Class Post', 'Sofia Martins',
+      'Demo draft — S21 served (recorded offline). Verify validity with solicitor.',
+      true, v_batch, v_exp);
+
   -- Mark workspace as loaded.
   UPDATE workspaces SET demo_data_loaded = true, demo_data_variant = 'full' WHERE id = p_workspace_id;
 
@@ -258,6 +308,9 @@ BEGIN
   -- Children first (FK order). messages before threads, schedules before tenancies, units/tenancies before properties.
   DELETE FROM messages           WHERE workspace_id = p_workspace_id AND demo;
   DELETE FROM message_threads    WHERE workspace_id = p_workspace_id AND demo;
+  DELETE FROM possession_evidence WHERE workspace_id = p_workspace_id AND demo;
+  DELETE FROM possession_cases   WHERE workspace_id = p_workspace_id AND demo;
+  DELETE FROM hmo_licences       WHERE workspace_id = p_workspace_id AND demo;
   DELETE FROM rent_schedules     WHERE workspace_id = p_workspace_id AND demo;
   DELETE FROM money_transactions WHERE workspace_id = p_workspace_id AND demo;
   DELETE FROM calendar_events    WHERE workspace_id = p_workspace_id AND demo;
@@ -288,6 +341,9 @@ DECLARE
 BEGIN
   DELETE FROM messages           WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
   DELETE FROM message_threads    WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
+  DELETE FROM possession_evidence WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
+  DELETE FROM possession_cases   WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
+  DELETE FROM hmo_licences       WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
   DELETE FROM rent_schedules     WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
   DELETE FROM money_transactions WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;
   DELETE FROM calendar_events    WHERE demo AND demo_expires_at < now(); GET DIAGNOSTICS c = ROW_COUNT; n := n + c;

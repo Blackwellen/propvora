@@ -1,5 +1,79 @@
 {
   "tables": {
+    "account_deletion_requests": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "request_type",
+        "type": "text",
+        "nullable": false,
+        "default": "'user_account'::text"
+      },
+      {
+        "name": "requested_by",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "requested_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "scheduled_for",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "(now() + '30 days'::interval)"
+      },
+      {
+        "name": "completed_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'pending'::text"
+      },
+      {
+        "name": "retention_reason",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "account_rate_limits": [
       {
         "name": "id",
@@ -2234,6 +2308,112 @@
         "default": "now()"
       }
     ],
+    "announcement_dismissals": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "announcement_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "dismissed_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "announcements": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "body_html",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "severity",
+        "type": "text",
+        "nullable": false,
+        "default": "'info'::text"
+      },
+      {
+        "name": "audience",
+        "type": "text",
+        "nullable": false,
+        "default": "'all'::text"
+      },
+      {
+        "name": "starts_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "ends_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "dismissible",
+        "type": "bool",
+        "nullable": false,
+        "default": "true"
+      },
+      {
+        "name": "published",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "api_keys": [
       {
         "name": "id",
@@ -2306,6 +2486,32 @@
         "type": "bool",
         "nullable": false,
         "default": "true"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "app_rate_limits": [
+      {
+        "name": "key",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "window_start",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "count",
+        "type": "int4",
+        "nullable": false,
+        "default": "0"
       },
       {
         "name": "updated_at",
@@ -3438,6 +3644,74 @@
         "default": "now()"
       }
     ],
+    "bug_reports": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "kind",
+        "type": "text",
+        "nullable": false,
+        "default": "'error'::text"
+      },
+      {
+        "name": "route",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "message",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "digest",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "context",
+        "type": "jsonb",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "user_agent",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'new'::text"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "calendar_events": [
       {
         "name": "id",
@@ -3660,6 +3934,240 @@
       {
         "name": "revoked_at",
         "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "calendar_reminders": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "event_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "reminder_type",
+        "type": "text",
+        "nullable": false,
+        "default": "'standard'::text"
+      },
+      {
+        "name": "channel",
+        "type": "text",
+        "nullable": false,
+        "default": "'in_app'::text"
+      },
+      {
+        "name": "due_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'pending'::text"
+      },
+      {
+        "name": "sent_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "error",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "calendar_settings": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "default_view",
+        "type": "text",
+        "nullable": false,
+        "default": "'month'::text"
+      },
+      {
+        "name": "timezone",
+        "type": "text",
+        "nullable": false,
+        "default": "'Europe/London'::text"
+      },
+      {
+        "name": "working_hours_json",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "'{}'::jsonb"
+      },
+      {
+        "name": "default_reminder_offsets_json",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "'[]'::jsonb"
+      },
+      {
+        "name": "visible_layers_json",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "'{}'::jsonb"
+      },
+      {
+        "name": "ai_suggestions_enabled",
+        "type": "bool",
+        "nullable": false,
+        "default": "true"
+      },
+      {
+        "name": "external_sync_enabled",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "changelog_entries": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "version",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "body_html",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "category",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "tags",
+        "type": "_text",
+        "nullable": false,
+        "default": "'{}'::text[]"
+      },
+      {
+        "name": "published",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "published_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
         "nullable": true,
         "default": null
       },
@@ -4262,6 +4770,18 @@
         "type": "bool",
         "nullable": false,
         "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
       }
     ],
     "contact_activity": [
@@ -4906,6 +5426,68 @@
         "type": "timestamptz",
         "nullable": true,
         "default": null
+      }
+    ],
+    "data_export_requests": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'pending'::text"
+      },
+      {
+        "name": "requested_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "ready_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "download_key",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
       }
     ],
     "debt_snapshots": [
@@ -7334,6 +7916,122 @@
         "default": "now()"
       }
     ],
+    "hmo_licences": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "property_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "licence_type",
+        "type": "text",
+        "nullable": false,
+        "default": "'mandatory'::text"
+      },
+      {
+        "name": "licence_number",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "issuing_council",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "issue_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "expiry_date",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "max_occupants",
+        "type": "int4",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "max_households",
+        "type": "int4",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "conditions",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "'[]'::jsonb"
+      },
+      {
+        "name": "document_path",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'active'::text"
+      },
+      {
+        "name": "renewal_reminder_days",
+        "type": "int4",
+        "nullable": false,
+        "default": "90"
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "insight_snapshots": [
       {
         "name": "id",
@@ -7700,6 +8398,80 @@
         "type": "timestamptz",
         "nullable": true,
         "default": null
+      }
+    ],
+    "job_complaints": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tenant_contact_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "category",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "severity",
+        "type": "text",
+        "nullable": false,
+        "default": "'medium'::text"
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'open'::text"
+      },
+      {
+        "name": "resolution_notes",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "resolved_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
       }
     ],
     "job_documents": [
@@ -8914,6 +9686,24 @@
         "type": "timestamptz",
         "nullable": true,
         "default": "now()"
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
       }
     ],
     "messages": [
@@ -9551,6 +10341,74 @@
       },
       {
         "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "newsletter_subscribers": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "email",
+        "type": "citext",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'pending'::text"
+      },
+      {
+        "name": "consent",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "confirm_token",
+        "type": "uuid",
+        "nullable": true,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "confirmed_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "unsubscribed_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "ip",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
         "type": "timestamptz",
         "nullable": false,
         "default": "now()"
@@ -11518,6 +12376,220 @@
         "default": "now()"
       }
     ],
+    "possession_cases": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tenancy_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "property_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "contact_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "ground",
+        "type": "text",
+        "nullable": false,
+        "default": "'Ground 8 (rent arrears)'::text"
+      },
+      {
+        "name": "arrears_amount",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "arrears_weeks",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'gathering_evidence'::text"
+      },
+      {
+        "name": "notice_served_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "notice_expiry_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "court_applied_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "hearing_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "court_reference",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "evidence_bundle_path",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "possession_evidence": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "possession_case_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "evidence_type",
+        "type": "text",
+        "nullable": false,
+        "default": "'other'::text"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "amount",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "event_date",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "document_path",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "ppm_plans": [
       {
         "name": "id",
@@ -11656,6 +12728,18 @@
         "type": "timestamptz",
         "nullable": false,
         "default": "now()"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
       }
     ],
     "preferred_suppliers": [
@@ -13386,6 +14470,24 @@
         "type": "timestamptz",
         "nullable": false,
         "default": "now()"
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
       }
     ],
     "report_runs": [
@@ -14364,6 +15466,80 @@
         "type": "jsonb",
         "nullable": true,
         "default": "'{}'::jsonb"
+      }
+    ],
+    "stripe_connect_accounts": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "stripe_account_id",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "account_type",
+        "type": "text",
+        "nullable": false,
+        "default": "'standard'::text"
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "'pending'::text"
+      },
+      {
+        "name": "charges_enabled",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "payouts_enabled",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "details_submitted",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "country",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
       }
     ],
     "stripe_payment_intents": [
@@ -15538,6 +16714,80 @@
         "default": "now()"
       }
     ],
+    "supplier_preferences": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "supplier_contact_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "preferred",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "blocked",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "reason",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "categories",
+        "type": "_text",
+        "nullable": false,
+        "default": "'{}'::text[]"
+      },
+      {
+        "name": "review_date",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "updated_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
     "supplier_profiles": [
       {
         "name": "id",
@@ -15711,6 +16961,110 @@
       },
       {
         "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      }
+    ],
+    "supplier_ratings": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "gen_random_uuid()"
+      },
+      {
+        "name": "workspace_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "supplier_contact_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "quality",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "speed",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "communication",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "reliability",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "price_value",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "compliance",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "tenant_satisfaction",
+        "type": "int2",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "would_use_again",
+        "type": "bool",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "internal_notes",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "last_job_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "updated_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "now()"
+      },
+      {
+        "name": "updated_at",
         "type": "timestamptz",
         "nullable": false,
         "default": "now()"
@@ -17374,6 +18728,24 @@
       {
         "name": "notes",
         "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo",
+        "type": "bool",
+        "nullable": false,
+        "default": "false"
+      },
+      {
+        "name": "demo_batch_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "demo_expires_at",
+        "type": "timestamptz",
         "nullable": true,
         "default": null
       }

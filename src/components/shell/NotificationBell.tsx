@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Bell, CheckCheck, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { resolveEntityHref } from "@/lib/notifications/routes"
 import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -16,8 +17,14 @@ interface NotificationRow {
   body: string
   resource_type: string | null
   resource_id: string | null
+  href: string | null
   read_at: string | null
   created_at: string
+}
+
+/** Prefers the stamped href column, falling back to the shared route resolver. */
+function rowHref(n: NotificationRow): string | null {
+  return n.href ?? resolveEntityHref(n.resource_type, n.resource_id)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -39,21 +46,20 @@ const TYPE_ICON: Record<string, string> = {
   info:       "ℹ",
 }
 
-/** Maps a notification's source record to its detail route. */
-function resolveHref(resourceType: string | null, resourceId: string | null): string | null {
-  if (!resourceType || !resourceId) return null
-  switch (resourceType) {
-    case "property":   return `/app/portfolio/properties/${resourceId}`
-    case "unit":       return `/app/portfolio/units/${resourceId}`
-    case "tenancy":    return `/app/portfolio/tenancies/${resourceId}`
-    case "contact":    return `/app/contacts/${resourceId}`
-    case "task":       return `/app/work/tasks/${resourceId}`
-    case "job":        return `/app/work/jobs/${resourceId}`
-    case "invoice":    return `/app/money/invoices/${resourceId}`
-    case "bill":       return `/app/money/bills/${resourceId}`
-    case "conversation":
-    case "message":    return `/app/messages/conversations/${resourceId}`
-    default:           return null
+/** Resolves an icon from a free-form `kind` ("task.assigned", "invoice.paid", …). */
+function iconForKind(kind: string): string {
+  const prefix = (kind ?? "").split(".")[0]
+  switch (prefix) {
+    case "task":       return TYPE_ICON.task
+    case "compliance": return TYPE_ICON.compliance
+    case "message":    return TYPE_ICON.message
+    case "invoice":
+    case "bill":
+    case "rent":       return TYPE_ICON.payment
+    case "job":        return "🛠"
+    case "tenancy":    return "🏠"
+    case "ai":         return TYPE_ICON.ai
+    default:           return TYPE_ICON[kind] ?? TYPE_ICON.info
   }
 }
 
@@ -100,9 +106,22 @@ export default function NotificationBell() {
               filter: `user_id=eq.${user.id}`,
             },
             (payload) => {
-              const newRow = payload.new as NotificationRow
+              // Realtime delivers raw DB columns (kind/entity_type/entity_id);
+              // normalise to the aliased shape the UI renders.
+              const raw = payload.new as Record<string, unknown>
+              const newRow: NotificationRow = {
+                id: String(raw.id),
+                type: String(raw.kind ?? "info"),
+                title: String(raw.title ?? ""),
+                body: String(raw.body ?? ""),
+                resource_type: (raw.entity_type as string | null) ?? null,
+                resource_id: (raw.entity_id as string | null) ?? null,
+                href: (raw.href as string | null) ?? null,
+                read_at: (raw.read_at as string | null) ?? null,
+                created_at: String(raw.created_at ?? new Date().toISOString()),
+              }
               setUnreadCount((prev) => prev + 1)
-              setNotifications((prev) => [newRow, ...prev].slice(0, 5))
+              setNotifications((prev) => [newRow, ...prev].slice(0, 8))
             }
           )
           .subscribe()
@@ -154,7 +173,7 @@ export default function NotificationBell() {
       // Fetch 8 most recent (read + unread, newest first)
       const { data } = await supabase
         .from("notifications")
-        .select("id, type:kind, title, body, resource_type:entity_type, resource_id:entity_id, read_at, created_at")
+        .select("id, type:kind, title, body, resource_type:entity_type, resource_id:entity_id, href, read_at, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(8)
@@ -204,7 +223,7 @@ export default function NotificationBell() {
         )
       } catch { /* non-fatal */ }
     }
-    const href = resolveHref(n.resource_type, n.resource_id)
+    const href = rowHref(n)
     setOpen(false)
     if (href) router.push(href)
   }
@@ -288,11 +307,11 @@ export default function NotificationBell() {
                   className={cn(
                     "w-full text-left flex items-start gap-3 px-4 py-3 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors",
                     !n.read_at && "bg-blue-50/40",
-                    resolveHref(n.resource_type, n.resource_id) ? "cursor-pointer" : "cursor-default"
+                    rowHref(n) ? "cursor-pointer" : "cursor-default"
                   )}
                 >
                   <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-base shrink-0 mt-0.5">
-                    {TYPE_ICON[n.type] ?? TYPE_ICON.info}
+                    {iconForKind(n.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[12.5px] font-semibold text-slate-800 leading-snug truncate">
