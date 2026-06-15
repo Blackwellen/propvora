@@ -18,7 +18,11 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { useContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { useContactMessages } from "@/hooks/useMessages"
 import { useWorkspace } from "@/hooks/useWorkspace"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditTextarea,
+} from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { deriveSupplierCategories } from "@/lib/constants/supplierCategories"
@@ -53,6 +57,16 @@ const CONTACT_STATUS_OPTIONS = [
   { value: "inactive", label: "Inactive" },
   { value: "archived", label: "Archived" },
 ]
+
+/** Inline-edit field validators (return an error string to block the save). */
+function validateEmail(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : "Enter a valid email address"
+}
+function validatePhone(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[+]?[\d\s()-]{7,}$/.test(v.trim()) ? null : "Enter a valid phone number"
+}
 
 /* ------------------------------------------------------------------ */
 /* Avatar helpers                                                       */
@@ -588,17 +602,7 @@ function TasksTab() {
 
 function ProfileTab({ contact }: { contact: ContactDetail }) {
   const { save, editable } = useContactSave()
-  const fields: { label: string; field: string; value: string | null; type?: "text" | "select" | "textarea"; options?: { value: string; label: string }[] }[] = [
-    { label: "Full Name",    field: "full_name",     value: contact.full_name },
-    { label: "Email",        field: "email",         value: contact.email },
-    { label: "Phone",        field: "phone",         value: contact.phone },
-    { label: "Contact Type", field: "contact_type",  value: contact.contact_type, type: "select", options: CONTACT_TYPE_OPTIONS },
-    { label: "Company",      field: "company_name",  value: contact.company_name },
-    { label: "Status",       field: "status",        value: contact.status, type: "select", options: CONTACT_STATUS_OPTIONS },
-    { label: "City",         field: "city",          value: contact.city },
-    { label: "Postcode",     field: "postcode",      value: contact.postcode },
-    { label: "Address",      field: "address_line1", value: contact.address_line1 },
-  ]
+  const lockReason = editable ? undefined : "Demo records are read-only."
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -606,20 +610,125 @@ function ProfileTab({ contact }: { contact: ContactDetail }) {
         {editable && <span className="text-xs text-slate-400">Click any field to edit</span>}
       </div>
       <div className="grid sm:grid-cols-2 gap-5">
-        {fields.map(f => (
-          <div key={f.label}>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{f.label}</p>
-            <InlineEditField
-              value={f.value}
-              type={f.type ?? "text"}
-              options={f.options}
-              disabled={!editable}
-              placeholder="—"
-              displayClassName="text-sm text-slate-800 capitalize"
-              onSave={(v) => save(f.field, v)}
-            />
-          </div>
-        ))}
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Full Name</p>
+          <InlineEditField
+            value={contact.full_name}
+            type="text"
+            label="full name"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("full_name", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Email</p>
+          <InlineEditField
+            value={contact.email}
+            type="email"
+            label="email"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            validate={validateEmail}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("email", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Phone</p>
+          <InlineEditField
+            value={contact.phone}
+            type="phone"
+            label="phone"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            validate={validatePhone}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("phone", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Contact Type</p>
+          <InlineEditSelect
+            value={contact.contact_type}
+            label="contact type"
+            options={CONTACT_TYPE_OPTIONS}
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800 capitalize"
+            onSave={(v) => save("contact_type", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Company</p>
+          <InlineEditField
+            value={contact.company_name}
+            type="text"
+            label="company"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("company_name", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Status</p>
+          <InlineEditSelect
+            value={contact.status}
+            label="status"
+            options={CONTACT_STATUS_OPTIONS}
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800 capitalize"
+            onSave={(v) => save("status", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">City</p>
+          <InlineEditField
+            value={contact.city}
+            type="text"
+            label="city"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("city", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Postcode</p>
+          <InlineEditField
+            value={contact.postcode}
+            type="text"
+            label="postcode"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("postcode", v)}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Address</p>
+          <InlineEditField
+            value={contact.address_line1}
+            type="text"
+            label="address"
+            readOnly={!editable}
+            readOnlyReason={lockReason}
+            placeholder="—"
+            displayClassName="text-sm text-slate-800"
+            onSave={(v) => save("address_line1", v)}
+          />
+        </div>
       </div>
       {contact.tags.length > 0 && (
         <div>
@@ -633,10 +742,11 @@ function ProfileTab({ contact }: { contact: ContactDetail }) {
       )}
       <div>
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Notes</p>
-        <InlineEditField
+        <InlineEditTextarea
           value={contact.notes}
-          type="textarea"
-          disabled={!editable}
+          label="notes"
+          readOnly={!editable}
+          readOnlyReason={lockReason}
           placeholder="Add an internal note about this contact…"
           displayClassName="text-sm text-slate-700 leading-relaxed"
           onSave={(v) => save("notes", v)}

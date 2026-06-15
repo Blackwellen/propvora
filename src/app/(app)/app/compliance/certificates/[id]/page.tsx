@@ -8,7 +8,15 @@ import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditDate,
+  InlineEditTextarea,
+  InlineEditRelationshipSelect,
+} from "@/components/editing"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useProperties } from "@/hooks/useProperties"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { cn } from "@/lib/utils"
@@ -64,6 +72,16 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "Expired" },
   { value: "missing", label: "Missing" },
 ]
+
+// Valid compliance status transitions. A certificate can move to any other
+// lifecycle state, but we reject a no-op "transition" to the same value so the
+// status Select acts as a workflow guard rather than free text.
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  valid: ["expiring_soon", "expired", "missing"],
+  expiring_soon: ["valid", "expired", "missing"],
+  expired: ["valid", "expiring_soon", "missing"],
+  missing: ["valid", "expiring_soon", "expired"],
+}
 
 const RISK_OPTIONS = [
   { value: "low", label: "Low" },
@@ -128,6 +146,15 @@ export default function CertificateDetailPage() {
   const router = useRouter()
   const supabase = createClient()
   const qc = useQueryClient()
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id
+  const { data: properties = [] } = useProperties(workspaceId)
+
+  const propertyOptions = properties.map((p) => ({
+    value: p.id,
+    label: p.name || "Unnamed property",
+    sublabel: p.address_line1 ?? undefined,
+  }))
 
   // Fetch the live compliance item (mapped to certificate shape).
   const { data: cert, isLoading } = useQuery({
@@ -173,6 +200,8 @@ export default function CertificateDetailPage() {
   const days = daysUntil(row.expiry_date)
 
   // Persist a single field — maps view-model keys back to compliance_items columns.
+  // Workspace-scoped + RLS-respecting: the write is guarded by both id and
+  // workspace_id so a cross-workspace id can never be updated.
   async function saveField(patch: Record<string, any>) {
     const out: Record<string, any> = { updated_at: new Date().toISOString() }
     if ("certificate_type" in patch) out.kind = patch.certificate_type
@@ -180,11 +209,11 @@ export default function CertificateDetailPage() {
     if ("issue_date" in patch) out.last_completed_at = patch.issue_date
     if ("expiry_date" in patch) out.due_date = patch.expiry_date
     if ("notes" in patch) out.notes = patch.notes
+    if ("property_id" in patch) out.property_id = patch.property_id || null
     if ("status" in patch) out.status = toItemStatus(patch.status)
-    const { error } = await supabase
-      .from("compliance_items")
-      .update(out)
-      .eq("id", id)
+    let q = supabase.from("compliance_items").update(out).eq("id", id)
+    if (workspaceId) q = q.eq("workspace_id", workspaceId)
+    const { error } = await q
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-certificate-detail", id] })
     qc.invalidateQueries({ queryKey: ["compliance-certificates"] })
@@ -192,6 +221,17 @@ export default function CertificateDetailPage() {
 
   async function setStatus(status: string) {
     await saveField({ status })
+  }
+
+  // Workflow-safe status transition: reject a move to an invalid/no-op state.
+  async function transitionStatus(next: string) {
+    const current = row.status as string
+    if (next === current) return
+    const allowed = STATUS_TRANSITIONS[current] ?? STATUS_OPTIONS.map((o) => o.value)
+    if (!allowed.includes(next)) {
+      throw new Error(`Can't move from ${current} to ${next}`)
+    }
+    await saveField({ status: next })
   }
 
   async function handleDelete() {
@@ -222,9 +262,9 @@ export default function CertificateDetailPage() {
       {
         label: "Type",
         node: (
-          <InlineEditField
+          <InlineEditSelect
             value={row.certificate_type}
-            type="select"
+            label="Certificate type"
             options={TYPE_OPTIONS}
             disabled={isSeed}
             onSave={(v) => saveField({ certificate_type: v })}
@@ -237,6 +277,7 @@ export default function CertificateDetailPage() {
           <InlineEditField
             value={row.reference_number}
             type="text"
+            label="Reference"
             placeholder="Add reference"
             disabled={isSeed}
             onSave={(v) => saveField({ reference_number: v })}
@@ -245,16 +286,27 @@ export default function CertificateDetailPage() {
       },
       {
         label: "Property",
-        node: <span className="text-sm text-slate-800 font-medium">{row.property_name ?? "—"}</span>,
+        node: (
+          <InlineEditRelationshipSelect
+            value={row.property_id}
+            label="Property"
+            options={propertyOptions}
+            clearable
+            placeholder="Link a property"
+            disabled={isSeed}
+            onSave={(v) => saveField({ property_id: v })}
+          />
+        ),
       },
       {
         label: "Status",
         node: (
-          <InlineEditField
+          <InlineEditSelect
             value={row.status}
-            type="select"
+            label="Status"
             options={STATUS_OPTIONS}
             disabled={isSeed}
+            transition={transitionStatus}
             onSave={(v) => saveField({ status: v })}
           />
         ),
@@ -265,8 +317,10 @@ export default function CertificateDetailPage() {
           <InlineEditField
             value={row.risk_level}
             type="select"
+            label="Risk"
             options={RISK_OPTIONS}
-            disabled={isSeed}
+            readOnly
+            readOnlyReason="Risk is derived from the certificate type and status."
             onSave={(v) => saveField({ risk_level: v })}
           />
         ),
@@ -277,9 +331,9 @@ export default function CertificateDetailPage() {
       {
         label: "Issue Date",
         node: (
-          <InlineEditField
+          <InlineEditDate
             value={row.issue_date}
-            type="date"
+            label="Issue date"
             disabled={isSeed}
             onSave={(v) => saveField({ issue_date: v })}
           />
@@ -288,9 +342,9 @@ export default function CertificateDetailPage() {
       {
         label: "Expiry Date",
         node: (
-          <InlineEditField
+          <InlineEditDate
             value={row.expiry_date}
-            type="date"
+            label="Expiry date"
             disabled={isSeed}
             onSave={(v) => saveField({ expiry_date: v })}
           />
@@ -347,9 +401,9 @@ export default function CertificateDetailPage() {
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Notes</p>
           </div>
           <div className="px-5 py-4">
-            <InlineEditField
+            <InlineEditTextarea
               value={row.notes}
-              type="textarea"
+              label="Notes"
               placeholder="Add notes for this certificate"
               disabled={isSeed}
               onSave={(v) => saveField({ notes: v })}

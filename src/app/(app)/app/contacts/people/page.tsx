@@ -18,8 +18,38 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { InlineEditCell, InlineEditSelect } from "@/components/editing"
 import PersonCard from "@/components/contacts/PersonCard"
 import type { Contact } from "@/types/database"
+
+// Inline-edit option lists + validators for the contacts table cells.
+const CONTACT_TYPE_OPTIONS = [
+  { value: "landlord", label: "Landlord" },
+  { value: "tenant", label: "Tenant" },
+  { value: "post_tenant", label: "Post Tenant" },
+  { value: "applicant", label: "Applicant" },
+  { value: "guarantor", label: "Guarantor" },
+  { value: "supplier", label: "Supplier" },
+  { value: "agent", label: "Agent" },
+  { value: "local_authority", label: "Local Authority" },
+  { value: "housing_association", label: "Housing Association" },
+  { value: "legal", label: "Legal" },
+  { value: "accountant", label: "Accountant" },
+  { value: "other", label: "Other" },
+]
+const CONTACT_STATUS_OPTIONS = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "archived", label: "Archived" },
+]
+function validatePeopleEmail(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : "Enter a valid email address"
+}
+function validatePeoplePhone(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[+]?[\d\s()-]{7,}$/.test(v.trim()) ? null : "Enter a valid phone number"
+}
 
 /* ================================================================== */
 /* Shared person action menu — wired to live update/delete             */
@@ -229,6 +259,12 @@ function PersonListRow({ contact }: { contact: Contact }) {
 
 /* --- Table Row --- */
 function PersonTableRow({ contact }: { contact: Contact }) {
+  const updateContact = useUpdateContact()
+  const isDemo = contact.is_demo === true
+  const lockReason = isDemo ? "Demo records are read-only." : undefined
+  const saveField = async (payload: Partial<Contact>) => {
+    await updateContact.mutateAsync({ id: contact.id, workspaceId: contact.workspace_id, payload: payload as never })
+  }
   return (
     <tr className="hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
       <td className="px-4 py-3">
@@ -240,25 +276,74 @@ function PersonTableRow({ contact }: { contact: Contact }) {
             <Link href={`/app/contacts/${contact.id}`} className="text-sm font-semibold text-slate-900 hover:text-[#2563EB] transition-colors whitespace-nowrap">
               {contact.full_name}
             </Link>
-            {contact.company_name && <p className="text-xs text-slate-400 truncate max-w-[120px]">{contact.company_name}</p>}
+            <InlineEditCell
+              value={contact.company_name}
+              label="company"
+              placeholder="Add company"
+              readOnly={isDemo}
+              readOnlyReason={lockReason}
+              displayClassName="text-xs text-slate-400 max-w-[120px]"
+              onSave={(v) => saveField({ company_name: v || null })}
+            />
           </div>
         </div>
       </td>
-      <td className="px-4 py-3"><TypeBadge type={contact.contact_type} /></td>
-      <td className="px-4 py-3 text-xs text-slate-600">
-        {contact.email
-          ? <a href={`mailto:${contact.email}`} className="hover:text-[#2563EB] transition-colors">{contact.email}</a>
-          : <span className="text-slate-300">—</span>
-        }
+      <td className="px-4 py-3">
+        <InlineEditSelect
+          value={contact.contact_type}
+          label="type"
+          options={CONTACT_TYPE_OPTIONS}
+          readOnly={isDemo}
+          readOnlyReason={lockReason}
+          dense
+          silentToast
+          useSheetOnMobile
+          displayClassName="text-xs capitalize"
+          onSave={(v) => saveField({ contact_type: v as Contact["contact_type"] })}
+        />
       </td>
-      <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">{contact.phone ?? "—"}</td>
+      <td className="px-4 py-3 text-xs text-slate-600">
+        <InlineEditCell
+          value={contact.email}
+          type="email"
+          label="email"
+          placeholder="Add email"
+          readOnly={isDemo}
+          readOnlyReason={lockReason}
+          validate={validatePeopleEmail}
+          onSave={(v) => saveField({ email: v || null })}
+        />
+      </td>
+      <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">
+        <InlineEditCell
+          value={contact.phone}
+          type="phone"
+          label="phone"
+          placeholder="Add phone"
+          readOnly={isDemo}
+          readOnlyReason={lockReason}
+          validate={validatePeoplePhone}
+          onSave={(v) => saveField({ phone: v || null })}
+        />
+      </td>
       <td className="px-4 py-3 text-xs text-slate-500">{contact.city ?? "—"}</td>
       <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{relativeTime(contact.updated_at)}</td>
       <td className="px-4 py-3 text-center text-xs text-slate-600">0</td>
       <td className="px-4 py-3">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <StatusDot status={contact.status} />
-          <span className="text-xs text-slate-600 capitalize">{contact.status}</span>
+          <InlineEditSelect
+            value={contact.status}
+            label="status"
+            options={CONTACT_STATUS_OPTIONS}
+            readOnly={isDemo}
+            readOnlyReason={lockReason}
+            dense
+            silentToast
+            useSheetOnMobile
+            displayClassName="text-xs capitalize"
+            onSave={(v) => saveField({ status: v as Contact["status"] })}
+          />
         </div>
       </td>
       <td className="px-4 py-3">

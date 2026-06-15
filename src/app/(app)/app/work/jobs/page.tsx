@@ -50,6 +50,7 @@ import {
 } from "@/components/mobile"
 import { useJobs, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { InlineEditSelect } from "@/components/editing"
 import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
 import { useCreateSavedView } from "@/hooks/useSavedViews"
 import { openCopilot } from "@/lib/copilot/open"
@@ -81,7 +82,29 @@ interface DemoJob {
   invoiceStatus: string
   attachments: number
   notes: number
+  /** True only for persisted live rows — gates inline cell editing. */
+  isLive?: boolean
 }
+
+const JOB_STATUS_CELL_OPTIONS = [
+  { value: "new", label: "New" },
+  { value: "scoped", label: "Scoped" },
+  { value: "supplier_requested", label: "Supplier Requested" },
+  { value: "quote_received", label: "Quote Received" },
+  { value: "approved", label: "Approved" },
+  { value: "scheduled", label: "Scheduled" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "complete", label: "Complete" },
+  { value: "invoiced", label: "Invoiced" },
+  { value: "closed", label: "Closed" },
+  { value: "disputed", label: "Disputed" },
+]
+const JOB_PRIORITY_CELL_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+]
 
 // ---------------------------------------------------------------------------
 // Demo data
@@ -761,6 +784,7 @@ export default function JobsPage() {
         invoiceStatus: j.invoiced_amount && Number(j.invoiced_amount) > 0 ? "Invoiced" : "Not Invoiced",
         attachments: 0,
         notes: 0,
+        isLive: true,
       }))
     }
     // Demo rows: derive an ISO scheduled date from the "16 May" style label so
@@ -1158,8 +1182,24 @@ export default function JobsPage() {
                         <p className="text-[11px] text-slate-400">#{job.id}</p>
                       </Link>
                     </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell">
-                      <WorkPriorityBadge priority={job.priority} />
+                    <td className="px-4 py-3.5 hidden lg:table-cell" onClick={e => e.stopPropagation()}>
+                      {job.isLive && workspaceId ? (
+                        <div className="flex items-center gap-1.5">
+                          <WorkPriorityBadge priority={job.priority} showLabel={false} />
+                          <InlineEditSelect
+                            value={job.priority}
+                            label="priority"
+                            options={JOB_PRIORITY_CELL_OPTIONS}
+                            dense
+                            silentToast
+                            useSheetOnMobile
+                            displayClassName="text-xs capitalize"
+                            onSave={(v) => updateJob.mutateAsync({ id: job.id, workspaceId, payload: { priority: v } as never }).then(() => {})}
+                          />
+                        </div>
+                      ) : (
+                        <WorkPriorityBadge priority={job.priority} />
+                      )}
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell text-sm text-slate-600 truncate max-w-[130px]">{job.property}</td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
@@ -1188,8 +1228,22 @@ export default function JobsPage() {
                         {job.dueDate}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
-                      <JobStatusBadge status={job.status} />
+                    <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                      {job.isLive && workspaceId ? (
+                        <InlineEditSelect
+                          value={job.status}
+                          label="status"
+                          options={JOB_STATUS_CELL_OPTIONS}
+                          dense
+                          silentToast
+                          useSheetOnMobile
+                          displayClassName="text-xs capitalize"
+                          transition={(v) => updateJob.mutateAsync({ id: job.id, workspaceId, payload: { status: v } as never }).then(() => {})}
+                          onSave={(v) => updateJob.mutateAsync({ id: job.id, workspaceId, payload: { status: v } as never }).then(() => {})}
+                        />
+                      ) : (
+                        <JobStatusBadge status={job.status} />
+                      )}
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex flex-col gap-1">

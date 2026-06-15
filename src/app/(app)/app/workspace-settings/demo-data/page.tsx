@@ -9,67 +9,120 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
+  CalendarClock,
+  CalendarPlus,
+  PencilRuler,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-interface WorkspaceStatus {
+interface DemoCounts {
+  properties: number
+  contacts: number
+  tenancies: number
+  units: number
+  tasks: number
+  jobs: number
+  compliance: number
+  transactions: number
+  events: number
+  rent_schedules: number
+  message_threads: number
+}
+
+interface DemoStatus {
+  loaded: boolean
+  injected_at: string | null
+  expires_at: string | null
+  total_count: number
+  edited_count: number
+  counts: DemoCounts
+}
+
+interface WorkspaceContext {
   workspaceId: string
-  demoDataLoaded: boolean
+  status: DemoStatus | null
 }
 
 type PageState = "loading" | "idle" | "seeding" | "resetting"
 
+const COUNT_ROWS: { key: keyof DemoCounts; label: string }[] = [
+  { key: "properties", label: "Properties" },
+  { key: "units", label: "Units" },
+  { key: "tenancies", label: "Tenancies" },
+  { key: "contacts", label: "Contacts" },
+  { key: "tasks", label: "Tasks" },
+  { key: "jobs", label: "Jobs" },
+  { key: "compliance", label: "Compliance" },
+  { key: "transactions", label: "Transactions" },
+]
+
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-async function fetchWorkspaceStatus(): Promise<WorkspaceStatus | null> {
+function formatDate(value: string | null): string {
+  if (!value) return "—"
+  try {
+    return new Date(value).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+  } catch {
+    return "—"
+  }
+}
+
+function daysUntil(value: string | null): number | null {
+  if (!value) return null
+  const ms = new Date(value).getTime() - Date.now()
+  if (Number.isNaN(ms)) return null
+  return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)))
+}
+
+async function resolveWorkspaceId(): Promise<string | null> {
   const supabase = createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return null
-
   const { data: profile } = await supabase
     .from("profiles")
     .select("current_workspace_id")
     .eq("id", user.id)
     .maybeSingle()
-
-  if (!profile?.current_workspace_id) return null
-
-  const { data: workspace } = await supabase
-    .from("workspaces")
-    .select("id, demo_data_loaded")
-    .eq("id", profile.current_workspace_id)
-    .maybeSingle()
-
-  if (!workspace) return null
-
-  return {
-    workspaceId: workspace.id as string,
-    demoDataLoaded: !!workspace.demo_data_loaded,
-  }
+  return (profile?.current_workspace_id as string | null) ?? null
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function DemoDataPage() {
   const [pageState, setPageState] = useState<PageState>("loading")
-  const [status, setStatus] = useState<WorkspaceStatus | null>(null)
+  const [ctx, setCtx] = useState<WorkspaceContext | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [clearText, setClearText] = useState("")
+  const [preserveEdited, setPreserveEdited] = useState(true)
 
   const loadStatus = useCallback(async () => {
     setPageState("loading")
     setErrorMessage(null)
-    setSuccessMessage(null)
     try {
-      const ws = await fetchWorkspaceStatus()
-      setStatus(ws)
+      const workspaceId = await resolveWorkspaceId()
+      if (!workspaceId) {
+        setCtx(null)
+        return
+      }
+      const res = await fetch(`/api/demo/status?workspaceId=${encodeURIComponent(workspaceId)}`)
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setErrorMessage((json as { error?: string }).error ?? "Failed to load demo status.")
+        setCtx({ workspaceId, status: null })
+        return
+      }
+      setCtx({ workspaceId, status: (json as { status: DemoStatus }).status })
     } catch {
       setErrorMessage("Failed to load workspace status.")
     } finally {
@@ -82,28 +135,23 @@ export default function DemoDataPage() {
   }, [loadStatus])
 
   async function handleSeed() {
-    if (!status?.workspaceId || pageState !== "idle") return
+    if (!ctx?.workspaceId || pageState !== "idle") return
     setPageState("seeding")
     setErrorMessage(null)
     setSuccessMessage(null)
-
     try {
       const res = await fetch("/api/demo/seed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId: status.workspaceId }),
+        body: JSON.stringify({ workspaceId: ctx.workspaceId }),
       })
-
       const json = await res.json()
-
       if (!res.ok) {
-        const detail = (json as { error?: string; detail?: string }).error ?? "Seed failed"
-        setErrorMessage(detail)
+        setErrorMessage((json as { error?: string; detail?: string }).error ?? "Seed failed")
         return
       }
-
       setSuccessMessage(
-        "Demo data loaded — 6 properties (with photos), units, tenancies, rent, tasks, jobs, compliance, messages and more. It auto-expires after 30 days."
+        "Demo data loaded — properties (with photos), units, tenancies, rent, tasks, jobs, compliance, messages and more. It auto-expires after 30 days."
       )
       await loadStatus()
     } catch {
@@ -114,29 +162,28 @@ export default function DemoDataPage() {
   }
 
   async function handleReset() {
-    if (!status?.workspaceId || pageState !== "idle") return
+    if (!ctx?.workspaceId || pageState !== "idle") return
     setPageState("resetting")
     setErrorMessage(null)
     setSuccessMessage(null)
     setShowClearConfirm(false)
     setClearText("")
-
     try {
       const res = await fetch("/api/demo/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId: status.workspaceId }),
+        body: JSON.stringify({ workspaceId: ctx.workspaceId, preserveEdited }),
       })
-
       const json = await res.json()
-
       if (!res.ok) {
-        const detail = (json as { error?: string }).error ?? "Reset failed"
-        setErrorMessage(detail)
+        setErrorMessage((json as { error?: string }).error ?? "Reset failed")
         return
       }
-
-      setSuccessMessage("Demo data removed. Your workspace is clean.")
+      setSuccessMessage(
+        preserveEdited
+          ? "Demo data removed. Any demo records you had edited were kept."
+          : "Demo data removed. Your workspace is clean."
+      )
       await loadStatus()
     } catch {
       setErrorMessage("Network error. Please try again.")
@@ -145,8 +192,10 @@ export default function DemoDataPage() {
     }
   }
 
-  const demoLoaded = status?.demoDataLoaded ?? false
+  const status = ctx?.status ?? null
+  const demoLoaded = status?.loaded ?? false
   const isWorking = pageState === "seeding" || pageState === "resetting"
+  const expiryDays = daysUntil(status?.expires_at ?? null)
 
   return (
     <div>
@@ -187,7 +236,7 @@ export default function DemoDataPage() {
                 {pageState === "loading"
                   ? "Checking workspace…"
                   : demoLoaded
-                  ? "Demo data is active in this workspace"
+                  ? `Demo data is active — ${status?.total_count ?? 0} records`
                   : "No demo data loaded"}
               </p>
             </div>
@@ -197,15 +246,45 @@ export default function DemoDataPage() {
             <span
               className={cn(
                 "text-[11px] font-semibold px-2.5 py-1 rounded-full",
-                demoLoaded
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-slate-100 text-slate-500"
+                demoLoaded ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-500"
               )}
             >
               {demoLoaded ? "Demo Active" : "Not loaded"}
             </span>
           )}
         </div>
+
+        {/* Injected / expiry / edited summary */}
+        {demoLoaded && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+            <div className="flex items-center gap-2.5 rounded-xl bg-white border border-amber-100 px-3.5 py-3">
+              <CalendarPlus className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-[11px] text-slate-400">Injected</p>
+                <p className="text-[12.5px] font-semibold text-slate-800">{formatDate(status?.injected_at ?? null)}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white border border-amber-100 px-3.5 py-3">
+              <CalendarClock className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-[11px] text-slate-400">Expires</p>
+                <p className="text-[12.5px] font-semibold text-slate-800">
+                  {formatDate(status?.expires_at ?? null)}
+                  {expiryDays != null && (
+                    <span className="text-[11px] font-normal text-slate-400"> · {expiryDays}d left</span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white border border-amber-100 px-3.5 py-3">
+              <PencilRuler className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-[11px] text-slate-400">Edited records</p>
+                <p className="text-[12.5px] font-semibold text-slate-800">{status?.edited_count ?? 0}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Success banner */}
@@ -235,27 +314,37 @@ export default function DemoDataPage() {
           can be removed at any time, and auto-expires 30 days after loading.
         </p>
 
-        {/* What's included */}
+        {/* Counts (live when loaded, illustrative when not) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          {[
-            { label: "Properties", count: "6" },
-            { label: "Units", count: "5" },
-            { label: "Tenancies", count: "3" },
-            { label: "Tasks", count: "4" },
-            { label: "Jobs", count: "3" },
-            { label: "Compliance", count: "6" },
-            { label: "Contacts", count: "7" },
-            { label: "Messages", count: "2" },
-          ].map(({ label, count }) => (
+          {COUNT_ROWS.map(({ key, label }) => (
             <div
-              key={label}
+              key={key}
               className="bg-slate-50 rounded-xl border border-slate-100 px-3 py-2.5 text-center"
             >
-              <p className="text-[18px] font-bold text-slate-900">{count}</p>
+              <p className="text-[18px] font-bold text-slate-900">
+                {demoLoaded ? status?.counts?.[key] ?? 0 : "—"}
+              </p>
               <p className="text-[11px] text-slate-500 mt-0.5">{label}</p>
             </div>
           ))}
         </div>
+
+        {/* Preserve-edited toggle (only meaningful when demo is active) */}
+        {demoLoaded && (
+          <label className="flex items-start gap-2.5 mb-5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={preserveEdited}
+              onChange={(e) => setPreserveEdited(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/30"
+            />
+            <span className="text-[12.5px] text-slate-600 leading-relaxed">
+              <span className="font-semibold text-slate-800">Keep records I&apos;ve edited.</span>{" "}
+              When removing demo data, any demo record you have since changed is preserved (and
+              becomes part of your real workspace). Untouched demo records are deleted.
+            </span>
+          </label>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -321,8 +410,9 @@ export default function DemoDataPage() {
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-[440px] mx-4 shadow-2xl">
             <h3 className="text-[15px] font-bold text-slate-900 mb-2">Remove demo data?</h3>
             <p className="text-[13px] text-slate-500 mb-4">
-              This will permanently delete all demo records from your workspace. Type{" "}
-              <strong>REMOVE</strong> to confirm.
+              This will permanently delete{" "}
+              {preserveEdited ? "all untouched demo records (your edits are kept)" : "all demo records"}{" "}
+              from your workspace. Type <strong>REMOVE</strong> to confirm.
             </p>
             <input
               value={clearText}

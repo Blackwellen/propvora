@@ -1,9 +1,30 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
 import { Download, X, Share } from "lucide-react"
+import {
+  canShowInstallPrompt,
+  isBlockedPath,
+  readDismissedAt,
+  readInstalled,
+  persistDismissed,
+  persistInstalled,
+} from "./installPromptLogic"
 
-const DISMISS_KEY = "propvora.pwa.installDismissed"
+/* ──────────────────────────────────────────────────────────────────────────
+   PWA install prompt — SINGLE centralised owner (mounted once in app/layout).
+
+   Behaviour:
+   - Appears at most once per session, and never within the 21-day cooldown
+     after a dismissal (timestamp persisted in localStorage).
+   - Never in standalone (Android/desktop installed OR iOS home-screen).
+   - Never on form / wizard / checkout / onboarding routes (isBlockedPath).
+   - Does NOT re-fire on route changes: the deferred event is captured once and
+     a one-shot guard prevents re-evaluation. (Navigating INTO a blocked route
+     while visible hides it; it is not re-shown automatically.)
+   - The eligibility policy itself lives in installPromptLogic.ts (unit-tested).
+─────────────────────────────────────────────────────────────────────────── */
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -25,28 +46,55 @@ function isIos(): boolean {
 }
 
 export default function InstallPrompt() {
+  const pathname = usePathname()
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
   const [show, setShow] = useState(false)
   const [iosHint, setIosHint] = useState(false)
+  // One-shot: once we've shown (or decided) in this session we never re-trigger.
+  const decidedRef = useRef(false)
 
+  // Capture the beforeinstallprompt / appinstalled events ONCE.
   useEffect(() => {
     if (isStandalone()) return
-    try { if (localStorage.getItem(DISMISS_KEY) === "1") return } catch { /* ignore */ }
+    if (readInstalled()) return
+
+    const eligible = () =>
+      canShowInstallPrompt({
+        standalone: isStandalone(),
+        pathname: window.location.pathname,
+        dismissedAt: readDismissedAt(),
+        installed: readInstalled(),
+      })
 
     const onBip = (e: Event) => {
       e.preventDefault()
+      // Always keep the latest deferred event so the Install button works even
+      // if the banner is shown later — but only flip `show` when eligible.
       setDeferred(e as BeforeInstallPromptEvent)
+      if (decidedRef.current) return
+      if (!eligible()) return
+      decidedRef.current = true
       setShow(true)
     }
     window.addEventListener("beforeinstallprompt", onBip)
 
-    // iOS never fires beforeinstallprompt — show manual instructions after a beat.
+    // iOS never fires beforeinstallprompt — show manual instructions after a
+    // beat, but only if eligible and not on a blocked route.
     let t: ReturnType<typeof setTimeout> | undefined
     if (isIos()) {
-      t = setTimeout(() => { setIosHint(true); setShow(true) }, 4000)
+      t = setTimeout(() => {
+        if (decidedRef.current) return
+        if (!eligible()) return
+        decidedRef.current = true
+        setIosHint(true)
+        setShow(true)
+      }, 4000)
     }
 
-    const onInstalled = () => { setShow(false); dismiss() }
+    const onInstalled = () => {
+      persistInstalled()
+      setShow(false)
+    }
     window.addEventListener("appinstalled", onInstalled)
 
     return () => {
@@ -56,15 +104,26 @@ export default function InstallPrompt() {
     }
   }, [])
 
+  // Hide the banner the moment the user enters a blocked route (form/wizard/
+  // checkout/onboarding). We never auto-re-show it after this.
+  useEffect(() => {
+    if (show && isBlockedPath(pathname)) setShow(false)
+  }, [pathname, show])
+
   function dismiss() {
     setShow(false)
-    try { localStorage.setItem(DISMISS_KEY, "1") } catch { /* ignore */ }
+    persistDismissed()
   }
 
   async function install() {
     if (!deferred) return
     await deferred.prompt()
-    try { await deferred.userChoice } catch { /* ignore */ }
+    try {
+      const choice = await deferred.userChoice
+      if (choice?.outcome === "accepted") persistInstalled()
+    } catch {
+      /* ignore */
+    }
     setDeferred(null)
     dismiss()
   }

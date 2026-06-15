@@ -16,12 +16,16 @@ export default function TutorialLauncher({ surface = "app" }: { surface?: "app" 
   const sections = Array.from(new Set(tutorials.map((t) => t.section)))
 
   return (
-    <>
+    /* Desktop/lg+ only. On mobile/PWA the floating launcher is suppressed (it
+       would collide with the fixed bottom nav, sticky save bars, and the raised
+       Copilot centre button); "Help & Guides" is surfaced inside the mobile
+       "More" sheet instead. */
+    <div className="hidden lg:block">
       {/* Floating help button — bottom-left, clear of the AI bubble (bottom-right) */}
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Help & guides"
-        className="pwa-safe-bottom fixed bottom-5 left-5 z-40 w-11 h-11 rounded-full bg-white border border-slate-200 shadow-lg flex items-center justify-center text-slate-500 hover:text-[#2563EB] hover:border-blue-200 transition-all"
+        className="fixed bottom-5 left-5 z-40 w-11 h-11 rounded-full bg-white border border-slate-200 shadow-lg flex items-center justify-center text-slate-500 hover:text-[#2563EB] hover:border-blue-200 transition-all"
       >
         {open ? <X className="w-5 h-5" /> : <HelpCircle className="w-5 h-5" />}
       </button>
@@ -88,6 +92,6 @@ export default function TutorialLauncher({ surface = "app" }: { surface?: "app" 
           </div>
         </>
       )}
-    </>
+    </div>
   )
 }

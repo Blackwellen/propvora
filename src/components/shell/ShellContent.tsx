@@ -10,6 +10,7 @@ export default function ShellContent({ children }: ShellContentProps) {
   return (
     <main
       id="main-content"
+      data-shell-content
       tabIndex={-1}
       aria-label="Main content"
       className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden focus:outline-none"

@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { InlineEditField, InlineEditSelect, InlineEditTextarea } from "@/components/editing"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
 import { useSupplierJobs } from "@/hooks/useJobs"
@@ -68,6 +68,15 @@ const CONTACT_STATUS_OPTIONS = [
   { value: "archived", label: "Archived" },
 ]
 
+function validateSupplierEmail(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : "Enter a valid email address"
+}
+function validateSupplierPhone(v: string): string | null {
+  if (!v.trim()) return null
+  return /^[+]?[\d\s()-]{7,}$/.test(v.trim()) ? null : "Enter a valid phone number"
+}
+
 function EditableRow({
   label,
   value,
@@ -76,20 +85,37 @@ function EditableRow({
   options,
   disabled,
   placeholder = "—",
+  validate,
 }: {
   label: string
   value: string | null
   onSave: (val: string) => Promise<void>
-  type?: "text" | "textarea" | "select"
+  type?: "text" | "textarea" | "select" | "email" | "phone"
   options?: { value: string; label: string }[]
   disabled?: boolean
   placeholder?: string
+  validate?: (val: string) => string | null
 }) {
+  const readOnlyReason = disabled ? "This supplier record is read-only." : undefined
+  const common = {
+    value,
+    label,
+    placeholder,
+    readOnly: disabled,
+    readOnlyReason,
+    onSave,
+  }
   return (
     <div className="flex gap-3 mb-2.5 items-start">
       <span className="text-[11px] text-slate-400 w-32 shrink-0 pt-0.5">{label}</span>
       <div className="flex-1 min-w-0">
-        <InlineEditField value={value} onSave={onSave} type={type} options={options} disabled={disabled} placeholder={placeholder} />
+        {type === "textarea" ? (
+          <InlineEditTextarea {...common} />
+        ) : type === "select" ? (
+          <InlineEditSelect {...common} options={options} />
+        ) : (
+          <InlineEditField {...common} type={type} validate={validate} />
+        )}
       </div>
     </div>
   )
@@ -120,8 +146,8 @@ function OverviewTabContent({
           <EditableRow label="Name" value={supplier.name} onSave={(v) => onSaveField("full_name", v)} disabled={!editable} />
           <EditableRow label="Company" value={supplier.company} onSave={(v) => onSaveField("company_name", v)} disabled={!editable} />
           <EditableRow label="Supplier Type" value={supplier.trade} onSave={onSaveTrade} disabled={!editable} placeholder="General Supplier" />
-          <EditableRow label="Email" value={supplier.email} onSave={(v) => onSaveField("email", v)} disabled={!editable} />
-          <EditableRow label="Phone" value={supplier.phone} onSave={(v) => onSaveField("phone", v)} disabled={!editable} />
+          <EditableRow label="Email" value={supplier.email} onSave={(v) => onSaveField("email", v)} type="email" validate={validateSupplierEmail} disabled={!editable} />
+          <EditableRow label="Phone" value={supplier.phone} onSave={(v) => onSaveField("phone", v)} type="phone" validate={validateSupplierPhone} disabled={!editable} />
           <EditableRow label="City" value={cityPart || null} onSave={(v) => onSaveField("city", v)} disabled={!editable} />
           <EditableRow label="Postcode" value={postcodePart || null} onSave={(v) => onSaveField("postcode", v)} disabled={!editable} />
           <EditableRow label="Status" value={supplier.status} onSave={(v) => onSaveField("status", v)} type="select" options={CONTACT_STATUS_OPTIONS} disabled={!editable} />

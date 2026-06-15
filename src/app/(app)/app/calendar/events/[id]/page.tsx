@@ -28,9 +28,16 @@ import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditTextarea,
+  InlineEditRelationshipSelect,
+  usePropertyOptions,
+} from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { useWorkspaceId } from "@/hooks/useWorkspace"
 
 const EVENT_TYPE_OPTIONS = [
   { value: "viewing", label: "Viewing" },
@@ -169,8 +176,9 @@ function CtxCard({ label, value, sub, Icon, colour }: { label: string; value: st
 /* ------------------------------------------------------------------ */
 /* Tab content — Overview                                               */
 /* ------------------------------------------------------------------ */
-function TabOverview({ event, onSave, editable }: { event: CalendarEventRow; onSave: EventSaveFn; editable: boolean }) {
+function TabOverview({ event, onSave, editable, propertyOptions }: { event: CalendarEventRow; onSave: EventSaveFn; editable: boolean; propertyOptions: { value: string; label: string; sublabel?: string }[] }) {
   const fmtDate = (iso: string) => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+  const lockReason = editable ? undefined : "Demo events are read-only."
   return (
     <div className="space-y-6">
       {/* Event details */}
@@ -182,23 +190,33 @@ function TabOverview({ event, onSave, editable }: { event: CalendarEventRow; onS
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div className="col-span-2">
             <dt className="text-xs text-slate-500 mb-0.5">Title</dt>
-            <dd><InlineEditField value={event.title} disabled={!editable} placeholder="Untitled event"
+            <dd><InlineEditField value={event.title} label="title" readOnly={!editable} readOnlyReason={lockReason} placeholder="Untitled event"
               displayClassName="text-sm text-slate-800 font-medium" onSave={(v) => onSave("title", v)} /></dd>
           </div>
           <div className="col-span-2">
             <dt className="text-xs text-slate-500 mb-0.5">Description</dt>
-            <dd><InlineEditField value={event.description} type="textarea" disabled={!editable} placeholder="No description"
+            <dd><InlineEditTextarea value={event.description} label="description" readOnly={!editable} readOnlyReason={lockReason} placeholder="No description"
               displayClassName="text-sm text-slate-800" onSave={(v) => onSave("description", v)} /></dd>
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-slate-500 mb-0.5">Event Type</dt>
-            <dd><InlineEditField value={event.event_type} type="select" options={EVENT_TYPE_OPTIONS} disabled={!editable}
+            <dd><InlineEditSelect value={event.event_type} options={EVENT_TYPE_OPTIONS} label="event type" readOnly={!editable} readOnlyReason={lockReason}
               placeholder="—" displayClassName="text-sm text-slate-800 font-medium capitalize" onSave={(v) => onSave("event_type", v)} /></dd>
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-slate-500 mb-0.5">Status</dt>
-            <dd><InlineEditField value={event.status} type="select" options={EVENT_STATUS_OPTIONS} disabled={!editable}
+            <dd><InlineEditSelect value={event.status} options={EVENT_STATUS_OPTIONS} label="status" readOnly={!editable} readOnlyReason={lockReason}
               placeholder="—" displayClassName="text-sm text-slate-800 font-medium capitalize" onSave={(v) => onSave("status", v)} /></dd>
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <dt className="text-xs text-slate-500 mb-0.5">Location</dt>
+            <dd><InlineEditField value={event.location} label="location" readOnly={!editable} readOnlyReason={lockReason}
+              placeholder="No location" displayClassName="text-sm text-slate-800" onSave={(v) => onSave("location", v)} /></dd>
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <dt className="text-xs text-slate-500 mb-0.5">Linked Property</dt>
+            <dd><InlineEditRelationshipSelect value={event.property_id} options={propertyOptions} label="property" readOnly={!editable} readOnlyReason={lockReason}
+              placeholder="No property linked" clearable displayClassName="text-sm text-slate-800" onSave={(v) => onSave("property_id", v)} /></dd>
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-slate-500 mb-0.5">Starts</dt>
@@ -620,6 +638,8 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
+  const workspaceId = useWorkspaceId()
+  const propertyOptions = usePropertyOptions(workspaceId)
   const [event, setEvent] = useState<CalendarEventRow | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -845,7 +865,7 @@ export default function EventDetailPage() {
 
             {/* Tab panel */}
             <div className="rounded-xl md:rounded-b-xl md:rounded-t-none border md:border-t-0 border-slate-200 bg-white p-4 md:p-6">
-              {activeTab === "overview"  && <TabOverview event={event} onSave={saveField} editable={editable} />}
+              {activeTab === "overview"  && <TabOverview event={event} onSave={saveField} editable={editable} propertyOptions={propertyOptions} />}
               {activeTab === "linked"    && <TabLinked />}
               {activeTab === "schedule"  && <TabSchedule />}
               {activeTab === "reminders" && <TabReminders />}

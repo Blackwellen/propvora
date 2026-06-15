@@ -84,7 +84,10 @@ export default function AutomationsClient() {
   }))
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    /* Full ShellContent width to match every other /app section — ShellContent
+       already applies the page gutters and bottom-nav clearance, so this only
+       owns vertical rhythm between blocks. */
+    <div className="space-y-0">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
@@ -146,7 +149,11 @@ export default function AutomationsClient() {
       {showBuilder && <RuleBuilder onClose={() => setShowBuilder(false)} onCreated={() => { setShowBuilder(false); reloadRules(); flash("Rule created."); setTab("rules") }} />}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_32px_rgba(0,0,0,0.30)]">{toast}</div>
+        <div
+          className="fixed left-1/2 z-50 -translate-x-1/2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_32px_rgba(0,0,0,0.30)] bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] lg:bottom-6"
+        >
+          {toast}
+        </div>
       )}
     </div>
   )

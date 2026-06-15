@@ -6,7 +6,7 @@ import nextDynamic from "next/dynamic"
 import { useParams, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty, useUpdateProperty, useDeleteProperty } from "@/hooks/useProperties"
-import { useUnits, useDeleteUnit, type Unit } from "@/hooks/useUnits"
+import { useUnits, useUpdateUnit, useDeleteUnit, type Unit } from "@/hooks/useUnits"
 import { useTenancies, useUpdateTenancy, type Tenancy } from "@/hooks/useTenancies"
 import { useJobs } from "@/hooks/useJobs"
 import { useTasks } from "@/hooks/useTasks"
@@ -14,7 +14,12 @@ import { useContacts } from "@/hooks/useContacts"
 import { createClient } from "@/lib/supabase/client"
 import type { Property, Job, Task } from "@/types/database"
 import { cn } from "@/lib/utils"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditCell,
+  InlineEditMoney,
+  InlineEditSelect,
+} from "@/components/editing"
 import { uploadFile } from "@/lib/upload"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -552,20 +557,45 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 <span className="text-slate-500">Dwelling Type</span>
                 {/* Saves the live free-text `category` column (NOT a non-existent
                     `property_type`). The `template` enum is derived server-side. */}
-                <InlineEditField
+                <InlineEditSelect
                   value={prop.category ?? ""}
                   onSave={(v) => onSave("category", v)}
-                  type="select"
+                  label="Dwelling type"
                   options={PROPERTY_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
                   displayClassName="font-medium text-slate-800"
                 />
               </div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">Operation Profile</span>
+                {/* Live `template` column (mapped operation_profile <-> template in useProperties). */}
+                <InlineEditSelect
+                  value={prop.operation_profile ?? ""}
+                  onSave={(v) => onSave("operation_profile", v || null)}
+                  label="Operation profile"
+                  placeholder="Set profile"
+                  options={[
+                    { value: "long_term_let", label: "Long-term Let" },
+                    { value: "hmo", label: "HMO" },
+                    { value: "student_let", label: "Student Let" },
+                    { value: "serviced_accommodation", label: "Serviced Accommodation" },
+                    { value: "rent_to_rent", label: "Rent to Rent" },
+                    { value: "holiday_let", label: "Holiday Let" },
+                    { value: "build_to_rent", label: "Build to Rent" },
+                    { value: "social_housing", label: "Social Housing" },
+                    { value: "commercial", label: "Commercial" },
+                    { value: "mixed_use", label: "Mixed Use" },
+                  ]}
+                  displayClassName="font-medium text-slate-800 capitalize"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="text-slate-500">Status</span>
-                <InlineEditField
+                {/* Workflow-safe status change routed through `transition`. */}
+                <InlineEditSelect
                   value={prop.status ?? "active"}
                   onSave={(v) => onSave("status", v)}
-                  type="select"
+                  transition={(v) => onSave("status", v)}
+                  label="Status"
                   options={[
                     { value: "active", label: "Active" },
                     { value: "vacant", label: "Void" },
@@ -577,11 +607,10 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
               </div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="text-slate-500">Target Rent</span>
-                <InlineEditField
+                <InlineEditMoney
                   value={prop.target_rent ?? ""}
                   onSave={(v) => onSave("target_rent", v ? Number(v) : null)}
-                  type="number"
-                  prefix="£"
+                  label="Target rent"
                   displayClassName="font-medium text-slate-800"
                 />
               </div>
@@ -591,6 +620,17 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                   value={prop.bedrooms ?? ""}
                   onSave={(v) => onSave("bedrooms", v ? Number(v) : null)}
                   type="number"
+                  label="Bedrooms"
+                  displayClassName="font-medium text-slate-800"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">Bathrooms</span>
+                <InlineEditField
+                  value={prop.bathrooms ?? ""}
+                  onSave={(v) => onSave("bathrooms", v ? Number(v) : null)}
+                  type="number"
+                  label="Bathrooms"
                   displayClassName="font-medium text-slate-800"
                 />
               </div>
@@ -600,8 +640,49 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                   value={prop.floor_area_sqm ?? ""}
                   onSave={(v) => onSave("floor_area_sqm", v ? Number(v) : null)}
                   type="number"
+                  label="Floor area"
                   displayClassName="font-medium text-slate-800"
                   placeholder="—"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">Address Line 1</span>
+                <InlineEditField
+                  value={prop.address_line1 ?? ""}
+                  onSave={(v) => onSave("address_line1", v)}
+                  label="Address line 1"
+                  placeholder="Add address"
+                  displayClassName="font-medium text-slate-800"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">Address Line 2</span>
+                <InlineEditField
+                  value={prop.address_line2 ?? ""}
+                  onSave={(v) => onSave("address_line2", v)}
+                  label="Address line 2"
+                  placeholder="—"
+                  displayClassName="font-medium text-slate-800"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">City</span>
+                <InlineEditField
+                  value={prop.city ?? ""}
+                  onSave={(v) => onSave("city", v)}
+                  label="City"
+                  placeholder="—"
+                  displayClassName="font-medium text-slate-800"
+                />
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500">County</span>
+                <InlineEditField
+                  value={prop.county ?? ""}
+                  onSave={(v) => onSave("county", v)}
+                  label="County"
+                  placeholder="—"
+                  displayClassName="font-medium text-slate-800"
                 />
               </div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -609,6 +690,7 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 <InlineEditField
                   value={prop.postcode ?? ""}
                   onSave={(v) => onSave("postcode", v)}
+                  label="Postcode"
                   displayClassName="font-medium text-slate-800"
                 />
               </div>
@@ -619,6 +701,8 @@ function TabOverview({ prop, unitsList, tenanciesList, complianceItems, complian
                 value={prop.notes ?? ""}
                 onSave={(v) => onSave("notes", v)}
                 type="textarea"
+                label="Notes"
+                useSheetOnMobile
                 placeholder="Add notes…"
                 displayClassName="text-[13px] text-slate-700"
               />
@@ -709,8 +793,29 @@ function TabUnits({ unitsList, propertyId }: { unitsList: Unit[]; propertyId: st
   const router = useRouter()
   const { workspace } = useWorkspace()
   const deleteUnit = useDeleteUnit()
+  const updateUnit = useUpdateUnit()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
+
+  // Workspace-scoped, RLS-respecting cell save → existing useUpdateUnit hook.
+  async function saveUnit(id: string, field: string, value: unknown) {
+    if (!workspace?.id) return
+    await updateUnit.mutateAsync({ id, workspaceId: workspace.id, payload: { [field]: value } })
+  }
+  const UNIT_STATUS_OPTS = [
+    { value: "occupied", label: "Occupied" },
+    { value: "vacant", label: "Vacant" },
+    { value: "under_works", label: "Under Works" },
+    { value: "reserved", label: "Reserved" },
+  ]
+  const UNIT_TYPE_OPTS = [
+    { value: "Room", label: "Room" },
+    { value: "flat", label: "Flat" },
+    { value: "studio", label: "Studio" },
+    { value: "suite", label: "Suite" },
+    { value: "apartment", label: "Apartment" },
+    { value: "other", label: "Other" },
+  ]
 
   const filtered = unitsList.filter((u) => {
     const matchSearch = u.unit_name.toLowerCase().includes(search.toLowerCase())
@@ -795,15 +900,60 @@ function TabUnits({ unitsList, propertyId }: { unitsList: Unit[]; propertyId: st
                       </div>
                     </Link>
                   </td>
-                  <td className="px-4 py-3"><StatusPill status={unit.status} /></td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <StatusPill status={unit.status} />
+                      <InlineEditSelect
+                        value={unit.status}
+                        onSave={(v) => saveUnit(unit.id, "status", v)}
+                        transition={(v) => saveUnit(unit.id, "status", v)}
+                        label="Unit status"
+                        options={UNIT_STATUS_OPTS}
+                        displayClassName="sr-only"
+                        silentToast={false}
+                      />
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-slate-700 tabular-nums">
                     {unit.status === "occupied" ? "1/1" : "0/1"}
                   </td>
-                  <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">{unit.target_rent != null ? fmt(unit.target_rent) : "—"}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">
+                    <InlineEditMoney
+                      value={unit.target_rent ?? ""}
+                      onSave={(v) => saveUnit(unit.id, "target_rent", v ? Number(v) : null)}
+                      label="Monthly rent"
+                      silentToast={false}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-slate-600 tabular-nums">{unit.target_rent != null ? fmt(unit.target_rent) : "—"}</td>
-                  <td className="px-4 py-3 text-slate-600 tabular-nums">{unit.floor_area_sqm != null ? `${unit.floor_area_sqm}m²` : "—"}</td>
-                  <td className="px-4 py-3 text-slate-600">{unit.unit_type ?? "—"}</td>
-                  <td className="px-4 py-3 text-slate-600 tabular-nums">{unit.bedrooms ?? "—"}</td>
+                  <td className="px-4 py-3 text-slate-600 tabular-nums">
+                    <InlineEditCell
+                      value={unit.floor_area_sqm ?? ""}
+                      onSave={(v) => saveUnit(unit.id, "floor_area_sqm", v ? Number(v) : null)}
+                      type="number"
+                      label="Floor area"
+                      placeholder="—"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    <InlineEditCell
+                      value={unit.unit_type ?? ""}
+                      onSave={(v) => saveUnit(unit.id, "unit_type", v)}
+                      type="select"
+                      options={UNIT_TYPE_OPTS}
+                      label="Unit type"
+                      placeholder="—"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 tabular-nums">
+                    <InlineEditCell
+                      value={unit.bedrooms ?? ""}
+                      onSave={(v) => saveUnit(unit.id, "bedrooms", v ? Number(v) : null)}
+                      type="number"
+                      label="Bedrooms"
+                      placeholder="—"
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ActionMenu
@@ -848,6 +998,19 @@ function TabTenancies({ propertyId, tenanciesList, unitsList }: { propertyId: st
   const updateTenancy = useUpdateTenancy()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
+
+  // Workspace-scoped, RLS-respecting cell save → existing useUpdateTenancy hook.
+  async function saveTenancy(id: string, field: string, value: unknown) {
+    if (!workspace?.id) return
+    await updateTenancy.mutateAsync({ id, workspaceId: workspace.id, payload: { [field]: value } })
+  }
+  const TENANCY_STATUS_OPTS = [
+    { value: "draft", label: "Draft" },
+    { value: "active", label: "Active" },
+    { value: "ended", label: "Ended" },
+    { value: "terminated", label: "Terminated" },
+    { value: "uncollectable", label: "Uncollectable" },
+  ]
 
   const unitMap = Object.fromEntries(unitsList.map((u) => [u.id, u.unit_name]))
 
@@ -931,11 +1094,53 @@ function TabTenancies({ propertyId, tenanciesList, unitsList }: { propertyId: st
                   </td>
                   <td className="px-4 py-3 text-slate-600">{unitMap[t.unit_id ?? ""] ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-600 tabular-nums text-[12px]">
-                    {t.start_date} {t.end_date ? `→ ${t.end_date}` : ""}
+                    <div className="flex flex-col gap-0.5">
+                      <InlineEditCell
+                        value={t.start_date ?? ""}
+                        onSave={(v) => saveTenancy(t.id, "start_date", v)}
+                        type="date"
+                        label="Lease start"
+                      />
+                      <InlineEditCell
+                        value={t.end_date ?? ""}
+                        onSave={(v) => saveTenancy(t.id, "end_date", v || null)}
+                        type="date"
+                        label="Lease end"
+                        placeholder="Periodic"
+                      />
+                    </div>
                   </td>
-                  <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">{fmt(t.rent_amount ?? 0)}</td>
-                  <td className="px-4 py-3"><StatusPill status={t.status} /></td>
-                  <td className="px-4 py-3 text-slate-600 tabular-nums">{t.deposit_amount ? fmt(t.deposit_amount) : "—"}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">
+                    <InlineEditMoney
+                      value={t.rent_amount ?? ""}
+                      onSave={(v) => saveTenancy(t.id, "rent_amount", v ? Number(v) : null)}
+                      label="Monthly rent"
+                      silentToast={false}
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <StatusPill status={t.status} />
+                      <InlineEditSelect
+                        value={t.status}
+                        onSave={(v) => saveTenancy(t.id, "status", v)}
+                        transition={(v) => saveTenancy(t.id, "status", v)}
+                        label="Tenancy status"
+                        options={TENANCY_STATUS_OPTS}
+                        displayClassName="sr-only"
+                        silentToast={false}
+                      />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 tabular-nums">
+                    <InlineEditMoney
+                      value={t.deposit_amount ?? ""}
+                      onSave={(v) => saveTenancy(t.id, "deposit_amount", v ? Number(v) : null)}
+                      label="Deposit"
+                      placeholder="—"
+                      silentToast={false}
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ActionMenu
@@ -1823,21 +2028,26 @@ export default function PropertyDetailPage() {
               <InlineEditField
                 value={prop.name}
                 onSave={(v) => save("name", v)}
+                label="Property name"
                 displayClassName="text-[22px] font-bold text-slate-900 leading-tight"
               />
-              <InlineEditField
-                value={prop.status ?? "active"}
-                onSave={(v) => save("status", v)}
-                type="select"
-                options={[
-                  { value: "active", label: "Active" },
-                  { value: "vacant", label: "Void" },
-                  { value: "under_works", label: "Off Market" },
-                  { value: "archived", label: "Archived" },
-                ]}
-                displayClassName="hidden"
-              />
-              <StatusPill status={prop.status} />
+              {/* Status pill + always-visible transition-safe editor (pen beside the pill). */}
+              <span className="inline-flex items-center gap-1">
+                <StatusPill status={prop.status} />
+                <InlineEditSelect
+                  value={prop.status ?? "active"}
+                  onSave={(v) => save("status", v)}
+                  transition={(v) => save("status", v)}
+                  label="Status"
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "vacant", label: "Void" },
+                    { value: "under_works", label: "Off Market" },
+                    { value: "archived", label: "Archived" },
+                  ]}
+                  displayClassName="sr-only"
+                />
+              </span>
             </div>
 
             {/* Address + ID */}
@@ -1847,6 +2057,7 @@ export default function PropertyDetailPage() {
                 <InlineEditField
                   value={prop.address_line1 ?? ""}
                   onSave={(v) => save("address_line1", v)}
+                  label="Address line 1"
                   placeholder="Add address"
                   displayClassName="text-[13px] text-slate-500"
                 />
@@ -1854,12 +2065,14 @@ export default function PropertyDetailPage() {
                 <InlineEditField
                   value={prop.city ?? ""}
                   onSave={(v) => save("city", v)}
+                  label="City"
                   placeholder="City"
                   displayClassName="text-[13px] text-slate-500"
                 />
                 <InlineEditField
                   value={prop.postcode ?? ""}
                   onSave={(v) => save("postcode", v)}
+                  label="Postcode"
                   placeholder="Postcode"
                   displayClassName="text-[13px] text-slate-500"
                 />

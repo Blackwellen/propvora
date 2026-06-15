@@ -80,15 +80,25 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
       </div>
 
       {/* Dedicated mobile primary nav — fixed bottom tab bar (replaces the
-          desktop SideNavigation below lg). Desktop is unaffected. */}
-      <MobileBottomNav />
-
-      {/* Global chat bubble + panel */}
-      <ChatBubble
+          desktop SideNavigation below lg). The raised centre button opens the
+          Copilot/Inbox panel (it never navigates) and carries the unread badge.
+          Desktop is unaffected. */}
+      <MobileBottomNav
+        chatOpen={chatOpen}
+        onOpenChat={() => setChatOpen(true)}
         unreadCount={unreadCount}
-        onClick={() => setChatOpen((o) => !o)}
-        isOpen={chatOpen}
       />
+
+      {/* Global chat bubble — desktop/lg+ only. Below lg the MobileBottomNav
+          centre button is the sole Copilot entry point, so the floating bubble
+          is not rendered (it would collide with the bottom nav / safe area). */}
+      <div className="hidden lg:block">
+        <ChatBubble
+          unreadCount={unreadCount}
+          onClick={() => setChatOpen((o) => !o)}
+          isOpen={chatOpen}
+        />
+      </div>
       <AnimatePresence>
         {chatOpen && (
           <ChatPanel

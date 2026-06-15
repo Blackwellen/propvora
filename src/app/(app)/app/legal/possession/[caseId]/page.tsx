@@ -4,7 +4,13 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditDate,
+  InlineEditMoney,
+  InlineEditTextarea,
+} from "@/components/editing"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import { LegalDisclaimer, DraftBadge } from "@/components/legal/LegalDisclaimer"
 import { MobileTabs, type MobileTabItem } from "@/components/mobile"
@@ -46,6 +52,12 @@ const STATUS_OPTIONS = [
   { value: "warrant_issued", label: "Warrant Issued" },
   { value: "resolved", label: "Resolved" },
 ]
+
+// Possession case lifecycle. Each state can advance to any later stage or be
+// resolved; we reject a no-op so the Select behaves as a workflow guard. We
+// deliberately allow flexible movement (cases can stall/regress) but never a
+// transition to the current value.
+const STATUS_ORDER = STATUS_OPTIONS.map((o) => o.value)
 
 function statusLabel(s: string) {
   return STATUS_OPTIONS.find((o) => o.value === s)?.label ?? s
@@ -98,6 +110,17 @@ export default function PossessionCaseDetailPage() {
       value = raw === "" ? null : Number(raw)
     }
     await updateCase.mutateAsync({ id: caseData.id, workspaceId, payload: { [field]: value } as never })
+  }
+
+  // Workflow-safe status change. Edits the underlying case status (source data),
+  // never the generated notice/bundle output. Rejects a no-op transition.
+  async function transitionStatus(next: string) {
+    if (!caseData) return
+    if (next === caseData.status) return
+    if (!STATUS_ORDER.includes(next)) {
+      throw new Error(`Unknown status: ${next}`)
+    }
+    await save("status", next)
   }
 
   if (isLoading) {
@@ -242,33 +265,33 @@ export default function PossessionCaseDetailPage() {
                     <span className="text-[13px] font-medium text-slate-800">{property}</span>
                   </Field>
                   <Field label="Ground(s)">
-                    <InlineEditField value={caseData.ground} onSave={(v) => save("ground", v)} />
+                    <InlineEditField value={caseData.ground} label="Ground(s)" onSave={(v) => save("ground", v)} />
                   </Field>
                   <Field label="Arrears (£)">
-                    <InlineEditField value={caseData.arrears_amount} type="number" prefix="£" onSave={(v) => save("arrears_amount", v)} />
+                    <InlineEditMoney value={caseData.arrears_amount} label="Arrears amount" onSave={(v) => save("arrears_amount", v)} />
                   </Field>
                   <Field label="Arrears (weeks)">
-                    <InlineEditField value={caseData.arrears_weeks} type="number" onSave={(v) => save("arrears_weeks", v)} />
+                    <InlineEditField value={caseData.arrears_weeks} type="number" label="Arrears weeks" onSave={(v) => save("arrears_weeks", v)} />
                   </Field>
                   <Field label="Status">
-                    <InlineEditField value={caseData.status} type="select" options={STATUS_OPTIONS} onSave={(v) => save("status", v)} />
+                    <InlineEditSelect value={caseData.status} label="Status" options={STATUS_OPTIONS} transition={transitionStatus} onSave={(v) => save("status", v)} />
                   </Field>
                   <Field label="Notice Served">
-                    <InlineEditField value={caseData.notice_served_date ?? ""} type="date" onSave={(v) => save("notice_served_date", v)} />
+                    <InlineEditDate value={caseData.notice_served_date ?? ""} label="Notice served date" onSave={(v) => save("notice_served_date", v)} />
                   </Field>
                   <Field label="Notice Expiry">
-                    <InlineEditField value={caseData.notice_expiry_date ?? ""} type="date" onSave={(v) => save("notice_expiry_date", v)} />
+                    <InlineEditDate value={caseData.notice_expiry_date ?? ""} label="Notice expiry date" onSave={(v) => save("notice_expiry_date", v)} />
                   </Field>
                   <Field label="Court Reference">
-                    <InlineEditField value={caseData.court_reference ?? ""} placeholder="—" onSave={(v) => save("court_reference", v)} />
+                    <InlineEditField value={caseData.court_reference ?? ""} label="Court reference" placeholder="—" onSave={(v) => save("court_reference", v)} />
                   </Field>
                   <Field label="Hearing Date">
-                    <InlineEditField value={caseData.hearing_date ?? ""} type="date" onSave={(v) => save("hearing_date", v)} />
+                    <InlineEditDate value={caseData.hearing_date ?? ""} label="Hearing date" onSave={(v) => save("hearing_date", v)} />
                   </Field>
                 </div>
                 <div className="px-5 pb-5">
                   <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Notes</p>
-                  <InlineEditField value={caseData.notes ?? ""} type="textarea" placeholder="Add internal case notes…" onSave={(v) => save("notes", v)} />
+                  <InlineEditTextarea value={caseData.notes ?? ""} label="Notes" placeholder="Add internal case notes…" onSave={(v) => save("notes", v)} />
                 </div>
               </div>
             </div>

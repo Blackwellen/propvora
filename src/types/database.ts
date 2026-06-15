@@ -1250,6 +1250,18 @@ export interface Database {
         Args: { ws_id: string }
         Returns: boolean
       }
+      seed_demo_workspace: {
+        Args: { p_workspace_id: string; p_user_id: string }
+        Returns: string
+      }
+      delete_demo_data: {
+        Args: { p_workspace_id: string; p_preserve_edited?: boolean }
+        Returns: undefined
+      }
+      demo_data_status: {
+        Args: { p_workspace_id: string }
+        Returns: Json
+      }
       user_workspace_ids: {
         Args: Record<string, never>
         Returns: string[]

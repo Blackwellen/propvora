@@ -1,12 +1,12 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Save, ShieldCheck, Mail } from "lucide-react"
+import { ShieldCheck, Mail } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
+import { InlineEditField } from "@/components/editing"
 import { resolveTenantContext, type TenantContext } from "../_lib/tenant-context"
 
 interface TenantForm {
@@ -35,7 +35,6 @@ const DEFAULT_NOTIFS: NotifPrefs = {
 
 export default function TenantSettingsPage() {
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ctx, setCtx] = useState<TenantContext | null>(null)
@@ -44,10 +43,6 @@ export default function TenantSettingsPage() {
     displayName: "", email: "", phone: "", company: "", address: "",
   })
   const [notifs, setNotifs] = useState<NotifPrefs>(DEFAULT_NOTIFS)
-
-  function handleChange(key: keyof TenantForm, val: string) {
-    setForm((prev) => ({ ...prev, [key]: val }))
-  }
 
   function toggleNotif(key: keyof NotifPrefs) {
     setNotifs((prev) => {
@@ -94,35 +89,21 @@ export default function TenantSettingsPage() {
     load()
   }, [])
 
-  async function handleSaveProfile() {
-    if (!ctx) return
-    setSaving(true)
-    setSaved(false)
-    setError(null)
-    try {
-      const supabase = createClient()
-      // Write to LIVE contacts columns (display_name / company / address_line1)
-      const { error: updateErr } = await supabase
-        .from("contacts")
-        .update({
-          display_name: form.displayName || null,
-          email: form.email || null,
-          phone: form.phone || null,
-          company: form.company || null,
-          address_line1: form.address || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", ctx.contactId)
-
-      if (updateErr) throw updateErr
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      console.error(err)
-      setError("Failed to save changes.")
-    } finally {
-      setSaving(false)
-    }
+  // Per-field inline save — maps a form key to its live `contacts` column and
+  // persists just that value (RLS-scoped to the linked tenant contact).
+  async function saveField(
+    key: keyof TenantForm,
+    column: "display_name" | "email" | "phone" | "company" | "address_line1",
+    value: string
+  ) {
+    if (!ctx) throw new Error("Profile editing requires a linked tenant contact.")
+    const supabase = createClient()
+    const { error: updateErr } = await supabase
+      .from("contacts")
+      .update({ [column]: value.trim() || null, updated_at: new Date().toISOString() })
+      .eq("id", ctx.contactId)
+    if (updateErr) throw new Error("Failed to save changes.")
+    setForm((prev) => ({ ...prev, [key]: value }))
   }
 
   if (loading) {
@@ -151,22 +132,36 @@ export default function TenantSettingsPage() {
         </div>
       )}
 
-      {/* Profile details */}
+      {/* Profile details — visible-pen inline edit, per-field save (RLS-scoped). */}
       <Card className="rounded-2xl border-slate-200">
         <CardHeader><CardTitle>Your Details</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <Input label="Full Name" value={form.displayName} onChange={(e) => handleChange("displayName", e.target.value)} />
-          <Input label="Company (if applicable)" value={form.company} onChange={(e) => handleChange("company", e.target.value)} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="Email Address" type="email" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
-            <Input label="Phone Number" value={form.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-          </div>
-          <Input label="Correspondence Address" value={form.address} onChange={(e) => handleChange("address", e.target.value)} />
-          <Button variant="primary" size="sm" onClick={handleSaveProfile} disabled={saving || !ctx}>
-            <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save Changes"}
-          </Button>
+        <CardContent className="space-y-1">
+          {([
+            { key: "displayName" as const, column: "display_name" as const, label: "Full Name", type: "text" as const },
+            { key: "company" as const, column: "company" as const, label: "Company (if applicable)", type: "text" as const },
+            { key: "email" as const, column: "email" as const, label: "Email Address", type: "email" as const },
+            { key: "phone" as const, column: "phone" as const, label: "Phone Number", type: "phone" as const },
+            { key: "address" as const, column: "address_line1" as const, label: "Correspondence Address", type: "text" as const },
+          ]).map((row) => (
+            <div
+              key={row.key}
+              className="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-0"
+            >
+              <p className="text-[12.5px] font-semibold text-slate-600 shrink-0">{row.label}</p>
+              <InlineEditField
+                value={form[row.key]}
+                type={row.type}
+                label={row.label}
+                placeholder="Not set"
+                useSheetOnMobile
+                permission={!!ctx}
+                readOnlyReason={!ctx ? "Ask your managing agent to grant you portal access." : undefined}
+                onSave={(v) => saveField(row.key, row.column, v)}
+              />
+            </div>
+          ))}
           {!ctx && (
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 pt-2">
               Profile editing requires a linked tenant contact. Ask your managing agent to grant you portal access.
             </p>
           )}

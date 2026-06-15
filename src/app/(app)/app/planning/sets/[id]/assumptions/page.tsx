@@ -10,6 +10,7 @@ import {
   Sliders,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { InlineEditCell } from "@/components/editing"
 
 // ── Live schema row (planning_assumptions, FK planning_set_id) ─────────────────
 
@@ -128,6 +129,31 @@ export default function PlanningSetAssumptionsPage() {
 
   useEffect(() => { load() }, [load])
 
+  // Persist a single assumption. Scoped by planning_set_id (the FK that ties the
+  // row to this set + workspace via RLS). Raw string in → numeric/null out.
+  const saveField = useCallback(
+    async (key: keyof PlanningAssumptionRow, raw: string) => {
+      if (!id) return
+      const next = raw.trim() === "" ? null : Number(raw)
+      if (next != null && Number.isNaN(next)) throw new Error("Enter a valid number")
+      const supabase = createClient()
+      const { data, error: err } = await supabase
+        .from("planning_assumptions")
+        .update({ [key]: next })
+        .eq("planning_set_id", id)
+        .select()
+        .maybeSingle()
+      if (err) throw new Error(err.message)
+      // Reflect the saved value locally without a full refetch.
+      setRow((prev) =>
+        prev
+          ? { ...prev, [key]: next }
+          : (data as unknown as PlanningAssumptionRow | null)
+      )
+    },
+    [id]
+  )
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -227,23 +253,38 @@ export default function PlanningSetAssumptionsPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
                         <tbody className="divide-y divide-slate-100">
-                          {fields.map((f) => (
-                            <tr key={f.key as string} className="hover:bg-slate-50/80 transition-colors group">
-                              <td className="px-5 py-3 text-slate-700 font-medium">{f.label}</td>
-                              <td className="px-5 py-3 text-right font-semibold text-slate-900 tabular-nums whitespace-nowrap">
-                                {row[f.key] != null ? (
-                                  fmtValue(row[f.key] as number, f.kind)
-                                ) : (
-                                  <span className="text-slate-300 font-normal">Not set</span>
-                                )}
-                              </td>
-                              <td className="px-5 py-3 w-10 text-right">
-                                <button className="p-1 rounded-lg hover:bg-slate-200 transition-colors opacity-0 group-hover:opacity-100">
-                                  <Edit2 className="w-3 h-3 text-slate-500" />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                          {fields.map((f) => {
+                            const current = row[f.key] as number | null
+                            const prefix = f.kind === "money" ? "£" : undefined
+                            const suffix =
+                              f.kind === "pct" ? "%" : f.kind === "months" ? " mo" : ""
+                            return (
+                              <tr key={f.key as string} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="px-5 py-3 text-slate-700 font-medium">{f.label}</td>
+                                <td className="px-5 py-2 text-right tabular-nums whitespace-nowrap">
+                                  <div className="inline-flex items-center justify-end gap-1">
+                                    <InlineEditCell
+                                      value={current != null ? String(current) : ""}
+                                      type="number"
+                                      label={f.label}
+                                      prefix={prefix}
+                                      placeholder="Not set"
+                                      validate={(v) =>
+                                        v !== "" && Number.isNaN(Number(v))
+                                          ? "Enter a valid number"
+                                          : null
+                                      }
+                                      displayClassName="font-semibold text-slate-900 text-[12.5px]"
+                                      onSave={(v) => saveField(f.key, v)}
+                                    />
+                                    {suffix && current != null && (
+                                      <span className="text-[12.5px] font-semibold text-slate-500">{suffix.trim()}</span>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
                         </tbody>
                       </table>
                     </div>

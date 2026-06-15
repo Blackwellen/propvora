@@ -11,7 +11,7 @@ import { useUnit } from "@/hooks/useUnits"
 import { useTenancyMessages, useSendTenancyMessage } from "@/hooks/useTenancyThread"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { InlineEditField, InlineEditMoney, InlineEditDate, InlineEditSelect, InlineEditTextarea } from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
@@ -53,6 +53,10 @@ interface TenancyDisplay {
   paymentDay: string
   paymentMethod: string
   tenancyType: string
+  tenancyTypeRaw: string | null
+  rentFrequency: string
+  depositHeldBy: string | null
+  notes: string | null
   status: string
   rawStatus?: string
   arrears: number
@@ -287,51 +291,83 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
           </div>
 
           {/* Editable fields grid */}
-          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Rent (£)</span>
+              <InlineEditMoney
+                value={t.rent}
+                onSave={(v) => onSave("rent_amount", v ? Number(v) : null)}
+                label="Rent amount"
+                displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
+              />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Frequency</span>
+              <InlineEditSelect
+                value={t.rentFrequency}
+                onSave={(v) => onSave("rent_frequency", v)}
+                label="Rent frequency"
+                options={[
+                  { value: "weekly", label: "Weekly" },
+                  { value: "monthly", label: "Monthly" },
+                  { value: "nightly", label: "Nightly" },
+                ]}
+                displayClassName="text-sm font-semibold text-slate-800 capitalize"
+              />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Type</span>
+              <InlineEditSelect
+                value={t.tenancyTypeRaw ?? ""}
+                onSave={(v) => onSave("tenancy_type", v || null)}
+                label="Tenancy type"
+                placeholder="Set type"
+                options={[
+                  { value: "ast", label: "AST" },
+                  { value: "periodic", label: "Periodic" },
+                  { value: "contractual", label: "Contractual" },
+                  { value: "lodger", label: "Lodger" },
+                  { value: "commercial", label: "Commercial" },
+                  { value: "hmo_room", label: "HMO Room" },
+                ]}
+                displayClassName="text-sm font-semibold text-slate-800 uppercase"
+              />
+            </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Deposit (£)</span>
-              <InlineEditField
+              <InlineEditMoney
                 value={t.deposit}
                 onSave={(v) => onSave("deposit_amount", v ? Number(v) : null)}
-                type="number"
-                prefix="£"
+                label="Deposit amount"
                 displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
               />
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Lease Start</span>
-              <InlineEditField
+              <InlineEditDate
                 value={t.leaseStart}
                 onSave={(v) => onSave("start_date", v)}
-                type="date"
+                label="Lease start"
                 displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
               />
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Lease End</span>
-              <InlineEditField
-                value={t.leaseEnd}
-                onSave={(v) => onSave("end_date", v)}
-                type="date"
-                displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
-              />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Rent (£/mo)</span>
-              <InlineEditField
-                value={t.rent}
-                onSave={(v) => onSave("rent_amount", v ? Number(v) : null)}
-                type="number"
-                prefix="£"
+              <InlineEditDate
+                value={t.leaseEnd === "Periodic" ? "" : t.leaseEnd}
+                onSave={(v) => onSave("end_date", v || null)}
+                label="Lease end"
+                placeholder="Periodic"
                 displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
               />
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">Status</span>
-              <InlineEditField
+              <InlineEditSelect
                 value={t.rawStatus ?? "active"}
                 onSave={(v) => onSave("status", v)}
-                type="select"
+                transition={(v) => onSave("status", v)}
+                label="Status"
                 options={[
                   { value: "draft", label: "Draft" },
                   { value: "active", label: "Active" },
@@ -577,22 +613,20 @@ function TimelineTab({ events, loaded }: { events: TenancyActivityRow[]; loaded:
 
 /* ─────────────────────── TAB: NOTES (3E) ─────────────────────── */
 
-function NotesTab({ notes }: { notes: string | null | undefined }) {
+function NotesTab({ notes, onSave }: { notes: string | null | undefined; onSave: (field: string, value: any) => Promise<void> }) {
   return (
     <div className="mt-4 flex flex-col gap-4">
       <SectionCard className="p-5">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-bold text-slate-800">Tenancy Notes</span>
         </div>
-        {notes ? (
-          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{notes}</p>
-        ) : (
-          <div className="py-8 text-center">
-            <FileText className="w-7 h-7 text-slate-200 mx-auto mb-2" />
-            <p className="text-[13px] text-slate-500">No notes recorded for this tenancy</p>
-            <p className="text-[12px] text-slate-500 mt-1">Add notes from the tenancy record to keep context in one place.</p>
-          </div>
-        )}
+        <InlineEditTextarea
+          value={notes ?? ""}
+          onSave={(v) => onSave("notes", v)}
+          label="Tenancy notes"
+          placeholder="Add notes to keep context in one place…"
+          displayClassName="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"
+        />
       </SectionCard>
     </div>
   )
@@ -676,28 +710,44 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
             </div>
             <div className="flex flex-col divide-y divide-slate-100">
               <div className="flex items-center justify-between py-2.5">
+                <span className="text-xs text-slate-500">Held By</span>
+                <InlineEditSelect
+                  value={t.depositHeldBy ?? ""}
+                  onSave={(v) => onSave("deposit_held_by", v || null)}
+                  label="Deposit held by"
+                  placeholder="Set holder"
+                  options={[
+                    { value: "landlord", label: "Landlord" },
+                    { value: "scheme", label: "Scheme" },
+                    { value: "agent", label: "Agent" },
+                  ]}
+                  displayClassName="text-sm font-semibold text-slate-800 capitalize"
+                />
+              </div>
+              <div className="flex items-center justify-between py-2.5">
                 <span className="text-xs text-slate-500">Scheme</span>
                 <InlineEditField
                   value={t.depositScheme}
                   onSave={(v) => onSave("deposit_scheme", v)}
+                  label="Deposit scheme"
                   displayClassName="text-sm font-semibold text-slate-800"
                 />
               </div>
               <div className="flex items-center justify-between py-2.5">
-                <span className="text-xs text-slate-500">Certificate Number</span>
+                <span className="text-xs text-slate-500">Reference</span>
                 <InlineEditField
                   value={t.depositCertNo}
                   onSave={(v) => onSave("deposit_reference", v)}
+                  label="Deposit reference"
                   displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
                 />
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-xs text-slate-500">Protected Amount</span>
-                <InlineEditField
+                <InlineEditMoney
                   value={t.deposit}
                   onSave={(v) => onSave("deposit_amount", v ? Number(v) : null)}
-                  type="number"
-                  prefix="£"
+                  label="Protected amount"
                   displayClassName="text-sm font-semibold text-slate-800 tabular-nums"
                 />
               </div>
@@ -1031,6 +1081,10 @@ export default function TenancyDetailPage() {
     paymentDay: "1st of each month",
     paymentMethod: "Bank Transfer",
     tenancyType: (tenancy.tenancy_type ?? "AST").toUpperCase(),
+    tenancyTypeRaw: tenancy.tenancy_type ?? null,
+    rentFrequency: tenancy.rent_frequency ?? "monthly",
+    depositHeldBy: tenancy.deposit_held_by ?? null,
+    notes: tenancy.notes ?? null,
     status: tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1),
     rawStatus: tenancy.status,
     arrears: 0,
@@ -1143,7 +1197,7 @@ export default function TenancyDetailPage() {
         {activeTab === "payments" && <PaymentsTab t={t} />}
         {activeTab === "documents" && <DocumentsTab tenancyId={tenancyId} />}
         {activeTab === "timeline" && <TimelineTab events={activityEvents} loaded={activityLoaded} />}
-        {activeTab === "notes" && <NotesTab notes={tenancy?.notes} />}
+        {activeTab === "notes" && <NotesTab notes={tenancy?.notes} onSave={save} />}
         {activeTab === "activity" && <ActivityTab events={activityEvents} loaded={activityLoaded} />}
         {activeTab === "deposit" && <DepositTab t={t} onSave={save} />}
         {activeTab === "communications" && <CommunicationsTab t={t} tenancyId={tenancyId} />}

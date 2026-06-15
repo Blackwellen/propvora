@@ -30,9 +30,18 @@ import {
 import {
   useComplianceCertificates,
   useDeleteCertificate,
+  useUpdateCertificate,
   type ComplianceCertificate,
 } from "@/hooks/useComplianceData"
+import { InlineEditCell, InlineEditDate } from "@/components/editing"
 import { fmtDate, daysUntil, humaniseType, downloadCsv } from "../_lib/useComplianceItems"
+
+const CERT_STATUS_OPTIONS = [
+  { value: "valid", label: "Valid" },
+  { value: "expiring_soon", label: "Expiring Soon" },
+  { value: "expired", label: "Expired" },
+  { value: "missing", label: "Missing" },
+]
 
 const STATUS_FILTERS = ["", "valid", "expiring_soon", "expired", "missing", "pending_review"]
 const RISK_FILTERS = ["", "low", "medium", "high", "critical"]
@@ -55,6 +64,7 @@ export default function CertificatesPage() {
 
   const { data: certs = [], isLoading, refetch } = useComplianceCertificates()
   const del = useDeleteCertificate()
+  const update = useUpdateCertificate()
 
   const activeFilterCount = (statusFilter ? 1 : 0) + (riskFilter ? 1 : 0)
 
@@ -274,11 +284,25 @@ export default function CertificatesPage() {
                         {cert.property_address && <p className="text-slate-400 text-[11px] truncate max-w-[180px]">{cert.property_address}</p>}
                       </td>
                       <td className="px-3 py-3 text-slate-600 whitespace-nowrap">{fmtDate(cert.issue_date)}</td>
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        <p className="text-slate-600">{fmtDate(cert.expiry_date)}</p>
+                      <td className="px-3 py-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <InlineEditDate
+                          value={cert.expiry_date}
+                          label="Expiry date"
+                          silentToast
+                          displayClassName="text-slate-600"
+                          onSave={async (v) => { await update.mutateAsync({ id: cert.id, expiry_date: v || null }) }}
+                        />
                         <p className={`text-[11px] mt-0.5 ${exp.cls}`}>{exp.text}</p>
                       </td>
-                      <td className="px-3 py-3"><ComplianceStatusBadge status={cert.status} /></td>
+                      <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                        <InlineEditCell
+                          value={cert.status}
+                          type="select"
+                          label="Status"
+                          options={CERT_STATUS_OPTIONS}
+                          onSave={async (v) => { await update.mutateAsync({ id: cert.id, status: v }) }}
+                        />
+                      </td>
                       <td className="px-3 py-3"><ComplianceRiskBadge risk={cert.risk_level} /></td>
                       <td className="px-3 py-3 text-center">
                         <span className="inline-flex items-center gap-1">

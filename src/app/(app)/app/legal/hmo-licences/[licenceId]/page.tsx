@@ -4,7 +4,11 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditDate,
+} from "@/components/editing"
 import { MobileTabs, type MobileTabItem } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -142,6 +146,16 @@ export default function HmoLicenceDetailPage() {
     if (field === "max_occupants" || field === "max_households" || field === "occupancy_current")
       value = raw === "" ? null : Number(raw)
     await updateLicence.mutateAsync({ id: lic.id, workspaceId, payload: { [field]: value } as never })
+  }
+
+  // Workflow-safe status change on the licence source record.
+  async function transitionStatus(next: string) {
+    if (!lic) return
+    if (next === lic.status) return
+    if (!STATUS_OPTIONS.some((o) => o.value === next)) {
+      throw new Error(`Unknown status: ${next}`)
+    }
+    await save("status", next)
   }
 
   if (isLoading) {
@@ -287,28 +301,28 @@ export default function HmoLicenceDetailPage() {
                 <div className="p-5 grid grid-cols-2 gap-4">
                   <Field label="Property"><span className="text-[13px] font-medium text-slate-800">{property}</span></Field>
                   <Field label="Licence Type">
-                    <InlineEditField value={lic.licence_type} type="select" options={TYPE_OPTIONS} onSave={(v) => save("licence_type", v)} />
+                    <InlineEditSelect value={lic.licence_type} label="Licence type" options={TYPE_OPTIONS} onSave={(v) => save("licence_type", v)} />
                   </Field>
                   <Field label="Licence Number">
-                    <InlineEditField value={lic.licence_number ?? ""} placeholder="—" onSave={(v) => save("licence_number", v)} />
+                    <InlineEditField value={lic.licence_number ?? ""} label="Licence number" placeholder="—" onSave={(v) => save("licence_number", v)} />
                   </Field>
                   <Field label="Issuing Council">
-                    <InlineEditField value={lic.issuing_council ?? ""} placeholder="—" onSave={(v) => save("issuing_council", v)} />
+                    <InlineEditField value={lic.issuing_council ?? ""} label="Issuing council" placeholder="—" onSave={(v) => save("issuing_council", v)} />
                   </Field>
                   <Field label="Max Occupants">
-                    <InlineEditField value={lic.max_occupants} type="number" placeholder="—" onSave={(v) => save("max_occupants", v)} />
+                    <InlineEditField value={lic.max_occupants} type="number" label="Max occupants" placeholder="—" onSave={(v) => save("max_occupants", v)} />
                   </Field>
                   <Field label="Max Households">
-                    <InlineEditField value={lic.max_households} type="number" placeholder="—" onSave={(v) => save("max_households", v)} />
+                    <InlineEditField value={lic.max_households} type="number" label="Max households" placeholder="—" onSave={(v) => save("max_households", v)} />
                   </Field>
                   <Field label="Issue Date">
-                    <InlineEditField value={lic.issue_date ?? ""} type="date" placeholder="—" onSave={(v) => save("issue_date", v)} />
+                    <InlineEditDate value={lic.issue_date ?? ""} label="Issue date" placeholder="—" onSave={(v) => save("issue_date", v)} />
                   </Field>
                   <Field label="Expiry Date">
-                    <InlineEditField value={lic.expiry_date} type="date" onSave={(v) => save("expiry_date", v)} />
+                    <InlineEditDate value={lic.expiry_date} label="Expiry date" onSave={(v) => save("expiry_date", v)} />
                   </Field>
                   <Field label="Status">
-                    <InlineEditField value={lic.status} type="select" options={STATUS_OPTIONS} onSave={(v) => save("status", v)} />
+                    <InlineEditSelect value={lic.status} label="Status" options={STATUS_OPTIONS} transition={transitionStatus} onSave={(v) => save("status", v)} />
                   </Field>
                   <Field label="Days Remaining">
                     <span className="text-[13px] font-medium text-slate-800">
@@ -316,14 +330,14 @@ export default function HmoLicenceDetailPage() {
                     </span>
                   </Field>
                   <Field label="Arrangement">
-                    <InlineEditField value={lic.arrangement_type} type="select" options={ARRANGEMENT_OPTIONS} onSave={(v) => save("arrangement_type", v)} />
+                    <InlineEditSelect value={lic.arrangement_type} label="Arrangement" options={ARRANGEMENT_OPTIONS} onSave={(v) => save("arrangement_type", v)} />
                   </Field>
                   <Field label="Current Occupancy">
-                    <InlineEditField value={lic.occupancy_current} type="number" placeholder="—" onSave={(v) => save("occupancy_current", v)} />
+                    <InlineEditField value={lic.occupancy_current} type="number" label="Current occupancy" placeholder="—" onSave={(v) => save("occupancy_current", v)} />
                   </Field>
                   {lic.arrangement_type === "rent_to_rent" && (
                     <Field label="R2R Agreement End">
-                      <InlineEditField value={lic.r2r_agreement_end ?? ""} type="date" placeholder="—" onSave={(v) => save("r2r_agreement_end", v)} />
+                      <InlineEditDate value={lic.r2r_agreement_end ?? ""} label="R2R agreement end" placeholder="—" onSave={(v) => save("r2r_agreement_end", v)} />
                     </Field>
                   )}
                 </div>

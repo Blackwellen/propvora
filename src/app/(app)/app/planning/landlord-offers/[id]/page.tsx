@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateProperty } from "@/hooks/useProperties"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditMoney,
+  InlineEditTextarea,
+  InlineEditBoolean,
+} from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { Trash2, Copy, Archive } from "lucide-react"
@@ -56,6 +62,16 @@ const STATUS_OPTIONS = [
   { value: "rejected", label: "Rejected" },
   { value: "expired", label: "Expired" },
 ]
+
+// Offer lifecycle transitions (workflow-safe Select).
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  draft: ["sent", "expired"],
+  sent: ["negotiating", "accepted", "rejected", "expired"],
+  negotiating: ["accepted", "rejected", "expired"],
+  accepted: ["rejected"],
+  rejected: ["draft"],
+  expired: ["draft"],
+}
 
 const TABS = [
   { key: "overview", label: "Overview", icon: Building2 },
@@ -114,6 +130,20 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
       throw error
     }
     setOffer((p) => (p ? { ...p, [field]: value } : p))
+  }
+
+  // Workflow-safe status change for the inline Select. Rejects an invalid/no-op
+  // transition; otherwise routes through setStatus so the sent/responded
+  // timestamps stay consistent.
+  async function transitionStatus(next: string) {
+    if (!offer) return
+    const current = offer.status as string
+    if (next === current) return
+    const allowed = STATUS_TRANSITIONS[current] ?? STATUS_OPTIONS.map((o) => o.value)
+    if (!allowed.includes(next)) {
+      throw new Error(`Can't move from ${current} to ${next}`)
+    }
+    await setStatus(next as LandlordOfferStatus, `Offer marked as ${next}`)
   }
 
   async function setStatus(status: LandlordOfferStatus, label: string) {
@@ -248,10 +278,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Landlord Offer</h1>
-              <InlineEditField
+              <InlineEditSelect
                 value={offer.status}
-                type="select"
+                label="Status"
                 options={STATUS_OPTIONS}
+                transition={transitionStatus}
                 displayClassName="text-sm font-semibold"
                 onSave={async (v) => { await saveField("status", v) }}
               />
@@ -259,6 +290,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
             <p className="text-sm text-slate-500 mt-1">
               <InlineEditField
                 value={offer.property_address}
+                label="Property address"
                 displayClassName="text-sm text-slate-500"
                 onSave={async (v) => { await saveField("property_address", v) }}
               />
@@ -343,12 +375,12 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               </div>
               <div>
                 {[
-                  { label: "Property", node: <InlineEditField value={offer.property_address} displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("property_address", v) }} /> },
-                  { label: "Proposed Rent", node: <InlineEditField value={offer.proposed_rent} type="number" prefix="£" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_rent", Number(v)) }} /> },
-                  { label: "Term (months)", node: <InlineEditField value={offer.proposed_term_months ?? ""} type="number" placeholder="Not set" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_term_months", Number(v)) }} /> },
-                  { label: "Break Clause (month)", node: <InlineEditField value={offer.break_clause_months ?? ""} type="number" placeholder="None" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("break_clause_months", Number(v)) }} /> },
-                  { label: "Management Fee Included", node: <span className="font-medium text-slate-900">{offer.management_fee_included ? "Yes" : "No"}</span> },
-                  { label: "Bills Included", node: <span className="font-medium text-slate-900">{offer.bills_included ? "Yes" : "No"}</span> },
+                  { label: "Property", node: <InlineEditField value={offer.property_address} label="Property address" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("property_address", v) }} /> },
+                  { label: "Proposed Rent", node: <InlineEditMoney value={offer.proposed_rent} label="Proposed rent" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_rent", Number(v)) }} /> },
+                  { label: "Term (months)", node: <InlineEditField value={offer.proposed_term_months ?? ""} type="number" label="Term (months)" placeholder="Not set" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_term_months", Number(v)) }} /> },
+                  { label: "Break Clause (month)", node: <InlineEditField value={offer.break_clause_months ?? ""} type="number" label="Break clause (month)" placeholder="None" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("break_clause_months", Number(v)) }} /> },
+                  { label: "Management Fee Included", node: <InlineEditBoolean value={offer.management_fee_included} label="Management fee included" onSave={async (v) => { await saveField("management_fee_included", v) }} /> },
+                  { label: "Bills Included", node: <InlineEditBoolean value={offer.bills_included} label="Bills included" onSave={async (v) => { await saveField("bills_included", v) }} /> },
                   { label: "Sent", node: <span className="font-medium text-slate-900">{fmtDate(offer.sent_at)}</span> },
                   { label: "Responded", node: <span className="font-medium text-slate-900">{fmtDate(offer.responded_at)}</span> },
                 ].map((row, i) => (
@@ -363,9 +395,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
             <div className="flex flex-col gap-4">
               <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Notes</p>
-                <InlineEditField
+                <InlineEditTextarea
                   value={offer.notes ?? ""}
-                  type="textarea"
+                  label="Notes"
                   placeholder="Add notes about this offer…"
                   displayClassName="text-sm text-slate-700"
                   onSave={async (v) => { await saveField("notes", v) }}
@@ -400,15 +432,15 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               <div>
                 <div className="flex justify-between px-5 py-3 text-sm border-b border-slate-50">
                   <span className="text-slate-500">Monthly Rent</span>
-                  <InlineEditField value={offer.proposed_rent} type="number" prefix="£" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_rent", Number(v)) }} />
+                  <InlineEditMoney value={offer.proposed_rent} label="Monthly rent" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_rent", Number(v)) }} />
                 </div>
                 <div className="flex justify-between px-5 py-3 text-sm border-b border-slate-50 bg-slate-50/50">
                   <span className="text-slate-500">Term (months)</span>
-                  <InlineEditField value={offer.proposed_term_months ?? ""} type="number" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_term_months", Number(v)) }} />
+                  <InlineEditField value={offer.proposed_term_months ?? ""} type="number" label="Term (months)" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("proposed_term_months", Number(v)) }} />
                 </div>
                 <div className="flex justify-between px-5 py-3 text-sm">
                   <span className="text-slate-500">Break Clause (month)</span>
-                  <InlineEditField value={offer.break_clause_months ?? ""} type="number" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("break_clause_months", Number(v)) }} />
+                  <InlineEditField value={offer.break_clause_months ?? ""} type="number" label="Break clause (month)" displayClassName="font-medium text-slate-900" onSave={async (v) => { await saveField("break_clause_months", Number(v)) }} />
                 </div>
               </div>
             </div>
@@ -419,15 +451,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               <div>
                 <div className="flex justify-between items-center px-5 py-3 text-sm border-b border-slate-50">
                   <span className="text-slate-500">Bills Included</span>
-                  <button onClick={() => void saveField("bills_included", !offer.bills_included)} className={cn("text-xs font-semibold px-2.5 py-1 rounded-lg", offer.bills_included ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500")}>
-                    {offer.bills_included ? "Yes" : "No"}
-                  </button>
+                  <InlineEditBoolean value={offer.bills_included} label="Bills included" onSave={async (v) => { await saveField("bills_included", v) }} />
                 </div>
                 <div className="flex justify-between items-center px-5 py-3 text-sm bg-slate-50/50">
                   <span className="text-slate-500">Management Fee Included</span>
-                  <button onClick={() => void saveField("management_fee_included", !offer.management_fee_included)} className={cn("text-xs font-semibold px-2.5 py-1 rounded-lg", offer.management_fee_included ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500")}>
-                    {offer.management_fee_included ? "Yes" : "No"}
-                  </button>
+                  <InlineEditBoolean value={offer.management_fee_included} label="Management fee included" onSave={async (v) => { await saveField("management_fee_included", v) }} />
                 </div>
               </div>
             </div>

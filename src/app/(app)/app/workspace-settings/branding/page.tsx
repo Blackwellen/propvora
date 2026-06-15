@@ -3,7 +3,15 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Upload, Check, Loader2, Info } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { uploadFile } from "@/lib/upload"
+import { uploadFile, validateUploadFile } from "@/lib/upload"
+
+/** Resolve a stored R2 key to its authed streaming URL (survives refresh). */
+function keyToUrl(key: string | null): string | null {
+  if (!key) return null
+  // Already an absolute/app URL (legacy rows stored a full url) — use as-is.
+  if (key.startsWith("http") || key.startsWith("/api/")) return key
+  return `/api/files/${key}`
+}
 
 interface BrandColours {
   primary: string
@@ -38,6 +46,12 @@ function LogoUploadZone({
 
   async function handleFile(file: File | undefined) {
     if (!file || !workspaceId) return
+    const invalid = validateUploadFile(file, { imagesOnly: true })
+    // SVG passes the server allowlist but not the image MIME mirror — accept it.
+    if (invalid && file.type !== "image/svg+xml") {
+      setError(invalid)
+      return
+    }
     setError(null)
     setUploading(true)
     try {
@@ -49,6 +63,8 @@ function LogoUploadZone({
       setUploading(false)
     }
   }
+
+  const previewUrl = keyToUrl(currentKey)
 
   return (
     <div
@@ -62,13 +78,21 @@ function LogoUploadZone({
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
-      <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mx-auto mb-3 transition-colors">
-        {uploading ? (
-          <Loader2 className="w-5 h-5 text-[#2563EB] animate-spin" />
-        ) : (
-          <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
-        )}
-      </div>
+      {previewUrl ? (
+        // Render the persisted logo from its authed URL — survives refresh.
+        <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center mx-auto mb-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={previewUrl} alt={`${name} preview`} className="max-w-full max-h-full object-contain" />
+        </div>
+      ) : (
+        <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mx-auto mb-3 transition-colors">
+          {uploading ? (
+            <Loader2 className="w-5 h-5 text-[#2563EB] animate-spin" />
+          ) : (
+            <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+          )}
+        </div>
+      )}
       <p className="text-[13px] font-semibold text-slate-700 group-hover:text-[#2563EB] transition-colors">
         {uploading ? "Uploading…" : currentKey ? `Replace ${name}` : `Upload ${name}`}
       </p>

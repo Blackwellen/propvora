@@ -9,7 +9,7 @@ import { useTenancies, type Tenancy } from "@/hooks/useTenancies"
 import { useContacts } from "@/hooks/useContacts"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { InlineEditField, InlineEditMoney, InlineEditSelect } from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
@@ -238,24 +238,28 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
               <InlineEditField
                 value={unit.unit_name}
                 onSave={(v) => onSave("unit_name", v)}
+                label="Unit name"
                 displayClassName="text-xl font-bold text-slate-900"
               />
-              <InlineEditField
-                value={unit.status}
-                onSave={(v) => onSave("status", v)}
-                type="select"
-                options={[
-                  { value: "occupied", label: "Occupied" },
-                  { value: "vacant", label: "Vacant" },
-                  { value: "under_works", label: "Under Works" },
-                  { value: "reserved", label: "Reserved" },
-                ]}
-                displayClassName="hidden"
-              />
-              {unit.status === "occupied" && <StatusPill label="Occupied" color="emerald" />}
-              {unit.status === "vacant" && <StatusPill label="Vacant" color="amber" />}
-              {unit.status === "reserved" && <StatusPill label="Reserved" color="blue" />}
-              {unit.status === "under_works" && <StatusPill label="Under Works" color="slate" />}
+              <span className="inline-flex items-center gap-1">
+                {unit.status === "occupied" && <StatusPill label="Occupied" color="emerald" />}
+                {unit.status === "vacant" && <StatusPill label="Vacant" color="amber" />}
+                {unit.status === "reserved" && <StatusPill label="Reserved" color="blue" />}
+                {unit.status === "under_works" && <StatusPill label="Under Works" color="slate" />}
+                <InlineEditSelect
+                  value={unit.status}
+                  onSave={(v) => onSave("status", v)}
+                  transition={(v) => onSave("status", v)}
+                  label="Status"
+                  options={[
+                    { value: "occupied", label: "Occupied" },
+                    { value: "vacant", label: "Vacant" },
+                    { value: "under_works", label: "Under Works" },
+                    { value: "reserved", label: "Reserved" },
+                  ]}
+                  displayClassName="sr-only"
+                />
+              </span>
             </div>
           </div>
 
@@ -307,11 +311,10 @@ function TabOverview({ unit, tenancy, tenant, onSave }: {
             </div>
             <div>
               <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">Target Rent (£)</div>
-              <InlineEditField
+              <InlineEditMoney
                 value={unit.target_rent ?? ""}
                 onSave={(v) => onSave("target_rent", v ? Number(v) : null)}
-                type="number"
-                prefix="£"
+                label="Target rent"
                 displayClassName="text-[13px] font-semibold text-slate-800"
               />
             </div>
@@ -780,6 +783,7 @@ function TabSpecifications({ unit, complianceItems, complianceLoaded, onSave }: 
                 type={s.type}
                 options={s.options}
                 prefix={s.prefix}
+                label={s.label}
                 displayClassName="text-[13px] font-semibold text-slate-800"
               />
             </div>
@@ -992,12 +996,28 @@ export default function UnitDetailPage() {
               <InlineEditField
                 value={displayUnit.unit_name}
                 onSave={(v) => save("unit_name", v)}
+                label="Unit name"
                 displayClassName="text-[20px] font-bold text-slate-900"
               />
-              {displayUnit.status === "occupied" && <StatusPill label="Occupied" color="emerald" />}
-              {displayUnit.status === "vacant" && <StatusPill label="Vacant" color="amber" />}
-              {displayUnit.status === "reserved" && <StatusPill label="Reserved" color="blue" />}
-              {displayUnit.status === "under_works" && <StatusPill label="Under Works" color="slate" />}
+              <span className="inline-flex items-center gap-1">
+                {displayUnit.status === "occupied" && <StatusPill label="Occupied" color="emerald" />}
+                {displayUnit.status === "vacant" && <StatusPill label="Vacant" color="amber" />}
+                {displayUnit.status === "reserved" && <StatusPill label="Reserved" color="blue" />}
+                {displayUnit.status === "under_works" && <StatusPill label="Under Works" color="slate" />}
+                <InlineEditSelect
+                  value={displayUnit.status}
+                  onSave={(v) => save("status", v)}
+                  transition={(v) => save("status", v)}
+                  label="Status"
+                  options={[
+                    { value: "occupied", label: "Occupied" },
+                    { value: "vacant", label: "Vacant" },
+                    { value: "under_works", label: "Under Works" },
+                    { value: "reserved", label: "Reserved" },
+                  ]}
+                  displayClassName="sr-only"
+                />
+              </span>
             </div>
             <div className="text-[12px] text-slate-500 flex items-center gap-1.5 mt-0.5">
               <MapPin className="w-3 h-3" />

@@ -42,6 +42,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useTasks, useCompleteTask, useDeleteTask, useUpdateTask } from "@/hooks/useTasks"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { InlineEditSelect } from "@/components/editing"
 import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
 import { useCreateSavedView } from "@/hooks/useSavedViews"
 import { openCopilot } from "@/lib/copilot/open"
@@ -81,7 +82,24 @@ interface DemoTask {
   files: number
   overdue?: boolean
   dueToday?: boolean
+  /** True only for persisted live rows — gates inline cell editing. */
+  isLive?: boolean
 }
+
+const TASK_STATUS_CELL_OPTIONS = [
+  { value: "todo", label: "To Do" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "waiting", label: "Waiting" },
+  { value: "blocked", label: "Blocked" },
+  { value: "done", label: "Done" },
+  { value: "cancelled", label: "Cancelled" },
+]
+const TASK_PRIORITY_CELL_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+]
 
 // ---------------------------------------------------------------------------
 // Demo data
@@ -560,6 +578,7 @@ export default function TasksPage() {
         files: 0,
         overdue: t.due_date ? new Date(t.due_date) < new Date() && !["done", "cancelled"].includes(t.status) : false,
         dueToday: t.due_date ? new Date(t.due_date).toDateString() === new Date().toDateString() : false,
+        isLive: true,
       }))
     }
     return DEMO_TASKS
@@ -1009,8 +1028,24 @@ export default function TasksPage() {
                             className="rounded"
                           />
                         </td>
-                        <td className="px-4 py-3.5">
-                          <WorkPriorityBadge priority={task.priority} showLabel={false} />
+                        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                          {task.isLive && workspaceId ? (
+                            <div className="flex items-center gap-1.5">
+                              <WorkPriorityBadge priority={task.priority} showLabel={false} />
+                              <InlineEditSelect
+                                value={task.priority}
+                                label="priority"
+                                options={TASK_PRIORITY_CELL_OPTIONS}
+                                dense
+                                silentToast
+                                useSheetOnMobile
+                                displayClassName="text-xs capitalize"
+                                onSave={(v) => updateTask.mutateAsync({ id: task.id, workspaceId, payload: { priority: v } as never }).then(() => {})}
+                              />
+                            </div>
+                          ) : (
+                            <WorkPriorityBadge priority={task.priority} showLabel={false} />
+                          )}
                         </td>
                         <td className="px-4 py-3.5">
                           <Link href={`/app/work/tasks/${task.id}`} className="block hover:underline">
@@ -1062,7 +1097,23 @@ export default function TasksPage() {
                             {task.sla}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5"><WorkStatusBadge status={task.status} /></td>
+                        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                          {task.isLive && workspaceId ? (
+                            <InlineEditSelect
+                              value={task.status}
+                              label="status"
+                              options={TASK_STATUS_CELL_OPTIONS}
+                              dense
+                              silentToast
+                              useSheetOnMobile
+                              displayClassName="text-xs capitalize"
+                              transition={(v) => updateTask.mutateAsync({ id: task.id, workspaceId, payload: { status: v } as never }).then(() => {})}
+                              onSave={(v) => updateTask.mutateAsync({ id: task.id, workspaceId, payload: { status: v } as never }).then(() => {})}
+                            />
+                          ) : (
+                            <WorkStatusBadge status={task.status} />
+                          )}
+                        </td>
                         <td className="px-4 py-3.5 hidden xl:table-cell text-sm font-medium text-slate-700">{task.costImpact}</td>
                         <td className="px-4 py-3.5 hidden xl:table-cell">
                           <div className="flex items-center gap-3 text-xs text-slate-400">

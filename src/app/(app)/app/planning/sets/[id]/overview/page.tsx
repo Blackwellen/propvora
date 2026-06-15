@@ -26,12 +26,25 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
+import { InlineEditField, InlineEditSelect } from "@/components/editing"
+import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 import type {
   PlanningActivity,
   PlanningTask,
   PlanningNote,
   PlanningAiReview,
 } from "@/lib/planning/types"
+
+const PROFILE_OPTIONS = PLANNING_PROFILES.map((p) => ({ value: p.key, label: p.label }))
+
+const PLAN_STATUS_OPTIONS = [
+  { value: "draft", label: "Draft" },
+  { value: "active", label: "Active" },
+  { value: "offer_sent", label: "Offer Sent" },
+  { value: "accepted", label: "Accepted" },
+  { value: "converted", label: "Converted" },
+  { value: "archived", label: "Archived" },
+]
 
 // ── Live planning_sets row shape (per verified live schema) ────────────────────
 
@@ -116,10 +129,6 @@ function dueDateLabel(iso: string | null): { label: string; cls: string } {
     label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
     cls: "text-slate-600 bg-slate-100",
   }
-}
-
-function startCase(s: string): string {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -260,6 +269,20 @@ export default function PlanningSetOverviewPage() {
     load()
   }, [id])
 
+  // Persist a single editable plan field (source data only — never the
+  // calculated yield/ROI/forecast outputs, which stay read-only). Scoped by the
+  // planning_sets id (RLS handles the workspace check).
+  async function savePlanField(key: keyof PlanningSetRow, value: string) {
+    if (!id) return
+    const supabase = createClient()
+    const { error: err } = await supabase
+      .from("planning_sets")
+      .update({ [key]: value === "" ? null : value })
+      .eq("id", id)
+    if (err) throw new Error(err.message)
+    setData((prev) => (prev ? { ...prev, set: { ...prev.set, [key]: value || null } } : prev))
+  }
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -398,11 +421,50 @@ export default function PlanningSetOverviewPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                {/* Editable source fields */}
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Plan Name</span>
+                  <InlineEditField
+                    value={set.title}
+                    label="Plan name"
+                    placeholder="Add a plan name"
+                    displayClassName="text-xs text-slate-800 font-semibold"
+                    onSave={(v) => savePlanField("title", v)}
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Address</span>
+                  <InlineEditField
+                    value={set.address ?? ""}
+                    label="Address"
+                    placeholder="Add an address"
+                    displayClassName="text-xs text-slate-800 font-semibold"
+                    onSave={(v) => savePlanField("address", v)}
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Operation Profile</span>
+                  <InlineEditSelect
+                    value={set.operation_profile ?? ""}
+                    label="Operation profile"
+                    options={PROFILE_OPTIONS}
+                    placeholder="Select a profile"
+                    displayClassName="text-xs text-slate-800 font-semibold"
+                    onSave={(v) => savePlanField("operation_profile", v)}
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Status</span>
+                  <InlineEditSelect
+                    value={set.status}
+                    label="Status"
+                    options={PLAN_STATUS_OPTIONS}
+                    displayClassName="text-xs text-slate-800 font-semibold"
+                    onSave={(v) => savePlanField("status", v)}
+                  />
+                </div>
+                {/* Calculated outputs — read-only (never edited directly) */}
                 {[
-                  { label: "Plan Name", value: set.title },
-                  { label: "Address", value: set.address ?? "—" },
-                  { label: "Operation Profile", value: set.operation_profile ? startCase(set.operation_profile) : "—" },
-                  { label: "Status", value: startCase(set.status) },
                   { label: "Net Yield", value: set.net_yield != null ? fmtPct(set.net_yield) : "—" },
                   { label: "Breakeven Month", value: set.breakeven_month != null ? `Month ${set.breakeven_month}` : "—" },
                   { label: "Gross Monthly", value: fmtFull(grossMonthly) },

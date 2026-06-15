@@ -8,7 +8,15 @@ import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditDate,
+  InlineEditTextarea,
+  InlineEditRelationshipSelect,
+} from "@/components/editing"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useProperties } from "@/hooks/useProperties"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
@@ -42,6 +50,15 @@ const TYPE_OPTIONS = [
   { value: "fire", label: "Fire Safety Inspection" },
   { value: "gas", label: "Gas Inspection" },
 ]
+
+// Valid inspection lifecycle transitions (workflow-safe Select).
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  scheduled: ["in_progress", "completed", "overdue", "cancelled"],
+  in_progress: ["completed", "overdue", "cancelled"],
+  overdue: ["scheduled", "in_progress", "completed", "cancelled"],
+  completed: ["scheduled"],
+  cancelled: ["scheduled"],
+}
 
 const ROUTINE_CHECKLIST = [
   "General condition", "Electrics & sockets", "Plumbing & water pressure", "Heating system",
@@ -132,6 +149,15 @@ export default function InspectionDetailPage() {
   const router = useRouter()
   const supabase = createClient()
   const qc = useQueryClient()
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id
+  const { data: properties = [] } = useProperties(workspaceId)
+
+  const propertyOptions = properties.map((p) => ({
+    value: p.id,
+    label: p.name || "Unnamed property",
+    sublabel: p.address_line1 ?? undefined,
+  }))
 
   const { data: insp, isLoading } = useQuery({
     queryKey: ["compliance-inspection-detail", id],
@@ -177,6 +203,8 @@ export default function InspectionDetailPage() {
   const [rescheduleDate, setRescheduleDate] = useState("")
 
   // Map view-model field keys back to property_inspections columns.
+  // Workspace-scoped: both id and workspace_id gate the update so a foreign id
+  // can never be written (RLS-respecting).
   async function saveField(patch: Record<string, any>) {
     const out: Record<string, any> = { updated_at: new Date().toISOString() }
     if ("inspection_type" in patch) out.kind = patch.inspection_type
@@ -184,10 +212,10 @@ export default function InspectionDetailPage() {
     if ("completed_date" in patch) out.completed_at = patch.completed_date
     if ("status" in patch) out.status = patch.status === "upcoming" ? "scheduled" : patch.status
     if ("next_action" in patch) out.notes = patch.next_action
-    const { error } = await supabase
-      .from("property_inspections")
-      .update(out)
-      .eq("id", id)
+    if ("property_id" in patch) out.property_id = patch.property_id || null
+    let q = supabase.from("property_inspections").update(out).eq("id", id)
+    if (workspaceId) q = q.eq("workspace_id", workspaceId)
+    const { error } = await q
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-inspection-detail", id] })
     qc.invalidateQueries({ queryKey: ["compliance-inspections"] })
@@ -195,6 +223,17 @@ export default function InspectionDetailPage() {
 
   async function setStatus(status: string, extra: Record<string, any> = {}) {
     await saveField({ status, ...extra })
+  }
+
+  // Workflow-safe status transition for the inline Select.
+  async function transitionStatus(next: string) {
+    const current = row.status as string
+    if (next === current) return
+    const allowed = STATUS_TRANSITIONS[current] ?? STATUS_OPTIONS.map((o) => o.value)
+    if (!allowed.includes(next)) {
+      throw new Error(`Can't move from ${current} to ${next}`)
+    }
+    await saveField({ status: next })
   }
 
   async function doReschedule() {
@@ -351,13 +390,13 @@ export default function InspectionDetailPage() {
                       <h3 className="text-sm font-semibold text-slate-900 mb-3">Inspection Details</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
-                          { label: "Type", node: <InlineEditField value={row.inspection_type} type="select" options={TYPE_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ inspection_type: v })} /> },
-                          { label: "Property", node: <span className="text-sm font-medium text-slate-800">{row.property_name ?? "—"}</span> },
-                          { label: "Scheduled Date", node: <InlineEditField value={row.scheduled_date} type="date" disabled={isSeed} onSave={(v) => saveField({ scheduled_date: v })} /> },
-                          { label: "Inspector", node: <InlineEditField value={row.inspector_name} placeholder="Add inspector" disabled={isSeed} onSave={(v) => saveField({ inspector_name: v })} /> },
-                          { label: "Inspector Company", node: <InlineEditField value={row.inspector_company} placeholder="Add company" disabled={isSeed} onSave={(v) => saveField({ inspector_company: v })} /> },
-                          { label: "Status", node: <InlineEditField value={row.status} type="select" options={STATUS_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ status: v })} /> },
-                          { label: "Next Action", node: <InlineEditField value={row.next_action} placeholder="Add next action" disabled={isSeed} onSave={(v) => saveField({ next_action: v })} /> },
+                          { label: "Type", node: <InlineEditSelect value={row.inspection_type} label="Inspection type" options={TYPE_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ inspection_type: v })} /> },
+                          { label: "Property", node: <InlineEditRelationshipSelect value={row.property_id} label="Property" options={propertyOptions} clearable placeholder="Link a property" disabled={isSeed} onSave={(v) => saveField({ property_id: v })} /> },
+                          { label: "Scheduled Date", node: <InlineEditDate value={row.scheduled_date} label="Scheduled date" disabled={isSeed} onSave={(v) => saveField({ scheduled_date: v })} /> },
+                          { label: "Inspector", node: <InlineEditField value={row.inspector_name} label="Inspector" placeholder="—" readOnly readOnlyReason="Inspector is recorded on the linked work record." onSave={(v) => saveField({ inspector_name: v })} /> },
+                          { label: "Inspector Company", node: <InlineEditField value={row.inspector_company} label="Inspector company" placeholder="—" readOnly readOnlyReason="Company is recorded on the linked work record." onSave={(v) => saveField({ inspector_company: v })} /> },
+                          { label: "Status", node: <InlineEditSelect value={row.status} label="Status" options={STATUS_OPTIONS} disabled={isSeed} transition={transitionStatus} onSave={(v) => saveField({ status: v })} /> },
+                          { label: "Next Action", node: <InlineEditTextarea value={row.next_action} label="Next action" placeholder="Add next action" disabled={isSeed} onSave={(v) => saveField({ next_action: v })} /> },
                         ].map((r) => (
                           <div key={r.label} className="px-4 py-3 bg-slate-50 rounded-xl border border-slate-100">
                             <p className="text-xs text-slate-400">{r.label}</p>

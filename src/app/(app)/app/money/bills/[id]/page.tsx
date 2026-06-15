@@ -423,6 +423,9 @@ export default function BillDetailPage() {
                         value={bill.amount}
                         type="number"
                         prefix="£"
+                        label="Amount"
+                        readOnly={bill.status === "paid"}
+                        readOnlyReason="Paid bill — amount is locked."
                         displayClassName="text-3xl font-bold text-slate-900"
                         onSave={async (v) => { await saveField("amount", Number(v)); setBill((p) => ({ ...p, amount: Number(v) })) }}
                       />
@@ -538,7 +541,7 @@ export default function BillDetailPage() {
                     paidPct={paidPct}
                     outstanding={outstanding}
                     isLive={isLive}
-                    onSaveNotes={async (v) => { await saveField("description", v); setBill((p) => ({ ...p, notes: v })) }}
+                    onSaveNotes={async (v) => { await saveField("notes", v); setBill((p) => ({ ...p, notes: v })) }}
                   />
                 )}
                 {activeTab === "Line Items" && <LineItemsTab bill={bill} />}

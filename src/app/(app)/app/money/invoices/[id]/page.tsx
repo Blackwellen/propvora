@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { uploadFile } from "@/lib/upload"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { InlineEditField, InlineEditMoney, InlineEditDate, InlineEditSelect, InlineEditTextarea } from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { openCopilot } from "@/lib/copilot/open"
@@ -382,6 +382,12 @@ export default function InvoiceDetailPage() {
 
   // Capture a non-null reference for use inside inner component functions
   const inv = invoice
+  // Once an invoice is issued (sent/paid/overdue/cancelled/void) its financial
+  // fields are part of the accounting record and MUST NOT be inline-edited — only
+  // draft invoices expose editable amount / type / issue date. Status changes go
+  // through proper transitions; due date + description stay editable as metadata.
+  const isDraft = inv.status === "draft"
+  const lockedReason = "Issued invoice — locked. Edit while in draft."
   // Derive display values from live data
   const invoiceRaw = inv as unknown as Record<string, unknown>
   const invoiceNumber = invoiceRaw.invoice_number as string | undefined ?? inv.id.slice(0, 12).toUpperCase()
@@ -417,9 +423,11 @@ export default function InvoiceDetailPage() {
                 <div>
                   <p className="text-xs text-slate-500">Invoice Type</p>
                   <div className="mt-0.5">
-                    <InlineEditField
+                    <InlineEditSelect
                       value={invoiceType}
-                      type="select"
+                      label="Invoice type"
+                      readOnly={!isDraft}
+                      readOnlyReason={lockedReason}
                       options={[
                         { value: "rent", label: "Rent" },
                         { value: "service_charge", label: "Service Charge" },
@@ -435,9 +443,10 @@ export default function InvoiceDetailPage() {
                 <div>
                   <p className="text-xs text-slate-500">Status</p>
                   <div className="mt-0.5">
-                    <InlineEditField
+                    <InlineEditSelect
                       value={inv.status}
-                      type="select"
+                      label="Status"
+                      transition={(v) => saveField("status", v)}
                       options={[
                         { value: "draft", label: "Draft" },
                         { value: "sent", label: "Sent" },
@@ -453,28 +462,40 @@ export default function InvoiceDetailPage() {
                 <div>
                   <p className="text-xs text-slate-500">Issue Date</p>
                   <div className="mt-0.5">
-                    <InlineEditField value={inv.issue_date} type="date" onSave={(v) => saveField("issue_date", v)} />
+                    <InlineEditDate
+                      value={inv.issue_date}
+                      label="Issue date"
+                      readOnly={!isDraft}
+                      readOnlyReason={lockedReason}
+                      onSave={(v) => saveField("issue_date", v)}
+                    />
                   </div>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Due Date</p>
                   <div className="mt-0.5">
-                    <InlineEditField value={inv.due_date} type="date" onSave={(v) => saveField("due_date", v)} />
+                    <InlineEditDate value={inv.due_date} label="Due date" onSave={(v) => saveField("due_date", v)} />
                   </div>
                 </div>
                 <div><p className="text-xs text-slate-500">Property</p><p className="font-medium text-slate-800 mt-0.5">{property}</p></div>
                 <div>
                   <p className="text-xs text-slate-500">Amount (£)</p>
                   <div className="mt-0.5">
-                    <InlineEditField value={inv.amount} type="number" prefix="£" onSave={(v) => saveField("amount", Number(v))} />
+                    <InlineEditMoney
+                      value={inv.amount}
+                      label="Amount"
+                      readOnly={!isDraft}
+                      readOnlyReason={lockedReason}
+                      onSave={(v) => saveField("amount", Number(v))}
+                    />
                   </div>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500">Description</p>
                   <div className="mt-0.5">
-                    <InlineEditField
+                    <InlineEditTextarea
                       value={(invoiceRaw.description as string | null) ?? ""}
-                      type="textarea"
+                      label="Description"
                       placeholder="Add a description"
                       onSave={(v) => saveField("description", v)}
                     />

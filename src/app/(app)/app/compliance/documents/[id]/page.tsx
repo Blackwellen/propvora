@@ -5,7 +5,14 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditDate,
+  InlineEditRelationshipSelect,
+} from "@/components/editing"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useProperties } from "@/hooks/useProperties"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
@@ -27,6 +34,13 @@ const STATUS_OPTIONS = [
   { value: "verified", label: "Verified" },
   { value: "rejected", label: "Rejected" },
 ]
+
+// Verification lifecycle transitions (workflow-safe Select).
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  pending: ["verified", "rejected"],
+  verified: ["pending", "rejected"],
+  rejected: ["pending", "verified"],
+}
 
 const TYPE_OPTIONS = [
   { value: "gas_safety", label: "Gas Safety Certificate" },
@@ -59,6 +73,14 @@ export default function DocumentDetailPage() {
   const router = useRouter()
   const supabase = createClient()
   const qc = useQueryClient()
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id
+  const { data: properties = [] } = useProperties(workspaceId)
+  const propertyOptions = properties.map((p) => ({
+    value: p.id,
+    label: p.name || "Unnamed property",
+    sublabel: p.address_line1 ?? undefined,
+  }))
   const [activeTab, setActiveTab] = useState<Tab>("overview")
 
   const { data: doc, isLoading } = useQuery({
@@ -107,6 +129,7 @@ export default function DocumentDetailPage() {
     if ("document_name" in patch) out.name = patch.document_name
     if ("document_type" in patch) out.type = patch.document_type
     if ("category" in patch) out.category = patch.category
+    if ("property_id" in patch) out.property_id = patch.property_id || null
     if ("expiry_date" in patch) out.expires_at = patch.expiry_date
     if ("issuer" in patch) metaPatch.issuer = patch.issuer
     if ("issue_date" in patch) metaPatch.issue_date = patch.issue_date
@@ -122,10 +145,9 @@ export default function DocumentDetailPage() {
         ...metaPatch,
       }
     }
-    const { error } = await supabase
-      .from("documents")
-      .update(out)
-      .eq("id", id)
+    let q = supabase.from("documents").update(out).eq("id", id)
+    if (workspaceId) q = q.eq("workspace_id", workspaceId)
+    const { error } = await q
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-document-detail", id] })
     qc.invalidateQueries({ queryKey: ["compliance-documents"] })
@@ -133,6 +155,17 @@ export default function DocumentDetailPage() {
 
   async function setStatus(verification_status: string) {
     await saveField({ verification_status })
+  }
+
+  // Workflow-safe verification status transition for the inline Select.
+  async function transitionStatus(next: string) {
+    const current = row.verification_status as string
+    if (next === current) return
+    const allowed = STATUS_TRANSITIONS[current] ?? STATUS_OPTIONS.map((o) => o.value)
+    if (!allowed.includes(next)) {
+      throw new Error(`Can't move from ${current} to ${next}`)
+    }
+    await saveField({ verification_status: next })
   }
 
   async function handleArchive() {
@@ -170,13 +203,13 @@ export default function DocumentDetailPage() {
             <div className="flex justify-between items-center gap-2">
               <dt className="text-slate-500 shrink-0">Issuer</dt>
               <dd className="font-medium text-slate-800 text-right">
-                <InlineEditField value={row.issuer} placeholder="Add issuer" disabled={isSeed} onSave={(v) => saveField({ issuer: v })} />
+                <InlineEditField value={row.issuer} label="Issuer" placeholder="Add issuer" disabled={isSeed} onSave={(v) => saveField({ issuer: v })} />
               </dd>
             </div>
             <div className="flex justify-between items-center gap-2">
               <dt className="text-slate-500 shrink-0">Category</dt>
               <dd className="font-medium text-slate-800 text-right">
-                <InlineEditField value={row.category} placeholder="Add category" disabled={isSeed} onSave={(v) => saveField({ category: v })} />
+                <InlineEditField value={row.category} label="Category" placeholder="Add category" disabled={isSeed} onSave={(v) => saveField({ category: v })} />
               </dd>
             </div>
             <div className="flex justify-between items-center gap-2">
@@ -227,14 +260,14 @@ export default function DocumentDetailPage() {
 
   function OverviewTab() {
     const rows: { label: string; icon: any; node: React.ReactNode }[] = [
-      { label: "Document Name", icon: FileText, node: <InlineEditField value={row.document_name} placeholder="Add name" disabled={isSeed} onSave={(v) => saveField({ document_name: v })} /> },
-      { label: "Document Type", icon: Shield, node: <InlineEditField value={row.document_type} type="select" options={TYPE_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ document_type: v })} /> },
-      { label: "Issuer", icon: User, node: <InlineEditField value={row.issuer} placeholder="Add issuer" disabled={isSeed} onSave={(v) => saveField({ issuer: v })} /> },
-      { label: "Category", icon: ClipboardList, node: <InlineEditField value={row.category} placeholder="Add category" disabled={isSeed} onSave={(v) => saveField({ category: v })} /> },
-      { label: "Linked Property", icon: Home, node: <span className="font-medium text-slate-800">{row.property_name ?? "—"}</span> },
-      { label: "Issue Date", icon: Calendar, node: <InlineEditField value={row.issue_date} type="date" disabled={isSeed} onSave={(v) => saveField({ issue_date: v })} /> },
-      { label: "Expiry Date", icon: Calendar, node: <InlineEditField value={row.expiry_date} type="date" disabled={isSeed} onSave={(v) => saveField({ expiry_date: v })} /> },
-      { label: "Status", icon: CheckCircle, node: <InlineEditField value={row.verification_status} type="select" options={STATUS_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ verification_status: v })} /> },
+      { label: "Document Name", icon: FileText, node: <InlineEditField value={row.document_name} label="Document name" placeholder="Add name" disabled={isSeed} onSave={(v) => saveField({ document_name: v })} /> },
+      { label: "Document Type", icon: Shield, node: <InlineEditSelect value={row.document_type} label="Document type" options={TYPE_OPTIONS} disabled={isSeed} onSave={(v) => saveField({ document_type: v })} /> },
+      { label: "Issuer", icon: User, node: <InlineEditField value={row.issuer} label="Issuer" placeholder="Add issuer" disabled={isSeed} onSave={(v) => saveField({ issuer: v })} /> },
+      { label: "Category", icon: ClipboardList, node: <InlineEditField value={row.category} label="Category" placeholder="Add category" disabled={isSeed} onSave={(v) => saveField({ category: v })} /> },
+      { label: "Linked Property", icon: Home, node: <InlineEditRelationshipSelect value={row.property_id} label="Property" options={propertyOptions} clearable placeholder="Link a property" disabled={isSeed} onSave={(v) => saveField({ property_id: v })} /> },
+      { label: "Issue Date", icon: Calendar, node: <InlineEditDate value={row.issue_date} label="Issue date" disabled={isSeed} onSave={(v) => saveField({ issue_date: v })} /> },
+      { label: "Expiry Date", icon: Calendar, node: <InlineEditDate value={row.expiry_date} label="Expiry date" disabled={isSeed} onSave={(v) => saveField({ expiry_date: v })} /> },
+      { label: "Status", icon: CheckCircle, node: <InlineEditSelect value={row.verification_status} label="Status" options={STATUS_OPTIONS} disabled={isSeed} transition={transitionStatus} onSave={(v) => saveField({ verification_status: v })} /> },
     ]
     return (
       <div className="space-y-4">

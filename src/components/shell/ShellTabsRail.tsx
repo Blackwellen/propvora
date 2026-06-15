@@ -46,15 +46,20 @@ export default function ShellTabsRail() {
     .filter((w): w is NonNullable<typeof w> => !!w && prefs.visible[w.key])
 
   return (
+    /* Desktop-only quick/task rail. Below lg the mobile top bar + MobileTabs own
+       the sticky chrome, so this sticky rail is suppressed to avoid a double
+       sticky stack fighting the mobile header. It aligns flush to the content
+       column (no right-margin mismatch / overflow) and never covers page
+       headers or tabs because it sits above them in the scroll flow. */
     <div
       className={cn(
-        "border-b border-[#E2EAF6] sticky top-0 z-10 rounded-t-2xl mr-4 transition-all duration-200",
+        "hidden lg:block border-b border-[#E2EAF6] sticky top-0 z-10 rounded-t-2xl transition-all duration-200",
         scrolled
           ? "bg-white/60 backdrop-blur-md border-white/20"
           : "bg-white/90 backdrop-blur-sm"
       )}
     >
-      <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
         {widgets.map(widget => {
           const Icon = widget.icon
           const isActive =

@@ -30,7 +30,18 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
-import { InlineEditField } from "@/components/work/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditMoney,
+  InlineEditDate,
+  InlineEditTextarea,
+  InlineEditRelationshipSelect,
+  usePropertyOptions,
+  useContactOptions,
+  useMemberOptions,
+  type RelationshipOption,
+} from "@/components/editing"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"
 import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
 import { MobileTopBar, MobileTabs } from "@/components/mobile"
@@ -172,6 +183,22 @@ function buildTaskView(task: Task): TaskView {
 }
 
 const TABS = ["Overview", "Checklist", "Activity", "Files", "Linked Work", "Notes", "History"]
+
+const TASK_PRIORITY_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+]
+const TASK_CATEGORY_OPTIONS = [
+  { value: "maintenance", label: "Maintenance" },
+  { value: "compliance", label: "Compliance" },
+  { value: "legal", label: "Legal" },
+  { value: "repairs", label: "Repairs" },
+  { value: "inspection", label: "Inspection" },
+  { value: "admin", label: "Admin" },
+  { value: "general", label: "General" },
+]
 
 // ---------------------------------------------------------------------------
 // Shared micro-helpers (presentation only)
@@ -345,15 +372,22 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
 // ---------------------------------------------------------------------------
 // Overview tab — left content (with inline editing)
 // ---------------------------------------------------------------------------
+interface TaskRelationshipOptions {
+  properties: RelationshipOption[]
+  contacts: RelationshipOption[]
+  members: RelationshipOption[]
+}
+
 interface OverviewTabLeftProps {
   task: TaskView
   rawTask: Task
   workspaceId: string
   setActiveTab: (tab: string) => void
   onSaveField: (field: keyof UpdateTask, value: string | null) => Promise<void>
+  options: TaskRelationshipOptions
 }
 
-function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField }: OverviewTabLeftProps) {
+function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: OverviewTabLeftProps) {
   const completedItems = task.checklist.filter((c) => c.done).length
   const totalItems = task.checklist.length
   const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
@@ -366,9 +400,9 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField }: OverviewT
           <h3 className="text-sm font-semibold text-slate-900">Task Description</h3>
         </div>
         <div className="mb-3">
-          <InlineEditField
+          <InlineEditTextarea
             value={rawTask.description ?? ""}
-            type="textarea"
+            label="task description"
             placeholder="No description provided."
             onSave={(val) => onSaveField("description", val || null)}
             displayClassName="text-sm text-slate-600 whitespace-pre-wrap"
@@ -388,49 +422,61 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField }: OverviewT
           ))}
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Category</p>
-            <InlineEditField
+            <InlineEditSelect
               value={rawTask.category ?? ""}
-              type="text"
+              label="category"
+              options={TASK_CATEGORY_OPTIONS}
               placeholder="General"
               onSave={(val) => onSaveField("category", val || null)}
             />
           </div>
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Due Date</p>
-            <InlineEditField
+            <InlineEditDate
               value={rawTask.due_date ? rawTask.due_date.split("T")[0] : ""}
-              type="date"
+              label="due date"
               placeholder="Not set"
               onSave={(val) => onSaveField("due_date", val || null)}
             />
           </div>
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Est. Cost (£)</p>
-            <InlineEditField
+            <InlineEditMoney
               value={rawTask.estimated_cost ?? ""}
-              type="currency"
-              prefix="£"
+              label="estimated cost"
               placeholder="Not set"
               onSave={(val) => onSaveField("estimated_cost", val ? String(parseFloat(val)) : null)}
             />
           </div>
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Actual Cost (£)</p>
-            <InlineEditField
+            <InlineEditMoney
               value={rawTask.actual_cost ?? ""}
-              type="currency"
-              prefix="£"
+              label="actual cost"
               placeholder="Not set"
               onSave={(val) => onSaveField("actual_cost", val ? String(parseFloat(val)) : null)}
             />
           </div>
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Assigned To</p>
-            <InlineEditField
+            <InlineEditRelationshipSelect
               value={rawTask.assigned_to ?? ""}
-              type="text"
+              label="assignee"
+              options={options.members}
               placeholder="Unassigned"
+              clearable
               onSave={(val) => onSaveField("assigned_to", val || null)}
+            />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Linked Contact</p>
+            <InlineEditRelationshipSelect
+              value={rawTask.contact_id ?? ""}
+              label="contact"
+              options={options.contacts}
+              placeholder="No contact linked"
+              clearable
+              onSave={(val) => onSaveField("contact_id", val || null)}
             />
           </div>
         </div>
@@ -945,11 +991,13 @@ function RightColumn({
   rawTask,
   onSaveField,
   setActiveTab,
+  options,
 }: {
   task: TaskView
   rawTask: Task
   onSaveField: (field: keyof UpdateTask, value: string | null) => Promise<void>
   setActiveTab: (tab: string) => void
+  options: TaskRelationshipOptions
 }) {
   return (
     <div className="space-y-4">
@@ -967,15 +1015,10 @@ function RightColumn({
           </div>
           <div>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Priority</p>
-            <InlineEditField
+            <InlineEditSelect
               value={rawTask.priority}
-              type="select"
-              options={[
-                { value: "low", label: "Low" },
-                { value: "medium", label: "Medium" },
-                { value: "high", label: "High" },
-                { value: "urgent", label: "Urgent" },
-              ]}
+              label="priority"
+              options={TASK_PRIORITY_OPTIONS}
               onSave={(val) => onSaveField("priority", val)}
             />
           </div>
@@ -991,11 +1034,13 @@ function RightColumn({
         <p className="text-sm font-semibold text-slate-900">{task.propertyName}</p>
         <p className="text-xs text-slate-500 mt-0.5">{task.propertyAddress}</p>
         <div className="mt-3">
-          <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Property ID</p>
-          <InlineEditField
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Property</p>
+          <InlineEditRelationshipSelect
             value={rawTask.property_id ?? ""}
-            type="text"
+            label="property"
+            options={options.properties}
             placeholder="No property linked"
+            clearable
             onSave={(val) => onSaveField("property_id", val || null)}
           />
         </div>
@@ -1071,6 +1116,16 @@ export default function TaskDetailPage() {
   // Live collaboration counts for the KPI strip (42P01-safe → 0).
   const { data: liveComments = [] } = useTaskComments(workspaceId, id)
   const { data: liveChecklist = [] } = useTaskChecklist(workspaceId, id)
+
+  // Relationship option sources for FK inline editors (workspace-scoped, RLS).
+  const propertyOptions = usePropertyOptions(workspaceId)
+  const contactOptions = useContactOptions(workspaceId)
+  const memberOptions = useMemberOptions(workspaceId)
+  const relationshipOptions: TaskRelationshipOptions = {
+    properties: propertyOptions,
+    contacts: contactOptions,
+    members: memberOptions,
+  }
 
   if (isLoading) return <TaskDetailSkeleton />
 
@@ -1294,6 +1349,7 @@ export default function TaskDetailPage() {
                   workspaceId={workspaceId ?? ""}
                   setActiveTab={setActiveTab}
                   onSaveField={saveField}
+                  options={relationshipOptions}
                 />
               </div>
               <div className="hidden xl:block w-64 shrink-0">
@@ -1302,6 +1358,7 @@ export default function TaskDetailPage() {
                   rawTask={taskData}
                   onSaveField={saveField}
                   setActiveTab={setActiveTab}
+                  options={relationshipOptions}
                 />
               </div>
             </div>

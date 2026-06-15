@@ -29,7 +29,18 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
-import { InlineEditField } from "@/components/work/InlineEditField"
+import {
+  InlineEditField,
+  InlineEditSelect,
+  InlineEditMoney,
+  InlineEditDate,
+  InlineEditTextarea,
+  InlineEditRelationshipSelect,
+  usePropertyOptions,
+  useContactOptions,
+  useSupplierOptions,
+  useMemberOptions,
+} from "@/components/editing"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"
 import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
 import { MobileTopBar, MobileTabs } from "@/components/mobile"
@@ -37,6 +48,37 @@ import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import type { Job, UpdateJob } from "@/types/database"
+
+// Job lifecycle status options (matches the live `jobs.status` enum).
+const JOB_STATUS_OPTIONS = [
+  { value: "new", label: "New" },
+  { value: "scoped", label: "Scoped" },
+  { value: "supplier_requested", label: "Supplier Requested" },
+  { value: "quote_received", label: "Quote Received" },
+  { value: "approved", label: "Approved" },
+  { value: "scheduled", label: "Scheduled" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "complete", label: "Complete" },
+  { value: "invoiced", label: "Invoiced" },
+  { value: "closed", label: "Closed" },
+  { value: "disputed", label: "Disputed" },
+]
+const JOB_CATEGORY_OPTIONS = [
+  { value: "maintenance", label: "Maintenance" },
+  { value: "repairs", label: "Repairs" },
+  { value: "compliance", label: "Compliance" },
+  { value: "cleaning", label: "Cleaning" },
+  { value: "inspection", label: "Inspection" },
+  { value: "refurbishment", label: "Refurbishment" },
+  { value: "gardening", label: "Gardening" },
+  { value: "general", label: "General" },
+]
+const JOB_PRIORITY_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+]
 
 // ---------------------------------------------------------------------------
 // View model — maps a live Job row to the shape the UI expects
@@ -268,13 +310,21 @@ function JobKpiStrip({ job }: { job: JobView }) {
 // ---------------------------------------------------------------------------
 // Overview tab content — wired with inline editing
 // ---------------------------------------------------------------------------
+interface JobRelationshipOptions {
+  properties: { value: string; label: string; sublabel?: string }[]
+  contacts: { value: string; label: string; sublabel?: string }[]
+  suppliers: { value: string; label: string; sublabel?: string }[]
+  members: { value: string; label: string; sublabel?: string }[]
+}
+
 interface OverviewTabProps {
   job: JobView
   rawJob: Job
   onSave: (field: keyof UpdateJob, value: string | number | null) => Promise<void>
+  options: JobRelationshipOptions
 }
 
-function OverviewTab({ job, rawJob, onSave }: OverviewTabProps) {
+function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
   const completedItems = job.checklist.filter(c => c.done).length
   const totalItems = job.checklist.length
   const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
@@ -289,9 +339,9 @@ function OverviewTab({ job, rawJob, onSave }: OverviewTabProps) {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-slate-900">Job Description</h3>
           </div>
-          <InlineEditField
+          <InlineEditTextarea
             value={rawJob.description ?? ""}
-            type="textarea"
+            label="job description"
             placeholder="No description provided."
             onSave={(val) => onSave("description", val || null)}
             displayClassName="text-sm text-slate-600 whitespace-pre-wrap"
@@ -299,48 +349,49 @@ function OverviewTab({ job, rawJob, onSave }: OverviewTabProps) {
           <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-4">
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Category</p>
-              <InlineEditField
+              <InlineEditSelect
                 value={rawJob.category ?? ""}
-                type="text"
+                label="category"
+                options={JOB_CATEGORY_OPTIONS}
                 placeholder="General"
                 onSave={(val) => onSave("category", val || null)}
               />
             </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Scheduled Date</p>
-              <InlineEditField
+              <InlineEditDate
                 value={rawJob.scheduled_date ? rawJob.scheduled_date.split("T")[0] : ""}
-                type="date"
+                label="scheduled date"
                 placeholder="Not set"
                 onSave={(val) => onSave("scheduled_date", val || null)}
               />
             </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Quoted Amount (£)</p>
-              <InlineEditField
+              <InlineEditMoney
                 value={rawJob.quoted_amount ?? ""}
-                type="currency"
-                prefix="£"
+                label="quoted amount"
                 placeholder="Not set"
                 onSave={(val) => onSave("quoted_amount", val ? parseFloat(val) : null)}
               />
             </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Approved Amount (£)</p>
-              <InlineEditField
+              <InlineEditMoney
                 value={rawJob.approved_amount ?? ""}
-                type="currency"
-                prefix="£"
+                label="approved amount"
                 placeholder="Not set"
                 onSave={(val) => onSave("approved_amount", val ? parseFloat(val) : null)}
               />
             </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Assigned To</p>
-              <InlineEditField
+              <InlineEditRelationshipSelect
                 value={rawJob.assigned_to ?? ""}
-                type="text"
+                label="assignee"
+                options={options.members}
                 placeholder="Unassigned"
+                clearable
                 onSave={(val) => onSave("assigned_to", val || null)}
               />
             </div>
@@ -349,34 +400,39 @@ function OverviewTab({ job, rawJob, onSave }: OverviewTabProps) {
               <InlineEditField
                 value={rawJob.reference ?? ""}
                 type="text"
+                label="reference"
                 placeholder="—"
                 onSave={(val) => onSave("reference", val || null)}
               />
             </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Completed Date</p>
-              <InlineEditField
+              <InlineEditDate
                 value={rawJob.completed_date ? rawJob.completed_date.split("T")[0] : ""}
-                type="date"
+                label="completed date"
                 placeholder="Not completed"
                 onSave={(val) => onSave("completed_date", val || null)}
               />
             </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Property ID</p>
-              <InlineEditField
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Property</p>
+              <InlineEditRelationshipSelect
                 value={rawJob.property_id ?? ""}
-                type="text"
+                label="property"
+                options={options.properties}
                 placeholder="No property linked"
+                clearable
                 onSave={(val) => onSave("property_id", val || null)}
               />
             </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Contact ID</p>
-              <InlineEditField
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Contact</p>
+              <InlineEditRelationshipSelect
                 value={rawJob.contact_id ?? ""}
-                type="text"
+                label="contact"
+                options={options.contacts}
                 placeholder="No contact linked"
+                clearable
                 onSave={(val) => onSave("contact_id", val || null)}
               />
             </div>
@@ -701,6 +757,18 @@ export default function JobDetailPage() {
   const [copied, setCopied] = useState(false)
   const [completing, setCompleting] = useState(false)
 
+  // Relationship option sources (workspace-scoped, RLS, 42P01-safe).
+  const propertyOptions = usePropertyOptions(workspaceId)
+  const contactOptions = useContactOptions(workspaceId)
+  const supplierOptions = useSupplierOptions(workspaceId)
+  const memberOptions = useMemberOptions(workspaceId)
+  const relationshipOptions: JobRelationshipOptions = {
+    properties: propertyOptions,
+    contacts: contactOptions,
+    suppliers: supplierOptions,
+    members: memberOptions,
+  }
+
   if (isLoading) return <JobDetailSkeleton />
 
   if (error || jobData === null || jobData === undefined) {
@@ -853,15 +921,10 @@ export default function JobDetailPage() {
               />
               <div className="flex items-center gap-1.5">
                 <WorkPriorityBadge priority={job.priority} showLabel={false} />
-                <InlineEditField
+                <InlineEditSelect
                   value={jobData.priority}
-                  type="select"
-                  options={[
-                    { value: "low", label: "Low" },
-                    { value: "medium", label: "Medium" },
-                    { value: "high", label: "High" },
-                    { value: "urgent", label: "Urgent" },
-                  ]}
+                  label="priority"
+                  options={JOB_PRIORITY_OPTIONS}
                   onSave={(val) => save("priority", val)}
                   displayClassName="text-[12px] font-semibold capitalize"
                 />
@@ -946,7 +1009,7 @@ export default function JobDetailPage() {
 
         <div className="p-5">
           {activeTab === "Overview" && (
-            <OverviewTab job={job} rawJob={jobData} onSave={save} />
+            <OverviewTab job={job} rawJob={jobData} onSave={save} options={relationshipOptions} />
           )}
 
           {activeTab === "Schedule" && (
@@ -956,18 +1019,18 @@ export default function JobDetailPage() {
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Scheduled Date</p>
-                    <InlineEditField
+                    <InlineEditDate
                       value={jobData.scheduled_date ? jobData.scheduled_date.split("T")[0] : ""}
-                      type="date"
+                      label="scheduled date"
                       placeholder="Not scheduled"
                       onSave={(val) => save("scheduled_date", val || null)}
                     />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Completed Date</p>
-                    <InlineEditField
+                    <InlineEditDate
                       value={jobData.completed_date ? jobData.completed_date.split("T")[0] : ""}
-                      type="date"
+                      label="completed date"
                       placeholder="Not completed"
                       onSave={(val) => save("completed_date", val || null)}
                     />
@@ -1003,20 +1066,18 @@ export default function JobDetailPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Quoted Amount</p>
-                    <InlineEditField
+                    <InlineEditMoney
                       value={jobData.quoted_amount ?? ""}
-                      type="currency"
-                      prefix="£"
+                      label="quoted amount"
                       placeholder="Not set"
                       onSave={(val) => save("quoted_amount", val ? parseFloat(val) : null)}
                     />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Approved Amount</p>
-                    <InlineEditField
+                    <InlineEditMoney
                       value={jobData.approved_amount ?? ""}
-                      type="currency"
-                      prefix="£"
+                      label="approved amount"
                       placeholder="Not set"
                       onSave={(val) => save("approved_amount", val ? parseFloat(val) : null)}
                     />
@@ -1032,11 +1093,13 @@ export default function JobDetailPage() {
               <div className="bg-white border border-slate-200 rounded-xl p-4">
                 <h3 className="text-sm font-semibold text-slate-900 mb-3">Supplier Assignment</h3>
                 <div className="mb-3">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Supplier Contact ID</p>
-                  <InlineEditField
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Supplier</p>
+                  <InlineEditRelationshipSelect
                     value={jobData.supplier_contact_id ?? ""}
-                    type="text"
+                    label="supplier"
+                    options={relationshipOptions.suppliers}
                     placeholder="No supplier assigned"
+                    clearable
                     onSave={(val) => save("supplier_contact_id", val || null)}
                   />
                 </div>
@@ -1076,30 +1139,27 @@ export default function JobDetailPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Quoted Amount</p>
-                    <InlineEditField
+                    <InlineEditMoney
                       value={jobData.quoted_amount ?? ""}
-                      type="currency"
-                      prefix="£"
+                      label="quoted amount"
                       placeholder="Not set"
                       onSave={(val) => save("quoted_amount", val ? parseFloat(val) : null)}
                     />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Approved Amount</p>
-                    <InlineEditField
+                    <InlineEditMoney
                       value={jobData.approved_amount ?? ""}
-                      type="currency"
-                      prefix="£"
+                      label="approved amount"
                       placeholder="Not set"
                       onSave={(val) => save("approved_amount", val ? parseFloat(val) : null)}
                     />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Invoiced Amount</p>
-                    <InlineEditField
+                    <InlineEditMoney
                       value={jobData.invoiced_amount ?? ""}
-                      type="currency"
-                      prefix="£"
+                      label="invoiced amount"
                       placeholder="Not invoiced"
                       onSave={(val) => save("invoiced_amount", val ? parseFloat(val) : null)}
                     />
