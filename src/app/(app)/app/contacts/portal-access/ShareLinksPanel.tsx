@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { issueShareLink, revokeShareLink } from "@/lib/portal/share-issue"
+import { MobileSheet, useIsMobile } from "@/components/mobile"
 
 // ── Resource types offered in the mint dialog ────────────────────────────────
 const RESOURCE_OPTIONS = [
@@ -54,6 +55,7 @@ function statusOf(r: ShareRow): { label: string; cls: string } {
 }
 
 export default function ShareLinksPanel({ workspaceId }: { workspaceId: string | undefined }) {
+  const isMobile = useIsMobile()
   const [rows, setRows] = useState<ShareRow[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -127,6 +129,56 @@ export default function ShareLinksPanel({ workspaceId }: { workspaceId: string |
           <p className="text-sm font-medium text-slate-400">No share links yet</p>
           <p className="text-xs text-slate-400 mt-1">Mint a scoped /p/ link to share a document, invoice or job.</p>
         </div>
+      ) : isMobile ? (
+        <ul className="p-3 space-y-2.5">
+          {rows.map((r) => {
+            const st = statusOf(r)
+            const caps = (r.capabilities ?? []).filter((c) => c !== "view")
+            return (
+              <li key={r.id} className="rounded-xl border border-slate-200 p-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{r.title || r.resource_type.replace(/_/g, " ")}</p>
+                    <p className="text-[11px] text-slate-400 capitalize">{r.resource_type.replace(/_/g, " ")}</p>
+                  </div>
+                  <span className={`shrink-0 inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${st.cls}`}>{st.label}</span>
+                </div>
+                <div className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px]">
+                  <div>
+                    <span className="text-slate-400">Recipient</span>
+                    <p className="text-slate-700">{r.recipient_label || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Expires</span>
+                    <p className="text-slate-700">{fmtDate(r.expires_at)}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-slate-400">Capabilities</span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {caps.length === 0 ? (
+                        <span className="text-[11px] text-slate-400">View only</span>
+                      ) : caps.map((c) => (
+                        <span key={c} className="inline-flex rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[10px] font-semibold capitalize">{c}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <p className="text-[11px] text-slate-500">{r.view_count ?? 0} views · {r.upload_count ?? 0} uploads</p>
+                  {!r.revoked_at && (
+                    <button
+                      onClick={() => handleRevoke(r.id)}
+                      className={`inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg text-[13px] font-semibold transition-colors ${confirmId === r.id ? "text-red-600 bg-red-50" : "text-slate-500 hover:text-red-600 hover:bg-red-50"}`}
+                    >
+                      <XCircle className="w-4 h-4" />
+                      {confirmId === r.id ? "Confirm revoke" : "Revoke"}
+                    </button>
+                  )}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
@@ -212,6 +264,7 @@ function MintModal({
   onMinted: (m: { url: string; expiresAt: string }) => void
   onClose: () => void
 }) {
+  const isMobile = useIsMobile()
   const [resourceType, setResourceType] = useState<string>("documents")
   const [resourceIds, setResourceIds] = useState("")
   const [caps, setCaps] = useState<string[]>([])
@@ -246,14 +299,10 @@ function MintModal({
     onMinted({ url: res.url, expiresAt: res.expiresAt! })
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-slate-900">{minted ? "Share link ready" : "New recipient share link"}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700"><X className="w-5 h-5" /></button>
-        </div>
+  const heading = minted ? "Share link ready" : "New recipient share link"
 
+  const body = (
+    <>
         {minted ? (
           <div className="space-y-4">
             <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 flex items-start gap-2">
@@ -329,6 +378,27 @@ function MintModal({
             </div>
           </div>
         )}
+    </>
+  )
+
+  // Mobile: focus-trapped bottom sheet (mobile-first grant creation flow).
+  if (isMobile) {
+    return (
+      <MobileSheet open onClose={onClose} title={heading}>
+        <div className="px-2 pb-2">{body}</div>
+      </MobileSheet>
+    )
+  }
+
+  // Desktop: centered modal (unchanged).
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-bold text-slate-900">{heading}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700"><X className="w-5 h-5" /></button>
+        </div>
+        {body}
       </div>
     </div>
   )

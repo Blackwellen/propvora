@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
-import { MobileTopBar, MobilePageHeader } from "@/components/mobile"
+import { MobileTopBar, MobilePageHeader, MobileSheet, useIsMobile } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/hooks/useWorkspace"
@@ -362,6 +362,7 @@ export default function TimelinePage() {
   const [eventFilter, setEventFilter] = useState<FilterKey>("all")
   const [contactFilter, setContactFilter] = useState("all")
   const [contactDropOpen, setContactDropOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (!workspace?.id) return
@@ -534,28 +535,57 @@ export default function TimelinePage() {
             <span className="truncate">{selectedContactName}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           </button>
-          {contactDropOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 top-9 z-30 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 max-h-64 overflow-y-auto overscroll-contain"
-              onMouseLeave={() => setContactDropOpen(false)}
-            >
-              <button
-                onClick={() => { setContactFilter("all"); setContactDropOpen(false) }}
-                className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === "all" ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+          {/* Desktop popover (md+) — click-away backdrop + height cap */}
+          {contactDropOpen && !isMobile && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setContactDropOpen(false)} aria-hidden="true" />
+              <div
+                role="menu"
+                className="absolute right-0 top-9 z-30 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 max-h-64 overflow-y-auto overscroll-contain"
               >
-                All Contacts
-              </button>
-              {allContacts.map((c) => (
                 <button
-                  key={c.id}
-                  onClick={() => { setContactFilter(c.id); setContactDropOpen(false) }}
-                  className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === c.id ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                  role="menuitem"
+                  onClick={() => { setContactFilter("all"); setContactDropOpen(false) }}
+                  className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === "all" ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
                 >
-                  {c.name}
+                  All Contacts
                 </button>
-              ))}
-            </div>
+                {allContacts.map((c) => (
+                  <button
+                    key={c.id}
+                    role="menuitem"
+                    onClick={() => { setContactFilter(c.id); setContactDropOpen(false) }}
+                    className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === c.id ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          {/* Mobile — bottom sheet */}
+          {isMobile && (
+            <MobileSheet open={contactDropOpen} onClose={() => setContactDropOpen(false)} title="Filter by contact">
+              <div className="py-1" role="menu" aria-label="Filter by contact">
+                <button
+                  role="menuitem"
+                  onClick={() => { setContactFilter("all"); setContactDropOpen(false) }}
+                  className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === "all" ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                >
+                  All Contacts
+                </button>
+                {allContacts.map((c) => (
+                  <button
+                    key={c.id}
+                    role="menuitem"
+                    onClick={() => { setContactFilter(c.id); setContactDropOpen(false) }}
+                    className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === c.id ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </MobileSheet>
           )}
         </div>
       </div>

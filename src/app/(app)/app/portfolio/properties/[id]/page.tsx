@@ -1247,9 +1247,18 @@ function TabDocuments() {
 
   return (
     <div className="space-y-4">
+      {/* Mobile category sub-tabs — scrollable strip */}
+      <div className="md:hidden">
+        <MobileTabs
+          tabs={catTabs.map((t) => ({ id: t, label: t }))}
+          value={docCat}
+          onChange={setDocCat}
+          aria-label="Document categories"
+        />
+      </div>
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+        <div className="hidden md:flex gap-1 bg-slate-100 rounded-xl p-1">
           {catTabs.map((t) => (
             <button
               key={t}

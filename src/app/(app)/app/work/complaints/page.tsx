@@ -6,7 +6,7 @@ import { MessageSquareWarning, CheckCircle2, Clock, ListChecks } from "lucide-re
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
-import { MobileTopBar } from "@/components/mobile"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useJobs } from "@/hooks/useJobs"
 import {
@@ -198,8 +198,16 @@ export default function ComplaintsPage() {
 
       <WorkTabNav />
 
-      {/* Status filter */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit max-w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
+      {/* Status filter — MobileTabs below md, segmented strip on desktop */}
+      <div className="md:hidden">
+        <MobileTabs
+          tabs={STATUS_FILTERS.map((f) => ({ id: f.key, label: f.label }))}
+          value={filter}
+          onChange={(id) => setFilter(id as "all" | ComplaintStatus)}
+          aria-label="Filter complaints by status"
+        />
+      </div>
+      <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit max-w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.key}

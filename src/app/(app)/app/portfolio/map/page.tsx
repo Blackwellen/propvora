@@ -26,9 +26,11 @@ import {
   Home,
   PoundSterling,
   TrendingUp,
+  List,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { MobileSheet, useIsMobile } from "@/components/mobile"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -166,7 +168,9 @@ export default function PortfolioMapPage() {
   const [filterHealth, setFilterHealth] = useState("all")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [listSheetOpen, setListSheetOpen] = useState(false)
 
+  const isMobile = useIsMobile()
   const isLive = !!workspace?.id
   const loading = wsLoading || propsLoading
 
@@ -228,9 +232,124 @@ export default function PortfolioMapPage() {
     setSelectedId((prev) => (prev === id ? null : id))
   }
 
+  /* On mobile the list lives in a bottom sheet; picking a property should
+     dismiss the sheet so the map (and its popup) becomes visible. */
+  function handleSelectFromList(id: string) {
+    handleSelect(id)
+    if (isMobile) setListSheetOpen(false)
+  }
+
   const totalRent = filtered.filter((p) => p.status === "active").reduce((s, p) => s + p.monthlyRent, 0)
   const vacantCount = filtered.filter((p) => p.status === "vacant").length
   const atRiskCount = filtered.filter((p) => p.healthScore === "at_risk" || p.healthScore === "critical").length
+
+  /* Shared side-list content — rendered inline as the desktop rail and inside
+     the MobileSheet on phones. `inSheet` drops the rail's own scroll wrapper so
+     the sheet owns scrolling. */
+  function renderSideContent(inSheet: boolean) {
+    return (
+      <>
+        {/* Search + filter header */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search properties..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-9 pl-8 pr-3 rounded-lg text-sm bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              aria-label="Toggle filters"
+              className={cn("w-9 h-9 rounded-lg flex items-center justify-center border transition-colors shrink-0", showFilters ? "bg-[#2563EB] border-[#2563EB] text-white" : "border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300")}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+          </div>
+
+          {showFilters && (
+            <div className="flex gap-2 pt-1 border-t border-slate-100">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="flex-1 h-9 px-2 rounded-lg text-xs bg-slate-50 border border-slate-200 text-slate-600 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All statuses</option>
+                <option value="active">Active</option>
+                <option value="vacant">Vacant</option>
+                <option value="under_works">Under Works</option>
+              </select>
+              <select
+                value={filterHealth}
+                onChange={(e) => setFilterHealth(e.target.value)}
+                className="flex-1 h-9 px-2 rounded-lg text-xs bg-slate-50 border border-slate-200 text-slate-600 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All health</option>
+                <option value="healthy">Healthy</option>
+                <option value="watch">Watch</option>
+                <option value="at_risk">At Risk</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+          )}
+
+          <p className="text-[10px] text-slate-500">{filtered.length} propert{filtered.length !== 1 ? "ies" : "y"}</p>
+        </div>
+
+        {/* Scrollable property list */}
+        <div className={cn(
+          "bg-white rounded-2xl border border-slate-200 shadow-sm p-2 flex flex-col gap-0.5",
+          inSheet ? "" : "flex-1 overflow-y-auto",
+        )}>
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 gap-3 py-12">
+              <Building2 className="w-10 h-10 text-slate-200" />
+              <p className="text-xs text-slate-500 text-center">No properties match your filters</p>
+              <button
+                onClick={() => { setSearch(""); setFilterStatus("all"); setFilterHealth("all") }}
+                className="text-xs text-[#2563EB] hover:underline min-h-[44px]"
+              >
+                Clear filters
+              </button>
+            </div>
+          ) : (
+            filtered.map((p) => (
+              <PropertyListCard
+                key={p.id}
+                property={p}
+                selected={selectedId === p.id}
+                onClick={() => handleSelectFromList(p.id)}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Health legend */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Health Score</p>
+          <div className="flex flex-wrap gap-1.5">
+            {Object.entries(HEALTH_CONFIG).map(([key, cfg]) => (
+              <button
+                key={key}
+                onClick={() => setFilterHealth((prev) => prev === key ? "all" : key)}
+                className={cn(
+                  "inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-full border transition-all",
+                  filterHealth === key ? cn(cfg.bg, cfg.color, "border-current/30 shadow-sm") : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300"
+                )}
+              >
+                <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
+                {cfg.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <DashboardContainer>
@@ -302,112 +421,43 @@ export default function PortfolioMapPage() {
         </div>
       ) : (
         <div className="flex flex-col lg:flex-row gap-4 lg:h-[calc(100vh-240px)] lg:min-h-[520px]">
-          {/* ── Side list ──────────────────────────────────────────── */}
-          <div className="w-full lg:w-80 shrink-0 flex flex-col gap-2.5 lg:max-h-none">
-            {/* Search + filter header */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search properties..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full h-8 pl-8 pr-3 rounded-lg text-xs bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                  />
-                </div>
-                <button
-                  onClick={() => setShowFilters((v) => !v)}
-                  className={cn("w-8 h-8 rounded-lg flex items-center justify-center border transition-colors shrink-0", showFilters ? "bg-[#2563EB] border-[#2563EB] text-white" : "border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300")}
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {showFilters && (
-                <div className="flex gap-2 pt-1 border-t border-slate-100">
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="flex-1 h-7 px-2 rounded-lg text-[11px] bg-slate-50 border border-slate-200 text-slate-600 focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">All statuses</option>
-                    <option value="active">Active</option>
-                    <option value="vacant">Vacant</option>
-                    <option value="under_works">Under Works</option>
-                  </select>
-                  <select
-                    value={filterHealth}
-                    onChange={(e) => setFilterHealth(e.target.value)}
-                    className="flex-1 h-7 px-2 rounded-lg text-[11px] bg-slate-50 border border-slate-200 text-slate-600 focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">All health</option>
-                    <option value="healthy">Healthy</option>
-                    <option value="watch">Watch</option>
-                    <option value="at_risk">At Risk</option>
-                    <option value="critical">Critical</option>
-                  </select>
-                </div>
-              )}
-
-              <p className="text-[10px] text-slate-500">{filtered.length} propert{filtered.length !== 1 ? "ies" : "y"}</p>
-            </div>
-
-            {/* Scrollable property list */}
-            <div className="flex-1 overflow-y-auto bg-white rounded-2xl border border-slate-200 shadow-sm p-2 flex flex-col gap-0.5">
-              {filtered.length === 0 ? (
-                <div className="flex flex-col items-center justify-center flex-1 gap-3 py-12">
-                  <Building2 className="w-10 h-10 text-slate-200" />
-                  <p className="text-xs text-slate-500 text-center">No properties match your filters</p>
-                  <button
-                    onClick={() => { setSearch(""); setFilterStatus("all"); setFilterHealth("all") }}
-                    className="text-xs text-[#2563EB] hover:underline"
-                  >
-                    Clear filters
-                  </button>
-                </div>
-              ) : (
-                filtered.map((p) => (
-                  <PropertyListCard
-                    key={p.id}
-                    property={p}
-                    selected={selectedId === p.id}
-                    onClick={() => handleSelect(p.id)}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Health legend */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Health Score</p>
-              <div className="flex flex-wrap gap-1.5">
-                {Object.entries(HEALTH_CONFIG).map(([key, cfg]) => (
-                  <button
-                    key={key}
-                    onClick={() => setFilterHealth((prev) => prev === key ? "all" : key)}
-                    className={cn(
-                      "inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border transition-all",
-                      filterHealth === key ? cn(cfg.bg, cfg.color, "border-current/30 shadow-sm") : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300"
-                    )}
-                  >
-                    <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
-                    {cfg.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* ── Side list (desktop rail only) ──────────────────────── */}
+          <div className="hidden lg:flex lg:w-80 shrink-0 flex-col gap-2.5">
+            {renderSideContent(false)}
           </div>
 
           {/* ── Map ───────────────────────────────────────────────── */}
-          <div className="flex-1 min-h-[420px] rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+          {/* Full-bleed on phones so the map isn't crushed by the rail;
+             the list moves into the bottom sheet below. The phone height
+             leaves clearance above the fixed bottom nav. */}
+          <div className="relative flex-1 h-[calc(100vh-300px)] min-h-[360px] lg:h-auto lg:min-h-[420px] rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
             <LeafletMap
               properties={filtered}
               selectedId={selectedId}
               onSelect={handleSelect}
             />
+
+            {/* Floating "N results" button — opens the list sheet (phones only). */}
+            <button
+              onClick={() => setListSheetOpen(true)}
+              className="lg:hidden absolute left-1/2 -translate-x-1/2 bottom-4 z-[400] inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[#2563EB] text-white text-sm font-semibold shadow-[0_6px_24px_rgba(37,99,235,0.4)] active:scale-95 transition-transform"
+            >
+              <List className="w-4 h-4" />
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            </button>
           </div>
+
+          {/* ── Mobile list sheet ─────────────────────────────────── */}
+          <MobileSheet
+            open={listSheetOpen}
+            onClose={() => setListSheetOpen(false)}
+            title="Properties"
+            description={`${filtered.length} of ${properties.length} mapped`}
+          >
+            <div className="flex flex-col gap-2.5 pb-2">
+              {renderSideContent(true)}
+            </div>
+          </MobileSheet>
         </div>
       )}
     </DashboardContainer>

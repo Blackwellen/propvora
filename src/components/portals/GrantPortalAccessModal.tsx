@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { X, Search, ChevronLeft, ShieldCheck, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { MobileSheet, useIsMobile } from "@/components/mobile"
 import { useContacts } from "@/hooks/useContacts"
 import {
   DEFAULT_PORTAL_PROFILES,
@@ -20,6 +21,7 @@ const EXPIRY_OPTIONS = [7, 14, 30, 60, 90]
 
 export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Props) {
   const router = useRouter()
+  const isMobile = useIsMobile()
   const { data: contacts = [], isLoading: contactsLoading } = useContacts(workspaceId)
 
   const [step, setStep] = useState<1 | 2>(1)
@@ -78,37 +80,10 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            {step === 2 && (
-              <button
-                onClick={() => setStep(1)}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                aria-label="Back"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-            )}
-            <div>
-              <h2 className="text-[15px] font-bold text-slate-900">Grant Portal Access</h2>
-              <p className="text-[12px] text-slate-500">
-                Step {step} of 2 — {step === 1 ? "Select contact" : "Profile, purpose & expiry"}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+  const stepCaption = `Step ${step} of 2 — ${step === 1 ? "Select contact" : "Profile, purpose & expiry"}`
 
+  const body = (
+    <>
         {/* Step 1: contact selection */}
         {step === 1 && (
           <div className="p-6 space-y-4">
@@ -295,6 +270,56 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
             </div>
           </div>
         )}
+    </>
+  )
+
+  // Mobile: focus-trapped bottom sheet with a compact step header.
+  if (isMobile) {
+    return (
+      <MobileSheet open onClose={onClose} title="Grant Portal Access" description={stepCaption}>
+        {step === 2 && (
+          <button
+            onClick={() => setStep(1)}
+            className="mx-2 mb-1 inline-flex items-center gap-1 min-h-[40px] px-2 -ml-1 text-[13px] font-medium text-slate-500 hover:text-slate-700"
+          >
+            <ChevronLeft className="w-4 h-4" /> Back
+          </button>
+        )}
+        <div className="px-2 pb-2">{body}</div>
+      </MobileSheet>
+    )
+  }
+
+  // Desktop: centered modal (unchanged).
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            {step === 2 && (
+              <button
+                onClick={() => setStep(1)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div>
+              <h2 className="text-[15px] font-bold text-slate-900">Grant Portal Access</h2>
+              <p className="text-[12px] text-slate-500">{stepCaption}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        {body}
       </div>
     </div>
   )

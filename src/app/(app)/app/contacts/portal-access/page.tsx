@@ -8,7 +8,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
-import { MobileTopBar, ResponsiveTable } from "@/components/mobile"
+import { MobileTopBar, ResponsiveTable, MobileSheet, MobileTabs, useIsMobile } from "@/components/mobile"
 import ContactsKpiCard from "@/components/contacts/ContactsKpiCard"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -70,6 +70,7 @@ interface CreateModalProps {
 }
 
 function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) {
+  const isMobile = useIsMobile()
   const [contactId, setContactId] = useState("")
   const [purpose, setPurpose] = useState("")
   const [expiry, setExpiry] = useState("")
@@ -128,16 +129,8 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div role="dialog" aria-modal="true" aria-labelledby="create-link-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-5">
-          <h2 id="create-link-title" className="text-base font-bold text-slate-900">Create Portal Link</h2>
-          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+  const body = (
+    <>
         <div className="space-y-4">
           <div>
             <label htmlFor="create-link-contact" className="block text-xs font-semibold text-slate-700 mb-1.5">Contact</label>
@@ -205,6 +198,29 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
             {saving ? "Creating…" : "Create Link"}
           </button>
         </div>
+    </>
+  )
+
+  // Mobile: focus-trapped bottom sheet.
+  if (isMobile) {
+    return (
+      <MobileSheet open onClose={onClose} title="Create Portal Link">
+        <div className="px-2 pb-2">{body}</div>
+      </MobileSheet>
+    )
+  }
+
+  // Desktop: centered modal (unchanged).
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="create-link-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h2 id="create-link-title" className="text-base font-bold text-slate-900">Create Portal Link</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        {body}
       </div>
     </div>
   )
@@ -213,6 +229,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 export default function PortalAccessPage() {
   const { data: workspace } = useWorkspace()
+  const isMobile = useIsMobile()
   const [portalLinks, setPortalLinks] = useState<PortalLink[]>([])
   const [loadingLinks, setLoadingLinks] = useState(true)
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all")
@@ -424,8 +441,16 @@ export default function PortalAccessPage() {
           <div className="flex-1 min-w-0 space-y-4">
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-              {/* Status filters */}
-              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+              {/* Status filters — scrollable MobileTabs below md, segmented strip on desktop */}
+              <div className="md:hidden w-full">
+                <MobileTabs
+                  tabs={STATUS_FILTERS.map((f) => ({ id: f.key, label: f.label }))}
+                  value={activeFilter}
+                  onChange={(id) => setActiveFilter(id as FilterKey)}
+                  aria-label="Filter by status"
+                />
+              </div>
+              <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                 {STATUS_FILTERS.map((f) => (
                   <button
                     key={f.key}
@@ -452,21 +477,47 @@ export default function PortalAccessPage() {
                   {TYPE_OPTIONS.find((o) => o.key === typeFilter)?.label ?? "All Types"}
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
-                {typeDropOpen && (
-                  <div role="menu" className="absolute top-full mt-1 left-0 z-20 w-40 rounded-lg border border-slate-200 bg-white shadow-lg py-1">
-                    {TYPE_OPTIONS.map((o) => (
-                      <button
-                        key={o.key}
-                        onClick={() => { setTypeFilter(o.key); setTypeDropOpen(false) }}
-                        className={cn(
-                          "w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition-colors",
-                          typeFilter === o.key ? "text-blue-600 font-medium" : "text-slate-600"
-                        )}
-                      >
-                        {o.label}
-                      </button>
-                    ))}
-                  </div>
+                {/* Desktop popover (md+) — click-away backdrop + height cap so it never clips */}
+                {typeDropOpen && !isMobile && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setTypeDropOpen(false)} aria-hidden="true" />
+                    <div role="menu" className="absolute top-full mt-1 left-0 z-20 w-40 rounded-lg border border-slate-200 bg-white shadow-lg py-1 max-h-[min(60vh,320px)] overflow-y-auto overscroll-contain">
+                      {TYPE_OPTIONS.map((o) => (
+                        <button
+                          key={o.key}
+                          role="menuitem"
+                          onClick={() => { setTypeFilter(o.key); setTypeDropOpen(false) }}
+                          className={cn(
+                            "w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition-colors",
+                            typeFilter === o.key ? "text-blue-600 font-medium" : "text-slate-600"
+                          )}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {/* Mobile — bottom sheet */}
+                {isMobile && (
+                  <MobileSheet open={typeDropOpen} onClose={() => setTypeDropOpen(false)} title="Filter by type">
+                    <div className="py-1" role="menu" aria-label="Filter by contact type">
+                      {TYPE_OPTIONS.map((o) => (
+                        <button
+                          key={o.key}
+                          role="menuitem"
+                          onClick={() => { setTypeFilter(o.key); setTypeDropOpen(false) }}
+                          className={cn(
+                            "flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors",
+                            typeFilter === o.key ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50"
+                          )}
+                        >
+                          {o.label}
+                          {typeFilter === o.key && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                        </button>
+                      ))}
+                    </div>
+                  </MobileSheet>
                 )}
               </div>
 

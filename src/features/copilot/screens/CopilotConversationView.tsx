@@ -296,9 +296,11 @@ export default function CopilotConversationView({
         </div>
       </div>
 
-      {/* Right context rail — expanded only */}
+      {/* Right context rail — expanded only. Hidden below lg so the expanded
+          panel on phones keeps the conversation full-width instead of being
+          crushed by a fixed 260px rail. */}
       {isExpanded && (
-        <div className="w-[260px] shrink-0 border-l border-slate-100 overflow-y-auto">
+        <div className="hidden lg:block w-[260px] shrink-0 border-l border-slate-100 overflow-y-auto">
           <div className="p-4 flex flex-col gap-4">
             {/* Contact overview */}
             <div>

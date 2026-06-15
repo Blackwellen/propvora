@@ -214,7 +214,7 @@ function DetailPanel({ p, onClose }: { p: PropertyMapData; onClose: () => void }
   const coverGradient = TYPE_GRADIENTS[p.type] ?? TYPE_GRADIENTS.Other
 
   return (
-    <div className="w-[320px] shrink-0 flex flex-col border-l border-slate-200 bg-white overflow-y-auto">
+    <div className="w-full lg:w-[320px] shrink-0 flex flex-col border-t lg:border-t-0 lg:border-l border-slate-200 bg-white overflow-y-auto max-h-[60vh] lg:max-h-none">
       {/* Cover gradient */}
       <div className="relative h-[160px] shrink-0 flex items-center justify-center" style={{ background: coverGradient }}>
         <div className="flex flex-col items-center gap-1 opacity-25">
@@ -400,13 +400,13 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
     [propsWithCoords, filtered])
 
   return (
-    <div className="flex flex-col rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white"
-      style={{ height: "calc(100vh - 220px)", minHeight: 700 }}>
-      {/* Main row: left rail | map | right panel */}
-      <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-col rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white lg:h-[calc(100vh-220px)] lg:min-h-[700px]">
+      {/* Main row: left rail | map | right panel.
+         Stacks vertically on phones (rail → map → detail); side-by-side on lg+. */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
         {/* ── LEFT RAIL ── */}
-        <div className="w-[280px] shrink-0 flex flex-col border-r border-slate-200 bg-white">
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-200 bg-white max-h-[55vh] lg:max-h-none">
           {/* Search + filters */}
           <div className="p-3 border-b border-slate-100 space-y-2">
             <div className="flex items-center gap-1.5">
@@ -507,7 +507,7 @@ export function PropertyMapView({ properties }: { properties: PropertyMapData[] 
         </div>
 
         {/* ── MAP AREA ── */}
-        <div className="flex-1 relative overflow-hidden" style={{ background: "#C8D8E8" }}>
+        <div className="flex-1 relative overflow-hidden min-h-[360px] lg:min-h-0" style={{ background: "#C8D8E8" }}>
           {/* Map tile — CartoDB Voyager for premium look */}
           <div className="absolute inset-0"
             style={{

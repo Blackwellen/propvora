@@ -11,6 +11,7 @@ import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
+import MobileTabs from "@/components/mobile/MobileTabs"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyBills, useMoneyBillsSummary, useCreateMoneyBill, useApproveBill, useMarkBillPaid } from "@/hooks/useMoneyData"
@@ -710,8 +711,19 @@ export default function BillsPage() {
           />
         </div>
 
-        {/* Internal Toggle */}
-        <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+        {/* Internal Toggle — MobileTabs below md, segmented strip on desktop */}
+        <div className="md:hidden">
+          <MobileTabs
+            tabs={[
+              { id: "bills", label: "Bills" },
+              { id: "supplier_payments", label: "Supplier Payments" },
+            ]}
+            value={viewTab}
+            onChange={(id) => setViewTab(id as ViewTab)}
+            aria-label="Bills view"
+          />
+        </div>
+        <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit">
           {(["bills", "supplier_payments"] as ViewTab[]).map((tab) => (
             <button
               key={tab}

@@ -5,6 +5,9 @@ import { spawnSync } from "node:child_process"
 const suites = [
   ["RLS multi-workspace isolation + IDOR", "scripts/test/rls-isolation.mjs"],
   ["Subscription / feature gates", "scripts/test/billing-gates.mjs"],
+  ["Billing catalog reconciliation (app ↔ LIVE Stripe)", "scripts/test/billing-reconcile.mjs"],
+  ["Stripe webhook coverage audit", "scripts/test/billing-webhooks.mjs"],
+  ["Billing entitlement gates E2E (every tier)", "scripts/test/billing-entitlements-e2e.mjs"],
   ["RLS coverage (every workspace_id table)", "scripts/test/rls-coverage.mjs"],
   ["Anonymous exposure (no leak to anon)", "scripts/test/anon-exposure.mjs"],
   ["IDOR sweep (cross-workspace object refs)", "scripts/test/idor-sweep.mjs"],

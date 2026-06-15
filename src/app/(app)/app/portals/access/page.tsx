@@ -10,6 +10,7 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { PortalsTabNav } from "@/components/portals/PortalsTabNav"
 import { GrantPortalAccessModal } from "@/components/portals/GrantPortalAccessModal"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import { MobileTabs } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   usePortalGrants, useRevokeGrant, useExtendGrant, type PortalGrant,
@@ -133,7 +134,15 @@ export default function PortalAccessListPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+          <div className="md:hidden w-full">
+            <MobileTabs
+              tabs={STATUS_FILTERS.map((f) => ({ id: f.key, label: f.label }))}
+              value={statusFilter}
+              onChange={(id) => setStatusFilter(id as "all" | PortalGrantStatus)}
+              aria-label="Filter grants by status"
+            />
+          </div>
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-lg p-1">
             {STATUS_FILTERS.map((f) => (
               <button
                 key={f.key}
