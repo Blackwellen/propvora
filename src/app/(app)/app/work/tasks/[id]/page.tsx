@@ -177,6 +177,55 @@ function buildTaskView(task: Task): TaskView {
 const TABS = ["Overview", "Checklist", "Activity", "Files", "Linked Work", "Notes", "History"]
 
 // ---------------------------------------------------------------------------
+// Shared micro-helpers (presentation only)
+// ---------------------------------------------------------------------------
+/** Short relative time like "2h ago" / "3d ago", falling back to a date. */
+function relativeTime(iso: string): string {
+  const t = new Date(iso).getTime()
+  if (isNaN(t)) return ""
+  const diff = Date.now() - t
+  const mins = Math.round(diff / 60000)
+  if (mins < 1) return "just now"
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.round(hrs / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+}
+
+const COMMENT_AVATAR_BG = ["bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-indigo-500"]
+/** Deterministic avatar colour from a seed string. */
+function avatarColor(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = seed.charCodeAt(i) + ((h << 5) - h)
+  return COMMENT_AVATAR_BG[Math.abs(h) % COMMENT_AVATAR_BG.length]
+}
+
+/** Circular progress ring used by the checklist headers. */
+function ProgressRing({ pct, size = 44, stroke = 5 }: { pct: number; size?: number; stroke?: number }) {
+  const r = (size - stroke) / 2
+  const circ = 2 * Math.PI * r
+  const color = pct >= 100 ? "#10B981" : "#2563EB"
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg className="-rotate-90" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={stroke} />
+        <circle
+          cx={size / 2} cy={size / 2} r={r} fill="none"
+          stroke={color} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={`${(pct / 100) * circ} ${circ}`}
+          className="transition-all duration-500 motion-reduce:transition-none"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-[10px] font-bold text-slate-700 tabular-nums">{pct}%</span>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Loading skeleton
 // ---------------------------------------------------------------------------
 function TaskDetailSkeleton() {
@@ -400,26 +449,26 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField }: OverviewT
       {/* Checklist */}
       {task.checklist.length > 0 && (
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-slate-900">Checklist / Subtasks</h3>
-            <span className="text-[11px] text-slate-400">{completedItems}/{totalItems} completed</span>
+          <div className="flex items-center gap-3 mb-3">
+            <ProgressRing pct={pct} />
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Checklist / Subtasks</h3>
+              <p className="text-[11px] text-slate-400 tabular-nums">{completedItems} of {totalItems} completed</p>
+            </div>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-100 mb-3">
-            <div className="h-1.5 rounded-full bg-[#2563EB]" style={{ width: `${pct}%` }} />
-          </div>
-          <div className="space-y-2.5">
+          <div className="space-y-1.5">
             {task.checklist.map((item) => (
-              <div key={item.id} className="flex items-start gap-3">
+              <div key={item.id} className="flex items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-50 transition-colors">
                 <div
                   className={cn(
-                    "w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 mt-0.5",
-                    item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300"
+                    "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200",
+                    item.done ? "bg-[#2563EB] border-[#2563EB] scale-100" : "border-slate-300"
                   )}
                 >
                   {item.done && <CheckSquare className="w-3 h-3 text-white" />}
                 </div>
                 <div className="flex-1">
-                  <p className={cn("text-sm", item.done ? "line-through text-slate-400" : "text-slate-700")}>
+                  <p className={cn("text-sm transition-colors", item.done ? "line-through text-slate-400" : "text-slate-700")}>
                     {item.text}
                   </p>
                   {item.assignee && (
@@ -657,37 +706,44 @@ function LiveChecklistTab({ workspaceId, taskId }: { workspaceId?: string; taskI
   return (
     <div className="max-w-2xl">
       <div className="bg-white border border-slate-200 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-slate-900">Checklist / Subtasks</h3>
-          <span className="text-[11px] text-slate-400">{done}/{items.length} completed</span>
-        </div>
-        <div className="w-full h-1.5 rounded-full bg-slate-100 mb-4">
-          <div className="h-1.5 rounded-full bg-[#2563EB] transition-all" style={{ width: `${pct}%` }} />
+        <div className="flex items-center gap-3 mb-4">
+          <ProgressRing pct={pct} size={48} />
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-slate-900">Checklist / Subtasks</h3>
+            <p className="text-[11px] text-slate-400 tabular-nums">{done} of {items.length} completed</p>
+          </div>
+          {items.length > 0 && pct === 100 && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full">
+              <CheckCircle2 className="w-3 h-3" /> All done
+            </span>
+          )}
         </div>
 
         {isLoading ? (
           <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className="h-9 rounded-lg bg-slate-100 animate-pulse" />)}</div>
         ) : items.length === 0 ? (
           <div className="text-center py-8">
-            <CheckSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No checklist items yet</p>
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+              <CheckSquare className="w-6 h-6 text-slate-400" />
+            </div>
+            <p className="text-sm font-semibold text-slate-700">No checklist items yet</p>
             <p className="text-[12px] text-slate-400 mt-0.5">Break this task into subtasks below.</p>
           </div>
         ) : (
           <div className="space-y-1.5">
             {items.map((item) => (
-              <div key={item.id} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50">
+              <div key={item.id} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
                 <button
                   onClick={() => workspaceId && toggleItem.mutate({ workspaceId, taskId, id: item.id, done: !item.done })}
                   className={cn(
-                    "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors",
+                    "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 active:scale-90 motion-reduce:active:scale-100",
                     item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300 hover:border-[#2563EB]"
                   )}
                   aria-label={item.done ? "Mark incomplete" : "Mark complete"}
                 >
                   {item.done && <CheckSquare className="w-3.5 h-3.5 text-white" />}
                 </button>
-                <p className={cn("flex-1 text-sm", item.done ? "line-through text-slate-400" : "text-slate-700")}>{item.label}</p>
+                <p className={cn("flex-1 text-sm transition-colors", item.done ? "line-through text-slate-400" : "text-slate-700")}>{item.label}</p>
                 <button
                   onClick={() => workspaceId && deleteItem.mutate({ workspaceId, taskId, id: item.id })}
                   className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-300 hover:text-red-500"
@@ -767,48 +823,64 @@ function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: 
 
       {/* Thread */}
       <div className="bg-white border border-slate-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity &amp; Comments</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <MessageSquare className="w-4 h-4 text-[#2563EB]" />
+          <h3 className="text-sm font-semibold text-slate-900">Activity &amp; Comments</h3>
+          {comments.length > 0 && <span className="text-[11px] font-semibold text-slate-400 tabular-nums">{comments.length}</span>}
+        </div>
         {isLoading ? (
           <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-14 rounded-lg bg-slate-100 animate-pulse" />)}</div>
         ) : (
-          <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-1 before:bottom-1 before:w-0.5 before:bg-slate-100">
+          <div className="space-y-4">
             {comments.map((c) => (
-              <div key={c.id} className="relative group">
-                <div className="absolute -left-6 w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-white" />
+              <div key={c.id} className="group flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                  You
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-[10px] text-slate-400 tabular-nums">
-                      {new Date(c.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                      {c.edited_at && " · edited"}
-                    </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[12px] font-semibold text-slate-800">You</span>
+                    <span className="text-[10px] text-slate-400 tabular-nums" title={new Date(c.created_at).toLocaleString("en-GB")}>
+                      {relativeTime(c.created_at)}{c.edited_at && " · edited"}
+                    </span>
                     <button
                       onClick={() => workspaceId && deleteComment.mutate({ workspaceId, taskId, id: c.id })}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-300 hover:text-red-500"
+                      className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-300 hover:text-red-500"
                       aria-label="Delete comment"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{c.body_md}</p>
+                  <div className="inline-block max-w-full bg-blue-50 border border-blue-100 rounded-2xl rounded-tl-sm px-3.5 py-2.5">
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{c.body_md}</p>
+                  </div>
                 </div>
               </div>
             ))}
             {/* System lifecycle events (task created) shown beneath the live thread */}
             {baseActivity.map((item) => (
-              <div key={item.id} className="relative">
-                <div className="absolute -left-6 w-4 h-4 rounded-full bg-slate-300 flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-white" />
+              <div key={item.id} className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0">
+                  {item.initials}
                 </div>
-                <div className="bg-slate-50/60 rounded-lg p-3">
-                  <p className="text-[10px] text-slate-400">{item.time}</p>
-                  <p className="text-xs text-slate-600 mt-0.5">{item.text} · {item.user}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[12px] font-semibold text-slate-600">{item.user}</span>
+                    <span className="text-[10px] text-slate-400">{item.time}</span>
+                  </div>
+                  <div className="inline-block max-w-full bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-3.5 py-2">
+                    <p className="text-xs text-slate-600">{item.text}</p>
+                  </div>
                 </div>
               </div>
             ))}
             {comments.length === 0 && (
-              <p className="text-[12px] text-slate-400 pl-1">No comments yet — start the discussion above.</p>
+              <div className="text-center py-6">
+                <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-2">
+                  <MessageSquare className="w-5 h-5 text-slate-300" />
+                </div>
+                <p className="text-[12px] text-slate-400">No comments yet — start the discussion above.</p>
+              </div>
             )}
           </div>
         )}
@@ -828,20 +900,32 @@ function LinkedWorkTab({ task }: { task: TaskView }) {
         <h3 className="text-sm font-semibold text-slate-900 mb-3">Linked Records</h3>
         {records.length === 0 ? (
           <div className="text-center py-10">
-            <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No linked records</p>
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+              <Building2 className="w-6 h-6 text-slate-400" />
+            </div>
+            <p className="text-sm font-semibold text-slate-700">No linked records</p>
             <p className="text-[12px] text-slate-400 mt-0.5">Link this task to a property to see it here.</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {records.map((rec) => (
-              <div key={rec.label} className="flex items-center justify-between py-2.5 px-3 rounded-lg border border-slate-100 hover:bg-slate-50">
-                <div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{rec.type}</p>
-                  <p className="text-sm font-medium text-slate-700">{rec.label}</p>
+              <Link
+                key={rec.label}
+                href={rec.href}
+                className="group flex items-center gap-3 py-3 px-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-sm transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-[#2563EB]" />
                 </div>
-                <Link href={rec.href} className="text-[12px] text-[#2563EB] hover:underline">View →</Link>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">{rec.type}</p>
+                  <p className="text-sm font-semibold text-slate-800 group-hover:text-[#2563EB] transition-colors truncate">{rec.label}</p>
+                </div>
+                {rec.status && (
+                  <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full shrink-0">{rec.status}</span>
+                )}
+                <ChevronLeft className="w-4 h-4 text-slate-300 rotate-180 group-hover:text-[#2563EB] transition-colors shrink-0" />
+              </Link>
             ))}
           </div>
         )}

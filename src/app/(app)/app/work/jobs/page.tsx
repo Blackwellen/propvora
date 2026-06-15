@@ -457,17 +457,35 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
     cells.push({ day: d, iso: `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}` })
   }
   const unscheduled = jobs.filter(j => !j.scheduledDateIso).length
+  const monthCount = jobs.filter(j => j.scheduledDateIso && j.scheduledDateIso.startsWith(`${year}-${String(month + 1).padStart(2, "0")}`)).length
+
+  // Legend reflects the status colours used by the day-cell dots.
+  const legend = [
+    { label: "Scheduled", dot: "bg-blue-500" },
+    { label: "In Progress", dot: "bg-indigo-500" },
+    { label: "Waiting", dot: "bg-amber-500" },
+    { label: "Overdue", dot: "bg-red-500" },
+    { label: "Complete", dot: "bg-emerald-500" },
+  ]
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-900">{monthLabel}</h3>
+      <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-[#2563EB]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 leading-tight">{monthLabel}</h3>
+            <p className="text-[11px] text-slate-400 tabular-nums">{monthCount} scheduled this month</p>
+          </div>
+        </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500">
+          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 text-slate-500 transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => { const d = new Date(); d.setDate(1); setCursor(d) }} className="h-8 px-3 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50">Today</button>
-          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500">
+          <button onClick={() => { const d = new Date(); d.setDate(1); setCursor(d) }} className="h-8 px-3 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors">Today</button>
+          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 text-slate-500 transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -481,19 +499,32 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
         {cells.map((cell, i) => {
           const dayJobs = cell ? (byDay[cell.iso] ?? []) : []
           const isToday = cell?.iso === todayIso
+          const isWeekend = i % 7 >= 5
           return (
-            <div key={i} className={cn("min-h-[84px] sm:min-h-[104px] border-b border-r border-slate-100 p-1.5 align-top", !cell && "bg-slate-50/40")}>
+            <div
+              key={i}
+              className={cn(
+                "group/cell min-h-[88px] sm:min-h-[108px] border-b border-r border-slate-100 p-1.5 align-top transition-colors",
+                !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-blue-50/30" : "hover:bg-blue-50/30",
+                isToday && "bg-blue-50/40"
+              )}
+            >
               {cell && (
                 <>
-                  <div className={cn("text-[11px] font-semibold mb-1 w-6 h-6 flex items-center justify-center rounded-full", isToday ? "bg-[#2563EB] text-white" : "text-slate-500")}>{cell.day}</div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500 group-hover/cell:bg-white")}>{cell.day}</div>
+                    {dayJobs.length > 0 && (
+                      <span className="text-[9px] font-semibold text-slate-400 tabular-nums">{dayJobs.length}</span>
+                    )}
+                  </div>
                   <div className="space-y-1">
                     {dayJobs.slice(0, 3).map((j) => (
-                      <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-1 rounded-md bg-slate-50 hover:bg-slate-100 px-1.5 py-1 transition-colors">
+                      <Link key={j.id} href={`/app/work/jobs/${j.id}`} title={`${j.title} · ${j.property}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
-                        <span className="text-[10px] text-slate-600 truncate">{j.title}</span>
+                        <span className="text-[10px] font-medium text-slate-600 truncate">{j.title}</span>
                       </Link>
                     ))}
-                    {dayJobs.length > 3 && <p className="text-[9px] text-slate-400 pl-1">+{dayJobs.length - 3} more</p>}
+                    {dayJobs.length > 3 && <p className="text-[9px] font-medium text-[#2563EB] pl-1">+{dayJobs.length - 3} more</p>}
                   </div>
                 </>
               )}
@@ -501,11 +532,20 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
           )
         })}
       </div>
-      {unscheduled > 0 && (
-        <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
-          <p className="text-[11px] text-slate-400">{unscheduled} job{unscheduled === 1 ? "" : "s"} with no scheduled date — set one on the job to place it on the calendar.</p>
+      {/* Legend + unscheduled footer */}
+      <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
+        <div className="flex items-center gap-3 flex-wrap">
+          {legend.map((l) => (
+            <div key={l.label} className="flex items-center gap-1.5">
+              <span className={cn("w-2 h-2 rounded-full", l.dot)} />
+              <span className="text-[10px] font-medium text-slate-500">{l.label}</span>
+            </div>
+          ))}
         </div>
-      )}
+        {unscheduled > 0 && (
+          <p className="text-[11px] text-slate-400 tabular-nums">{unscheduled} job{unscheduled === 1 ? "" : "s"} with no scheduled date</p>
+        )}
+      </div>
     </div>
   )
 }
@@ -525,79 +565,142 @@ function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
   }, [jobs])
 
   const unscheduled = jobs.filter((j) => !j.scheduledDateIso)
+  const todayLabel = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })
 
   if (groups.length === 0 && unscheduled.length === 0) {
     return <WorkEmptyState icon={Briefcase} title="No jobs to show" description="Create a job to see it on the timeline." />
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5">
-      <div className="relative pl-5 before:absolute before:left-1.5 before:top-1 before:bottom-1 before:w-0.5 before:bg-slate-100">
-        {groups.map(([label, items]) => (
-          <div key={label} className="relative mb-5 last:mb-0">
-            <div className="absolute -left-[18px] w-3.5 h-3.5 rounded-full bg-[#2563EB] border-2 border-white mt-0.5" />
-            <p className="text-[12px] font-semibold text-slate-700 mb-2">{label}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-              {items.map((j) => (
-                <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm px-3 py-2 transition-all">
-                  <span className={cn("w-2 h-2 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
-                  <span className="text-[12.5px] font-medium text-slate-800 truncate flex-1">{j.title}</span>
-                  {j.quoteValue !== "—" && <span className="text-[11px] font-semibold text-slate-500 shrink-0">{j.quoteValue}</span>}
-                </Link>
-              ))}
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+          <Activity className="w-4 h-4 text-[#2563EB]" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 leading-tight">Job Timeline</h3>
+          <p className="text-[11px] text-slate-400 tabular-nums">{jobs.length} job{jobs.length === 1 ? "" : "s"} across {groups.length} day{groups.length === 1 ? "" : "s"}</p>
+        </div>
+      </div>
+      <div className="p-4 sm:p-6">
+        <div className="relative pl-7 before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-slate-200 before:via-slate-200 before:to-transparent">
+          {groups.map(([label, items]) => {
+            const isToday = label === todayLabel
+            return (
+              <div key={label} className="relative mb-7 last:mb-0">
+                {/* Day node */}
+                <div className={cn("absolute -left-7 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center mt-0.5 shadow-sm", isToday ? "bg-[#2563EB]" : "bg-white ring-1 ring-slate-200")}>
+                  <span className={cn("w-1.5 h-1.5 rounded-full", isToday ? "bg-white" : "bg-[#2563EB]")} />
+                </div>
+                {/* Day header pill */}
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold", isToday ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-slate-100 text-slate-600")}>
+                    {isToday && <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />}
+                    {label}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5 tabular-nums">{items.length}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+                  {items.map((j) => (
+                    <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-md px-3 py-2.5 transition-all">
+                      <span className={cn("w-2.5 h-2.5 rounded-full shrink-0 ring-4 ring-offset-0", STATUS_DOT[j.status] ?? "bg-slate-400", "ring-slate-50")} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-[#2563EB] transition-colors">{j.title}</p>
+                        {j.property && j.property !== "—" && <p className="text-[10.5px] text-slate-400 truncate">{j.property}</p>}
+                      </div>
+                      {j.quoteValue !== "—" && <span className="text-[11px] font-bold text-slate-600 tabular-nums shrink-0">{j.quoteValue}</span>}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+          {unscheduled.length > 0 && (
+            <div className="relative mb-0">
+              <div className="absolute -left-7 w-5 h-5 rounded-full bg-white ring-1 ring-slate-200 border-2 border-white flex items-center justify-center mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              </div>
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold bg-slate-100 text-slate-500">No scheduled date</span>
+                <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5 tabular-nums">{unscheduled.length}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+                {unscheduled.map((j) => (
+                  <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 hover:bg-white hover:border-slate-400 px-3 py-2.5 transition-all">
+                    <span className={cn("w-2.5 h-2.5 rounded-full shrink-0 ring-4 ring-white", STATUS_DOT[j.status] ?? "bg-slate-400")} />
+                    <span className="text-[12.5px] font-medium text-slate-700 truncate flex-1">{j.title}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-        {unscheduled.length > 0 && (
-          <div className="relative mb-0">
-            <div className="absolute -left-[18px] w-3.5 h-3.5 rounded-full bg-slate-300 border-2 border-white mt-0.5" />
-            <p className="text-[12px] font-semibold text-slate-500 mb-2">No scheduled date ({unscheduled.length})</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-              {unscheduled.map((j) => (
-                <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 px-3 py-2 transition-colors">
-                  <span className={cn("w-2 h-2 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
-                  <span className="text-[12.5px] font-medium text-slate-700 truncate flex-1">{j.title}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-// ─── Data view — dense, sortable, every column on one grid ────────────────────
+// ─── Data view — dense, premium table with chips, avatars, totals ────────────
 function JobsDataView({ jobs }: { jobs: DemoJob[] }) {
   if (jobs.length === 0) {
     return <WorkEmptyState icon={Briefcase} title="No jobs found" description="No jobs match your current filters." />
   }
+  const parseAmt = (v: string) => { const n = parseFloat(v.replace(/[^0-9.]/g, "")); return isNaN(n) ? 0 : n }
+  const totalQuote = jobs.reduce((s, j) => s + parseAmt(j.quoteValue), 0)
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+          <Database className="w-4 h-4 text-[#2563EB]" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 leading-tight">All Job Data</h3>
+          <p className="text-[11px] text-slate-400 tabular-nums">{jobs.length} record{jobs.length === 1 ? "" : "s"}</p>
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              {["Reference", "Title", "Status", "Priority", "Category", "Property", "Scheduled", "Quote", "Invoice"].map((h) => (
-                <th key={h} className="px-3 py-2.5 text-left text-[10.5px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+              {["Reference", "Job", "Status", "Priority", "Category", "Property", "Supplier", "Scheduled", "Quote", "Invoice"].map((h, i) => (
+                <th key={h} className={cn("px-3 py-2.5 text-[10.5px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap", i === 8 ? "text-right" : "text-left")}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {jobs.map((j) => (
-              <tr key={j.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="px-3 py-2 font-mono text-[11px] text-slate-400 whitespace-nowrap">{String(j.id).slice(0, 10)}</td>
-                <td className="px-3 py-2"><Link href={`/app/work/jobs/${j.id}`} className="font-medium text-slate-800 hover:text-[#2563EB] whitespace-nowrap">{j.title}</Link></td>
-                <td className="px-3 py-2"><JobStatusBadge status={j.status} /></td>
-                <td className="px-3 py-2 capitalize text-slate-600">{j.priority}</td>
-                <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{j.category ?? "—"}</td>
-                <td className="px-3 py-2 text-slate-600 truncate max-w-[140px]">{j.property}</td>
-                <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{j.scheduledDateIso ? new Date(j.scheduledDateIso).toLocaleDateString("en-GB") : "—"}</td>
-                <td className="px-3 py-2 font-medium text-slate-700 whitespace-nowrap">{j.quoteValue}</td>
-                <td className="px-3 py-2"><InvoiceBadge status={j.invoiceStatus} /></td>
+              <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors group">
+                <td className="px-3 py-2.5 font-mono text-[11px] text-slate-400 whitespace-nowrap">{String(j.id).slice(0, 10)}</td>
+                <td className="px-3 py-2.5">
+                  <Link href={`/app/work/jobs/${j.id}`} className="font-semibold text-slate-800 group-hover:text-[#2563EB] whitespace-nowrap transition-colors">{j.title}</Link>
+                </td>
+                <td className="px-3 py-2.5"><JobStatusBadge status={j.status} /></td>
+                <td className="px-3 py-2.5"><WorkPriorityBadge priority={j.priority} /></td>
+                <td className="px-3 py-2.5">
+                  {j.category ? <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-medium whitespace-nowrap">{j.category}</span> : <span className="text-slate-400">—</span>}
+                </td>
+                <td className="px-3 py-2.5 text-slate-600 truncate max-w-[140px]">{j.property}</td>
+                <td className="px-3 py-2.5">
+                  {j.supplier && j.supplier !== "—" ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-[8px] text-white font-bold shrink-0">{j.supplier.slice(0, 2).toUpperCase()}</div>
+                      <span className="text-slate-600 truncate max-w-[100px]">{j.supplier}</span>
+                    </div>
+                  ) : <span className="text-slate-400">—</span>}
+                </td>
+                <td className="px-3 py-2.5 text-slate-600 whitespace-nowrap tabular-nums">{j.scheduledDateIso ? new Date(j.scheduledDateIso).toLocaleDateString("en-GB") : "—"}</td>
+                <td className="px-3 py-2.5 text-right font-semibold text-slate-700 whitespace-nowrap tabular-nums">{j.quoteValue}</td>
+                <td className="px-3 py-2.5"><InvoiceBadge status={j.invoiceStatus} /></td>
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="bg-slate-50/80 border-t border-slate-200">
+              <td className="px-3 py-2.5 text-[11px] font-semibold text-slate-600" colSpan={8}>Total — {jobs.length} job{jobs.length === 1 ? "" : "s"}</td>
+              <td className="px-3 py-2.5 text-right text-[12px] font-bold text-slate-800 tabular-nums">£{totalQuote.toLocaleString()}</td>
+              <td />
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

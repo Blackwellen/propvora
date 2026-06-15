@@ -7,6 +7,7 @@ import {
   ArrowLeft, Pencil, Send, FileText, Sparkles, CreditCard, CheckCircle2,
   AlertTriangle, XCircle, Download, ChevronRight, Upload, RefreshCw,
   Building2, User, Link2, Clock, Eye, Mail, Shield, Activity,
+  ImageIcon, FileSpreadsheet, UploadCloud,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -72,6 +73,17 @@ function SectionCard({ title, children, action }: { title: string; children: Rea
       <div className="p-5">{children}</div>
     </div>
   )
+}
+
+/* ------------------------------------------------------------------ */
+/* Attachment icon by mime                                              */
+/* ------------------------------------------------------------------ */
+function docIcon(mime: string | null) {
+  const m = (mime ?? "").toLowerCase()
+  if (m.startsWith("image/")) return { Icon: ImageIcon, tint: "bg-violet-50 text-violet-600" }
+  if (m.includes("pdf")) return { Icon: FileText, tint: "bg-red-50 text-red-500" }
+  if (m.includes("sheet") || m.includes("excel") || m.includes("csv")) return { Icon: FileSpreadsheet, tint: "bg-emerald-50 text-emerald-600" }
+  return { Icon: FileText, tint: "bg-slate-100 text-slate-500" }
 }
 
 /* ------------------------------------------------------------------ */
@@ -656,50 +668,7 @@ export default function InvoiceDetailPage() {
       case "Documents":
         return (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    {["Document", "Type", "Uploaded", "Actions"].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Generated PDF — always available from the live record */}
-                  <tr className="border-b border-slate-100">
-                    <td className="px-4 py-3 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-red-400" />
-                      <span className="font-medium text-slate-800">{invoiceNumber}.pdf</span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">Generated PDF</td>
-                    <td className="px-4 py-3 text-slate-500">{inv.issue_date}</td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                      >Download</button>
-                    </td>
-                  </tr>
-                  {/* Uploaded attachments (live from `documents`) */}
-                  {docs.map((d) => (
-                    <tr key={d.id} className="border-b border-slate-100">
-                      <td className="px-4 py-3 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-slate-400" />
-                        <span className="font-medium text-slate-800 truncate max-w-[220px]">{d.name}</span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">{d.mime ?? "Attachment"}</td>
-                      <td className="px-4 py-3 text-slate-500">{d.created_at ? d.created_at.slice(0, 10) : "—"}</td>
-                      <td className="px-4 py-3">
-                        {d.url ? (
-                          <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-xs font-medium">Download</a>
-                        ) : <span className="text-xs text-slate-400">—</span>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Premium dropzone */}
             <input
               ref={docInputRef}
               type="file"
@@ -711,16 +680,66 @@ export default function InvoiceDetailPage() {
               type="button"
               onClick={() => !uploading && docInputRef.current?.click()}
               disabled={uploading}
-              className="w-full border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center gap-3 text-center bg-slate-50 hover:bg-slate-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full border-2 border-dashed border-slate-200 rounded-2xl px-6 py-8 flex flex-col items-center gap-2 text-center bg-slate-50/50 hover:border-[#2563EB] hover:bg-blue-50/40 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                {uploading ? <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" /> : <Upload className="w-5 h-5 text-slate-400" />}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-700">{uploading ? "Uploading…" : "Click to upload a file"}</p>
-                <p className="text-xs text-slate-400 mt-0.5">PDF, JPG, PNG, DOCX, CSV, XLSX up to 10MB</p>
-              </div>
+              {uploading ? (
+                <RefreshCw className="w-6 h-6 text-[#2563EB] animate-spin" />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center">
+                  <UploadCloud className="w-5 h-5 text-[#2563EB]" />
+                </div>
+              )}
+              <p className="text-sm font-semibold text-slate-700">{uploading ? "Uploading…" : "Drag & drop a file, or click to browse"}</p>
+              <p className="text-[11px] text-slate-400">PDF, JPG, PNG, DOCX, CSV, XLSX · up to 10 MB</p>
             </button>
+
+            {/* Attachment cards */}
+            <div className="space-y-2">
+              {/* Generated PDF — always available from the live record */}
+              <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 hover:border-slate-300 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">{invoiceNumber}.pdf</p>
+                  <p className="text-[11px] text-slate-400">Generated PDF · {inv.issue_date}</p>
+                </div>
+                <button
+                  onClick={() => id && window.open(`/api/pdf/invoice/${id}`, "_blank")}
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-400" /> Download
+                </button>
+              </div>
+
+              {/* Uploaded attachments (live from `documents`) */}
+              {docs.map((d) => {
+                const { Icon, tint } = docIcon(d.mime)
+                return (
+                  <div key={d.id} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 hover:border-slate-300 transition-colors">
+                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", tint)}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 truncate">{d.name}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{d.mime ?? "Attachment"}{d.created_at ? ` · ${d.created_at.slice(0, 10)}` : ""}</p>
+                    </div>
+                    {d.url ? (
+                      <a
+                        href={d.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors"
+                      >
+                        <Download className="w-3.5 h-3.5 text-slate-400" /> Download
+                      </a>
+                    ) : (
+                      <span className="shrink-0 text-xs text-slate-400 px-2">—</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )
 

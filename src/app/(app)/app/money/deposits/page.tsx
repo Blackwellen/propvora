@@ -18,6 +18,7 @@ import {
   Info,
   ExternalLink,
   ArrowUpRight,
+  Check,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
@@ -522,6 +523,14 @@ const PROTECTION_SCHEMES = [
   "TDS (Insured)",
 ]
 
+const SCHEME_META: Record<string, { short: string; abbr: string; type: string; tint: string }> = {
+  "Deposit Protection Service (DPS)": { short: "Deposit Protection Service", abbr: "DPS", type: "Custodial", tint: "bg-blue-600" },
+  "MyDeposits (Custodial)":           { short: "MyDeposits",                 abbr: "MD",  type: "Custodial", tint: "bg-emerald-600" },
+  "TDS (Custodial)":                  { short: "Tenancy Deposit Scheme",     abbr: "TDS", type: "Custodial", tint: "bg-violet-600" },
+  "MyDeposits (Insured)":             { short: "MyDeposits",                 abbr: "MD",  type: "Insured",   tint: "bg-emerald-600" },
+  "TDS (Insured)":                    { short: "Tenancy Deposit Scheme",     abbr: "TDS", type: "Insured",   tint: "bg-violet-600" },
+}
+
 function AddProtectionModal({
   deposit,
   workspaceId,
@@ -561,54 +570,98 @@ function AddProtectionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h3 className="text-base font-semibold text-slate-900">Add Protection</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+              <Shield className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Add Protection</h3>
+              <p className="text-[11px] text-slate-400">Register this deposit with an approved scheme</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="px-6 py-4 space-y-4">
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <p className="text-xs font-medium text-slate-500 mb-1">Deposit</p>
-            <p className="text-sm font-semibold text-slate-800">{deposit.tenantName}</p>
-            <p className="text-xs text-slate-500">{deposit.propertyAddress}</p>
-            <p className="text-lg font-bold text-blue-600 mt-1">£{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
+
+        <div className="px-6 py-4 space-y-5 overflow-y-auto">
+          {/* Deposit summary */}
+          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", deposit.avatarColor)}>
+              {deposit.avatarInitials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-800 truncate">{deposit.tenantName}</p>
+              <p className="text-xs text-slate-500 truncate">{deposit.propertyAddress}</p>
+            </div>
+            <p className="text-base font-bold text-slate-900 tabular-nums shrink-0">£{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-600">Protection Scheme</label>
-            <div className="relative">
-              <select
-                value={scheme}
-                onChange={(e) => setScheme(e.target.value)}
-                className="w-full h-9 pl-3 pr-8 rounded-lg text-sm border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
-              >
-                {PROTECTION_SCHEMES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+
+          {/* Scheme picker — selectable cards */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-700">Protection scheme</label>
+            <div className="grid grid-cols-1 gap-2">
+              {PROTECTION_SCHEMES.map((s) => {
+                const meta = SCHEME_META[s]
+                const active = scheme === s
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => { setScheme(s); setError(null) }}
+                    className={cn(
+                      "flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 text-left transition-all",
+                      active ? "border-emerald-500 bg-emerald-50/60" : "border-slate-200 bg-white hover:border-slate-300"
+                    )}
+                  >
+                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shrink-0", meta.tint)}>
+                      {meta.abbr}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-slate-800 truncate">{meta.short}</p>
+                      <p className="text-[11px] text-slate-400">{meta.type} scheme</p>
+                    </div>
+                    <span className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors",
+                      active ? "bg-emerald-500" : "border-2 border-slate-200"
+                    )}>
+                      {active && <Check className="w-3 h-3 text-white" />}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-600">Scheme Reference Number</label>
+
+          {/* Reference */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700">Scheme reference number</label>
             <input
               value={reference}
-              onChange={(e) => setReference(e.target.value)}
+              onChange={(e) => { setReference(e.target.value); setError(null) }}
               placeholder="e.g. DPS20260001"
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-10 px-3.5 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all"
             />
+            <p className="text-[11px] text-slate-400">The certificate or membership reference issued by the scheme when the deposit was lodged.</p>
           </div>
         </div>
-        <div className="px-6 py-4 border-t border-slate-100 space-y-2">
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 space-y-2 shrink-0">
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 h-9 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-60"
+              className="flex-1 inline-flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-60"
             >
+              <Shield className="w-4 h-4" />
               {saving ? "Protecting…" : "Mark Protected"}
             </button>
-            <button onClick={onClose} disabled={saving} className="h-9 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-60">
+            <button onClick={onClose} disabled={saving} className="h-10 px-4 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-colors disabled:opacity-60">
               Cancel
             </button>
           </div>

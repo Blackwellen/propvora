@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { X, Eye, Code2, Loader2, RotateCcw, Save } from "lucide-react"
+import { X, Eye, Code2, Loader2, RotateCcw, Save, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface TemplateContent { subject: string; body: string }
@@ -125,17 +125,19 @@ export function TemplateEditor({
                 />
               </div>
               {def.tokens.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-[12.5px] font-semibold text-slate-700">Available tokens</p>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="space-y-1.5 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                  <p className="text-[12px] font-semibold text-slate-700">Insert a variable</p>
+                  <p className="text-[11px] text-slate-400 -mt-0.5">Click a chip to append it where it&apos;s needed — it&apos;s replaced with real data when sent.</p>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
                     {def.tokens.map((t) => (
                       <button
                         key={t}
                         type="button"
                         onClick={() => insertToken(t)}
-                        className="px-2 py-1 rounded-md bg-slate-100 text-[11px] font-mono text-slate-600 hover:bg-slate-200 transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 bg-white text-[11px] font-mono text-slate-600 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
                       >
-                        {`{{${t}}}`}
+                        <Plus className="w-3 h-3" />
+                        {t}
                       </button>
                     ))}
                   </div>
@@ -143,12 +145,19 @@ export function TemplateEditor({
               )}
             </>
           ) : (
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+            // Email-style device frame preview
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 border-b border-slate-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                <span className="ml-2 text-[11px] font-medium text-slate-400">New message · preview</span>
+              </div>
+              <div className="px-5 py-3.5 bg-white border-b border-slate-100">
                 <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Subject</p>
                 <p className="text-sm font-semibold text-slate-800 mt-0.5">{renderPreview(subject, def.tokens) || "(no subject)"}</p>
               </div>
-              <div className="px-4 py-4 bg-white">
+              <div className="px-5 py-5 bg-white">
                 <p className="text-[13px] text-slate-700 whitespace-pre-wrap leading-relaxed">
                   {renderPreview(body, def.tokens) || "(empty body)"}
                 </p>

@@ -188,6 +188,42 @@ export function fmtGBP(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 }
 
+export interface NextDeadline {
+  period: MtdPeriod
+  /** Whole days until the update due date (negative when overdue). */
+  daysToDue: number
+  overdue: boolean
+}
+
+/**
+ * The most pressing quarterly update: the earliest period that is open or
+ * overdue (ready to file), else the current in-progress period, else null.
+ * Pure derivation from already-computed periods — no new data access.
+ */
+export function nextDeadline(mtd: MtdComputation | null): NextDeadline | null {
+  if (!mtd) return null
+  const filable = mtd.periods.filter((p) => p.status === "overdue" || p.status === "open")
+  const pick =
+    filable.sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ??
+    mtd.periods.find((p) => p.status === "current") ??
+    null
+  if (!pick) return null
+  const due = new Date(pick.dueDate + "T00:00:00Z").getTime()
+  const now = Date.now()
+  const daysToDue = Math.ceil((due - now) / 86400000)
+  return { period: pick, daysToDue, overdue: pick.status === "overdue" }
+}
+
+/** Fraction (0–1) of the way from a period's start to its due date, for a progress bar. */
+export function dueProgress(p: MtdPeriod): number {
+  const start = new Date(p.start + "T00:00:00Z").getTime()
+  const due = new Date(p.dueDate + "T00:00:00Z").getTime()
+  const now = Date.now()
+  if (now <= start) return 0
+  if (now >= due) return 1
+  return Math.min(1, Math.max(0, (now - start) / (due - start)))
+}
+
 export function fmtDate(d: string): string {
   const dt = new Date(d)
   return isNaN(dt.getTime()) ? "—" : dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })

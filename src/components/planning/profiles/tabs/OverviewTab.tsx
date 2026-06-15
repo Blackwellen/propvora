@@ -58,24 +58,37 @@ function Slider({
   label: string; value: number; min: number; max: number; step: number
   suffix: string; onChange: (v: number) => void; accent: string
 }) {
+  const pct = ((value - min) / (max - min)) * 100
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-sm font-medium text-slate-700">{label}</span>
-        <span className="text-sm font-semibold tabular-nums" style={{ color: accent }}>
+        <span
+          className="text-sm font-bold tabular-nums px-2 py-0.5 rounded-lg"
+          style={{ color: accent, backgroundColor: `${accent}14` }}
+        >
           {value > 0 && suffix === '%' ? '+' : ''}{value}{suffix}
         </span>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 rounded-full appearance-none cursor-pointer bg-slate-200 accent-current"
-        style={{ accentColor: accent }}
-      />
+      {/* Filled track behind a native range input (thumb uses accentColor) */}
+      <div className="relative h-2">
+        <div className="absolute inset-0 rounded-full bg-slate-200" />
+        <div className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-150 motion-reduce:transition-none" style={{ width: `${pct}%`, backgroundColor: accent }} />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute inset-0 w-full h-2 appearance-none cursor-pointer bg-transparent"
+          style={{ accentColor: accent }}
+        />
+      </div>
+      <div className="flex items-center justify-between mt-1">
+        <span className="text-[10px] text-slate-400 tabular-nums">{min}{suffix}</span>
+        <span className="text-[10px] text-slate-400 tabular-nums">{max > 0 ? '+' : ''}{max}{suffix}</span>
+      </div>
     </div>
   )
 }
@@ -185,28 +198,45 @@ export default function OverviewTab({ profile }: Props) {
 
             {hasModel ? (
               <div className="p-5 sm:p-6 space-y-6">
-                {/* Result panel */}
+                {/* Before / After metric cards */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Base · Net Monthly</p>
+                    <p className="text-xl font-bold tabular-nums mt-1 text-slate-700">{fmtGBP(scenario.baseNet)}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Current model</p>
+                  </div>
+                  <div
+                    className="rounded-2xl p-4"
+                    style={{ backgroundColor: `${profile.accentColor}0D`, border: `1px solid ${profile.accentColor}33` }}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Scenario · Net Monthly</p>
+                    <p className="text-xl font-bold tabular-nums mt-1" style={{ color: profile.accentColor }}>{fmtGBP(scenario.net)}</p>
+                    <p className={`text-[11px] font-semibold mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full ${scenario.netDelta >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+                      {scenario.netDelta >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      {scenario.netDelta >= 0 ? '+' : ''}{fmtGBP(scenario.netDelta)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Result panel — yield + adjusted figures */}
                 <div
                   className="rounded-2xl p-5"
                   style={{ backgroundColor: `${profile.accentColor}0D`, border: `1px solid ${profile.accentColor}22` }}
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Net Monthly Cashflow</p>
-                      <p className="text-2xl font-bold tabular-nums mt-1" style={{ color: profile.accentColor }}>
-                        {fmtGBP(scenario.net)}
-                      </p>
-                      <p className={`text-xs font-medium mt-0.5 flex items-center gap-1 ${scenario.netDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                        {scenario.netDelta >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                        {scenario.netDelta >= 0 ? '+' : ''}{fmtGBP(scenario.netDelta)} vs base
-                      </p>
-                    </div>
-                    <div>
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Net Yield</p>
                       <p className="text-2xl font-bold tabular-nums mt-1 text-slate-900">
                         {scenario.netYield != null ? `${scenario.netYield.toFixed(1)}%` : '—'}
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">{Math.round(scenario.occupancy)}% occupancy</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Annualised Net</p>
+                      <p className="text-2xl font-bold tabular-nums mt-1" style={{ color: profile.accentColor }}>
+                        {fmtGBP(scenario.net * 12)}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">Net × 12</p>
                     </div>
                   </div>
                   <div className="mt-4 pt-3 border-t grid grid-cols-2 gap-3 text-sm" style={{ borderColor: `${profile.accentColor}22` }}>

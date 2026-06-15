@@ -122,6 +122,8 @@ export default function EmailPage() {
     showToast("Connect an email provider (Resend or SMTP) to send test emails.")
   }
 
+  const customisedCount = TEMPLATES.filter((t) => t.editable && savedTemplates[t.key]).length
+
   function handleEdit(template: EmailTemplate) {
     if (!template.editable) {
       showToast("This template cannot be edited")
@@ -235,92 +237,123 @@ export default function EmailPage() {
 
       {/* Email templates */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div style={{ color: "#2563EB" }}>
-            <Mail className="w-5 h-5" />
-          </div>
-          <h3 className="text-[14px] font-bold text-slate-900">Email Templates</h3>
-        </div>
-        <div className="space-y-1">
-          {TEMPLATES.map((template) => (
-            <div key={template.key} className="border border-slate-100 rounded-xl overflow-hidden">
-              <button
-                onClick={() =>
-                  setExpandedTemplate(expandedTemplate === template.key ? null : template.key)
-                }
-                className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div style={{ color: "#2563EB" }}>
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <span className="text-[13px] font-medium text-slate-800">{template.name}</span>
-                  {!template.editable ? (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-                      System
-                    </span>
-                  ) : savedTemplates[template.key] ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
-                      <CheckCircle2 className="w-3 h-3" /> Customised
-                    </span>
-                  ) : null}
-                </div>
-                <div style={{ color: "#64748B" }}>
-                  {expandedTemplate === template.key ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </div>
-              </button>
-              {expandedTemplate === template.key && (
-                <div className="px-4 pb-4 pt-2 bg-slate-50 border-t border-slate-100">
-                  <p className="text-[12px] text-slate-500 mb-3">
-                    {template.editable
-                      ? "Customise the subject line and body of this template."
-                      : "This is a system template and cannot be edited for security reasons."}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleEdit(template)}
-                      disabled={!template.editable}
-                      className={cn(
-                        "flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-colors",
-                        template.editable
-                          ? "border-[#2563EB] text-[#2563EB] hover:bg-blue-50"
-                          : "border-slate-200 text-slate-400 cursor-not-allowed"
-                      )}
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      Edit template
-                    </button>
-                    <button
-                      onClick={() => setPreviewKey(previewKey === template.key ? null : template.key)}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-[12px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      {previewKey === template.key ? "Hide preview" : "Preview"}
-                    </button>
-                  </div>
-                  {previewKey === template.key && (
-                    <div className="mt-3 rounded-xl border border-slate-200 overflow-hidden bg-white">
-                      <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100">
-                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Subject</p>
-                        <p className="text-[12.5px] font-semibold text-slate-800 mt-0.5">
-                          {(savedTemplates[template.key]?.subject ?? template.default.subject) || "(no subject)"}
-                        </p>
-                      </div>
-                      <div className="px-3.5 py-3">
-                        <p className="text-[12.5px] text-slate-600 whitespace-pre-wrap leading-relaxed">
-                          {(savedTemplates[template.key]?.body ?? template.default.body) || "(empty body)"}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+        <div className="flex items-center justify-between gap-3 mb-1">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 text-[#2563EB]" />
             </div>
-          ))}
+            <div>
+              <h3 className="text-[14px] font-bold text-slate-900">Email Templates</h3>
+              <p className="text-[12px] text-slate-500 mt-0.5">
+                {customisedCount > 0 ? `${customisedCount} customised` : "Using defaults"} · {TEMPLATES.length} templates
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+          {TEMPLATES.map((template) => {
+            const customised = template.editable && !!savedTemplates[template.key]
+            const content = savedTemplates[template.key] ?? template.default
+            const expanded = expandedTemplate === template.key
+            return (
+              <div
+                key={template.key}
+                className={cn(
+                  "rounded-2xl border bg-white overflow-hidden transition-all",
+                  expanded ? "border-[#2563EB] shadow-sm sm:col-span-2" : "border-slate-200 hover:border-slate-300 hover:shadow-sm"
+                )}
+              >
+                <button
+                  onClick={() => setExpandedTemplate(expanded ? null : template.key)}
+                  className="w-full flex items-start justify-between gap-3 px-4 py-3.5 text-left"
+                >
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className={cn(
+                      "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+                      customised ? "bg-emerald-50" : template.editable ? "bg-blue-50" : "bg-slate-100"
+                    )}>
+                      <Mail className={cn("w-4 h-4", customised ? "text-emerald-600" : template.editable ? "text-[#2563EB]" : "text-slate-400")} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[13px] font-semibold text-slate-800">{template.name}</span>
+                        {!template.editable ? (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">System</span>
+                        ) : customised ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
+                            <CheckCircle2 className="w-3 h-3" /> Customised
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Default</span>
+                        )}
+                      </div>
+                      <p className="text-[11.5px] text-slate-400 mt-0.5 truncate">
+                        {(content.subject || (template.editable ? "No subject" : "System-managed"))}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-slate-400 shrink-0 mt-1">
+                    {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </div>
+                </button>
+
+                {expanded && (
+                  <div className="px-4 pb-4 pt-1 border-t border-slate-100 bg-slate-50/60">
+                    <p className="text-[12px] text-slate-500 my-3">
+                      {template.editable
+                        ? "Customise the subject line and body of this template."
+                        : "This is a system template and cannot be edited for security reasons."}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEdit(template)}
+                        disabled={!template.editable}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-colors",
+                          template.editable
+                            ? "border-[#2563EB] text-white bg-[#2563EB] hover:bg-[#1d4ed8]"
+                            : "border-slate-200 text-slate-400 cursor-not-allowed"
+                        )}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        Edit template
+                      </button>
+                      <button
+                        onClick={() => setPreviewKey(previewKey === template.key ? null : template.key)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        {previewKey === template.key ? "Hide preview" : "Preview"}
+                      </button>
+                    </div>
+                    {previewKey === template.key && (
+                      // Email-style device frame preview
+                      <div className="mt-3 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden max-w-md">
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 border-b border-slate-200">
+                          <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                          <span className="ml-2 text-[10px] font-medium text-slate-400">Email preview</span>
+                        </div>
+                        <div className="px-4 py-3 border-b border-slate-100">
+                          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Subject</p>
+                          <p className="text-[13px] font-semibold text-slate-800 mt-0.5">
+                            {content.subject || "(no subject)"}
+                          </p>
+                        </div>
+                        <div className="px-4 py-4">
+                          <p className="text-[12.5px] text-slate-600 whitespace-pre-wrap leading-relaxed">
+                            {content.body || "(empty body)"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 

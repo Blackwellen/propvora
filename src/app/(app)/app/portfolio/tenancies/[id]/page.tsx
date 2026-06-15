@@ -75,6 +75,33 @@ const fmtDate = (d: string | null | undefined) => {
   return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
 }
 
+/** Time-only label for chat bubbles, e.g. "14:32". */
+const fmtTime = (d: string | null | undefined) => {
+  if (!d) return ""
+  const date = new Date(d)
+  if (isNaN(date.getTime())) return ""
+  return date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+}
+
+/** Human day-separator label: Today / Yesterday / full date. */
+const dayLabel = (d: string) => {
+  const date = new Date(d)
+  if (isNaN(date.getTime())) return ""
+  const today = new Date()
+  const y = new Date(); y.setDate(today.getDate() - 1)
+  const same = (a: Date, b: Date) => a.toDateString() === b.toDateString()
+  if (same(date, today)) return "Today"
+  if (same(date, y)) return "Yesterday"
+  return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })
+}
+
+/** Initials from a name. */
+const nameInitials = (name: string) => {
+  const p = name.trim().split(/\s+/).filter(Boolean)
+  if (p.length === 0) return "?"
+  return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase()
+}
+
 interface TenancyActivityRow {
   id: string
   action: string | null
@@ -765,6 +792,12 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
   const { data: messages = [], isLoading } = useTenancyMessages(workspace?.id, tenancyId)
   const sendMessage = useSendTenancyMessage()
   const [draft, setDraft] = useState("")
+  const threadRef = React.useRef<HTMLDivElement>(null)
+
+  // Keep the thread pinned to the latest message.
+  React.useEffect(() => {
+    if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight
+  }, [messages])
 
   async function handleSend() {
     const body = draft.trim()
@@ -826,8 +859,8 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
           )}
         </div>
 
-        {/* Message list */}
-        <div className="max-h-[420px] overflow-y-auto px-5 py-4 flex flex-col gap-3 bg-slate-50/40">
+        {/* Message list — grouped bubbles with avatars + date separators */}
+        <div ref={threadRef} className="max-h-[440px] overflow-y-auto px-4 sm:px-5 py-4 flex flex-col gap-1.5 bg-slate-50/40">
           {isLoading ? (
             <div className="flex flex-col gap-3">
               {[0, 1, 2].map((i) => (
@@ -835,32 +868,61 @@ function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancyId: str
               ))}
             </div>
           ) : messages.length === 0 ? (
-            <div className="py-10 text-center">
-              <MessageCircle className="w-7 h-7 text-slate-200 mx-auto mb-2" />
-              <p className="text-[13px] text-slate-500">No messages yet</p>
+            <div className="py-12 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                <MessageCircle className="w-7 h-7 text-slate-300" />
+              </div>
+              <p className="text-[13px] font-semibold text-slate-600">No messages yet</p>
               <p className="text-[12px] text-slate-400 mt-1">Start the conversation with a message below.</p>
             </div>
           ) : (
-            messages.map((m) => (
-              <div key={m.id} className={cn("flex flex-col max-w-[80%]", m.mine ? "self-end items-end" : "self-start items-start")}>
-                <div
-                  className={cn(
-                    "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words",
-                    m.mine ? "bg-blue-600 text-white rounded-br-sm" : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm"
+            messages.map((m, i) => {
+              const prev = messages[i - 1]
+              const showDay = !prev || dayLabel(prev.created_at) !== dayLabel(m.created_at)
+              // Group consecutive bubbles from the same sender (hide avatar/name on followers).
+              const grouped = !!prev && prev.mine === m.mine && !showDay
+              const senderLabel = m.mine ? "You" : m.sender_name
+              return (
+                <React.Fragment key={m.id}>
+                  {showDay && (
+                    <div className="flex items-center gap-3 my-3">
+                      <div className="flex-1 h-px bg-slate-200/70" />
+                      <span className="text-[10px] font-semibold text-slate-400 bg-white border border-slate-200 rounded-full px-2.5 py-0.5">{dayLabel(m.created_at)}</span>
+                      <div className="flex-1 h-px bg-slate-200/70" />
+                    </div>
                   )}
-                >
-                  {m.content}
-                </div>
-                <span className="text-[10px] text-slate-400 mt-1 px-1">
-                  {m.mine ? "You" : m.sender_name} · {fmtDate(m.created_at)}
-                </span>
-              </div>
-            ))
+                  <div className={cn("flex items-end gap-2 max-w-[82%]", m.mine ? "self-end flex-row-reverse" : "self-start", grouped ? "mt-0.5" : "mt-2")}>
+                    {/* Avatar (only on first of a group) */}
+                    {!m.mine && (
+                      grouped
+                        ? <div className="w-7 shrink-0" />
+                        : <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">{nameInitials(senderLabel)}</div>
+                    )}
+                    <div className={cn("flex flex-col min-w-0", m.mine ? "items-end" : "items-start")}>
+                      {!grouped && (
+                        <span className="text-[10px] font-medium text-slate-400 mb-0.5 px-1">{senderLabel}</span>
+                      )}
+                      <div
+                        className={cn(
+                          "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm",
+                          m.mine
+                            ? cn("bg-blue-600 text-white", grouped ? "rounded-br-md" : "rounded-br-sm")
+                            : cn("bg-white border border-slate-200 text-slate-800", grouped ? "rounded-bl-md" : "rounded-bl-sm")
+                        )}
+                      >
+                        {m.content}
+                      </div>
+                      <span className="text-[10px] text-slate-400 mt-1 px-1 tabular-nums">{fmtTime(m.created_at)}</span>
+                    </div>
+                  </div>
+                </React.Fragment>
+              )
+            })
           )}
         </div>
 
-        {/* Composer */}
-        <div className="border-t border-slate-100 p-3 bg-white">
+        {/* Composer — sticky at the bottom of the thread card */}
+        <div className="sticky bottom-0 border-t border-slate-100 p-3 bg-white">
           {sendMessage.isError && (
             <p className="text-[11px] text-red-500 mb-2 px-1">Couldn&apos;t send your message. Please try again.</p>
           )}

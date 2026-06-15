@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react"
 import {
   Plus, Download, Search, Eye, CheckSquare, AlertTriangle, CheckCircle,
   Users, ChevronDown,
-  X, Paperclip, Columns3,
+  X, Paperclip, Columns3, CheckCheck, Banknote, Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
@@ -545,17 +545,6 @@ export default function BillsPage() {
               >
                 <Plus className="w-4 h-4" />
                 Add Bill
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-              </button>
-              <button onClick={bulkMarkPaid} disabled={bulkBusy} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap disabled:opacity-60">
-                Mark Paid{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
-              </button>
-              <button onClick={bulkApprove} disabled={bulkBusy} className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-60">
-                Approve{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
-              </button>
-              <button onClick={bulkPaySupplierBACS} disabled={bulkBusy} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap disabled:opacity-60">
-                Pay Supplier (BACS)
-                <Download className="w-3.5 h-3.5 opacity-70" />
               </button>
               <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
                 <Download className="w-4 h-4" />
@@ -563,6 +552,7 @@ export default function BillsPage() {
               </button>
               <ActionMenu
                 items={[
+                  { label: "Pay Supplier (BACS export)", icon: Banknote, onClick: bulkPaySupplierBACS },
                   { label: "Export all bills (CSV)", icon: Download, onClick: handleExportCSV },
                   { label: "Add Bill", icon: Plus, onClick: () => setShowAddModal(true) },
                 ]}
@@ -570,6 +560,54 @@ export default function BillsPage() {
             </>
           }
         />
+
+        {/* Sticky bulk-selection toolbar — appears when bills are selected */}
+        {viewTab === "bills" && selectedIds.size > 0 && (
+          <div className="sticky top-3 z-30">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white shadow-lg px-4 py-3">
+              <div className="flex items-center gap-2.5 pr-3 mr-1 border-r border-slate-100">
+                <span className="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full bg-blue-600 text-white text-xs font-bold tabular-nums">
+                  {selectedIds.size}
+                </span>
+                <span className="text-sm font-medium text-slate-600">
+                  bill{selectedIds.size === 1 ? "" : "s"} selected
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={bulkMarkPaid}
+                  disabled={bulkBusy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-60"
+                >
+                  {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                  Mark Paid
+                </button>
+                <button
+                  onClick={bulkApprove}
+                  disabled={bulkBusy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-60"
+                >
+                  {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCheck className="w-3.5 h-3.5" />}
+                  Approve
+                </button>
+                <button
+                  onClick={bulkPaySupplierBACS}
+                  disabled={bulkBusy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-60"
+                >
+                  <Banknote className="w-3.5 h-3.5 text-slate-400" />
+                  Pay Supplier (BACS)
+                </button>
+              </div>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className="ml-auto inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* KPI Row — live */}
         <div className="grid grid-cols-5 gap-4">

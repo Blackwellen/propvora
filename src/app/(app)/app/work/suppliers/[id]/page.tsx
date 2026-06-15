@@ -305,17 +305,39 @@ function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierView; job
   const emptyCopy = mode === "quotes"
     ? "No quotes recorded against this supplier's jobs yet."
     : "No invoices recorded against this supplier's jobs yet."
+  const avg = rows.length > 0 ? Math.round(total / rows.length) : 0
+  const titleIcon = mode === "quotes" ? FileText : Receipt
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-900">
-          {title} <span className="text-slate-400 font-normal ml-1">({rows.length})</span>
-        </h3>
-        {rows.length > 0 && (
-          <span className="text-[12px] font-semibold text-slate-700">Total £{total.toLocaleString()}</span>
-        )}
-      </div>
+    <div className="space-y-4">
+      {/* Mini KPI strip — live, derived from the supplier's jobs */}
+      {rows.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: title, value: String(rows.length), color: "text-slate-900" },
+            { label: "Total Value", value: `£${total.toLocaleString()}`, color: "text-emerald-600" },
+            { label: "Average", value: `£${avg.toLocaleString()}`, color: "text-[#2563EB]" },
+          ].map((k) => (
+            <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <p className="text-[11px] font-medium text-slate-500">{k.label}</p>
+              <p className={cn("text-xl font-bold tabular-nums mt-1", k.color)}>{k.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {React.createElement(titleIcon, { className: "w-4 h-4 text-[#2563EB]" })}
+            <h3 className="text-sm font-semibold text-slate-900">
+              {title} <span className="text-slate-400 font-normal ml-1">({rows.length})</span>
+            </h3>
+          </div>
+          {rows.length > 0 && (
+            <span className="text-[12px] font-semibold text-slate-700 tabular-nums">Total £{total.toLocaleString()}</span>
+          )}
+        </div>
       {rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
@@ -350,14 +372,15 @@ function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierView; job
                     <td className="px-4 py-3 hidden md:table-cell text-[12px] text-slate-600">
                       {j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB") : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right text-[12.5px] font-semibold text-slate-800">£{Number(amount).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-[12.5px] font-semibold text-slate-800 tabular-nums">£{Number(amount).toLocaleString()}</td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
         </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -387,16 +410,35 @@ function DocumentsTabContent({
     : docs
   const title = complianceOnly ? "Compliance Documents" : "Documents"
 
+  // Live status counts for the mini strip.
+  const verifiedCount = filtered.filter((d) => d.is_verified).length
+  const expiredCount = filtered.filter((d) => d.expiry_date && new Date(d.expiry_date).getTime() < Date.now()).length
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-900">
-          {title} <span className="text-slate-400 font-normal ml-1">({filtered.length})</span>
-        </h3>
+      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <FileCheck2 className="w-4 h-4 text-[#2563EB]" />
+          <h3 className="text-sm font-semibold text-slate-900">
+            {title} <span className="text-slate-400 font-normal ml-1">({filtered.length})</span>
+          </h3>
+        </div>
+        {filtered.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+              <CheckCircle className="w-3 h-3" /> {verifiedCount} verified
+            </span>
+            {expiredCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+                <AlertTriangle className="w-3 h-3" /> {expiredCount} expired
+              </span>
+            )}
+          </div>
+        )}
       </div>
       {isLoading ? (
-        <div className="p-5 space-y-2">
-          {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-xl bg-slate-100 animate-pulse" />)}
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="h-[88px] rounded-xl bg-slate-100 animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
@@ -407,16 +449,16 @@ function DocumentsTabContent({
           <p className="text-[12.5px] text-slate-500">Verified certificates and documents for this supplier will appear here.</p>
         </div>
       ) : (
-        <div className="divide-y divide-slate-100">
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filtered.map((d) => {
             const exp = docExpiryState(d.expiry_date)
             return (
-              <div key={d.id} className="flex items-start gap-3 px-5 py-3.5">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                  <FileText className="w-4.5 h-4.5 text-slate-500" />
+              <div key={d.id} className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-[#2563EB]/40 hover:shadow-sm transition-all">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-[#2563EB]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <p className="text-[13px] font-semibold text-slate-800 truncate">{d.name}</p>
                     {d.is_verified && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
@@ -424,12 +466,12 @@ function DocumentsTabContent({
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-400 capitalize">{d.doc_type.replace(/_/g, " ")}</p>
-                  {d.notes && <p className="text-[11px] text-slate-500 mt-0.5">{d.notes}</p>}
+                  <p className="text-[11px] text-slate-400 capitalize mt-0.5">{d.doc_type.replace(/_/g, " ")}</p>
+                  {d.notes && <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{d.notes}</p>}
+                  {exp && (
+                    <span className={cn("inline-flex mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full border", exp.cls)}>{exp.label}</span>
+                  )}
                 </div>
-                {exp && (
-                  <span className={cn("shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full border", exp.cls)}>{exp.label}</span>
-                )}
               </div>
             )
           })}
@@ -494,19 +536,25 @@ function PerformanceTabContent({ jobs }: { jobs: Job[] }) {
   const totalInvoiced = jobs.reduce((s, j) => s + Number(j.invoiced_amount ?? 0), 0)
   const avgJobValue = total > 0 ? Math.round((jobs.reduce((s, j) => s + Number(j.approved_amount ?? j.quoted_amount ?? 0), 0)) / total) : 0
 
-  const stats = [
-    { label: "Total Jobs", value: String(total) },
-    { label: "Completed", value: String(completed) },
-    { label: "Active", value: String(active) },
-    { label: "Completion Rate", value: total > 0 ? `${completionRate}%` : "—" },
-    { label: "Total Quoted", value: `£${totalQuoted.toLocaleString()}` },
-    { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}` },
-    { label: "Avg Job Value", value: total > 0 ? `£${avgJobValue.toLocaleString()}` : "—" },
+  const stats: { label: string; value: string; icon: React.ElementType; bg: string; color: string }[] = [
+    { label: "Total Jobs", value: String(total), icon: LayoutGrid, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Completed", value: String(completed), icon: CheckCircle, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Active", value: String(active), icon: Briefcase, bg: "bg-amber-50", color: "text-amber-600" },
+    { label: "Total Quoted", value: `£${totalQuoted.toLocaleString()}`, icon: FileText, bg: "bg-violet-50", color: "text-violet-600" },
+    { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}`, icon: Receipt, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Avg Job Value", value: total > 0 ? `£${avgJobValue.toLocaleString()}` : "—", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
   ]
+
+  // SVG gauge geometry (r=30 → circumference ≈ 188.5)
+  const circ = 2 * Math.PI * 30
+  const gaugeColor = completionRate >= 80 ? "#10B981" : completionRate >= 50 ? "#F59E0B" : "#EF4444"
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-slate-900 mb-4">Performance Summary</h3>
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="w-4 h-4 text-[#2563EB]" />
+        <h3 className="text-sm font-semibold text-slate-900">Performance Summary</h3>
+      </div>
       {total === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
@@ -517,23 +565,55 @@ function PerformanceTabContent({ jobs }: { jobs: Job[] }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {stats.map((s) => (
-              <div key={s.label} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
-                <p className="text-[18px] font-bold text-slate-900 tabular-nums">{s.value}</p>
-                <p className="text-[11px] font-medium text-slate-500 mt-0.5">{s.label}</p>
+          {/* Gauge + completion summary */}
+          <div className="flex flex-col sm:flex-row items-center gap-5 mb-5 rounded-2xl border border-slate-100 bg-slate-50/50 p-5">
+            <div className="relative w-[120px] h-[120px] shrink-0">
+              <svg className="w-[120px] h-[120px] -rotate-90" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="30" fill="none" stroke="#e2e8f0" strokeWidth="7" />
+                <circle
+                  cx="36" cy="36" r="30" fill="none"
+                  stroke={gaugeColor} strokeWidth="7" strokeLinecap="round"
+                  strokeDasharray={`${(completionRate / 100) * circ} ${circ}`}
+                  className="transition-all duration-700 motion-reduce:transition-none"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[26px] font-bold text-slate-900 tabular-nums leading-none">{completionRate}%</span>
+                <span className="text-[10px] font-medium text-slate-400 mt-1">complete</span>
               </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
-              <span>Completion rate</span><span>{completionRate}%</span>
             </div>
-            <div className="w-full h-2 rounded-full bg-slate-100">
-              <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${completionRate}%` }} />
+            <div className="flex-1 grid grid-cols-3 gap-3 w-full">
+              {[
+                { label: "Completed", value: String(completed), color: "text-emerald-600" },
+                { label: "Active", value: String(active), color: "text-amber-600" },
+                { label: "Total", value: String(total), color: "text-slate-900" },
+              ].map((m) => (
+                <div key={m.label} className="text-center sm:text-left">
+                  <p className={cn("text-[22px] font-bold tabular-nums leading-tight", m.color)}>{m.value}</p>
+                  <p className="text-[11px] font-medium text-slate-500">{m.label}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">Derived from this supplier&apos;s live job records.</p>
+
+          {/* Metric cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {stats.map((s) => {
+              const Icon = s.icon
+              return (
+                <div key={s.label} className="rounded-xl border border-slate-100 bg-white p-3.5 flex items-start gap-3 hover:border-slate-200 hover:shadow-sm transition-all">
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", s.bg)}>
+                    <Icon className={cn("w-4.5 h-4.5", s.color)} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[18px] font-bold text-slate-900 tabular-nums leading-tight truncate">{s.value}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">{s.label}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-4">Derived from this supplier&apos;s live job records.</p>
         </>
       )}
     </div>

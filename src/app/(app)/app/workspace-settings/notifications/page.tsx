@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Bell, Mail, Smartphone, Check, Loader2, Info, Lock } from "lucide-react"
+import {
+  Bell, Mail, Smartphone, Check, Loader2, Info, Lock,
+  Wrench, MessageSquare, Receipt, AlertTriangle, ShieldCheck,
+  CalendarClock, Sparkles, UserPlus, ShieldAlert, CreditCard,
+} from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface AlertToggles {
@@ -26,17 +31,17 @@ interface ChannelSettings {
 
 type DigestFrequency = "instant" | "hourly" | "daily" | "weekly"
 
-const ALERT_ROWS: { key: keyof AlertToggles; label: string; desc: string }[] = [
-  { key: "workReminders",       label: "Work reminders",             desc: "Due dates and task reminders for maintenance and inspections"     },
-  { key: "supplierReplies",     label: "Supplier reply notifications",desc: "When a supplier responds to a message or quote request"          },
-  { key: "invoiceDue",          label: "Invoice due alerts",          desc: "Alerts when tenant or supplier invoices are approaching due date" },
-  { key: "arrears",             label: "Arrears alerts",              desc: "When rent payments are overdue or a tenant falls into arrears"    },
-  { key: "complianceExpiry",    label: "Compliance expiry alerts",    desc: "Gas safety, EPC, EICR and other certificates nearing expiry"     },
-  { key: "planningOfferExpiry", label: "Planning offer expiry",       desc: "When planning or legal offer deadlines are approaching"          },
-  { key: "aiApproval",          label: "AI approval notifications",   desc: "When AI actions are queued and awaiting your review"             },
-  { key: "teamInvite",          label: "Team invite notifications",   desc: "When someone accepts or declines a workspace invite"             },
-  { key: "securityAlerts",      label: "Security alerts",             desc: "Suspicious login attempts, MFA changes, and access events"       },
-  { key: "billingAlerts",       label: "Billing alerts",              desc: "Payment failures, subscription changes and invoice notices"      },
+const ALERT_ROWS: { key: keyof AlertToggles; label: string; desc: string; icon: LucideIcon; tint: string }[] = [
+  { key: "workReminders",       label: "Work reminders",              desc: "Due dates and task reminders for maintenance and inspections",     icon: Wrench,        tint: "bg-blue-50 text-blue-600"     },
+  { key: "supplierReplies",     label: "Supplier reply notifications",desc: "When a supplier responds to a message or quote request",           icon: MessageSquare, tint: "bg-violet-50 text-violet-600" },
+  { key: "invoiceDue",          label: "Invoice due alerts",          desc: "Alerts when tenant or supplier invoices are approaching due date",  icon: Receipt,       tint: "bg-amber-50 text-amber-600"   },
+  { key: "arrears",             label: "Arrears alerts",              desc: "When rent payments are overdue or a tenant falls into arrears",     icon: AlertTriangle, tint: "bg-red-50 text-red-600"       },
+  { key: "complianceExpiry",    label: "Compliance expiry alerts",    desc: "Gas safety, EPC, EICR and other certificates nearing expiry",      icon: ShieldCheck,   tint: "bg-emerald-50 text-emerald-600"},
+  { key: "planningOfferExpiry", label: "Planning offer expiry",       desc: "When planning or legal offer deadlines are approaching",           icon: CalendarClock, tint: "bg-orange-50 text-orange-600" },
+  { key: "aiApproval",          label: "AI approval notifications",   desc: "When AI actions are queued and awaiting your review",              icon: Sparkles,      tint: "bg-violet-50 text-violet-600" },
+  { key: "teamInvite",          label: "Team invite notifications",   desc: "When someone accepts or declines a workspace invite",              icon: UserPlus,      tint: "bg-blue-50 text-blue-600"     },
+  { key: "securityAlerts",      label: "Security alerts",             desc: "Suspicious login attempts, MFA changes, and access events",        icon: ShieldAlert,   tint: "bg-red-50 text-red-600"       },
+  { key: "billingAlerts",       label: "Billing alerts",              desc: "Payment failures, subscription changes and invoice notices",       icon: CreditCard,    tint: "bg-emerald-50 text-emerald-600"},
 ]
 
 function ToggleRow({
@@ -44,20 +49,30 @@ function ToggleRow({
   desc,
   enabled,
   onToggle,
+  icon: Icon,
+  tint,
 }: {
   label: string
   desc: string
   enabled: boolean
   onToggle: () => void
+  icon: LucideIcon
+  tint: string
 }) {
   return (
-    <div className="flex items-center justify-between py-3.5 border-b border-slate-100 last:border-0">
-      <div className="flex-1 pr-4">
+    <div className="flex items-center gap-3 py-3.5 border-b border-slate-100 last:border-0">
+      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", tint)}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="flex-1 pr-4 min-w-0">
         <p className="text-[13px] font-medium text-slate-800">{label}</p>
         <p className="text-[11.5px] text-slate-400 mt-0.5">{desc}</p>
       </div>
       <button
         onClick={onToggle}
+        role="switch"
+        aria-checked={enabled}
+        aria-label={label}
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
           enabled ? "bg-[#2563EB]" : "bg-slate-200"
@@ -65,7 +80,7 @@ function ToggleRow({
       >
         <span
           className={cn(
-            "absolute top-1 block w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+            "absolute top-1 block w-4 h-4 rounded-full bg-white shadow-sm motion-safe:transition-transform",
             enabled ? "translate-x-5" : "translate-x-1"
           )}
         />
@@ -244,6 +259,8 @@ export default function NotificationsPage() {
             key={row.key}
             label={row.label}
             desc={row.desc}
+            icon={row.icon}
+            tint={row.tint}
             enabled={alerts[row.key]}
             onToggle={() => toggleAlert(row.key)}
           />
