@@ -8,6 +8,7 @@ import {
   ChevronDown, Save, CheckCircle2, Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -362,8 +363,14 @@ export default function EditInvoicePage() {
       )}
 
       <div className="space-y-0">
+        <MobileTopBar
+          title="Edit Invoice"
+          subtitle={source.invoice_number}
+          showBack
+          backHref={`/app/money/invoices/${id}`}
+        />
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="hidden md:flex items-center gap-2 mb-6">
           <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Invoices
           </Link>
@@ -375,7 +382,7 @@ export default function EditInvoicePage() {
           <span className="text-sm font-medium text-slate-900">Edit</span>
         </div>
 
-        <div className="flex items-start justify-between mb-6">
+        <div className="hidden md:flex items-start justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Edit Invoice</h1>
             <p className="text-sm text-slate-500 mt-0.5">{source.invoice_number} · {source.recipient}</p>

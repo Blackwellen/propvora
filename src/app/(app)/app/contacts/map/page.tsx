@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import {
   Map as MapIcon, Search, Settings, List, MapPin, Info, Users,
 } from "lucide-react"
@@ -84,9 +85,13 @@ export default function ContactMapPage() {
 
   return (
     <DashboardContainer>
+      <MobileTopBar title="Contact Map" subtitle="By location" />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
       <div className="p-4 sm:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="hidden md:flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Contact Map</h1>
             <p className="text-sm text-slate-500 mt-1">Contacts by location and coverage area</p>
@@ -114,7 +119,9 @@ export default function ContactMapPage() {
           </div>
         </div>
 
-        <ContactsTabNav />
+        <div className="hidden md:block">
+          <ContactsTabNav />
+        </div>
 
         {/* Split Pane — stacks on mobile, side-by-side on lg+ */}
         <div className="flex flex-col lg:flex-row rounded-xl border border-slate-200 bg-white overflow-hidden lg:min-h-[600px]">

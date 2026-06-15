@@ -13,7 +13,7 @@ const TABS = [
 export function LedgerSubNav() {
   const pathname = usePathname()
   return (
-    <div className="flex items-center gap-1 border-b border-slate-200 bg-white px-1">
+    <div className="flex items-center gap-1 border-b border-slate-200 bg-white px-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {TABS.map((t) => {
         const active = pathname === t.prefix || pathname.startsWith(t.prefix + "/")
         const Icon = t.icon

@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -153,9 +154,12 @@ export default function NewReminderPage() {
 
   return (
     <div className="space-y-0">
-      <CalendarTabNav />
+      <MobileTopBar title="New Reminder" subtitle="Scheduled alert" showBack backHref="/app/calendar/reminders" />
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
-      <div className="px-6 pt-5 pb-0">
+      <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link href="/app/calendar/reminders" className="hover:text-[#2563EB]">Reminders</Link>
           <ChevronLeft className="w-3 h-3 rotate-180" />
@@ -163,7 +167,7 @@ export default function NewReminderPage() {
         </nav>
       </div>
 
-      <div className="px-6 py-5 max-w-xl mx-auto w-full">
+      <div className="px-4 md:px-6 py-5 max-w-xl mx-auto w-full">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] flex items-center justify-center">

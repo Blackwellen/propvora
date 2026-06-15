@@ -101,7 +101,43 @@ export default function ChangelogEditor({ initialEntries }: Props) {
             <p className="text-sm text-slate-400">No changelog entries yet.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <>
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#E2E8F0]" role="list">
+            {initialEntries.map((e) => (
+              <li key={e.id} className="p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{e.title}</p>
+                    <div className="mt-0.5 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                      {e.version && <span className="font-mono">{e.version}</span>}
+                      {e.category && <span>· {e.category}</span>}
+                      <span>· {fmt(e.publishedAt)}</span>
+                    </div>
+                  </div>
+                  {e.published ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#059669] shrink-0">Published</span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 shrink-0">Draft</span>
+                  )}
+                </div>
+                <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-2.5">
+                  <Button variant="outline" size="sm" onClick={() => togglePublish(e)} className="flex-1">
+                    {e.published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {e.published ? "Unpublish" : "Publish"}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setEditing(e); setNotice(null); setError(null) }} className="flex-1">
+                    <Pencil className="w-3.5 h-3.5" /> Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => remove(e)} aria-label="Delete">
+                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <table className="hidden lg:table w-full text-sm">
             <thead>
               <tr className="border-b border-[#E2E8F0]">
                 {["Title", "Version", "Category", "Status", "Published", ""].map((h) => (
@@ -140,6 +176,7 @@ export default function ChangelogEditor({ initialEntries }: Props) {
               ))}
             </tbody>
           </table>
+          </>
         )}
       </div>
 

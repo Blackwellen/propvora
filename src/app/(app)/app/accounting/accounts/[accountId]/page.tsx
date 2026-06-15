@@ -30,6 +30,8 @@ import {
   toCsv,
   downloadCsv,
 } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 // ---------------------------------------------------------------------------
 // Fallback metadata used only until the live account row resolves
@@ -320,8 +322,40 @@ export default function AccountDetailPage({
     } catch { showToast("Could not delete account") }
   }
 
+  const txCardMapping: MobileCardMapping<LedgerTx> = {
+    getKey: (t) => t.reference + t.date + t.balance,
+    title: (t) => t.description,
+    subtitle: (t) => `${t.reference} · ${t.date}`,
+    fields: [
+      { label: "Debit", render: (t) => t.debit != null ? <span className="font-mono text-[#EF4444] tabular-nums">{fmtGBP(t.debit)}</span> : "—" },
+      { label: "Credit", render: (t) => t.credit != null ? <span className="font-mono text-[#10B981] tabular-nums">{fmtGBP(t.credit)}</span> : "—" },
+      { label: "Balance", render: (t) => <span className="font-mono font-semibold tabular-nums text-slate-900">{fmtGBP(t.balance)}</span> },
+    ],
+  }
+
+  const txMobileEmpty = (
+    <div className="p-8 text-center">
+      <p className="text-sm font-medium text-slate-600">No posted transactions yet</p>
+      <p className="text-xs text-slate-500 mt-1">Activity appears here once journal entries touching this account are posted.</p>
+      <Link href="/app/accounting/accounts/journal-ledger" className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline">
+        Go to Journal Ledger →
+      </Link>
+    </div>
+  )
+
   return (
     <div className="w-full max-w-[1400px] mx-auto">
+      <MobileTopBar
+        title={account.name}
+        subtitle={account.code}
+        showBack
+        backHref="/app/accounting/accounts/overview"
+        overflowActions={[
+          { label: "View all transactions", icon: ChevronRight, onClick: () => router.push("/app/accounting/accounts/journal-ledger") },
+          { label: "Export statement", icon: Download, onClick: exportStatement },
+        ]}
+      />
+
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -329,7 +363,7 @@ export default function AccountDetailPage({
         </div>
       )}
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
+      <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 mb-4">
         <Link href="/app/accounting" className="hover:text-slate-600 transition-colors">
           Accounting
         </Link>
@@ -345,7 +379,7 @@ export default function AccountDetailPage({
       </div>
 
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="hidden md:flex items-start justify-between gap-4 mb-6">
         <div className="flex items-start gap-3">
           <Link href="/app/accounting/accounts/overview">
             <Button variant="outline" size="icon-sm">
@@ -402,7 +436,7 @@ export default function AccountDetailPage({
       </div>
 
       {/* KPI cards row — live from the ledger */}
-      <div className="flex gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:flex gap-4 mb-6">
         <KpiCard
           label="Current Balance"
           value={fmtGBP(currentBalance)}
@@ -430,15 +464,21 @@ export default function AccountDetailPage({
       </div>
 
       {/* Two-column layout */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left column */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="flex-1 min-w-0 w-full space-y-6">
           {/* Account Activity */}
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0]">
               <h2 className="text-sm font-semibold text-slate-900">Account Activity</h2>
               <span className="text-xs text-slate-500">Posted journal lines</span>
             </div>
+            <ResponsiveTable
+              rows={txLoading ? [] : txns}
+              mobile={txCardMapping}
+              emptyState={txLoading ? <div className="p-8 text-center text-slate-400 text-sm">Loading account activity…</div> : txMobileEmpty}
+              className="p-3"
+            >
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
@@ -510,12 +550,13 @@ export default function AccountDetailPage({
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
           </div>
 
           {/* Account Details */}
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-4">Account Details</h2>
-            <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
               {([
                 { label: "Code", field: "code", type: "text" as const },
                 { label: "Name", field: "name", type: "text" as const },
@@ -548,7 +589,7 @@ export default function AccountDetailPage({
         </div>
 
         {/* Right rail */}
-        <div className="w-72 shrink-0 space-y-4">
+        <div className="w-full lg:w-72 shrink-0 space-y-4">
           {/* Balance Trend — running balance across posted lines */}
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">

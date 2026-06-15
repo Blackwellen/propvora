@@ -480,8 +480,8 @@ export default function CalendarNotificationsSettingsPage() {
 
         {/* 6. Sync Connections */}
         <SectionCard title="Sync Connections">
-          <div className="overflow-hidden rounded-lg border border-slate-200">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <table className="w-full text-sm min-w-[460px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   {["Calendar", "Status", "Last Synced", "Action"].map((col, i) => (

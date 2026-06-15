@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils"
 import { exportCsv } from "@/lib/portfolio/helpers"
 import { createClient } from "@/lib/supabase/client"
 import { resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileFilterSheet"
 
 const PAGE_SIZE = 12
 const STATUSES = [
@@ -31,6 +34,7 @@ export default function UnitsListPage() {
   const [filterProperty, setFilterProperty] = useState("all")
   const [sortBy, setSortBy] = useState("name")
   const [page, setPage] = useState(1)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   const isLive = !!workspace?.id
   const loading = wsLoading || unitsLoading
@@ -95,9 +99,62 @@ export default function UnitsListPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const vacantCount = filtered.filter((u) => u.status === "vacant").length
   const occupiedCount = filtered.filter((u) => u.status === "occupied").length
+  const activeFilters = [filterStatus !== "all", filterProperty !== "all"].filter(Boolean).length
+
+  function clearFilters() { setSearch(""); setFilterStatus("all"); setFilterProperty("all"); setPage(1) }
+
+  /* ── Mobile filter groups (mirror the desktop toolbar) ─────────────────── */
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: filterStatus,
+      onChange: (v) => { setFilterStatus(v); setPage(1) },
+      options: STATUSES,
+    },
+    {
+      key: "property",
+      label: "Property",
+      value: filterProperty,
+      onChange: (v) => { setFilterProperty(v); setPage(1) },
+      options: [{ value: "all", label: "All properties" }, ...propertyOptions.map((p) => ({ value: p.id, label: p.name }))],
+    },
+  ]
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Units & Rooms"
+        subtitle={`${filtered.length} total · ${occupiedCount} occupied`}
+        primaryAction={{ label: "Add unit", icon: Plus, href: "/app/portfolio/units/new" }}
+        overflowActions={[
+          { label: "Portfolio", href: "/app/portfolio" },
+          { label: "Export CSV", icon: Download, onClick: handleExport },
+        ]}
+      />
+
+      {/* Mobile page header — search + filter sheet trigger */}
+      <MobilePageHeader
+        title="Units & Rooms"
+        count={`${filtered.length} total · ${vacantCount} vacant`}
+        search={search}
+        onSearchChange={(v) => { setSearch(v); setPage(1) }}
+        searchPlaceholder="Search units…"
+        onOpenFilters={() => setShowMobileFilters(true)}
+        activeFilterCount={activeFilters}
+      />
+
+      <MobileFilterSheet
+        open={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilters}
+        onClear={clearFilters}
+      />
+
+      {/* Desktop header — hidden on phones */}
+      <div className="hidden md:block">
       <PageHeader
         title="Units & Rooms"
         description={`${filtered.length} total · ${occupiedCount} occupied · ${vacantCount} vacant`}
@@ -151,6 +208,8 @@ export default function UnitsListPage() {
           <option value="rent">Sort: Rent ↓</option>
         </select>
       </div>
+      </div>
+      {/* end desktop header/toolbar (hidden on phones) */}
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

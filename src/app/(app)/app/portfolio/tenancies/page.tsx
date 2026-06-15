@@ -16,6 +16,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { normaliseOperationProfile, exportCsv } from "@/lib/portfolio/helpers"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileFilterSheet"
 
 /* ------------------------------------------------------------------ */
 /* 13 Operational Profiles (shared constant)                            */
@@ -80,6 +83,7 @@ export default function TenanciesListPage() {
   const [filterMaxRent, setFilterMaxRent] = useState("")
   const [filterCity, setFilterCity]       = useState("")
   const [showAdv, setShowAdv]             = useState(false)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [page, setPage]                   = useState(1)
 
   const loading = wsLoading || tenanciesLoading
@@ -156,8 +160,72 @@ export default function TenanciesListPage() {
     )
   }
 
+  /* ── Mobile filter groups (mirror the desktop filter panel) ───────────── */
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: filterStatus,
+      onChange: (v) => { setFilterStatus(v); setPage(1) },
+      options: [
+        { value: "all", label: "All" },
+        { value: "draft", label: "Draft" },
+        { value: "active", label: "Active" },
+        { value: "ended", label: "Ended" },
+        { value: "terminated", label: "Terminated" },
+        { value: "uncollectable", label: "Uncollectable" },
+      ],
+    },
+    {
+      key: "profile",
+      label: "Operation Profile",
+      value: filterProfile,
+      onChange: (v) => { setFilterProfile(v); setPage(1) },
+      options: [{ value: "all", label: "All" }, ...ALL_PROFILES.map((p) => ({ value: p.key, label: p.shortLabel }))],
+    },
+    {
+      key: "property",
+      label: "Property",
+      value: filterProp,
+      onChange: (v) => { setFilterProp(v); setPage(1) },
+      options: [{ value: "all", label: "All properties" }, ...propertyOptions.map((p) => ({ value: p.id, label: p.name }))],
+    },
+  ]
+
   return (
     <DashboardContainer>
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Tenancies"
+        subtitle={`${activeCount} active · ${arrearsCount} in arrears`}
+        primaryAction={{ label: "Create tenancy", icon: Plus, href: "/app/portfolio/tenancies/new" }}
+        overflowActions={[
+          { label: "Portfolio", href: "/app/portfolio" },
+          { label: "Export CSV", icon: Download, onClick: handleExport },
+        ]}
+      />
+
+      {/* Mobile page header — search + filter sheet trigger */}
+      <MobilePageHeader
+        title="Tenancies"
+        count={`${filtered.length} shown · ${endingSoonCount} ending soon`}
+        search={search}
+        onSearchChange={(v) => { setSearch(v); setPage(1) }}
+        searchPlaceholder="Search tenancies…"
+        onOpenFilters={() => setShowMobileFilters(true)}
+        activeFilterCount={activeFilters}
+      />
+
+      <MobileFilterSheet
+        open={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilters}
+        onClear={clearAll}
+      />
+
+      {/* Desktop header — hidden on phones */}
+      <div className="hidden md:block">
       <PageHeader
         title="Tenancies"
         description={`${activeCount} active · ${endingSoonCount} ending soon · ${arrearsCount} in arrears`}
@@ -311,9 +379,11 @@ export default function TenanciesListPage() {
           </div>
         )}
       </div>
+      </div>
+      {/* end desktop header/toolbar (hidden on phones) */}
 
       {/* Results summary */}
-      <p className="text-[12.5px] text-slate-500 mb-4">
+      <p className="hidden md:block text-[12.5px] text-slate-500 mb-4">
         Showing {filtered.length} of {allTenancies.length} tenancies
         {activeFilters > 0 && (
           <button onClick={clearAll} className="ml-2 text-[#2563EB] hover:underline">Clear filters</button>

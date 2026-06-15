@@ -79,7 +79,7 @@ export default function DataPage() {
         <p className="text-[12.5px] text-slate-500 mb-5">
           Export individual module data as CSV files
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {MODULE_EXPORTS.map((mod) => (
             <div
               key={mod.key}

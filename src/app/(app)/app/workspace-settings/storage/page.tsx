@@ -68,7 +68,7 @@ export default function StoragePage() {
       {/* Storage providers */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Storage Providers</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl border-2 border-[#2563EB] bg-blue-50">
             <div className="flex items-center gap-2.5 mb-2">
               <div style={{ color: "#3ECF8E" }}>

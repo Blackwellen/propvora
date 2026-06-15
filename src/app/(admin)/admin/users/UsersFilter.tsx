@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import type { AdminUserRow } from "@/lib/admin/data"
 
 const ROLE_FILTERS = ["All", "platform_admin", "support", "user"] as const
@@ -35,6 +36,26 @@ export default function UsersFilter({ users }: { users: AdminUserRow[] }) {
     return matchSearch && matchRole
   })
 
+  const userCardMapping: MobileCardMapping<AdminUserRow> = {
+    getKey: (u) => u.id,
+    leading: (u) => (
+      <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
+        {initials(u.name, u.email)}
+      </div>
+    ),
+    title: (u) => u.name ?? "—",
+    subtitle: (u) => u.email ?? "",
+    badge: (u) => roleBadge(u.role),
+    onRowClick: (u) => { window.location.href = `/admin/users/${u.id}` },
+    fields: [
+      { label: "Workspaces", render: (u) => u.workspaceCount },
+      {
+        label: "Joined",
+        render: (u) => (u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" }) : "—"),
+      },
+    ],
+  }
+
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-2">
@@ -53,6 +74,19 @@ export default function UsersFilter({ users }: { users: AdminUserRow[] }) {
         </div>
       </div>
 
+      <ResponsiveTable
+        rows={filtered}
+        mobile={userCardMapping}
+        className="mt-3"
+        emptyState={
+          <Card noPadding className="mt-3">
+            <div className="text-center py-10">
+              <Users className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">No users match your filters</p>
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="mt-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -102,6 +136,7 @@ export default function UsersFilter({ users }: { users: AdminUserRow[] }) {
           <span className="text-xs text-slate-500">Showing {filtered.length} of {users.length}</span>
         </div>
       </Card>
+      </ResponsiveTable>
     </>
   )
 }

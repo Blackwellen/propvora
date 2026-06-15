@@ -33,6 +33,7 @@ import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { InlineEditField } from "@/components/work/InlineEditField"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"
 import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
@@ -758,13 +759,28 @@ export default function JobDetailPage() {
   return (
     <div className="space-y-5">
 
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Job Detail"
+        subtitle={jobData.title}
+        showBack
+        backHref="/app/work/jobs"
+        overflowActions={[
+          { label: jobData.status === "complete" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (jobData.status !== "complete") handleMarkComplete() } },
+          { label: "Reschedule", icon: Calendar, href: "/app/work/ppm" },
+          { label: "Request quote", icon: FileText, href: "/app/work/suppliers" },
+          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+          { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
+        ]}
+      />
+
       {/* Back link */}
-      <Link href="/app/work/jobs" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/app/work/jobs" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" /> Back to Jobs
       </Link>
 
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Job Detail</h1>
           <p className="text-sm text-slate-500 mt-0.5">Work order execution and supplier delivery</p>
@@ -899,7 +915,15 @@ export default function JobDetailPage() {
 
       {/* Tabs */}
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-        <div className="flex items-center overflow-x-auto border-b border-slate-100">
+        <div className="md:hidden p-3 border-b border-slate-100">
+          <MobileTabs
+            tabs={JOB_TABS.map((t) => ({ id: t, label: t, badge: t === "Linked Tasks" && job.linkedIssues.length > 0 ? job.linkedIssues.length : undefined }))}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="Job sections"
+          />
+        </div>
+        <div className="hidden md:flex items-center overflow-x-auto border-b border-slate-100">
           {JOB_TABS.map(tab => (
             <button
               key={tab}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, ResponsiveTable } from "@/components/mobile"
 import ContactsKpiCard from "@/components/contacts/ContactsKpiCard"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -358,11 +359,21 @@ export default function PortalAccessPage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      <MobileTopBar
+        title="Portal Access"
+        subtitle="Secure links"
+        primaryAction={{ label: "Create portal link", icon: Plus, onClick: () => setShowCreateModal(true) }}
+      />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
-      <div className="px-6 pt-6 pb-8 space-y-6">
+      <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Portal Access</h1>
@@ -486,6 +497,39 @@ export default function PortalAccessPage() {
 
             {/* Table */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <ResponsiveTable
+                rows={loadingLinks ? [] : filtered}
+                emptyState={
+                  <div className="py-16 text-center text-sm text-slate-400">No portal links match your filters.</div>
+                }
+                mobile={{
+                  getKey: (l) => l.id,
+                  title: (l) => l.contactName,
+                  subtitle: (l) => l.contactSubtitle,
+                  leading: (l) => (
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(l.contactName))}>{initials(l.contactName)}</div>
+                  ),
+                  badge: (l) => {
+                    const sCfg = STATUS_CONFIG[l.status]
+                    return <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold", sCfg.cls)}>{sCfg.label}</span>
+                  },
+                  fields: [
+                    { label: "Type", render: (l) => l.contactType },
+                    { label: "Purpose", render: (l) => l.purpose },
+                    { label: "Expires", render: (l) => l.expires },
+                    { label: "Last opened", render: (l) => l.lastOpened },
+                  ],
+                  actions: (l) => (
+                    <button
+                      onClick={() => handleCopy(l.id)}
+                      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#2563EB] px-2 py-1"
+                    >
+                      {copiedId === l.id ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />} Copy link
+                    </button>
+                  ),
+                }}
+                className="p-3"
+              >
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -602,6 +646,7 @@ export default function PortalAccessPage() {
                   </div>
                 )}
               </div>
+              </ResponsiveTable>
             </div>
 
             {/* Portal Security */}

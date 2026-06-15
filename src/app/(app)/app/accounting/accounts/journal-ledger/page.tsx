@@ -36,6 +36,8 @@ import {
   type LedgerAccount,
   type DraftLine,
 } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -362,6 +364,63 @@ export default function JournalLedgerPage() {
     return m
   }, [entries])
 
+  type LedgerLineRow = typeof rows[number]
+  const cardMapping: MobileCardMapping<LedgerLineRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.description,
+    subtitle: (r) => `${r.reference} · ${r.date}`,
+    badge: (r) => <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", statusBadgeClass(r.status))}>{r.status}</span>,
+    fields: [
+      { label: "Account", render: (r) => r.account },
+      { label: "Counter Account", render: (r) => r.counterAccount },
+      { label: "Debit", render: (r) => r.debit !== null ? <span className="font-semibold tabular-nums">{fmtAmount(r.debit)}</span> : "—" },
+      { label: "Credit", render: (r) => r.credit !== null ? <span className="font-semibold tabular-nums">{fmtAmount(r.credit)}</span> : "—" },
+    ],
+    actions: (r) => {
+      const fullEntry = entryByLineId.get(r.id)
+      return (
+        <ConfirmDialog
+          title="Reverse this entry?"
+          description="Posted entries are immutable. A balanced reversing entry will be created, leaving an audit trail."
+          confirmLabel="Reverse"
+          confirmVariant="primary"
+          onConfirm={async () => { if (fullEntry) await handleReverse(fullEntry) }}
+        >
+          {(open) => (
+            <ActionMenu
+              items={[
+                { label: "Copy Reference", icon: Copy, onClick: () => { navigator.clipboard?.writeText(r.reference); showToast("Reference copied") } },
+                { label: "View Account", icon: Eye, onClick: () => showToast(r.account) },
+                ...(fullEntry && fullEntry.is_posted && !fullEntry.is_reversed
+                  ? [{ label: "Reverse Entry", icon: RotateCcw, onClick: open }]
+                  : []),
+              ]}
+            />
+          )}
+        </ConfirmDialog>
+      )
+    },
+  }
+
+  const mobileEmpty = (
+    <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-10 flex flex-col items-center gap-3 text-center">
+      <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+        <FileText className="w-5 h-5 text-[#2563EB]" />
+      </div>
+      <p className="text-sm font-semibold text-slate-700">{rows.length === 0 ? "No journal entries yet" : "No entries match your filters"}</p>
+      <p className="text-xs text-slate-500 max-w-sm">
+        {rows.length === 0
+          ? "Post your first balanced double-entry transaction to start building the ledger."
+          : "Adjust your date range or search to see entries."}
+      </p>
+      {rows.length === 0 && (
+        <Button variant="primary" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setShowNew(true)}>
+          Post First Entry
+        </Button>
+      )}
+    </div>
+  )
+
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-6">
       {toastMsg && (
@@ -375,8 +434,15 @@ export default function JournalLedgerPage() {
         <NewEntryModal accounts={accounts} onClose={() => setShowNew(false)} onPost={handlePost} />
       )}
 
+      <MobileTopBar
+        title="Journal Ledger"
+        subtitle="Accounting"
+        primaryAction={{ label: "New journal entry", icon: Plus, onClick: () => setShowNew(true) }}
+        overflowActions={filtered.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
       {/* Page Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
@@ -435,6 +501,12 @@ export default function JournalLedgerPage() {
 
       {/* Journal Entries Table */}
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+        <ResponsiveTable
+          rows={loading ? [] : filtered}
+          mobile={cardMapping}
+          emptyState={loading ? <div className="p-10 text-center text-slate-400 text-sm">Loading journal…</div> : mobileEmpty}
+          className="p-3"
+        >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -538,6 +610,7 @@ export default function JournalLedgerPage() {
             </tbody>
           </table>
         </div>
+        </ResponsiveTable>
 
         {filtered.length > 0 && (
           <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">

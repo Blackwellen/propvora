@@ -46,7 +46,38 @@ export default async function AdminCustomersPage() {
         </Card>
       ) : (
         <Card noPadding>
-          <div className="overflow-x-auto">
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+            {rows.map((c) => (
+              <li key={c.ownerId} className="p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{c.name ?? "—"}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{c.email ?? ""}</p>
+                  </div>
+                  {planBadge(c.plan)}
+                </div>
+                <div className="mt-2.5 flex items-center gap-4 text-[11px] text-slate-500">
+                  <span className="inline-flex items-center gap-1">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" /> {c.workspaceCount} workspace{c.workspaceCount === 1 ? "" : "s"}
+                  </span>
+                  <span>
+                    Since {c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" }) : "—"}
+                  </span>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Link href={`/admin/users/${c.ownerId}`} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">User</Button>
+                  </Link>
+                  <Link href={`/admin/workspaces/${c.primaryWorkspaceId}`} className="flex-1">
+                    <Button variant="primary" size="sm" className="w-full" rightIcon={<ChevronRight className="w-3 h-3" />}>Workspace</Button>
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">

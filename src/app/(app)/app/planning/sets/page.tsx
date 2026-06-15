@@ -23,6 +23,7 @@ import { PlanningPageShell } from "@/components/planning/PlanningPageShell"
 import { KpiCard, RiskPill, StatusPill, ProfileTag } from "@/components/planning/shared"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { MobilePageHeader, MobileFilterSheet, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { usePlanningSets, useDeletePlanningSet, useCreatePlanningSet } from "@/hooks/usePlanningsets"
 import { PLANNING_PROFILES } from "@/lib/planning/profiles"
@@ -69,7 +70,49 @@ export default function PlanningSetsPage() {
   const [viewMode, setViewMode] = useState<"table" | "cards" | "compact">("table")
   const [selected, setSelected] = useState<string[]>([])
   const [toastMsg, setToastMsg] = useState<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   function showToast(m: string) { setToastMsg(m); setTimeout(() => setToastMsg(null), 3500) }
+
+  const activeFilterCount =
+    (profileFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (riskFilter !== "all" ? 1 : 0)
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "profile",
+      label: "Profile",
+      value: profileFilter,
+      onChange: setProfileFilter,
+      options: [{ value: "all", label: "All profiles" }, ...PLANNING_PROFILES.map((p) => ({ value: p.key, label: p.label }))],
+    },
+    {
+      key: "status",
+      label: "Status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: [
+        { value: "all", label: "All" }, { value: "draft", label: "Draft" }, { value: "active", label: "Active" },
+        { value: "paused", label: "Paused" }, { value: "converted", label: "Converted" }, { value: "archived", label: "Archived" },
+      ],
+    },
+    {
+      key: "risk",
+      label: "Risk level",
+      value: riskFilter,
+      onChange: setRiskFilter,
+      options: [
+        { value: "all", label: "All" }, { value: "low", label: "Low" }, { value: "medium", label: "Medium" }, { value: "high", label: "High" },
+      ],
+    },
+    {
+      key: "sort",
+      label: "Sort by",
+      value: sortBy,
+      onChange: setSortBy,
+      options: [
+        { value: "newest", label: "Newest" }, { value: "target_high", label: "Highest net/mo" },
+        { value: "risk_high", label: "Highest risk" }, { value: "yield", label: "Highest yield" },
+      ],
+    },
+  ]
 
   async function handleDelete(id: string) {
     if (!workspace?.id) return
@@ -157,6 +200,17 @@ export default function PlanningSetsPage() {
         </div>
       )}
 
+      {/* Mobile header: search + filters */}
+      <MobilePageHeader
+        title="Planning Sets"
+        count={`${filtered.length} of ${sets.length}`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search planning sets…"
+        onOpenFilters={() => setFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+
       {/* KPI Cards — derived from live data */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <KpiCard label="Total Planning Sets" value={isLoading ? "—" : String(kpiTotal)} icon={FolderOpen} iconColour="#7C3AED" />
@@ -167,8 +221,8 @@ export default function PlanningSetsPage() {
         <KpiCard label="Risk Alerts" value={isLoading ? "—" : String(kpiRiskAlerts)} icon={AlertTriangle} iconColour="#EF4444" />
       </div>
 
-      {/* Filters + view toggles */}
-      <div className="flex items-center gap-3 mb-5 flex-wrap">
+      {/* Filters + view toggles — desktop / tablet */}
+      <div className="hidden md:flex items-center gap-3 mb-5 flex-wrap">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -249,6 +303,42 @@ export default function PlanningSetsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main list */}
         <div className="lg:col-span-2">
+          {/* Mobile always uses cards — the dense table is desktop-only */}
+          <div className="md:hidden grid grid-cols-1 gap-4">
+            {!isLoading && filtered.map((set) => (
+              <div
+                key={set.id}
+                onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)}
+                className="bg-white rounded-2xl border border-slate-200 p-5 cursor-pointer active:scale-[0.99] transition-transform"
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="text-[14px] font-bold text-slate-900">{set.title}</p>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <SetMenu set={set} onView={() => router.push(`/app/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/app/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                  </div>
+                </div>
+                <ProfileTag profileKey={set.operation_profile} size="sm" />
+                <div className="flex items-center gap-2 mt-3">
+                  <StatusPill status={set.status} size="sm" />
+                  <RiskPill level={riskLevel(set.risk_score)} size="sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <div>
+                    <p className="text-[10.5px] text-slate-400 uppercase tracking-wide">Net / mo</p>
+                    <p className="text-[15px] font-bold text-slate-900">{set.net_monthly_income > 0 ? money(set.net_monthly_income) : "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10.5px] text-slate-400 uppercase tracking-wide">Net yield</p>
+                    <p className="text-[15px] font-bold text-slate-900">{set.net_yield > 0 ? `${set.net_yield.toFixed(1)}%` : "—"}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!isLoading && filtered.length === 0 && <EmptyState hasSets={sets.length > 0} />}
+          </div>
+
+          {/* Desktop / tablet: full table + card / compact view toggle */}
+          <div className="hidden md:block">
           {viewMode === "cards" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {!isLoading && filtered.map((set) => (
@@ -363,6 +453,7 @@ export default function PlanningSetsPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Right panel — live derived queues */}
@@ -446,6 +537,15 @@ export default function PlanningSetsPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilterCount}
+        onClear={() => { setProfileFilter("all"); setStatusFilter("all"); setRiskFilter("all"); setSortBy("newest") }}
+      />
     </PlanningPageShell>
   )
 }

@@ -8,6 +8,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyInvoices, useUpdateInvoiceStatus, useMoneyInvoicesSummary } from "@/hooks/useMoneyData"
@@ -302,8 +305,32 @@ export default function InvoicesPage() {
     )
   }
 
+  // Row → card mapping for the mobile card list (mirrors the desktop table).
+  const invoiceCardMapping: MobileCardMapping<Invoice> = {
+    getKey: (inv) => inv.id,
+    title: (inv) => inv.invoiceNumber,
+    subtitle: (inv) => inv.recipientName,
+    badge: (inv) => {
+      const sc = statusConfig(inv.status)
+      return <span className={cn("inline-flex text-[10.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", sc.className)}>{sc.label}</span>
+    },
+    fields: [
+      { label: "Amount", render: (inv) => formatCurrency(inv.amount) },
+      { label: "Type", render: (inv) => inv.type },
+      { label: "Property", render: (inv) => inv.propertyAddress },
+      { label: "Due", render: (inv) => inv.dueDate },
+    ],
+    onRowClick: (inv) => router.push(`/app/money/invoices/${inv.id}`),
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Invoices"
+        subtitle={`${filtered.length} invoice${filtered.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "New Invoice", icon: Plus, href: "/app/money/invoices/new" }}
+        overflowActions={[{ label: "Export CSV", icon: Download, onClick: handleExportCSV }]}
+      />
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -314,6 +341,7 @@ export default function InvoicesPage() {
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
         {/* Header */}
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Invoices"
           title="Invoices"
@@ -332,6 +360,16 @@ export default function InvoicesPage() {
               </button>
             </>
           }
+        />
+        </div>
+
+        {/* Mobile header — search (desktop search field gated below) */}
+        <MobilePageHeader
+          title="Invoices"
+          count={`${filtered.length} invoice${filtered.length === 1 ? "" : "s"}`}
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search invoices…"
         />
 
         {/* Error banner */}
@@ -383,9 +421,9 @@ export default function InvoicesPage() {
         </div>
 
         {/* Main Layout */}
-        <div className="flex gap-5 items-start">
+        <div className="flex flex-col lg:flex-row gap-5 items-start">
           {/* LEFT */}
-          <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <div className="flex-1 min-w-0 w-full flex flex-col gap-4">
             {/* Status chips */}
             <div className="flex items-center gap-2 flex-wrap">
               {STATUS_TABS.map((tab) => (
@@ -423,7 +461,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Search */}
-            <div className="relative">
+            <div className="relative hidden md:block">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -435,6 +473,21 @@ export default function InvoicesPage() {
             </div>
 
             {/* Table */}
+            <ResponsiveTable
+              rows={filtered}
+              mobile={invoiceCardMapping}
+              emptyState={
+                !invoicesLoading && filtered.length === 0 ? (
+                  <div className="md:hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-10 flex flex-col items-center justify-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-slate-400" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600">No invoices yet</p>
+                    <p className="text-xs text-slate-500">Get started by adding your first invoice.</p>
+                  </div>
+                ) : undefined
+              }
+            >
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -646,10 +699,11 @@ export default function InvoicesPage() {
                 </div>
               )}
             </div>
+            </ResponsiveTable>
           </div>
 
           {/* RIGHT Sidebar */}
-          <div className="w-72 shrink-0 flex flex-col gap-4 sticky top-6">
+          <div className="w-full lg:w-72 shrink-0 flex flex-col gap-4 lg:sticky lg:top-6">
             {/* Collections Summary */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">

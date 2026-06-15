@@ -11,6 +11,9 @@ import {
   Building2, Home, ZoomIn, Upload, Download, Maximize2, Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileFilterSheet"
 
 /* ------------------------------------------------------------------ */
 /* Types & data                                                         */
@@ -200,6 +203,7 @@ export default function PortfolioGalleryPage() {
   const [filterCat, setFilterCat] = useState("all")
   const [filterProp, setFilterProp] = useState("all")
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   const filtered = useMemo(() => {
     let r = [...GALLERY_IMAGES]
@@ -216,9 +220,66 @@ export default function PortfolioGalleryPage() {
 
   const propCount = filtered.filter((i) => i.category === "property").length
   const unitCount = filtered.filter((i) => i.category === "unit").length
+  const activeFilters = [filterCat !== "all", filterProp !== "all"].filter(Boolean).length
+
+  function clearFilters() { setSearch(""); setFilterCat("all"); setFilterProp("all") }
+
+  /* ── Mobile filter groups (mirror the desktop toolbar) ─────────────────── */
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "category",
+      label: "Category",
+      value: filterCat,
+      onChange: setFilterCat,
+      options: [
+        { value: "all", label: "All" },
+        { value: "property", label: "Properties" },
+        { value: "unit", label: "Units" },
+      ],
+    },
+    {
+      key: "property",
+      label: "Property",
+      value: filterProp,
+      onChange: setFilterProp,
+      options: [{ value: "all", label: "All properties" }, ...PROPERTIES.map((p) => ({ value: p, label: p }))],
+    },
+  ]
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Portfolio Gallery"
+        subtitle={`${filtered.length} images`}
+        showBack
+        backHref="/app/portfolio"
+        overflowActions={[
+          { label: "Upload images", icon: Upload, onClick: () => {} },
+        ]}
+      />
+
+      {/* Mobile page header — search + filter sheet trigger */}
+      <MobilePageHeader
+        title="Portfolio Gallery"
+        count={`${filtered.length} images · ${propCount} property · ${unitCount} unit`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search images…"
+        onOpenFilters={() => setShowMobileFilters(true)}
+        activeFilterCount={activeFilters}
+      />
+
+      <MobileFilterSheet
+        open={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilters}
+        onClear={clearFilters}
+      />
+
+      {/* Desktop header — hidden on phones */}
+      <div className="hidden md:block">
       <PageHeader
         title="Portfolio Gallery"
         description={`${filtered.length} images · ${propCount} property · ${unitCount} unit`}
@@ -283,6 +344,8 @@ export default function PortfolioGalleryPage() {
           </button>
         )}
       </div>
+      </div>
+      {/* end desktop header/toolbar (hidden on phones) */}
 
       {/* Empty state */}
       {filtered.length === 0 ? (

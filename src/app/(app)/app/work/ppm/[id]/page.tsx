@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { PpmTabNav } from "@/components/work/PpmTabNav"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { PpmScheduleStatusBadge } from "@/features/work/ppm/components/PpmScheduleStatusBadge"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
@@ -271,8 +272,21 @@ export default function PpmDetailPage() {
 
   return (
     <div className="space-y-5">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title={plan.name}
+        subtitle="PPM Plan"
+        showBack
+        backHref="/app/work/ppm/overview"
+        primaryAction={{ label: "Generate job", icon: Wrench, onClick: () => { if (!generating) handleGenerateJob() } }}
+        overflowActions={[
+          { label: "New plan", icon: Plus, href: "/app/work/ppm/schedules/new" },
+          { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
+        ]}
+      />
+
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="hidden md:flex items-center gap-2 text-sm text-slate-500">
         <Link href="/app/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <Link href="/app/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
@@ -283,17 +297,19 @@ export default function PpmDetailPage() {
       {/* Back button */}
       <Link
         href="/app/work/ppm/overview"
-        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
+        className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
       >
         <ChevronLeft className="w-4 h-4" /> Back to PPM
       </Link>
 
       {/* Tab navs */}
-      <WorkTabNav />
-      <PpmTabNav />
+      <div className="hidden md:block">
+        <WorkTabNav />
+        <PpmTabNav />
+      </div>
 
       {/* Header actions */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">PPM Plan</h1>
           <p className="text-sm text-slate-500 mt-0.5">Planned preventive maintenance schedule</p>
@@ -410,7 +426,15 @@ export default function PpmDetailPage() {
 
       {/* Tabs */}
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-        <div className="flex items-center overflow-x-auto border-b border-slate-100">
+        <div className="md:hidden p-3 border-b border-slate-100">
+          <MobileTabs
+            tabs={PPM_TABS.map((t) => ({ id: t, label: t }))}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="PPM sections"
+          />
+        </div>
+        <div className="hidden md:flex items-center overflow-x-auto border-b border-slate-100">
           {PPM_TABS.map((tab) => (
             <button
               key={tab}

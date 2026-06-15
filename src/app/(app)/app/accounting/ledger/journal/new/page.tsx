@@ -11,6 +11,7 @@ import { useLedgerAccounts, useLedgerRole } from "@/lib/accounting/hooks"
 import { postJournalEntry, checkBalance, type DB } from "@/lib/accounting/ledger"
 import { parsePoundsToPence, formatPence } from "@/lib/accounting/money"
 import type { DraftLine } from "@/lib/accounting/types"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 interface EditableLine {
   id: string
@@ -92,7 +93,9 @@ export default function NewJournalEntryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <button onClick={() => router.back()} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <MobileTopBar title="New Journal Entry" subtitle="General Ledger" showBack backHref="/app/accounting/ledger/journal" />
+
+      <button onClick={() => router.back()} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
@@ -173,7 +176,7 @@ export default function NewJournalEntryPage() {
         </div>
 
         {/* Live balance bar */}
-        <div className="px-5 py-4 border-t border-[#E2E8F0] bg-slate-50/50 flex items-center gap-8">
+        <div className="px-5 py-4 border-t border-[#E2E8F0] bg-slate-50/50 flex flex-wrap items-center gap-6 sm:gap-8">
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total Debits</span>
             <span className="text-base font-bold text-emerald-600">{formatPence(balance.totalDebit)}</span>

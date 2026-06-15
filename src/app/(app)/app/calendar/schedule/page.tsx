@@ -6,6 +6,7 @@ import { useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { CalendarTabNav } from "@/components/calendar"
+import { MobileTopBar } from "@/components/mobile"
 import { Plus, Eye, Copy, AlertTriangle, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -145,9 +146,19 @@ export default function SchedulePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Schedule"
+        subtitle="Overdue, today, week ahead"
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+      />
+      <div className="md:hidden">
+        <CalendarTabNav />
+      </div>
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="hidden md:block bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Schedule</h1>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ─── Types ───────────────────────────────────────────────────── */
 type VacancyStatus = "Draft" | "Active" | "Under Offer" | "Let"
@@ -110,8 +111,17 @@ export default function VacanciesPage() {
 
   return (
     <>
-      {/* Page header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Vacancies"
+        subtitle={`${VACANCIES.length} total vacancies`}
+        showBack
+        backHref="/app/portfolio/leasing"
+        primaryAction={{ label: "New vacancy", icon: Plus, onClick: () => {} }}
+      />
+
+      {/* Page header — hidden on phones */}
+      <div className="hidden md:block bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-slate-900">Vacancies</h1>
@@ -142,11 +152,29 @@ export default function VacanciesPage() {
         </div>
       </div>
 
-      <div className="py-6 space-y-6">
+      <div className="py-6 space-y-6 px-4 md:px-0">
+        {/* Mobile filter row */}
+        <div className="md:hidden flex items-center gap-2 overflow-x-auto -mx-1 px-1">
+          {STATUS_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={cn(
+                "text-xs font-medium px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap shrink-0",
+                activeFilter === f.key
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50",
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {/* Grid */}
-        <div className="grid grid-cols-12 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
-            <div key={v.id} className="col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div key={v.id} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
               {/* Top */}
               <div className="px-4 pt-4 pb-3 border-b border-slate-50 flex items-center justify-between">
                 <span className="bg-slate-100 text-slate-600 text-[11px] font-medium px-2 py-0.5 rounded-full">
@@ -237,14 +265,14 @@ export default function VacanciesPage() {
 
         {/* Portal Export info card */}
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden p-5">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-start md:justify-between gap-4">
             <div>
               <h3 className="text-[13px] font-semibold text-slate-800">Portal Export</h3>
               <p className="text-[12px] text-slate-500 mt-1 max-w-2xl">
                 Rightmove doesn&apos;t offer a direct API. Download property data feeds to upload to your portal dashboards.
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
               <button className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 <Download className="w-3.5 h-3.5" />
                 Export Rightmove BLM

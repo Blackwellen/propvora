@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { CalendarTabNav } from '@/components/calendar'
 import CalendarViewsSwitcher from '@/components/calendar/CalendarViewsSwitcher'
 import { ActionMenu } from '@/components/portfolio/ActionMenu'
+import { MobileTopBar } from '@/components/mobile'
 import { Plus, Calendar, Eye, Copy, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
@@ -105,9 +106,23 @@ export default function CalendarAgendaPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Agenda"
+        subtitle="Upcoming records"
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+      />
+      <div className="md:hidden">
+        <CalendarTabNav />
+      </div>
+      <div className="md:hidden px-4 py-3 bg-white border-b border-slate-100">
+        <CalendarViewsSwitcher />
+      </div>
 
-      <div className="px-6 py-3 bg-white border-b border-slate-200 flex items-center gap-3 flex-wrap">
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
+
+      <div className="hidden md:flex px-6 py-3 bg-white border-b border-slate-200 items-center gap-3 flex-wrap">
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
@@ -118,7 +133,7 @@ export default function CalendarAgendaPage() {
         </div>
       </div>
 
-      <div className="px-6 py-3 bg-white border-b border-slate-100 flex items-center justify-between gap-3">
+      <div className="px-4 md:px-6 py-3 bg-white border-b border-slate-100 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-[15px] font-bold text-slate-900">Agenda</h2>
           <p className="text-[12px] text-slate-400 mt-0.5">Chronological list of upcoming dated records</p>

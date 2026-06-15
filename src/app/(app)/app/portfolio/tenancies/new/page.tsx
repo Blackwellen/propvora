@@ -13,6 +13,7 @@ import {
   PoundSterling, FileText, Eye,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 interface TenancyWizardData {
   property_id: string
@@ -426,7 +427,15 @@ export default function NewTenancyPage() {
 
   return (
     <div className="max-w-xl mx-auto">
-      <div className="mb-6">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Create Tenancy"
+        subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
+        showBack
+        backHref="/app/portfolio/tenancies"
+      />
+
+      <div className="hidden md:block mb-6">
         <Link href="/app/portfolio/tenancies" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ChevronLeft className="w-4 h-4" />Back to Tenancies
         </Link>

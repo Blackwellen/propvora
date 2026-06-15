@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import {
@@ -111,6 +112,38 @@ export default function HmoLicencesPage() {
     { icon: Building2, value: licences.length, label: "Total Licences", sub: "Across portfolio", iconCls: "bg-blue-100 text-blue-600" },
   ]
 
+  /* Row → card mapping for the mobile licence list (presentation only). */
+  const licenceCardMapping: MobileCardMapping<HmoLicence> = {
+    getKey: (l) => l.id,
+    title: (l) => l.property?.nickname ?? "—",
+    subtitle: (l) => l.licence_number ?? "—",
+    badge: (l) => {
+      const cfg = statusCfg(effectiveStatus(l))
+      return <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-medium whitespace-nowrap ${cfg.cls}`}>{cfg.label}</span>
+    },
+    fields: [
+      {
+        label: "Type",
+        render: (l) => (
+          <span className={`px-2 py-0.5 rounded-md text-[11px] font-medium ${TYPE_COLOR[l.licence_type] ?? "bg-slate-100 text-slate-600"}`}>
+            {TYPE_LABEL[l.licence_type] ?? l.licence_type}
+          </span>
+        ),
+      },
+      { label: "Council", render: (l) => l.issuing_council ?? "—" },
+      { label: "Expiry", render: (l) => formatDate(l.expiry_date) },
+      {
+        label: "Days left",
+        render: (l) => {
+          const days = daysUntil(l.expiry_date)
+          const daysColor = days == null ? "text-slate-400" : days < 0 ? "text-red-700 font-bold" : days <= 30 ? "text-red-700 font-bold" : days <= 90 ? "text-amber-600 font-medium" : "text-slate-600"
+          return <span className={daysColor}>{days == null ? "—" : days < 0 ? `${Math.abs(days)}d ago` : `${days} days`}</span>
+        },
+      },
+    ],
+    onRowClick: (l) => router.push(`/app/legal/hmo-licences/${l.id}`),
+  }
+
   return (
     <>
       {/* Header */}
@@ -199,6 +232,7 @@ export default function HmoLicencesPage() {
                 </button>
               </div>
             ) : (
+              <ResponsiveTable<HmoLicence> rows={filtered} mobile={licenceCardMapping} className="p-3">
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
@@ -277,6 +311,7 @@ export default function HmoLicencesPage() {
                   </tbody>
                 </table>
               </div>
+              </ResponsiveTable>
             )}
           </div>
         </div>

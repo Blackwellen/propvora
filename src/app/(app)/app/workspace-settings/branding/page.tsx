@@ -316,7 +316,7 @@ export default function BrandingPage() {
 
       {/* Sticky save bar */}
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shadow-lg">
+        <div className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shadow-lg">
           <p className="text-[13px] text-slate-600">You have unsaved changes</p>
           <div className="flex items-center gap-3">
             <button

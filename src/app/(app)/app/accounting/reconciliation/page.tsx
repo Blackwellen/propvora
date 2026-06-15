@@ -20,6 +20,8 @@ import { AccountingKpiCard, AccountingDonutCard } from "@/features/accounting/co
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { isMissingTable, fmtGBP, toCsv, downloadCsv } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 interface StatementLine {
   id: string
@@ -104,8 +106,36 @@ export default function ReconciliationPage() {
     excluded: "bg-slate-100 text-slate-500",
   }
 
+  const cardMapping: MobileCardMapping<StatementLine> = {
+    getKey: (l) => l.id,
+    title: (l) => l.description || "Statement line",
+    subtitle: (l) => l.date,
+    badge: (l) => (
+      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize", statusStyle[l.matched_status])}>
+        {l.matched_status.replace("_", " ")}
+      </span>
+    ),
+    fields: [
+      {
+        label: "Amount",
+        render: (l) => <span className={cn("font-semibold tabular-nums", l.amount >= 0 ? "text-[#10B981]" : "text-[#EF4444]")}>{l.amount >= 0 ? "+" : ""}{fmtGBP(l.amount)}</span>,
+      },
+    ],
+  }
+
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-6">
+      <MobileTopBar
+        title="Reconciliation"
+        subtitle="Accounting"
+        primaryAction={{ label: "Create manual transaction", icon: Plus, href: "/app/accounting/reconciliation/manual-transaction/new" }}
+        overflowActions={[
+          { label: "Import statement", icon: Upload, href: "/app/accounting/reconciliation/manual-transaction/new" },
+          { label: "Refresh", icon: RefreshCw, onClick: load },
+          { label: "Export statement lines", icon: Download, onClick: exportCsv },
+        ]}
+      />
+
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -114,7 +144,7 @@ export default function ReconciliationPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
@@ -200,6 +230,7 @@ export default function ReconciliationPage() {
           ) : filtered.length === 0 ? (
             <div className="p-12 text-center text-sm text-slate-500">No lines in this view.</div>
           ) : (
+            <ResponsiveTable rows={filtered} mobile={cardMapping} className="p-3">
             <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[640px]">
               <thead>
@@ -228,6 +259,7 @@ export default function ReconciliationPage() {
               </tbody>
             </table>
             </div>
+            </ResponsiveTable>
           )}
         </div>
 

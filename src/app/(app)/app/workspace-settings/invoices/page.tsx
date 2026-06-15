@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Download, FileText, Search } from "lucide-react"
+import { ResponsiveTable } from "@/components/mobile"
 
 type InvoiceStatus = "paid" | "pending" | "failed"
 
@@ -85,7 +86,42 @@ export default function InvoicesPage() {
           </button>
         </div>
 
-        {/* Table */}
+        {/* Table (desktop) / card list (mobile) */}
+        <ResponsiveTable
+          rows={filtered}
+          mobile={{
+            getKey: (inv) => inv.id,
+            title: (inv) => inv.description,
+            subtitle: (inv) => inv.id.toUpperCase(),
+            badge: (inv) => {
+              const st = STATUS_STYLES[inv.status]
+              return (
+                <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full", st.bg, st.text)}>
+                  {st.label}
+                </span>
+              )
+            },
+            fields: [
+              { label: "Date", render: (inv) => inv.date },
+              { label: "Amount", render: (inv) => <span className="font-bold text-slate-900">{inv.amount}</span> },
+            ],
+            actions: (inv) => (
+              <a
+                href={inv.pdf}
+                className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[#2563EB] hover:bg-blue-50 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF
+              </a>
+            ),
+          }}
+          emptyState={
+            <div className="px-5 py-10 text-center">
+              <FileText className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+              <p className="text-[13px] text-slate-400">No invoices found</p>
+            </div>
+          }
+        >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -151,6 +187,7 @@ export default function InvoicesPage() {
             </tbody>
           </table>
         </div>
+        </ResponsiveTable>
       </div>
 
       <p className="text-[11.5px] text-slate-400 text-center mt-4">

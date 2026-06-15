@@ -10,6 +10,8 @@ import {
   Sparkles,
 } from "lucide-react"
 import { use } from "react"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -50,14 +52,14 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
   ]
 
   return (
-    <div className="flex gap-1 px-6 border-b border-slate-200 bg-white">
+    <div className="flex gap-1 px-4 md:px-6 border-b border-slate-200 bg-white overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -309,10 +311,37 @@ export default function HmoAnalyticsPage({
   const { id } = use(params)
   const [appliedRecs, setAppliedRecs] = useState(false)
 
+  /* Row → card mapping for the mobile room-performance list. */
+  const performanceCardMapping: MobileCardMapping<RoomPerformance> = {
+    getKey: (r) => r.id,
+    title: (r) => r.room,
+    subtitle: (r) => r.tenant ?? "Vacant",
+    badge: (r) => (
+      <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${YIELD_BADGE[r.yieldDiffColor]}`}>
+        {r.yieldDiff}
+      </span>
+    ),
+    fields: [
+      { label: "Monthly Rent", render: (r) => r.monthlyRentLabel },
+      { label: "Annual Rent", render: (r) => r.annualRentLabel },
+      { label: "Void Days YTD", render: (r) => String(r.voidDays) },
+      { label: "Void Cost YTD", render: (r) => r.voidCost > 0 ? `£${r.voidCost}` : "—" },
+      { label: "Status", render: (r) => r.status },
+    ],
+  }
+
   return (
     <>
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="HMO Analytics"
+        subtitle="22 Victoria Road · Year to date"
+        showBack
+        backHref={`/app/portfolio/properties/${id}/hmo`}
+      />
+
+      {/* Page Header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-slate-900">
             HMO Analytics &amp; Yield Intelligence
@@ -325,7 +354,7 @@ export default function HmoAnalyticsPage({
       <HmoTabStrip propertyId={id} />
 
       {/* Content */}
-      <div className="px-6 pb-6 pt-5 space-y-6">
+      <div className="px-4 md:px-6 pb-6 pt-5 space-y-6">
         {/* KPI Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -386,6 +415,7 @@ export default function HmoAnalyticsPage({
         <div className="grid grid-cols-12 gap-6">
           {/* Room Performance Table */}
           <div className="col-span-12 lg:col-span-8">
+            <ResponsiveTable rows={ROOM_PERFORMANCE} mobile={performanceCardMapping}>
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100">
                 <h3 className="text-sm font-semibold text-slate-900">Room Performance</h3>
@@ -453,6 +483,7 @@ export default function HmoAnalyticsPage({
                 </table>
               </div>
             </div>
+            </ResponsiveTable>
           </div>
 
           {/* AI Pricing Recommendations */}

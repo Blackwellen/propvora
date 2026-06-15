@@ -176,7 +176,8 @@ export default function AuditPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            aria-label="Filter by type"
+            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
           >
             {TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -187,7 +188,8 @@ export default function AuditPage() {
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            aria-label="Filter by date range"
+            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
           >
             {DATE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -197,7 +199,7 @@ export default function AuditPage() {
           {/* Export */}
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 min-h-[44px] py-2.5 rounded-xl border border-slate-200 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
           >
             <Download className="w-4 h-4" />
             Export CSV
@@ -216,8 +218,8 @@ export default function AuditPage() {
             Showing {filtered.length} event{filtered.length !== 1 ? "s" : ""}
           </p>
 
-          {/* Audit table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          {/* Audit table (desktop grid) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden">
             {/* Table header */}
             <div className="grid grid-cols-[2fr_1fr_1fr_80px_120px] gap-4 px-5 py-3 border-b border-slate-100 bg-slate-50">
               {["Event", "User", "Module", "Risk", "Time"].map((col) => (
@@ -260,6 +262,52 @@ export default function AuditPage() {
               ))
             )}
           </div>
+
+          {/* Audit card list (mobile) */}
+          {filtered.length === 0 ? (
+            <div className="md:hidden bg-white rounded-2xl border border-slate-200 py-12 text-center">
+              <p className="text-[13px] text-slate-400 px-6">
+                {entries.length === 0
+                  ? "No audit events found. Events will appear here as your team takes actions."
+                  : "No audit events match your filters"}
+              </p>
+            </div>
+          ) : (
+            <ul className="md:hidden space-y-2.5" role="list">
+              {filtered.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-[14px] font-bold text-[#071B4D] leading-tight min-w-0">{entry.event}</p>
+                    <span
+                      className={cn(
+                        "shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize",
+                        RISK_STYLES[entry.risk]
+                      )}
+                    >
+                      {entry.risk}
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2">
+                    <div className="min-w-0">
+                      <dt className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">User</dt>
+                      <dd className="text-[13px] font-medium text-slate-700 truncate mt-0.5">{entry.user}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Module</dt>
+                      <dd className="text-[13px] font-medium text-slate-700 truncate mt-0.5">{entry.module}</dd>
+                    </div>
+                    <div className="min-w-0 col-span-2">
+                      <dt className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Time</dt>
+                      <dd className="text-[13px] font-medium text-slate-700 mt-0.5">{entry.time}</dd>
+                    </div>
+                  </dl>
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       )}
     </div>

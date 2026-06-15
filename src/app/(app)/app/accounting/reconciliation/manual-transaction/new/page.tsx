@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { AccountingWizardShell, DebitCreditLinesEditor } from "@/features/accounting/components"
 import type { DebitCreditLine } from "@/features/accounting/components/DebitCreditLinesEditor"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 const WIZARD_STEPS = [
   { number: 1, label: "Transaction Details" },
@@ -34,7 +35,7 @@ export default function ManualTransactionPage() {
           <Button variant="outline" size="sm">Templates ▼</Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Transaction Date <span className="text-[#EF4444]">*</span></label>
             <div className="relative">
@@ -222,6 +223,8 @@ export default function ManualTransactionPage() {
   )
 
   return (
+    <>
+    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref="/app/accounting/reconciliation" />
     <AccountingWizardShell
       breadcrumbNumber="09"
       breadcrumbLabel="Create Manual Transaction"
@@ -234,5 +237,6 @@ export default function ManualTransactionPage() {
       rightRail={rightRail}
       footer={footer}
     />
+    </>
   )
 }

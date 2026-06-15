@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { enrolWorkspaceAffiliate } from "@/lib/actions/affiliate"
 import { levelByBand, formatPence } from "@/lib/affiliate/levels"
 
@@ -162,6 +163,15 @@ export default function AffiliateDashboardPage() {
   const level = levelByBand(affiliate.band)
   const recent = referrals.slice(0, 6)
 
+  const recentReferralMapping: MobileCardMapping<ReferralRow> = {
+    getKey: (row) => row.id,
+    title: (row) => row.id.slice(0, 8).toUpperCase(),
+    subtitle: (row) =>
+      new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+    badge: (row) => refBadge(row.status),
+    fields: [],
+  }
+
   return (
     <div className="space-y-6">
       {/* Welcome banner */}
@@ -291,6 +301,7 @@ export default function AffiliateDashboardPage() {
                   <p className="text-sm text-slate-400">No referrals yet. Share your link to get started.</p>
                 </div>
               ) : (
+                <ResponsiveTable rows={recent} mobile={recentReferralMapping}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm min-w-[480px]">
                     <thead>
@@ -313,6 +324,7 @@ export default function AffiliateDashboardPage() {
                     </tbody>
                   </table>
                 </div>
+                </ResponsiveTable>
               )}
             </CardContent>
           </Card>

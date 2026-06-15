@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { AccountingWizardShell } from "@/features/accounting/components"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 const WIZARD_STEPS = [
   { number: 1, label: "Account Details", sublabel: "Define the account" },
@@ -45,7 +46,7 @@ export default function NewAccountPage() {
         <h3 className="text-sm font-bold text-slate-900 mb-1">Account Details</h3>
         <p className="text-xs text-slate-500 mb-5">Define the core properties of this account.</p>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">
               Account Code <span className="text-[#EF4444]">*</span>
@@ -228,6 +229,8 @@ export default function NewAccountPage() {
   )
 
   return (
+    <>
+    <MobileTopBar title="New Account" subtitle="Accounting" showBack backHref="/app/accounting/accounts/overview" />
     <AccountingWizardShell
       breadcrumbNumber="08"
       breadcrumbLabel="New Account"
@@ -239,5 +242,6 @@ export default function NewAccountPage() {
       rightRail={rightRail}
       footer={footer}
     />
+    </>
   )
 }

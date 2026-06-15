@@ -93,7 +93,26 @@ export default async function AdminWorkspaceDetailPage({ params }: PageProps) {
             {ws.members.length === 0 ? (
               <div className="text-center py-8 text-sm text-slate-400">No members</div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+              {/* Mobile card list */}
+              <ul className="sm:hidden divide-y divide-[#F1F5F9]" role="list">
+                {ws.members.map((m) => (
+                  <li key={m.userId}>
+                    <Link href={`/admin/users/${m.userId}`} className="flex items-center justify-between gap-2 p-3.5 hover:bg-slate-50">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 truncate">{m.name ?? m.email ?? "Unknown"}</p>
+                        <p className="text-[11px] text-slate-400 truncate">{m.email ?? ""}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <Badge variant="outline" size="sm">{m.role}</Badge>
+                        <p className="text-[10px] text-slate-400 mt-1">{m.joinedAt ? new Date(m.joinedAt).toLocaleDateString("en-GB") : "—"}</p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm min-w-[420px]">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">
@@ -118,6 +137,7 @@ export default async function AdminWorkspaceDetailPage({ params }: PageProps) {
                 </tbody>
               </table>
               </div>
+              </>
             )}
           </Card>
 

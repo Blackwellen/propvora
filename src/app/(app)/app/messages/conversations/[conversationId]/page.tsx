@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { cn } from "@/lib/utils"
+import { MobileTopBar } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   useConversations,
@@ -102,15 +103,31 @@ export default function ConversationPage() {
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar — native back chevron + contact name; opens full-screen thread */}
+      <MobileTopBar
+        title={name}
+        subtitle={conv?.subject ?? (type.charAt(0).toUpperCase() + type.slice(1))}
+        showBack
+        backHref="/app/messages"
+        overflowActions={
+          conv?.contact?.id
+            ? [{ label: "View Profile", icon: Eye, href: `/app/contacts/${conv.contact.id}` }]
+            : undefined
+        }
+      />
+
       <div className="space-y-0">
-        {/* Back */}
-        <Link href="/app/messages" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        {/* Back — desktop only (MobileTopBar owns mobile back) */}
+        <Link href="/app/messages" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to Messages
         </Link>
 
-        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col h-[calc(100dvh-200px)] min-h-[440px] sm:h-[calc(100vh-220px)] sm:min-h-[480px]">
-          {/* Header */}
-          <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
+        {/* Full-bleed thread on phones; framed card on desktop. The mobile
+            height leaves room for the MobileTopBar, shell padding and the fixed
+            bottom nav so the composer stays reachable above it. */}
+        <div className="flex flex-col overflow-hidden bg-white border-slate-200 h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom,0px)-128px)] min-h-[420px] md:rounded-2xl md:border md:h-[calc(100vh-220px)] md:min-h-[480px]">
+          {/* Header — desktop only; mobile uses MobileTopBar above */}
+          <div className="hidden md:flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
             <div className="flex items-center gap-3 min-w-0">
               <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(name))}>
                 {initials(name)}

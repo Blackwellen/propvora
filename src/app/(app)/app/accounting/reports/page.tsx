@@ -26,6 +26,7 @@ import {
   type LedgerAccount,
   type JournalEntryRow,
 } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 type ReportTab = "Trial Balance" | "Profit & Loss" | "Balance Sheet"
 const TABS: ReportTab[] = ["Trial Balance", "Profit & Loss", "Balance Sheet"]
@@ -114,8 +115,17 @@ export default function ReportsPage() {
         </div>
       )}
 
+      <MobileTopBar
+        title="Financial Reports"
+        subtitle="Accounting"
+        overflowActions={hasData ? [
+          { label: "Export CSV", icon: Download, onClick: exportCurrent },
+          { label: "Print", icon: FileText, onClick: () => window.print() },
+        ] : undefined}
+      />
+
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>

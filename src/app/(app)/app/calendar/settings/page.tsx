@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Copy, Check, CalendarDays, Bell, Globe } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { createClient } from "@/lib/supabase/client"
@@ -92,10 +93,16 @@ export default function CalendarSettingsPage() {
 
   return (
     <DashboardContainer>
-      <CalendarTabNav />
+      <MobileTopBar title="Calendar Settings" subtitle="Preferences" />
+      <div className="md:hidden -mx-4">
+        <CalendarTabNav />
+      </div>
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
-      <div className="px-6 py-6 max-w-[720px] space-y-6">
-        <div>
+      <div className="px-4 md:px-6 py-4 md:py-6 max-w-[720px] space-y-6">
+        <div className="hidden md:block">
           <h1 className="text-xl font-bold text-slate-900">Calendar Settings</h1>
           <p className="text-sm text-slate-500 mt-0.5">Configure your calendar preferences and integrations.</p>
         </div>

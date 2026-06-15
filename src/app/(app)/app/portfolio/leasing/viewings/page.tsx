@@ -10,6 +10,8 @@ import {
   User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 /* ─── Types ───────────────────────────────────────────────────── */
 interface Viewing {
@@ -92,10 +94,40 @@ export default function ViewingsPage() {
     setForm(DEFAULT_FORM)
   }
 
+  /* Row → card mapping for the mobile list view. */
+  const viewingCardMapping: MobileCardMapping<(typeof VIEWING_LIST)[number]> = {
+    getKey: (v) => v.id,
+    title: (v) => v.property,
+    subtitle: (v) => v.datetime,
+    badge: (v) => (
+      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+        {v.status}
+      </span>
+    ),
+    fields: [
+      { label: "Prospect", render: (v) => v.prospect },
+      { label: "Duration", render: (v) => v.duration },
+      { label: "Conducted by", render: (v) => v.agent },
+      { label: "Feedback", render: (v) => v.feedback },
+    ],
+  }
+
   return (
     <>
-      {/* Page header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Viewings"
+        subtitle={`Week of 9 – 15 Jun · ${VIEWINGS.length} viewings`}
+        showBack
+        backHref="/app/portfolio/leasing"
+        primaryAction={{ label: "Schedule viewing", icon: Plus, onClick: () => setShowModal(true) }}
+        overflowActions={[
+          { label: calView === "calendar" ? "List view" : "Calendar view", icon: calView === "calendar" ? List : Calendar, onClick: () => setCalView(calView === "calendar" ? "list" : "calendar") },
+        ]}
+      />
+
+      {/* Page header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-slate-900">Viewings</h1>
           <p className="text-[13px] text-slate-500 mt-0.5">Week of 9 – 15 Jun 2026 · {VIEWINGS.length} viewings</p>
@@ -128,10 +160,11 @@ export default function ViewingsPage() {
         </div>
       </div>
 
-      <div className="py-6">
+      <div className="py-6 px-4 md:px-0">
         {calView === "calendar" ? (
-          /* ── Calendar grid ── */
-          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          /* ── Calendar grid — horizontal scroll on phones ── */
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-x-auto">
+          <div className="min-w-[640px] md:min-w-0">
             {/* Day headers */}
             <div className="grid border-b border-slate-100" style={{ gridTemplateColumns: "64px repeat(7, 1fr)" }}>
               <div className="px-2 py-3 border-r border-slate-100" />
@@ -192,8 +225,10 @@ export default function ViewingsPage() {
               </div>
             </div>
           </div>
+          </div>
         ) : (
           /* ── List view ── */
+          <ResponsiveTable rows={VIEWING_LIST} mobile={viewingCardMapping}>
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
             <table className="w-full text-left min-w-[760px]">
@@ -233,6 +268,7 @@ export default function ViewingsPage() {
             </table>
             </div>
           </div>
+          </ResponsiveTable>
         )}
       </div>
 

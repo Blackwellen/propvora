@@ -29,6 +29,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { createClient } from "@/lib/supabase/client"
@@ -758,7 +759,10 @@ export default function NewEventPage() {
 
   return (
     <div className="space-y-0">
-      <CalendarTabNav />
+      <MobileTopBar title="New Event" subtitle="Create event" showBack backHref="/app/calendar/events" />
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
       {/* Progress bar */}
       <div className="h-1 bg-slate-200">

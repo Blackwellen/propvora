@@ -6,6 +6,7 @@ import { MessageSquareWarning, CheckCircle2, Clock, ListChecks } from "lucide-re
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useJobs } from "@/hooks/useJobs"
 import {
@@ -170,10 +171,13 @@ export default function ComplaintsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Complaints"
-        description="Tenant-reported issues and reopened jobs"
-      />
+      <MobileTopBar title="Complaints" subtitle="Tenant-reported issues" />
+      <div className="hidden md:block">
+        <PageHeader
+          title="Complaints"
+          description="Tenant-reported issues and reopened jobs"
+        />
+      </div>
 
       <div className="grid grid-cols-3 gap-3">
         {KPIS.map((kpi) => {
@@ -195,7 +199,7 @@ export default function ComplaintsPage() {
       <WorkTabNav />
 
       {/* Status filter */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit max-w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.key}

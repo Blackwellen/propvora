@@ -22,6 +22,12 @@ import { ComplianceStatusBadge } from "@/components/compliance/ComplianceStatusB
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import {
+  MobilePageHeader,
+  MobileFilterSheet,
+  ResponsiveTable,
+  type FilterGroup,
+} from "@/components/mobile"
 import { createClient } from "@/lib/supabase/client"
 import { useComplianceInspections, type ComplianceInspection } from "@/hooks/useComplianceData"
 import { fmtDate, humaniseType, downloadCsv } from "../_lib/useComplianceItems"
@@ -40,8 +46,20 @@ export default function InspectionsPage() {
   const qc = useQueryClient()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const { data: inspections = [], isLoading, refetch } = useComplianceInspections()
+
+  const activeFilterCount = statusFilter ? 1 : 0
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: STATUS_FILTERS.map((s) => ({ value: s, label: s ? humaniseType(s) : "All statuses" })),
+    },
+  ]
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -96,8 +114,8 @@ export default function InspectionsPage() {
 
   return (
     <DashboardContainer>
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
+      {/* Header — desktop / tablet */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-4 sm:px-6 py-4 items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Inspections</h1>
           <p className="text-sm text-slate-500 mt-1">Schedule, track and manage property inspections.</p>
@@ -121,6 +139,19 @@ export default function InspectionsPage() {
         </div>
       </div>
 
+      {/* Mobile header */}
+      <div className="md:hidden px-4 pt-4">
+        <MobilePageHeader
+          title="Inspections"
+          count={`${filtered.length} of ${inspections.length}`}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search inspections…"
+          onOpenFilters={() => setFiltersOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Scheduled" value={isLoading ? "—" : kpis.total} subtitle="All inspections" icon={CalendarDays} iconBg="bg-blue-50" iconColor="text-blue-600" />
@@ -130,8 +161,8 @@ export default function InspectionsPage() {
         <ComplianceKpiCard label="Pass Rate" value={isLoading ? "—" : kpis.passRate == null ? "—" : `${kpis.passRate}%`} subtitle="Of completed" icon={XCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
       </div>
 
-      {/* Filter bar */}
-      <div className="px-6 py-3 flex items-center gap-2 flex-wrap">
+      {/* Filter bar — desktop / tablet */}
+      <div className="hidden md:flex px-6 py-3 items-center gap-2 flex-wrap">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
@@ -170,6 +201,22 @@ export default function InspectionsPage() {
               )}
             </div>
           ) : (
+            <ResponsiveTable
+              rows={filtered}
+              mobile={{
+                getKey: (r) => r.id,
+                title: (r) => r.property_name ?? "Unassigned property",
+                subtitle: (r) => humaniseType(r.inspection_type),
+                badge: (r) => <ComplianceStatusBadge status={r.status} />,
+                onRowClick: (r) => router.push(`/app/compliance/inspections/${r.id}`),
+                fields: [
+                  { label: "Scheduled", render: (r) => fmtDate(r.scheduled_date) },
+                  { label: "Inspector", render: (r) => r.inspector_name ?? "—" },
+                  { label: "Outcome", render: (r) => <OutcomeBadge outcome={r.outcome} /> },
+                  { label: "Findings", render: (r) => r.findings_count ?? 0 },
+                ],
+              }}
+            >
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[1000px]">
                 <thead>
@@ -228,9 +275,19 @@ export default function InspectionsPage() {
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
           )}
         </div>
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilterCount}
+        onClear={() => setStatusFilter("")}
+      />
     </DashboardContainer>
   )
 }

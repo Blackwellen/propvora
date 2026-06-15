@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, MobilePageHeader } from "@/components/mobile"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -247,11 +248,27 @@ export default function ActivityPage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      <MobileTopBar title="Contact Activity" subtitle="Activity log" />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
-      <div className="px-6 pt-6 pb-8 space-y-6">
+      <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
+        {/* Mobile search */}
+        <div className="md:hidden">
+          <MobilePageHeader
+            title="Contact Activity"
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search activity…"
+            className="mb-0"
+          />
+        </div>
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="hidden md:flex items-start justify-between gap-4 flex-wrap">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contact Activity</h1>
@@ -293,7 +310,7 @@ export default function ActivityPage() {
 
           <div className="flex-1" />
 
-          <div className="relative">
+          <div className="relative hidden md:block">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"

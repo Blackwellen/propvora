@@ -10,6 +10,8 @@ import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { formatPence, toCsv, downloadCsv, isMissingTable } from "@/lib/accounting"
 import type { LedgerAccount } from "@/lib/accounting/types"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 interface LedgerRow {
   line_id: string
@@ -90,14 +92,36 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
     downloadCsv(`account-${account?.code ?? accountId}-ledger.csv`, csv)
   }
 
+  const cardMapping: MobileCardMapping<LedgerRow> = {
+    getKey: (r) => r.line_id,
+    title: (r) => r.memo ?? `Entry #${r.entry_no}`,
+    subtitle: (r) => `#${r.entry_no} · ${r.date}`,
+    fields: [
+      { label: "Debit", render: (r) => <span className="tabular-nums">{r.debit_pence ? formatPence(r.debit_pence) : "—"}</span> },
+      { label: "Credit", render: (r) => <span className="tabular-nums">{r.credit_pence ? formatPence(r.credit_pence) : "—"}</span> },
+      {
+        label: "Running Balance",
+        render: (r) => <span className={cn("font-bold tabular-nums", r.running_pence < 0 ? "text-red-600" : "text-slate-900")}>{formatPence(r.running_pence)}</span>,
+      },
+    ],
+  }
+
   return (
     <div className="space-y-6">
-      <button onClick={() => router.push("/app/accounting/ledger/chart")} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <MobileTopBar
+        title={account ? account.name : "Account"}
+        subtitle={account ? account.code : undefined}
+        showBack
+        backHref="/app/accounting/ledger/chart"
+        overflowActions={rows.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
+      <button onClick={() => router.push("/app/accounting/ledger/chart")} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ArrowLeft className="w-4 h-4" /> Back to Chart of Accounts
       </button>
 
       {account && (
-        <div className="flex items-start justify-between gap-4">
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
               <span className="font-mono text-sm font-semibold text-slate-500">{account.code}</span>
@@ -125,6 +149,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
         ) : rows.length === 0 ? (
           <div className="p-12 text-center text-slate-500 text-sm">No posted lines for this account yet.</div>
         ) : (
+          <ResponsiveTable rows={rows} mobile={cardMapping} className="p-3">
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[720px]">
             <thead>
@@ -153,6 +178,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
             </tbody>
           </table>
           </div>
+          </ResponsiveTable>
         )}
       </div>
     </div>

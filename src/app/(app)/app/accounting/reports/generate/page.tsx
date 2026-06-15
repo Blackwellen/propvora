@@ -6,6 +6,7 @@ import { CheckSquare, Square, Calendar, FileDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { AccountingWizardShell } from "@/features/accounting/components"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 const WIZARD_STEPS = [
   { number: 1, label: "Select Reports" },
@@ -59,7 +60,7 @@ export default function ReportGeneratePage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Select Reports</h3>
         <p className="text-xs text-slate-500 mb-5">Choose one or more reports to include in this pack.</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {ALL_REPORTS.map((r) => {
             const selected = selectedReports.has(r.id)
             return (
@@ -109,7 +110,7 @@ export default function ReportGeneratePage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-1">Filters &amp; Options</h3>
         <p className="text-xs text-slate-500 mb-5">Configure how this report pack will be generated.</p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Period</label>
             <select
@@ -238,7 +239,7 @@ export default function ReportGeneratePage() {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: "Period", value: period },
               { label: "Format", value: format },
@@ -284,6 +285,8 @@ export default function ReportGeneratePage() {
   )
 
   return (
+    <>
+    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref="/app/accounting/reports" />
     <AccountingWizardShell
       breadcrumbNumber="12"
       breadcrumbLabel="Generate Report Pack"
@@ -294,5 +297,6 @@ export default function ReportGeneratePage() {
       leftContent={stepContent[step - 1]}
       footer={footer}
     />
+    </>
   )
 }

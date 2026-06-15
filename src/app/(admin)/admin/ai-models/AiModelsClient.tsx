@@ -160,7 +160,42 @@ export default function AiModelsClient({ providers, models, usage, totals, windo
           <Sparkles className="w-4 h-4 text-[#2563EB]" />
           <h2 className="text-sm font-semibold text-slate-900">Models</h2>
         </div>
-        <div className="overflow-x-auto">
+        {/* Mobile card list */}
+        <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+          {mods.map((m) => (
+            <li key={m.id} className="p-3.5 space-y-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="text-sm font-semibold text-slate-800">{m.label}</span>
+                  <span className="block text-[10px] font-mono text-slate-400 truncate">{m.modelId}</span>
+                  <span className="text-[11px] text-slate-500">{m.providerName}</span>
+                </div>
+                <Toggle on={m.enabled} disabled={m.isDefault} onClick={() => toggleModel(m.id, !m.enabled)} />
+              </div>
+              <div className="flex items-center gap-4 text-[11px] text-slate-600">
+                <span>In £{(m.inputCostPencePer1k / 100).toFixed(5)}/1k</span>
+                <span>Out £{(m.outputCostPencePer1k / 100).toFixed(5)}/1k</span>
+              </div>
+              <div>
+                {m.isDefault ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2563EB] bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">
+                    <Star className="w-2.5 h-2.5 fill-[#2563EB]" /> Default
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => makeDefault(m.id)}
+                    className="text-[11px] font-medium text-slate-500 hover:text-[#2563EB] underline underline-offset-2"
+                  >
+                    Set as default
+                  </button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+        {/* Desktop table */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#E2E8F0] bg-slate-50">
@@ -235,7 +270,38 @@ export default function AiModelsClient({ providers, models, usage, totals, windo
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+            {usage.map((r) => (
+              <li key={r.workspaceId} className="p-3.5 space-y-2">
+                <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1.5 text-sm font-semibold text-slate-800 hover:text-[#2563EB]">
+                  <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">{r.workspaceName}</span>
+                </Link>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Reqs</p>
+                    <p className="text-[12px] font-medium text-slate-700 tabular-nums">{fmt(r.requests)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">In</p>
+                    <p className="text-[12px] font-medium text-slate-700 tabular-nums">{fmt(r.tokensIn)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Out</p>
+                    <p className="text-[12px] font-medium text-slate-700 tabular-nums">{fmt(r.tokensOut)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Cost</p>
+                    <p className="text-[12px] font-semibold text-slate-800 tabular-nums">{fmtCost(r.costPence)}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">
@@ -269,6 +335,7 @@ export default function AiModelsClient({ providers, models, usage, totals, windo
               </tbody>
             </table>
           </div>
+          </>
         )}
       </Card>
     </div>

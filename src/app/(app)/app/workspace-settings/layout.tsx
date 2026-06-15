@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { MobileSectionNav, type MobileSectionNavItem } from "@/components/mobile"
 import {
   ArrowLeft,
   Building2,
@@ -58,6 +59,13 @@ const WORKSPACE_NAV = [
 ]
 
 const GROUPS = ["General", "Billing", "AI", "Configuration", "Security", "Advanced"] as const
+
+const MOBILE_NAV: MobileSectionNavItem[] = WORKSPACE_NAV.map(({ key, label, href, icon }) => ({
+  key,
+  label,
+  href,
+  icon,
+}))
 
 function NavItem({
   item,
@@ -132,33 +140,15 @@ export default function WorkspaceSettingsLayout({
         </nav>
       </aside>
 
-      {/* Main content + inline mobile tab bar */}
+      {/* Main content + mobile section nav */}
       <main className="flex-1 min-w-0">
-        {/* Mobile horizontal scrollable tab bar — inline (no overlapping fixed bar). */}
-        <div className="lg:hidden -mt-1 mb-4 rounded-2xl border border-slate-200 bg-white px-2 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-          <div className="flex items-center gap-1">
-            {WORKSPACE_NAV.map((item) => {
-              const Icon = item.icon
-              const active =
-                item.href === "/app/workspace-settings"
-                  ? pathname === "/app/workspace-settings"
-                  : pathname.startsWith(item.href)
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
-                    active ? "bg-[#EFF6FF] text-[#2563EB]" : "text-slate-500 hover:bg-slate-100"
-                  )}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </div>
+        {/* Mobile section nav — pill strip in place of the desktop side rail. */}
+        <div className="lg:hidden -mt-1 mb-4">
+          <MobileSectionNav
+            items={MOBILE_NAV}
+            rootHref="/app/workspace-settings"
+            aria-label="Workspace settings sections"
+          />
         </div>
 
         <div className="max-w-[1000px]">

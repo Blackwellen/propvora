@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { CalendarTabNav } from '@/components/calendar'
 import CalendarViewsSwitcher from '@/components/calendar/CalendarViewsSwitcher'
+import { MobileTopBar } from '@/components/mobile'
 import { Plus, Bell, CalendarRange, AlertTriangle, Clock, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
@@ -89,11 +90,58 @@ export default function CalendarWeekPage() {
   function nextWeek() { const d = new Date(cursor); d.setDate(d.getDate() + 7); setCursor(d) }
   function thisWeek() { setCursor(weekStart(new Date())) }
 
+  const weekAgenda = useMemo(() =>
+    [...weekItems].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  , [weekItems])
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Week"
+        subtitle={rangeLabel}
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        overflowActions={[
+          { label: "Previous week", icon: ChevronRight, onClick: prevWeek },
+          { label: "This week", icon: CalendarRange, onClick: thisWeek },
+          { label: "Next week", icon: ChevronRight, onClick: nextWeek },
+        ]}
+      />
+      <div className="md:hidden">
+        <CalendarTabNav />
+      </div>
+      <div className="md:hidden px-4 py-3 bg-white border-b border-slate-100">
+        <CalendarViewsSwitcher />
+      </div>
 
-      <div className="px-6 py-3 bg-white border-b border-slate-200 flex items-center gap-3 flex-wrap">
+      {/* Mobile agenda list — replaces the time grid below md */}
+      <div className="md:hidden p-4 space-y-2.5 bg-slate-50">
+        {weekAgenda.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-[13px] text-slate-400">No items this week.</div>
+        ) : (
+          weekAgenda.map((it) => {
+            const d = new Date(it.start)
+            return (
+              <Link key={it.key} href={it.href} className="flex items-center gap-3 bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5 active:scale-[0.99] transition-transform">
+                <div className="w-12 shrink-0 text-center">
+                  <p className="text-[11px] text-slate-400 uppercase">{d.toLocaleDateString("en-GB", { weekday: "short" })}</p>
+                  <p className="text-[15px] font-bold text-[#071B4D] leading-none">{d.getDate()}</p>
+                </div>
+                <span className={cn("w-1.5 h-9 rounded-full shrink-0", SOURCE_META[it.source].dot)} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-[#071B4D] truncate">{it.title}</p>
+                  <p className="text-[12px] text-slate-500 truncate">{it.allDay ? "All day" : fmtTime(it.start)} · {it.sourceLabel}</p>
+                </div>
+              </Link>
+            )
+          })
+        )}
+      </div>
+
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
+
+      <div className="hidden md:flex px-6 py-3 bg-white border-b border-slate-200 items-center gap-3 flex-wrap">
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
@@ -107,12 +155,12 @@ export default function CalendarWeekPage() {
         </div>
       </div>
 
-      <div className="px-6 py-2.5 bg-white border-b border-slate-100">
+      <div className="hidden md:block px-6 py-2.5 bg-white border-b border-slate-100">
         <h2 className="text-[14px] font-semibold text-slate-800">{rangeLabel}</h2>
         <p className="text-[12px] text-slate-400 mt-0.5">{weekItems.length} items this week</p>
       </div>
 
-      <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+      <div className="hidden md:flex flex-1 overflow-hidden flex-col lg:flex-row">
         {/* Time grid */}
         <div className="flex-1 overflow-auto bg-white lg:border-r border-slate-200">
           <div className="min-w-[680px]">

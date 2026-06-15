@@ -17,6 +17,10 @@ export { default as MobileSheet } from "./MobileSheet"
 export { default as MobileTopBar, type MobileTopBarAction } from "./MobileTopBar"
 export { default as MobileBottomNav } from "./MobileBottomNav"
 export { default as MobileTabs, type MobileTabItem } from "./MobileTabs"
+export {
+  default as MobileSectionNav,
+  type MobileSectionNavItem,
+} from "./MobileSectionNav"
 export { default as MobilePageHeader } from "./MobilePageHeader"
 export {
   default as MobileFilterSheet,

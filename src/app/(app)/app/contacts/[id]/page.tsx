@@ -22,6 +22,7 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { deriveSupplierCategories } from "@/lib/constants/supplierCategories"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 
 /* ------------------------------------------------------------------ */
 /* Inline-edit save context — wired to useUpdateContact (live rows)     */
@@ -1675,8 +1676,22 @@ export default function ContactDetailPage() {
   return (
     <ContactSaveContext.Provider value={{ save: saveField, editable }}>
     <div className="space-y-0">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title={contact.full_name}
+        subtitle={contact.contact_type}
+        showBack
+        backHref="/app/contacts"
+        primaryAction={{ label: "Edit", icon: Edit, href: `/app/contacts/${contact.id}/edit` }}
+        overflowActions={[
+          { label: "Message", icon: MessageSquare, onClick: () => setActiveTab("messages") },
+          { label: "Archive", icon: Package, onClick: handleArchive },
+          { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
+        ]}
+      />
+
       {/* Back + breadcrumb */}
-      <div className="mb-4">
+      <div className="hidden md:block mb-4">
         <Link href="/app/contacts" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-2">
           <ArrowLeft className="w-4 h-4" /> Back to Contacts
         </Link>
@@ -1748,7 +1763,7 @@ export default function ContactDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="shrink-0">
+          <div className="hidden md:block shrink-0">
             <PrimaryActions contact={contact} onToast={showToast} onArchive={handleArchive} onDelete={handleDelete} editable={editable} />
           </div>
         </div>
@@ -1763,8 +1778,16 @@ export default function ContactDetailPage() {
       <div className="flex gap-6 items-start">
         {/* Left: tabs + content */}
         <div className="flex-1 min-w-0">
-          {/* Tab bar */}
-          <div className="overflow-x-auto -mx-1 px-1 mb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Tab bar — MobileTabs below md, scrollable strip on desktop */}
+          <div className="md:hidden mb-3">
+            <MobileTabs
+              tabs={tabs.map(t => ({ id: t.id, label: t.label, icon: t.icon }))}
+              value={activeTab}
+              onChange={setActiveTab}
+              aria-label="Contact detail sections"
+            />
+          </div>
+          <div className="hidden md:block overflow-x-auto -mx-1 px-1 mb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="flex items-center gap-1 min-w-max border-b border-slate-200" role="tablist" aria-label="Contact detail sections">
               {tabs.map(tab => {
                 const Icon = tab.icon
@@ -1790,8 +1813,13 @@ export default function ContactDetailPage() {
           </div>
 
           {/* Tab content */}
-          <div className="rounded-b-2xl rounded-tr-2xl border border-t-0 border-slate-200 bg-white p-6">
+          <div className="rounded-2xl md:rounded-b-2xl md:rounded-tr-2xl border md:border-t-0 border-slate-200 bg-white p-4 md:p-6">
             {renderTabContent()}
+          </div>
+
+          {/* Right rail — stacked below content on mobile/tablet */}
+          <div className="xl:hidden mt-4">
+            <RightRail contact={contact} />
           </div>
         </div>
 

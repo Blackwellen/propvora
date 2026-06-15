@@ -16,6 +16,8 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobileTabs from "@/components/mobile/MobileTabs"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -336,6 +338,19 @@ export default function BillDetailPage() {
 
   return (
     <div className="space-y-0">
+      <MobileTopBar
+        title={bill.bill_number}
+        subtitle={bill.supplier}
+        showBack
+        backHref="/app/money/bills"
+        overflowActions={[
+          ...(bill.status === "awaiting_review"
+            ? [{ label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved") }]
+            : []),
+          { label: "Record Payment", icon: CreditCard, onClick: () => setShowPayModal(true) },
+          { label: "Download PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank") },
+        ]}
+      />
       {showPayModal && (
         <RecordPaymentModal
           bill={bill}
@@ -354,7 +369,7 @@ export default function BillDetailPage() {
 
       <div className="px-5 md:px-7 lg:px-8 py-6 lg:py-7 max-w-[1600px] mx-auto space-y-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-sm text-slate-500">
+        <div className="hidden md:flex items-center gap-1.5 text-sm text-slate-500">
           <Link href="/app/money/bills" className="hover:text-slate-700 flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Bills
           </Link>
@@ -363,9 +378,9 @@ export default function BillDetailPage() {
         </div>
 
         {/* Main layout */}
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* ── Content ─────────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 space-y-5">
+          <div className="flex-1 min-w-0 w-full space-y-5">
             {/* Hero Card */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -485,9 +500,19 @@ export default function BillDetailPage() {
               ))}
             </div>
 
+            {/* Mobile tab strip — same state as desktop */}
+            <div className="md:hidden">
+              <MobileTabs
+                tabs={TABS.map((t) => ({ id: t, label: t }))}
+                value={activeTab}
+                onChange={setActiveTab}
+                aria-label="Bill sections"
+              />
+            </div>
+
             {/* Tabs */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="border-b border-slate-200 overflow-x-auto">
+              <div className="hidden md:block border-b border-slate-200 overflow-x-auto">
                 <div className="flex items-center gap-0">
                   {TABS.map((tab) => (
                     <button
@@ -506,7 +531,7 @@ export default function BillDetailPage() {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 {activeTab === "Overview" && (
                   <OverviewTab
                     bill={bill}
@@ -528,7 +553,7 @@ export default function BillDetailPage() {
           </div>
 
           {/* ── Right Rail ────────────────────────────────────────────────── */}
-          <aside className="w-70 shrink-0 sticky top-6 space-y-4">
+          <aside className="w-full lg:w-70 shrink-0 lg:sticky lg:top-6 space-y-4">
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Quick Actions</h3>

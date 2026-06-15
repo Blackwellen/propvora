@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { CalendarTabNav } from '@/components/calendar'
 import CalendarViewsSwitcher from '@/components/calendar/CalendarViewsSwitcher'
+import { MobileTopBar } from '@/components/mobile'
 import { ChevronLeft, ChevronRight, ExternalLink, Plus, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
@@ -108,9 +109,23 @@ export default function CalendarDayPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Day"
+        subtitle={dayLabel}
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+      />
+      <div className="md:hidden">
+        <CalendarTabNav />
+      </div>
+      <div className="md:hidden px-4 py-3 bg-white border-b border-slate-100">
+        <CalendarViewsSwitcher />
+      </div>
 
-      <div className="px-6 py-3 bg-white border-b border-slate-200 flex items-center gap-3 flex-wrap">
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
+
+      <div className="hidden md:flex px-6 py-3 bg-white border-b border-slate-200 items-center gap-3 flex-wrap">
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">

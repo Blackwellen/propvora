@@ -20,6 +20,8 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { openCopilot } from "@/lib/copilot/open"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobileTabs from "@/components/mobile/MobileTabs"
 
 /* ------------------------------------------------------------------ */
 /* Status chip                                                          */
@@ -969,6 +971,16 @@ export default function InvoiceDetailPage() {
 
   return (
     <div className="space-y-0">
+      <MobileTopBar
+        title={invoiceNumber}
+        subtitle={recipient}
+        showBack
+        backHref="/app/money/invoices"
+        primaryAction={{ label: "Edit", icon: Pencil, href: `/app/money/invoices/${inv.id}/edit` }}
+        overflowActions={[
+          { label: "Generate PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}`, "_blank") },
+        ]}
+      />
       {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
@@ -977,7 +989,7 @@ export default function InvoiceDetailPage() {
         </div>
       )}
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 mb-5">
+      <div className="hidden md:flex items-center gap-2 mb-5">
         <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Invoices
         </Link>
@@ -1138,13 +1150,23 @@ export default function InvoiceDetailPage() {
         <KpiCard label="Outstanding" value={`£${outstanding.toLocaleString("en-GB")}`} colour={outstanding > 0 ? "text-red-600" : "text-emerald-600"} />
       </div>
 
+      {/* Mobile tab strip — same state as desktop */}
+      <div className="md:hidden mb-4">
+        <MobileTabs
+          tabs={TABS.map((t) => ({ id: t, label: t }))}
+          value={activeTab}
+          onChange={setActiveTab}
+          aria-label="Invoice sections"
+        />
+      </div>
+
       {/* Main layout: tabs + right rail */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Tab area */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="flex-1 min-w-0 w-full space-y-4">
           {/* Tab nav */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-            <div className="border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="hidden md:block border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <div className="flex">
                 {TABS.map(tab => (
                   <button
@@ -1162,14 +1184,14 @@ export default function InvoiceDetailPage() {
                 ))}
               </div>
             </div>
-            <div className="p-5">
+            <div className="p-4 md:p-5">
               <TabContent />
             </div>
           </div>
         </div>
 
         {/* Right rail */}
-        <aside className="w-[280px] shrink-0 sticky top-6">
+        <aside className="w-full lg:w-[280px] shrink-0 lg:sticky lg:top-6">
           <RightRail />
         </aside>
       </div>

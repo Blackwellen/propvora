@@ -40,6 +40,7 @@ import {
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTasks } from "@/hooks/useTasks"
@@ -528,7 +529,22 @@ export default function WorkBoardPage() {
 
   return (
     <div className="space-y-5">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Board"
+        subtitle="Kanban — swipe columns"
+        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        overflowActions={[
+          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Refresh", icon: ClipboardList, onClick: () => refetch() },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <WorkTabNav />
+      </div>
+
       {/* Page header */}
+      <div className="hidden md:block">
       <PageHeader
         title="Board"
         description="Kanban operations control"
@@ -566,15 +582,18 @@ export default function WorkBoardPage() {
           </>
         }
       />
+      </div>
 
       {/* KPI Strip */}
       <WorkKpiStrip kpis={kpis} />
 
-      {/* Tab nav */}
-      <WorkTabNav />
+      {/* Tab nav (desktop) */}
+      <div className="hidden md:block">
+        <WorkTabNav />
+      </div>
 
       {/* Board controls bar */}
-      <div className="flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-xl px-4 py-2.5">
+      <div className="hidden md:flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-xl px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <span className="text-slate-500 text-[13px]">Group by</span>
           <select className="border border-slate-200 rounded-lg px-3 py-1 text-[12.5px] text-slate-700 bg-white">
@@ -612,6 +631,31 @@ export default function WorkBoardPage() {
             Refresh
           </button>
         </div>
+      </div>
+
+      {/* Mobile priority filter */}
+      <div className="md:hidden flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden -mx-1 px-1">
+        {[
+          { value: "all", label: "All" },
+          { value: "urgent", label: "Urgent" },
+          { value: "high", label: "High" },
+          { value: "medium", label: "Medium" },
+          { value: "low", label: "Low" },
+        ].map((p) => (
+          <button
+            key={p.value}
+            onClick={() => setPriorityFilter(p.value)}
+            aria-pressed={priorityFilter === p.value}
+            className={cn(
+              "shrink-0 min-h-[36px] px-3.5 rounded-xl text-[13px] font-semibold border transition-colors",
+              priorityFilter === p.value
+                ? "bg-[#2563EB] border-[#2563EB] text-white"
+                : "bg-white border-[#E2EAF6] text-slate-600"
+            )}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
 
       {/* Error state */}

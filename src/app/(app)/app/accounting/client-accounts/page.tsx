@@ -21,6 +21,10 @@ import { useClientAccounts } from "@/features/accounting/hooks"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { createClient } from "@/lib/supabase/client"
 import { isMissingTable, fmtGBP, toCsv, downloadCsv, writeAudit } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
+
+type ClientAccount = ReturnType<typeof useClientAccounts>["data"][number]
 
 const HEALTH_STYLES: Record<string, string> = {
   "Excellent": "bg-[#ECFDF5] text-[#059669]",
@@ -113,8 +117,39 @@ export default function ClientAccountsPage() {
     }
   }
 
+  const cardMapping: MobileCardMapping<ClientAccount> = {
+    getKey: (a) => a.id,
+    title: (a) => a.name,
+    subtitle: (a) => a.code,
+    leading: (a) => (
+      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: a.color }}>
+        {a.initials}
+      </div>
+    ),
+    badge: (a) => <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", HEALTH_STYLES[a.health] ?? "bg-slate-100 text-slate-600")}>{a.health}</span>,
+    fields: [
+      { label: "Balance", render: (a) => <span className="font-bold tabular-nums">{fmtGBP(a.balance)}</span> },
+      { label: "Ringfenced", render: (a) => a.ringfenced ? <span className="text-[#10B981] font-medium">Ringfenced</span> : "Not ringfenced" },
+    ],
+    actions: (a) => (
+      <ActionMenu
+        items={[
+          { label: "View Account", icon: Eye, onClick: () => showToast(`${a.name} · ${fmtGBP(a.balance)}`) },
+          { label: "New Disbursement", icon: Plus, onClick: () => { setDClient(a.id); openDrawer() } },
+        ]}
+      />
+    ),
+  }
+
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-6">
+      <MobileTopBar
+        title="Client Accounts"
+        subtitle="Accounting"
+        primaryAction={accounts.length > 0 ? { label: "New disbursement", icon: Plus, onClick: openDrawer } : undefined}
+        overflowActions={accounts.length > 0 ? [{ label: "Export ledger", icon: FileText, onClick: exportLedger }] : undefined}
+      />
+
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -123,7 +158,7 @@ export default function ClientAccountsPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
@@ -205,6 +240,7 @@ export default function ClientAccountsPage() {
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-sm text-slate-500">No clients match your search.</div>
         ) : (
+          <ResponsiveTable rows={filtered} mobile={cardMapping} className="p-3">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -261,6 +297,7 @@ export default function ClientAccountsPage() {
               </tbody>
             </table>
           </div>
+          </ResponsiveTable>
         )}
       </div>
 
@@ -268,7 +305,7 @@ export default function ClientAccountsPage() {
       {showDrawer && (
         <>
           <div className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm" onClick={() => setShowDrawer(false)} />
-          <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white border-l border-[#E2E8F0] shadow-2xl z-50 flex flex-col">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-[480px] bg-white border-l border-[#E2E8F0] shadow-2xl z-50 flex flex-col">
             <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900">New Disbursement</h2>
               <button onClick={() => setShowDrawer(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">

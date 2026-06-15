@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
@@ -728,10 +729,23 @@ export default function EventDetailPage() {
 
   return (
     <div className="space-y-0">
-      <CalendarTabNav />
+      <MobileTopBar
+        title={event.title}
+        subtitle="Event"
+        showBack
+        backHref="/app/calendar/events"
+        primaryAction={{ label: "Edit event", icon: Pencil, href: `/app/calendar/events/${event.id}/edit` }}
+        overflowActions={[
+          { label: event.status === "completed" ? "Completed" : "Mark done", icon: CheckCircle2, onClick: () => { if (event.status !== "completed") handleMarkDone() } },
+          { label: "Delete event", icon: X, destructive: true, onClick: handleDelete },
+        ]}
+      />
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
       {/* Breadcrumb */}
-      <div className="px-6 pt-5 pb-0">
+      <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <a href="/app/calendar" className="hover:text-[#2563EB]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
@@ -763,7 +777,7 @@ export default function EventDetailPage() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center gap-2 flex-wrap lg:shrink-0">
+            <div className="hidden md:flex items-center gap-2 flex-wrap lg:shrink-0">
               <Button variant="outline" size="sm" leftIcon={<Pencil className="w-3.5 h-3.5" />} asChild>
                 <a href={`/app/calendar/events/${event.id}/edit`}>Edit Event</a>
               </Button>
@@ -793,11 +807,19 @@ export default function EventDetailPage() {
         </div>
 
         {/* Main + Rail */}
-        <div className="flex gap-5 items-start">
+        <div className="flex gap-5 items-start flex-col lg:flex-row">
           {/* Main content */}
-          <div className="flex-1 min-w-0 space-y-0">
+          <div className="flex-1 min-w-0 space-y-0 w-full">
             {/* Tabs */}
-            <div className="border-b border-slate-200 bg-white rounded-t-xl overflow-x-auto">
+            <div className="md:hidden mb-3">
+              <MobileTabs
+                tabs={TABS.map(t => ({ id: t.key, label: t.label, icon: t.Icon }))}
+                value={activeTab}
+                onChange={(id) => setActiveTab(id as TabKey)}
+                aria-label="Event sections"
+              />
+            </div>
+            <div className="hidden md:block border-b border-slate-200 bg-white rounded-t-xl overflow-x-auto">
               <div className="flex items-center gap-0.5 px-2 pt-2 [&::-webkit-scrollbar]:hidden">
                 {TABS.map(tab => {
                   const Icon = tab.Icon
@@ -822,7 +844,7 @@ export default function EventDetailPage() {
             </div>
 
             {/* Tab panel */}
-            <div className="rounded-b-xl border border-t-0 border-slate-200 bg-white p-6">
+            <div className="rounded-xl md:rounded-b-xl md:rounded-t-none border md:border-t-0 border-slate-200 bg-white p-4 md:p-6">
               {activeTab === "overview"  && <TabOverview event={event} onSave={saveField} editable={editable} />}
               {activeTab === "linked"    && <TabLinked />}
               {activeTab === "schedule"  && <TabSchedule />}
@@ -834,8 +856,8 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* Right rail */}
-          <aside className="w-[280px] shrink-0 sticky top-6">
+          {/* Right rail — stacks below content on mobile/tablet */}
+          <aside className="w-full lg:w-[280px] shrink-0 lg:sticky lg:top-6">
             <RightRail event={event} onDelete={handleDelete} onMarkDone={handleMarkDone} busy={deleting} />
           </aside>
         </div>

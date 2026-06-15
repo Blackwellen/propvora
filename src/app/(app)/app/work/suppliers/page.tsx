@@ -40,6 +40,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import { MobileTopBar, MobilePageHeader, MobileFilterSheet, ResponsiveTable, type FilterGroup } from "@/components/mobile"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
@@ -152,6 +153,7 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState("")
   const [tradeFilter, setTradeFilter] = useState("All Trades")
   const [sortBy, setSortBy] = useState<"name" | "rating" | "trade">("name")
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const trades = useMemo(() => {
     const set = new Set(suppliers.map((s) => s.trade))
@@ -203,8 +205,53 @@ export default function SuppliersPage() {
     { label: "Avg Response Time", value: "2.4 hrs", sub: "+18% vs last month", icon: Zap, bg: "bg-blue-50", color: "text-blue-600" },
   ]
 
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "trade", label: "Trade", value: tradeFilter, onChange: setTradeFilter,
+      options: trades.map((t) => ({ value: t, label: t })),
+    },
+    {
+      key: "sort", label: "Sort by", value: sortBy, onChange: (v) => setSortBy(v as "name" | "rating" | "trade"),
+      options: [
+        { value: "name", label: "Name" },
+        { value: "rating", label: "Rating" },
+        { value: "trade", label: "Trade" },
+      ],
+    },
+  ]
+  const activeFilterCount = (tradeFilter !== "All Trades" ? 1 : 0)
+
   return (
     <div className="space-y-5">
+      {/* Mobile top bar + header */}
+      <MobileTopBar
+        title="Suppliers"
+        subtitle="Service partners"
+        primaryAction={{ label: "Create job", icon: Plus, href: "/app/work/jobs/new" }}
+        overflowActions={[
+          { label: "Add supplier", icon: UserPlus, href: "/app/contacts/new?type=supplier" },
+          { label: "Export", icon: Download, onClick: exportCsv },
+          { label: "Preferred", icon: Star, href: "/app/work/suppliers/preferred" },
+        ]}
+      />
+      <MobilePageHeader
+        title="Suppliers"
+        count={`${filtered.length} supplier${filtered.length === 1 ? "" : "s"}`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search suppliers…"
+        onOpenFilters={() => setMobileFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+      <MobileFilterSheet
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        onClear={() => { setTradeFilter("All Trades"); setSortBy("name") }}
+        activeCount={activeFilterCount}
+      />
+
+      <div className="hidden md:block">
       <PageHeader
         title="Suppliers"
         description="Supplier network and service partners"
@@ -241,6 +288,7 @@ export default function SuppliersPage() {
           </>
         }
       />
+      </div>
 
       {/* KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -264,7 +312,7 @@ export default function SuppliersPage() {
       <WorkTabNav />
 
       {/* View toggle + actions bar */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">
           {VIEW_TOGGLES.map((v) => {
             const Icon = v.icon
@@ -294,7 +342,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* Search + filter row */}
-      <div className="flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-2xl px-4 py-2.5">
+      <div className="hidden md:flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-2xl px-4 py-2.5">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -350,6 +398,36 @@ export default function SuppliersPage() {
                 </span>
               )}
             </div>
+            <ResponsiveTable
+              rows={loading ? [] : filtered}
+              emptyState={
+                <div className="flex flex-col items-center py-16 text-center px-4">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                    <Users className="w-7 h-7 text-slate-400" />
+                  </div>
+                  <p className="text-base font-semibold text-slate-900 mb-1">No suppliers found</p>
+                  <p className="text-sm text-slate-500 mb-4">Add a supplier contact or adjust your filters.</p>
+                  <Link href="/app/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold">Add Supplier</Link>
+                </div>
+              }
+              mobile={{
+                getKey: (s) => s.id,
+                title: (s) => s.name,
+                subtitle: (s) => s.email ?? s.company ?? "—",
+                leading: (s) => (
+                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white text-[11px] font-bold shrink-0", s.avatarBg)}>{s.initials}</div>
+                ),
+                badge: (s) => <span className="text-[12px] font-semibold text-slate-700">{seededRating(s.id).toFixed(1)}★</span>,
+                onRowClick: (s) => router.push(`/app/work/suppliers/${s.id}`),
+                fields: [
+                  { label: "Trade", render: (s) => s.trade },
+                  { label: "Category", render: (s) => s.category, hideWhenEmpty: true },
+                  { label: "Location", render: (s) => s.location, hideWhenEmpty: true },
+                  { label: "Response", render: (s) => seededResponse(s.id) },
+                ],
+              }}
+              className="px-3 pb-3"
+            >
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -467,9 +545,10 @@ export default function SuppliersPage() {
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
 
             {!loading && filtered.length > 0 && (
-              <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
+              <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
                 <p className="text-xs text-slate-500">Showing {filtered.length} of {suppliers.length} suppliers</p>
                 <div className="flex items-center gap-1">
                   <button className="w-7 h-7 rounded text-[12px] font-medium bg-[#2563EB] text-white">1</button>

@@ -75,7 +75,36 @@ export default async function AdminAiUsagePage() {
 
           {/* Table */}
           <Card noPadding>
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+              {rows.map((r) => (
+                <li key={`${r.workspaceId}-${r.day}`} className="p-3.5 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1.5 text-sm font-semibold text-slate-800 hover:text-[#2563EB] min-w-0">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">{r.workspaceName}</span>
+                    </Link>
+                    <span className="text-[11px] text-slate-500 shrink-0">{fmtDay(r.day)}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Tokens in</p>
+                      <p className="text-[12px] font-medium text-slate-700 tabular-nums">{fmtTokens(r.tokensIn)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Tokens out</p>
+                      <p className="text-[12px] font-medium text-slate-700 tabular-nums">{fmtTokens(r.tokensOut)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Cost</p>
+                      <p className="text-[12px] font-semibold text-slate-800 tabular-nums">{fmtCost(r.costPence)}</p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">

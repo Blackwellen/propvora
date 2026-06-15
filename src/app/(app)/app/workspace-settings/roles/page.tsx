@@ -242,8 +242,8 @@ export default function RolesPage() {
         </div>
       )}
 
-      {/* Role tabs */}
-      <div className="flex items-center gap-1 mb-6 flex-wrap">
+      {/* Role tabs — wrap on desktop, horizontal scroll on mobile */}
+      <div className="flex items-center gap-1.5 mb-6 sm:flex-wrap overflow-x-auto sm:overflow-visible [&::-webkit-scrollbar]:hidden pb-1 sm:pb-0">
         {ROLES.map((role) => (
           <button
             key={role}
@@ -252,7 +252,7 @@ export default function RolesPage() {
               setSaved(false)
             }}
             className={cn(
-              "px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all",
+              "shrink-0 px-4 min-h-[44px] rounded-xl text-[12.5px] font-semibold transition-all",
               selectedRole === role
                 ? "bg-[#2563EB] text-white"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -262,6 +262,9 @@ export default function RolesPage() {
           </button>
         ))}
       </div>
+
+      {/* Mobile hint — the matrix scrolls horizontally on phones */}
+      <p className="sm:hidden text-[11.5px] text-slate-400 mb-2">Swipe the matrix sideways to see all permissions.</p>
 
       {/* Owner notice */}
       {selectedRole === "Owner" && (
@@ -341,13 +344,13 @@ export default function RolesPage() {
       </div>
 
       {/* Save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
-        <p className="text-[13px] text-slate-500">
+      <div className="pwa-safe-bottom fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <p className="text-[13px] text-slate-500 truncate min-w-0">
           {saved
             ? "Changes saved"
-            : `Editing permissions for: ${selectedRole}`}
+            : <><span className="hidden sm:inline">Editing permissions for: </span>{selectedRole}</>}
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={() => {
               setOverrides((prev) => ({

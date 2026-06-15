@@ -15,6 +15,8 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobileTabs from "@/components/mobile/MobileTabs"
 import type { Contact } from "@/types/database"
 import {
   Building2, Home, Users, PoundSterling, TrendingUp, AlertTriangle,
@@ -935,8 +937,22 @@ export default function UnitDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/40">
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-30">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title={displayUnit.unit_name}
+        subtitle={displayUnit.unit_type ?? "Unit"}
+        showBack
+        backHref="/app/portfolio/units"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: `/app/portfolio/tenancies/new?unitId=${unitId}` }}
+        overflowActions={[
+          ...(displayUnit.property_id ? [{ label: "View parent property", icon: Building2, href: `/app/portfolio/properties/${displayUnit.property_id}` }] : []),
+          { label: "View work", icon: Wrench, href: `/app/work?unitId=${unitId}` },
+          { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },
+        ]}
+      />
+
+      {/* Page Header — hidden on phones */}
+      <div className="hidden md:block bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-30">
         <div className="flex items-center justify-between">
           {/* Left: breadcrumb */}
           <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
@@ -969,7 +985,7 @@ export default function UnitDetailPage() {
         </div>
       </div>
 
-      <div className="px-6 pb-8">
+      <div className="px-4 md:px-6 pb-8">
         {/* Entity Hero Row */}
         <div className="flex items-center gap-4 py-4">
           <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -1021,8 +1037,8 @@ export default function UnitDetailPage() {
           </div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+        {/* Tab Bar — desktop */}
+        <div className="hidden md:flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -1037,6 +1053,16 @@ export default function UnitDetailPage() {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Tab strip — mobile */}
+        <div className="md:hidden mb-4">
+          <MobileTabs
+            tabs={TABS.map((t) => ({ id: t.id, label: t.label }))}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="Unit sections"
+          />
         </div>
 
         {/* Tab Content */}

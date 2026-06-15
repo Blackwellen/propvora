@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Lock } from "lucide-react"
+import { MobileSectionNav, type MobileSectionNavItem } from "@/components/mobile"
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Types                                                                */
@@ -106,6 +107,9 @@ export function SettingsShell({
   children,
   headerAction,
 }: SettingsShellProps) {
+  const mobileNav: MobileSectionNavItem[] = nav
+    .filter(n => !n.locked)
+    .map(({ key, label, href, icon }) => ({ key, label, href, icon }))
   return (
     <div className="flex h-full min-h-screen bg-[#F8FAFC]">
       {/* ── Desktop left sidebar ──────────────────────────────────── */}
@@ -121,27 +125,6 @@ export function SettingsShell({
         </nav>
       </aside>
 
-      {/* ── Mobile top nav ────────────────────────────────────────── */}
-      <div className="lg:hidden border-b border-slate-200 bg-white sticky top-0 z-10 px-4 py-2 w-full">
-        <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-          {nav
-            .filter(n => !n.locked)
-            .map(item => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-medium text-slate-600 hover:bg-slate-100 whitespace-nowrap transition-colors"
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </Link>
-              )
-            })}
-        </div>
-      </div>
-
       {/* ── Main content ──────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto min-w-0">
         {/* Sticky page header */}
@@ -156,7 +139,13 @@ export function SettingsShell({
           </div>
         </div>
         {/* Page content */}
-        <div className="max-w-[1120px] mx-auto px-4 sm:px-8 py-6 sm:py-8">{children}</div>
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
+          {/* Mobile section nav — pill strip in place of the desktop side rail. */}
+          <div className="lg:hidden mb-5">
+            <MobileSectionNav items={mobileNav} aria-label={`${title} sections`} />
+          </div>
+          {children}
+        </div>
       </main>
     </div>
   )

@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useAffiliate } from "../_useAffiliate"
 import { formatPence, levelByBand, MIN_PAYOUT_PENCE } from "@/lib/affiliate/levels"
 import { isAffiliatePayoutsEnabled } from "@/lib/affiliate/payout-flag"
@@ -20,6 +21,12 @@ interface PayoutRow {
   status: string
   paid_at: string | null
   created_at: string
+}
+
+function payoutDate(p: PayoutRow): string {
+  return p.paid_at
+    ? new Date(p.paid_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    : "—"
 }
 
 function payoutBadge(s: string) {
@@ -95,6 +102,16 @@ export default function AffiliateEarningsPage() {
   const cleared = affiliate.cleared_pence ?? 0
   const canPayout = cleared >= MIN_PAYOUT_PENCE
   const level = levelByBand(affiliate.band)
+
+  const payoutCardMapping: MobileCardMapping<PayoutRow> = {
+    getKey: (p) => p.id,
+    title: (p) => formatPence(p.amount_pence ?? 0),
+    subtitle: (p) => p.period ?? "—",
+    badge: (p) => payoutBadge(p.status),
+    fields: [
+      { label: "Date", render: (p) => payoutDate(p) },
+    ],
+  }
 
   return (
     <div className="space-y-6">
@@ -184,6 +201,7 @@ export default function AffiliateEarningsPage() {
           {payouts.length === 0 ? (
             <p className="text-sm text-slate-400 py-6 text-center">No payouts yet.</p>
           ) : (
+            <ResponsiveTable rows={payouts} mobile={payoutCardMapping}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[480px]">
                 <thead>
@@ -208,6 +226,7 @@ export default function AffiliateEarningsPage() {
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

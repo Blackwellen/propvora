@@ -240,7 +240,7 @@ export default function ComplianceSettingsPage() {
 
         <SettingsCard iconBg="bg-violet-100" icon={<Bell className="w-4 h-4 text-violet-600" />} title="Renewal reminder rules" subtitle="Configure when and how renewal reminders are generated.">
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span className="text-xs text-slate-500 w-28 shrink-0">First reminder:</span>
               <NumberInput value={firstReminder} onChange={setFirstReminder} width="w-14" />
               <Select value={firstUnit} onChange={setFirstUnit} options={unitOpts} className="w-24" />
@@ -251,7 +251,7 @@ export default function ComplianceSettingsPage() {
                 <span className={`text-xs font-medium ${firstEscalate ? "text-blue-600" : "text-slate-400"}`}>{firstEscalate ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span className="text-xs text-slate-500 w-28 shrink-0">Second reminder:</span>
               <NumberInput value={secondReminder} onChange={setSecondReminder} width="w-14" />
               <Select value={secondUnit} onChange={setSecondUnit} options={unitOpts} className="w-24" />
@@ -262,7 +262,7 @@ export default function ComplianceSettingsPage() {
                 <span className={`text-xs font-medium ${secondEscalate ? "text-blue-600" : "text-slate-400"}`}>{secondEscalate ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span className="text-xs text-slate-500 w-28 shrink-0">Final reminder:</span>
               <NumberInput value={finalReminder} onChange={setFinalReminder} width="w-14" />
               <Select value={finalUnit} onChange={setFinalUnit} options={unitOpts} className="w-24" />
@@ -277,7 +277,8 @@ export default function ComplianceSettingsPage() {
         </SettingsCard>
 
         <SettingsCard iconBg="bg-orange-100" icon={<Shield className="w-4 h-4 text-orange-600" />} title="Risk thresholds" subtitle="Define risk score ranges and required actions.">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[420px]">
             <thead>
               <tr className="border-b border-slate-100">
                 {["Risk Level", "Score Range", "Required Action", "Colour"].map((h) => (
@@ -307,6 +308,7 @@ export default function ComplianceSettingsPage() {
               ))}
             </tbody>
           </table>
+          </div>
           <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-50">Risk score is calculated from expiry, inspection results, incidents and document compliance.</p>
         </SettingsCard>
 
@@ -335,7 +337,8 @@ export default function ComplianceSettingsPage() {
         </SettingsCard>
 
         <SettingsCard iconBg="bg-slate-100" icon={<FileText className="w-4 h-4 text-slate-600" />} title="Required document templates" subtitle="Set required documents by category.">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[460px]">
             <thead>
               <tr className="border-b border-slate-100">
                 {["Category", "Required Documents", "Template", "Actions"].map((h) => (
@@ -365,6 +368,7 @@ export default function ComplianceSettingsPage() {
               ))}
             </tbody>
           </table>
+          </div>
           <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
             <Plus className="w-3.5 h-3.5" />Add document requirement
           </button>
@@ -464,7 +468,8 @@ export default function ComplianceSettingsPage() {
         </SettingsCard>
 
         <SettingsCard iconBg="bg-slate-100" icon={<Users className="w-4 h-4 text-slate-600" />} title="Ownership & role permissions" subtitle="Control who can view and manage compliance data.">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="border-b border-slate-100">
                 {["Role", "View", "Create", "Edit", "Delete", "Approve", "Export"].map((h) => (
@@ -487,6 +492,7 @@ export default function ComplianceSettingsPage() {
               ))}
             </tbody>
           </table>
+          </div>
           <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
             <Plus className="w-3.5 h-3.5" />Add custom role
           </button>

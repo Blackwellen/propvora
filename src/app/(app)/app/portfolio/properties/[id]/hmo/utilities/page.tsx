@@ -14,6 +14,8 @@ import {
   FileText,
 } from "lucide-react"
 import { use } from "react"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 /* ─── Types ─────────────────────────────────────────────────── */
 interface UtilityBill {
@@ -46,14 +48,14 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
   ]
 
   return (
-    <div className="flex gap-1 px-6 border-b border-slate-200 bg-white">
+    <div className="flex gap-1 px-4 md:px-6 border-b border-slate-200 bg-white overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -354,12 +356,37 @@ export default function HmoUtilitiesPage({
   const { id } = use(params)
   const [showModal, setShowModal] = useState(false)
 
+  /* Row → card mapping for the mobile bills list. */
+  const billCardMapping: MobileCardMapping<UtilityBill> = {
+    getKey: (b) => b.id,
+    title: (b) => b.utility,
+    subtitle: (b) => b.period,
+    badge: (b) => {
+      const cfg = STATUS_CONFIG[b.status]
+      return <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${cfg.classes}`}>{cfg.label}</span>
+    },
+    fields: [
+      { label: "Total", render: (b) => `£${b.total.toLocaleString()}` },
+      { label: "Split Method", render: (b) => b.splitMethod },
+      { label: "Per-Room Avg", render: (b) => `£${b.perRoomAvg.toFixed(2)}` },
+    ],
+  }
+
   return (
     <>
       {showModal && <AddBillModal onClose={() => setShowModal(false)} />}
 
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Utility Management"
+        subtitle="22 Victoria Road, Manchester"
+        showBack
+        backHref={`/app/portfolio/properties/${id}/hmo`}
+        primaryAction={{ label: "Add utility bill", icon: Plus, onClick: () => setShowModal(true) }}
+      />
+
+      {/* Page Header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-slate-900">Utility Management</h1>
           <p className="text-xs text-slate-500 mt-0.5">22 Victoria Road, Manchester</p>
@@ -382,7 +409,7 @@ export default function HmoUtilitiesPage({
       <HmoTabStrip propertyId={id} />
 
       {/* Content */}
-      <div className="px-6 pb-6 pt-5 space-y-6">
+      <div className="px-4 md:px-6 pb-6 pt-5 space-y-6">
         {/* Utility Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
@@ -412,6 +439,7 @@ export default function HmoUtilitiesPage({
         <div className="grid grid-cols-12 gap-6">
           {/* Bills Table */}
           <div className="col-span-12 lg:col-span-8">
+            <ResponsiveTable rows={UTILITY_BILLS} mobile={billCardMapping}>
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100">
                 <h3 className="text-sm font-semibold text-slate-900">Recent Bills</h3>
@@ -461,6 +489,7 @@ export default function HmoUtilitiesPage({
                 </table>
               </div>
             </div>
+            </ResponsiveTable>
           </div>
 
           {/* Room Split Detail */}

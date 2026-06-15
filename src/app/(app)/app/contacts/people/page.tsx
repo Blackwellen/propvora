@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, MobilePageHeader, MobileFilterSheet, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -503,6 +504,7 @@ export default function PeoplePage() {
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [page, setPage] = useState(1)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
   function showToast(msg: string) {
@@ -575,14 +577,56 @@ export default function PeoplePage() {
     setPage(1)
   }
 
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "type", label: "Type", value: activeFilter, onChange: (v) => handleFilterChange(v as ActiveFilter),
+      options: FILTER_TABS.map((t) => ({ value: t.key, label: t.label })),
+    },
+    {
+      key: "sort", label: "Sort by", value: sortBy, onChange: (v) => setSortBy(v as SortKey),
+      options: [
+        { value: "name", label: "Name" },
+        { value: "recent", label: "Recent" },
+        { value: "status", label: "Status" },
+      ],
+    },
+  ]
+  const activeFilterCount = activeFilter !== "all" ? 1 : 0
+
   return (
     <DashboardContainer>
       <div className="space-y-0">
 
+        {/* Mobile top bar + header */}
+        <MobileTopBar
+          title="People"
+          subtitle="Contacts"
+          primaryAction={{ label: "Add person", icon: UserPlus, onClick: () => setShowAddModal(true) }}
+        />
+        <div className="md:hidden -mx-4 mb-4">
+          <ContactsTabNav />
+        </div>
+        <MobilePageHeader
+          title="People"
+          count={`${filtered.length} ${filtered.length === 1 ? "person" : "people"}`}
+          search={searchQuery}
+          onSearchChange={handleSearch}
+          searchPlaceholder="Search people…"
+          onOpenFilters={() => setMobileFiltersOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
+        <MobileFilterSheet
+          open={mobileFiltersOpen}
+          onClose={() => setMobileFiltersOpen(false)}
+          groups={mobileFilterGroups}
+          onClear={() => { setActiveFilter("all"); setSortBy("name") }}
+          activeCount={activeFilterCount}
+        />
+
         {/* ============================================================ */}
         {/* HEADER                                                        */}
         {/* ============================================================ */}
-        <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+        <div className="hidden md:flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">People</h1>
@@ -602,9 +646,11 @@ export default function PeoplePage() {
         {/* ============================================================ */}
         {/* TAB NAV                                                       */}
         {/* ============================================================ */}
-        <ContactsTabNav />
+        <div className="hidden md:block">
+          <ContactsTabNav />
+        </div>
 
-        <div className="pt-6 space-y-6">
+        <div className="md:pt-6 space-y-6">
 
           {/* ========================================================== */}
           {/* ERROR STATE                                                 */}
@@ -643,7 +689,7 @@ export default function PeoplePage() {
           {/* ========================================================== */}
           {/* FILTER / SEARCH / VIEW CONTROLS                            */}
           {/* ========================================================== */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+          <div className="hidden md:flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
             {/* Search */}
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />

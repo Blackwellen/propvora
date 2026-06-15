@@ -14,6 +14,7 @@ import {
 import { useRules, useRuns } from "./_lib/useAutomations"
 import { StatusChip, Chip, relativeTime } from "./_lib/ui"
 import RuleBuilder from "./RuleBuilder"
+import { MobileTabs, type MobileTabItem } from "@/components/mobile"
 
 type Tab = "rules" | "inbox" | "activity" | "templates"
 
@@ -75,6 +76,13 @@ export default function AutomationsClient() {
     { id: "templates", label: "Templates", icon: LayoutTemplate },
   ]
 
+  const mobileTabItems: MobileTabItem[] = tabs.map((t) => ({
+    id: t.id,
+    label: t.label,
+    icon: t.icon,
+    badge: t.badge != null && t.badge > 0 ? t.badge : undefined,
+  }))
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
@@ -110,14 +118,22 @@ export default function AutomationsClient() {
         <KpiCard label="Runs (recent)" value={runs.length} sub="last 200" icon={History} tone="slate" />
       </div>
 
-      {/* Tabs */}
-      <div className="mt-6 flex items-center gap-1 border-b border-slate-200">
+      {/* Tabs — desktop strip on md+, MobileTabs on phones */}
+      <div className="mt-6 hidden md:flex items-center gap-1 border-b border-slate-200">
         {tabs.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition ${tab === t.id ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
             <t.icon className="h-4 w-4" /> {t.label}
             {t.badge != null && t.badge > 0 && <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tab === t.id ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"}`}>{t.badge}</span>}
           </button>
         ))}
+      </div>
+      <div className="mt-6 md:hidden">
+        <MobileTabs
+          tabs={mobileTabItems}
+          value={tab}
+          onChange={(id) => setTab(id as Tab)}
+          aria-label="Automation sections"
+        />
       </div>
 
       <div className="mt-5">
@@ -166,25 +182,29 @@ function RulesTab({ rules, loading, busy, onToggle, onDelete, onNew }: {
   return (
     <div className="space-y-3">
       {rules.map((r) => (
-        <div key={r.id} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${r.enabled ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}><Zap className="h-4 w-4" /></span>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-semibold text-slate-900">{r.name}</span>
-              {r.review_required ? <Chip tone="blue">Review-first</Chip> : <Chip>Auto (safe)</Chip>}
-              {r.template_id && <Chip tone="violet">Template</Chip>}
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-              <span className="rounded bg-slate-100 px-1.5 py-0.5">{triggerLabel(r.trigger_type)}</span>
-              <ChevronRight className="h-3 w-3 text-slate-300" />
-              <span className="rounded bg-slate-100 px-1.5 py-0.5">{actionLabel(r.action_type)}</span>
-              {r.last_evaluated_at && <span className="ml-1 text-slate-400">· checked {relativeTime(r.last_evaluated_at)}</span>}
+        <div key={r.id} className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${r.enabled ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}><Zap className="h-4 w-4" /></span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="truncate text-sm font-semibold text-slate-900">{r.name}</span>
+                {r.review_required ? <Chip tone="blue">Review-first</Chip> : <Chip>Auto (safe)</Chip>}
+                {r.template_id && <Chip tone="violet">Template</Chip>}
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                <span className="rounded bg-slate-100 px-1.5 py-0.5">{triggerLabel(r.trigger_type)}</span>
+                <ChevronRight className="h-3 w-3 text-slate-300" />
+                <span className="rounded bg-slate-100 px-1.5 py-0.5">{actionLabel(r.action_type)}</span>
+                {r.last_evaluated_at && <span className="ml-1 text-slate-400">· checked {relativeTime(r.last_evaluated_at)}</span>}
+              </div>
             </div>
           </div>
-          <button onClick={() => onToggle(r.id, !r.enabled)} title={r.enabled ? "Disable" : "Enable"} className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${r.enabled ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"}`}>
-            <Power className="h-3.5 w-3.5" /> {r.enabled ? "On" : "Off"}
-          </button>
-          <button onClick={() => onDelete(r.id)} disabled={busy === r.id} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+            <button onClick={() => onToggle(r.id, !r.enabled)} title={r.enabled ? "Disable" : "Enable"} className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${r.enabled ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"}`}>
+              <Power className="h-3.5 w-3.5" /> {r.enabled ? "On" : "Off"}
+            </button>
+            <button onClick={() => onDelete(r.id)} disabled={busy === r.id} aria-label="Delete rule" className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+          </div>
         </div>
       ))}
     </div>
@@ -202,7 +222,8 @@ function InboxTab({ runs, loading, busy, onApprove, onSkip }: {
     <div className="space-y-3">
       {runs.map((run) => (
         <div key={run.id} className="rounded-xl border border-amber-200 bg-amber-50/30 p-4">
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-3">
             <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-600"><AlertCircle className="h-4 w-4" /></span>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold text-slate-900">{run.context?.summary ?? "Rule match"}</div>
@@ -219,9 +240,10 @@ function InboxTab({ runs, loading, busy, onApprove, onSkip }: {
                 </div>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button onClick={() => onSkip(run.id)} disabled={busy === run.id} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"><XIcon className="h-3.5 w-3.5" /> Skip</button>
-              <button onClick={() => onApprove(run.id)} disabled={busy === run.id} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {busy === run.id ? "…" : "Approve"}</button>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+              <button onClick={() => onSkip(run.id)} disabled={busy === run.id} className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"><XIcon className="h-3.5 w-3.5" /> Skip</button>
+              <button onClick={() => onApprove(run.id)} disabled={busy === run.id} className="inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {busy === run.id ? "…" : "Approve"}</button>
             </div>
           </div>
         </div>

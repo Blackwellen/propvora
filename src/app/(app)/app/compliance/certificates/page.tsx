@@ -22,6 +22,12 @@ import { ComplianceRiskBadge } from "@/components/compliance/ComplianceRiskBadge
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
+  MobilePageHeader,
+  MobileFilterSheet,
+  ResponsiveTable,
+  type FilterGroup,
+} from "@/components/mobile"
+import {
   useComplianceCertificates,
   useDeleteCertificate,
   type ComplianceCertificate,
@@ -45,9 +51,29 @@ export default function CertificatesPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [riskFilter, setRiskFilter] = useState("")
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const { data: certs = [], isLoading, refetch } = useComplianceCertificates()
   const del = useDeleteCertificate()
+
+  const activeFilterCount = (statusFilter ? 1 : 0) + (riskFilter ? 1 : 0)
+
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: STATUS_FILTERS.map((s) => ({ value: s, label: s ? humaniseType(s) : "All statuses" })),
+    },
+    {
+      key: "risk",
+      label: "Risk level",
+      value: riskFilter,
+      onChange: setRiskFilter,
+      options: RISK_FILTERS.map((r) => ({ value: r, label: r ? humaniseType(r) : "All risk levels" })),
+    },
+  ]
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -99,8 +125,8 @@ export default function CertificatesPage() {
 
   return (
     <>
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
+      {/* Header — desktop / tablet */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-4 sm:px-6 py-4 items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Certificates</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage and track all compliance certificates.</p>
@@ -138,6 +164,19 @@ export default function CertificatesPage() {
         </div>
       </div>
 
+      {/* Mobile header: title + search + filters */}
+      <div className="md:hidden px-4 pt-4">
+        <MobilePageHeader
+          title="Certificates"
+          count={`${filtered.length} of ${certs.length}`}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search certificates…"
+          onOpenFilters={() => setFiltersOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Certificates" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileCheck2} iconBg="bg-blue-100" iconColor="text-blue-600" />
@@ -147,8 +186,8 @@ export default function CertificatesPage() {
         <ComplianceKpiCard label="Missing" value={isLoading ? "—" : kpis.missing} subtitle="No certificate on file" icon={FileX} iconBg="bg-red-100" iconColor="text-red-600" />
       </div>
 
-      {/* Filter bar */}
-      <div className="px-6 pb-3 flex items-center gap-2 flex-wrap">
+      {/* Filter bar — desktop / tablet */}
+      <div className="hidden md:flex px-6 pb-3 items-center gap-2 flex-wrap">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
@@ -192,6 +231,22 @@ export default function CertificatesPage() {
               )}
             </div>
           ) : (
+            <ResponsiveTable
+              rows={filtered}
+              mobile={{
+                getKey: (c) => c.id,
+                title: (c) => humaniseType(c.certificate_type),
+                subtitle: (c) => c.property_name ?? c.reference_number ?? undefined,
+                badge: (c) => <ComplianceStatusBadge status={c.status} />,
+                onRowClick: (c) => router.push(`/app/compliance/certificates/${c.id}`),
+                fields: [
+                  { label: "Expiry", render: (c) => { const e = expiryLabel(c.expiry_date); return <span className={e.cls}>{fmtDate(c.expiry_date)} · {e.text}</span> } },
+                  { label: "Issued", render: (c) => fmtDate(c.issue_date) },
+                  { label: "Risk", render: (c) => <ComplianceRiskBadge risk={c.risk_level} /> },
+                  { label: "Reminder", render: (c) => c.reminder_enabled ? "On" : "Off" },
+                ],
+              }}
+            >
             <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[900px]">
               <thead>
@@ -267,9 +322,19 @@ export default function CertificatesPage() {
               </tbody>
             </table>
             </div>
+            </ResponsiveTable>
           )}
         </div>
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilterCount}
+        onClear={() => { setStatusFilter(""); setRiskFilter("") }}
+      />
     </>
   )
 }

@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SectionHeader } from "@/components/layout/SectionHeader"
+import { MobileTopBar } from "@/components/mobile"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useTasks } from "@/hooks/useTasks"
@@ -343,7 +344,23 @@ export default function WorkPage() {
 
   return (
     <div className="space-y-5">
+      {/* Mobile top bar + tab rail */}
+      <MobileTopBar
+        title="Work"
+        subtitle="Operations command centre"
+        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        overflowActions={[
+          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Export", icon: Download, onClick: exportCsv },
+          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <WorkTabNav />
+      </div>
+
       {/* Page Header + tab rail (canonical order: title → tabs → content) */}
+      <div className="hidden md:block">
       <SectionHeader
         title="Work"
         subtitle="Operations command centre"
@@ -377,6 +394,7 @@ export default function WorkPage() {
         }
         tabs={<WorkTabNav />}
       />
+      </div>
 
       {/* KPI Strip */}
       <WorkKpiStrip kpis={KPIS} />

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ChevronDown, ChevronRight, Download, Plus, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -11,6 +12,10 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useLedgerAccounts, useTrialBalance, useLedgerRole } from "@/lib/accounting/hooks"
 import { formatPence, toCsv, downloadCsv } from "@/lib/accounting"
 import type { LedgerAccountType } from "@/lib/accounting/types"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
+
+type LedgerAccount = ReturnType<typeof useLedgerAccounts>["data"][number]
 
 const TYPE_ORDER: LedgerAccountType[] = ["asset", "liability", "equity", "income", "expense"]
 const TYPE_LABEL: Record<LedgerAccountType, string> = {
@@ -25,6 +30,7 @@ const TYPE_STYLES: Record<LedgerAccountType, { border: string; bg: string; text:
 }
 
 export default function ChartOfAccountsPage() {
+  const router = useRouter()
   const { workspace } = useWorkspace()
   const { data: accounts, loading, refetch } = useLedgerAccounts()
   const { data: tb } = useTrialBalance()
@@ -80,6 +86,17 @@ export default function ChartOfAccountsPage() {
 
   return (
     <div className="space-y-6">
+      <MobileTopBar
+        title="Chart of Accounts"
+        subtitle="General Ledger"
+        primaryAction={
+          canPost && accounts.length === 0
+            ? { label: "Seed default chart", icon: Plus, onClick: seedChart }
+            : undefined
+        }
+        overflowActions={accounts.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <AccountingKpiCard label="Total Assets" value={formatPence(kpis.assets)} subtitle="From posted ledger" />
         <AccountingKpiCard label="Total Liabilities" value={formatPence(kpis.liabilities)} subtitle="From posted ledger" />
@@ -93,9 +110,9 @@ export default function ChartOfAccountsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by code or name..."
-          className="h-9 w-72 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+          className="h-9 w-full md:w-72 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
         />
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <Button variant="outline" size="sm" leftIcon={<Download className="w-3.5 h-3.5" />} onClick={exportCsv} disabled={accounts.length === 0}>
             Export
           </Button>
@@ -146,9 +163,29 @@ function AccountTypeSection({
   accounts: ReturnType<typeof useLedgerAccounts>["data"]
   balanceByAccount: Map<string, number>
 }) {
+  const router = useRouter()
   const [open, setOpen] = useState(true)
   const s = TYPE_STYLES[type]
   const total = accounts.reduce((sum, a) => sum + (balanceByAccount.get(a.id) ?? 0), 0)
+
+  const cardMapping: MobileCardMapping<LedgerAccount> = {
+    getKey: (a) => a.id,
+    title: (a) => a.name,
+    subtitle: (a) => a.code,
+    badge: (a) => a.is_system ? <span className="text-[10px] text-slate-500">system</span> : null,
+    fields: [
+      { label: "Normal Side", render: (a) => <span className="capitalize">{a.normal_side}</span> },
+      {
+        label: "Balance",
+        render: (a) => (
+          <span className={cn("font-bold tabular-nums", (balanceByAccount.get(a.id) ?? 0) < 0 ? "text-red-600" : "text-slate-900")}>
+            {formatPence(balanceByAccount.get(a.id) ?? 0)}
+          </span>
+        ),
+      },
+    ],
+    onRowClick: (a) => router.push(`/app/accounting/ledger/accounts/${a.id}`),
+  }
 
   return (
     <div className={cn("bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden border-l-4", s.border)}>
@@ -161,6 +198,7 @@ function AccountTypeSection({
         {open ? <ChevronDown className={cn("w-4 h-4", s.text)} /> : <ChevronRight className={cn("w-4 h-4", s.text)} />}
       </button>
       {open && (
+        <ResponsiveTable rows={accounts} mobile={cardMapping} className="p-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -192,6 +230,7 @@ function AccountTypeSection({
             </tbody>
           </table>
         </div>
+        </ResponsiveTable>
       )}
     </div>
   )

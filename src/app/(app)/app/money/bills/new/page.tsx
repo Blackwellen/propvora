@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateMoneyBill } from "@/hooks/useMoneyData"
 import type { InsertMoneyBill } from "@/hooks/useMoneyData"
@@ -600,8 +601,9 @@ export default function NewBillPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <MobileTopBar title="Create Bill" subtitle={`Step ${step} of ${STEPS.length}`} showBack backHref="/app/money/bills" />
       {/* Top bar */}
-      <div className="bg-white border-b border-slate-200 px-5 md:px-7 py-4 flex items-center gap-3">
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-5 md:px-7 py-4 items-center gap-3">
         <Link href="/app/money/bills" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
           <ArrowLeft className="w-4 h-4" />
           Bills
@@ -611,9 +613,9 @@ export default function NewBillPage() {
       </div>
 
       <div className="px-5 md:px-7 lg:px-8 py-6 max-w-[1400px] mx-auto">
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* ── Left Stepper ─────────────────────────────────────────────── */}
-          <aside className="w-60 shrink-0 sticky top-6">
+          <aside className="hidden lg:block w-60 shrink-0 sticky top-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-1">
               {STEPS.map((s) => {
                 const Icon = s.icon
@@ -648,7 +650,7 @@ export default function NewBillPage() {
           </aside>
 
           {/* ── Center Card ───────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-5 border-b border-slate-200">
                 <div className="flex items-center gap-2 mb-1">
@@ -683,7 +685,7 @@ export default function NewBillPage() {
           </div>
 
           {/* ── Right Summary Rail ────────────────────────────────────────── */}
-          <aside className="w-70 shrink-0 sticky top-6 space-y-4">
+          <aside className="w-full lg:w-70 shrink-0 lg:sticky lg:top-6 space-y-4">
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
               <div className="flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-slate-400" />

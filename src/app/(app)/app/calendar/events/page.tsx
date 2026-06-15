@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { CalendarTabNav } from "@/components/calendar"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import { MobileTopBar, MobilePageHeader, MobileFilterSheet, ResponsiveTable, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   useCalendarItems,
@@ -69,6 +70,7 @@ export default function EventsPage() {
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("All")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
   const [search, setSearch] = useState("")
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const filtered = useMemo(() => items.filter((e) => {
     if (sourceFilter !== "All" && e.source !== sourceFilter) return false
@@ -80,12 +82,52 @@ export default function EventsPage() {
   const buckets = useMemo(() => bucketItems(items), [items])
   const completed = items.filter((i) => i.status === "completed").length
 
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "source", label: "Source", value: sourceFilter, onChange: (v) => setSourceFilter(v as SourceFilter),
+      options: SOURCE_FILTERS.map((f) => ({ value: f, label: f === "All" ? "All" : SOURCE_META[f as CalendarSource].label })),
+    },
+    {
+      key: "status", label: "Status", value: statusFilter, onChange: (v) => setStatusFilter(v as StatusFilter),
+      options: STATUS_FILTERS.map((f) => ({ value: f, label: f === "due_today" ? "Due Today" : f })),
+    },
+  ]
+  const activeFilterCount = (sourceFilter !== "All" ? 1 : 0) + (statusFilter !== "All" ? 1 : 0)
+
   return (
     <DashboardContainer>
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Events"
+        subtitle="Dated records"
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+      />
+      <div className="md:hidden -mx-4">
+        <CalendarTabNav />
+      </div>
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
-      <div className="p-6 space-y-6">
-        <div className="flex items-start justify-between gap-4">
+      <div className="p-4 md:p-6 space-y-6">
+        <div className="md:hidden">
+          <MobilePageHeader
+            title="Events"
+            count={`${filtered.length} item${filtered.length === 1 ? "" : "s"}`}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search events…"
+            onOpenFilters={() => setMobileFiltersOpen(true)}
+            activeFilterCount={activeFilterCount}
+          />
+        </div>
+        <MobileFilterSheet
+          open={mobileFiltersOpen}
+          onClose={() => setMobileFiltersOpen(false)}
+          groups={mobileFilterGroups}
+          onClear={() => { setSourceFilter("All"); setStatusFilter("All") }}
+          activeCount={activeFilterCount}
+        />
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Events</h1>
             <p className="text-sm text-slate-500 mt-0.5">Every dated record across your portfolio — click any row to open its source</p>
@@ -107,7 +149,7 @@ export default function EventsPage() {
         </div>
 
         {/* Filters */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <div className="hidden md:block rounded-xl border border-slate-200 bg-white p-4 space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-medium text-slate-500 mr-1">Source:</span>
             {SOURCE_FILTERS.map((f) => (
@@ -134,6 +176,30 @@ export default function EventsPage() {
 
         {/* Table */}
         <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <ResponsiveTable
+            rows={isLoading ? [] : filtered}
+            emptyState={
+              <div className="px-4 py-16 text-center">
+                <CalendarDays className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                <p className="text-sm font-medium text-slate-500">No events match your filters</p>
+                <Link href="/app/calendar/events/new" className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white">
+                  <Plus className="w-4 h-4" />New Event
+                </Link>
+              </div>
+            }
+            mobile={{
+              getKey: (ev) => ev.key,
+              title: (ev) => ev.title,
+              subtitle: (ev) => ev.sourceLabel,
+              badge: (ev) => <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize", statusChip(ev.status))}>{ev.status.replace("_", " ")}</span>,
+              onRowClick: (ev) => router.push(ev.href),
+              fields: [
+                { label: "When", render: (ev) => ev.allDay ? new Date(ev.start).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : fmtDateTime(ev.start) },
+                { label: "Type", render: (ev) => ev.isNative ? "Calendar event" : "Linked record" },
+              ],
+            }}
+            className="p-3"
+          >
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -186,8 +252,9 @@ export default function EventsPage() {
               </tbody>
             </table>
           </div>
+          </ResponsiveTable>
           {!isLoading && filtered.length > 0 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
               <p className="text-xs text-slate-500">Showing <span className="font-medium text-slate-700">{filtered.length}</span> of <span className="font-medium text-slate-700">{items.length}</span> items</p>
               <span className="text-[11px] text-slate-400 flex items-center gap-1">Live<span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" /></span>
             </div>

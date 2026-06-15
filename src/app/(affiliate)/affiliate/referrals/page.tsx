@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useAffiliate } from "../_useAffiliate"
 import { formatPence } from "@/lib/affiliate/levels"
 
@@ -66,6 +67,28 @@ export default function AffiliateReferralsPage() {
 
   const active = rows.filter((r) => r.status === "active" || r.status === "converted").length
 
+  const referralCardMapping: MobileCardMapping<ReferralRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.id.slice(0, 8).toUpperCase(),
+    subtitle: (r) =>
+      `Joined ${new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`,
+    badge: (r) => statusBadge(r.status),
+    fields: [
+      {
+        label: "Commission",
+        render: (r) => formatPence((r.initial_commission_pence ?? 0) + (r.recurring_commission_pence ?? 0)),
+      },
+      {
+        label: "First paid",
+        render: (r) =>
+          r.first_invoice_at
+            ? new Date(r.first_invoice_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+            : "—",
+      },
+      { label: "Months left", render: (r) => r.recurring_months_remaining ?? "—" },
+    ],
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -83,6 +106,7 @@ export default function AffiliateReferralsPage() {
               <p className="text-sm text-slate-400">No referrals yet. Share your link to get started.</p>
             </div>
           ) : (
+            <ResponsiveTable rows={rows} mobile={referralCardMapping}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[620px]">
                 <thead>
@@ -116,6 +140,7 @@ export default function AffiliateReferralsPage() {
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

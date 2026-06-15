@@ -5,6 +5,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { AccountingWizardShell } from "@/features/accounting/components"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 const WIZARD_STEPS = [
   { number: 1, label: "Disbursement Details" },
@@ -59,7 +60,7 @@ export default function NewDisbursementPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Amount <span className="text-[#EF4444]">*</span></label>
             <div className="relative">
@@ -168,6 +169,8 @@ export default function NewDisbursementPage() {
   )
 
   return (
+    <>
+    <MobileTopBar title="New Disbursement" subtitle="Client Accounts" showBack backHref="/app/accounting/client-accounts" />
     <AccountingWizardShell
       breadcrumbNumber="11"
       breadcrumbLabel="New Disbursement"
@@ -179,5 +182,6 @@ export default function NewDisbursementPage() {
       rightRail={rightRail}
       footer={footer}
     />
+    </>
   )
 }

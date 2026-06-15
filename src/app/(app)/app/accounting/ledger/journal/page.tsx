@@ -10,6 +10,17 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useJournalEntries, useLedgerRole } from "@/lib/accounting/hooks"
 import { reverseJournalEntry, type DB } from "@/lib/accounting/ledger"
 import { formatPence } from "@/lib/accounting"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
+
+type JournalEntry = ReturnType<typeof useJournalEntries>["data"][number]
+
+function StatusChip({ e }: { e: JournalEntry }) {
+  if (e.reversed_by) return <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">Reversed</span>
+  if (e.source_type === "reversal") return <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-100 text-violet-700">Reversal</span>
+  if (e.posted) return <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Posted</span>
+  return <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700">Draft</span>
+}
 
 export default function JournalPage() {
   const { workspace } = useWorkspace()
@@ -35,8 +46,35 @@ export default function JournalPage() {
     }
   }
 
+  const cardMapping: MobileCardMapping<JournalEntry> = {
+    getKey: (e) => e.id,
+    title: (e) => e.memo ?? `Entry #${e.entry_no}`,
+    subtitle: (e) => `#${e.entry_no} · ${e.date}`,
+    badge: (e) => <StatusChip e={e} />,
+    fields: [
+      { label: "Source", render: (e) => <span className="capitalize">{(e.source_type ?? "manual").replace(/_/g, " ")}</span> },
+      { label: "Amount", render: (e) => <span className="font-semibold tabular-nums">{formatPence(e.total_pence)}</span> },
+    ],
+    actions: (e) =>
+      canPost && e.posted && !e.reversed_by && e.source_type !== "reversal" ? (
+        <button
+          onClick={() => reverse(e.id)}
+          disabled={busy === e.id}
+          className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 hover:text-red-600 disabled:opacity-50 min-h-[44px] px-2"
+        >
+          <RotateCcw className="w-3.5 h-3.5" /> {busy === e.id ? "Reversing…" : "Reverse"}
+        </button>
+      ) : null,
+  }
+
   return (
     <div className="space-y-6">
+      <MobileTopBar
+        title="Journal Entries"
+        subtitle="General Ledger"
+        primaryAction={canPost ? { label: "New journal entry", icon: Plus, href: "/app/accounting/ledger/journal/new" } : undefined}
+      />
+
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -44,7 +82,7 @@ export default function JournalPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="hidden md:flex items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-slate-900">Journal Entries</h3>
           <p className="text-sm text-slate-500">{entries.length} entries · posted entries are immutable and corrected by reversal.</p>
@@ -75,6 +113,7 @@ export default function JournalPage() {
             )}
           </div>
         ) : (
+          <ResponsiveTable rows={entries} mobile={cardMapping} className="p-3">
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[720px]">
             <thead>
@@ -123,6 +162,7 @@ export default function JournalPage() {
             </tbody>
           </table>
           </div>
+          </ResponsiveTable>
         )}
       </div>
     </div>

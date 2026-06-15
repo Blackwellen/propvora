@@ -17,6 +17,7 @@ import {
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty } from "@/hooks/useProperties"
 import { useUnits, type Unit } from "@/hooks/useUnits"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ─── Sub-tab strip ─────────────────────────────────────────── */
 function HmoTabStrip({ propertyId }: { propertyId: string }) {
@@ -31,14 +32,14 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
   ]
 
   return (
-    <div className="flex gap-1 px-6 border-b border-slate-200 bg-white">
+    <div className="flex gap-1 px-4 md:px-6 border-b border-slate-200 bg-white overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -221,8 +222,19 @@ export default function HmoDashboardPage({
 
   return (
     <>
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="HMO Dashboard"
+        subtitle={`${propertyName} · ${total} room${total !== 1 ? "s" : ""} · ${occupancyPct}%`}
+        showBack
+        backHref={`/app/portfolio/properties/${id}`}
+        overflowActions={[
+          { label: "View Analytics", icon: Eye, href: `/app/portfolio/properties/${id}/hmo/analytics` },
+        ]}
+      />
+
+      {/* Page Header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-slate-900">
             HMO Dashboard{propertyAddress ? ` — ${propertyAddress}` : ""}
@@ -245,7 +257,7 @@ export default function HmoDashboardPage({
       <HmoTabStrip propertyId={id} />
 
       {/* Content */}
-      <div className="px-6 pb-6 pt-5 space-y-6">
+      <div className="px-4 md:px-6 pb-6 pt-5 space-y-6">
         {/* KPI Row */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           <KpiCard

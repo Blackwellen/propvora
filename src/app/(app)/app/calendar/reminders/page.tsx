@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { CalendarTabNav } from "@/components/calendar"
+import { MobileTopBar } from "@/components/mobile"
 import { Button } from "@/components/ui/Button"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -107,10 +108,23 @@ export default function RemindersPage() {
 
   return (
     <DashboardContainer>
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Reminders"
+        subtitle="Scheduled alerts"
+        primaryAction={{ label: "New reminder", icon: Plus, href: "/app/calendar/reminders/new" }}
+        overflowActions={[
+          { label: "Settings", icon: Settings, href: "/app/calendar/settings" },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <CalendarTabNav />
+      </div>
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
-      <div className="p-6 space-y-6">
-        <div className="flex items-start justify-between gap-4">
+      <div className="p-4 md:p-6 space-y-6">
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Reminders</h1>
             <p className="text-sm text-slate-500 mt-0.5">Scheduled alerts attached to your calendar events</p>

@@ -165,7 +165,7 @@ export default function Rra2026Page() {
       </div>
 
       {/* Major-change banner */}
-      <div className="mx-6 mt-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl px-5 py-4 flex items-start gap-3">
+      <div className="mx-4 sm:mx-6 mt-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl px-5 py-4 flex items-start gap-3">
         <Info className="w-4 h-4 text-white shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-[13px] font-semibold text-white">No-fault eviction has been abolished under the Renters&apos; Rights Act 2026.</p>
@@ -177,7 +177,7 @@ export default function Rra2026Page() {
       </div>
 
       {/* Disclaimer */}
-      <div className="mx-6 mt-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-start gap-3">
+      <div className="mx-4 sm:mx-6 mt-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-start gap-3">
         <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <p className="text-[12px] text-amber-800 leading-relaxed flex-1">
           <strong>Legal advice disclaimer: </strong>
@@ -232,13 +232,13 @@ export default function Rra2026Page() {
                 const isOpen = expanded.includes(cat.id)
                 return (
                   <div key={cat.id}>
-                    <button onClick={() => toggleCat(cat.id)} className="w-full px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 transition-colors text-left">
-                      <span className="text-[13px] font-semibold text-slate-800 flex-1">{cat.name}</span>
-                      <span className="text-[11px] text-slate-500">{done} of {cat.items.length}</span>
-                      <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <button onClick={() => toggleCat(cat.id)} className="w-full px-4 sm:px-5 py-3.5 flex items-center gap-3 sm:gap-4 hover:bg-slate-50 transition-colors text-left">
+                      <span className="text-[13px] font-semibold text-slate-800 flex-1 min-w-0 truncate">{cat.name}</span>
+                      <span className="text-[11px] text-slate-500 whitespace-nowrap">{done} of {cat.items.length}</span>
+                      <div className="hidden sm:block w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${pct >= 80 ? "bg-emerald-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`} style={{ width: `${pct}%` }} />
                       </div>
-                      <span className={`text-[11px] font-semibold w-8 text-right ${pct >= 80 ? "text-emerald-700" : pct >= 50 ? "text-amber-700" : "text-red-700"}`}>{pct}%</span>
+                      <span className={`text-[11px] font-semibold w-8 text-right shrink-0 ${pct >= 80 ? "text-emerald-700" : pct >= 50 ? "text-amber-700" : "text-red-700"}`}>{pct}%</span>
                     </button>
                     {isOpen && (
                       <div className="border-t border-slate-50 bg-slate-50/30">

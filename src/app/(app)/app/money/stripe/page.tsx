@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money/MoneyTabNav"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 
 /* ------------------------------------------------------------------ */
@@ -84,6 +85,11 @@ export default function StripePage() {
 
   return (
     <DashboardContainer>
+      <MobileTopBar
+        title="Stripe & Payments"
+        primaryAction={{ label: "Refresh Status", icon: RefreshCw, onClick: handleRefresh }}
+      />
+      <div className="hidden md:block">
       <PageHeader
         title="Stripe & Payments"
         actions={
@@ -96,6 +102,7 @@ export default function StripePage() {
           </button>
         }
       />
+      </div>
 
       <MoneyTabNav />
 

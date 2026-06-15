@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, MobilePageHeader } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/hooks/useWorkspace"
@@ -452,10 +453,25 @@ export default function TimelinePage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      <MobileTopBar title="Contact Timeline" subtitle="Events & interactions" />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="md:hidden px-4 pt-4">
+        <MobilePageHeader
+          title="Contact Timeline"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search events…"
+        />
+      </div>
+
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 flex-wrap">
+      <div className="hidden md:flex items-start justify-between gap-4 px-6 pt-6 pb-4 flex-wrap">
         <div>
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contact Timeline</h1>
@@ -469,9 +485,9 @@ export default function TimelinePage() {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-3 px-6 pb-5 flex-wrap">
+      <div className="flex items-center gap-3 px-4 md:px-6 pb-5 flex-wrap">
         {/* Search */}
-        <div className="relative">
+        <div className="relative hidden md:block">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"

@@ -23,6 +23,9 @@ import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
 import MoneyKpiCard from "@/components/money/MoneyKpiCard"
 import MoneyPageHeader from "@/components/money/MoneyPageHeader"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyExpenses, useCreateMoneyExpense, useMoneyExpensesSummary } from "@/hooks/useMoneyData"
@@ -466,8 +469,32 @@ export default function MoneyExpensesPage() {
     )
   }
 
+  // Row → card mapping for the mobile card list (mirrors the desktop table).
+  const expenseCardMapping: MobileCardMapping<ExpenseRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.description,
+    subtitle: (r) => r.propertyName,
+    badge: (r) => {
+      const sc = STATUS_CONFIG[r.status]
+      return <span className={cn("inline-flex text-[10.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", sc.className)}>{sc.label}</span>
+    },
+    fields: [
+      { label: "Amount", render: (r) => r.amount },
+      { label: "Type", render: (r) => r.expenseType },
+      { label: "Behaviour", render: (r) => r.costBehaviour },
+      { label: "Supplier", render: (r) => r.supplierName },
+      { label: "Date", render: (r) => r.date },
+    ],
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Expenses"
+        subtitle={`${filtered.length} expense${filtered.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "Add Expense", icon: Plus, onClick: () => setShowAddModal(true) }}
+        overflowActions={[{ label: "Export CSV", icon: Download, onClick: handleExportCSV }]}
+      />
       {showAddModal && <AddExpenseModal workspaceId={workspace?.id} onClose={() => setShowAddModal(false)} />}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
@@ -495,11 +522,22 @@ export default function MoneyExpensesPage() {
       />
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Expenses"
           title="Expenses"
           subtitle="Track, manage and optimise all property expenses in one place."
           actions={<></>}
+        />
+        </div>
+
+        {/* Mobile header — search (replaces desktop controls toolbar on phones) */}
+        <MobilePageHeader
+          title="Expenses"
+          count={`${filtered.length} expense${filtered.length === 1 ? "" : "s"}`}
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search expenses…"
         />
 
         {/* KPI Row */}
@@ -550,7 +588,7 @@ export default function MoneyExpensesPage() {
           <div className="flex-1 min-w-0 flex flex-col gap-4">
 
             {/* Controls */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+            <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative flex-1 min-w-[220px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -625,6 +663,21 @@ export default function MoneyExpensesPage() {
 
             {/* Table */}
             {viewMode === "table" && (
+              <ResponsiveTable
+                rows={visibleRows}
+                mobile={expenseCardMapping}
+                emptyState={
+                  !isLoading && filtered.length === 0 ? (
+                    <div className="md:hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-10 flex flex-col items-center justify-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                        <TrendingDown className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">No expenses recorded yet</p>
+                      <p className="text-xs text-slate-500">Use “Add Expense” to log your first cost.</p>
+                    </div>
+                  ) : undefined
+                }
+              >
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm min-w-[900px]">
@@ -764,6 +817,7 @@ export default function MoneyExpensesPage() {
                   </div>
                 )}
               </div>
+              </ResponsiveTable>
             )}
 
             {/* Cards view */}

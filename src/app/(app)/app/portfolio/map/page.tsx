@@ -28,6 +28,7 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -233,6 +234,17 @@ export default function PortfolioMapPage() {
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Portfolio Map"
+        subtitle={`${filtered.length} of ${properties.length} mapped`}
+        showBack
+        backHref="/app/portfolio"
+        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+      />
+
+      {/* Desktop header — hidden on phones */}
+      <div className="hidden md:block">
       <PageHeader
         title="Portfolio Map"
         description={`${filtered.length} of ${properties.length} mapped${unmappedCount > 0 ? ` · ${unmappedCount} without coordinates` : ""}`}
@@ -247,9 +259,10 @@ export default function PortfolioMapPage() {
           </div>
         }
       />
+      </div>
 
       {/* Summary strip */}
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-4 overflow-x-auto">
         {[
           { label: "Total rent roll", value: formatCurrency(totalRent), icon: PoundSterling, color: "text-emerald-600" },
           { label: "Vacant", value: String(vacantCount), icon: Home, color: vacantCount > 0 ? "text-amber-600" : "text-slate-400" },

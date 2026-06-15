@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import { LegalDisclaimer, DraftBadge } from "@/components/legal/LegalDisclaimer"
+import { MobileTabs, type MobileTabItem } from "@/components/mobile"
 import { openCourtBundle } from "@/lib/legal/bundle"
 import type { ValiditySnapshot } from "@/lib/legal/validity"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -121,6 +122,12 @@ export default function PossessionCaseDetailPage() {
   const tenant = caseData.contact?.display_name ?? "Unnamed respondent"
   const property = caseData.property?.nickname ?? "—"
 
+  const mobileTabItems: MobileTabItem[] = TABS.map((tab) => ({
+    id: tab,
+    label: tab,
+    badge: tab === "Evidence" && evidence.length > 0 ? evidence.length : undefined,
+  }))
+
   return (
     <>
       {/* Header */}
@@ -133,13 +140,13 @@ export default function PossessionCaseDetailPage() {
           <span>/</span>
           <span className="text-slate-600">{tenant}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
               <Gavel className="w-5 h-5 text-blue-600" />
             </div>
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-[16px] font-bold text-slate-900">{tenant}</h1>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${statusCls(caseData.status)}`}>
                   {statusLabel(caseData.status)}
@@ -150,7 +157,7 @@ export default function PossessionCaseDetailPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => buildBundle(caseData, evidence)}
               className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
@@ -183,9 +190,9 @@ export default function PossessionCaseDetailPage() {
         </div>
       </div>
 
-      {/* Tab bar */}
+      {/* Tab bar — desktop strip hidden on phones; MobileTabs takes over */}
       <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
-        <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="hidden md:flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
               key={tab}
@@ -202,6 +209,14 @@ export default function PossessionCaseDetailPage() {
               )}
             </button>
           ))}
+        </div>
+        <div className="md:hidden py-2">
+          <MobileTabs
+            tabs={mobileTabItems}
+            value={activeTab}
+            onChange={(id) => setActiveTab(id as Tab)}
+            aria-label="Case sections"
+          />
         </div>
       </div>
 

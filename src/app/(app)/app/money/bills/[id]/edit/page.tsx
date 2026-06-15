@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -161,8 +162,15 @@ export default function BillEditPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
+      <MobileTopBar
+        title="Edit Bill"
+        subtitle={form.bill_number}
+        showBack
+        backHref={`/app/money/bills/${id}`}
+        primaryAction={{ label: "Save Changes", icon: Save, onClick: handleSave }}
+      />
       {/* Top bar */}
-      <div className="bg-white border-b border-slate-200 px-5 md:px-7 py-4 flex items-center gap-3 sticky top-0 z-30">
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-5 md:px-7 py-4 items-center gap-3 sticky top-0 z-30">
         <Link
           href={`/app/money/bills/${id}`}
           className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"

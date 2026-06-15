@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { formatMoney, formatDate, invoiceStatusMeta } from "@/lib/portal/format"
 import type { SupplierInvoice } from "@/lib/portal/data"
 
@@ -40,6 +41,23 @@ export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[]
   const totalPaid = invoices
     .filter((i) => i.status === "paid")
     .reduce((s, i) => s + (i.amount ?? 0), 0)
+
+  const invoiceCardMapping: MobileCardMapping<SupplierInvoice> = {
+    getKey: (inv) => inv.id,
+    title: (inv) => inv.invoice_number || inv.id.slice(0, 8).toUpperCase(),
+    subtitle: (inv) => `Submitted ${formatDate(inv.submitted_at)}`,
+    badge: (inv) => {
+      const meta = invoiceStatusMeta(inv.status)
+      return <Badge variant={meta.variant} dot>{meta.label}</Badge>
+    },
+    fields: [
+      { label: "Amount", render: (inv) => formatMoney(inv.amount, inv.currency ?? "GBP") },
+      {
+        label: "Approved / Paid",
+        render: (inv) => (inv.paid_at ? formatDate(inv.paid_at) : inv.approved_at ? formatDate(inv.approved_at) : "—"),
+      },
+    ],
+  }
 
   return (
     <div className="space-y-5">
@@ -96,6 +114,20 @@ export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[]
         </div>
       </div>
 
+      <ResponsiveTable
+        rows={filtered}
+        mobile={invoiceCardMapping}
+        emptyState={
+          <Card className="rounded-2xl border-slate-200">
+            <div className="text-center py-12">
+              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">
+                {invoices.length === 0 ? "No invoices submitted yet." : "No invoices match your filter."}
+              </p>
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[560px]">
@@ -141,6 +173,7 @@ export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[]
           )}
         </div>
       </Card>
+      </ResponsiveTable>
 
       {filtered.length > 0 && (
         <div className="flex items-center justify-between">

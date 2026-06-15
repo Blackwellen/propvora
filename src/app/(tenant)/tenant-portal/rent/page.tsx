@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
   resolveTenantContext, resolveTenantTenancies, tenancyIds, tenancyPropertyIds,
   formatMoney, formatDate, rentFrequencyLabel,
@@ -62,6 +63,20 @@ export default function TenantRentPage() {
   }, [])
 
   const primary = tenancies[0] ?? null
+
+  const rentCardMapping: MobileCardMapping<RentRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.description || (r.category ?? "Rent"),
+    subtitle: (r) => formatDate(r.date),
+    badge: (r) => (
+      <Badge variant={isPaid(r.status) ? "success" : isOverdue(r.status) ? "danger" : "warning"} dot>
+        {isPaid(r.status) ? "Paid" : isOverdue(r.status) ? "Overdue" : "Due"}
+      </Badge>
+    ),
+    fields: [
+      { label: "Amount", render: (r) => formatMoney(r.amount, r.currency ?? "GBP") },
+    ],
+  }
 
   const filtered = useMemo(() => rows.filter((r) => {
     if (statusFilter === "All") return true
@@ -191,7 +206,21 @@ export default function TenantRentPage() {
             ))}
           </div>
 
-          {/* Table */}
+          {/* Table (desktop) / card list (mobile) */}
+          <ResponsiveTable
+            rows={filtered}
+            mobile={rentCardMapping}
+            emptyState={
+              <Card className="rounded-2xl border-slate-200">
+                <div className="text-center py-12">
+                  <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm text-slate-400">
+                    {rows.length === 0 ? "No rent records yet." : "No records match this filter."}
+                  </p>
+                </div>
+              </Card>
+            }
+          >
           <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[520px]">
@@ -231,6 +260,7 @@ export default function TenantRentPage() {
               )}
             </div>
           </Card>
+          </ResponsiveTable>
 
           <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
             <PoundSterling className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />

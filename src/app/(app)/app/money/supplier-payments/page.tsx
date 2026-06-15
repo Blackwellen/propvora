@@ -7,6 +7,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money/MoneyTabNav"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 
 /* ------------------------------------------------------------------ */
@@ -116,8 +119,41 @@ export default function SupplierPaymentsPage() {
 
   const properties = Array.from(new Set(payments.map(p => p.property)))
 
+  // Row → card mapping for the mobile card list (mirrors the desktop table).
+  const paymentCardMapping: MobileCardMapping<SupplierPayment> = {
+    getKey: (p) => p.id,
+    title: (p) => p.supplier,
+    subtitle: (p) => `${p.bill} · ${p.property}`,
+    badge: (p) => <StatusChip status={p.status} />,
+    fields: [
+      { label: "Amount", render: (p) => `£${p.amount.toLocaleString("en-GB")}` },
+      { label: "Due Date", render: (p) => p.due_date },
+      { label: "Method", render: (p) => p.method.replace(/_/g, " ") },
+    ],
+    actions: (p) => (
+      <div className="flex items-center gap-1.5">
+        {p.status === "awaiting_review" && (
+          <button onClick={() => approve(p.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors">
+            <CheckCircle className="w-3 h-3" />Approve
+          </button>
+        )}
+        {p.status === "approved" && (
+          <button onClick={() => markPaid(p.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition-colors">
+            <CheckCircle className="w-3 h-3" />Mark Paid
+          </button>
+        )}
+      </div>
+    ),
+  }
+
   return (
     <DashboardContainer>
+      <MobileTopBar
+        title="Supplier Payments"
+        subtitle={`${filtered.length} payment${filtered.length === 1 ? "" : "s"}`}
+        overflowActions={[{ label: "Export", icon: Download, onClick: () => {} }]}
+      />
+      <div className="hidden md:block">
       <PageHeader
         title="Supplier Payments"
         actions={
@@ -140,8 +176,19 @@ export default function SupplierPaymentsPage() {
           </>
         }
       />
+      </div>
 
       <MoneyTabNav />
+
+      {/* Mobile header — search (desktop filters gated below) */}
+      <MobilePageHeader
+        title="Supplier Payments"
+        count={`${filtered.length} payment${filtered.length === 1 ? "" : "s"}`}
+        search={supplierFilter}
+        onSearchChange={setSupplierFilter}
+        searchPlaceholder="Search supplier…"
+        className="mt-4"
+      />
 
       {/* Amber setup banner */}
       <div className="mt-6 flex items-start gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4">
@@ -161,7 +208,7 @@ export default function SupplierPaymentsPage() {
       </div>
 
       {/* Filters */}
-      <div className="mt-5 flex flex-wrap gap-3 items-center">
+      <div className="mt-5 hidden md:flex flex-wrap gap-3 items-center">
         <div className="relative">
           <input
             type="text"
@@ -208,6 +255,17 @@ export default function SupplierPaymentsPage() {
       <div className="mt-5 grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-6 items-start">
 
         {/* Table */}
+        <ResponsiveTable
+          rows={filtered}
+          mobile={paymentCardMapping}
+          emptyState={
+            filtered.length === 0 ? (
+              <div className="md:hidden rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">
+                No payments match the current filters.
+              </div>
+            ) : undefined
+          }
+        >
         <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -284,6 +342,7 @@ export default function SupplierPaymentsPage() {
             </table>
           </div>
         </div>
+        </ResponsiveTable>
 
         {/* Supplier summary cards */}
         <div className="space-y-4">

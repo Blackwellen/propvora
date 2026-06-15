@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
 import MoneyKpiCard from "@/components/money/MoneyKpiCard"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -324,7 +325,19 @@ export default function MoneyOverviewPage() {
       )}
       {showAddModal && <AddIncomeModal onClose={() => setShowAddModal(false)} workspaceId={workspace?.id} onSaved={() => showToast("Income saved successfully")} />}
 
+      <MobileTopBar
+        title="Money"
+        subtitle="Financial control centre"
+        primaryAction={{ label: "Add Income", icon: Plus, onClick: () => setShowAddModal(true) }}
+        overflowActions={[
+          { label: "Create Invoice", icon: FileText, href: "/app/money/invoices/new" },
+          { label: "Add Bill", icon: Receipt, href: "/app/money/bills/new" },
+        ]}
+      />
+
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+        {/* Desktop section header — mobile uses MobileTopBar above */}
+        <div className="hidden md:block">
         <SectionHeader
           title="Money"
           subtitle="Financial control centre for income, expenses, receivables, payables and cashflow."
@@ -346,6 +359,12 @@ export default function MoneyOverviewPage() {
           }
           tabs={<MoneyTabNav />}
         />
+        </div>
+
+        {/* Mobile section nav — kept visible below md (MoneyTabNav scrolls) */}
+        <div className="md:hidden -mx-6">
+          <MoneyTabNav />
+        </div>
 
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

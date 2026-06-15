@@ -41,6 +41,13 @@ import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { WorkEmptyState } from "@/components/work/WorkEmptyState"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import {
+  MobileTopBar,
+  MobilePageHeader,
+  MobileFilterSheet,
+  ResponsiveTable,
+  type FilterGroup,
+} from "@/components/mobile"
 import { useJobs, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
@@ -728,6 +735,7 @@ export default function JobsPage() {
   const [categoryFilter, setCategoryFilter] = useState("")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const liveOrDemo: DemoJob[] = useMemo(() => {
     if (jobsData && jobsData.length > 0) {
@@ -803,6 +811,30 @@ export default function JobsPage() {
     setSelectedIds(e.target.checked ? displayJobs.map(j => j.id) : [])
   }
 
+  // ── Mobile filter sheet config ────────────────────────────────────────────
+  function clearMobileFilters() {
+    setStatusFilter(""); setPriorityFilter(""); setPropertyFilter(""); setCategoryFilter("")
+  }
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "priority", label: "Priority", value: priorityFilter, onChange: setPriorityFilter,
+      options: [{ value: "", label: "All" }, ...["urgent", "high", "medium", "low"].map((p) => ({ value: p, label: p }))],
+    },
+    {
+      key: "status", label: "Status", value: statusFilter, onChange: setStatusFilter,
+      options: [{ value: "", label: "All" }, ...["scheduled", "in_progress", "waiting", "overdue", "complete", "invoiced"].map((s) => ({ value: s, label: s.replace("_", " ") }))],
+    },
+    {
+      key: "property", label: "Property", value: propertyFilter, onChange: setPropertyFilter,
+      options: propertyOptions.map((p) => ({ value: p === "All" ? "" : p, label: p })),
+    },
+    {
+      key: "category", label: "Job Type", value: categoryFilter, onChange: setCategoryFilter,
+      options: categoryOptions.map((c) => ({ value: c === "All" ? "" : c, label: c })),
+    },
+  ]
+  const activeFilterCount = [statusFilter, priorityFilter, propertyFilter, categoryFilter].filter(Boolean).length
+
   // ── Saved Views ───────────────────────────────────────────────────────────
   interface JobViewConfig extends Record<string, unknown> {
     search: string; statusFilter: string; priorityFilter: string
@@ -854,8 +886,35 @@ export default function JobsPage() {
   return (
     <div className="space-y-5">
 
+      {/* Mobile top bar + header (below md) */}
+      <MobileTopBar
+        title="Jobs"
+        subtitle="Work orders"
+        primaryAction={{ label: "Create job", icon: Plus, href: "/app/work/jobs/new" }}
+        overflowActions={[
+          { label: "Select all", icon: CheckCircle2, onClick: () => setSelectedIds(displayJobs.map((j) => j.id)) },
+          { label: "Export", icon: Download, onClick: exportSelected },
+        ]}
+      />
+      <MobilePageHeader
+        title="Jobs"
+        count={`${displayJobs.length} job${displayJobs.length === 1 ? "" : "s"}`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search jobs…"
+        onOpenFilters={() => setMobileFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+      <MobileFilterSheet
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        onClear={clearMobileFilters}
+        activeCount={activeFilterCount}
+      />
+
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Jobs</h1>
           <p className="text-sm text-slate-500 mt-0.5">Work orders and service delivery</p>
@@ -911,7 +970,7 @@ export default function JobsPage() {
       <WorkTabNav />
 
       {/* View type buttons + filter bar */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="hidden md:flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           {JOB_VIEW_TYPES.map(vt => {
             const Icon = vt.icon
@@ -935,7 +994,7 @@ export default function JobsPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         <FilterDropdown
           label="Priority"
           options={["All", "urgent", "high", "medium", "low"]}
@@ -1038,6 +1097,24 @@ export default function JobsPage() {
               ctaHref="/app/work/jobs/new"
             />
           ) : (
+            <ResponsiveTable
+              rows={displayJobs}
+              mobile={{
+                getKey: (j) => j.id,
+                title: (j) => j.title,
+                subtitle: (j) => `#${j.id}`,
+                leading: (j) => <WorkPriorityBadge priority={j.priority} showLabel={false} />,
+                badge: (j) => <JobStatusBadge status={j.status} />,
+                onRowClick: (j) => router.push(`/app/work/jobs/${j.id}`),
+                fields: [
+                  { label: "Property", render: (j) => j.property, hideWhenEmpty: true },
+                  { label: "Supplier", render: (j) => j.supplier, hideWhenEmpty: true },
+                  { label: "Due", render: (j) => j.dueDate },
+                  { label: "Quote", render: (j) => j.quoteValue, hideWhenEmpty: true },
+                ],
+              }}
+              className="px-3 pb-3"
+            >
             <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -1152,10 +1229,11 @@ export default function JobsPage() {
               </tbody>
             </table>
             </div>
+            </ResponsiveTable>
           )}
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
+          <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
             <p className="text-xs text-slate-500">Showing 1 to {displayJobs.length} of {displayJobs.length} jobs</p>
             <div className="flex items-center gap-1">
               <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">

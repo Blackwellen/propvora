@@ -151,16 +151,20 @@ export default function CopilotPanelShell({ isOpen, onClose }: CopilotPanelShell
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => setExpanded((e) => !e)}
-            className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center"
-            title={expanded ? "Compact" : "Expand"}
-          >
-            {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
+          {/* Expand/compact only matters for the floating desktop panel — on the
+              full-screen mobile sheet it is hidden. */}
+          {!isMobile && (
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center"
+              title={expanded ? "Compact" : "Expand"}
+            >
+              {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+          )}
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center"
+            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center"
             aria-label="Close Copilot"
           >
             <X className="w-4 h-4" />
@@ -252,11 +256,12 @@ export default function CopilotPanelShell({ isOpen, onClose }: CopilotPanelShell
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       {(activeTab === "copilot" || (activeTab === "inbox" && inboxScreen === "list")) && (
-        <div className="flex items-center justify-between px-5 py-2 border-t border-slate-100 shrink-0 bg-slate-50/50">
-          <p className="text-[10px] text-violet-600 font-semibold">
+        <div className="flex items-center justify-between gap-2 px-5 py-2 border-t border-slate-100 shrink-0 bg-slate-50/50">
+          <p className="text-[10px] text-violet-600 font-semibold shrink-0">
             ✦ Propvora Copilot
           </p>
-          <p className="text-[9.5px] text-slate-400 text-right max-w-[240px] leading-tight hidden sm:block">
+          {/* AI honesty disclaimer — kept visible on every breakpoint (incl. mobile). */}
+          <p className="text-[9.5px] text-slate-400 text-right max-w-[240px] leading-tight">
             Responses may be inaccurate. Please review important information.
           </p>
         </div>

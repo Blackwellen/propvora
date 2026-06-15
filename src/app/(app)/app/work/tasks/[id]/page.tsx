@@ -37,6 +37,7 @@ import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { InlineEditField } from "@/components/work/InlineEditField"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"
 import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { useTask, useUpdateTask, useCompleteTask, useDeleteTask } from "@/hooks/useTasks"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
@@ -1142,13 +1143,27 @@ export default function TaskDetailPage() {
 
   return (
     <div className="space-y-5">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Task Detail"
+        subtitle={task.title}
+        showBack
+        backHref="/app/work/tasks"
+        overflowActions={[
+          { label: taskData.status === "done" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (taskData.status !== "done") handleMarkComplete() } },
+          { label: "Reassign", icon: Users, onClick: () => router.push(`/app/work/tasks/${task.id}/edit`) },
+          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+          { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
+        ]}
+      />
+
       {/* Back link */}
-      <Link href="/app/work/tasks" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/app/work/tasks" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" /> Back to Tasks
       </Link>
 
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Task Detail</h1>
           <p className="text-sm text-slate-500 mt-0.5">Task workspace and execution detail</p>
@@ -1248,7 +1263,15 @@ export default function TaskDetailPage() {
 
       {/* Tabs */}
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-        <div className="flex items-center overflow-x-auto border-b border-slate-100">
+        <div className="md:hidden p-3 border-b border-slate-100">
+          <MobileTabs
+            tabs={TABS.map((t) => ({ id: t, label: t }))}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="Task sections"
+          />
+        </div>
+        <div className="hidden md:flex items-center overflow-x-auto border-b border-slate-100">
           {TABS.map((tab) => (
             <button
               key={tab}

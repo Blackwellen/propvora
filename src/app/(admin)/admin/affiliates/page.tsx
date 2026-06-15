@@ -67,7 +67,43 @@ export default async function AdminAffiliatesPage() {
         </Card>
       ) : (
         <Card noPadding>
-          <div className="overflow-x-auto">
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+            {rows.map((a) => (
+              <li key={a.id} className="p-3.5">
+                <Link href={`/admin/affiliates/${a.id}`} className="block">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{a.name ?? "—"}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{a.email ?? ""}</p>
+                    </div>
+                    {statusBadge(a.status)}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                    <span className="font-mono">{a.code}</span>
+                    <span className="capitalize">· {a.origin}</span>
+                    <span>· {Math.round(a.commissionRate * 100)}% · {a.referrals} refs</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Pending</p>
+                      <p className="text-[12px] font-medium text-amber-600 tabular-nums">{formatPence(a.pendingPence)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Cleared</p>
+                      <p className="text-[12px] font-medium text-[#2563EB] tabular-nums">{formatPence(a.clearedPence)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Paid</p>
+                      <p className="text-[12px] font-medium text-emerald-600 tabular-nums">{formatPence(a.paidPence)}</p>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-sm min-w-[920px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">

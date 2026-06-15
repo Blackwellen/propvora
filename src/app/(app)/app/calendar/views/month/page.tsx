@@ -12,6 +12,7 @@ import {
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
 import CalendarViewsSwitcher from "@/components/calendar/CalendarViewsSwitcher"
+import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -86,6 +87,16 @@ export default function CalendarMonthPage() {
 
   const today = new Date()
 
+  // Chronological agenda for the mobile list view (this month only).
+  const monthAgenda = useMemo(() => {
+    return filtered
+      .filter((i) => {
+        const d = new Date(i.start)
+        return d.getFullYear() === year && d.getMonth() === month0
+      })
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  }, [filtered, year, month0])
+
   function toggle(s: CalendarSource) { setVisible((p) => ({ ...p, [s]: !p[s] })) }
   function prevMonth() { setCursor(new Date(year, month0 - 1, 1)) }
   function nextMonth() { setCursor(new Date(year, month0 + 1, 1)) }
@@ -93,7 +104,16 @@ export default function CalendarMonthPage() {
 
   return (
     <DashboardContainer>
-      <div className="space-y-5 px-6 py-6">
+      <MobileTopBar
+        title="Calendar"
+        subtitle={monthLabel}
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+      />
+      <div className="md:hidden -mx-4">
+        <CalendarTabNav />
+      </div>
+      <div className="space-y-5 px-4 md:px-6 py-4 md:py-6">
+        <div className="hidden md:block">
         <PageHeader
           title="Calendar"
           description="Full month view — events, jobs, tenancies, compliance and planning dates."
@@ -107,8 +127,21 @@ export default function CalendarMonthPage() {
             </Link>
           }
         />
+        </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Mobile month nav */}
+        <div className="md:hidden flex items-center gap-2">
+          <button onClick={prevMonth} aria-label="Previous month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={goToday} className="flex-1 h-10 rounded-xl bg-white border border-[#E2EAF6] text-slate-700 text-[13px] font-semibold">Today</button>
+          <button onClick={nextMonth} aria-label="Next month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <CalendarViewsSwitcher />
+        </div>
+
+        <div className="hidden md:flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1">
             <button onClick={prevMonth} aria-label="Previous month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
               <ChevronLeft className="w-4 h-4" />
@@ -125,9 +158,43 @@ export default function CalendarMonthPage() {
           <CalendarViewsSwitcher />
         </div>
 
-        <CalendarTabNav />
+        <div className="hidden md:block">
+          <CalendarTabNav />
+        </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-5 items-start">
+        {/* Mobile agenda list — replaces the grid below md */}
+        <div className="md:hidden space-y-2.5">
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-16 rounded-2xl bg-slate-100 animate-pulse" />)
+          ) : monthAgenda.length === 0 ? (
+            <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-[13px] text-slate-400">
+              No items this month.
+            </div>
+          ) : (
+            monthAgenda.map((it) => {
+              const d = new Date(it.start)
+              return (
+                <Link
+                  key={it.key}
+                  href={it.href}
+                  className="flex items-center gap-3 bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5 active:scale-[0.99] transition-transform"
+                >
+                  <div className="w-11 shrink-0 text-center">
+                    <p className="text-[15px] font-bold text-[#071B4D] leading-none">{d.getDate()}</p>
+                    <p className="text-[10px] text-slate-400 uppercase mt-0.5">{d.toLocaleDateString("en-GB", { month: "short" })}</p>
+                  </div>
+                  <span className={cn("w-1.5 h-9 rounded-full shrink-0", SOURCE_META[it.source].dot)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-[#071B4D] truncate">{it.title}</p>
+                    <p className="text-[12px] text-slate-500 truncate">{it.sourceLabel}</p>
+                  </div>
+                </Link>
+              )
+            })
+          )}
+        </div>
+
+        <div className="hidden md:grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-5 items-start">
           {/* Grid — horizontal scroll on small screens so cells keep a usable
               width instead of warping at 375px. */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

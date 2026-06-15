@@ -12,6 +12,7 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useConversations, type ConversationWithContact } from "@/hooks/useMessages"
+import { MobileTopBar } from "@/components/mobile"
 
 /* ── Avatar helpers ─────────────────────────────────────────────────────── */
 const AVATAR_BG = [
@@ -128,9 +129,19 @@ export default function MessagesInboxPage() {
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar — compact title + refresh + contacts overflow */}
+      <MobileTopBar
+        title="Messages"
+        subtitle={`${conversations.length} conversation${conversations.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "Refresh inbox", icon: RefreshCw, onClick: () => refetch() }}
+        overflowActions={[
+          { label: "View Contacts", icon: Users, href: "/app/contacts/people" },
+        ]}
+      />
+
       <div className="space-y-0">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+        {/* Desktop header — hidden on phones (MobileTopBar owns mobile) */}
+        <div className="hidden md:flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Messages</h1>
             <p className="mt-1 text-sm text-slate-500">Your inbox — all contact conversations in one place</p>

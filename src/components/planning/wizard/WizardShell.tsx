@@ -1,12 +1,13 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { X, Save, ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react"
+import { X, Save, ChevronLeft, ChevronRight, Check, Sparkles, BarChart3 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useWizard } from "./WizardContext"
+import { MobileSheet } from "@/components/mobile"
 
 const WIZARD_STEPS = [
   { num: 1, label: "Profile",              subtitle: "Choose operation type",           dataSteps: [1] },
@@ -208,12 +209,16 @@ function WizardBottomBar({
 }) {
   const { state, isSaving } = useWizard()
   return (
-    <footer className="h-16 shrink-0 flex items-center justify-between px-3 sm:px-5 border-t border-slate-100 bg-white">
+    <footer
+      className="shrink-0 flex items-center justify-between gap-2 px-3 sm:px-5 py-2.5 sm:h-16 border-t border-slate-100 bg-white"
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}
+    >
       <button
         onClick={onPrev}
         disabled={state.currentStep === 1}
+        aria-label="Back"
         className={cn(
-          "flex items-center gap-2 h-10 px-3 sm:px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30",
+          "flex items-center justify-center gap-2 h-11 px-3 sm:px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30 shrink-0",
           state.currentStep === 1
             ? "opacity-40 cursor-not-allowed text-slate-400"
             : "text-slate-700 hover:bg-slate-50"
@@ -226,9 +231,9 @@ function WizardBottomBar({
         <span className="sm:hidden">Back</span>
       </button>
 
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Autosave indicator */}
-        <div className="flex items-center gap-1.5 text-[11.5px] text-slate-400">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        {/* Autosave indicator — hidden on the smallest screens to save room */}
+        <div className="hidden sm:flex items-center gap-1.5 text-[11.5px] text-slate-400">
           {isSaving ? (
             <>
               <div className="w-3 h-3 rounded-full border-2 border-slate-300 border-t-[#7C3AED] animate-spin" />
@@ -244,11 +249,11 @@ function WizardBottomBar({
 
         <button
           onClick={onSave}
-          className="flex items-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30"
+          aria-label="Save draft"
+          className="flex items-center justify-center gap-1.5 h-11 w-11 sm:w-auto sm:px-4 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30 shrink-0"
         >
-          <Save className="w-3.5 h-3.5 shrink-0" />
+          <Save className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
           <span className="hidden sm:inline">Save Draft</span>
-          <span className="sm:hidden">Save</span>
         </button>
 
         {!isLastStep && (
@@ -256,13 +261,15 @@ function WizardBottomBar({
             onClick={onNext}
             disabled={!canContinue}
             className={cn(
-              "flex items-center gap-2 h-10 px-4 sm:px-6 rounded-xl text-[13.5px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/40",
+              "flex items-center justify-center gap-2 h-11 px-4 sm:px-6 rounded-xl text-[13.5px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/40 min-w-0",
               canContinue
                 ? "bg-[#7C3AED] text-white hover:bg-violet-700 shadow-sm"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             )}
           >
-            {nextLabel}
+            {/* Full label on desktop; compact "Next" on phones */}
+            <span className="hidden sm:inline truncate">{nextLabel}</span>
+            <span className="sm:hidden">Next</span>
             <ChevronRight className="w-4 h-4 shrink-0" />
           </button>
         )}
@@ -297,6 +304,7 @@ export function WizardShell({
   nextLabel = "Continue",
 }: WizardShellProps) {
   const router = useRouter()
+  const [summaryOpen, setSummaryOpen] = useState(false)
   const handleClose = onClose ?? (() => router.push("/app/planning"))
   const handlePrev  = onPrev  ?? (() => undefined)
   const handleNext  = onNext  ?? (() => undefined)
@@ -318,12 +326,34 @@ export function WizardShell({
             </div>
           </main>
 
-          {/* Right live summary panel */}
+          {/* Right live summary panel — desktop only */}
           <aside className="hidden xl:flex flex-col w-[260px] shrink-0 border-l border-slate-100 bg-white overflow-y-auto">
             {livePanel}
           </aside>
         </div>
       </div>
+
+      {/* Mobile / tablet: surface the live summary in a bottom sheet so the
+          running calculation is never lost below the xl breakpoint. */}
+      <button
+        type="button"
+        onClick={() => setSummaryOpen(true)}
+        className="xl:hidden fixed right-4 bottom-[84px] z-40 flex items-center gap-2 h-11 px-4 rounded-full bg-[#7C3AED] text-white text-[13px] font-semibold shadow-[0_8px_24px_rgba(124,58,237,0.35)] active:scale-95 transition-transform motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7C3AED]"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 84px)" }}
+        aria-label="View live summary"
+      >
+        <BarChart3 className="w-4 h-4" />
+        Summary
+      </button>
+      <MobileSheet
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        title="Live summary"
+        description="Updates as you complete each step"
+        maxHeightVh={0.9}
+      >
+        {livePanel}
+      </MobileSheet>
 
       <WizardBottomBar
         onPrev={handlePrev}

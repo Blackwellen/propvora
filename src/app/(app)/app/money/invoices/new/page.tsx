@@ -8,6 +8,7 @@ import {
   User, Link2, List, CreditCard, Zap, Mail, Eye, CheckCircle2, ArrowLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateMoneyInvoice } from "@/hooks/useMoneyData"
 import type { InsertMoneyInvoice, InvoiceType } from "@/hooks/useMoneyData"
@@ -781,8 +782,9 @@ export default function NewInvoicePage() {
 
   return (
     <div className="space-y-0">
+      <MobileTopBar title="New Invoice" subtitle={`Step ${currentStep} of ${STEPS.length}`} showBack backHref="/app/money/invoices" />
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="hidden md:flex items-center gap-3 mb-6">
         <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Invoices
         </Link>
@@ -790,9 +792,9 @@ export default function NewInvoicePage() {
         <span className="text-sm font-medium text-slate-900">New Invoice</span>
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left stepper rail */}
-        <aside className="w-[240px] shrink-0 sticky top-6">
+        <aside className="hidden lg:block w-[240px] shrink-0 sticky top-6">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-1">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 mb-3">Steps</p>
             {STEPS.map(step => {
@@ -823,7 +825,7 @@ export default function NewInvoicePage() {
         </aside>
 
         {/* Center content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 w-full">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 min-h-[420px]">
             <StepContent />
           </div>
@@ -876,7 +878,7 @@ export default function NewInvoicePage() {
         </div>
 
         {/* Right summary rail */}
-        <aside className="w-[260px] shrink-0 sticky top-6 space-y-4">
+        <aside className="w-full lg:w-[260px] shrink-0 lg:sticky lg:top-6 space-y-4">
           {/* Live preview card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Live Preview</p>

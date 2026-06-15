@@ -27,6 +27,8 @@ import { useAccountsOverview, type AccountOverviewRow } from "@/features/account
 import { toCsv, downloadCsv, writeAudit, isMissingTable } from "@/features/accounting/ledger"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,6 +102,32 @@ function AccountGroupSection({
   const styles = TYPE_STYLES[type]
   const totalBalance = accounts.reduce((s, a) => s + (a.current_balance ?? 0), 0)
 
+  const cardMapping: MobileCardMapping<AccountOverviewRow> = {
+    getKey: (a) => a.id,
+    title: (a) => a.name,
+    subtitle: (a) => a.code,
+    badge: (a) => <AccountingStatusBadge status={a.status as "Active" | "Inactive"} />,
+    fields: [
+      { label: "Type", render: (a) => <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", styles.badgeBg)}>{a.account_type}</span> },
+      { label: "Subcategory", render: (a) => a.subcategory },
+      { label: "Opening", render: (a) => <span className="tabular-nums">{fmtCurrency(a.opening_balance)}</span> },
+      {
+        label: "Current",
+        render: (a) => <span className={cn("font-bold tabular-nums", a.current_balance < 0 ? "text-red-600" : "text-slate-900")}>{fmtCurrency(a.current_balance)}</span>,
+      },
+      { label: "Mapped To", render: (a) => a.property_scope ?? "—", hideWhenEmpty: true },
+    ],
+    actions: (a) => (
+      <ActionMenu
+        items={[
+          { label: "Edit", icon: Edit2, onClick: () => router.push(`/app/accounting/accounts/${a.id}`) },
+          { label: "View Transactions", icon: ChevronRight, onClick: () => router.push(`/app/accounting/accounts/${a.id}`) },
+          { label: a.status === "Active" ? "Deactivate" : "Activate", icon: Edit2, onClick: () => onToggleStatus(a) },
+        ]}
+      />
+    ),
+  }
+
   return (
     <div
       className={cn(
@@ -138,6 +166,7 @@ function AccountGroupSection({
 
       {/* Table */}
       {open && (
+        <ResponsiveTable rows={accounts} mobile={cardMapping} className="p-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -232,6 +261,7 @@ function AccountGroupSection({
             </tbody>
           </table>
         </div>
+        </ResponsiveTable>
       )}
     </div>
   )
@@ -336,8 +366,15 @@ export default function AccountsOverviewPage() {
           <span>{toastMsg}</span>
         </div>
       )}
+      <MobileTopBar
+        title="Accounts Overview"
+        subtitle="Accounting"
+        primaryAction={{ label: "New account", icon: Plus, href: "/app/accounting/accounts/new" }}
+        overflowActions={accounts.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
       {/* Page Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
@@ -463,9 +500,9 @@ export default function AccountsOverviewPage() {
       />
 
       {/* Main Content */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left — Grouped Table */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="flex-1 min-w-0 w-full space-y-4">
           {loading ? (
             <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center">
               <div className="flex items-center gap-2 text-slate-400">
@@ -506,7 +543,7 @@ export default function AccountsOverviewPage() {
         </div>
 
         {/* Right Rail — live summaries */}
-        <aside className="w-80 shrink-0 sticky top-6 space-y-4">
+        <aside className="w-full lg:w-80 shrink-0 lg:sticky lg:top-6 space-y-4">
           {/* Balances by Type */}
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">

@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { PpmTabNav } from "@/components/work/PpmTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { PpmScheduleStatusBadge } from "@/features/work/ppm/components/PpmScheduleStatusBadge"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -246,8 +247,13 @@ export default function PpmOverviewPage() {
 
   return (
     <div className="space-y-5">
+      <MobileTopBar
+        title="PPM Scheduler"
+        subtitle="Planned maintenance"
+        primaryAction={{ label: "New PPM schedule", icon: Plus, href: "/app/work/ppm/schedules/new" }}
+      />
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
             <CalendarClock className="w-5 h-5 text-[#2563EB]" />

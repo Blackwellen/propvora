@@ -98,8 +98,9 @@ export default function SlashCommandPalette({
       style={{ maxHeight: 380 }}
     >
       <div className="flex h-full" style={{ minHeight: 320 }}>
-        {/* Left: Categories + Context */}
-        <div className="w-[160px] shrink-0 border-r border-slate-100 bg-slate-50 p-3 flex flex-col gap-1">
+        {/* Left: Categories + Context — hidden on phones so the command list
+            gets full width inside the full-screen Copilot sheet. */}
+        <div className="hidden sm:flex w-[160px] shrink-0 border-r border-slate-100 bg-slate-50 p-3 flex-col gap-1">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">
             Categories
           </p>
@@ -160,8 +161,8 @@ export default function SlashCommandPalette({
           ))}
         </div>
 
-        {/* Right: Recents + Tip */}
-        <div className="w-[160px] shrink-0 border-l border-slate-100 bg-slate-50 p-3">
+        {/* Right: Recents + Tip — hidden on phones (full-screen sheet space). */}
+        <div className="hidden sm:block w-[160px] shrink-0 border-l border-slate-100 bg-slate-50 p-3">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
             Suggested
           </p>

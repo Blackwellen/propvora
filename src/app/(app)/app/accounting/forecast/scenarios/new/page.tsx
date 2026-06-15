@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { AccountingStepper } from "@/features/accounting/components"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 const WIZARD_STEPS = [
   { number: 1, label: "Scenario Details", sublabel: "Define scenario basics" },
@@ -76,8 +77,10 @@ export default function AddForecastScenarioPage() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-6">
+      <MobileTopBar title="Add Forecast Scenario" subtitle="Forecast" showBack backHref="/app/accounting/forecast" />
+
       {/* Header */}
-      <div className="flex flex-col gap-1.5">
+      <div className="hidden md:flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link href="/app/accounting" className="hover:text-slate-600">Accounting</Link>
           <ChevronRight className="w-3 h-3" />
@@ -93,9 +96,9 @@ export default function AddForecastScenarioPage() {
       </div>
 
       {/* Three-column content */}
-      <div className="flex gap-5 items-start">
+      <div className="flex flex-col xl:flex-row gap-5 items-start">
         {/* Left — Scenario Details Form */}
-        <div className="w-[380px] shrink-0 space-y-4">
+        <div className="w-full xl:w-[380px] shrink-0 space-y-4">
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-4">Scenario Details</h3>
 
@@ -204,7 +207,7 @@ export default function AddForecastScenarioPage() {
         </div>
 
         {/* Centre — Key Assumptions */}
-        <div className="w-64 shrink-0">
+        <div className="w-full xl:w-64 shrink-0">
           <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-1">Key Assumptions Snapshot</h3>
             <p className="text-xs text-slate-500 mb-4">These will be configured in the next step.</p>

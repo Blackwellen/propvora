@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { CalendarTabNav } from '@/components/calendar'
 import CalendarViewsSwitcher from '@/components/calendar/CalendarViewsSwitcher'
+import { MobileTopBar } from '@/components/mobile'
 import { ChevronLeft, ChevronRight, CalendarDays, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
@@ -63,9 +64,59 @@ export default function CalendarGanttPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      <CalendarTabNav />
+      <MobileTopBar
+        title="Timeline"
+        subtitle={monthLabel}
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        overflowActions={[
+          { label: "Previous month", icon: ChevronLeft, onClick: prevMonth },
+          { label: "This month", icon: CalendarDays, onClick: goToday },
+          { label: "Next month", icon: ChevronRight, onClick: nextMonth },
+        ]}
+      />
+      <div className="md:hidden">
+        <CalendarTabNav />
+      </div>
+      <div className="md:hidden px-4 py-3 bg-white border-b border-slate-100">
+        <CalendarViewsSwitcher />
+      </div>
 
-      <div className="px-6 py-3 bg-white border-b border-slate-200 flex items-center gap-3 flex-wrap">
+      {/* Mobile grouped list — replaces the timeline grid below md */}
+      <div className="md:hidden p-4 space-y-4">
+        {rows.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-[13px] text-slate-400">Nothing scheduled this month.</div>
+        ) : (
+          rows.map((row) => (
+            <div key={row.source} className="bg-white rounded-2xl border border-[#E8EEF8] shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100">
+                <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", SOURCE_META[row.source].dot)} />
+                <span className="text-[13px] font-semibold text-slate-700">{SOURCE_META[row.source].label}</span>
+                <span className="ml-auto text-[11px] font-bold text-slate-400">{row.items.length}</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {row.items.map((it) => {
+                  const d = new Date(it.start)
+                  return (
+                    <Link key={it.key} href={it.href} className="flex items-center gap-3 px-4 py-2.5 active:bg-slate-50">
+                      <div className="w-10 shrink-0 text-center">
+                        <p className="text-[14px] font-bold text-[#071B4D] leading-none">{d.getDate()}</p>
+                        <p className="text-[10px] text-slate-400 uppercase">{d.toLocaleDateString("en-GB", { month: "short" })}</p>
+                      </div>
+                      <p className="flex-1 min-w-0 text-[13.5px] font-medium text-slate-700 truncate">{it.title}</p>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
+
+      <div className="hidden md:flex px-6 py-3 bg-white border-b border-slate-200 items-center gap-3 flex-wrap">
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
@@ -78,12 +129,12 @@ export default function CalendarGanttPage() {
         </div>
       </div>
 
-      <div className="px-6 py-2.5 bg-white border-b border-slate-100">
+      <div className="hidden md:block px-6 py-2.5 bg-white border-b border-slate-100">
         <h2 className="text-[14px] font-semibold text-slate-800">{monthLabel}</h2>
         <p className="text-[12px] text-slate-400 mt-0.5">Items by source across the month</p>
       </div>
 
-      <div className="p-6">
+      <div className="hidden md:block p-6">
         {isLoading ? (
           <div className="space-y-2">{[1, 2, 3, 4].map((i) => <div key={i} className="h-10 bg-white border border-slate-200 rounded-lg animate-pulse" />)}</div>
         ) : rows.length === 0 ? (

@@ -17,6 +17,7 @@ import {
   Users, FileText, CheckCircle2, ArrowRight, ArrowLeft, Save,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* Schema                                                               */
@@ -353,8 +354,16 @@ export default function PropertyEditPage() {
 
   return (
     <DashboardContainer>
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-6">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Edit property"
+        subtitle={property?.name ?? "this property"}
+        showBack
+        backHref={`/app/portfolio/properties/${id}`}
+      />
+
+      {/* Breadcrumb — hidden on phones */}
+      <nav className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 mb-6">
         <Link href="/app/portfolio" className="hover:text-slate-600 transition-colors">Portfolio</Link>
         <span>/</span>
         <Link href={`/app/portfolio/properties/${id}`} className="hover:text-slate-600 transition-colors truncate max-w-[140px]">
@@ -365,8 +374,8 @@ export default function PropertyEditPage() {
       </nav>
 
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+        {/* Header — hidden on phones */}
+        <div className="hidden md:block mb-8">
           <h1 className="text-2xl font-bold text-slate-900">Edit property</h1>
           <p className="text-sm text-slate-500 mt-1">Update details for {property?.name ?? "this property"}</p>
         </div>

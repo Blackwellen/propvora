@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
+import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
@@ -777,10 +778,26 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-5">
-      <Link href="/app/work/suppliers/preferred" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title={supplier.name}
+        subtitle={supplier.trade}
+        showBack
+        backHref="/app/work/suppliers/preferred"
+        primaryAction={{ label: "New job", icon: Plus, onClick: () => router.push(`/app/work/jobs/new?supplierId=${id}`) }}
+        overflowActions={[
+          { label: "View contact", icon: Pencil, href: `/app/contacts/${id}` },
+          { label: "New task", icon: Send, onClick: () => router.push(`/app/work/tasks/new?supplierId=${id}`) },
+          { label: supplier.preferred ? "Remove from Preferred" : "Mark Preferred", icon: Star, onClick: togglePreferred },
+          { label: "View all jobs", icon: LayoutGrid, onClick: () => router.push(`/app/work/jobs?supplierId=${id}`) },
+        ]}
+      />
+
+      <Link href="/app/work/suppliers/preferred" className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" />Back to Suppliers
       </Link>
 
+      <div className="hidden md:block">
       <PageHeader
         title={supplier.name}
         description="Supplier profile, performance, and relationship management"
@@ -814,6 +831,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
           </>
         }
       />
+      </div>
 
       {/* Hero */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -889,7 +907,15 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 bg-white rounded-t-xl">
+      <div className="md:hidden">
+        <MobileTabs
+          tabs={DETAIL_TABS.map((t) => ({ id: t, label: t }))}
+          value={activeTab}
+          onChange={(id) => setActiveTab(id as DetailTab)}
+          aria-label="Supplier sections"
+        />
+      </div>
+      <div className="hidden md:block border-b border-slate-200 bg-white rounded-t-xl">
         <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
           {DETAIL_TABS.map((tab) => (
             <button

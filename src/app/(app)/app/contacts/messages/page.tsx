@@ -6,6 +6,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useConversations, type ConversationWithContact } from "@/hooks/useMessages"
@@ -70,11 +71,21 @@ export default function ContactsMessagesPreviewPage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      <MobileTopBar
+        title="Messages"
+        subtitle="Contacts inbox"
+        primaryAction={{ label: "Open Messages", icon: Inbox, href: "/app/messages" }}
+      />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
-      <div className="px-6 pt-6 pb-8 space-y-6">
+      <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="hidden md:flex items-start justify-between gap-4 flex-wrap">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Messages</h1>

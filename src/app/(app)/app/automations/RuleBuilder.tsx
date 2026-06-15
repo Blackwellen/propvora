@@ -96,14 +96,14 @@ export default function RuleBuilder({ onClose, onCreated }: Props) {
         </div>
 
         {/* Stepper */}
-        <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-3">
+        <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-100 px-4 py-3 sm:px-6 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
           {steps.map((s, i) => (
             <React.Fragment key={s}>
-              <button onClick={() => setStep(i)} className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium ${i === step ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)]" : i < step ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500"}`}>
+              <button onClick={() => setStep(i)} className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium ${i === step ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)]" : i < step ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500"}`}>
                 <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i === step ? "bg-white/20" : "bg-white"}`}>{i + 1}</span>
                 {s}
               </button>
-              {i < steps.length - 1 && <ArrowRight className="h-3.5 w-3.5 text-slate-300" />}
+              {i < steps.length - 1 && <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-300" />}
             </React.Fragment>
           ))}
         </div>

@@ -15,6 +15,8 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobileTabs from "@/components/mobile/MobileTabs"
 import {
   Building2, Home, Users, PoundSterling, TrendingUp, AlertTriangle,
   Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
@@ -1043,10 +1045,24 @@ export default function TenancyDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/40">
-      <div className="px-6 pb-6 pt-4">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title={t.tenantName}
+        subtitle={`${t.property}, ${t.unit}`}
+        showBack
+        backHref="/app/portfolio/tenancies"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: t.propertyId ? `/app/portfolio/tenancies/new?propertyId=${t.propertyId}` : "/app/portfolio/tenancies/new" }}
+        overflowActions={[
+          ...(tenancy?.property_id ? [{ label: "View property", icon: Building2, href: `/app/portfolio/properties/${tenancy.property_id}` }] : []),
+          ...(tenancy?.unit_id ? [{ label: "View unit", icon: Home, href: `/app/portfolio/units/${tenancy.unit_id}` }] : []),
+          { label: "End tenancy", icon: XCircle, destructive: true, onClick: () => save("status", "ended") },
+        ]}
+      />
 
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-sm mb-3">
+      <div className="px-4 md:px-6 pb-6 pt-4">
+
+        {/* Breadcrumb — hidden on phones */}
+        <div className="hidden md:flex items-center gap-1.5 text-sm mb-3">
           <Link href="/app/portfolio" className="text-slate-500 hover:text-slate-700 transition-colors">Portfolio</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <Link href="/app/portfolio/tenancies" className="text-slate-500 hover:text-slate-700 transition-colors">Tenancies</Link>
@@ -1054,8 +1070,8 @@ export default function TenancyDetailPage() {
           <span className="text-slate-900 font-medium">{t.tenantName}</span>
         </div>
 
-        {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+        {/* Page Header — hidden on phones */}
+        <div className="hidden md:flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Tenancy Lifecycle, Payments &amp; Deposit</h1>
             <p className="text-sm text-slate-500 mt-0.5">{t.tenantName} — {t.property}, {t.unit}</p>
@@ -1098,8 +1114,8 @@ export default function TenancyDetailPage() {
           </div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-0 overflow-x-auto">
+        {/* Tab Bar — desktop */}
+        <div className="hidden md:flex items-center gap-0 border-b border-slate-200 mb-0 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -1114,6 +1130,16 @@ export default function TenancyDetailPage() {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Tab strip — mobile */}
+        <div className="md:hidden mb-4">
+          <MobileTabs
+            tabs={TABS.map((t) => ({ id: t.id, label: t.label }))}
+            value={activeTab}
+            onChange={setActiveTab}
+            aria-label="Tenancy sections"
+          />
         </div>
 
         {/* Tab Content */}

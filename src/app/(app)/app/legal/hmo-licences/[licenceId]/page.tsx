@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
+import { MobileTabs, type MobileTabItem } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   Key,
@@ -168,6 +169,11 @@ export default function HmoLicenceDetailPage() {
   const days = daysUntil(lic.expiry_date)
   const conditions = conditionsToArray(lic.conditions)
 
+  const mobileTabItems: MobileTabItem[] = [
+    { id: "Overview", label: "Overview" },
+    { id: "Conditions", label: "Conditions", badge: conditions.length > 0 ? conditions.length : undefined },
+  ]
+
   return (
     <>
       {/* Header */}
@@ -180,13 +186,13 @@ export default function HmoLicenceDetailPage() {
           <span>/</span>
           <span className="text-slate-600">{property}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
               <Key className="w-5 h-5 text-green-600" />
             </div>
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-[16px] font-bold text-slate-900">{property}</h1>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${statusCls(effStatus)}`}>
                   {STATUS_OPTIONS.find((s) => s.value === effStatus)?.label ?? effStatus}
@@ -197,7 +203,7 @@ export default function HmoLicenceDetailPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => downloadCertificate(lic)}
               className="border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
@@ -232,7 +238,7 @@ export default function HmoLicenceDetailPage() {
 
       {/* Expiry banner */}
       {days != null && days <= 90 && (
-        <div className={`mx-6 mt-4 rounded-xl px-5 py-3 flex items-start gap-3 border ${days < 0 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
+        <div className={`mx-4 sm:mx-6 mt-4 rounded-xl px-5 py-3 flex items-start gap-3 border ${days < 0 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
           <Clock className={`w-4 h-4 shrink-0 mt-0.5 ${days < 0 ? "text-red-600" : "text-amber-600"}`} />
           <p className={`text-[12px] leading-relaxed ${days < 0 ? "text-red-800" : "text-amber-800"}`}>
             {days < 0
@@ -242,9 +248,9 @@ export default function HmoLicenceDetailPage() {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* Tabs — desktop strip hidden on phones; MobileTabs takes over */}
       <div className="border-b border-slate-200 bg-white px-4 sm:px-6 mt-4">
-        <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        <div className="hidden md:flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           {(["Overview", "Conditions"] as const).map((tab) => (
             <button
               key={tab}
@@ -259,6 +265,14 @@ export default function HmoLicenceDetailPage() {
               )}
             </button>
           ))}
+        </div>
+        <div className="md:hidden py-2">
+          <MobileTabs
+            tabs={mobileTabItems}
+            value={activeTab}
+            onChange={(id) => setActiveTab(id as "Overview" | "Conditions")}
+            aria-label="Licence sections"
+          />
         </div>
       </div>
 

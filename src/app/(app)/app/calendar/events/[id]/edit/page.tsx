@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
 
@@ -380,10 +381,13 @@ export default function EventEditPage() {
 
   return (
     <div className="space-y-0 pb-24">
-      <CalendarTabNav />
+      <MobileTopBar title="Edit Event" subtitle={form.title || "Event"} showBack backHref={`/app/calendar/events/${id}`} />
+      <div className="hidden md:block">
+        <CalendarTabNav />
+      </div>
 
       {/* Breadcrumb */}
-      <div className="px-6 pt-5 pb-0">
+      <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <a href="/app/calendar" className="hover:text-[#2563EB]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
@@ -393,7 +397,7 @@ export default function EventEditPage() {
         </nav>
       </div>
 
-      <div className="px-6 py-5 max-w-[860px]">
+      <div className="px-4 md:px-6 py-5 max-w-[860px]">
         {/* Section 1: Event Details */}
         <SectionCard title="Event Details" Icon={Wrench}>
           <div className="space-y-4">

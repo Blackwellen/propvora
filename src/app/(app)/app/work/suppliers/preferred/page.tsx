@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { SuppliersTabNav } from "@/components/work/SuppliersTabNav"
+import { MobileTopBar, MobilePageHeader, MobileFilterSheet, type FilterGroup } from "@/components/mobile"
 import { SupplierAccreditationChip } from "@/features/suppliers/components/SupplierAccreditationChip"
 import { SupplierComplianceStatus } from "@/features/suppliers/components/SupplierComplianceStatus"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -149,10 +150,26 @@ function SupplierCard({
               <SupplierComplianceStatus status="valid" nextReview="12 Jun 2026" />
             </div>
           </div>
+
+          {/* Mobile action row */}
+          <div className="flex sm:hidden items-center gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
+            <Link
+              href={href}
+              className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-center"
+            >
+              View Profile
+            </Link>
+            <Link
+              href={`/app/work/jobs/new?supplierId=${supplier.id}`}
+              className="flex-1 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
+            >
+              Assign to Job
+            </Link>
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col items-end gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div className="hidden sm:flex flex-col items-end gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
           <ActionMenu
             items={[
               { label: "View Profile", icon: Eye, onClick: () => router.push(href) },
@@ -215,6 +232,7 @@ export default function PreferredSuppliersPage() {
   const [search, setSearch] = useState("")
   const [tradeFilter, setTradeFilter] = useState("All Trades")
   const [preferredOnly, setPreferredOnly] = useState(true)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const trades = useMemo(() => {
     const set = new Set(suppliers.map((s) => s.trade))
@@ -253,10 +271,45 @@ export default function PreferredSuppliersPage() {
     setPreferredOnly(false)
   }
 
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "trade", label: "Trade", value: tradeFilter, onChange: setTradeFilter,
+      options: trades.map((t) => ({ value: t, label: t })),
+    },
+    {
+      key: "preferred", label: "Preferred", value: preferredOnly ? "yes" : "", onChange: (v) => setPreferredOnly(v === "yes"),
+      options: [{ value: "", label: "All suppliers" }, { value: "yes", label: "Preferred only" }],
+    },
+  ]
+  const activeFilterCount = (tradeFilter !== "All Trades" ? 1 : 0) + (preferredOnly ? 1 : 0)
+
   return (
     <div className="space-y-5">
+      {/* Mobile top bar + header */}
+      <MobileTopBar
+        title="Suppliers"
+        subtitle="Preferred network"
+        primaryAction={{ label: "Add supplier", icon: Plus, href: "/app/contacts/new?type=supplier" }}
+      />
+      <MobilePageHeader
+        title="Preferred Suppliers"
+        count={`${filtered.length} supplier${filtered.length === 1 ? "" : "s"}`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search suppliers…"
+        onOpenFilters={() => setMobileFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+      <MobileFilterSheet
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        onClear={clearFilters}
+        activeCount={activeFilterCount}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="hidden md:flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900">Preferred Suppliers</h1>
@@ -298,7 +351,7 @@ export default function PreferredSuppliersPage() {
       <SuppliersTabNav />
 
       {/* Filter bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-2xl px-4 py-3">
+      <div className="hidden md:flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-2xl px-4 py-3">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -340,7 +393,7 @@ export default function PreferredSuppliersPage() {
         </button>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="hidden md:flex items-center justify-between">
         <p className="text-sm text-slate-600">
           <span className="font-semibold">{filtered.length}</span> supplier{filtered.length === 1 ? "" : "s"} found
         </p>

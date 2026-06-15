@@ -160,14 +160,14 @@ export default function Step03Income() {
 
       {/* ── Top Header ───────────────────────────────────────────────────────── */}
       <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
           <div>
-            <h1 className="text-[22px] font-bold text-slate-900 mb-1">Revenue Model Builder</h1>
+            <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-900 mb-1">Revenue Model Builder</h1>
             <p className="text-[13.5px] text-slate-500">
               Configure your revenue streams, occupancy assumptions, and pricing to project gross income.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-[12.5px] text-slate-500">Profile:</span>
             <span className="text-[13px] font-bold text-slate-800">{profile?.label ?? "—"}</span>
             <button
@@ -202,7 +202,7 @@ export default function Step03Income() {
 
       {/* ── Live KPI Bar ──────────────────────────────────────────────────────── */}
       <div className="px-4 sm:px-6 lg:px-8 py-4 bg-[#F6FAFF] border-b border-slate-100">
-        <div className="flex items-center gap-8 flex-wrap">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-x-6 gap-y-4 sm:gap-8 sm:flex-wrap">
           <div>
             <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-0.5">
               Gross Monthly
@@ -444,7 +444,7 @@ export default function Step03Income() {
         </div>
 
         {/* Summary row below table */}
-        <div className="flex items-center gap-8 mt-4 pt-4 border-t border-slate-100 flex-wrap">
+        <div className="flex items-center gap-x-6 gap-y-3 mt-4 pt-4 border-t border-slate-100 flex-wrap">
           {[
             { icon: "🏠", label: "Total Rooms", value: roomCount.toString() },
             { icon: "💷", label: "Average Rent (pcm)", value: `£${avgRentPcm}` },
@@ -490,7 +490,7 @@ export default function Step03Income() {
       </div>
 
       {/* ── Charts Row ───────────────────────────────────────────────────────── */}
-      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-5 border-b border-slate-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 border-b border-slate-100">
 
         {/* Monthly Gross Income Projection */}
         <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4">

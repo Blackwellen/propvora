@@ -445,9 +445,9 @@ export default function Step04ExpensesBills() {
 
       {/* ── Top Header ───────────────────────────────────────────────────────── */}
       <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-slate-100">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-[22px] font-bold text-slate-900 mb-1">Expenses & Bills</h1>
+            <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-900 mb-1">Expenses & Bills</h1>
             <p className="text-[13.5px] text-slate-500">
               Capture all operating expenses and running bills to understand your true net returns.
             </p>

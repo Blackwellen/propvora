@@ -154,7 +154,7 @@ export default function EmailPage() {
       )}
 
       {/* Email provider status */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {[
           { name: "Resend",  status: "not_configured", desc: "Managed email API" },
           { name: "SMTP",    status: "not_configured", desc: "Custom SMTP server" },

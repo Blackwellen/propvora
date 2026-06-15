@@ -18,6 +18,8 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { createClient } from "@/lib/supabase/client"
 import { isMissingTable, toCsv, downloadCsv } from "@/features/accounting/ledger"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 interface ForecastScenario {
   id: string
@@ -76,8 +78,40 @@ export default function ForecastPage() {
     showToast("Scenarios exported")
   }
 
+  const cardMapping: MobileCardMapping<ForecastScenario> = {
+    getKey: (s) => s.id,
+    title: (s) => s.name,
+    subtitle: (s) => s.description ?? undefined,
+    leading: (s) => s.is_base ? <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0 mt-1" /> : undefined,
+    badge: (s) => (
+      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", s.is_base ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-slate-100 text-slate-600")}>
+        {s.is_base ? "Base Plan" : "Variant"}
+      </span>
+    ),
+    fields: [
+      { label: "Based On", render: (s) => s.based_on ?? "—" },
+      { label: "Period", render: (s) => `${s.period_months} months` },
+      { label: "Currency", render: (s) => s.currency },
+    ],
+    actions: (s) => (
+      <ActionMenu
+        items={[
+          { label: "View Scenario", icon: LineChart, onClick: () => showToast(`${s.name} — ${s.period_months} month horizon`) },
+          { label: "Export (CSV)", icon: Download, onClick: exportCsv },
+        ]}
+      />
+    ),
+  }
+
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-6">
+      <MobileTopBar
+        title="Forecast Scenarios"
+        subtitle="Accounting"
+        primaryAction={{ label: "New scenario", icon: Plus, href: "/app/accounting/forecast/scenarios/new" }}
+        overflowActions={scenarios.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -86,7 +120,7 @@ export default function ForecastPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="hidden md:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>
@@ -139,6 +173,7 @@ export default function ForecastPage() {
             </Button>
           </div>
         ) : (
+          <ResponsiveTable rows={scenarios} mobile={cardMapping} className="p-3">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -184,6 +219,7 @@ export default function ForecastPage() {
               </tbody>
             </table>
           </div>
+          </ResponsiveTable>
         )}
       </div>
 

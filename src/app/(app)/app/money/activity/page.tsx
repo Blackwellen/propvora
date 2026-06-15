@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -430,10 +432,16 @@ export default function ActivityPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Activity"
+        subtitle="Financial events & audit"
+        primaryAction={{ label: "Export Activity", icon: Download, onClick: () => showToast("Exporting activity...") }}
+      />
       <MoneyTabNav />
 
       <div className="flex flex-col gap-6 p-6 max-w-[1600px] mx-auto w-full">
         {/* Header */}
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Activity"
           title="Financial Activity"
@@ -447,6 +455,15 @@ export default function ActivityPage() {
               Export Activity
             </button>
           }
+        />
+        </div>
+
+        {/* Mobile header — search */}
+        <MobilePageHeader
+          title="Financial Activity"
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search activity…"
         />
 
         {/* KPI Row */}
@@ -488,9 +505,9 @@ export default function ActivityPage() {
         </div>
 
         {/* Main layout */}
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* LEFT ~65% */}
-          <div className="flex flex-col gap-4 flex-1 min-w-0">
+          <div className="flex flex-col gap-4 flex-1 min-w-0 w-full">
             {/* Filter row */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
               <div className="flex items-center gap-2 flex-wrap">
@@ -512,7 +529,7 @@ export default function ActivityPage() {
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 ml-auto flex-wrap">
+                <div className="hidden md:flex items-center gap-2 ml-auto flex-wrap">
                   {/* Search */}
                   <input
                     type="text"
@@ -685,7 +702,7 @@ export default function ActivityPage() {
           </div>
 
           {/* RIGHT ~35% */}
-          <div className="flex flex-col gap-4 w-80 xl:w-96 shrink-0">
+          <div className="flex flex-col gap-4 w-full lg:w-80 xl:w-96 shrink-0">
             {/* A. Activity Summary */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-sm font-semibold text-slate-900 mb-4">

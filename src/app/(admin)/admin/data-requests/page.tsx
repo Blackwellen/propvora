@@ -132,7 +132,31 @@ export default async function AdminDataRequestsPage() {
           <EmptyState icon={Trash2} title="No deletion requests" hint="Erasure requests submitted by users appear here for review." />
         ) : (
           <Card noPadding>
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+              {deletions.rows.map((r: AccountDeletionRow) => (
+                <li key={r.id} className="p-3.5 space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <Subject userId={r.userId} workspaceId={r.workspaceId} workspaceName={r.workspaceName} />
+                    {deletionStatusBadge(r.status)}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                    <Badge variant="outline" size="sm" className="capitalize">
+                      {r.requestType === "workspace" ? "Workspace" : "User account"}
+                    </Badge>
+                    <span>Requested {fmt(r.requestedAt)}</span>
+                    {r.scheduledFor && <span>· Scheduled {fmt(r.scheduledFor)}</span>}
+                  </div>
+                  {r.status === "completed" || r.status === "cancelled" ? (
+                    <span className="text-[11px] text-slate-400">No actions</span>
+                  ) : (
+                    <RequestActions requestId={r.id} kind="deletion" erasureEnabled={erasureEnabled} />
+                  )}
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">
@@ -191,7 +215,29 @@ export default async function AdminDataRequestsPage() {
           <EmptyState icon={Download} title="No export requests" hint="Data-export (SAR) requests submitted by users appear here." />
         ) : (
           <Card noPadding>
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+              {exports.rows.map((r: DataExportRow) => (
+                <li key={r.id} className="p-3.5 space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <Subject userId={r.userId} workspaceId={r.workspaceId} workspaceName={r.workspaceName} />
+                    {exportStatusBadge(r.status)}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                    <span>Requested {fmt(r.requestedAt)}</span>
+                    {r.readyAt && <span>· Ready {fmt(r.readyAt)}</span>}
+                    {r.expiresAt && <span>· Expires {fmt(r.expiresAt)}</span>}
+                  </div>
+                  {r.status === "expired" ? (
+                    <span className="text-[11px] text-slate-400">Expired</span>
+                  ) : (
+                    <RequestActions requestId={r.id} kind="export" erasureEnabled={erasureEnabled} />
+                  )}
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">

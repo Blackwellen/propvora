@@ -22,6 +22,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyDeposits, useMoneyDepositsSummary, useCreateMoneyDeposit, type MoneyDepositRow } from "@/hooks/useMoneyData"
@@ -957,6 +959,12 @@ export default function DepositsPage() {
 
   return (
     <DashboardContainer>
+      <MobileTopBar
+        title="Deposits"
+        subtitle={`${filtered.length} deposit${filtered.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "Track Deposit", icon: Plus, onClick: () => setShowTrackModal(true) }}
+        overflowActions={[{ label: "Export CSV", icon: Download, onClick: handleExportCSV }]}
+      />
       {showTrackModal && <TrackDepositModal workspaceId={workspace?.id} onClose={() => setShowTrackModal(false)} onSaved={showToast} />}
       {returnDeposit && <ReturnDepositModal deposit={returnDeposit} onClose={() => setReturnDeposit(null)} onSaved={showToast} />}
       {protectDeposit && <AddProtectionModal deposit={protectDeposit} workspaceId={workspace?.id} onClose={() => setProtectDeposit(null)} onSaved={showToast} />}
@@ -971,6 +979,7 @@ export default function DepositsPage() {
       )}
 
       {/* Header */}
+      <div className="hidden md:block">
       <MoneyPageHeader
         breadcrumb="Deposits"
         title="Deposits"
@@ -991,8 +1000,19 @@ export default function DepositsPage() {
           </>
         }
       />
+      </div>
 
       <MoneyTabNav />
+
+      {/* Mobile header — search (desktop controls gated below) */}
+      <MobilePageHeader
+        title="Deposits"
+        count={`${filtered.length} deposit${filtered.length === 1 ? "" : "s"}`}
+        search={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search deposits…"
+        className="mt-4"
+      />
 
       {/* KPI Row */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -1055,11 +1075,11 @@ export default function DepositsPage() {
       </div>
 
       {/* Main Layout */}
-      <div className="mt-6 flex gap-6 items-start">
+      <div className="mt-6 flex flex-col lg:flex-row gap-6 items-start">
         {/* Left */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="flex-1 min-w-0 w-full space-y-4">
           {/* Controls */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="hidden md:flex flex-wrap items-center gap-2">
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
@@ -1162,7 +1182,7 @@ export default function DepositsPage() {
         </div>
 
         {/* Right Column */}
-        <aside className="w-72 shrink-0 space-y-4 sticky top-6">
+        <aside className="w-full lg:w-72 shrink-0 space-y-4 lg:sticky lg:top-6">
           {/* Donut */}
           <DepositDonut rows={DEPOSITS_LIVE} />
 

@@ -151,7 +151,7 @@ export default function PaymentsStripePage() {
         </div>
 
         {/* Header row */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
               Payments & Stripe
@@ -181,9 +181,9 @@ export default function PaymentsStripePage() {
       </div>
 
       {/* Main content */}
-      <div className="flex gap-6 p-6 max-w-[1400px] mx-auto w-full items-start">
+      <div className="flex flex-col lg:flex-row gap-6 p-4 sm:p-6 max-w-[1400px] mx-auto w-full items-start">
         {/* LEFT 60% */}
-        <div className="flex flex-col gap-5 flex-[3] min-w-0">
+        <div className="flex flex-col gap-5 lg:flex-[3] w-full min-w-0">
           {/* A. Stripe Account Connection */}
           <SectionCard>
             {/* Stripe logo placeholder */}
@@ -428,7 +428,7 @@ export default function PaymentsStripePage() {
         </div>
 
         {/* RIGHT 40% */}
-        <div className="flex flex-col gap-5 flex-[2] min-w-0">
+        <div className="flex flex-col gap-5 lg:flex-[2] w-full min-w-0">
           {/* A. Stripe Connection Status */}
           <SectionCard>
             <h3 className="text-sm font-semibold text-slate-900 mb-4">

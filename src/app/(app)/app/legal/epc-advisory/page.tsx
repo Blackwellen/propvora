@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
   useEpcCertificates,
   computeEpcReadiness,
@@ -101,6 +102,28 @@ export default function EpcAdvisoryPage() {
     { value: readiness.missingCert, label: "No EPC on record", sub: "Coverage gap", iconCls: "bg-red-100 text-red-600" },
   ]
 
+  /* Row → card mapping for the mobile attention list (presentation only). */
+  type AttentionRow = (typeof attentionRows)[number]
+  const epcCardMapping: MobileCardMapping<AttentionRow> = {
+    getKey: (r) => r.p.id,
+    title: (r) => r.p.name || "Unnamed property",
+    subtitle: (r) => r.cert?.reference_number ?? "No EPC reference",
+    badge: (r) => (
+      <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-medium whitespace-nowrap ${STATUS_BADGE[r.status]}`}>
+        {STATUS_LABEL[r.status]}
+      </span>
+    ),
+    fields: [
+      { label: "Expiry", render: (r) => (r.cert ? formatDate(r.cert.expiry_date) : "—") },
+      { label: "Days", render: (r) => (r.days == null ? "—" : r.days < 0 ? `${Math.abs(r.days)}d ago` : `${r.days}d`) },
+    ],
+    actions: (r) => (
+      <Link href={`/app/properties/${r.p.id}`} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+        <Building2 className="w-3.5 h-3.5" /> Open
+      </Link>
+    ),
+  }
+
   return (
     <>
       {/* Header */}
@@ -127,7 +150,7 @@ export default function EpcAdvisoryPage() {
       </div>
 
       {/* Banner */}
-      <div className="mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3.5 flex items-start gap-3">
+      <div className="mx-4 sm:mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3.5 flex items-start gap-3">
         <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <p className="text-[12px] text-amber-800 leading-relaxed">
           EPC minimum-standard targets are a moving regulatory area. This view is a readiness aid based on your live EPC
@@ -178,6 +201,7 @@ export default function EpcAdvisoryPage() {
                 <p className="text-[12px] text-slate-500">Nothing needs attention right now.</p>
               </div>
             ) : (
+              <ResponsiveTable<AttentionRow> rows={attentionRows} mobile={epcCardMapping} className="p-3">
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
@@ -209,6 +233,7 @@ export default function EpcAdvisoryPage() {
                   </tbody>
                 </table>
               </div>
+              </ResponsiveTable>
             )}
             {attentionRows.length > 0 && (
               <div className="px-5 py-3 border-t border-slate-100">

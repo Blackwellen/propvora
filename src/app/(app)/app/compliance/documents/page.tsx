@@ -21,6 +21,12 @@ import { ComplianceStatusBadge } from "@/components/compliance/ComplianceStatusB
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import {
+  MobilePageHeader,
+  MobileFilterSheet,
+  ResponsiveTable,
+  type FilterGroup,
+} from "@/components/mobile"
 import { createClient } from "@/lib/supabase/client"
 import { useComplianceDocuments } from "@/hooks/useComplianceData"
 import { fmtDate, daysUntil, humaniseType, downloadCsv } from "../_lib/useComplianceItems"
@@ -32,8 +38,20 @@ export default function ComplianceDocumentsPage() {
   const qc = useQueryClient()
   const [search, setSearch] = useState("")
   const [verifyFilter, setVerifyFilter] = useState("")
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const { data: docs = [], isLoading, refetch } = useComplianceDocuments()
+
+  const activeFilterCount = verifyFilter ? 1 : 0
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "verify",
+      label: "Verification",
+      value: verifyFilter,
+      onChange: setVerifyFilter,
+      options: VERIFY_FILTERS.map((s) => ({ value: s, label: s ? humaniseType(s) : "All verification" })),
+    },
+  ]
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -90,8 +108,8 @@ export default function ComplianceDocumentsPage() {
 
   return (
     <DashboardContainer>
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
+      {/* Header — desktop / tablet */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-4 sm:px-6 py-4 items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
           <p className="text-sm text-slate-500 mt-1">Store and verify compliance documents across your portfolio.</p>
@@ -115,6 +133,19 @@ export default function ComplianceDocumentsPage() {
         </div>
       </div>
 
+      {/* Mobile header */}
+      <div className="md:hidden px-4 pt-4">
+        <MobilePageHeader
+          title="Documents"
+          count={`${filtered.length} of ${docs.length}`}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search documents…"
+          onOpenFilters={() => setFiltersOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
         <ComplianceKpiCard label="Total Documents" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileText} iconBg="bg-blue-50" iconColor="text-blue-600" />
@@ -123,8 +154,8 @@ export default function ComplianceDocumentsPage() {
         <ComplianceKpiCard label="Expiring Soon" value={isLoading ? "—" : kpis.expiring} subtitle="Within 30 days" icon={CalendarDays} iconBg="bg-orange-50" iconColor="text-orange-600" />
       </div>
 
-      {/* Filter bar */}
-      <div className="px-6 py-3 flex items-center gap-2 flex-wrap">
+      {/* Filter bar — desktop / tablet */}
+      <div className="hidden md:flex px-6 py-3 items-center gap-2 flex-wrap">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
@@ -163,6 +194,27 @@ export default function ComplianceDocumentsPage() {
               )}
             </div>
           ) : (
+            <ResponsiveTable
+              rows={filtered}
+              mobile={{
+                getKey: (d) => d.id,
+                title: (d) => d.document_name,
+                subtitle: (d) => humaniseType(d.document_type),
+                badge: (d) => <ComplianceStatusBadge status={d.verification_status} />,
+                onRowClick: (d) => router.push(`/app/compliance/documents/${d.id}`),
+                fields: [
+                  { label: "Property", render: (d) => d.property_name ?? "—" },
+                  { label: "Issued", render: (d) => fmtDate(d.issue_date) },
+                  { label: "Expiry", render: (d) => {
+                      if (!d.expiry_date) return "—"
+                      const days = daysUntil(d.expiry_date)
+                      const suffix = days == null ? "" : days < 0 ? " · Expired" : ` · in ${days}d`
+                      return `${fmtDate(d.expiry_date)}${suffix}`
+                    } },
+                  { label: "Version", render: (d) => d.version },
+                ],
+              }}
+            >
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[1100px]">
                 <thead>
@@ -238,9 +290,19 @@ export default function ComplianceDocumentsPage() {
                 </tbody>
               </table>
             </div>
+            </ResponsiveTable>
           )}
         </div>
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        activeCount={activeFilterCount}
+        onClear={() => setVerifyFilter("")}
+      />
     </DashboardContainer>
   )
 }

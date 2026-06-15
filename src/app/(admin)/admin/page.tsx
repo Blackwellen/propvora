@@ -110,7 +110,28 @@ export default async function AdminDashboardPage() {
                   <p className="text-sm text-slate-400">No workspaces yet</p>
                 </div>
               ) : (
-                <table className="w-full text-sm">
+                <>
+                {/* Mobile card list */}
+                <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+                  {recentWorkspaces.map((ws) => (
+                    <li key={ws.id}>
+                      <Link href={`/admin/workspaces/${ws.id}`} className="flex items-center gap-3 p-3.5 hover:bg-slate-50">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-slate-800 truncate">{ws.name}</p>
+                          <p className="text-[11px] text-slate-400 truncate">{ws.ownerName ?? ws.ownerEmail ?? "—"}</p>
+                          <div className="mt-1.5 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                            {planBadge(ws.plan)}
+                            <span>{ws.memberCount} members</span>
+                            <span>· {ws.createdAt ? new Date(ws.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}</span>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {/* Desktop table */}
+                <table className="hidden lg:table w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#E2E8F0]">
                       {["Workspace", "Owner", "Plan", "Members", "Created", ""].map((h) => (
@@ -137,6 +158,7 @@ export default async function AdminDashboardPage() {
                     ))}
                   </tbody>
                 </table>
+                </>
               )}
             </div>
           </Card>

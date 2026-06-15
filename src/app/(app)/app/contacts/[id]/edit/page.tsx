@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
+import { MobileTopBar } from "@/components/mobile"
 import { useWorkspace } from "@/hooks/useWorkspace"
 import { useContact, useUpdateContact } from "@/hooks/useContacts"
 import {
@@ -531,8 +532,11 @@ export default function ContactEditPage() {
   return (
     <ToastProvider swipeDirection="right">
       <div className="space-y-0">
+        {/* Mobile top bar */}
+        <MobileTopBar title="Edit Contact" subtitle={displayName} showBack backHref={`/app/contacts/${id}`} />
+
         {/* Back */}
-        <div className="mb-6">
+        <div className="hidden md:block mb-6">
           <Link
             href={`/app/contacts/${id}`}
             className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors"
@@ -543,7 +547,7 @@ export default function ContactEditPage() {
         </div>
 
         {/* Page header */}
-        <div className="mb-6">
+        <div className="hidden md:block mb-6">
           <h1 className="text-2xl font-semibold text-slate-900">Edit Contact</h1>
           <p className="text-sm text-slate-500 mt-1">{displayName}</p>
         </div>

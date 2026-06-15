@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { SectionHeader } from "@/components/layout/SectionHeader"
+import { MobileTopBar } from "@/components/mobile"
 import { downloadCsv, parseCsv } from "@/lib/export/csv"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
@@ -1000,9 +1001,23 @@ export default function ContactsPage() {
     <DashboardContainer>
       <div className="space-y-0">
 
+        {/* Mobile top bar + tab rail */}
+        <MobileTopBar
+          title="Contacts"
+          subtitle="Relationship hub"
+          primaryAction={{ label: "Add contact", icon: UserPlus, onClick: () => setShowAddModal(true) }}
+          overflowActions={[
+            { label: "Import", icon: Upload, onClick: () => importInputRef.current?.click() },
+          ]}
+        />
+        <div className="md:hidden -mx-4 mb-4">
+          <ContactsTabNav />
+        </div>
+
         {/* ============================================================ */}
         {/* PAGE HEADER + TAB NAV                                          */}
         {/* ============================================================ */}
+        <div className="hidden md:block">
         <SectionHeader
           title="Contacts"
           subtitle="Your relationship hub — tenants, landlords, suppliers and beyond"
@@ -1031,13 +1046,6 @@ export default function ContactsPage() {
                 <Download className="w-4 h-4" />
                 Export
               </button>
-              <input
-                ref={importInputRef}
-                type="file"
-                accept=".csv,text/csv"
-                className="hidden"
-                onChange={handleImportFile}
-              />
               <button
                 onClick={() => importInputRef.current?.click()}
                 disabled={importing}
@@ -1056,8 +1064,18 @@ export default function ContactsPage() {
             </>
           }
         />
+        </div>
 
-        <div className="pt-6 space-y-6">
+        {/* Hidden import input — must stay mounted on all breakpoints for the mobile overflow action */}
+        <input
+          ref={importInputRef}
+          type="file"
+          accept=".csv,text/csv"
+          className="hidden"
+          onChange={handleImportFile}
+        />
+
+        <div className="md:pt-6 space-y-6">
 
           {/* ========================================================== */}
           {/* ERROR STATE                                                 */}

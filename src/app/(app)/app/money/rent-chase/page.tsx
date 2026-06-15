@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyArrears, useMoneyArrearsSummary } from "@/hooks/useMoneyData"
@@ -251,8 +253,39 @@ export default function RentChasePage() {
     } catch { showToast("Could not pause chasing") }
   }
 
+  // Row → card mapping for the mobile card list (mirrors the desktop chase table).
+  const chaseCardMapping: MobileCardMapping<ChaseCase> = {
+    getKey: (c) => c.id,
+    title: (c) => c.tenant,
+    subtitle: (c) => c.property,
+    badge: (c) => (
+      <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-bold border whitespace-nowrap", levelBadgeClass(c.level))}>{c.levelLabel}</span>
+    ),
+    fields: [
+      { label: "Amount", render: (c) => fmtGBP(c.amount) },
+      { label: "Days Overdue", render: (c) => `${c.daysOverdue} days` },
+      { label: "Last Action", render: (c) => c.lastAction },
+    ],
+    actions: (c) => (
+      <div className="flex items-center gap-1.5">
+        <button onClick={() => pauseCase(c)} className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors">
+          <Pause className="w-3 h-3" /> Pause
+        </button>
+        <button onClick={() => resolveCase(c)} className="flex items-center gap-1 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors">
+          <CheckCircle className="w-3 h-3" /> Resolve
+        </button>
+      </div>
+    ),
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Rent Chase"
+        subtitle={`${chaseCases.length} chasing`}
+        primaryAction={{ label: "New Case", icon: Plus, href: "/app/money/arrears" }}
+        overflowActions={[{ label: "Manage Arrears", icon: Settings, href: "/app/money/arrears" }]}
+      />
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -262,6 +295,7 @@ export default function RentChasePage() {
       <MoneyTabNav />
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Rent Chase"
           title="Rent Chase"
@@ -279,6 +313,7 @@ export default function RentChasePage() {
             </>
           }
         />
+        </div>
 
         {/* Chase status banner — live */}
         <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 border border-blue-200">
@@ -299,7 +334,7 @@ export default function RentChasePage() {
         </div>
 
         {/* KPI row — live */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MoneyKpiCard
             label="Currently Chasing"
             value={chaseCases.length}
@@ -338,6 +373,22 @@ export default function RentChasePage() {
               <div className="px-5 py-4 border-b border-slate-100">
                 <h2 className="text-sm font-semibold text-slate-900">Active Chase Cases</h2>
               </div>
+              <ResponsiveTable
+                rows={chaseCases}
+                mobile={chaseCardMapping}
+                className="p-4"
+                emptyState={
+                  !isLoading && chaseCases.length === 0 ? (
+                    <div className="md:hidden flex flex-col items-center justify-center py-16 gap-3">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6 text-emerald-500" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">No active chase cases</p>
+                      <p className="text-xs text-slate-500">Open arrears cases appear here for chasing.</p>
+                    </div>
+                  ) : undefined
+                }
+              >
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -374,6 +425,7 @@ export default function RentChasePage() {
                   </tbody>
                 </table>
               </div>
+              </ResponsiveTable>
             </div>
           </div>
 

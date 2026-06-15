@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, MobileTabs, MobilePageHeader } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useContacts, useUpdateContact } from "@/hooks/useContacts"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -375,10 +376,40 @@ export default function ContactsBoardPage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      {/* Mobile top bar + header */}
+      <MobileTopBar
+        title="Contact Board"
+        subtitle="Swipe columns"
+        primaryAction={{ label: "Add contact", icon: Plus, href: "/app/contacts/new" }}
+      />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="md:hidden px-4 pt-4 space-y-3">
+        <MobileTabs
+          tabs={[
+            { id: "status", label: "By Status" },
+            { id: "type", label: "By Type" },
+          ]}
+          value={boardMode}
+          onChange={(id) => setBoardMode(id as BoardMode)}
+          aria-label="Board grouping"
+        />
+        <MobilePageHeader
+          title="Contact Board"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search contacts…"
+          className="mb-0"
+        />
+      </div>
+
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4">
+      <div className="hidden md:flex items-start justify-between gap-4 px-6 pt-6 pb-4">
         <div>
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contact Board</h1>
@@ -394,7 +425,7 @@ export default function ContactsBoardPage() {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-3 px-6 pb-3 flex-wrap">
+      <div className="hidden md:flex items-center gap-3 px-6 pb-3 flex-wrap">
         {/* Mode toggle */}
         <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm">
           <button
@@ -463,6 +494,23 @@ export default function ContactsBoardPage() {
           <SlidersHorizontal className="w-3.5 h-3.5" />
           Filters
         </button>
+      </div>
+
+      {/* Mobile type filter row */}
+      <div className="md:hidden flex items-center gap-2 px-4 pt-3 pb-1 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        {TYPE_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setTypeFilter(f.key)}
+            aria-pressed={typeFilter === f.key}
+            className={cn(
+              "shrink-0 min-h-[36px] px-3.5 rounded-xl text-[13px] font-semibold border transition-colors",
+              typeFilter === f.key ? "bg-slate-800 border-slate-800 text-white" : "bg-white border-[#E2EAF6] text-slate-600"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {/* Column count pills */}

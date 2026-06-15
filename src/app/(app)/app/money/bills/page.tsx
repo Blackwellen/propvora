@@ -8,6 +8,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyBills, useMoneyBillsSummary, useCreateMoneyBill, useApproveBill, useMarkBillPaid } from "@/hooks/useMoneyData"
@@ -519,8 +522,49 @@ export default function BillsPage() {
     }
   }
 
+  // Row → card mappings for the mobile card lists (mirror the desktop tables).
+  const billCardMapping: MobileCardMapping<Bill> = {
+    getKey: (b) => b.id,
+    title: (b) => b.supplierName,
+    subtitle: (b) => `${b.billNumber} · ${b.poRef}`,
+    badge: (b) => {
+      const sc = billStatusConfig(b.status)
+      return <span className={cn("inline-flex text-[10.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", sc.className)}>{sc.label}</span>
+    },
+    fields: [
+      { label: "Amount", render: (b) => formatCurrency(b.amount) },
+      { label: "Due", render: (b) => b.dueDate },
+      { label: "Property", render: (b) => b.property },
+      { label: "Payment", render: (b) => b.paymentMethod },
+    ],
+    onRowClick: (b) => router.push(`/app/money/bills/${b.id}`),
+  }
+  const supplierPaymentCardMapping: MobileCardMapping<SupplierPayment> = {
+    getKey: (sp) => sp.id,
+    title: (sp) => sp.supplierName,
+    subtitle: (sp) => sp.paymentMethod,
+    badge: (sp) => {
+      const sc = paymentStatusConfig(sp.status)
+      return <span className={cn("inline-flex text-[10.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", sc.className)}>{sc.label}</span>
+    },
+    fields: [
+      { label: "Amount", render: (sp) => formatCurrency(sp.amount) },
+      { label: "Scheduled", render: (sp) => sp.scheduledDate },
+    ],
+    onRowClick: (sp) => router.push(`/app/money/bills/${sp.id}`),
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Bills"
+        subtitle={`${filteredBills.length} bill${filteredBills.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "Add Bill", icon: Plus, onClick: () => setShowAddModal(true) }}
+        overflowActions={[
+          { label: "Pay Supplier (BACS export)", icon: Banknote, onClick: bulkPaySupplierBACS },
+          { label: "Export CSV", icon: Download, onClick: handleExportCSV },
+        ]}
+      />
       {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
@@ -533,6 +577,7 @@ export default function BillsPage() {
       {showAddModal && <AddBillModal onClose={() => setShowAddModal(false)} workspaceId={workspace?.id} onSaved={() => showToast("Bill saved successfully")} />}
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
         {/* Header */}
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Bills"
           title="Bills & Supplier Pay"
@@ -559,6 +604,16 @@ export default function BillsPage() {
               />
             </>
           }
+        />
+        </div>
+
+        {/* Mobile header — search (desktop search field gated below) */}
+        <MobilePageHeader
+          title="Bills"
+          count={`${filteredBills.length} bill${filteredBills.length === 1 ? "" : "s"}`}
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search bills…"
         />
 
         {/* Sticky bulk-selection toolbar — appears when bills are selected */}
@@ -610,7 +665,7 @@ export default function BillsPage() {
         )}
 
         {/* KPI Row — live */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <MoneyKpiCard
             label="Awaiting Review"
             value={liveSummary?.awaitingReview ?? 0}
@@ -674,11 +729,11 @@ export default function BillsPage() {
         </div>
 
         {/* Main Layout */}
-        <div className="flex gap-5 items-start">
+        <div className="flex flex-col lg:flex-row gap-5 items-start">
           {/* LEFT */}
-          <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <div className="flex-1 min-w-0 w-full flex flex-col gap-4">
             {/* Search + Filters */}
-            <div className="relative">
+            <div className="relative hidden md:block">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -689,7 +744,7 @@ export default function BillsPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="hidden md:flex items-center gap-2 flex-wrap">
               {[
                 "Status (5 selected)",
                 "Approval Status: All",
@@ -718,7 +773,7 @@ export default function BillsPage() {
 
             {/* Selection row */}
             {viewTab === "bills" && (
-              <div className="flex items-center gap-3 text-[13px] text-slate-500">
+              <div className="hidden md:flex items-center gap-3 text-[13px] text-slate-500">
                 <input
                   type="checkbox"
                   checked={
@@ -737,6 +792,21 @@ export default function BillsPage() {
 
             {/* Bills Table */}
             {viewTab === "bills" && (
+              <ResponsiveTable
+                rows={filteredBills}
+                mobile={billCardMapping}
+                emptyState={
+                  filteredBills.length === 0 ? (
+                    <div className="md:hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-10 flex flex-col items-center justify-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                        <CheckSquare className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">No bills yet</p>
+                      <p className="text-xs text-slate-500">Use “Add Bill” to record your first supplier bill.</p>
+                    </div>
+                  ) : undefined
+                }
+              >
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -947,10 +1017,24 @@ export default function BillsPage() {
                   </div>
                 )}
               </div>
+              </ResponsiveTable>
             )}
 
             {/* Supplier Payments Table */}
             {viewTab === "supplier_payments" && (
+              <ResponsiveTable
+                rows={supplierPayments}
+                mobile={supplierPaymentCardMapping}
+                emptyState={
+                  supplierPayments.length === 0 ? (
+                    <div className="md:hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex flex-col items-center justify-center gap-2">
+                      <Users className="w-8 h-8 text-slate-300" />
+                      <p className="text-sm font-medium text-slate-500">No supplier payments queued</p>
+                      <p className="text-xs text-slate-500">Approve unpaid bills to build the payment queue.</p>
+                    </div>
+                  ) : undefined
+                }
+              >
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -1047,11 +1131,12 @@ export default function BillsPage() {
                   </table>
                 </div>
               </div>
+              </ResponsiveTable>
             )}
           </div>
 
           {/* RIGHT Sidebar */}
-          <div className="w-72 shrink-0 flex flex-col gap-4 sticky top-6">
+          <div className="w-full lg:w-72 shrink-0 flex flex-col gap-4 lg:sticky lg:top-6">
             {/* Top Suppliers — live */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">

@@ -90,7 +90,32 @@ export default async function AdminBugsPage() {
               </Card>
             ) : (
               <Card noPadding>
-                <div className="overflow-x-auto">
+                {/* Mobile card list */}
+                <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+                  {bugs.rows.map((r: BugReportRow) => (
+                    <li key={r.id} className="p-3.5 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {kindBadge(r.kind)}
+                        {statusBadge(r.status)}
+                        <span className="ml-auto text-[11px] text-slate-400">{fmt(r.createdAt)}</span>
+                      </div>
+                      <p className="text-[13px] text-slate-700 line-clamp-3">
+                        {r.message ?? (r.digest ? `Error digest ${r.digest}` : "—")}
+                      </p>
+                      <div className="flex items-center gap-3 flex-wrap text-[11px]">
+                        {r.route && <span className="font-mono text-slate-500">{r.route}</span>}
+                        {r.workspaceId && (
+                          <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1 text-slate-400 hover:text-[#2563EB]">
+                            <Building2 className="w-3 h-3 shrink-0" />
+                            <span className="font-mono">{shortId(r.workspaceId)}</span>
+                          </Link>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {/* Desktop table */}
+                <div className="hidden lg:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-[#E2E8F0] bg-slate-50">

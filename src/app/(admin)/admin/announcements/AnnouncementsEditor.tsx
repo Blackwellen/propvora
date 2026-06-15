@@ -125,7 +125,47 @@ export default function AnnouncementsEditor({ initialAnnouncements, workspaces }
             <p className="text-sm text-slate-400">No announcements yet.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <>
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#E2E8F0]" role="list">
+            {initialAnnouncements.map((a) => (
+              <li key={a.id} className="p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{a.title}</p>
+                    <div className="mt-0.5 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                      {a.workspaceId === null ? (
+                        <span className="inline-flex items-center gap-1 text-[#2563EB] font-medium"><Globe className="w-3 h-3" /> Global</span>
+                      ) : (
+                        <span className="truncate">{wsName(a.workspaceId)}</span>
+                      )}
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium capitalize ${SEVERITY_STYLES[a.severity]}`}>{a.severity}</span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-slate-400">{fmt(a.startsAt)} – {fmt(a.endsAt)}</p>
+                  </div>
+                  {a.published ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#059669] shrink-0">Published</span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 shrink-0">Draft</span>
+                  )}
+                </div>
+                <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-2.5">
+                  <Button variant="outline" size="sm" onClick={() => togglePublish(a)} className="flex-1">
+                    {a.published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {a.published ? "Unpublish" : "Publish"}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setEditing(a); setNotice(null); setError(null) }} className="flex-1">
+                    <Pencil className="w-3.5 h-3.5" /> Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => remove(a)} aria-label="Delete">
+                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <table className="hidden lg:table w-full text-sm">
             <thead>
               <tr className="border-b border-[#E2E8F0]">
                 {["Title", "Scope", "Severity", "Window", "Status", ""].map((h) => (
@@ -172,6 +212,7 @@ export default function AnnouncementsEditor({ initialAnnouncements, workspaces }
               ))}
             </tbody>
           </table>
+          </>
         )}
       </div>
 

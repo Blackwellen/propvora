@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/Button"
 import { AccountingKpiCard } from "@/features/accounting/components"
 import { useTrialBalance } from "@/lib/accounting/hooks"
 import { formatPence, toCsv, downloadCsv } from "@/lib/accounting"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 const TYPE_LABEL: Record<string, string> = {
   asset: "Assets", liability: "Liabilities", equity: "Equity", income: "Income", expense: "Expenses",
 }
+
+type TrialBalanceRow = NonNullable<ReturnType<typeof useTrialBalance>["data"]>["rows"][number]
 
 export default function TrialBalancePage() {
   const [asOf, setAsOf] = useState<string>(new Date().toISOString().slice(0, 10))
@@ -25,8 +29,25 @@ export default function TrialBalancePage() {
     downloadCsv(`trial-balance-${asOf}.csv`, csv)
   }
 
+  const cardMapping: MobileCardMapping<TrialBalanceRow> = {
+    getKey: (r) => r.account_id,
+    title: (r) => r.name,
+    subtitle: (r) => r.code,
+    badge: (r) => <span className="text-[11px] text-slate-500">{TYPE_LABEL[r.type] ?? r.type}</span>,
+    fields: [
+      { label: "Debit", render: (r) => <span className="tabular-nums">{r.net_debit_pence ? formatPence(r.net_debit_pence) : "—"}</span> },
+      { label: "Credit", render: (r) => <span className="tabular-nums">{r.net_credit_pence ? formatPence(r.net_credit_pence) : "—"}</span> },
+    ],
+  }
+
   return (
     <div className="space-y-6">
+      <MobileTopBar
+        title="Trial Balance"
+        subtitle="General Ledger"
+        overflowActions={tb && tb.rows.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <AccountingKpiCard label="Total Debits" value={formatPence(tb?.total_debit_pence ?? 0)} subtitle={`As of ${asOf}`} />
         <AccountingKpiCard label="Total Credits" value={formatPence(tb?.total_credit_pence ?? 0)} subtitle={`As of ${asOf}`} />
@@ -62,6 +83,7 @@ export default function TrialBalancePage() {
             <p className="text-xs text-slate-500 max-w-sm">Post some journal entries and they will appear here, summed from the ledger.</p>
           </div>
         ) : (
+          <ResponsiveTable rows={tb.rows} mobile={cardMapping} className="p-3">
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
@@ -93,6 +115,7 @@ export default function TrialBalancePage() {
             </tfoot>
           </table>
           </div>
+          </ResponsiveTable>
         )}
       </div>
     </div>

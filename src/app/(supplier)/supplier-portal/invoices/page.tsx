@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
   resolveSupplierContext, formatMoney, formatDate, invoiceStatusMeta,
 } from "../_lib/supplier-context"
@@ -85,6 +86,24 @@ export default function SupplierInvoicesPage() {
   const totalPending = invoices.filter((i) => ["submitted", "reviewing"].includes(i.status)).reduce((s, i) => s + (i.amount ?? 0), 0)
   const totalApproved = invoices.filter((i) => i.status === "approved").reduce((s, i) => s + (i.amount ?? 0), 0)
   const totalPaid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + (i.amount ?? 0), 0)
+
+  const invoiceCardMapping: MobileCardMapping<InvoiceRow> = {
+    getKey: (inv) => inv.id,
+    title: (inv) => inv.invoice_number || inv.id.slice(0, 8).toUpperCase(),
+    subtitle: (inv) => `Submitted ${formatDate(inv.submitted_at)}`,
+    badge: (inv) => {
+      const meta = invoiceStatusMeta(inv.status)
+      return <Badge variant={meta.variant} dot>{meta.label}</Badge>
+    },
+    onRowClick: (inv) => router.push(`/supplier-portal/invoices/${inv.id}`),
+    fields: [
+      { label: "Amount", render: (inv) => formatMoney(inv.amount, inv.currency ?? "GBP") },
+      {
+        label: "Approved / Paid",
+        render: (inv) => (inv.paid_at ? formatDate(inv.paid_at) : inv.approved_at ? formatDate(inv.approved_at) : "—"),
+      },
+    ],
+  }
 
   if (loading) {
     return (
@@ -181,7 +200,28 @@ export default function SupplierInvoicesPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table (desktop) / card list (mobile) */}
+      <ResponsiveTable
+        rows={filtered}
+        mobile={invoiceCardMapping}
+        emptyState={
+          <Card className="rounded-2xl border-slate-200">
+            <div className="text-center py-12">
+              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">
+                {invoices.length === 0 ? "No invoices submitted yet." : "No invoices match your filter."}
+              </p>
+              {invoices.length === 0 && (
+                <Link href="/supplier-portal/jobs">
+                  <Button variant="outline" size="sm" className="mt-3">
+                    <Briefcase className="w-4 h-4" /> Submit from a Job
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
@@ -239,6 +279,7 @@ export default function SupplierInvoicesPage() {
           )}
         </div>
       </Card>
+      </ResponsiveTable>
 
       {filtered.length > 0 && (
         <div className="flex items-center justify-between">

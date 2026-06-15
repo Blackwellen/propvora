@@ -16,6 +16,7 @@ import {
   FileText, CheckCircle2, Save,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* Schema                                                               */
@@ -120,7 +121,15 @@ export default function TenancyEditPage() {
 
   return (
     <DashboardContainer>
-      <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-6">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Edit tenancy"
+        subtitle={tenancy?.reference ?? "this tenancy"}
+        showBack
+        backHref={`/app/portfolio/tenancies/${id}`}
+      />
+
+      <nav className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 mb-6">
         <Link href="/app/portfolio" className="hover:text-slate-600">Portfolio</Link>
         <span>/</span>
         <Link href="/app/portfolio/tenancies" className="hover:text-slate-600">Tenancies</Link>
@@ -131,7 +140,7 @@ export default function TenancyEditPage() {
       </nav>
 
       <div className="max-w-lg mx-auto">
-        <div className="mb-8">
+        <div className="hidden md:block mb-8">
           <h1 className="text-2xl font-bold text-slate-900">Edit tenancy</h1>
           <p className="text-sm text-slate-500 mt-1">Update {tenancy?.reference ?? "this tenancy"}</p>
         </div>

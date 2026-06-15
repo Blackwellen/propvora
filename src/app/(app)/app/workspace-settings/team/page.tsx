@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { changeMemberRole, removeMember } from "@/lib/actions/settings"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { PLAN_DISPLAY, normaliseTier } from "@/lib/billing/plans"
+import { ResponsiveTable } from "@/components/mobile"
 
 interface TeamMember {
   id: string
@@ -289,13 +290,106 @@ export default function TeamPage() {
         </select>
       </div>
 
-      {/* Team table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+      {/* Team table (desktop) / card list (mobile) */}
+      {loading ? (
+        <div className="bg-white rounded-2xl border border-slate-200 flex items-center justify-center py-12">
+          <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+        </div>
+      ) : (
+      <ResponsiveTable
+        rows={filteredTeam}
+        mobile={{
+          getKey: (m) => m.id,
+          title: (m) => m.name,
+          subtitle: (m) => m.email || undefined,
+          leading: (m) => (
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
+              style={{ backgroundColor: m.avatarColour }}
+            >
+              {m.avatar}
+            </div>
+          ),
+          badge: (m) => (
+            <span
+              className={cn(
+                "text-[11px] font-semibold px-2.5 py-1 rounded-full",
+                m.status === "active"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-amber-100 text-amber-700"
+              )}
+            >
+              {m.status === "active" ? "Active" : "Invited"}
+            </span>
+          ),
+          fields: [
+            {
+              label: "Role",
+              render: (m) =>
+                m.status === "invited" ? (
+                  <span className="capitalize">{m.role}</span>
+                ) : (
+                  <select
+                    aria-label={`Change role for ${m.name ?? "member"}`}
+                    value={m.role.toLowerCase()}
+                    disabled={busyId === m.id}
+                    onChange={(e) => handleRoleChange(m.id, e.target.value)}
+                    className="w-full text-[13px] font-medium text-slate-700 px-2.5 py-2 rounded-lg bg-slate-100 capitalize focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 disabled:opacity-50 min-h-[40px]"
+                  >
+                    {ROLE_OPTIONS.map((r) => (
+                      <option key={r} value={r}>
+                        {r.replace("_", " ")}
+                      </option>
+                    ))}
+                  </select>
+                ),
+            },
+            { label: "MFA", render: (m) => (m.mfa ? "Enabled" : "Off") },
+            { label: "AI Usage", render: (m) => `${m.aiUsage} credits` },
+            { label: "Last Active", render: (m) => m.lastActive },
+          ],
+          actions: (m) => (
+            <div className="flex items-center gap-2">
+              {busyId === m.id ? (
+                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+              ) : (
+                <>
+                  {m.role.toLowerCase() !== "owner" && (
+                    <ConfirmDialog
+                      title="Remove team member?"
+                      description={`${m.name} will lose access to this workspace immediately.`}
+                      confirmLabel="Remove"
+                      onConfirm={() => handleRemove(m.id)}
+                    >
+                      {(open) => (
+                        <button
+                          onClick={open}
+                          className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remove
+                        </button>
+                      )}
+                    </ConfirmDialog>
+                  )}
+                  {m.status === "invited" && (
+                    <button className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-blue-600 hover:bg-blue-50 transition-colors">
+                      <RefreshCw className="w-4 h-4" />
+                      Resend
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          ),
+        }}
+        emptyState={
+          <div className="bg-white rounded-2xl border border-slate-200 px-5 py-10 text-center text-[13px] text-slate-400">
+            {members.length === 0 ? "No team members found." : "No team members match your search."}
           </div>
-        ) : (
+        }
+      >
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
@@ -431,8 +525,9 @@ export default function TeamPage() {
               ))}
             </tbody>
           </table>
-        )}
       </div>
+      </ResponsiveTable>
+      )}
 
       {/* Invite modal */}
       {showInviteModal && (

@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { useTasks } from "@/hooks/useTasks"
 import { useJobs } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
@@ -711,7 +712,22 @@ export default function GanttPage() {
 
   return (
     <div className="space-y-5">
+      {/* Mobile top bar + tab rail */}
+      <MobileTopBar
+        title="Gantt"
+        subtitle="Timeline — agenda view"
+        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        overflowActions={[
+          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Export", icon: Download, onClick: handleExport },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <WorkTabNav />
+      </div>
+
       {/* Page header */}
+      <div className="hidden md:block">
       <PageHeader
         title="Gantt"
         description="Timeline planning and dependencies"
@@ -745,6 +761,7 @@ export default function GanttPage() {
           </>
         }
       />
+      </div>
 
       {/* KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
@@ -757,11 +774,13 @@ export default function GanttPage() {
           : kpis.map((kpi) => <KpiCard key={kpi.label} {...kpi} />)}
       </div>
 
-      {/* Tab Nav */}
-      <WorkTabNav />
+      {/* Tab Nav (desktop) */}
+      <div className="hidden md:block">
+        <WorkTabNav />
+      </div>
 
       {/* Controls bar */}
-      <div className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex bg-white border border-slate-200 rounded-xl px-4 py-2.5 items-center gap-2 flex-wrap">
         {/* View sub-tabs */}
         <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
           {([
@@ -870,8 +889,63 @@ export default function GanttPage() {
         </div>
       </div>
 
-      {/* Main Gantt table */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+      {/* Mobile agenda list — replaces the squished grid below md */}
+      <div className="md:hidden space-y-2.5">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
+          ))
+        ) : rows.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-[13px] text-slate-400">
+            No tasks or jobs with dates to display yet.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const statusLabels: Record<GanttRow["status"], string> = {
+              complete: "Complete", in_progress: "In Progress", at_risk: "At Risk", not_started: "Not Started",
+            }
+            const statusColors: Record<GanttRow["status"], string> = {
+              complete: "bg-emerald-100 text-emerald-700", in_progress: "bg-blue-100 text-blue-700",
+              at_risk: "bg-red-100 text-red-700", not_started: "bg-slate-100 text-slate-600",
+            }
+            return (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => router.push(row.href)}
+                className="w-full text-left bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5 active:scale-[0.99] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {row.type === "job" ? (
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    ) : (
+                      <CheckSquare className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                    )}
+                    <span className="text-[14px] font-bold text-[#071B4D] truncate">{row.title}</span>
+                  </div>
+                  <span className={cn("shrink-0 text-[10.5px] font-semibold px-2 py-0.5 rounded-full", statusColors[row.status])}>
+                    {statusLabels[row.status]}
+                  </span>
+                </div>
+                <p className="text-[12px] text-slate-500 mt-0.5 truncate">{row.property} · {row.ref}</p>
+                <div className="mt-2.5 flex items-center gap-3 text-[12px] text-slate-600">
+                  <span className="flex items-center gap-1"><CalendarIcon className="w-3 h-3" />{row.startDate} → {row.dueDate}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-slate-200">
+                    <div className={cn("h-1.5 rounded-full", row.barColor)} style={{ width: `${row.progress}%` }} />
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-600 w-8 text-right">{row.progress}%</span>
+                </div>
+              </button>
+            )
+          })
+        )}
+      </div>
+
+      {/* Main Gantt table (desktop) */}
+      <div className="hidden md:block bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 8 }).map((_, i) => (

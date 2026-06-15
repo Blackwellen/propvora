@@ -73,7 +73,20 @@ export default async function AdminStripeEventsPage() {
 
           {/* Table */}
           <Card noPadding>
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+              {rows.map((e) => (
+                <li key={e.id} className="p-3.5 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="primary" size="sm" className="font-mono">{e.type}</Badge>
+                    <span className="text-[11px] text-slate-500 shrink-0">{fmt(e.processedAt)}</span>
+                  </div>
+                  <p className="font-mono text-[10px] text-slate-400 truncate">{e.stripeEventId ?? "—"}</p>
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-slate-50">

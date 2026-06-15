@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
   resolveLandlordContext, resolveLandlordPropertyIds,
   formatMoney, formatDate, propertyLabel,
@@ -65,6 +66,21 @@ export default function LandlordStatementsPage() {
     if (statusFilter === "All") return true
     return i.status === statusFilter.toLowerCase()
   }), [income, statusFilter])
+
+  const statementCardMapping: MobileCardMapping<IncomeRow> = {
+    getKey: (i) => i.id,
+    title: (i) => (i.property_id ? propLabels.get(i.property_id) ?? "Property" : "—"),
+    subtitle: (i) => formatDate(i.date),
+    badge: (i) => (
+      <Badge variant={i.status === "received" ? "success" : i.status === "late" ? "danger" : "warning"} dot>
+        {i.status}
+      </Badge>
+    ),
+    fields: [
+      { label: "Category", render: (i) => <span className="capitalize">{i.category ?? "Rent"}</span> },
+      { label: "Amount", render: (i) => formatMoney(i.amount, i.currency ?? "GBP") },
+    ],
+  }
 
   const totalReceived = income.filter((i) => i.status === "received").reduce((s, i) => s + (i.amount ?? 0), 0)
   const totalExpected = income.filter((i) => ["expected", "late", "partial"].includes(i.status)).reduce((s, i) => s + (i.amount ?? 0), 0)
@@ -165,7 +181,21 @@ export default function LandlordStatementsPage() {
             ))}
           </div>
 
-          {/* Table */}
+          {/* Table (desktop) / card list (mobile) */}
+          <ResponsiveTable
+            rows={filtered}
+            mobile={statementCardMapping}
+            emptyState={
+              <Card className="rounded-2xl border-slate-200">
+                <div className="text-center py-12">
+                  <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm text-slate-400">
+                    {income.length === 0 ? "No income recorded yet." : "No records match this filter."}
+                  </p>
+                </div>
+              </Card>
+            }
+          >
           <Card noPadding className="rounded-2xl border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[620px]">
@@ -206,6 +236,7 @@ export default function LandlordStatementsPage() {
               )}
             </div>
           </Card>
+          </ResponsiveTable>
 
           <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
             <Receipt className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />

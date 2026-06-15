@@ -26,6 +26,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { createClient } from "@/lib/supabase/client"
 import { isMissingTable } from "@/features/accounting/ledger"
 import { computeMtd, fmtGBP, fmtDate, nextDeadline, dueProgress, type MtdComputation, type MtdPeriod } from "./obligations"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 // Real HMRC MTD requires live OAuth against the HMRC sandbox/production APIs.
 // The submission path is gated behind a feature flag AND a real connection row;
@@ -132,8 +133,18 @@ export default function MtdPage() {
         </div>
       )}
 
+      <MobileTopBar
+        title="Making Tax Digital"
+        subtitle={mtd ? `Tax year ${mtd.taxYearLabel}` : "Accounting"}
+        primaryAction={
+          MTD_ENABLED && !isConnected
+            ? { label: "Connect HMRC", icon: Shield, onClick: () => showToast("HMRC authorisation flow starts here once configured") }
+            : undefined
+        }
+      />
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>Accounting</span>

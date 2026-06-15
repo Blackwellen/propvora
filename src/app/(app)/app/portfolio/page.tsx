@@ -34,6 +34,7 @@ import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus
 import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls, resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
 import { openCopilot } from "@/lib/copilot/open"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* 13 Operational Profiles                                              */
@@ -475,6 +476,20 @@ export default function PortfolioPage() {
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar — compact title + primary "Add" + overflow */}
+      <MobileTopBar
+        title="Portfolio"
+        subtitle={`${properties.length} propert${properties.length !== 1 ? "ies" : "y"} · ${totalUnits} units`}
+        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+        overflowActions={[
+          { label: "Map view", icon: Map, href: "/app/portfolio/map" },
+          { label: "Tenancy timeline", icon: Calendar, href: "/app/portfolio/timeline" },
+          { label: "Export portfolio (CSV)", icon: Download, onClick: exportPortfolio },
+        ]}
+      />
+
+      {/* Desktop header — hidden on phones (MobileTopBar owns mobile) */}
+      <div className="hidden md:block">
       <PageHeader
         title="Portfolio"
         description="Command centre for your property portfolio"
@@ -502,6 +517,8 @@ export default function PortfolioPage() {
           </div>
         }
       />
+      </div>
+      {/* end desktop header (hidden on phones) */}
 
       {/* KPI strip */}
       {loading ? (

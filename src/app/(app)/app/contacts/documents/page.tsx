@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
+import { MobileTopBar, MobilePageHeader, ResponsiveTable } from "@/components/mobile"
 import ContactsKpiCard from "@/components/contacts/ContactsKpiCard"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -423,11 +424,35 @@ export default function DocumentsPage() {
 
   return (
     <DashboardContainer>
-      <ContactsTabNav />
+      <MobileTopBar
+        title="Documents"
+        subtitle="Contact files"
+        primaryAction={{ label: "Upload document", icon: Upload, onClick: () => setShowUploadModal(true) }}
+        overflowActions={[
+          { label: "Request document", icon: Send, onClick: () => setShowRequestModal(true) },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <ContactsTabNav />
+      </div>
+      <div className="hidden md:block">
+        <ContactsTabNav />
+      </div>
 
-      <div className="px-6 pt-6 pb-8 space-y-6">
+      <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
+        {/* Mobile search */}
+        <div className="md:hidden">
+          <MobilePageHeader
+            title="Documents"
+            count={`${filtered.length} document${filtered.length === 1 ? "" : "s"}`}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search documents…"
+            className="mb-0"
+          />
+        </div>
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Documents</h1>
@@ -521,7 +546,7 @@ export default function DocumentsPage() {
           {/* Main table */}
           <div className="flex-1 min-w-0 space-y-3">
             {/* Table controls */}
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <input
@@ -549,6 +574,34 @@ export default function DocumentsPage() {
 
             {/* Table */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <ResponsiveTable
+                rows={loadingDocs ? [] : filtered}
+                emptyState={
+                  <div className="py-16 text-center">
+                    <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-slate-400">
+                      {docs.length === 0 ? "No documents uploaded yet" : "No documents match your filters"}
+                    </p>
+                  </div>
+                }
+                mobile={{
+                  getKey: (d) => d.id,
+                  title: (d) => d.name,
+                  subtitle: (d) => d.contactName,
+                  leading: (d) => <FileTypeIcon type={d.fileType} />,
+                  badge: (d) => {
+                    const sCfg = STATUS_CONFIG[d.status]
+                    return <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap", sCfg.cls)}>{sCfg.label}</span>
+                  },
+                  fields: [
+                    { label: "Category", render: (d) => d.category },
+                    { label: "Uploaded", render: (d) => d.uploaded },
+                    { label: "Expiry", render: (d) => d.expiry || "No expiry" },
+                    { label: "Size", render: (d) => d.size },
+                  ],
+                }}
+                className="p-3"
+              >
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -652,6 +705,7 @@ export default function DocumentsPage() {
                   </div>
                 )}
               </div>
+              </ResponsiveTable>
             </div>
           </div>
 

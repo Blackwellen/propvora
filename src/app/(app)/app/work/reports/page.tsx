@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useTasks } from "@/hooks/useTasks"
 import { useJobs } from "@/hooks/useJobs"
@@ -446,6 +447,12 @@ export default function WorkReportsPage() {
 
   return (
     <div className="space-y-5">
+      <MobileTopBar
+        title="Reports"
+        subtitle="Operational analytics"
+        primaryAction={hasData ? { label: "Export CSV", icon: Download, onClick: handleExport } : undefined}
+      />
+      <div className="hidden md:block">
       <PageHeader
         title="Reports"
         description="Live operational analytics across tasks and jobs"
@@ -464,6 +471,7 @@ export default function WorkReportsPage() {
           </button>
         }
       />
+      </div>
 
       <WorkTabNav />
 

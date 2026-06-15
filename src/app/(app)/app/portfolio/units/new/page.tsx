@@ -12,6 +12,7 @@ import {
   ChevronLeft, ChevronRight, Check, Home, Layers, PoundSterling, Eye, Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 interface UnitWizardData {
   property_id: string
@@ -305,7 +306,15 @@ export default function NewUnitPage() {
 
   return (
     <div className="max-w-xl mx-auto">
-      <div className="mb-6">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Add Unit / Room"
+        subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
+        showBack
+        backHref="/app/portfolio/units"
+      />
+
+      <div className="hidden md:block mb-6">
         <Link href="/app/portfolio/units" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ChevronLeft className="w-4 h-4" />Back to Units
         </Link>

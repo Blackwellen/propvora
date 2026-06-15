@@ -68,9 +68,9 @@ export function AccountingWizardShell({
       </div>
 
       {/* Content */}
-      <div className="flex gap-6 items-start">
-        <div className="flex-1 min-w-0">{leftContent}</div>
-        {rightRail && <aside className="w-80 shrink-0 sticky top-6 space-y-4">{rightRail}</aside>}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="flex-1 min-w-0 w-full">{leftContent}</div>
+        {rightRail && <aside className="w-full lg:w-80 shrink-0 lg:sticky lg:top-6 space-y-4">{rightRail}</aside>}
       </div>
 
       {/* Footer */}

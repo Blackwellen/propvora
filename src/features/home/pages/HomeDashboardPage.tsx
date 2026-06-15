@@ -93,7 +93,7 @@ function relativeTime(dateStr: string): string {
 /* ------------------------------------------------------------------ */
 function DashboardSkeleton() {
   return (
-    <div className="px-6 py-4 flex flex-col gap-5">
+    <div className="px-4 py-4 sm:px-6 flex flex-col gap-5">
       <div className="h-20 bg-white rounded-xl border border-[#E2E8F0] animate-pulse" />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {Array.from({ length: 7 }).map((_, i) => (
@@ -191,8 +191,8 @@ function CommandHeader({ workspaceName }: { workspaceName: string }) {
   })
 
   return (
-    <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm px-6 py-4 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-4 min-w-0">
+    <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm px-4 py-3.5 sm:px-6 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <div className="w-10 h-10 rounded-xl bg-[#1E3A5F] flex items-center justify-center flex-shrink-0">
           <Building2 className="text-white" style={{ width: 20, height: 20 }} />
         </div>
@@ -755,7 +755,7 @@ export function HomeDashboardPage() {
   if (loading) return <DashboardSkeleton />
 
   return (
-    <div className="px-6 py-4 flex flex-col gap-5 min-h-0">
+    <div className="px-4 py-4 sm:px-6 flex flex-col gap-5 min-h-0">
       {/* 1. Command Header */}
       <CommandHeader workspaceName={workspace?.name ?? "Your Workspace"} />
 

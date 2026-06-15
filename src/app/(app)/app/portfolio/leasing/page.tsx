@@ -10,6 +10,7 @@ import {
   CalendarDays,
   Clock,
 } from "lucide-react"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ─── Types ───────────────────────────────────────────────────── */
 interface KpiCardProps {
@@ -142,8 +143,18 @@ const columnHeaderColor: Record<string, string> = {
 export default function LeasingOverviewPage() {
   return (
     <>
-      {/* Page header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Leasing Pipeline"
+        subtitle="Vacancies, prospects & agreements"
+        primaryAction={{ label: "New vacancy", icon: Plus, href: "/app/portfolio/leasing/vacancies" }}
+        overflowActions={[
+          { label: "View calendar", icon: CalendarDays, href: "/app/portfolio/leasing/viewings" },
+        ]}
+      />
+
+      {/* Page header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-slate-900">Leasing Pipeline</h1>
           <p className="text-[13px] text-slate-500 mt-0.5">Track vacancies, prospects, and agreements in one place</p>
@@ -160,9 +171,9 @@ export default function LeasingOverviewPage() {
         </div>
       </div>
 
-      <div className="py-6 space-y-6">
+      <div className="py-6 space-y-6 px-4 md:px-0">
         {/* KPI row */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <KpiCard label="Active Vacancies"              value={7}  icon={Home}          color="blue"   />
           <KpiCard label="Active Prospects"              value={23} icon={Users}         color="green"  />
           <KpiCard label="Viewings This Week"            value={8}  icon={Calendar}      color="amber"  />
@@ -171,10 +182,10 @@ export default function LeasingOverviewPage() {
         </div>
 
         {/* Main grid */}
-        <div className="grid grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
           {/* Vacancy Kanban — col 1-5 */}
-          <div className="col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="lg:col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Vacancy Board</h2>
               <span className="text-[11px] text-slate-500">7 active</span>
@@ -218,7 +229,7 @@ export default function LeasingOverviewPage() {
           </div>
 
           {/* Recent Prospects — col 6-9 */}
-          <div className="col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="lg:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Recent Prospects</h2>
               <a href="/app/portfolio/leasing/prospects" className="text-[11px] text-blue-600 hover:underline">View all</a>
@@ -248,7 +259,7 @@ export default function LeasingOverviewPage() {
           </div>
 
           {/* Today's Viewings — col 10-12 */}
-          <div className="col-span-3 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="lg:col-span-3 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Today&apos;s Viewings</h2>
               <span className="text-[11px] text-slate-500">{TODAYS_VIEWINGS.length} today</span>

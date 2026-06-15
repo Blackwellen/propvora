@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import type { AdminAuditRow } from "@/lib/admin/data"
 
 const DATE_FILTERS = [
@@ -44,6 +45,28 @@ export default function AuditTable({ events, actions }: { events: AdminAuditRow[
     return matchSearch && matchAction && matchDate
   })
 
+  const auditCardMapping: MobileCardMapping<AdminAuditRow> = {
+    getKey: (ev) => ev.id,
+    title: (ev) => <span className={cn("font-mono", actionColour(ev.action))}>{ev.action}</span>,
+    subtitle: (ev) =>
+      ev.createdAt ? new Date(ev.createdAt).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—",
+    badge: (ev) => (ev.resourceType ? <Badge variant="outline" size="sm">{ev.resourceType}</Badge> : null),
+    onRowClick: (ev) => setExpandedId(expandedId === ev.id ? null : ev.id),
+    fields: [
+      { label: "Actor", render: (ev) => ev.actorName ?? ev.actorEmail ?? "system" },
+      { label: "Workspace", render: (ev) => ev.workspaceName ?? "—", hideWhenEmpty: true },
+      { label: "IP", render: (ev) => ev.ip ?? "—", hideWhenEmpty: true },
+    ],
+    actions: (ev) =>
+      expandedId === ev.id ? (
+        <pre className="w-full text-[10.5px] text-slate-600 font-mono overflow-auto max-h-40 bg-slate-100 p-3 rounded-lg text-left">
+          {JSON.stringify({ id: ev.id, resourceId: ev.resourceId, before: ev.before, after: ev.after }, null, 2)}
+        </pre>
+      ) : (
+        <span className="text-[11px] text-slate-400">Tap to view details</span>
+      ),
+  }
+
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-2 flex-wrap items-start">
@@ -70,6 +93,20 @@ export default function AuditTable({ events, actions }: { events: AdminAuditRow[
         </div>
       </div>
 
+      <ResponsiveTable
+        rows={filtered}
+        mobile={auditCardMapping}
+        className="mt-3"
+        emptyState={
+          <Card noPadding className="mt-3">
+            <div className="text-center py-10">
+              <FileText className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">{events.length === 0 ? "No audit events recorded yet" : "No events match your filters"}</p>
+              {events.length === 0 && <p className="text-xs text-slate-400 mt-1">Admin actions (suspend, archive, flag changes) will appear here.</p>}
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="mt-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -135,6 +172,7 @@ export default function AuditTable({ events, actions }: { events: AdminAuditRow[
           <span className="text-xs text-slate-500">Showing {filtered.length} of {events.length} events</span>
         </div>
       </Card>
+      </ResponsiveTable>
     </>
   )
 }

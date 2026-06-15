@@ -7,6 +7,8 @@ import {
   Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 /* ─── Types ───────────────────────────────────────────────────── */
 type ProspectStatus =
@@ -94,10 +96,48 @@ export default function ProspectsPage() {
 
   const filtered = statusFilter === "All" ? PROSPECTS : PROSPECTS.filter((p) => p.status === statusFilter)
 
+  /* Row → card mapping for the mobile list (table view). */
+  const prospectCardMapping: MobileCardMapping<Prospect> = {
+    getKey: (p) => p.id,
+    title: (p) => p.name,
+    subtitle: (p) => p.property,
+    leading: (p) => {
+      const idx = PROSPECTS.findIndex((x) => x.id === p.id)
+      return (
+        <div className={cn("w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0", avatarColors[idx % avatarColors.length])}>
+          {p.initials}
+        </div>
+      )
+    },
+    badge: (p) => (
+      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+        {p.status}
+      </span>
+    ),
+    fields: [
+      { label: "Source", render: (p) => p.source },
+      { label: "Move-in", render: (p) => p.moveInDate },
+      { label: "Budget", render: (p) => p.budget },
+      { label: "Days", render: (p) => `${p.daysInPipeline}d` },
+    ],
+  }
+
   return (
     <>
-      {/* Page header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Prospects"
+        subtitle={`${PROSPECTS.length} in pipeline`}
+        showBack
+        backHref="/app/portfolio/leasing"
+        primaryAction={{ label: "Add prospect", icon: Plus, onClick: () => {} }}
+        overflowActions={[
+          { label: view === "kanban" ? "Table view" : "Kanban view", icon: view === "kanban" ? List : LayoutGrid, onClick: () => setView(view === "kanban" ? "table" : "kanban") },
+        ]}
+      />
+
+      {/* Page header — hidden on phones */}
+      <div className="hidden md:block bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-slate-900">Prospects</h1>
@@ -151,7 +191,29 @@ export default function ProspectsPage() {
         </div>
       </div>
 
-      <div className="py-6">
+      {/* Mobile filter row */}
+      <div className="md:hidden flex items-center gap-2 overflow-x-auto px-4 pt-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <button
+          onClick={() => setStatusFilter("All")}
+          className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600")}
+        >
+          All ({PROSPECTS.length})
+        </button>
+        {STATUS_FILTERS.map((s) => {
+          const count = PROSPECTS.filter((p) => p.status === s).length
+          return (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === s ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600")}
+            >
+              {s} ({count})
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="py-6 px-4 md:px-0">
         {view === "kanban" ? (
           /* Kanban */
           <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -202,6 +264,7 @@ export default function ProspectsPage() {
           </div>
         ) : (
           /* Table */
+          <ResponsiveTable rows={filtered} mobile={prospectCardMapping}>
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
             <table className="w-full text-left min-w-[760px]">
@@ -258,6 +321,7 @@ export default function ProspectsPage() {
             </table>
             </div>
           </div>
+          </ResponsiveTable>
         )}
       </div>
     </>

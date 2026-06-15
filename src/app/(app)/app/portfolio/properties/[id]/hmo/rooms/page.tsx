@@ -13,6 +13,8 @@ import {
   MoreHorizontal,
 } from "lucide-react"
 import { use } from "react"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 /* ─── Types ─────────────────────────────────────────────────── */
 interface RoomRow {
@@ -49,14 +51,14 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
   ]
 
   return (
-    <div className="flex gap-1 px-6 border-b border-slate-200 bg-white">
+    <div className="flex gap-1 px-4 md:px-6 border-b border-slate-200 bg-white overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -674,12 +676,45 @@ export default function HmoRoomsPage({
   const { id } = use(params)
   const [showWizard, setShowWizard] = useState(false)
 
+  /* Row → card mapping for the mobile list. */
+  const roomCardMapping: MobileCardMapping<RoomRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.room,
+    subtitle: (r) => r.tenant ?? "Vacant",
+    badge: (r) => (
+      <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${
+        r.status === "occupied"
+          ? "bg-green-50 text-green-700 border border-green-200"
+          : "bg-amber-50 text-amber-700 border border-amber-200"
+      }`}>
+        {r.status === "occupied" ? "Occupied" : "Vacant"}
+      </span>
+    ),
+    fields: [
+      { label: "Rent", render: (r) => r.rentLabel },
+      { label: "Payment Day", render: (r) => r.paymentDay },
+      { label: "Lease Start", render: (r) => r.leaseStart },
+      { label: "Lease End", render: (r) => r.leaseEnd },
+      { label: "Deposit", render: (r) => r.deposit },
+      { label: "Scheme", render: (r) => r.scheme ?? "—" },
+    ],
+  }
+
   return (
     <>
       {showWizard && <OnboardingWizard onClose={() => setShowWizard(false)} />}
 
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Room Management"
+        subtitle="22 Victoria Road, Manchester · 6 rooms"
+        showBack
+        backHref={`/app/portfolio/properties/${id}/hmo`}
+        primaryAction={{ label: "Add room", icon: Plus, onClick: () => setShowWizard(true) }}
+      />
+
+      {/* Page Header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-slate-900">Room Management</h1>
           <p className="text-xs text-slate-500 mt-0.5">22 Victoria Road, Manchester · 6 rooms</p>
@@ -702,9 +737,10 @@ export default function HmoRoomsPage({
       <HmoTabStrip propertyId={id} />
 
       {/* Content */}
-      <div className="px-6 pb-6 pt-5 space-y-6">
+      <div className="px-4 md:px-6 pb-6 pt-5 space-y-6">
         {/* Rooms Table */}
         <div className="col-span-12">
+          <ResponsiveTable rows={ROOMS} mobile={roomCardMapping}>
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -811,6 +847,7 @@ export default function HmoRoomsPage({
               </table>
             </div>
           </div>
+          </ResponsiveTable>
         </div>
 
         {/* Deposit Protection Panel */}

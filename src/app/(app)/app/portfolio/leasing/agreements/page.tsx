@@ -11,6 +11,8 @@ import {
   FileSignature,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 
 /* ─── Types ───────────────────────────────────────────────────── */
 type AgreementStatus = "Draft" | "Sent" | "Partially Signed" | "Fully Signed" | "Expired"
@@ -123,10 +125,43 @@ export default function AgreementsPage() {
 
   const filtered = activeTab === "All" ? AGREEMENTS : AGREEMENTS.filter((a) => a.status === activeTab)
 
+  /* Row → card mapping for the mobile list (mirrors the desktop table columns). */
+  const agreementCardMapping: MobileCardMapping<Agreement> = {
+    getKey: (a) => a.id,
+    title: (a) => a.title,
+    subtitle: (a) => a.tenancy,
+    badge: (a) => (
+      <span className={cn("border px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap", statusStyle[a.status])}>
+        {a.status}
+      </span>
+    ),
+    fields: [
+      {
+        label: "Signatories",
+        render: (a) => {
+          const signed = a.signatories.filter((s) => s.signed).length
+          return `${signed}/${a.signatories.length} signed`
+        },
+      },
+      { label: "Created", render: (a) => a.created },
+      { label: "Deadline", render: (a) => a.deadline ?? "—" },
+    ],
+    onRowClick: (a) => setDrawerAgreement(a),
+  }
+
   return (
     <>
-      {/* Page header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Tenancy Agreements"
+        subtitle={`${AGREEMENTS.length} agreements`}
+        showBack
+        backHref="/app/portfolio/leasing"
+        primaryAction={{ label: "Create agreement", icon: Plus, onClick: () => {} }}
+      />
+
+      {/* Page header — hidden on phones */}
+      <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-slate-900">Tenancy Agreements</h1>
           <p className="text-[13px] text-slate-500 mt-0.5">{AGREEMENTS.length} agreements · {AGREEMENTS.filter((a) => a.status === "Partially Signed" || a.status === "Sent").length} awaiting signature</p>
@@ -137,9 +172,9 @@ export default function AgreementsPage() {
         </button>
       </div>
 
-      {/* Status tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="flex items-center gap-0">
+      {/* Status tabs — horizontal scroll on phones */}
+      <div className="bg-white border-b border-slate-200 px-4 md:px-6">
+        <div className="flex items-center gap-0 overflow-x-auto">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab}
@@ -157,7 +192,8 @@ export default function AgreementsPage() {
         </div>
       </div>
 
-      <div className="py-6">
+      <div className="py-6 px-4 md:px-0">
+        <ResponsiveTable rows={filtered} mobile={agreementCardMapping}>
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[820px]">
@@ -265,6 +301,7 @@ export default function AgreementsPage() {
           </table>
           </div>
         </div>
+        </ResponsiveTable>
       </div>
 
       {/* Signature status drawer */}

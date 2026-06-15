@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import type { DiagnosticRow } from "@/lib/admin/data"
 
 interface Props {
@@ -32,6 +33,18 @@ export default function DiagnosticsTable({ rows, primaryLabel, metaLabel, source
     return matchSearch && matchMeta
   })
 
+  const diagnosticCardMapping: MobileCardMapping<DiagnosticRow> = {
+    getKey: (r) => r.id,
+    title: (r) => r.primary,
+    subtitle: (r) => r.secondary ?? r.workspaceName,
+    badge: (r) => (r.status ? <Badge variant="default" size="sm" className="capitalize">{r.status.replace(/_/g, " ")}</Badge> : null),
+    onRowClick: sourceHref ? (r) => { window.location.href = sourceHref(r) } : undefined,
+    fields: [
+      { label: "Workspace", render: (r) => r.workspaceName },
+      { label: metaLabel, render: (r) => (r.meta ? r.meta.replace(/_/g, " ") : "—"), hideWhenEmpty: true },
+    ],
+  }
+
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
@@ -52,6 +65,19 @@ export default function DiagnosticsTable({ rows, primaryLabel, metaLabel, source
         )}
       </div>
 
+      <ResponsiveTable
+        rows={filtered}
+        mobile={diagnosticCardMapping}
+        className="mt-3"
+        emptyState={
+          <Card noPadding className="mt-3">
+            <div className="text-center py-10">
+              <Database className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">{rows.length === 0 ? "No records found across any workspace" : "No records match your filters"}</p>
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="mt-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -96,6 +122,7 @@ export default function DiagnosticsTable({ rows, primaryLabel, metaLabel, source
           <span className="text-xs text-slate-500">Showing {filtered.length} of {rows.length}</span>
         </div>
       </Card>
+      </ResponsiveTable>
     </>
   )
 }

@@ -55,7 +55,30 @@ export default async function AdminSubscriptionsPage() {
         </Card>
       ) : (
         <Card noPadding>
-          <div className="overflow-x-auto">
+          {/* Mobile card list */}
+          <ul className="lg:hidden divide-y divide-[#F1F5F9]" role="list">
+            {rows.map((s) => (
+              <li key={s.id} className="p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <Link href={`/admin/workspaces/${s.workspaceId}`} className="flex items-center gap-1.5 text-sm font-semibold text-slate-800 hover:text-[#2563EB] min-w-0">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" /> <span className="truncate">{s.workspaceName}</span>
+                  </Link>
+                  {statusBadge(s.status)}
+                </div>
+                <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+                  <Badge variant="primary" size="sm" className="capitalize">{s.plan}</Badge>
+                  <span className="text-[11px] text-slate-500">
+                    Renews {s.periodEnd ? new Date(s.periodEnd).toLocaleDateString("en-GB") : "—"}
+                  </span>
+                </div>
+                {s.stripeSubscriptionId && (
+                  <p className="mt-1.5 font-mono text-[10px] text-slate-400 truncate">{s.stripeSubscriptionId}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+          {/* Desktop table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-sm min-w-[720px]">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-slate-50">

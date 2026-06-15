@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import type { AdminWorkspaceRow } from "@/lib/admin/data"
 
 const PLAN_FILTERS = ["All", "enterprise", "business", "pro", "basic", "trial"] as const
@@ -44,6 +45,27 @@ export default function WorkspacesFilter({ workspaces }: { workspaces: AdminWork
     return matchSearch && matchPlan && matchStatus
   })
 
+  const workspaceCardMapping: MobileCardMapping<AdminWorkspaceRow> = {
+    getKey: (ws) => ws.id,
+    leading: (ws) => (
+      <div className="w-9 h-9 rounded-lg bg-[#0D1B2A] flex items-center justify-center shrink-0">
+        <Building2 className="w-4 h-4 text-white" />
+      </div>
+    ),
+    title: (ws) => ws.name,
+    subtitle: (ws) => ws.ownerName ?? ws.ownerEmail ?? "—",
+    badge: (ws) => statusBadge(ws.planStatus),
+    onRowClick: (ws) => { window.location.href = `/admin/workspaces/${ws.id}` },
+    fields: [
+      { label: "Plan", render: (ws) => planBadge(ws.plan) },
+      { label: "Members", render: (ws) => ws.memberCount },
+      {
+        label: "Created",
+        render: (ws) => (ws.createdAt ? new Date(ws.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" }) : "—"),
+      },
+    ],
+  }
+
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
@@ -71,6 +93,19 @@ export default function WorkspacesFilter({ workspaces }: { workspaces: AdminWork
         </div>
       </div>
 
+      <ResponsiveTable
+        rows={filtered}
+        mobile={workspaceCardMapping}
+        className="mt-3"
+        emptyState={
+          <Card noPadding className="mt-3">
+            <div className="text-center py-10">
+              <Building2 className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">No workspaces match your filters</p>
+            </div>
+          </Card>
+        }
+      >
       <Card noPadding className="mt-3">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -119,6 +154,7 @@ export default function WorkspacesFilter({ workspaces }: { workspaces: AdminWork
           <span className="text-xs text-slate-500">Showing {filtered.length} of {workspaces.length}</span>
         </div>
       </Card>
+      </ResponsiveTable>
     </>
   )
 }

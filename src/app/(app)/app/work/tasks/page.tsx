@@ -55,6 +55,13 @@ import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { WorkEmptyState } from "@/components/work/WorkEmptyState"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
+import {
+  MobileTopBar,
+  MobilePageHeader,
+  MobileFilterSheet,
+  ResponsiveTable,
+  type FilterGroup,
+} from "@/components/mobile"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -534,6 +541,7 @@ export default function TasksPage() {
   const [categoryFilter, setCategoryFilter] = useState("")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const liveOrDemo: DemoTask[] = useMemo(() => {
     if (tasksData && tasksData.length > 0) {
@@ -590,6 +598,45 @@ export default function TasksPage() {
     setPropertyFilter("")
     setCategoryFilter("")
   }
+
+  // ── Mobile filter sheet config ────────────────────────────────────────────
+  const mobileFilterGroups: FilterGroup[] = [
+    {
+      key: "status",
+      label: "Status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: [
+        { value: "", label: "All" },
+        ...["todo", "in_progress", "waiting", "blocked", "done", "cancelled"].map((s) => ({ value: s, label: s.replace("_", " ") })),
+      ],
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      value: priorityFilter,
+      onChange: setPriorityFilter,
+      options: [
+        { value: "", label: "All" },
+        ...["urgent", "high", "medium", "low"].map((p) => ({ value: p, label: p })),
+      ],
+    },
+    {
+      key: "property",
+      label: "Property",
+      value: propertyFilter,
+      onChange: setPropertyFilter,
+      options: propertyOptions.map((p) => ({ value: p === "All" ? "" : p, label: p })),
+    },
+    {
+      key: "category",
+      label: "Category",
+      value: categoryFilter,
+      onChange: setCategoryFilter,
+      options: categoryOptions.map((c) => ({ value: c === "All" ? "" : c, label: c })),
+    },
+  ]
+  const activeFilterCount = [statusFilter, priorityFilter, propertyFilter, categoryFilter].filter(Boolean).length
 
   // ── Saved Views: serialise/apply this list's filter + view state ──────────
   interface TaskViewConfig extends Record<string, unknown> {
@@ -665,8 +712,36 @@ export default function TasksPage() {
   return (
     <div className="space-y-5">
 
+      {/* Mobile top bar + header (below md) */}
+      <MobileTopBar
+        title="Tasks"
+        subtitle="Work management"
+        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        overflowActions={[
+          { label: "Select all", icon: CheckSquare, onClick: () => setSelectedIds(displayTasks.map((t) => t.id)) },
+          { label: "Export", icon: Download, onClick: exportSelected },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: "Help me prioritise my open tasks for this week." }) },
+        ]}
+      />
+      <MobilePageHeader
+        title="Tasks"
+        count={`${displayTasks.length} task${displayTasks.length === 1 ? "" : "s"}`}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search tasks…"
+        onOpenFilters={() => setMobileFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+      <MobileFilterSheet
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+        groups={mobileFilterGroups}
+        onClear={clearFilters}
+        activeCount={activeFilterCount}
+      />
+
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
           <p className="text-sm text-slate-500 mt-0.5">Work management workspace</p>
@@ -734,7 +809,7 @@ export default function TasksPage() {
       <WorkTabNav />
 
       {/* View type buttons */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="hidden md:flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2 flex-wrap">
           {VIEW_TYPES.map(vt => {
             const Icon = vt.icon
@@ -762,7 +837,7 @@ export default function TasksPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         <FilterDropdown
           label="Status"
           options={["All", "todo", "in_progress", "waiting", "blocked", "done", "cancelled"]}
@@ -878,6 +953,29 @@ export default function TasksPage() {
                   ctaHref={hasFilters ? undefined : "/app/work/tasks/new"}
                 />
               ) : (
+                <ResponsiveTable
+                  rows={displayTasks}
+                  mobile={{
+                    getKey: (t) => t.id,
+                    title: (t) => t.title,
+                    subtitle: (t) => `#${t.id}`,
+                    leading: (t) => <WorkPriorityBadge priority={t.priority} showLabel={false} />,
+                    badge: (t) => <WorkStatusBadge status={t.status} />,
+                    onRowClick: (t) => router.push(`/app/work/tasks/${t.id}`),
+                    fields: [
+                      { label: "Category", render: (t) => t.category },
+                      { label: "Property", render: (t) => t.property, hideWhenEmpty: true },
+                      { label: "Assignee", render: (t) => t.assigneeName },
+                      {
+                        label: "Due",
+                        render: (t) => (
+                          <span className={cn(t.overdue ? "text-red-600" : t.dueToday ? "text-amber-600" : "")}>{t.dueDate}</span>
+                        ),
+                      },
+                    ],
+                  }}
+                  className="px-3 pb-3"
+                >
                 <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -993,10 +1091,11 @@ export default function TasksPage() {
                   </tbody>
                 </table>
                 </div>
+                </ResponsiveTable>
               )}
 
               {/* Pagination footer */}
-              <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
+              <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
                 <p className="text-xs text-slate-500">Showing 1 to {displayTasks.length} of {displayTasks.length} tasks</p>
                 <div className="flex items-center gap-1">
                   <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">

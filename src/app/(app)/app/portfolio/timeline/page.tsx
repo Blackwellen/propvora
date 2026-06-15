@@ -14,6 +14,7 @@ import { useTenancies } from "@/hooks/useTenancies"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
 import { exportCsv, daysUntil } from "@/lib/portfolio/helpers"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
 
 /* ------------------------------------------------------------------ */
 /* Types & data                                                         */
@@ -187,6 +188,20 @@ export default function PortfolioTimelinePage() {
 
   return (
     <DashboardContainer>
+      {/* Mobile top bar */}
+      <MobileTopBar
+        title="Tenancy Gantt"
+        subtitle="Timeline view of tenancies"
+        showBack
+        backHref="/app/portfolio"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: "/app/portfolio/tenancies/new" }}
+        overflowActions={[
+          { label: "Export CSV", icon: Download, onClick: handleExport },
+        ]}
+      />
+
+      {/* Desktop header — hidden on phones */}
+      <div className="hidden md:block">
       <PageHeader
         title="Tenancy Gantt"
         description="Timeline view of all tenancies and occupancy periods"
@@ -198,6 +213,7 @@ export default function PortfolioTimelinePage() {
           </div>
         }
       />
+      </div>
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -243,8 +259,9 @@ export default function PortfolioTimelinePage() {
         </div>
       </div>
 
-      {/* Gantt chart */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* Gantt chart — horizontal scroll on small screens keeps the grid intact */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+      <div className="min-w-[640px] md:min-w-0">
         {/* Month header */}
         <div className="flex border-b border-slate-200 bg-slate-50/80">
           {/* Left col header */}
@@ -365,6 +382,7 @@ export default function PortfolioTimelinePage() {
             Today
           </div>
         </div>
+      </div>
       </div>
     </DashboardContainer>
   )

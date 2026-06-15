@@ -185,7 +185,7 @@ export default async function PlanningSetDetailLayout({
           </div>
 
           {/* Right: action buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
             <Link
               href={`/app/planning/sets/${id}/edit`}
               className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors"

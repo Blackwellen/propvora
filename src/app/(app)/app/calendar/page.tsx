@@ -19,6 +19,7 @@ import {
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
+import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
@@ -373,7 +374,20 @@ export default function CalendarOverviewPage() {
 
   return (
     <DashboardContainer>
-      <div className="space-y-5 px-6 py-6">
+      <MobileTopBar
+        title="Calendar"
+        subtitle="Scheduling hub"
+        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        overflowActions={[
+          { label: "New reminder", icon: Bell, href: "/app/calendar/reminders/new" },
+          { label: "Export / Settings", icon: Download, href: "/app/calendar/settings" },
+        ]}
+      />
+      <div className="md:hidden -mx-4">
+        <CalendarTabNav />
+      </div>
+      <div className="space-y-5 px-4 md:px-6 py-4 md:py-6">
+        <div className="hidden md:block">
         <SectionHeader
           title="Calendar"
           subtitle="Operational scheduling command centre — every dated record across your portfolio."
@@ -404,6 +418,7 @@ export default function CalendarOverviewPage() {
           }
           tabs={<CalendarTabNav />}
         />
+        </div>
 
         <KpiRow items={memoItems} />
 

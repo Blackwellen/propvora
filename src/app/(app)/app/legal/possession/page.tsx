@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   usePossessionCases,
@@ -124,6 +125,29 @@ export default function PossessionPage() {
     { icon: CheckCircle, value: resolvedCount,  label: "Resolved",            sub: "Across all grounds", iconCls: "bg-emerald-100 text-emerald-600" },
   ]
 
+  /* Row → card mapping for the mobile case list (presentation only). */
+  const caseCardMapping: MobileCardMapping<PossessionCase> = {
+    getKey: (c) => c.id,
+    title: (c) => caseTenantName(c),
+    subtitle: (c) => casePropertyName(c),
+    leading: (c) => (
+      <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold bg-slate-100 text-slate-700 shrink-0">
+        {initialsOf(caseTenantName(c))}
+      </div>
+    ),
+    badge: (c) => {
+      const cfg = statusCfg(c.status)
+      return <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-medium whitespace-nowrap ${cfg.cls}`}>{cfg.label}</span>
+    },
+    fields: [
+      { label: "Ground", render: (c) => c.ground },
+      { label: "Arrears", render: (c) => money(c.arrears_amount) },
+      { label: "Notice", render: (c) => formatDate(c.notice_served_date) },
+      { label: "Expiry", render: (c) => formatDate(c.notice_expiry_date) },
+    ],
+    onRowClick: (c) => router.push(`/app/legal/possession/${c.id}`),
+  }
+
   return (
     <>
       {/* Header */}
@@ -212,6 +236,11 @@ export default function PossessionPage() {
                 </Link>
               </div>
             ) : (
+              <ResponsiveTable<PossessionCase>
+                rows={cases}
+                mobile={caseCardMapping}
+                className="p-3"
+              >
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
@@ -288,6 +317,7 @@ export default function PossessionPage() {
                   </tbody>
                 </table>
               </div>
+              </ResponsiveTable>
             )}
           </div>
         </div>

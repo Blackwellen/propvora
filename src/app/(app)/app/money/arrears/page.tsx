@@ -8,6 +8,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
+import MobileTopBar from "@/components/mobile/MobileTopBar"
+import MobilePageHeader from "@/components/mobile/MobilePageHeader"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import Link from "next/link"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -135,7 +138,7 @@ function ChaseDrawer({
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-black/30" onClick={onClose} />
-      <div className="w-[420px] bg-white shadow-2xl flex flex-col h-full">
+      <div className="w-full max-w-[420px] bg-white shadow-2xl flex flex-col h-full">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-900">Chase Arrears</h2>
           <button aria-label="Close"
@@ -264,9 +267,9 @@ function ArrearCard({
       )}
     >
       <div className="p-5">
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Left: Tenant Info */}
-          <div className="w-48 shrink-0 flex flex-col gap-2">
+          <div className="w-full md:w-48 shrink-0 flex flex-col gap-2">
             <div className="flex items-start gap-2.5">
               <div
                 className={cn(
@@ -333,7 +336,7 @@ function ArrearCard({
           </div>
 
           {/* Right: Chase Info + Actions */}
-          <div className="w-44 shrink-0 flex flex-col gap-2">
+          <div className="w-full md:w-44 shrink-0 flex flex-col gap-2">
             <div className="flex flex-col gap-0.5">
               <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">
                 Last Chased
@@ -525,12 +528,47 @@ export default function ArrearsPage() {
     )
   }
 
+  // Row → card mapping for the mobile list view (mirrors the desktop list table).
+  const arrearCardMapping: MobileCardMapping<ArrearCase> = {
+    getKey: (c) => c.id,
+    title: (c) => c.tenantName,
+    subtitle: (c) => c.propertyAddress,
+    badge: (c) => {
+      const risk = riskConfig(c.riskLevel)
+      return <span className={cn("inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap", risk.badgeClass)}>{risk.label}</span>
+    },
+    fields: [
+      { label: "Outstanding", render: (c) => formatCurrency(c.amountOutstanding) },
+      { label: "Days Overdue", render: (c) => `${c.daysOverdue}d` },
+      { label: "Next Chase", render: (c) => c.nextChase },
+      { label: "Last Chased", render: (c) => c.lastChased },
+    ],
+    actions: (c) => (
+      <button
+        onClick={() => setDrawerCase(c)}
+        className={cn("px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors", riskConfig(c.riskLevel).chaseClass)}
+      >
+        Chase
+      </button>
+    ),
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
+      <MobileTopBar
+        title="Arrears"
+        subtitle={`${filtered.length} case${filtered.length === 1 ? "" : "s"}`}
+        primaryAction={{ label: "Create Invoice", icon: Plus, href: "/app/money/invoices/new" }}
+        overflowActions={[
+          { label: "Rent Chase", icon: Phone, href: "/app/money/rent-chase" },
+          { label: "Export CSV", icon: Download, onClick: handleExportCSV },
+        ]}
+      />
       <MoneyTabNav />
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
         {/* Header */}
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Arrears"
           title="Arrears"
@@ -551,9 +589,19 @@ export default function ArrearsPage() {
             </>
           }
         />
+        </div>
+
+        {/* Mobile header — search (desktop search field gated below) */}
+        <MobilePageHeader
+          title="Arrears"
+          count={`${filtered.length} case${filtered.length === 1 ? "" : "s"}`}
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search arrears…"
+        />
 
         {/* KPI Row */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <MoneyKpiCard
             label="Total Arrears"
             value={fmtGBP(totalArrears)}
@@ -592,11 +640,11 @@ export default function ArrearsPage() {
         </div>
 
         {/* Main Layout */}
-        <div className="flex gap-5 items-start">
+        <div className="flex flex-col lg:flex-row gap-5 items-start">
           {/* LEFT */}
-          <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <div className="flex-1 min-w-0 w-full flex flex-col gap-4">
             {/* Filters */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="hidden md:flex items-center gap-2 flex-wrap">
               {[
                 "Status: All Statuses",
                 "Property: All Properties",
@@ -620,7 +668,7 @@ export default function ArrearsPage() {
 
             {/* Sort + Count + View Toggle */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[13px] text-slate-500">
+              <div className="hidden md:flex items-center gap-2 text-[13px] text-slate-500">
                 <span className="font-medium text-slate-700">{filtered.length} arrears case{filtered.length === 1 ? "" : "s"}</span>
               </div>
               <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
@@ -652,7 +700,7 @@ export default function ArrearsPage() {
             </div>
 
             {/* Search */}
-            <div className="relative">
+            <div className="relative hidden md:block">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -688,6 +736,21 @@ export default function ArrearsPage() {
 
             {/* List View */}
             {viewMode === "list" && (
+              <ResponsiveTable
+                rows={filtered}
+                mobile={arrearCardMapping}
+                emptyState={
+                  !isLoading && filtered.length === 0 ? (
+                    <div className="md:hidden bg-white rounded-2xl border border-slate-100 shadow-sm py-16 text-center flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6 text-emerald-500" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">No arrears cases</p>
+                      <p className="text-xs text-slate-500">Overdue balances will appear here when tenants fall behind.</p>
+                    </div>
+                  ) : undefined
+                }
+              >
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -789,6 +852,7 @@ export default function ArrearsPage() {
                   </table>
                 </div>
               </div>
+              </ResponsiveTable>
             )}
 
             {/* Count */}
@@ -802,7 +866,7 @@ export default function ArrearsPage() {
           </div>
 
           {/* RIGHT Sidebar */}
-          <div className="w-72 shrink-0 flex flex-col gap-4 sticky top-6">
+          <div className="w-full lg:w-72 shrink-0 flex flex-col gap-4 lg:sticky lg:top-6">
             {/* Arrears Exposure — live */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-[13px] font-semibold text-slate-900 mb-2">Arrears Exposure</h3>
