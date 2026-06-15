@@ -3,13 +3,12 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { FormContainer } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateUnit } from "@/hooks/useUnits"
 import { useProperties } from "@/hooks/useProperties"
 import {
-  ChevronLeft, ChevronRight, Check, Home, Layers, PoundSterling, Eye, Building2,
+  ChevronLeft, ChevronRight, Check, Home, PoundSterling, Eye, Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

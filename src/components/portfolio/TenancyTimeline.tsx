@@ -3,10 +3,9 @@
 import React from "react"
 import {
   CheckCircle2, Circle, Clock, FileText, Home, DollarSign,
-  ClipboardList, RotateCcw, XCircle, Bell, MoreHorizontal,
+  ClipboardList, RotateCcw, XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/Button"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */

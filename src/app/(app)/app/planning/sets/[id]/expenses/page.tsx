@@ -10,7 +10,6 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import {
-  Pencil,
   Trash2,
   Search,
   Filter,

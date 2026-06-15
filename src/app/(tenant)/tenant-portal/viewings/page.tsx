@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { CalendarCheck, MapPin, Clock, CheckCircle2, Calendar } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/Card"
+import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import {
   resolveTenantContext, resolveTenantTenancies,
   tenancyIds, tenancyPropertyIds, formatDate, propertyLabel,
-  type TenantContext, type TenancyLite, type PropertyLite,
+  type TenantContext, type PropertyLite,
 } from "../_lib/tenant-context"
 
 interface ViewingRow {

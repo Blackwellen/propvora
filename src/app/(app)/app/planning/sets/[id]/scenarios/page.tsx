@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import {
-  AlertTriangle,
   ShieldCheck,
   Settings,
   Layers,

@@ -3,10 +3,8 @@
 import { useParams } from "next/navigation"
 import { useEffect, useState, useMemo } from "react"
 import {
-  Pencil,
   Plus,
   MoreHorizontal,
-  ChevronDown,
   LayoutGrid,
   List,
   Filter,

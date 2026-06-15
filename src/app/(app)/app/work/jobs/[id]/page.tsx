@@ -28,7 +28,6 @@ import {
   Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { InlineEditField } from "@/components/work/InlineEditField"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"

@@ -12,9 +12,7 @@ import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
 import {
   useCalendarItems,
-  startOfDay,
   SOURCE_META,
-  type CalendarItem,
   type CalendarSource,
 } from '../../_lib/useCalendarItems'
 

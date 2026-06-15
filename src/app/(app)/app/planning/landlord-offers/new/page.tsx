@@ -15,14 +15,9 @@ import {
   ChevronRight,
   Check,
   Search,
-  User,
-  Building2,
   FileText,
   Upload,
-  Mail,
-  ClipboardList,
   AlertCircle,
-  X,
 } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
@@ -605,7 +600,7 @@ Kind regards,
                           </button>
                         ))}
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">Number of months' rent paid upfront</p>
+                      <p className="text-xs text-slate-400 mt-1">Number of months&apos; rent paid upfront</p>
                     </div>
 
                     {/* Total upfront */}

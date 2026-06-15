@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "node scripts/test/run-all.mjs",
     "test:security": "node scripts/test/run-all.mjs",
     "test:rls": "node scripts/test/rls-isolation.mjs",
     "test:gates": "node scripts/test/billing-gates.mjs",
@@ -75,8 +79,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "playwright": "^1.60.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   Target,
   Plus,
-  Download,
   CheckCircle,
   RefreshCw,
   Home,

@@ -7,8 +7,6 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useUnit, useUpdateUnit, useDeleteUnit, type Unit } from "@/hooks/useUnits"
 import { useTenancies, type Tenancy } from "@/hooks/useTenancies"
 import { useContacts } from "@/hooks/useContacts"
-import { useJobs } from "@/hooks/useJobs"
-import { useTasks } from "@/hooks/useTasks"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
@@ -19,16 +17,14 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobileTabs from "@/components/mobile/MobileTabs"
 import type { Contact } from "@/types/database"
 import {
-  Building2, Home, Users, PoundSterling, TrendingUp, AlertTriangle,
-  Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
-  Plus, Download, Upload, Edit2, Check, X, MoreHorizontal, MapPin,
-  Shield, CheckCircle2, Clock, Eye, Sparkles, Search, ArrowUpRight,
-  ArrowDownRight, Wifi, Zap, Droplets, Package, Star, RefreshCw,
-  Phone, Mail, User, Trash2, Archive,
+  Building2, Home, Users, PoundSterling, TrendingUp,
+  Wrench, Calendar, Activity, ChevronRight, ChevronLeft,
+  Plus, Upload, Edit2, MapPin,
+  Shield, ArrowUpRight, Zap, Package, Star, RefreshCw,
+  Phone, Mail, Trash2, Archive,
 } from "lucide-react"
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts"
 
 /* ------------------------------------------------------------------ */
@@ -134,7 +130,7 @@ function useActivityLog(workspaceId: string | undefined, entityIds: string[]) {
       } catch { if (active) setLoaded(true) }
     })()
     return () => { active = false }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [workspaceId, key])
   return { events, loaded }
 }

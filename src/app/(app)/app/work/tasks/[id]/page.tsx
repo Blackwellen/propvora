@@ -16,8 +16,6 @@ import {
   Paperclip,
   MessageSquare,
   Building2,
-  Phone,
-  Mail,
   Copy,
   CheckSquare,
   FileText,
@@ -29,10 +27,8 @@ import {
   Link2,
   AtSign,
   Home,
-  Activity,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
 import { WorkPriorityBadge } from "@/components/work/WorkPriorityBadge"
 import { InlineEditField } from "@/components/work/InlineEditField"
 import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"

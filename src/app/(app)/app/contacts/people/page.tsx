@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import {
   Users, Home, Building2, UserPlus, Clock, User, Search, X,
   LayoutGrid, List, Table2, ChevronDown,
-  ArrowUpRight, Mail, Phone, MapPin, MessageSquare,
+  ArrowUpRight, MapPin, MessageSquare,
   AlertTriangle, CheckCircle2, SlidersHorizontal,
   Eye, Edit, Archive, Trash2,
 } from "lucide-react"

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import {
   FileText, Upload, Send, Search, Eye, Download,
-  AlertTriangle, X, Plus, SlidersHorizontal,
+  AlertTriangle, X, SlidersHorizontal,
   Clock, CheckCircle, Archive, Image as ImageIcon,
   Table as TableIcon, AlertCircle, ChevronDown,
 } from "lucide-react"

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -20,12 +20,10 @@ import {
   FileText,
   Download,
   Pencil,
-  UploadCloud,
   RefreshCw,
   CheckSquare,
   Archive,
   Building2,
-  User,
   Paperclip,
   ExternalLink,
   Clock,
@@ -35,7 +33,6 @@ import {
   Sparkles,
   Plus,
   Eye,
-  Trash2,
   CheckCircle2,
 } from "lucide-react"
 

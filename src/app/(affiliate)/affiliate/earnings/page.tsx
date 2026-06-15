@@ -94,7 +94,7 @@ export default function AffiliateEarningsPage() {
   if (!affiliate?.enrolled) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-slate-500">You haven't enrolled yet. <Link href="/affiliate" className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
+        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href="/affiliate" className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
       </div>
     )
   }
@@ -168,7 +168,7 @@ export default function AffiliateEarningsPage() {
               return (
                 <div className="flex items-start gap-2 rounded-xl bg-violet-50 border border-violet-100 p-3 text-xs text-violet-700">
                   <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  Payout requests open once payouts are enabled for the programme. Your cleared balance keeps accruing in the meantime, and you'll be able to request a payout from here. You are responsible for your own taxes.
+                  Payout requests open once payouts are enabled for the programme. Your cleared balance keeps accruing in the meantime, and you&apos;ll be able to request a payout from here. You are responsible for your own taxes.
                 </div>
               )
             }

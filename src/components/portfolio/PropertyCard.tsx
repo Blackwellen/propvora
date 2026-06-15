@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Heart, MoreHorizontal, TrendingUp, Building2, Home, Eye, Edit2, Plus, Users, Archive } from "lucide-react"
+import { Heart, TrendingUp, Building2, Home, Eye, Plus, Users, Archive } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 

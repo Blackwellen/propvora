@@ -67,7 +67,7 @@ export default function FaqPage() {
             Frequently Asked Questions
           </h1>
           <p className="text-lg sm:text-xl text-slate-600 leading-relaxed">
-            Everything you need to know about Propvora. Can't find what you're looking for?{" "}
+            Everything you need to know about Propvora. Can&apos;t find what you&apos;re looking for?{" "}
             <Link href="/contact" className="text-blue-600 hover:underline font-medium">
               Contact us
             </Link>
@@ -115,7 +115,7 @@ export default function FaqPage() {
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-slate-900 mb-3">Still have questions?</h2>
           <p className="text-slate-600 mb-8">
-            Our team is happy to help. Reach out and we'll get back to you within one business day.
+            Our team is happy to help. Reach out and we&apos;ll get back to you within one business day.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link

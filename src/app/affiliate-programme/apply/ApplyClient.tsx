@@ -155,7 +155,7 @@ export default function ApplyClient() {
 
       <label className="flex items-center gap-2.5 text-sm text-slate-600">
         <input type="checkbox" checked={form.existingCustomer} onChange={(e) => set("existingCustomer", e.target.checked)} className="w-4 h-4 rounded border-slate-300" />
-        I'm already a Propvora customer
+        I&apos;m already a Propvora customer
       </label>
 
       <label className="flex items-start gap-2.5 text-sm text-slate-600">

@@ -9,9 +9,9 @@ import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
-  FileText, Home, CheckCircle, Download, Eye, RefreshCw, Archive,
+  FileText, Home, CheckCircle, Download, Eye, Archive,
   ClipboardList, Calendar, User, Shield, Clock, ChevronRight, Sparkles,
-  RotateCcw, Trash2,
+  RotateCcw,
 } from "lucide-react"
 
 const DOC_TYPE_LABELS: Record<string, string> = {

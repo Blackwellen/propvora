@@ -4,10 +4,8 @@ import React, { useState, useMemo } from "react"
 import Link from "next/link"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
-import { Skeleton } from "@/components/ui/Skeleton"
 import {
-  ArrowLeft, Images, Search, Plus, X, ChevronLeft, ChevronRight,
+  ArrowLeft, Images, Search, X, ChevronLeft, ChevronRight,
   Building2, Home, ZoomIn, Upload, Download, Maximize2, Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"

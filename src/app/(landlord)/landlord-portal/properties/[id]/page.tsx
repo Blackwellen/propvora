@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import {
-  ArrowLeft, Building2, MapPin, BedDouble, Bath, Wrench,
-  PoundSterling, Calendar, ChevronRight, Receipt,
+  ArrowLeft, MapPin, BedDouble, Bath, Wrench,
+  PoundSterling, Calendar, Receipt,
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"

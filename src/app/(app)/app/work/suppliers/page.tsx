@@ -20,7 +20,6 @@ import {
   ChevronRight,
   Plus,
   Download,
-  Sparkles,
   Star,
   TrendingUp,
   Search,

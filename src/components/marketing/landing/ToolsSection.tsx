@@ -3,7 +3,6 @@ import {
   Building2,
   Wrench,
   Users,
-  Wallet,
   CalendarDays,
   Brain,
   ArrowRight,

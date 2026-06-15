@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import {
   Truck, AlertCircle, Plus, Download, ChevronDown, CheckCircle, CreditCard,
-  Eye, FileText, MoreHorizontal, AlertTriangle, X,
+  Eye, X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money/MoneyTabNav"

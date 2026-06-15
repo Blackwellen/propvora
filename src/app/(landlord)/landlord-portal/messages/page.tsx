@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react"
 import { MessageSquare, Send, ChevronLeft } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/Card"
+import { Card } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { createClient } from "@/lib/supabase/client"

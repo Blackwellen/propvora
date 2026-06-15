@@ -21,11 +21,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ── Hard release gates: every step below FAILS the job on error. ──
+
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Lint
-        run: npm run lint || true  # warn only until lint is clean
+        # Hard gate: ESLint exits non-zero on any lint ERROR (warnings print but
+        # do not fail the job). Next 16 removed `next lint`, so we invoke ESLint
+        # directly — same as `npm run lint`. The previous `|| true` mask is gone.
+        run: npm run lint
+
+      - name: Unit tests
+        run: npx vitest run
 
       - name: Build
         run: npm run build
@@ -36,3 +44,22 @@ jobs:
           # Optional — build won't fail if absent
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+
+  # Live-DB integration suites (RLS isolation, billing gates, IDOR sweeps, …)
+  # require real Supabase/Stripe credentials, so they are NOT part of the PR
+  # quality gate. Run them manually (`npm run test:integration`) or via a
+  # scheduled / dispatched run once the required secrets are configured.
+  #
+  #   integration:
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v4
+  #       - uses: actions/setup-node@v4
+  #         with: { node-version: '20', cache: 'npm' }
+  #       - run: npm ci
+  #       - run: npm run test:integration
+  #         env:
+  #           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  #           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  #           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  #           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

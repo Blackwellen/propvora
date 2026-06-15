@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react"
 import { PoundSterling, CheckCircle2, Clock, CalendarClock, DoorOpen, Receipt } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
+import { Card, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { cn } from "@/lib/utils"

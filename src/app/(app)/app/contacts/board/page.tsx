@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   Plus, Search, X, SlidersHorizontal, LayoutGrid, Tag,
-  MapPin, Home, Clock, ChevronDown,
+  MapPin, Clock, ChevronDown,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"

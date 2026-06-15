@@ -4,7 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import {
-  CheckCircle2, Circle, Clock, AlertTriangle, ChevronRight,
+  CheckCircle2, Circle, AlertTriangle, ChevronRight,
   CalendarCheck, Key, Home, FileText, RotateCcw, LogOut, Bell,
 } from "lucide-react"
 

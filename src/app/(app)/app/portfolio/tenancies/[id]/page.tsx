@@ -18,17 +18,13 @@ import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobileTabs from "@/components/mobile/MobileTabs"
 import {
-  Building2, Home, Users, PoundSterling, TrendingUp, AlertTriangle,
-  Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
-  Plus, Download, Upload, Edit2, Check, X, MoreHorizontal, MapPin,
-  Shield, CheckCircle2, XCircle, AlertCircle, Clock, Eye, Sparkles,
-  Search, ArrowUpRight, Phone, Mail, User, MessageCircle, Star,
-  RefreshCw, Lock, Send, Bell, Trash2,
+  Building2, Home, Users, PoundSterling, AlertTriangle, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
+  Plus, Edit2, Check,
+  Shield, XCircle, Sparkles, ArrowUpRight, Phone, Mail, MessageCircle,
+  RefreshCw, Send, Trash2,
 } from "lucide-react"
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
-} from "recharts"
+
+
 
 /* ─────────────────────── DISPLAY SHAPE ─────────────────────── */
 

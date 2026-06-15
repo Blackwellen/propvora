@@ -16,7 +16,6 @@ import { KpiCard, ProfileTag, RiskPill } from "@/components/planning/shared"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { usePlanningSets } from "@/hooks/usePlanningsets"
 import type { PlanningSet } from "@/types/database"
-import { cn } from "@/lib/utils"
 
 function money(n: number): string {
   return `£${Math.round(n).toLocaleString()}`

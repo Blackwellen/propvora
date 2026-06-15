@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { AccountingWizardShell } from "@/features/accounting/components"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

@@ -8,8 +8,7 @@ import {
   Search, X, MessageSquare, ChevronDown,
   MapPin, Phone, Mail, ArrowUpRight, LayoutGrid, List,
   Table2, LayoutDashboard, AlertTriangle, CheckCircle2,
-  Activity, ShieldCheck, Star, Hammer, Download, Upload,
-  Building2, FileText, TrendingUp, TrendingDown,
+  Activity, Download, Upload, TrendingUp, TrendingDown,
   Eye, Edit, Archive, Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"

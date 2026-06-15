@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect, useRef } from "react"
+import React, { useState, useMemo } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
@@ -19,13 +19,10 @@ import {
   Building2,
   AlertTriangle,
   Wrench,
-  ChevronRight,
-  X,
   Plus,
   SlidersHorizontal,
   Home,
   PoundSterling,
-  TrendingUp,
   List,
 } from "lucide-react"
 import { cn } from "@/lib/utils"

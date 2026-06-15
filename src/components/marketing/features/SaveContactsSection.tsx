@@ -1,4 +1,4 @@
-import { Users, CheckCircle2, Building2, Phone, Mail, Clock, Tag, Bell } from "lucide-react"
+import { Users, CheckCircle2, Building2, Phone, Mail, Tag, Bell } from "lucide-react"
 
 const contactTypes = [
   { label: "Landlord", emoji: "🏠", count: 24, color: "bg-blue-100 text-blue-700 border-blue-200" },

@@ -3,7 +3,6 @@
 import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/Badge"
 import type { TaskItem } from "./TaskListItem"
 import { Clock, AlertCircle } from "lucide-react"
 

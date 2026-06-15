@@ -989,7 +989,7 @@ function Step5TypeSpecific({
       <div className="space-y-6">
         <div>
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Applicant Details</h2>
-          <p className="text-sm text-slate-500">Track this applicant's requirements and source.</p>
+          <p className="text-sm text-slate-500">Track this applicant&apos;s requirements and source.</p>
         </div>
 
         <SelectField

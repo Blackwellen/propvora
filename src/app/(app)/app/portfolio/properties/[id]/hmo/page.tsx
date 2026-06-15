@@ -7,7 +7,6 @@ import {
   Home,
   Users,
   Wallet,
-  AlertTriangle,
   MoreHorizontal,
   Eye,
   ShieldCheck,

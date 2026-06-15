@@ -5,8 +5,8 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import {
   ArrowLeft, Pencil, Send, FileText, Sparkles, CreditCard, CheckCircle2,
-  AlertTriangle, XCircle, Download, ChevronRight, Upload, RefreshCw,
-  Building2, User, Link2, Clock, Eye, Mail, Shield, Activity,
+  AlertTriangle, XCircle, Download, ChevronRight, RefreshCw,
+  Building2, User, Link2, Clock, Eye, Mail, Activity,
   ImageIcon, FileSpreadsheet, UploadCloud,
 } from "lucide-react"
 import { cn } from "@/lib/utils"

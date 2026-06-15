@@ -8,29 +8,14 @@ import { PLAN_DISPLAY, type PlanTier } from "@/lib/billing/plans"
 import {
   Building2,
   Users,
-  ShieldCheck,
   CreditCard,
-  Package,
-  Receipt,
-  FileText,
   Sparkles,
-  MessageCircle,
-  Bell,
-  Palette,
-  Globe,
   LayoutGrid,
   Plug,
-  Mail,
-  HardDrive,
   Lock,
-  Key,
-  ClipboardList,
   Database,
-  FlaskConical,
-  AlertTriangle,
   ChevronRight,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 /* ------------------------------------------------------------------ */
 /* Health stat cards                                                    */

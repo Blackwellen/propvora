@@ -4,7 +4,6 @@ import React, { useMemo, useState } from "react"
 import Link from "next/link"
 import { Copy, Check, Link2, FileText, Image as ImageIcon } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { useAffiliate } from "../_useAffiliate"
@@ -52,7 +51,7 @@ export default function AffiliateLinksPage() {
   if (!affiliate?.enrolled) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-slate-500">You haven't enrolled yet. <Link href="/affiliate" className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
+        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href="/affiliate" className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
       </div>
     )
   }
@@ -97,7 +96,7 @@ export default function AffiliateLinksPage() {
               <ImageIcon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-slate-800">Logos &amp; banners</p>
-                <p className="text-xs text-slate-400">Approved brand assets are provided on approval. Don't alter the Propvora logo.</p>
+                <p className="text-xs text-slate-400">Approved brand assets are provided on approval. Don&apos;t alter the Propvora logo.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">

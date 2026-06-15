@@ -5,7 +5,6 @@ import Link from "next/link"
 import { ChevronRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
 import { AccountingStepper } from "@/features/accounting/components"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 

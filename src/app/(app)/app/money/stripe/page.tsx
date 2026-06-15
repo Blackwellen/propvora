@@ -2,9 +2,9 @@
 
 import React, { useState } from "react"
 import {
-  CreditCard, AlertCircle, RefreshCw, FileText, Sparkles, Truck, Zap,
-  CheckCircle, XCircle, ExternalLink, ChevronRight, Shield, Info,
-  ToggleLeft, ToggleRight, AlertTriangle, Clock,
+  CreditCard, AlertCircle, RefreshCw, FileText, Truck, Zap,
+  CheckCircle, XCircle, ExternalLink, Shield, Info,
+  ToggleLeft, ToggleRight, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money/MoneyTabNav"

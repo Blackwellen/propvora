@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useState, useEffect, useId } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   Calendar,
   CheckSquare,
   Wrench,
-  Home,
   CreditCard,
   FileText,
   Map,
@@ -20,9 +19,7 @@ import {
   RefreshCw,
   Building2,
   Repeat,
-  AlertCircle,
   MapPin,
-  StickyNote,
   Sparkles,
   CheckCircle2,
   Eye,

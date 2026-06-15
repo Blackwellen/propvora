@@ -24,7 +24,6 @@ import {
   Check,
   ChevronRight,
   UploadCloud,
-  User,
   Calendar,
   CheckCircle2,
   Loader2,

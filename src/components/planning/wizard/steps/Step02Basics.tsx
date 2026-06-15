@@ -12,7 +12,6 @@ import {
   Calendar as CalendarIcon,
   Copy,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { useWizard } from "@/components/planning/wizard/WizardContext"
 import { getProfileByKey } from "@/lib/planning/profiles"
 

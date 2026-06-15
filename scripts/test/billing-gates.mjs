@@ -16,7 +16,7 @@ function loadTsInto(file, deps, target) {
     if (spec in deps) return deps[spec]
     throw new Error(`unresolved import: ${spec}`)
   }
-  // eslint-disable-next-line no-new-func
+   
   new Function("module", "exports", "require", js)(m, m.exports, req)
   if (m.exports !== target) Object.assign(target, m.exports)
   return target

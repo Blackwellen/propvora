@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Info, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
 import { AccountingWizardShell } from "@/features/accounting/components"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 

@@ -247,7 +247,7 @@ function TabLinked() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-slate-800">Linked Work Job</h3>
           <Button variant="soft" size="sm" rightIcon={<ChevronRight className="w-3.5 h-3.5" />} asChild>
-            <a href="/app/work/jobs/job-001">Open Full Record</a>
+            <Link href="/app/work/jobs/job-001">Open Full Record</Link>
           </Button>
         </div>
         <dl className="grid grid-cols-2 gap-4">

@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useState, useMemo, useCallback } from "react"
+import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import {
-  ChevronLeft, ChevronRight, Download, SlidersHorizontal, Calendar,
-  MoreHorizontal, TrendingUp, Clock, AlertTriangle, RefreshCw,
+  ChevronLeft, ChevronRight, Download, SlidersHorizontal, Clock, AlertTriangle, RefreshCw,
   Home, Users, PoundSterling, ArrowUpRight, CheckSquare, Square,
   Sparkles,
 } from "lucide-react"

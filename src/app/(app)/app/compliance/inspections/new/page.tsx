@@ -32,14 +32,11 @@ import {
   CheckCircle2,
   Plus,
   Trash2,
-  Bell,
   AlertTriangle,
-  Briefcase,
   User,
   Building2,
   Calendar,
   Clock,
-  Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 

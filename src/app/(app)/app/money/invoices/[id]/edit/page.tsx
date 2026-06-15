@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import {
   ArrowLeft, ChevronRight, Plus, X, AlertTriangle, Trash2,
-  ChevronDown, Save, CheckCircle2, Zap,
+  ChevronDown, Save, Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

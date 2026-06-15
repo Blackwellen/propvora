@@ -1,12 +1,8 @@
 "use client"
 
 import React, { useEffect, useRef } from "react"
-import Link from "next/link"
 import type { MapProperty } from "@/app/(app)/app/portfolio/map/page"
-import { HEALTH_CONFIG, STATUS_LABELS, STATUS_BADGE, formatCurrency } from "@/app/(app)/app/portfolio/map/page"
-import { Badge } from "@/components/ui/Badge"
-import { AlertTriangle, Wrench, ChevronRight, X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { HEALTH_CONFIG, STATUS_LABELS, formatCurrency } from "@/app/(app)/app/portfolio/map/page"
 
 /* ------------------------------------------------------------------ */
 /* Props                                                                */
@@ -91,7 +87,7 @@ export default function LeafletMap({ properties, selectedId, onSelect }: Leaflet
       }
 
       // Fix default icon paths for bundlers
-      // @ts-ignore
+      // @ts-expect-error _getIconUrl is an untyped Leaflet internal
       delete L.Icon.Default.prototype._getIconUrl
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",

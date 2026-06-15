@@ -3,9 +3,8 @@
 import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import {
-  Search, X, Clock, AlertTriangle, CheckCircle2, FileText,
-  Phone, Calendar, XCircle, Wrench, MapPin, StickyNote,
-  MessageSquare, DollarSign, ChevronDown, TrendingUp,
+  Search, X, Clock, AlertTriangle, CheckCircle2, FileText, Calendar, StickyNote,
+  MessageSquare, ChevronDown,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"

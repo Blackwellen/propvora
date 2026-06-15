@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import {
   ArrowLeft, Check, AlertCircle, CreditCard, Download, ExternalLink,
   FileText, Building2, Briefcase, User, Clock, Plus, Receipt,
-  ChevronRight, X, Pencil, Trash2,
+  ChevronRight, X, Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"

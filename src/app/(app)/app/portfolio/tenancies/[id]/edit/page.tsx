@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTenancy, useUpdateTenancy } from "@/hooks/useTenancies"
 import {
-  ArrowLeft, ArrowRight, Users, PoundSterling, Calendar,
+  ArrowLeft, ArrowRight, PoundSterling, Calendar,
   FileText, CheckCircle2, Save,
 } from "lucide-react"
 import { cn } from "@/lib/utils"

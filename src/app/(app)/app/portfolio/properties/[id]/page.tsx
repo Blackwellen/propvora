@@ -6,7 +6,7 @@ import nextDynamic from "next/dynamic"
 import { useParams, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty, useUpdateProperty, useDeleteProperty } from "@/hooks/useProperties"
-import { useUnits, useUpdateUnit, useDeleteUnit, type Unit } from "@/hooks/useUnits"
+import { useUnits, useDeleteUnit, type Unit } from "@/hooks/useUnits"
 import { useTenancies, useUpdateTenancy, type Tenancy } from "@/hooks/useTenancies"
 import { useJobs } from "@/hooks/useJobs"
 import { useTasks } from "@/hooks/useTasks"
@@ -22,17 +22,14 @@ import MobileTabs from "@/components/mobile/MobileTabs"
 import { getPropertyTypeOption, PROPERTY_TYPE_OPTIONS } from "@/lib/constants/propertyTypes"
 import { openCopilot } from "@/lib/copilot/open"
 import {
-  Building2, Home, Users, PoundSterling, TrendingUp,
+  Building2, Home, Users, PoundSterling,
   Wrench, Calendar, FileText, Activity, ChevronRight, ChevronLeft,
-  Plus, Download, Upload, Edit2, MoreHorizontal, MapPin, Copy, Archive, Trash2,
-  Shield, BarChart2, Clock, Eye, Star, Sparkles, Search,
+  Plus, Download, Upload, Edit2, MapPin, Copy, Archive, Trash2,
+  Shield, Clock, Eye, Star, Sparkles, Search,
   SlidersHorizontal, ArrowUpRight, ArrowDownRight, RefreshCw,
-  CheckCircle2, XCircle, AlertCircle, Truck,
+  CheckCircle2, XCircle, AlertCircle,
 } from "lucide-react"
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
-} from "recharts"
+
 
 // OpenStreetMap (Leaflet) — client-only, premium-styled.
 const LocationMap = nextDynamic(() => import("@/components/maps/LocationMap"), {

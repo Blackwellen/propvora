@@ -301,7 +301,7 @@ export async function gatewayStream(
         // Anthropic streaming differs; for simplicity stream as a single block
         // (still metered). Non-default path, only used if it's the only option.
         const result = await callAnthropic(m, key, opts)
-        let usage: GatewayUsage = {
+        const usage: GatewayUsage = {
           provider: result.provider,
           model: result.model,
           tokensIn: result.tokensIn,

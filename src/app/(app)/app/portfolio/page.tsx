@@ -26,7 +26,7 @@ import {
   AlertTriangle, Map, Calendar, Wrench, ChevronRight, ChevronLeft, Activity,
   BarChart2, Clock, Sparkles, Table2, BarChart3, Download,
   Search, SlidersHorizontal, X, MapPin,
-  Eye, Archive,
+  Eye,
 } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { cn } from "@/lib/utils"

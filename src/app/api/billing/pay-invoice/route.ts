@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   try {
     const Stripe = (await import("stripe")).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-05-27.dahlia" as "2026-05-27.dahlia",
+      apiVersion: "2026-05-27.dahlia" as const,
     })
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

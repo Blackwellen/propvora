@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   CheckCircle2,
   ShieldCheck,
-  MoreHorizontal,
 } from "lucide-react"
 import { use } from "react"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

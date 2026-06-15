@@ -3,7 +3,6 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/Button"
 import type { PropertyCardData } from "./PropertyCard"
 import {
   ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit2, Archive, ArrowUpDown, Building2, Home,

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Lazy-import Stripe to avoid breaking the app when the env var is absent
     const Stripe = (await import("stripe")).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-05-27.dahlia" as "2026-05-27.dahlia",
+      apiVersion: "2026-05-27.dahlia" as const,
     })
 
     // Create or retrieve the Stripe customer for this workspace

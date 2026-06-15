@@ -9,7 +9,6 @@ import {
   Clock,
   AlertTriangle,
   TrendingUp,
-  BarChart2,
   Search,
   LayoutGrid,
   Table2,
@@ -86,7 +85,7 @@ export default function LandlordOffersPage() {
     setLoading(false)
   }
 
-  useEffect(() => { void loadOffers() /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [workspace?.id])
+  useEffect(() => { void loadOffers()   }, [workspace?.id])
 
   async function deleteOffer(id: string) {
     if (!workspace?.id) return

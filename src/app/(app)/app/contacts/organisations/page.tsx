@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation"
 import {
   Building2, Wrench, Home, Users, Briefcase, TrendingUp,
   Search, X, LayoutGrid, List, ChevronDown,
-  ArrowUpRight, MapPin, Phone, Mail, MessageSquare,
-  AlertTriangle, CheckCircle2, SlidersHorizontal, UserPlus,
-  ShieldCheck, Star, Eye, Edit, Archive, Trash2,
+  ArrowUpRight, MapPin, MessageSquare,
+  AlertTriangle, CheckCircle2, SlidersHorizontal, UserPlus, Eye, Edit, Archive, Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"

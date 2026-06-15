@@ -3,9 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { FormContainer, PageHeader } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
 import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 import { PROPERTY_TYPE_GROUPS, getPropertyTypeOption, templateForPropertyType } from "@/lib/constants/propertyTypes"
 import { createClient } from "@/lib/supabase/client"
@@ -20,12 +18,10 @@ import {
   MapPin,
   DollarSign,
   Users,
-  FileText,
   Upload,
   Eye,
   Plus,
   Trash2,
-  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

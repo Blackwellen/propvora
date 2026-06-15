@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
   User, Shield, Bell, Settings, Camera, Check, Eye, EyeOff,
-  Monitor, Smartphone, LogOut, Lock, Palette, LayoutTemplate,
-  PanelLeftClose, PanelLeftOpen, ChevronRight, RotateCcw,
+  Monitor, Smartphone, LogOut, Lock, Palette, LayoutTemplate, PanelLeftOpen, RotateCcw,
 } from "lucide-react"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"

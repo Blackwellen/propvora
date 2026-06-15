@@ -23,7 +23,7 @@ export async function POST() {
     // Dynamically import Stripe so it doesn't break when env var is missing
     const Stripe = (await import("stripe")).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-05-27.dahlia" as "2026-05-27.dahlia",
+      apiVersion: "2026-05-27.dahlia" as const,
     })
 
     // Get the stripe customer ID from the user's profile or workspace

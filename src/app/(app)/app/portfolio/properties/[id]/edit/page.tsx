@@ -8,13 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty, useUpdateProperty } from "@/hooks/useProperties"
-import {
-  ChevronLeft, Building2, MapPin, Home, PoundSterling,
-  Users, FileText, CheckCircle2, ArrowRight, ArrowLeft, Save,
+import { Building2, MapPin, Home, PoundSterling, FileText, CheckCircle2, ArrowRight, ArrowLeft, Save,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"

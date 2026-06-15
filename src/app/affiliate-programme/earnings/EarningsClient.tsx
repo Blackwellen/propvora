@@ -79,7 +79,7 @@ export default function EarningsClient() {
       </div>
 
       <p className="mt-5 text-xs text-slate-400 leading-relaxed">
-        These are illustrative examples only. Actual earnings depend on approved referrals, the customer's
+        These are illustrative examples only. Actual earnings depend on approved referrals, the customer&apos;s
         plan, payment status, refunds, chargebacks, cancellations, attribution rules and programme terms.
         Commission accrues for up to 6 months per referral and clears after a 30-day cooling-off period.
       </p>

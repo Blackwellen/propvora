@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import {
   X, Shield, CheckCircle, AlertCircle, Calendar, FileText, ExternalLink,
-  Building2, User, Hash, Banknote, Clock, Loader2, Download,
+  Building2, User, Hash, Clock, Loader2, Download,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
