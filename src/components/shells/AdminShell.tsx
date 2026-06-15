@@ -59,6 +59,7 @@ const ADMIN_NAV_GROUPS = [
   {
     label: "OPS",
     items: [
+      { label: "Verification",  href: "/admin/verification",  icon: ShieldCheck },
       { label: "Data Requests", href: "/admin/data-requests", icon: FileText },
       { label: "Bug Reports",    href: "/admin/bugs",          icon: Bug },
       { label: "Stripe Events",  href: "/admin/stripe-events",  icon: CreditCard },
