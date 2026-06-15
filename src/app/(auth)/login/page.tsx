@@ -66,16 +66,26 @@ async function checkAuthRateLimit(action: string): Promise<string | null> {
   }
 }
 
-const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/affiliate", "/invite", "/onboarding"]
+const ALLOWED_REDIRECTS = [
+  "/property-manager",
+  "/user",
+  "/supplier",
+  "/app",
+  "/admin",
+  "/supplier-portal",
+  "/affiliate",
+  "/invite",
+  "/onboarding",
+]
 
 function safeRedirect(url: string): string {
-  return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/app"
+  return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/property-manager"
 }
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = safeRedirect(searchParams.get("redirectTo") ?? "/app")
+  const redirectTo = safeRedirect(searchParams.get("redirectTo") ?? "/property-manager")
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -115,7 +125,7 @@ function LoginForm() {
     // Decide destination: an explicit redirectTo wins; otherwise route users
     // with no workspace into onboarding, and everyone else into the app.
     let destination = redirectTo
-    if (redirectTo === "/app") {
+    if (redirectTo === "/property-manager" || redirectTo === "/app") {
       try {
         const userId = signInData.user?.id
         if (userId) {

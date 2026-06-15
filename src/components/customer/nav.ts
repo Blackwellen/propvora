@@ -24,12 +24,12 @@ export interface CustomerNavItem {
 }
 
 export const CUSTOMER_NAV: CustomerNavItem[] = [
-  { label: "Dashboard", href: "/customer", icon: LayoutDashboard, short: "Home" },
-  { label: "Bookings", href: "/customer/bookings", icon: CalendarCheck, short: "Stays" },
-  { label: "Orders", href: "/customer/orders", icon: ShoppingBag, short: "Orders" },
-  { label: "Saved", href: "/customer/saved", icon: Heart, short: "Saved" },
-  { label: "Messages", href: "/customer/messages", icon: MessageSquare, short: "Inbox" },
-  { label: "Profile", href: "/customer/profile", icon: UserCircle, short: "Profile" },
+  { label: "Dashboard", href: "/user", icon: LayoutDashboard, short: "Home" },
+  { label: "Bookings", href: "/user/bookings", icon: CalendarCheck, short: "Stays" },
+  { label: "Orders", href: "/user/orders", icon: ShoppingBag, short: "Orders" },
+  { label: "Saved", href: "/user/saved", icon: Heart, short: "Saved" },
+  { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
+  { label: "Profile", href: "/user/profile", icon: UserCircle, short: "Profile" },
 ]
 
 /** The four primary destinations shown directly on the mobile bottom bar. */
@@ -47,5 +47,5 @@ export const CUSTOMER_MORE: CustomerNavItem[] = [
 ]
 
 export function isCustomerNavActive(pathname: string, href: string): boolean {
-  return href === "/customer" ? pathname === "/customer" : pathname.startsWith(href)
+  return href === "/user" ? pathname === "/user" : pathname.startsWith(href)
 }

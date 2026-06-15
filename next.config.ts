@@ -66,6 +66,48 @@ const nextConfig: NextConfig = {
       ],
     },
   ],
+  redirects: async () => [
+    {
+      source: "/app",
+      destination: "/property-manager",
+      permanent: false,
+    },
+    {
+      source: "/app/:path*",
+      destination: "/property-manager/:path*",
+      permanent: false,
+    },
+    {
+      source: "/customer",
+      destination: "/user",
+      permanent: false,
+    },
+    {
+      source: "/customer/:path*",
+      destination: "/user/:path*",
+      permanent: false,
+    },
+  ],
+  rewrites: async () => ({
+    beforeFiles: [
+      {
+        source: "/property-manager",
+        destination: "/app",
+      },
+      {
+        source: "/property-manager/:path*",
+        destination: "/app/:path*",
+      },
+      {
+        source: "/user",
+        destination: "/customer",
+      },
+      {
+        source: "/user/:path*",
+        destination: "/customer/:path*",
+      },
+    ],
+  }),
 };
 
 /**

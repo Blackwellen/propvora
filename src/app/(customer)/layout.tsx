@@ -20,7 +20,7 @@ export default async function CustomerLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/login?redirectTo=/customer")
+  if (!user) redirect("/login?redirectTo=/user")
 
   // Core gate: must belong to a customer workspace.
   let workspaceId: string | null = null
@@ -35,7 +35,7 @@ export default async function CustomerLayout({
   } catch {
     workspaceId = null
   }
-  if (!workspaceId) redirect("/app")
+  if (!workspaceId) redirect("/property-manager")
 
   // Resolve a friendly display name (tolerant — falls back to the account email
   // then "Customer").

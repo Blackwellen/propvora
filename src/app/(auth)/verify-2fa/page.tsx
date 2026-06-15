@@ -14,10 +14,10 @@ function Verify2FAInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   // Only honour same-origin relative paths to avoid open-redirects.
-  const rawRedirect = searchParams.get("redirectTo") ?? "/app"
+  const rawRedirect = searchParams.get("redirectTo") ?? "/property-manager"
   const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
     ? rawRedirect
-    : "/app"
+    : "/property-manager"
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""))
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)

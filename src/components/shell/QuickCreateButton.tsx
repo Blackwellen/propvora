@@ -17,22 +17,24 @@ interface QuickAction {
   context?: string
 }
 
+const MANAGER_BASE = "/property-manager"
+
 // Every action routes to a real create wizard/page that exists in the app.
 const ACTIONS: QuickAction[] = [
-  { label: "New property",        href: "/app/portfolio/properties/new",   icon: Building2,    context: "/app/portfolio" },
-  { label: "New tenancy",         href: "/app/portfolio/tenancies?new=1",  icon: Home,         context: "/app/portfolio" },
-  { label: "New task",            href: "/app/work/tasks/new",             icon: CheckSquare,  context: "/app/work" },
-  { label: "New job",             href: "/app/work/jobs/new",              icon: Briefcase,    context: "/app/work" },
-  { label: "Add income",          href: "/app/money/income?new=1",         icon: Wallet,       context: "/app/money" },
-  { label: "Add expense",         href: "/app/money/expenses?new=1",       icon: Banknote,     context: "/app/money" },
-  { label: "Create invoice",      href: "/app/money/invoices/new",         icon: FileText,     context: "/app/money" },
-  { label: "Add bill",            href: "/app/money/bills/new",            icon: Receipt,      context: "/app/money" },
-  { label: "Add certificate",     href: "/app/compliance/certificates/new", icon: ShieldCheck, context: "/app/compliance" },
-  { label: "Schedule inspection", href: "/app/compliance/inspections/new", icon: ShieldCheck,  context: "/app/compliance" },
-  { label: "Create event",        href: "/app/calendar/events/new",        icon: CalendarPlus, context: "/app/calendar" },
-  { label: "Create reminder",     href: "/app/calendar/reminders/new",     icon: Bell,         context: "/app/calendar" },
-  { label: "Add contact",         href: "/app/contacts?new=1",             icon: Users,        context: "/app/contacts" },
-  { label: "Grant portal access", href: "/app/portals?new=1",              icon: Users,        context: "/app/portals" },
+  { label: "New property",        href: `${MANAGER_BASE}/portfolio/properties/new`,    icon: Building2,    context: `${MANAGER_BASE}/portfolio` },
+  { label: "New tenancy",         href: `${MANAGER_BASE}/portfolio/tenancies?new=1`,   icon: Home,         context: `${MANAGER_BASE}/portfolio` },
+  { label: "New task",            href: `${MANAGER_BASE}/work/tasks/new`,              icon: CheckSquare,  context: `${MANAGER_BASE}/work` },
+  { label: "New job",             href: `${MANAGER_BASE}/work/jobs/new`,               icon: Briefcase,    context: `${MANAGER_BASE}/work` },
+  { label: "Add income",          href: `${MANAGER_BASE}/money/income?new=1`,          icon: Wallet,       context: `${MANAGER_BASE}/money` },
+  { label: "Add expense",         href: `${MANAGER_BASE}/money/expenses?new=1`,        icon: Banknote,     context: `${MANAGER_BASE}/money` },
+  { label: "Create invoice",      href: `${MANAGER_BASE}/money/invoices/new`,          icon: FileText,     context: `${MANAGER_BASE}/money` },
+  { label: "Add bill",            href: `${MANAGER_BASE}/money/bills/new`,             icon: Receipt,      context: `${MANAGER_BASE}/money` },
+  { label: "Add certificate",     href: `${MANAGER_BASE}/compliance/certificates/new`, icon: ShieldCheck,  context: `${MANAGER_BASE}/compliance` },
+  { label: "Schedule inspection", href: `${MANAGER_BASE}/compliance/inspections/new`,  icon: ShieldCheck,  context: `${MANAGER_BASE}/compliance` },
+  { label: "Create event",        href: `${MANAGER_BASE}/calendar/events/new`,         icon: CalendarPlus, context: `${MANAGER_BASE}/calendar` },
+  { label: "Create reminder",     href: `${MANAGER_BASE}/calendar/reminders/new`,      icon: Bell,         context: `${MANAGER_BASE}/calendar` },
+  { label: "Add contact",         href: `${MANAGER_BASE}/contacts?new=1`,              icon: Users,        context: `${MANAGER_BASE}/contacts` },
+  { label: "Grant portal access", href: `${MANAGER_BASE}/portals?new=1`,               icon: Users,        context: `${MANAGER_BASE}/portals` },
 ]
 
 export default function QuickCreateButton() {

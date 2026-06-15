@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Unauthenticated → sign in.
   if (!user) {
-    redirect("/login?redirectTo=/app")
+    redirect("/login?redirectTo=/property-manager")
   }
 
   // Resolve the user's active workspace; route to onboarding if they have none.

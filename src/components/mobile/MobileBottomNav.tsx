@@ -26,6 +26,8 @@ import {
 import { cn } from "@/lib/utils"
 import MobileSheet from "./MobileSheet"
 
+const MANAGER_BASE = "/property-manager"
+
 interface NavDest {
   label: string
   href: string
@@ -37,42 +39,44 @@ interface NavDest {
    the "More" sheet, which mirrors the desktop SideNavigation groups so nothing
    is lost. */
 const PRIMARY_LEFT: NavDest[] = [
-  { label: "Home", href: "/app", icon: LayoutDashboard },
-  { label: "Portfolio", href: "/app/portfolio", icon: Building2 },
+  { label: "Home", href: MANAGER_BASE, icon: LayoutDashboard },
+  { label: "Portfolio", href: `${MANAGER_BASE}/portfolio`, icon: Building2 },
 ]
 const PRIMARY_RIGHT: NavDest[] = [
-  { label: "Work", href: "/app/work", icon: Briefcase },
+  { label: "Work", href: `${MANAGER_BASE}/work`, icon: Briefcase },
 ]
 
 const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
   {
     label: "Core",
     items: [
-      { label: "Planning", href: "/app/planning", icon: Map },
-      { label: "Contacts", href: "/app/contacts", icon: Users },
-      { label: "Portals", href: "/app/portals", icon: Globe },
-      { label: "Messages", href: "/app/messages", icon: MessageSquare },
+      { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar },
+      { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe },
+      { label: "Planning", href: `${MANAGER_BASE}/planning`, icon: Map },
+      { label: "Contacts", href: `${MANAGER_BASE}/contacts`, icon: Users },
+      { label: "Portals", href: `${MANAGER_BASE}/portals`, icon: Globe },
+      { label: "Messages", href: `${MANAGER_BASE}/messages`, icon: MessageSquare },
     ],
   },
   {
     label: "Finance",
     items: [
-      { label: "Money", href: "/app/money", icon: Wallet },
-      { label: "Accounting", href: "/app/accounting", icon: Calculator },
+      { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
+      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
     ],
   },
   {
     label: "Operations",
     items: [
-      { label: "Calendar", href: "/app/calendar", icon: Calendar },
-      { label: "Compliance", href: "/app/compliance", icon: ShieldCheck },
-      { label: "Legal", href: "/app/legal", icon: Scale },
-      { label: "Automations", href: "/app/automations", icon: Workflow },
+      { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
+      { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
+      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale },
+      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow },
     ],
   },
   {
     label: "System",
-    items: [{ label: "Workspace", href: "/app/workspace-settings", icon: Settings }],
+    items: [{ label: "Workspace", href: `${MANAGER_BASE}/workspace-settings`, icon: Settings }],
   },
 ]
 
@@ -80,7 +84,7 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
 const MORE_HREFS = MORE_GROUPS.flatMap((g) => g.items.map((i) => i.href))
 
 function isActiveHref(pathname: string, href: string): boolean {
-  return href === "/app" ? pathname === "/app" : pathname.startsWith(href)
+  return href === MANAGER_BASE ? pathname === MANAGER_BASE : pathname.startsWith(href)
 }
 
 interface MobileBottomNavProps {

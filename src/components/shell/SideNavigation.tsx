@@ -29,6 +29,8 @@ import ShellLogo from "./ShellLogo"
 import NavItem from "./NavItem"
 import NavSection from "./NavSection"
 
+const MANAGER_BASE = "/property-manager"
+
 interface SideNavigationProps {
   collapsed: boolean
   onToggle: () => void
@@ -39,39 +41,41 @@ interface SideNavigationProps {
 const NAV_GROUPS = [
   {
     label: "OVERVIEW",
-    items: [{ label: "Home", href: "/app", icon: LayoutDashboard }],
+    items: [{ label: "Home", href: MANAGER_BASE, icon: LayoutDashboard }],
   },
   {
     label: "CORE",
     items: [
-      { label: "Portfolio", href: "/app/portfolio", icon: Building2 },
-      { label: "Work", href: "/app/work", icon: Briefcase },
-      { label: "Planning", href: "/app/planning", icon: Map },
-      { label: "Contacts", href: "/app/contacts", icon: Users },
-      { label: "Portals", href: "/app/portals", icon: Globe },
-      { label: "Messages", href: "/app/messages", icon: MessageSquare },
+      { label: "Portfolio", href: `${MANAGER_BASE}/portfolio`, icon: Building2 },
+      { label: "Work", href: `${MANAGER_BASE}/work`, icon: Briefcase },
+      { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar },
+      { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe },
+      { label: "Planning", href: `${MANAGER_BASE}/planning`, icon: Map },
+      { label: "Contacts", href: `${MANAGER_BASE}/contacts`, icon: Users },
+      { label: "Portals", href: `${MANAGER_BASE}/portals`, icon: Globe },
+      { label: "Messages", href: `${MANAGER_BASE}/messages`, icon: MessageSquare },
     ],
   },
   {
     label: "FINANCE",
     items: [
-      { label: "Money", href: "/app/money", icon: Wallet },
-      { label: "Accounting", href: "/app/accounting", icon: Calculator },
+      { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
+      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
     ],
   },
   {
     label: "OPERATIONS",
     items: [
-      { label: "Calendar", href: "/app/calendar", icon: Calendar },
-      { label: "Compliance", href: "/app/compliance", icon: ShieldCheck },
-      { label: "Legal", href: "/app/legal", icon: Scale },
-      { label: "Smart Rules", href: "/app/automations", icon: Workflow },
+      { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
+      { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
+      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale },
+      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow },
     ],
   },
   {
     label: "SYSTEM",
     items: [
-      { label: "Workspace", href: "/app/workspace-settings", icon: Settings },
+      { label: "Workspace", href: `${MANAGER_BASE}/workspace-settings`, icon: Settings },
     ],
   },
 ]
@@ -155,8 +159,8 @@ export default function SideNavigation({
           >
             {group.items.map((item) => {
               const active =
-                item.href === "/app"
-                  ? pathname === "/app"
+                item.href === MANAGER_BASE
+                  ? pathname === MANAGER_BASE
                   : pathname.startsWith(item.href)
               return (
                 <NavItem
@@ -179,7 +183,7 @@ export default function SideNavigation({
         {/* Workspace card — live workspace, links to workspace settings */}
         {!collapsed && (
           <Link
-            href="/app/workspace-settings"
+            href={`${MANAGER_BASE}/workspace-settings`}
             onClick={onNavigate}
             className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2 hover:bg-white/[0.09] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60"
             title="Workspace settings"
@@ -197,7 +201,7 @@ export default function SideNavigation({
 
         {/* Account card — live user, links to account settings */}
         <Link
-          href="/app/account"
+          href={`${MANAGER_BASE}/account`}
           onClick={onNavigate}
           title="Account settings"
           className={cn(
