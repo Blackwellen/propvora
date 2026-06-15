@@ -14,7 +14,6 @@ import CommandPalette from "@/components/search/CommandPalette"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
-import TutorialLauncher from "@/guided-help/components/TutorialLauncher"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -112,9 +111,8 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
       {/* Global command palette (⌘K) */}
       <CommandPalette />
 
-      {/* Guided Help — first-use popups + help launcher */}
+      {/* Guided Help — first-use popups. The launcher lives in TopNavigation. */}
       <FirstUseModal />
-      <TutorialLauncher />
     </div>
     </GuidedHelpProvider>
   )

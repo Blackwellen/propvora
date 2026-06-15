@@ -7,6 +7,7 @@ import GlobalSearch from "./GlobalSearch"
 import QuickCreateButton from "./QuickCreateButton"
 import NotificationBell from "./NotificationBell"
 import AccountMenu from "./AccountMenu"
+import TutorialLauncher from "@/guided-help/components/TutorialLauncher"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 
@@ -87,7 +88,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
     try {
       // Clears React Query cache + reloads workspace context (no cross-workspace leak)
       await switchWorkspace(id)
-      router.push("/app")
+      router.push("/property-manager")
     } catch {
       // noop
     } finally {
@@ -199,9 +200,11 @@ export default function TopNavigation({ workspaceName, workspaceId }: TopNavigat
 
         <NotificationBell />
 
+        <TutorialLauncher placement="topnav" />
+
         {/* Calendar shortcut — hidden on phones to save width */}
         <button
-          onClick={() => router.push("/app/calendar")}
+          onClick={() => router.push("/property-manager/calendar")}
           aria-label="Open calendar"
           className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
         >
