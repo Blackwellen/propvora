@@ -12,6 +12,7 @@ import {
   Map,
   Users,
   Globe,
+  Store,
   MessageSquare,
   Calculator,
   Calendar,
@@ -52,6 +53,7 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
     items: [
       { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar },
       { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe },
+      { label: "Suppliers", href: `${MANAGER_BASE}/marketplace/suppliers`, icon: Store },
       { label: "Planning", href: `${MANAGER_BASE}/planning`, icon: Map },
       { label: "Contacts", href: `${MANAGER_BASE}/contacts`, icon: Users },
       { label: "Portals", href: `${MANAGER_BASE}/portals`, icon: Globe },

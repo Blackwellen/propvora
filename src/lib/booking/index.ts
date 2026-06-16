@@ -12,3 +12,28 @@ export * from "./pricing"
 export * from "./availability"
 export * from "./rates"
 export * from "./reservations"
+export * from "./booking-listings"
+export * from "./pricing-profiles"
+
+// pricing-engine re-exported under explicit names to avoid colliding with the
+// legacy `pricing.ts` quoteStay/StayQuote symbols. The deep engine is the
+// production path; import these for booking_listings-backed quoting.
+export {
+  computeQuote,
+  quoteStay as quoteListingStay,
+  getPricingProfile,
+  getPriceRules,
+  getDayOverrides,
+} from "./pricing-engine"
+export type {
+  PricingProfile,
+  PriceRule,
+  PriceRuleType,
+  PriceAdjustKind,
+  DayOverride,
+  QuoteArgs,
+  QuoteNightLine,
+  QuoteLine,
+  StayQuote as ListingStayQuote,
+  QuoteStayArgs as ListingQuoteStayArgs,
+} from "./pricing-engine"

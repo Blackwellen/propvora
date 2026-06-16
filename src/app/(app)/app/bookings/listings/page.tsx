@@ -1,17 +1,13 @@
-import {
-  getBookingAccess,
-  loadBookingsData,
-  loadRatePlans,
-} from "@/components/bookings/server"
-import { ListingsManagerClient } from "@/components/bookings/ListingsManagerClient"
+import { getBookingAccess } from "@/components/bookings/server"
+import { loadBookingListingsData, loadAttachableProperties } from "@/components/bookings/server-deep"
+import { ListingsManagerDeepClient } from "@/components/bookings/ListingsManagerDeepClient"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Bookings → Listings (server component).
 
-   Manage per-listing rate plans (nightly rate, min/max nights, weekend uplift)
-   and availability / blocked dates for stay-booking listings. Resolves
-   workspace + entitlement (gateBookingPages — no flags); gated workspaces see a
-   premium upgrade prompt, an unprovisioned schema shows a not-ready state.
+   Manage booking_listings — the sellable stay products, separate from property
+   records. Resolves workspace + entitlement (gateBookingPages — no flags).
+   Gated → upgrade prompt; cold schema → not-ready state.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export const dynamic = "force-dynamic"
@@ -21,28 +17,30 @@ export default async function BookingListingsPage() {
 
   if (!access.canManage) {
     return (
-      <ListingsManagerClient
+      <ListingsManagerDeepClient
         canManage={false}
         ready
         planName={access.planName}
         upgradeReason={access.upgradeReason}
         listings={[]}
-        ratePlans={[]}
+        properties={[]}
       />
     )
   }
 
-  const data = await loadBookingsData(access.workspaceId)
-  const rates = await loadRatePlans(access.workspaceId, data.listings)
+  const [data, properties] = await Promise.all([
+    loadBookingListingsData(access.workspaceId),
+    loadAttachableProperties(access.workspaceId),
+  ])
 
   return (
-    <ListingsManagerClient
+    <ListingsManagerDeepClient
       canManage
-      ready={data.ready && rates.ready}
+      ready={data.ready}
       planName={access.planName}
       upgradeReason={access.upgradeReason}
       listings={data.listings}
-      ratePlans={rates.plans}
+      properties={properties}
     />
   )
 }

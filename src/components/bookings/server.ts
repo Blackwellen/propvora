@@ -336,14 +336,14 @@ function mapListingRow(r: Record<string, unknown>): BookableListing {
 
 // ── Reads ───────────────────────────────────────────────────────────────────
 
-/** Tolerant direct read of reservations (used when the sibling lib is absent). */
+/** Tolerant direct read of reservations from the REAL `bookings` table. */
 async function readReservationsDirect(
   supabase: SB,
   workspaceId: string
 ): Promise<{ rows: Record<string, unknown>[]; ready: boolean }> {
   try {
     const { data, error } = await supabase
-      .from("booking_reservations")
+      .from("bookings")
       .select("*")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false })
@@ -355,6 +355,59 @@ async function readReservationsDirect(
     return { rows: (data ?? []) as Record<string, unknown>[], ready: true }
   } catch {
     return { rows: [], ready: false }
+  }
+}
+
+/** Read the workspace's booking_listings (the canonical operator listing). */
+async function readBookingListings(
+  supabase: SB,
+  workspaceId: string
+): Promise<{ listings: BookableListing[]; ready: boolean }> {
+  try {
+    const { data, error } = await supabase
+      .from("booking_listings")
+      .select("id, title, status, country_code, currency, property_id, pricing_profile_id")
+      .eq("workspace_id", workspaceId)
+      .neq("status", "archived")
+      .order("created_at", { ascending: false })
+      .limit(300)
+    if (error) {
+      if (isMissing(error)) return { listings: [], ready: false }
+      return { listings: [], ready: true }
+    }
+    const ids = (data ?? []).map((r) => String((r as Record<string, unknown>).id))
+    const priceById = new Map<string, number>()
+    if (ids.length > 0) {
+      try {
+        const { data: profs } = await supabase
+          .from("booking_pricing_profiles")
+          .select("listing_id, base_nightly_pence, is_active")
+          .in("listing_id", ids)
+          .eq("is_active", true)
+        for (const p of profs ?? []) {
+          const row = p as { listing_id: string; base_nightly_pence: number }
+          priceById.set(row.listing_id, Number(row.base_nightly_pence) || 0)
+        }
+      } catch {
+        /* tolerant */
+      }
+    }
+    const listings = (data ?? []).map((r) => {
+      const row = r as Record<string, unknown>
+      const id = String(row.id)
+      return {
+        id,
+        title: (row.title as string) ?? "Untitled listing",
+        status: (row.status as string) ?? "draft",
+        location: (row.country_code as string) ?? null,
+        currency: (row.currency as string) ?? "GBP",
+        baseNightlyPence: priceById.has(id) ? priceById.get(id)! : null,
+        propertyId: (row.property_id as string) ?? null,
+      } satisfies BookableListing
+    })
+    return { listings, ready: true }
+  } catch {
+    return { listings: [], ready: false }
   }
 }
 
@@ -412,11 +465,32 @@ export async function loadBookingsData(workspaceId: string | null): Promise<Book
     ready = direct.ready
   }
 
-  const listings = await readBookableListings(supabase, workspaceId)
+  // Listings: prefer the canonical booking_listings, fall back to marketplace
+  // stay listings (legacy P4 path). Merge by id so titles resolve for both.
+  const bl = await readBookingListings(supabase, workspaceId)
+  const mkt = await readBookableListings(supabase, workspaceId)
+  const byId = new Map<string, BookableListing>()
+  for (const l of mkt) byId.set(l.id, l)
+  for (const l of bl.listings) byId.set(l.id, l) // booking_listings win
+  const listings = Array.from(byId.values())
+
+  // Enrich reservation listing titles from the merged listing set.
+  const titleById = new Map(listings.map((l) => [l.id, l.title]))
+  const bookings = rows.map((r) => {
+    const mapped = mapBookingRow(r)
+    const lid = (r.booking_listing_id as string) ?? (r.listing_id as string) ?? null
+    if (lid && titleById.has(lid)) {
+      mapped.listingId = lid
+      mapped.listingTitle = titleById.get(lid)!
+    } else if (lid) {
+      mapped.listingId = lid
+    }
+    return mapped
+  })
 
   return {
     ready: ready || listings.length > 0,
-    bookings: rows.map(mapBookingRow),
+    bookings,
     listings,
   }
 }
@@ -429,31 +503,46 @@ export async function loadBooking(
   if (!workspaceId) return null
   const supabase = await createClient()
 
-  const lib = await loadReservationsLib()
-  if (lib?.getBooking) {
-    try {
-      const result = await lib.getBooking(supabase, workspaceId, id)
-      const obj = (result as { data?: unknown } | null)?.data ?? result
-      if (obj && typeof obj === "object") return mapBookingRow(obj as Record<string, unknown>)
-    } catch (err) {
-      if (!isMissing(err)) {
-        // fall through to direct read
-      }
-    }
-  }
-
+  let row: Record<string, unknown> | null = null
   try {
     const { data, error } = await supabase
-      .from("booking_reservations")
+      .from("bookings")
       .select("*")
       .eq("workspace_id", workspaceId)
       .eq("id", id)
       .maybeSingle()
     if (error || !data) return null
-    return mapBookingRow(data as Record<string, unknown>)
+    row = data as Record<string, unknown>
   } catch {
     return null
   }
+  if (!row) return null
+
+  const mapped = mapBookingRow(row)
+  // Resolve the listing title for the detail header.
+  const lid = (row.booking_listing_id as string) ?? (row.listing_id as string) ?? null
+  if (lid) {
+    mapped.listingId = lid
+    try {
+      const { data: bl } = await supabase
+        .from("booking_listings")
+        .select("title")
+        .eq("id", lid)
+        .maybeSingle()
+      if (bl?.title) mapped.listingTitle = bl.title as string
+      else {
+        const { data: ml } = await supabase
+          .from("marketplace_listings")
+          .select("title")
+          .eq("id", lid)
+          .maybeSingle()
+        if (ml?.title) mapped.listingTitle = ml.title as string
+      }
+    } catch {
+      /* tolerant */
+    }
+  }
+  return mapped
 }
 
 export interface RatePlan {
@@ -467,7 +556,9 @@ export interface RatePlan {
   currency: string
 }
 
-/** Load rate plans for the workspace's bookable listings (tolerant). */
+/** Load pricing for the workspace's bookable listings (tolerant). Canonical
+ * source is `booking_pricing_profiles`; legacy `rate_plans` is merged in for
+ * marketplace-backed listings that don't have a profile yet. */
 export async function loadRatePlans(
   workspaceId: string | null,
   listings: BookableListing[]
@@ -475,25 +566,69 @@ export async function loadRatePlans(
   if (!workspaceId) return { ready: false, plans: [] }
   const supabase = await createClient()
   const titleById = new Map(listings.map((l) => [l.id, l.title]))
+  const currencyById = new Map(listings.map((l) => [l.id, l.currency]))
+  const plans: RatePlan[] = []
+  const covered = new Set<string>()
+  let ready = listings.length > 0
 
-  // The real lib is per-LISTING; gather plans across the workspace's listings.
+  // 1) booking_pricing_profiles — the deep, canonical pricing.
+  try {
+    const ids = listings.map((l) => l.id)
+    if (ids.length > 0) {
+      const { data, error } = await supabase
+        .from("booking_pricing_profiles")
+        .select(
+          "id, listing_id, base_nightly_pence, weekend_pence, min_nights, max_nights, currency, is_active"
+        )
+        .in("listing_id", ids)
+        .eq("is_active", true)
+      if (!error && Array.isArray(data)) {
+        ready = true
+        for (const r of data) {
+          const row = r as Record<string, unknown>
+          const lid = String(row.listing_id)
+          const base = num(row.base_nightly_pence)
+          const weekend = row.weekend_pence == null ? null : num(row.weekend_pence)
+          const upliftPct = weekend != null && base > 0 ? Math.round(((weekend - base) / base) * 100) : 0
+          covered.add(lid)
+          plans.push({
+            id: String(row.id),
+            listingId: lid,
+            listingTitle: titleById.get(lid) ?? null,
+            nightlyPence: base,
+            minNights: num(row.min_nights, 1) || 1,
+            maxNights: row.max_nights == null ? null : num(row.max_nights),
+            weekendUpliftPct: Math.max(0, upliftPct),
+            currency: (row.currency as string) ?? currencyById.get(lid) ?? "GBP",
+          })
+        }
+      }
+    }
+  } catch {
+    /* tolerant */
+  }
+
+  // 2) legacy rate_plans for any listing not covered by a pricing profile.
   const lib = await loadRatesLib()
-  if (lib?.listRatePlans && listings.length > 0) {
-    try {
-      const perListing = await Promise.all(
-        listings.map(async (l) => {
-          const plans = await lib.listRatePlans!(supabase, l.id)
-          return (plans ?? []).map((p) =>
-            mapLibRatePlan(p, l.title, l.currency)
-          )
-        })
-      )
-      return { ready: true, plans: perListing.flat() }
-    } catch (err) {
-      if (isMissing(err)) return { ready: false, plans: [] }
+  if (lib?.listRatePlans) {
+    const uncovered = listings.filter((l) => !covered.has(l.id))
+    if (uncovered.length > 0) {
+      try {
+        const perListing = await Promise.all(
+          uncovered.map(async (l) => {
+            const rps = await lib.listRatePlans!(supabase, l.id)
+            return (rps ?? []).map((p) => mapLibRatePlan(p, l.title, l.currency))
+          })
+        )
+        for (const arr of perListing) for (const p of arr) plans.push(p)
+        if (perListing.length > 0) ready = true
+      } catch (err) {
+        if (isMissing(err) && plans.length === 0) return { ready: false, plans: [] }
+      }
     }
   }
-  return { ready: listings.length > 0, plans: [] }
+
+  return { ready, plans }
 }
 
 /** Map the real `@/lib/booking/rates` RatePlan shape into the UI shape. */

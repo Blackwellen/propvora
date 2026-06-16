@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import {
   MapPin, ChevronLeft, CheckCircle2, MessageSquare, CalendarCheck,
-  ShoppingBag, Info, Building2,
+  ShoppingBag, Info, Building2, Loader2, AlertCircle, Send,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -20,12 +20,19 @@ import { TrustBadge, type TrustKind } from "./TrustBadge"
    ListingDetail — full listing surface (desktop + mobile).
 
    Media gallery (or category fallback), price, description, seller trust block,
-   and a primary CTA whose label adapts to transaction type ("Request" /
-   "Book" / "Enquire"). The CTA is intentionally a NON-DESTRUCTIVE placeholder:
-   it surfaces an inline "request registered" acknowledgement and does NOT
-   fabricate a completed transaction or write anything — wiring the real
-   request/booking flow is a later phase.
+   and a REAL primary CTA driven by the listing's transaction_type:
+     - stay_booking / service_package → "Reserve" links to the real escrow
+       checkout draft (/marketplace/checkout/[id]) which drives the checkout API
+       + Stripe Elements.
+     - supplier_job / emergency_job → an inline enquiry that POSTs a real
+       `marketplace_enquiries` row via /api/marketplace/enquiries.
+   No `setRequested(true)` no-op — every CTA performs a real action.
 ─────────────────────────────────────────────────────────────────────────── */
+
+/** True when the listing is bought through escrow checkout (vs a quote). */
+function isCheckoutType(tt: string | null | undefined): boolean {
+  return tt === "stay_booking" || tt === "service_package"
+}
 
 const CATEGORY_GRADIENT: Record<string, string> = {
   maintenance: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
@@ -80,9 +87,9 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
     new Set([listing.thumbnailUrl, ...media].filter(Boolean) as string[])
   )
   const [activeImg, setActiveImg] = useState(0)
-  const [requested, setRequested] = useState(false)
   const cta = ctaForType(listing.transactionType)
   const CtaIcon = cta.icon
+  const checkout = isCheckoutType(listing.transactionType)
 
   const sellerName = seller?.name?.trim() || "Verified seller"
   const sellerInitial = sellerName.charAt(0).toUpperCase()
@@ -197,32 +204,22 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
               </p>
             </div>
 
-            {requested ? (
-              <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[13px] font-semibold text-emerald-800">Request noted</p>
-                  <p className="text-[12px] text-emerald-700 mt-0.5">
-                    This is a preview action — no booking or payment has been made. The full request flow arrives soon.
-                  </p>
-                </div>
-              </div>
+            {checkout ? (
+              <>
+                <Button variant="primary" size="lg" className="mt-4 w-full" asChild>
+                  <Link href={`/marketplace/checkout/${listing.id}`}>
+                    <CalendarCheck className="w-4 h-4" />
+                    {cta.label}
+                  </Link>
+                </Button>
+                <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Info className="w-3.5 h-3.5 shrink-0" />
+                  You&apos;ll confirm payment securely with escrow protection.
+                </p>
+              </>
             ) : (
-              <Button
-                variant="primary"
-                size="lg"
-                className="mt-4 w-full"
-                onClick={() => setRequested(true)}
-              >
-                <CtaIcon className="w-4 h-4" />
-                {cta.label}
-              </Button>
+              <InlineEnquiry listingId={listing.id} ctaLabel={cta.label} CtaIcon={CtaIcon} />
             )}
-
-            <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
-              <Info className="w-3.5 h-3.5 shrink-0" />
-              Requesting does not commit you to anything.
-            </p>
           </div>
 
           {/* Seller trust */}
@@ -252,6 +249,103 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
           </div>
         </aside>
       </div>
+    </div>
+  )
+}
+
+/**
+ * InlineEnquiry — the REAL quote/enquiry CTA for supplier/emergency listings.
+ * POSTs a `marketplace_enquiries` row via /api/marketplace/enquiries (no no-op).
+ * For a signed-in operator the session supplies buyer identity server-side, so
+ * the form only needs the message.
+ */
+function InlineEnquiry({
+  listingId,
+  ctaLabel,
+  CtaIcon,
+}: {
+  listingId: string
+  ctaLabel: string
+  CtaIcon: typeof MessageSquare
+}) {
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState("")
+  const [phase, setPhase] = useState<"idle" | "sending" | "done">("idle")
+  const [error, setError] = useState<string | null>(null)
+
+  async function send() {
+    if (!message.trim()) {
+      setError("Please describe what you need.")
+      return
+    }
+    setPhase("sending")
+    setError(null)
+    try {
+      const res = await fetch("/api/marketplace/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId, message: message.trim(), gdprConsent: true }),
+      })
+      const data = (await res.json().catch(() => null)) as { error?: string } | null
+      if (!res.ok) {
+        setError(data?.error ?? "We couldn't send your enquiry. Please try again.")
+        setPhase("idle")
+        return
+      }
+      setPhase("done")
+    } catch {
+      setError("We couldn't send your enquiry. Please try again.")
+      setPhase("idle")
+    }
+  }
+
+  if (phase === "done") {
+    return (
+      <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-[13px] font-semibold text-emerald-800">Enquiry sent</p>
+          <p className="text-[12px] text-emerald-700 mt-0.5">
+            The supplier has your request and will respond shortly. You can track replies in your marketplace messages.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!open) {
+    return (
+      <>
+        <Button variant="primary" size="lg" className="mt-4 w-full" onClick={() => setOpen(true)}>
+          <CtaIcon className="w-4 h-4" />
+          {ctaLabel}
+        </Button>
+        <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
+          <Info className="w-3.5 h-3.5 shrink-0" />
+          No payment is taken — you agree pricing with the supplier first.
+        </p>
+      </>
+    )
+  }
+
+  return (
+    <div className="mt-4 space-y-2.5">
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        rows={3}
+        placeholder="Describe the job, timing and location…"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none"
+      />
+      {error && (
+        <p className="text-[12px] text-red-600 flex items-center gap-1.5">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}
+        </p>
+      )}
+      <Button variant="primary" size="lg" className="w-full" onClick={send} disabled={phase === "sending"}>
+        {phase === "sending" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        {phase === "sending" ? "Sending…" : "Send enquiry"}
+      </Button>
     </div>
   )
 }

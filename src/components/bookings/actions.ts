@@ -84,13 +84,14 @@ async function authorise(): Promise<
 }
 
 interface ReservationsLib {
-  confirmBooking?: (supabase: SB, workspaceId: string, id: string) => Promise<unknown>
-  cancelBooking?: (
+  // Real lib signatures (workspace scoping via RLS on the listing/booking row).
+  confirmBooking?: (supabase: SB, bookingId: string, opts?: Record<string, unknown>) => Promise<unknown>
+  cancelBooking?: (supabase: SB, bookingId: string, reason?: string) => Promise<unknown>
+  transitionBooking?: (
     supabase: SB,
-    workspaceId: string,
-    id: string,
-    reason?: string
-  ) => Promise<unknown>
+    bookingId: string,
+    target: string
+  ) => Promise<{ booking?: unknown; error?: string }>
 }
 
 async function loadLib(): Promise<ReservationsLib | null> {
@@ -110,7 +111,7 @@ async function directStatusUpdate(
 ): Promise<ActionResult> {
   try {
     const { error } = await supabase
-      .from("booking_reservations")
+      .from("bookings")
       .update({ status })
       .eq("id", id)
       .eq("workspace_id", workspaceId)
@@ -135,8 +136,8 @@ export async function confirmReservation(id: string): Promise<ActionResult> {
   const lib = await loadLib()
   if (lib?.confirmBooking) {
     try {
-      await lib.confirmBooking(supabase, workspaceId, id)
-      return { ok: true, status: "confirmed" }
+      const updated = await lib.confirmBooking(supabase, id)
+      if (updated) return { ok: true, status: "confirmed" }
     } catch (err) {
       if (!isMissing(err)) {
         return { ok: false, error: err instanceof Error ? err.message : "Could not confirm the reservation." }
@@ -155,8 +156,8 @@ export async function cancelReservation(id: string, reason?: string): Promise<Ac
   const lib = await loadLib()
   if (lib?.cancelBooking) {
     try {
-      await lib.cancelBooking(supabase, workspaceId, id, reason)
-      return { ok: true, status: "cancelled" }
+      const updated = await lib.cancelBooking(supabase, id, reason)
+      if (updated) return { ok: true, status: "cancelled" }
     } catch (err) {
       if (!isMissing(err)) {
         return { ok: false, error: err instanceof Error ? err.message : "Could not cancel the reservation." }
@@ -164,6 +165,30 @@ export async function cancelReservation(id: string, reason?: string): Promise<Ac
     }
   }
   return directStatusUpdate(supabase, workspaceId, id, "cancelled")
+}
+
+/**
+ * Guarded reservation lifecycle transition (confirm/check-in/check-out/complete/
+ * no-show/cancel) via the real `transitionBooking` lib. Re-authorises + re-gates
+ * server-side. Returns { ok, status, error }.
+ */
+export async function transitionReservation(id: string, target: string): Promise<ActionResult> {
+  const auth = await authorise()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  const { supabase } = auth
+  const lib = await loadLib()
+  if (lib?.transitionBooking) {
+    try {
+      const res = await lib.transitionBooking(supabase, id, target)
+      if (res?.booking) return { ok: true, status: target }
+      return { ok: false, error: res?.error ?? "Transition not allowed." }
+    } catch (err) {
+      if (!isMissing(err)) {
+        return { ok: false, error: err instanceof Error ? err.message : "Could not update the reservation." }
+      }
+    }
+  }
+  return { ok: false, error: "The reservations engine isn't provisioned yet." }
 }
 
 // ── Rate plans & availability ──────────────────────────────────────────────

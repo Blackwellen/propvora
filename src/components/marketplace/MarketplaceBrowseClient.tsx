@@ -49,10 +49,26 @@ interface Props {
   planName: string
   /** Default country from the workspace context (pre-seeds the filter). */
   defaultCountry?: string | null
+  /** Lock the browse to a single category slug (sub-route landings). */
+  initialCategory?: string
+  /** Hide the category nav when the category is locked. */
+  lockCategory?: boolean
+  /** Override the header. */
+  title?: string
+  description?: string
 }
 
-export function MarketplaceBrowseClient({ canBrowse, canPublish, planName, defaultCountry }: Props) {
-  const [category, setCategory] = useState("")
+export function MarketplaceBrowseClient({
+  canBrowse,
+  canPublish,
+  planName,
+  defaultCountry,
+  initialCategory = "",
+  lockCategory = false,
+  title = "Marketplace",
+  description = "Discover services, suppliers and listings across Propvora",
+}: Props) {
+  const [category, setCategory] = useState(initialCategory)
   const [filters, setFilters] = useState<MarketplaceFilters>({
     ...EMPTY_FILTERS,
     countryCode: defaultCountry ?? "",
@@ -174,7 +190,7 @@ export function MarketplaceBrowseClient({ canBrowse, canPublish, planName, defau
   return (
     <DashboardContainer>
       <MobileTopBar
-        title="Marketplace"
+        title={title}
         subtitle="Browse services, suppliers & listings"
         primaryAction={
           canPublish
@@ -186,8 +202,8 @@ export function MarketplaceBrowseClient({ canBrowse, canPublish, planName, defau
 
       <div className="hidden md:block">
         <PageHeader
-          title="Marketplace"
-          description="Discover services, suppliers and listings across Propvora"
+          title={title}
+          description={description}
           actions={
             <div className="flex items-center gap-2">
               <Button variant="outline" size="md" asChild>
@@ -238,7 +254,7 @@ export function MarketplaceBrowseClient({ canBrowse, canPublish, planName, defau
               onClear={clearFilters}
               resultCount={loading ? undefined : total}
             />
-            <CategoryNav value={category} onChange={setCategory} />
+            {!lockCategory && <CategoryNav value={category} onChange={setCategory} />}
           </div>
 
           {/* Results */}

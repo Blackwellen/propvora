@@ -23,6 +23,8 @@ export type BookingStatus =
   | "hold"
   | "pending_payment"
   | "confirmed"
+  | "checked_in"
+  | "checked_out"
   | "cancelled"
   | "completed"
   | "no_show"
@@ -319,6 +321,104 @@ export async function cancelBooking(
     return mapRow(data as unknown as BookingRow)
   } catch {
     return null
+  }
+}
+
+// ── Operator lifecycle transitions ──────────────────────────────────────────
+
+/** Allowed forward transitions for the operator reservation lifecycle. The DB
+ * CHECK now permits checked_in/checked_out (migration 20260617020000). */
+const TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  hold: ["pending_payment", "confirmed", "cancelled"],
+  pending_payment: ["confirmed", "cancelled"],
+  confirmed: ["checked_in", "cancelled", "no_show", "completed"],
+  checked_in: ["checked_out", "completed"],
+  checked_out: ["completed"],
+  cancelled: [],
+  completed: [],
+  no_show: [],
+}
+
+export type ExtendedBookingStatus = BookingStatus
+
+/**
+ * Generic guarded transition. Reads the current status, validates the requested
+ * target is a legal next state, then persists it. Returns the updated booking
+ * or { error } describing the rejection. Side-effect stub points (cleaning task,
+ * messaging, ledger) are flagged in the result for the caller to action.
+ */
+export async function transitionBooking(
+  supabase: SupabaseClient,
+  bookingId: string,
+  target: ExtendedBookingStatus
+): Promise<{ booking?: Booking; error?: string; sideEffects?: string[] }> {
+  const current = await getBooking(supabase, bookingId)
+  if (!current) return { error: "Reservation not found." }
+  const allowed = TRANSITIONS[current.status as BookingStatus] ?? []
+  if (!allowed.includes(target as BookingStatus)) {
+    return { error: `Cannot move a ${current.status} reservation to ${target}.` }
+  }
+  const patch: Record<string, unknown> = { status: target }
+  if (target === "confirmed" || target === "cancelled") patch.hold_expires_at = null
+  try {
+    const { data, error } = await supabase
+      .from("bookings")
+      .update(patch)
+      .eq("id", bookingId)
+      .select(COLS)
+      .maybeSingle()
+    if (error || !data) return { error: error?.message ?? "Transition failed." }
+    // Side-effect creator stub points — wired by the ops layer in a later wave.
+    const sideEffects: string[] = []
+    if (target === "confirmed") sideEffects.push("create_cleaning_task", "send_confirmation_message", "create_ledger_entry")
+    if (target === "checked_in") sideEffects.push("release_access_instructions")
+    if (target === "checked_out") sideEffects.push("create_turnover_task", "open_deposit_review")
+    if (target === "cancelled") sideEffects.push("free_calendar_dates", "evaluate_refund")
+    return { booking: mapRow(data as unknown as BookingRow), sideEffects }
+  } catch (err) {
+    return { error: (err as { message?: string })?.message ?? "Transition failed." }
+  }
+}
+
+/** Mark a confirmed reservation as checked-in (guarded). */
+export async function checkInBooking(supabase: SupabaseClient, bookingId: string) {
+  return transitionBooking(supabase, bookingId, "checked_in")
+}
+/** Mark a checked-in reservation as checked-out (guarded). */
+export async function checkOutBooking(supabase: SupabaseClient, bookingId: string) {
+  return transitionBooking(supabase, bookingId, "checked_out")
+}
+/** Mark a reservation completed (post-stay). */
+export async function completeBooking(supabase: SupabaseClient, bookingId: string) {
+  return transitionBooking(supabase, bookingId, "completed")
+}
+/** Flag a confirmed reservation as a no-show. */
+export async function markNoShow(supabase: SupabaseClient, bookingId: string) {
+  return transitionBooking(supabase, bookingId, "no_show")
+}
+
+/** List reservations attached to a specific booking_listing (either via the new
+ * `booking_listing_id` bridge or the legacy `listing_id`). Tolerant → []. */
+export async function listReservationsForListing(
+  supabase: SupabaseClient,
+  listingId: string,
+  filters: BookingFilters = {}
+): Promise<Booking[]> {
+  try {
+    let q = supabase
+      .from("bookings")
+      .select(COLS)
+      .or(`listing_id.eq.${listingId},booking_listing_id.eq.${listingId}`)
+    if (filters.status) {
+      q = Array.isArray(filters.status) ? q.in("status", filters.status) : q.eq("status", filters.status)
+    }
+    if (filters.checkInFrom) q = q.gte("check_in", filters.checkInFrom)
+    if (filters.checkInTo) q = q.lte("check_in", filters.checkInTo)
+    const { data, error } = await q.order("check_in", { ascending: true }).limit(filters.limit ?? 200)
+    if (error || !Array.isArray(data)) return []
+    return data.map((r) => mapRow(r as unknown as BookingRow))
+  } catch {
+    return []
   }
 }
 

@@ -5,6 +5,9 @@ import { MobileTopBar } from "@/components/mobile"
 import { getBookingAccess, loadBooking } from "@/components/bookings/server"
 import { ReservationDetailClient } from "@/components/bookings/ReservationDetailClient"
 import { BookingUpgradePrompt, BookingNotReady } from "@/components/bookings/primitives"
+import { BookingSectionClient } from "@/components/bookings/BookingSectionClient"
+import { BOOKING_SECTION_KEYS, type BookingSectionKey } from "@/components/bookings/module"
+import { loadBookingsData } from "@/components/bookings/server"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Reservation detail (server component).
@@ -23,6 +26,24 @@ export default async function ReservationDetailPage({
 }) {
   const { id } = await params
   const access = await getBookingAccess()
+
+  if (BOOKING_SECTION_KEYS.has(id as BookingSectionKey)) {
+    const data = access.canManage
+      ? await loadBookingsData(access.workspaceId)
+      : { ready: true, bookings: [], listings: [] }
+
+    return (
+      <BookingSectionClient
+        section={id as BookingSectionKey}
+        canManage={access.canManage}
+        ready={data.ready}
+        planName={access.planName}
+        upgradeReason={access.upgradeReason}
+        bookings={data.bookings}
+        listings={data.listings}
+      />
+    )
+  }
 
   if (!access.canManage) {
     return (

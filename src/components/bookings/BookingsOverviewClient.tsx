@@ -32,6 +32,7 @@ import {
   type BookingKpi,
 } from "./primitives"
 import { BookingCalendar } from "./BookingCalendar"
+import { BookingManagementCanvas } from "./BookingManagementCanvas"
 import type { BookingRow, BookableListing, ReservationStatus } from "./server"
 
 interface Props {
@@ -351,6 +352,8 @@ export function BookingsOverviewClient({
             <BookingKpiCard key={k.label} kpi={k} />
           ))}
         </div>
+
+        <BookingManagementCanvas bookings={bookings} listings={listings} activeSection="dashboard" />
 
         {/* View toggle — desktop segmented + mobile tabs */}
         <div className="flex items-center justify-between gap-2">
