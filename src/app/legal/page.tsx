@@ -19,6 +19,7 @@ import {
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
 import { POLICY_LIST } from "@/lib/legal/policies"
+import { GUEST_POLICY_LIST, HOST_POLICY_LIST } from "@/lib/legal/booking-policies"
 
 export const metadata: Metadata = {
   title: "Legal | Propvora",
@@ -110,6 +111,18 @@ const marketplaceDocuments = POLICY_LIST.map((p) => ({
   border: "border-indigo-200",
 }))
 
+const guestBookingDocuments = GUEST_POLICY_LIST.map((p) => ({
+  title: p.title,
+  description: p.summary,
+  href: p.href,
+}))
+
+const hostBookingDocuments = HOST_POLICY_LIST.map((p) => ({
+  title: p.title,
+  description: p.summary,
+  href: p.href,
+}))
+
 export default function LegalPage() {
   return (
     <div className="min-h-screen bg-white">
@@ -175,6 +188,60 @@ export default function LegalPage() {
                     <p className="text-slate-600 text-sm leading-relaxed">{doc.description}</p>
                   </div>
                   <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Booking & direct-booking — guest-facing */}
+          <div className="mt-14">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Booking policies (guests)</h2>
+            <p className="text-slate-600 text-sm mb-5">
+              The terms and policies that apply when you book a stay through a host&rsquo;s
+              Propvora booking page. For a direct booking, your contract for the stay is with the
+              host; Propvora provides the booking software.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {guestBookingDocuments.map((doc) => (
+                <Link
+                  key={doc.href}
+                  href={doc.href}
+                  className="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-all"
+                >
+                  <FileText className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {doc.title}
+                    </h3>
+                    <p className="text-slate-600 text-xs leading-relaxed mt-0.5">{doc.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Host / property-manager-facing */}
+          <div className="mt-14">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Host &amp; property-manager terms</h2>
+            <p className="text-slate-600 text-sm mb-5">
+              The terms, warranties and disclaimers that apply to hosts and property managers who
+              take direct bookings through Propvora. Hosts are the contracting party for the stay;
+              Propvora is a software facilitator and is not the host, insurer, or tax/legal adviser.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {hostBookingDocuments.map((doc) => (
+                <Link
+                  key={doc.href}
+                  href={doc.href}
+                  className="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-all"
+                >
+                  <ShieldAlert className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {doc.title}
+                    </h3>
+                    <p className="text-slate-600 text-xs leading-relaxed mt-0.5">{doc.description}</p>
+                  </div>
                 </Link>
               ))}
             </div>
