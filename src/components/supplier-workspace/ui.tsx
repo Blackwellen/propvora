@@ -1,54 +1,101 @@
 "use client"
 
 import React from "react"
-import Link from "next/link"
-import { ChevronRight, X, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { humaniseStatus as _humaniseStatus } from "./format"
+import { X } from "lucide-react"
 
-/* ──────────────────────────────────────────────────────────────────────────
-   Supplier-workspace UI primitives — premium, enterprise-grade building blocks
-   shared across every supplier page. Light tokens only (no `dark:` classes),
-   matched to the existing Work section design language.
-─────────────────────────────────────────────────────────────────────────── */
+// ─── Re-exports ───────────────────────────────────────────────────────────────
 
-/* ── PageHeader (desktop) ───────────────────────────────────────────────── */
+export { humaniseStatus } from "./format"
 
-export function SupplierPageHeader({
-  title,
-  subtitle,
-  actions,
-  tabs,
-}: {
+// ─── Status helpers ───────────────────────────────────────────────────────────
+
+export type StatusTone = "emerald" | "amber" | "sky" | "slate" | "red"
+
+export function toneForStatus(status: string): StatusTone {
+  switch (status) {
+    case "published":
+      return "emerald"
+    case "pending_review":
+      return "amber"
+    case "paused":
+      return "sky"
+    case "draft":
+      return "slate"
+    case "archived":
+      return "slate"
+    default:
+      return "slate"
+  }
+}
+
+// ─── Input classes ────────────────────────────────────────────────────────────
+
+export const supplierInputClass =
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+
+export const supplierTextareaClass =
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+
+// ─── Page Header ─────────────────────────────────────────────────────────────
+
+interface Tab {
+  label: string
+  value: string
+}
+
+interface SupplierPageHeaderProps {
   title: string
   subtitle?: string
   actions?: React.ReactNode
-  tabs?: React.ReactNode
-}) {
+  tabs?: {
+    items: Tab[]
+    active: string
+    onChange: (v: string) => void
+  }
+}
+
+export function SupplierPageHeader({ title, subtitle, actions, tabs }: SupplierPageHeaderProps) {
   return (
-    <div className="hidden md:flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-tight">{title}</h1>
-          {subtitle && <p className="mt-1 text-sm text-slate-500 text-pretty">{subtitle}</p>}
+    <div className="hidden md:flex flex-col gap-4 mb-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+          {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
         </div>
-        {actions && (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap sm:justify-end">{actions}</div>
-        )}
+        {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
       </div>
-      {tabs}
+      {tabs && (
+        <div className="flex gap-1 border-b border-slate-200">
+          {tabs.items.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => tabs.onChange(t.value)}
+              className={cn(
+                "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+                tabs.active === t.value
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-/* ── Card surface ───────────────────────────────────────────────────────── */
+// ─── Card ─────────────────────────────────────────────────────────────────────
 
-export function SupplierCard({
-  children,
-  className,
-}: {
+interface SupplierCardProps {
   children: React.ReactNode
   className?: string
-}) {
+}
+
+export function SupplierCard({ children, className }: SupplierCardProps) {
   return (
     <div className={cn("bg-white border border-slate-200 rounded-2xl shadow-sm", className)}>
       {children}
@@ -56,384 +103,235 @@ export function SupplierCard({
   )
 }
 
-export function SupplierCardHeader({
-  title,
-  action,
-  badge,
-}: {
+// ─── Card Header ─────────────────────────────────────────────────────────────
+
+interface SupplierCardHeaderProps {
   title: string
   action?: React.ReactNode
   badge?: React.ReactNode
-}) {
+}
+
+export function SupplierCardHeader({ title, action, badge }: SupplierCardHeaderProps) {
   return (
-    <div className="flex items-center justify-between gap-3 mb-4">
-      <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-      {badge}
-      {action}
+    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <div className="flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
+        {badge}
+      </div>
+      {action && <div>{action}</div>}
     </div>
   )
 }
 
-/* ── KPI card ───────────────────────────────────────────────────────────── */
+// ─── KPI ─────────────────────────────────────────────────────────────────────
 
 export interface SupplierKpi {
-  icon: LucideIcon
-  iconBg: string
-  iconColor: string
-  value: React.ReactNode
   label: string
+  value: string | number
   sub?: string
-  subColor?: string
-  href?: string
+  icon?: React.ReactNode
 }
 
 export function SupplierKpiCard({ kpi }: { kpi: SupplierKpi }) {
-  const Icon = kpi.icon
-  const inner = (
-    <>
-      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", kpi.iconBg)}>
-        <Icon className={cn("w-5 h-5", kpi.iconColor)} />
+  return (
+    <SupplierCard className="p-5 flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">{kpi.label}</span>
+        {kpi.icon && <span className="text-slate-400">{kpi.icon}</span>}
       </div>
-      <div className="mt-3">
-        <p className="text-2xl font-bold text-slate-900 leading-none">{kpi.value}</p>
-        <p className="mt-1.5 text-[13px] font-medium text-slate-600">{kpi.label}</p>
-        {kpi.sub && <p className={cn("mt-0.5 text-[11.5px] font-semibold", kpi.subColor ?? "text-slate-400")}>{kpi.sub}</p>}
-      </div>
-    </>
+      <span className="text-2xl font-bold text-slate-900">{kpi.value}</span>
+      {kpi.sub && <span className="text-xs text-slate-400">{kpi.sub}</span>}
+    </SupplierCard>
   )
-  const base =
-    "block bg-white border border-slate-200 rounded-2xl shadow-sm p-4 transition-all"
-  if (kpi.href) {
-    return (
-      <Link href={kpi.href} className={cn(base, "hover:border-slate-300 hover:shadow-md")}>
-        {inner}
-      </Link>
-    )
-  }
-  return <div className={base}>{inner}</div>
 }
 
 export function SupplierKpiStrip({ kpis }: { kpis: SupplierKpi[] }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      {kpis.map((k) => (
-        <SupplierKpiCard key={k.label} kpi={k} />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {kpis.map((kpi) => (
+        <SupplierKpiCard key={kpi.label} kpi={kpi} />
       ))}
     </div>
   )
 }
 
-/* ── State: empty / loading / error ─────────────────────────────────────── */
+// ─── Empty State ──────────────────────────────────────────────────────────────
 
-export function SupplierEmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-}: {
-  icon: LucideIcon
+interface SupplierEmptyStateProps {
+  icon?: React.ReactNode
   title: string
-  description: string
+  description?: string
   action?: React.ReactNode
-}) {
+}
+
+export function SupplierEmptyState({ icon, title, description, action }: SupplierEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center text-center px-6 py-14">
-      <div className="w-14 h-14 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mb-4">
-        <Icon className="w-7 h-7 text-[#2563EB]" />
-      </div>
-      <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1.5 text-sm text-slate-500 max-w-sm text-pretty">{description}</p>
-      {action && <div className="mt-5">{action}</div>}
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      {icon && <div className="mb-4 text-slate-300">{icon}</div>}
+      <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
+      {description && <p className="text-sm text-slate-400 max-w-sm mb-4">{description}</p>}
+      {action && <div>{action}</div>}
     </div>
   )
 }
 
-export function SupplierLoadingState({ rows = 4 }: { rows?: number }) {
+// ─── Loading State ────────────────────────────────────────────────────────────
+
+export function SupplierLoadingState({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-2.5 p-1" aria-busy="true" aria-live="polite">
+    <div className="space-y-3 animate-pulse">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-16 rounded-xl bg-slate-50 animate-pulse motion-reduce:animate-none" />
+        <div key={i} className="h-14 bg-slate-100 rounded-xl" />
       ))}
     </div>
   )
 }
 
-/**
- * "Not ready" surface — shown when a sibling API isn't wired yet. Deliberately
- * neutral (not an error): the feature is coming online, data will appear once
- * the service is connected.
- */
-export function SupplierNotReady({
-  icon: Icon,
-  title = "Connecting service",
-  description = "This area comes online as soon as the supplier service is connected to your workspace.",
-}: {
-  icon: LucideIcon
-  title?: string
-  description?: string
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center text-center px-6 py-14">
-      <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-        <Icon className="w-7 h-7 text-slate-400" />
-      </div>
-      <h3 className="text-base font-semibold text-slate-700">{title}</h3>
-      <p className="mt-1.5 text-sm text-slate-500 max-w-sm text-pretty">{description}</p>
-    </div>
-  )
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+
+const toneClasses: Record<StatusTone, string> = {
+  emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  amber:   "bg-amber-50 text-amber-700 border-amber-200",
+  sky:     "bg-sky-50 text-sky-700 border-sky-200",
+  slate:   "bg-slate-100 text-slate-600 border-slate-200",
+  red:     "bg-red-50 text-red-700 border-red-200",
 }
 
-/* ── "View all" link ────────────────────────────────────────────────────── */
-
-export function SupplierViewLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
-    >
-      {label} <ChevronRight className="w-3 h-3" />
-    </Link>
-  )
-}
-
-/* ── Status badge ───────────────────────────────────────────────────────── */
-
-export type SupplierStatusTone = "blue" | "amber" | "emerald" | "red" | "slate" | "violet"
-
-const TONE_CLASSES: Record<SupplierStatusTone, string> = {
-  blue: "bg-blue-50 text-blue-700",
-  amber: "bg-amber-50 text-amber-700",
-  emerald: "bg-emerald-50 text-emerald-700",
-  red: "bg-red-50 text-red-700",
-  slate: "bg-slate-100 text-slate-600",
-  violet: "bg-violet-50 text-violet-700",
-}
-
-export function SupplierStatusBadge({
-  children,
-  tone = "slate",
-  className,
-}: {
-  children: React.ReactNode
-  tone?: SupplierStatusTone
-  className?: string
-}) {
+export function SupplierStatusBadge({ status }: { status: string }) {
+  const tone = toneForStatus(status)
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap",
-        TONE_CLASSES[tone],
-        className
+        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
+        toneClasses[tone]
       )}
     >
-      {children}
+      {_humaniseStatus(status)}
     </span>
   )
 }
 
-/* ── Status → tone mapping shared by quotes/jobs ────────────────────────── */
+// ─── Button ───────────────────────────────────────────────────────────────────
 
-export function toneForStatus(status: string): SupplierStatusTone {
-  const s = status.toLowerCase()
-  if (/(complete|approved|paid|released|accepted|active)/.test(s)) return "emerald"
-  if (/(pending|await|review|requested|received|scheduled|en_route|arrived|progress)/.test(s)) return "blue"
-  if (/(risk|variation|blocked|parts|deposit)/.test(s)) return "amber"
-  if (/(declined|cancelled|refunded|disputed|failed|expired)/.test(s)) return "red"
-  return "slate"
+interface SupplierButtonProps {
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: "primary" | "outline"
+  size?: "sm" | "md"
+  disabled?: boolean
+  loading?: boolean
+  type?: "button" | "submit" | "reset"
+  className?: string
 }
-
-export function humaniseStatus(status: string): string {
-  return status
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-/* ── Buttons ────────────────────────────────────────────────────────────── */
 
 export function SupplierButton({
   children,
   onClick,
-  type = "button",
   variant = "primary",
   size = "md",
   disabled,
   loading,
+  type = "button",
   className,
-}: {
-  children: React.ReactNode
-  onClick?: () => void
-  type?: "button" | "submit"
-  variant?: "primary" | "secondary" | "ghost" | "danger"
-  size?: "sm" | "md"
-  disabled?: boolean
-  loading?: boolean
-  className?: string
-}) {
-  const variants: Record<string, string> = {
-    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50",
-    secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50",
-    ghost: "text-slate-600 hover:bg-slate-100 disabled:opacity-50",
-    danger: "bg-red-600 text-white hover:bg-red-700 disabled:opacity-50",
-  }
-  const sizes: Record<string, string> = {
-    sm: "h-8 px-3 text-[13px] rounded-lg gap-1.5",
-    md: "h-10 px-4 text-sm rounded-xl gap-2",
+}: SupplierButtonProps) {
+  const base = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+  const sizes = { sm: "px-3 py-1.5 text-sm gap-1.5", md: "px-4 py-2 text-sm gap-2" }
+  const variants = {
+    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8]",
+    outline: "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50",
   }
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={cn(
-        "inline-flex items-center justify-center font-semibold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-        variants[variant],
-        sizes[size],
-        className
-      )}
+      className={cn(base, sizes[size], variants[variant], className)}
     >
-      {loading && <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin motion-reduce:animate-none" />}
+      {loading && (
+        <svg className="animate-spin w-4 h-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+      )}
       {children}
     </button>
   )
 }
 
-/* ── Tabs (segmented) ───────────────────────────────────────────────────── */
+// ─── Drawer ───────────────────────────────────────────────────────────────────
 
-export interface SupplierTab {
-  key: string
-  label: string
-  icon?: LucideIcon
-  count?: number
-}
-
-export function SupplierTabs({
-  tabs,
-  active,
-  onChange,
-  className,
-}: {
-  tabs: SupplierTab[]
-  active: string
-  onChange: (key: string) => void
-  className?: string
-}) {
-  return (
-    <div className={cn("flex gap-1 overflow-x-auto no-scrollbar -mx-1 px-1", className)} role="tablist">
-      {tabs.map((t) => {
-        const Icon = t.icon
-        const isActive = t.key === active
-        return (
-          <button
-            key={t.key}
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(t.key)}
-            className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-              isActive ? "bg-[#0D1B2A] text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-            )}
-          >
-            {Icon && <Icon className="w-3.5 h-3.5" />}
-            {t.label}
-            {t.count != null && t.count > 0 && (
-              <span className={cn("ml-0.5 px-1.5 py-px rounded-full text-[10px] font-bold", isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600")}>
-                {t.count}
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-/* ── Labelled field (forms) ─────────────────────────────────────────────── */
-
-export function SupplierField({
-  label,
-  children,
-  hint,
-  required,
-}: {
-  label: string
-  children: React.ReactNode
-  hint?: string
-  required?: boolean
-}) {
-  return (
-    <label className="block">
-      <span className="block text-[13px] font-semibold text-slate-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </span>
-      {children}
-      {hint && <span className="block text-[11.5px] text-slate-400 mt-1">{hint}</span>}
-    </label>
-  )
-}
-
-export const supplierInputClass =
-  "w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-
-export const supplierTextareaClass =
-  "w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-y min-h-[88px]"
-
-/* ── Slide-over drawer ──────────────────────────────────────────────────── */
-
-export function SupplierDrawer({
-  open,
-  onClose,
-  title,
-  children,
-  footer,
-}: {
+interface SupplierDrawerProps {
   open: boolean
   onClose: () => void
   title: string
   children: React.ReactNode
-  footer?: React.ReactNode
-}) {
+}
+
+export function SupplierDrawer({ open, onClose, title, children }: SupplierDrawerProps) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200 motion-reduce:animate-none">
-        <div className="flex items-center justify-between px-5 h-16 border-b border-slate-100 shrink-0">
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 shrink-0">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-          <button onClick={onClose} aria-label="Close" className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">{children}</div>
-        {footer && <div className="px-5 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-2">{footer}</div>}
-      </div>
+        <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
+      </aside>
+    </>
+  )
+}
+
+// ─── Form Field ───────────────────────────────────────────────────────────────
+
+interface SupplierFieldProps {
+  label: string
+  children: React.ReactNode
+  error?: string
+}
+
+export function SupplierField({ label, children, error }: SupplierFieldProps) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-medium text-slate-700">{label}</label>
+      {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
 }
 
-/* ── Inline error / info banner ─────────────────────────────────────────── */
+// ─── Banner ───────────────────────────────────────────────────────────────────
 
-export function SupplierBanner({
-  tone = "amber",
-  children,
-  onDismiss,
-}: {
-  tone?: "amber" | "red" | "emerald" | "blue"
-  children: React.ReactNode
-  onDismiss?: () => void
-}) {
-  const tones: Record<string, string> = {
-    amber: "border-amber-100 bg-amber-50 text-amber-800",
-    red: "border-red-100 bg-red-50 text-red-800",
-    emerald: "border-emerald-100 bg-emerald-50 text-emerald-800",
-    blue: "border-blue-100 bg-blue-50 text-blue-800",
-  }
+interface SupplierBannerProps {
+  tone: "emerald" | "red"
+  msg: string
+}
+
+const bannerClasses: Record<"emerald" | "red", string> = {
+  emerald: "bg-emerald-50 border border-emerald-200 text-emerald-800",
+  red:     "bg-red-50 border border-red-200 text-red-800",
+}
+
+export function SupplierBanner({ tone, msg }: SupplierBannerProps) {
   return (
-    <div className={cn("flex items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5", tones[tone])}>
-      <p className="text-[13px] font-medium">{children}</p>
-      {onDismiss && (
-        <button onClick={onDismiss} className="text-[12px] font-semibold hover:underline shrink-0">Dismiss</button>
-      )}
+    <div className={cn("px-4 py-3 rounded-xl text-sm font-medium", bannerClasses[tone])}>
+      {msg}
     </div>
   )
 }
