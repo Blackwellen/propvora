@@ -143,7 +143,7 @@ export function certExpiryEmail(params: CertExpiryParams): {
           <tr>
             <td style="padding-top:28px; text-align:center;">
               <p style="font-size:12px; color:#94A3B8; line-height:1.6;">
-                &copy; ${new Date().getFullYear()} Propvora Ltd. &nbsp;&bull;&nbsp; Compliance alerts powered by Propvora.
+                &copy; ${new Date().getFullYear()} Blackwellen Ltd, trading as Propvora. &nbsp;&bull;&nbsp; Compliance alerts powered by Propvora.
               </p>
             </td>
           </tr>

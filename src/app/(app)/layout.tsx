@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import AppShell from "@/components/shell/AppShell"
 import BrandingStyle from "@/lib/branding/BrandingStyle"
 import { createClient } from "@/lib/supabase/server"
@@ -64,7 +65,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   try {
     const { data: workspace } = await supabase
       .from("workspaces")
-      .select("plan, brand_color, brand_colours")
+      .select("plan, plan_status, brand_color, brand_colours")
       .eq("id", workspaceId)
       .maybeSingle()
 
@@ -73,6 +74,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
     brandColor = (workspace?.brand_color as string | null) ?? null
     brandColours = (workspace?.brand_colours as Partial<BrandColours> | null) ?? null
+
+    // Enforce subscription status — canceled/suspended workspaces are redirected
+    // to the subscription page. Allow /workspace-settings/* through so operators
+    // can reactivate without being stuck in a loop.
+    const planStatus = (workspace as Record<string, unknown> | null)?.plan_status as string | null
+    if (planStatus === "canceled" || planStatus === "suspended") {
+      const h = await headers()
+      const pathname = h.get("x-pathname") ?? ""
+      const SETTINGS_PREFIX = "/property-manager/workspace-settings"
+      if (!pathname.startsWith(SETTINGS_PREFIX)) {
+        redirect(`${SETTINGS_PREFIX}/subscription`)
+      }
+    }
 
     // Load workspace locale settings (42P01-safe).
     const { data: settings } = await supabase
