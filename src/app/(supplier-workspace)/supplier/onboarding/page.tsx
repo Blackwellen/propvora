@@ -42,15 +42,15 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { key: "account", label: "Account type", description: "Tell us whether you're a solo contractor, company or emergency supplier.", icon: UserCircle, href: "/supplier/profile", done: (p) => !!p?.supplier_type },
-  { key: "business", label: "Business details", description: "Business name, trading name and experience.", icon: Building2, href: "/supplier/profile", done: (p) => !!p?.business_name },
-  { key: "categories", label: "Service categories", description: "Pick the categories and emergency types you cover.", icon: Tag, href: "/supplier/profile", done: (p) => (p?.service_categories?.length ?? 0) > 0 },
-  { key: "areas", label: "Service areas", description: "Define where you work and your travel radius.", icon: MapPin, href: "/supplier/profile", done: () => false },
+  { key: "account", label: "Account type", description: "Tell us whether you're a solo contractor, company or emergency supplier.", icon: UserCircle, href: "/supplier/profile", done: (p) => (p?.trades?.length ?? 0) > 0 },
+  { key: "business", label: "Business details", description: "Business name, trading name and experience.", icon: Building2, href: "/supplier/profile", done: (p) => !!p?.display_name },
+  { key: "categories", label: "Service categories", description: "Pick the categories and emergency types you cover.", icon: Tag, href: "/supplier/profile", done: (p) => (p?.trades?.length ?? 0) > 0 },
+  { key: "areas", label: "Service areas", description: "Define where you work and your travel radius.", icon: MapPin, href: "/supplier/profile", done: (p) => !!p?.base_location },
   { key: "services", label: "Services & packages", description: "Create the offerings property managers can request.", icon: Wrench, href: "/supplier/profile", done: () => false },
-  { key: "availability", label: "Availability", description: "Set working days, hours and emergency cover.", icon: Clock, href: "/supplier/profile", done: (p) => !!p?.availability_status },
-  { key: "verification", label: "Verification", description: "Verify identity, insurance and licences.", icon: ShieldCheck, href: "/supplier/onboarding", done: (p) => /verified|approved/.test((p?.id_verification_status ?? "").toLowerCase()) },
+  { key: "availability", label: "Availability", description: "Set working days, hours and emergency cover.", icon: Clock, href: "/supplier/profile", done: (p) => p?.accepts_emergency !== undefined && p.accepts_emergency !== null },
+  { key: "verification", label: "Verification", description: "Verify identity, insurance and licences.", icon: ShieldCheck, href: "/supplier/onboarding", done: (p) => !!p?.insurance_verified },
   { key: "payments", label: "Payments", description: "Connect payouts so you can be paid for completed work.", icon: CreditCard, href: "/supplier/earnings", done: () => false },
-  { key: "marketplace", label: "Marketplace profile", description: "Add your headline, gallery and publish your profile.", icon: Store, href: "/supplier/marketplace", done: (p) => !!p?.marketplace_enabled },
+  { key: "marketplace", label: "Marketplace profile", description: "Add your headline, gallery and publish your profile.", icon: Store, href: "/supplier/marketplace", done: (p) => p?.status === "active" },
 ]
 
 export default function SupplierOnboardingPage() {

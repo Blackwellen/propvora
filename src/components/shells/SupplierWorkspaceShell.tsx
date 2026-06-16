@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
 import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
-import { SUPPLIER_NAV_GROUPS, isSupplierNavActive } from "@/components/supplier-workspace/nav"
+import { buildSupplierNavGroups, isSupplierNavActive } from "@/components/supplier-workspace/nav"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
 import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import SupplierNotificationBell from "@/components/supplier-workspace/SupplierNotificationBell"
@@ -43,15 +43,25 @@ export default function SupplierWorkspaceShell({
   children,
   supplierName = "Supplier",
   workspaceId = null,
+  teamMemberCount = 1,
 }: {
   children: React.ReactNode
   supplierName?: string
   /** Resolved server-side by the group layout; threaded to client pages via context. */
   workspaceId?: string | null
+  /**
+   * Total workspace_members for this workspace, fetched server-side by the
+   * group layout. When > 1, a "Team" nav item with a member-count badge is
+   * shown in the Account section. Solo suppliers (1 member) see no Team link.
+   */
+  teamMemberCount?: number
 }) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Build nav groups dynamically so Team is only shown for team workspaces.
+  const navGroups = buildSupplierNavGroups(teamMemberCount)
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -98,7 +108,7 @@ export default function SupplierWorkspaceShell({
         </div>
 
         <nav aria-label="Supplier workspace" className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
-          {SUPPLIER_NAV_GROUPS.map((group) => (
+          {navGroups.map((group) => (
             <div key={group.label} className="space-y-0.5">
               <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">
                 {group.label}
@@ -120,7 +130,12 @@ export default function SupplierWorkspaceShell({
                     )}
                   >
                     <Icon className="w-[18px] h-[18px] shrink-0" />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge != null && item.badge > 1 && (
+                      <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#0EA5E9]/20 text-[#38bdf8] text-[10px] font-semibold tabular-nums">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 )
               })}

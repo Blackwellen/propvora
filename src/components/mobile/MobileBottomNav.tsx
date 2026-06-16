@@ -27,7 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 import MobileSheet from "./MobileSheet"
 
-const MANAGER_BASE = "/property-manager"
+const MANAGER_BASE = "/app"
 
 interface NavDest {
   label: string

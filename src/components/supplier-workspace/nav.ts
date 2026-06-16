@@ -34,6 +34,10 @@ import {
 
    Grouped into sections for the desktop sidebar; the mobile bar surfaces the 4
    highest-frequency destinations and routes everything else through "More".
+
+   Team item is conditional: solo suppliers (1 member) don't need the Team
+   section. Use `buildSupplierNavGroups(teamMemberCount)` when you need to
+   inject it dynamically; SUPPLIER_NAV_GROUPS omits Team for mobile/fallback.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export interface SupplierNavItem {
@@ -42,6 +46,8 @@ export interface SupplierNavItem {
   icon: LucideIcon
   /** Short label used on the compact mobile bottom bar. */
   short?: string
+  /** Optional badge count rendered next to the label (Team member count). */
+  badge?: number
 }
 
 export interface SupplierNavGroup {
@@ -49,6 +55,7 @@ export interface SupplierNavGroup {
   items: SupplierNavItem[]
 }
 
+/** Base nav groups WITHOUT the Team item (used by mobile nav and as a base). */
 export const SUPPLIER_NAV_GROUPS: SupplierNavGroup[] = [
   {
     label: "Work",
@@ -105,11 +112,38 @@ export const SUPPLIER_NAV_GROUPS: SupplierNavGroup[] = [
     items: [
       { label: "Marketplace", href: "/supplier/marketplace", icon: Store, short: "Listing" },
       { label: "Profile", href: "/supplier/profile", icon: UserCircle, short: "Profile" },
-      { label: "Team", href: "/supplier/team", icon: Users, short: "Team" },
       { label: "Settings", href: "/supplier/settings", icon: Settings, short: "Settings" },
     ],
   },
 ]
+
+/**
+ * Build the desktop sidebar nav groups with optional Team item injection.
+ *
+ * @param teamMemberCount - total workspace_members for this workspace (from
+ *   the server layout). When > 1 a "Team" item is inserted into the Account
+ *   group with a member-count badge. Solo suppliers (1 member) see no Team
+ *   section since there's nothing to manage.
+ */
+export function buildSupplierNavGroups(teamMemberCount = 1): SupplierNavGroup[] {
+  return SUPPLIER_NAV_GROUPS.map((group) => {
+    if (group.label !== "Account") return group
+    const teamItem: SupplierNavItem | null =
+      teamMemberCount > 1
+        ? { label: "Team", href: "/supplier/team", icon: Users, short: "Team", badge: teamMemberCount }
+        : null
+    return {
+      ...group,
+      items: teamItem
+        ? [
+            ...group.items.filter((i) => i.href !== "/supplier/settings"),
+            teamItem,
+            group.items.find((i) => i.href === "/supplier/settings")!,
+          ]
+        : group.items,
+    }
+  })
+}
 
 /** Flat list of every nav item (search, active-detection, mobile "More"). */
 export const SUPPLIER_NAV: SupplierNavItem[] = SUPPLIER_NAV_GROUPS.flatMap((g) => g.items)

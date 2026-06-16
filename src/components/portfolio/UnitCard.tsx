@@ -95,7 +95,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
         "hover:-translate-y-0.5 transition-all duration-250",
       )}>
         {/* ── Cover — uploaded photo or gradient fallback ── */}
-        <div className="relative h-32 overflow-hidden"
+        <div className="relative mx-2 mt-2 rounded-2xl h-52 overflow-hidden"
           style={!showImage ? { background: coverGradient } : undefined}>
           {showImage ? (
             <Image
@@ -133,7 +133,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
         </div>
 
         {/* ── Body ── */}
-        <div className="px-3 pt-2.5 pb-3">
+        <div className="px-3 pt-1.5 pb-2">
           {/* Header row: name + status */}
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <h3 className="text-[13.5px] font-bold text-slate-900 truncate group-hover:text-[#2563EB] transition-colors flex-1">
@@ -154,7 +154,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
           )}
 
           {/* Specs + rent row */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 mt-1.5 pt-1.5">
             {/* Specs */}
             <div className="flex items-center gap-2 text-[11px] text-slate-500 flex-wrap">
               {unit.bedrooms != null && (

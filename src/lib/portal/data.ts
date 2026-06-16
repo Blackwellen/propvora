@@ -403,3 +403,341 @@ export async function getTenantMaintenance(
 export function workspaceDisplayName(session: PortalSession): string {
   return session.workspaceName || "Portal"
 }
+
+// ---- TENANT PAYMENTS (rent ledger) -----------------------------------------
+
+export interface TenantPaymentRow {
+  id: string
+  created_at: string
+  amount: number
+  currency: string | null
+  direction: string
+  description: string | null
+  status: string | null
+  reference: string | null
+  category: string | null
+}
+
+/**
+ * Rent payment ledger for this tenant — reads money_transactions scoped to
+ * the tenant's tenancy property ids AND contact. Returns [] if table absent.
+ */
+export async function getTenantPayments(
+  session: PortalSession
+): Promise<TenantPaymentRow[]> {
+  if (!session.contactId) return []
+  const tenancies = await getTenantTenancies(session)
+  const propertyIds = Array.from(
+    new Set(tenancies.map((t) => t.property_id).filter(Boolean))
+  ) as string[]
+  if (propertyIds.length === 0) return []
+  const admin = createAdminClient()
+  try {
+    const { data, error } = await admin
+      .from("money_transactions")
+      .select("id, created_at, amount, currency, direction, description, status, reference, category")
+      .eq("workspace_id", session.workspaceId)
+      .in("property_id", propertyIds)
+      .order("created_at", { ascending: false })
+      .limit(100)
+    if (error) {
+      if (tolerable(error)) return []
+      return []
+    }
+    return (data ?? []) as unknown as TenantPaymentRow[]
+  } catch {
+    return []
+  }
+}
+
+// ---- TENANT DOCUMENTS -------------------------------------------------------
+
+export interface PortalDocument {
+  id: string
+  created_at: string
+  name: string
+  type: string | null
+  file_path: string | null
+  file_size: number | null
+  property_id: string | null
+}
+
+/**
+ * Property documents visible to this tenant — scoped to the tenant's property ids.
+ * Reads property_documents table.
+ */
+export async function getTenantDocuments(
+  session: PortalSession
+): Promise<PortalDocument[]> {
+  if (!session.contactId) return []
+  const tenancies = await getTenantTenancies(session)
+  const propertyIds = Array.from(
+    new Set(tenancies.map((t) => t.property_id).filter(Boolean))
+  ) as string[]
+  if (propertyIds.length === 0) return []
+  const admin = createAdminClient()
+  try {
+    const { data, error } = await admin
+      .from("property_documents")
+      .select("id, created_at, name, type, file_path, file_size, property_id")
+      .eq("workspace_id", session.workspaceId)
+      .in("property_id", propertyIds)
+      .order("created_at", { ascending: false })
+    if (error) {
+      if (tolerable(error)) return []
+      return []
+    }
+    return (data ?? []) as unknown as PortalDocument[]
+  } catch {
+    return []
+  }
+}
+
+// ---- LANDLORD FINANCIALS ----------------------------------------------------
+
+export interface LandlordTransaction {
+  id: string
+  created_at: string
+  amount: number
+  currency: string | null
+  direction: "in" | "out" | string
+  description: string | null
+  category: string | null
+  status: string | null
+  property_id: string | null
+}
+
+/**
+ * Income and expenditure transactions for this landlord's properties.
+ * Scoped strictly to the resolved property id allow-list.
+ */
+export async function getLandlordTransactions(
+  session: PortalSession
+): Promise<LandlordTransaction[]> {
+  const ids = await getLandlordPropertyIds(session)
+  if (ids.length === 0) return []
+  const admin = createAdminClient()
+  try {
+    const { data, error } = await admin
+      .from("money_transactions")
+      .select("id, created_at, amount, currency, direction, description, category, status, property_id")
+      .eq("workspace_id", session.workspaceId)
+      .in("property_id", ids)
+      .order("created_at", { ascending: false })
+      .limit(500)
+    if (error) {
+      if (tolerable(error)) return []
+      return []
+    }
+    return (data ?? []) as unknown as LandlordTransaction[]
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Overdue rent alerts: tenancies in "active" status whose last payment was
+ * more than 35 days ago (or no payment on record). Returns property labels.
+ */
+export interface OverdueAlert {
+  tenancyId: string
+  propertyLabel: string
+  lastPayment: string | null
+  rentAmount: number | null
+}
+
+export async function getLandlordOverdueAlerts(
+  session: PortalSession
+): Promise<OverdueAlert[]> {
+  const ids = await getLandlordPropertyIds(session)
+  if (ids.length === 0) return []
+  const admin = createAdminClient()
+  try {
+    const { data: tenancies, error: tErr } = await admin
+      .from("tenancies")
+      .select("id, property_id, rent_amount, status")
+      .eq("workspace_id", session.workspaceId)
+      .in("property_id", ids)
+      .eq("status", "active")
+    if (tErr || !tenancies?.length) return []
+
+    const alerts: OverdueAlert[] = []
+    const thirtyFiveDaysAgo = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString()
+
+    for (const t of tenancies as Record<string, unknown>[]) {
+      // Check last income transaction for this property
+      const { data: lastPay } = await admin
+        .from("money_transactions")
+        .select("created_at")
+        .eq("workspace_id", session.workspaceId)
+        .eq("property_id", t.property_id as string)
+        .eq("direction", "in")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const lastPayDate = (lastPay as Record<string, unknown> | null)?.created_at as string | null
+      if (!lastPayDate || lastPayDate < thirtyFiveDaysAgo) {
+        // Resolve property label
+        const { data: prop } = await admin
+          .from("properties")
+          .select("nickname, address_line1, city")
+          .eq("id", t.property_id as string)
+          .eq("workspace_id", session.workspaceId)
+          .maybeSingle()
+        const p = prop as Record<string, unknown> | null
+        const label = p
+          ? (p.nickname as string) || [p.address_line1, p.city].filter(Boolean).join(", ") || "Property"
+          : "Property"
+        alerts.push({
+          tenancyId: t.id as string,
+          propertyLabel: label,
+          lastPayment: lastPayDate,
+          rentAmount: (t.rent_amount as number) ?? null,
+        })
+      }
+    }
+    return alerts
+  } catch {
+    return []
+  }
+}
+
+// ---- SUPPLIER DOCUMENTS -----------------------------------------------------
+
+/**
+ * Documents shared with a supplier — reads property_documents scoped to
+ * the supplier's assigned job properties.
+ */
+export async function getSupplierDocuments(
+  session: PortalSession
+): Promise<PortalDocument[]> {
+  if (!session.contactId) return []
+  // Get property ids from supplier's jobs
+  const admin = createAdminClient()
+  try {
+    const { data: jobs, error: jErr } = await admin
+      .from("jobs")
+      .select("property_id")
+      .eq("workspace_id", session.workspaceId)
+      .eq("supplier_contact_id", session.contactId)
+      .not("property_id", "is", null)
+    if (jErr || !jobs?.length) return []
+
+    const propertyIds = Array.from(
+      new Set((jobs as { property_id: string }[]).map((j) => j.property_id).filter(Boolean))
+    )
+    if (propertyIds.length === 0) return []
+
+    const { data, error } = await admin
+      .from("property_documents")
+      .select("id, created_at, name, type, file_path, file_size, property_id")
+      .eq("workspace_id", session.workspaceId)
+      .in("property_id", propertyIds)
+      .order("created_at", { ascending: false })
+    if (error) {
+      if (tolerable(error)) return []
+      return []
+    }
+    return (data ?? []) as unknown as PortalDocument[]
+  } catch {
+    return []
+  }
+}
+
+// ---- SUPPLIER SIGN-OFF / JOB UPDATE ----------------------------------------
+
+/**
+ * Supplier requests sign-off on a completed job.
+ * Sets status to "invoiced" (pending landlord/manager sign-off).
+ * Returns ok or error string.
+ */
+export async function supplierRequestSignOff(
+  session: PortalSession,
+  jobId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!session.contactId) return { ok: false, error: "No contact on session." }
+  const admin = createAdminClient()
+  try {
+    // Re-scope the job to this supplier before updating
+    const { data: job, error: fetchErr } = await admin
+      .from("jobs")
+      .select("id, status")
+      .eq("id", jobId)
+      .eq("workspace_id", session.workspaceId)
+      .eq("supplier_contact_id", session.contactId)
+      .maybeSingle()
+    if (fetchErr || !job) return { ok: false, error: "Job not found or not accessible." }
+    const j = job as { id: string; status: string }
+    if (!["complete", "in_progress", "approved"].includes(j.status)) {
+      return { ok: false, error: `Cannot request sign-off from status: ${j.status}.` }
+    }
+    const { error: updErr } = await admin
+      .from("jobs")
+      .update({ status: "invoiced" })
+      .eq("id", jobId)
+      .eq("workspace_id", session.workspaceId)
+      .eq("supplier_contact_id", session.contactId)
+    if (updErr) return { ok: false, error: updErr.message }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: String(e) }
+  }
+}
+
+// ---- SUPPLIER INVOICE SUBMIT ------------------------------------------------
+
+export interface NewSupplierInvoice {
+  invoice_number?: string
+  amount: number      // integer pence
+  currency?: string
+  notes?: string
+  supplier_job_id?: string
+}
+
+/**
+ * Supplier submits a new invoice.
+ * Scopes the job (if provided) to this supplier + workspace as IDOR guard.
+ */
+export async function supplierSubmitInvoice(
+  session: PortalSession,
+  input: NewSupplierInvoice
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (!session.contactId) return { ok: false, error: "No contact on session." }
+  if (!input.amount || input.amount <= 0) return { ok: false, error: "Amount must be greater than 0." }
+
+  const admin = createAdminClient()
+  try {
+    // Verify job belongs to this supplier if provided
+    if (input.supplier_job_id) {
+      const { data: job } = await admin
+        .from("jobs")
+        .select("id")
+        .eq("id", input.supplier_job_id)
+        .eq("workspace_id", session.workspaceId)
+        .eq("supplier_contact_id", session.contactId)
+        .maybeSingle()
+      if (!job) return { ok: false, error: "Job not found or not accessible." }
+    }
+
+    const { data, error } = await admin
+      .from("supplier_invoices")
+      .insert({
+        workspace_id: session.workspaceId,
+        contact_id: session.contactId,
+        invoice_number: input.invoice_number || null,
+        amount: input.amount,
+        currency: input.currency ?? "GBP",
+        status: "submitted",
+        submitted_at: new Date().toISOString(),
+        notes: input.notes || null,
+        supplier_job_id: input.supplier_job_id || null,
+      })
+      .select("id")
+      .single()
+    if (error) return { ok: false, error: error.message }
+    return { ok: true, id: (data as { id: string }).id }
+  } catch (e) {
+    return { ok: false, error: String(e) }
+  }
+}

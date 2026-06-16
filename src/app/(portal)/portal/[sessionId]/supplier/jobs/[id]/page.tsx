@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge"
 import { requirePortalSession } from "../../../_guard"
 import { getSupplierJob } from "@/lib/portal/data"
 import { formatMoney, formatDate, jobStatusMeta } from "@/lib/portal/format"
+import SignOffButton from "./SignOffButton"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -103,6 +104,9 @@ export default async function SupplierJobDetailPage({
               <span>{formatMoney(amount)}</span>
             </div>
           )}
+          <div className="pt-2 border-t border-slate-100">
+            <SignOffButton jobId={job.id} jobStatus={job.status} sessionId={session.id} />
+          </div>
         </Card>
       </div>
     </div>

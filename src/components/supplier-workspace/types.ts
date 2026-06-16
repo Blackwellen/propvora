@@ -5,8 +5,39 @@
    owned by other agents and may evolve — pages tolerate missing fields.
 ─────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * Shape of the supplier_workspace_profiles row returned by /api/supplier/profile.
+ * Column names match the live DB table exactly.
+ * Legacy UI-only fields are kept as optional so pages that reference them still
+ * compile — but they will always be undefined at runtime (they have no DB column).
+ */
 export interface SupplierProfile {
-  id?: string
+  /** workspace_id — PK */
+  workspace_id?: string
+  /** Public display / business name (DB: display_name) */
+  display_name?: string
+  /** Short bio / about text (DB: bio) */
+  bio?: string
+  /** Trade categories the supplier covers (DB: trades text[]) */
+  trades?: string[]
+  years_experience?: number
+  insurance_verified?: boolean
+  public_liability_cover_pence?: number | null
+  service_radius_km?: number | null
+  base_location?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  response_time_hours?: number | null
+  accepts_emergency?: boolean
+  /** Profile publish status: 'draft' | 'active' | 'paused' (DB: status) */
+  status?: string
+  created_at?: string
+  updated_at?: string
+
+  // ── Legacy / derived fields (not persisted in supplier_workspace_profiles) ──
+  // These are populated by higher-level API aggregations or verification routes
+  // and kept optional so existing UI code that reads them continues to compile.
+  /** @deprecated Use display_name */
   business_name?: string
   trading_name?: string
   supplier_type?: string
@@ -14,7 +45,6 @@ export interface SupplierProfile {
   description_long?: string
   service_categories?: string[]
   emergency_categories?: string[]
-  years_experience?: number
   team_size?: number
   average_rating?: number
   reviews_count?: number
@@ -326,4 +356,28 @@ export interface SupplierDashboardKpis {
   licenceExpiringSoon: boolean
   status: string
   currency: string
+  /** Pence earned in the current calendar month (paid invoices). */
+  monthlyEarningsPence: number
+  /** 0–100 — proportion of quote requests responded to in last 30 days. */
+  responseRatePct: number
+  /** 0.0–5.0 average from supplier_reviews (null if no reviews). */
+  avgReviewScore: number | null
+}
+
+export interface SupplierCalendarEntry {
+  date: string       // YYYY-MM-DD
+  label: string
+  href: string
+  status: string
+}
+
+export interface SupplierRecentLead {
+  id: string
+  title: string
+  source: "quote_request" | "enquiry"
+  status: string
+  amountPence: number | null
+  currency: string | null
+  createdAt: string
+  quoteId: string | null
 }

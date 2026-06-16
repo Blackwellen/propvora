@@ -1157,3 +1157,233 @@ export async function getPlatformSetting(
     return { available: false, value: null }
   }
 }
+
+// ── Extended platform stats for deepened command centre ──────────────────────
+
+export interface ExtendedPlatformStats {
+  /** Count of workspaces with workspace_type / type = 'operator' and plan_status active. */
+  activeOperators: number | null
+  /** Count of workspaces with workspace_type / type = 'supplier' and plan_status active. */
+  activeSuppliers: number | null
+  /** Count of workspace_members where role = 'customer' (or customer-type workspaces). */
+  activeCustomers: number | null
+  /** Platform gross GMV from marketplace_transactions (sum gross_pence, status != failed). */
+  platformGmvPence: number | null
+  /** Open / unresolved disputes count. */
+  openDisputes: number | null
+  /** Pending supplier verifications. */
+  pendingVerifications: number | null
+  /** MRR from subscriptions table (sum of amount_pence for active subscriptions). */
+  mrrPence: number | null
+}
+
+/** Extended platform stats — each field independently 42P01-safe. */
+export async function getExtendedPlatformStats(): Promise<ExtendedPlatformStats> {
+  const admin = createAdminClient()
+
+  async function countWorkspacesByType(type: string): Promise<number | null> {
+    try {
+      // Try workspace_type first, then type column.
+      let { count, error } = await admin
+        .from("workspaces")
+        .select("*", { count: "exact", head: true })
+        .eq("plan_status", "active")
+        .eq("workspace_type", type)
+      if (!error && count != null) return count
+      // Fallback to `type` column.
+      const res2 = await admin
+        .from("workspaces")
+        .select("*", { count: "exact", head: true })
+        .eq("plan_status", "active")
+        .eq("type", type)
+      if (res2.error) return isSchemaGap(res2.error.code) ? null : 0
+      return res2.count ?? 0
+    } catch {
+      return null
+    }
+  }
+
+  async function sumGmvPence(): Promise<number | null> {
+    try {
+      const { data, error } = await admin
+        .from("marketplace_transactions")
+        .select("gross_pence")
+        .neq("status", "failed")
+        .limit(10000)
+      if (error) return isSchemaGap(error.code) ? null : 0
+      return (data ?? []).reduce((s, r) => s + (Number(r.gross_pence) || 0), 0)
+    } catch {
+      return null
+    }
+  }
+
+  async function countOpenDisputes(): Promise<number | null> {
+    try {
+      const { count, error } = await admin
+        .from("marketplace_disputes")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["open", "under_review"])
+      if (error) return isSchemaGap(error.code) ? null : 0
+      return count ?? 0
+    } catch {
+      return null
+    }
+  }
+
+  async function countPendingVerifications(): Promise<number | null> {
+    try {
+      const { count, error } = await admin
+        .from("supplier_workspace_profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("verification_status", "pending")
+      if (error) return isSchemaGap(error.code) ? null : 0
+      return count ?? 0
+    } catch {
+      return null
+    }
+  }
+
+  async function calcMrrPence(): Promise<number | null> {
+    try {
+      const { data, error } = await admin
+        .from("subscriptions")
+        .select("amount_pence")
+        .eq("status", "active")
+        .limit(10000)
+      if (error) return isSchemaGap(error.code) ? null : 0
+      return (data ?? []).reduce((s, r) => s + (Number(r.amount_pence) || 0), 0)
+    } catch {
+      return null
+    }
+  }
+
+  async function countActiveCustomers(): Promise<number | null> {
+    try {
+      // Customers = workspace_members with role 'customer', or workspaces of type 'customer'.
+      const { count, error } = await admin
+        .from("workspace_members")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "customer")
+      if (error) return isSchemaGap(error.code) ? null : 0
+      return count ?? 0
+    } catch {
+      return null
+    }
+  }
+
+  const [
+    activeOperators,
+    activeSuppliers,
+    activeCustomers,
+    platformGmvPence,
+    openDisputes,
+    pendingVerifications,
+    mrrPence,
+  ] = await Promise.all([
+    countWorkspacesByType("operator"),
+    countWorkspacesByType("supplier"),
+    countActiveCustomers(),
+    sumGmvPence(),
+    countOpenDisputes(),
+    countPendingVerifications(),
+    calcMrrPence(),
+  ])
+
+  return {
+    activeOperators,
+    activeSuppliers,
+    activeCustomers,
+    platformGmvPence,
+    openDisputes,
+    pendingVerifications,
+    mrrPence,
+  }
+}
+
+/** Pending supplier verifications with enough detail for a quick-action queue. */
+export interface PendingVerificationRow {
+  workspaceId: string
+  workspaceName: string | null
+  submittedAt: string | null
+  verificationStatus: string
+  contactEmail: string | null
+  businessName: string | null
+  verificationId: string | null
+}
+
+export async function listPendingVerifications(limit = 10): Promise<PendingVerificationRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("supplier_workspace_profiles")
+      .select("workspace_id, verification_status, created_at, contact_email, business_name")
+      .eq("verification_status", "pending")
+      .order("created_at", { ascending: true })
+      .limit(limit)
+    if (error || !data) return []
+
+    const wsIds = data.map((r) => r.workspace_id as string).filter(Boolean)
+    const names: Record<string, string> = {}
+    if (wsIds.length) {
+      try {
+        const { data: ws } = await admin.from("workspaces").select("id, name").in("id", wsIds)
+        for (const w of ws ?? []) names[w.id as string] = (w.name as string) ?? ""
+      } catch { /* ignore */ }
+    }
+
+    return data.map((r) => ({
+      workspaceId: r.workspace_id as string,
+      workspaceName: names[r.workspace_id as string] ?? null,
+      submittedAt: (r.created_at as string) ?? null,
+      verificationStatus: (r.verification_status as string) ?? "pending",
+      contactEmail: (r.contact_email as string) ?? null,
+      businessName: (r.business_name as string) ?? null,
+      verificationId: null, // resolved per individual supplier_verification record if needed
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Open disputes with summary for the admin dashboard queue. */
+export interface OpenDisputeRow {
+  id: string
+  transactionId: string | null
+  reason: string | null
+  status: string
+  raisedByWorkspaceName: string | null
+  createdAt: string | null
+}
+
+export async function listOpenDisputes(limit = 8): Promise<OpenDisputeRow[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("marketplace_disputes")
+      .select("id, transaction_id, reason, status, raised_by_workspace_id, created_at")
+      .in("status", ["open", "under_review"])
+      .order("created_at", { ascending: true })
+      .limit(limit)
+    if (error || !data) return []
+
+    const wsIds = data.map((r) => r.raised_by_workspace_id as string).filter(Boolean)
+    const names: Record<string, string> = {}
+    if (wsIds.length) {
+      try {
+        const { data: ws } = await admin.from("workspaces").select("id, name").in("id", wsIds)
+        for (const w of ws ?? []) names[w.id as string] = (w.name as string) ?? ""
+      } catch { /* ignore */ }
+    }
+
+    return data.map((r) => ({
+      id: r.id as string,
+      transactionId: (r.transaction_id as string) ?? null,
+      reason: (r.reason as string) ?? null,
+      status: (r.status as string) ?? "open",
+      raisedByWorkspaceName: names[r.raised_by_workspace_id as string] ?? null,
+      createdAt: (r.created_at as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}

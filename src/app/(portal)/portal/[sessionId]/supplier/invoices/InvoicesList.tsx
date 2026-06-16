@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useCallback } from "react"
 import { Search, FileText } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
@@ -8,12 +8,28 @@ import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { formatMoney, formatDate, invoiceStatusMeta } from "@/lib/portal/format"
-import type { SupplierInvoice } from "@/lib/portal/data"
+import type { SupplierInvoice, SupplierJob } from "@/lib/portal/data"
+import SubmitInvoiceForm from "./SubmitInvoiceForm"
 
 const STATUS_FILTERS = ["All", "Submitted", "Reviewing", "Approved", "Paid", "Rejected"] as const
 
 // Client list: server-scoped invoices in, local search/filter only.
-export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[] }) {
+export default function InvoicesList({
+  invoices: initialInvoices,
+  session,
+  jobs,
+}: {
+  invoices: SupplierInvoice[]
+  session: { id: string }
+  jobs: SupplierJob[]
+}) {
+  const [invoices, setInvoices] = useState<SupplierInvoice[]>(initialInvoices)
+
+  // After a new invoice is submitted, refresh the list from the server
+  const handleSubmitted = useCallback(() => {
+    // Trigger a page reload to pick up fresh server data
+    window.location.reload()
+  }, [])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
 
@@ -61,11 +77,14 @@ export default function InvoicesList({ invoices }: { invoices: SupplierInvoice[]
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Invoices</h1>
-        <p className="text-sm text-slate-500">
-          {invoices.length} invoice{invoices.length === 1 ? "" : "s"} total
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Invoices</h1>
+          <p className="text-sm text-slate-500">
+            {invoices.length} invoice{invoices.length === 1 ? "" : "s"} total
+          </p>
+        </div>
+        <SubmitInvoiceForm sessionId={session.id} jobs={jobs} onSubmitted={handleSubmitted} />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

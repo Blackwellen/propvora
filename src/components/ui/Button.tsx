@@ -21,13 +21,13 @@ const buttonVariants = cva(
       variant: {
         primary: [
           // Driven by the workspace brand colour (var(--brand), injected by
-          // BrandingStyle). The gradient overlay keeps the premium depth while
-          // following whatever colour the workspace sets in Branding settings.
-          "text-[color:var(--on-brand)] bg-[var(--brand)] bg-gradient-to-b from-white/15 to-black/5",
+          // BrandingStyle). Fallbacks ensure the button is always readable on
+          // pages where BrandingStyle is not mounted (public/auth routes).
+          "text-[color:var(--on-brand,#fff)] bg-[var(--brand,#2563EB)] bg-gradient-to-b from-white/15 to-black/5",
           "shadow-[0_2px_10px_rgba(37,99,235,0.32)]",
-          "hover:bg-[var(--brand-hover)] hover:shadow-[0_5px_18px_rgba(37,99,235,0.45)]",
-          "active:bg-[var(--brand-strong)]",
-          "focus-visible:ring-[color:var(--brand)]",
+          "hover:bg-[var(--brand-hover,#1d4ed8)] hover:shadow-[0_5px_18px_rgba(37,99,235,0.45)]",
+          "active:bg-[var(--brand-strong,#1e40af)]",
+          "focus-visible:ring-[color:var(--brand,#2563EB)]",
         ],
         secondary: [
           "text-white bg-gradient-to-b from-[#1E3A5F] to-[#0D1B2A]",

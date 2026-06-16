@@ -15,6 +15,13 @@ export interface CreateWorkspaceInput {
   demoDataVariant?: string
   /** Optional team invites to create (email + role). */
   teamInvites?: { email: string; role: string }[]
+  /**
+   * Workspace type — stored in `workspaces.type`. Defaults to operator behaviour
+   * when omitted. Pass "supplier" for supplier onboarding.
+   */
+  workspaceType?: string
+  /** Supplier-specific metadata stored in `workspaces.metadata` (JSON). */
+  supplierMeta?: Record<string, unknown>
 }
 
 export interface CreateWorkspaceResult {
@@ -54,6 +61,7 @@ export async function createWorkspace(
     .insert({
       name: data.name.trim(),
       slug,
+      ...(data.workspaceType ? { type: data.workspaceType } : {}),
       business_type: data.businessType || null,
       operation_interests: data.operationInterests,
       primary_operation_profile:
@@ -65,6 +73,7 @@ export async function createWorkspace(
       plan_status: "trialing",
       onboarding_completed: true,
       trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      ...(data.supplierMeta ? { metadata: data.supplierMeta } : {}),
     })
     .select("id, slug")
     .single()
@@ -77,13 +86,16 @@ export async function createWorkspace(
     throw new Error("Failed to create workspace. Please try again.")
   }
 
-  // 2. Add the creator as the workspace owner
+  // 2. Add the creator as the workspace owner.
+  // workspace_members uses accepted_at (not joined_at) and status='active' for
+  // an already-accepted owner seat.
   const { error: memberError } = await supabase.from("workspace_members").insert({
     workspace_id: workspace.id,
     user_id: user.id,
     role: "owner",
     invited_by: user.id,
-    joined_at: new Date().toISOString(),
+    accepted_at: new Date().toISOString(),
+    status: "active",
   })
 
   if (memberError) {
@@ -280,4 +292,80 @@ export async function switchWorkspace(workspaceId: string): Promise<void> {
   }
 
   revalidatePath("/app")
+}
+
+/**
+ * One-shot customer workspace bootstrap — called from the auth callback when
+ * a user registers with intent=customer. Creates a customer-type workspace with
+ * no wizard steps, sets it as the active workspace, and returns the workspace id.
+ *
+ * Safe to call multiple times: if the user already has a workspace it's a no-op.
+ */
+export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) throw new Error("Not authenticated.")
+
+  // No-op if already has a workspace
+  const { data: existing } = await supabase
+    .from("workspace_members")
+    .select("workspace_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (existing?.workspace_id) return { workspaceId: existing.workspace_id }
+
+  const displayName =
+    (user.user_metadata?.full_name as string | undefined) ||
+    (user.email?.split("@")[0] ?? "My Account")
+
+  const slug =
+    displayName
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 50) +
+    "-" +
+    Math.random().toString(36).slice(2, 7)
+
+  const { data: workspace, error: wsError } = await supabase
+    .from("workspaces")
+    .insert({
+      name: displayName,
+      slug,
+      type: "customer",
+      owner_user_id: user.id,
+      plan: "starter",
+      plan_status: "trialing",
+      onboarding_completed: true,
+      trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    })
+    .select("id")
+    .single()
+
+  if (wsError) throw new Error("Failed to create account.")
+
+  await supabase.from("workspace_members").insert({
+    workspace_id: workspace.id,
+    user_id: user.id,
+    role: "owner",
+    invited_by: user.id,
+    accepted_at: new Date().toISOString(),
+    status: "active",
+  })
+
+  await supabase
+    .from("profiles")
+    .update({ current_workspace_id: workspace.id })
+    .eq("id", user.id)
+
+  revalidatePath("/customer")
+
+  return { workspaceId: workspace.id }
 }

@@ -2,17 +2,59 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { MobileTopBar } from "@/components/mobile"
 import { getBookingAccess } from "@/components/bookings/server"
 import { loadListingDetail, loadAttachableProperties } from "@/components/bookings/server-deep"
-import { ListingWizardClient } from "@/components/bookings/ListingWizardClient"
+import { ListingDetailClient } from "@/components/bookings/listing-detail/ListingDetailClient"
 import { BookingUpgradePrompt, BookingNotReady } from "@/components/bookings/primitives"
+import { createClient } from "@/lib/supabase/server"
+import type { BookingRow } from "@/components/bookings/server"
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Bookings → Listing setup wizard (server component).
+   Bookings → Listing detail — 19-tab management view (server component).
 
-   Loads a single booking_listing with its photos, active pricing profile and
-   publish readiness, plus the attachable properties, and renders the wizard.
+   Loads the full listing detail bundle (photos, pricing, readiness,
+   accommodation, amenities, keyless lock) plus the listing's own bookings,
+   and renders the 19-tab ListingDetailClient. Workspace-scoped throughout.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export const dynamic = "force-dynamic"
+
+async function loadListingBookings(
+  workspaceId: string,
+  listingId: string
+): Promise<BookingRow[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("workspace_id", workspaceId)
+      .eq("booking_listing_id", listingId)
+      .order("check_in", { ascending: false })
+      .limit(100)
+    if (error || !Array.isArray(data)) return []
+    return (data as Record<string, unknown>[]).map((r) => ({
+      id: String(r.id),
+      reference: String(r.id).slice(0, 8).toUpperCase(),
+      listingId: (r.booking_listing_id as string) ?? (r.listing_id as string) ?? null,
+      listingTitle: "Listing",
+      guestName: (r.guest_name as string) ?? "Guest",
+      guestEmail: (r.guest_email as string) ?? null,
+      checkIn: (r.check_in as string) ?? null,
+      checkOut: (r.check_out as string) ?? null,
+      nights: Number(r.nights) || 0,
+      guests: Number(r.guests_count) || 1,
+      status: (r.status as BookingRow["status"]) ?? "pending",
+      subtotalPence: Number(r.subtotal_pence) || 0,
+      feesPence: Number(r.fees_pence) || 0,
+      totalPence: Number(r.total_pence) || 0,
+      currency: (r.currency as string) ?? "GBP",
+      amountPaidPence: 0,
+      source: (r.source as string) ?? "direct",
+      createdAt: (r.created_at as string) ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
 
 export default async function ListingDetailPage({
   params,
@@ -33,9 +75,11 @@ export default async function ListingDetailPage({
     )
   }
 
-  const [detail, properties] = await Promise.all([
+  const [detail, bookings] = await Promise.all([
     loadListingDetail(access.workspaceId, listingId),
-    loadAttachableProperties(access.workspaceId),
+    access.workspaceId
+      ? loadListingBookings(access.workspaceId, listingId)
+      : Promise.resolve([]),
   ])
 
   if (!detail.listing) {
@@ -53,44 +97,16 @@ export default async function ListingDetailPage({
   }
 
   return (
-    <ListingWizardClient
+    <ListingDetailClient
       listing={detail.listing}
       photos={detail.photos}
       pricing={detail.pricing}
       readiness={detail.readiness}
-      properties={properties}
-      accommodation={
-        detail.accommodation ?? {
-          accommodationCategory: "short_stay",
-          letType: "entire",
-          typeDetails: {
-            wifiName: null,
-            wifiPassword: null,
-            checkInMethod: null,
-            minNights: null,
-            maxNights: null,
-            tenancyLengthMonths: null,
-            furnished: null,
-            billsIncluded: {},
-            depositPence: null,
-            depositScheme: null,
-            depositDeclaration: null,
-            availableFrom: null,
-            epcRating: null,
-            councilTaxBand: null,
-            floorPlanUrl: null,
-            roomSizeSqm: null,
-            ensuite: null,
-            sharedFacilities: {},
-            householdSize: null,
-            contractLengthMonths: null,
-          },
-          rawTypeDetails: {},
-        }
-      }
+      accommodation={detail.accommodation}
       amenityCatalogue={detail.amenityCatalogue}
       selectedAmenitySlugs={detail.selectedAmenitySlugs}
       keylessLock={detail.keylessLock}
+      bookings={bookings}
     />
   )
 }

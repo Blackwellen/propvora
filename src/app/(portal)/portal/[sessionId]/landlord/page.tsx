@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { Building2, Home, PoundSterling, ChevronRight } from "lucide-react"
+import { Building2, Home, PoundSterling, ChevronRight, AlertTriangle, TrendingUp } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { requirePortalSession } from "../_guard"
-import { getLandlordProperties } from "@/lib/portal/data"
+import { getLandlordProperties, getLandlordOverdueAlerts } from "@/lib/portal/data"
 import { formatMoney, propertyStatusMeta } from "@/lib/portal/format"
 
 export const dynamic = "force-dynamic"
@@ -24,7 +24,10 @@ export default async function LandlordPortalHome({
 
   // Strictly scoped: only properties this landlord is linked to. Empty set
   // => empty portal (never all-workspace).
-  const properties = await getLandlordProperties(session)
+  const [properties, overdueAlerts] = await Promise.all([
+    getLandlordProperties(session),
+    getLandlordOverdueAlerts(session),
+  ])
 
   const total = properties.length
   const occupied = properties.filter((p) => p.status === "active" || p.status === "occupied").length
@@ -34,6 +37,7 @@ export default async function LandlordPortalHome({
     { label: "Properties", value: total, colour: "text-[#2563EB]", bg: "bg-[#EFF6FF]", icon: Building2 },
     { label: "Occupied", value: occupied, colour: "text-[#059669]", bg: "bg-[#ECFDF5]", icon: Home },
     { label: "Target Rent (pcm)", value: formatMoney(rentRoll), colour: "text-[#0EA5E9]", bg: "bg-[#f0f9ff]", icon: PoundSterling },
+    { label: "Financials", value: "View →", colour: "text-[#7c3aed]", bg: "bg-violet-50", icon: TrendingUp },
   ]
 
   return (
@@ -45,11 +49,33 @@ export default async function LandlordPortalHome({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Overdue alerts */}
+      {overdueAlerts.length > 0 && (
+        <div className="rounded-2xl bg-[#FEF2F2] border border-red-200 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-[#dc2626] shrink-0" />
+            <p className="text-sm font-semibold text-[#dc2626]">
+              {overdueAlerts.length} overdue rent alert{overdueAlerts.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          {overdueAlerts.map((a) => (
+            <div key={a.tenancyId} className="flex items-center justify-between gap-3 text-xs text-red-700">
+              <span>{a.propertyLabel}</span>
+              <span className="text-red-400 whitespace-nowrap">
+                {a.lastPayment
+                  ? `Last payment: ${new Date(a.lastPayment).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
+                  : "No payment on record"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {kpis.map((kpi) => {
           const Icon = kpi.icon
-          return (
-            <Card key={kpi.label} className="p-4 rounded-2xl border-slate-200">
+          const card = (
+            <Card key={kpi.label} className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow">
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${kpi.bg}`}>
                 <Icon className={`w-4 h-4 ${kpi.colour}`} />
               </div>
@@ -57,6 +83,9 @@ export default async function LandlordPortalHome({
               <p className="text-xs font-medium text-slate-700 mt-0.5">{kpi.label}</p>
             </Card>
           )
+          return kpi.label === "Financials"
+            ? <Link key={kpi.label} href={`${base}/financials`}>{card}</Link>
+            : card
         })}
       </div>
 

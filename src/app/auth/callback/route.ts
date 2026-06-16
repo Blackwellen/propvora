@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { recordCoreAcceptances } from "@/lib/legal/acceptance"
+import { bootstrapCustomerWorkspace } from "@/lib/actions/workspace"
 
-const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/affiliate", "/onboarding"]
+const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/affiliate", "/onboarding", "/customer", "/supplier"]
 
 function safeRedirect(url: string): string {
   return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/app"
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code")
   const explicitNext = searchParams.get("next")
   const inviteToken = searchParams.get("invite")
+  const intent = searchParams.get("intent")
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
@@ -63,6 +65,21 @@ export async function GET(request: NextRequest) {
   // If the link carried an invite token, send them to accept it.
   if (inviteToken) {
     return NextResponse.redirect(`${origin}/invite/${encodeURIComponent(inviteToken)}`)
+  }
+
+  // Customer intent: bootstrap a customer workspace (no wizard) → /customer.
+  if (intent === "customer") {
+    try {
+      await bootstrapCustomerWorkspace()
+    } catch {
+      // Non-fatal — they can create a workspace later.
+    }
+    return NextResponse.redirect(`${origin}/customer`)
+  }
+
+  // Supplier intent: send them through the supplier onboarding wizard.
+  if (intent === "supplier") {
+    return NextResponse.redirect(`${origin}/onboarding/supplier`)
   }
 
   // Explicit, allow-listed destination wins.

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, PoundSterling, Calendar, ClipboardList, ChevronRight } from "lucide-react"
+import { Home, PoundSterling, Calendar, ClipboardList, ChevronRight, FileText, CreditCard } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { requirePortalSession } from "../_guard"
@@ -117,7 +117,7 @@ export default async function TenantPortalHome({
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
             <Link href={`${base}/tenancy`}>
               <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
@@ -138,6 +138,30 @@ export default async function TenantPortalHome({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-slate-800">Maintenance requests</p>
                   <p className="text-xs text-slate-400">Track your reported issues</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Card>
+            </Link>
+            <Link href={`${base}/payments`}>
+              <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#ECFDF5] flex items-center justify-center shrink-0">
+                  <CreditCard className="w-4 h-4 text-[#059669]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">Payments</p>
+                  <p className="text-xs text-slate-400">Rent ledger &amp; payment history</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Card>
+            </Link>
+            <Link href={`${base}/documents`}>
+              <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-[#2563EB]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">Documents</p>
+                  <p className="text-xs text-slate-400">Tenancy agreement, deposit cert, reports</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-300" />
               </Card>

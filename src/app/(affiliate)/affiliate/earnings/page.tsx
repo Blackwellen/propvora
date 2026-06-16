@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { Banknote, AlertCircle } from "lucide-react"
+import { Banknote, AlertCircle, TrendingUp, Loader2 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
@@ -12,12 +12,13 @@ import { useAffiliate } from "../_useAffiliate"
 import { formatPence, levelByBand, MIN_PAYOUT_PENCE } from "@/lib/affiliate/levels"
 import { isAffiliatePayoutsEnabled } from "@/lib/affiliate/payout-flag"
 import { requestAffiliatePayout } from "@/lib/affiliate/payouts"
-import { Loader2 } from "lucide-react"
+import { getMonthlyEarnings, type MonthlyEarningsRow } from "@/lib/affiliate/dashboard-data"
 
 interface PayoutRow {
   id: string
   period: string | null
   amount_pence: number | null
+  method: string | null
   status: string
   paid_at: string | null
   created_at: string
@@ -39,23 +40,35 @@ function payoutBadge(s: string) {
   return <Badge dot>{s}</Badge>
 }
 
+function formatMonth(m: string): string {
+  // m = "YYYY-MM"
+  const [year, month] = m.split("-")
+  const d = new Date(Number(year), Number(month) - 1, 1)
+  return d.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+}
+
 export default function AffiliateEarningsPage() {
   const { loading: affLoading, affiliate, workspaceId, reload } = useAffiliate()
   const [payouts, setPayouts] = useState<PayoutRow[]>([])
+  const [monthly, setMonthly] = useState<MonthlyEarningsRow[]>([])
   const [loading, setLoading] = useState(true)
   const [requesting, setRequesting] = useState(false)
   const [requestMsg, setRequestMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const payoutsEnabled = isAffiliatePayoutsEnabled()
 
-  async function loadPayouts() {
+  async function loadData() {
     if (!workspaceId) return
     const supabase = createClient()
-    const { data } = await supabase
-      .from("affiliate_payouts")
-      .select("id, period, amount_pence, status, paid_at, created_at")
-      .eq("affiliate_workspace_id", workspaceId)
-      .order("created_at", { ascending: false })
-    if (data) setPayouts(data as PayoutRow[])
+    const [payoutsResult, monthlyResult] = await Promise.all([
+      supabase
+        .from("affiliate_payouts")
+        .select("id, period, amount_pence, method, status, paid_at, created_at")
+        .eq("affiliate_workspace_id", workspaceId)
+        .order("created_at", { ascending: false }),
+      getMonthlyEarnings(workspaceId),
+    ])
+    if (payoutsResult.data) setPayouts(payoutsResult.data as PayoutRow[])
+    setMonthly(monthlyResult)
   }
 
   async function handleRequest() {
@@ -65,26 +78,16 @@ export default function AffiliateEarningsPage() {
     const res = await requestAffiliatePayout(workspaceId)
     setRequesting(false)
     setRequestMsg({ ok: res.ok, text: res.ok ? "Payout requested. We'll review it shortly." : res.error ?? "Could not request payout." })
-    if (res.ok) { await loadPayouts(); await reload() }
+    if (res.ok) { await loadData(); await reload() }
   }
 
   useEffect(() => {
     if (affLoading) return
     if (!affiliate?.enrolled || !workspaceId) { setLoading(false); return }
     ;(async () => {
-      try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("affiliate_payouts")
-          .select("id, period, amount_pence, status, paid_at, created_at")
-          .eq("affiliate_workspace_id", workspaceId)
-          .order("created_at", { ascending: false })
-        if (error && error.code !== "42P01") console.error(error)
-        if (data) setPayouts(data as PayoutRow[])
-      } finally {
-        setLoading(false)
-      }
+      try { await loadData() } finally { setLoading(false) }
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [affLoading, affiliate?.enrolled, workspaceId])
 
   if (affLoading || loading) {
@@ -103,6 +106,10 @@ export default function AffiliateEarningsPage() {
   const canPayout = cleared >= MIN_PAYOUT_PENCE
   const level = levelByBand(affiliate.band)
 
+  const totalGross = monthly.reduce((s, m) => s + m.gross_commission_pence, 0)
+  const totalNet = monthly.reduce((s, m) => s + m.net_commission_pence, 0)
+  const totalConversions = monthly.reduce((s, m) => s + m.conversions, 0)
+
   const payoutCardMapping: MobileCardMapping<PayoutRow> = {
     getKey: (p) => p.id,
     title: (p) => formatPence(p.amount_pence ?? 0),
@@ -110,6 +117,18 @@ export default function AffiliateEarningsPage() {
     badge: (p) => payoutBadge(p.status),
     fields: [
       { label: "Date", render: (p) => payoutDate(p) },
+      { label: "Method", render: (p) => p.method ?? "—" },
+    ],
+  }
+
+  const monthlyCardMapping: MobileCardMapping<MonthlyEarningsRow> = {
+    getKey: (m) => m.month,
+    title: (m) => formatMonth(m.month),
+    subtitle: (m) => `${m.conversions} conversion${m.conversions === 1 ? "" : "s"}`,
+    badge: () => null,
+    fields: [
+      { label: "Gross", render: (m) => formatPence(m.gross_commission_pence) },
+      { label: "Net", render: (m) => formatPence(m.net_commission_pence) },
     ],
   }
 
@@ -136,7 +155,53 @@ export default function AffiliateEarningsPage() {
         </div>
       </div>
 
-      {/* Payout status */}
+      {/* Monthly breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-slate-400" /> Monthly breakdown</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {monthly.length === 0 ? (
+            <p className="text-sm text-slate-400 py-6 text-center">No commission history yet.</p>
+          ) : (
+            <>
+              <ResponsiveTable rows={[...monthly].reverse()} mobile={monthlyCardMapping}>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[480px]">
+                  <thead>
+                    <tr className="border-b border-[#E2E8F0] text-left text-xs font-semibold text-slate-500">
+                      <th className="pb-2 pr-4">Month</th>
+                      <th className="pb-2 pr-4">Conversions</th>
+                      <th className="pb-2 pr-4">Gross commission</th>
+                      <th className="pb-2">Net commission</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {[...monthly].reverse().map((m) => (
+                      <tr key={m.month} className="hover:bg-slate-50">
+                        <td className="py-2.5 pr-4 text-xs font-medium text-slate-700 whitespace-nowrap">{formatMonth(m.month)}</td>
+                        <td className="py-2.5 pr-4 text-xs text-slate-600">{m.conversions}</td>
+                        <td className="py-2.5 pr-4 text-xs font-semibold text-slate-800">{formatPence(m.gross_commission_pence)}</td>
+                        <td className="py-2.5 text-xs font-semibold text-[#059669]">{formatPence(m.net_commission_pence)}</td>
+                      </tr>
+                    ))}
+                    {/* Totals row */}
+                    <tr className="border-t-2 border-slate-200 bg-slate-50">
+                      <td className="py-2.5 pr-4 text-xs font-bold text-slate-900">Total</td>
+                      <td className="py-2.5 pr-4 text-xs font-bold text-slate-800">{totalConversions}</td>
+                      <td className="py-2.5 pr-4 text-xs font-bold text-slate-900">{formatPence(totalGross)}</td>
+                      <td className="py-2.5 text-xs font-bold text-[#059669]">{formatPence(totalNet)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              </ResponsiveTable>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Payout request */}
       <Card>
         <CardHeader><CardTitle>Payout</CardTitle></CardHeader>
         <CardContent className="space-y-3">
@@ -149,11 +214,12 @@ export default function AffiliateEarningsPage() {
                   : `You need ${formatPence(MIN_PAYOUT_PENCE - cleared)} more cleared commission to reach the threshold.`}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                Payout account: {affiliate.payout_email ? <span className="font-medium text-slate-600">{affiliate.payout_email}</span> : <Link href="/affiliate/settings" className="text-[#2563EB] hover:underline">add payout details</Link>}.
+                Payout account: {affiliate.payout_email
+                  ? <span className="font-medium text-slate-600">{affiliate.payout_email}</span>
+                  : <Link href="/affiliate/settings" className="text-[#2563EB] hover:underline">add payout details</Link>}.
               </p>
             </div>
           </div>
-          {/* Request payout — flag-aware */}
           {(() => {
             const inFlight = payouts.find((p) => ["requested", "approved", "processing"].includes(p.status))
             if (inFlight) {
@@ -168,7 +234,7 @@ export default function AffiliateEarningsPage() {
               return (
                 <div className="flex items-start gap-2 rounded-xl bg-violet-50 border border-violet-100 p-3 text-xs text-violet-700">
                   <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  Payout requests open once payouts are enabled for the programme. Your cleared balance keeps accruing in the meantime, and you&apos;ll be able to request a payout from here. You are responsible for your own taxes.
+                  Payouts coming soon — your cleared balance keeps accruing and you&apos;ll be able to request from here once the programme opens. You are responsible for your own taxes.
                 </div>
               )
             }
@@ -203,11 +269,12 @@ export default function AffiliateEarningsPage() {
           ) : (
             <ResponsiveTable rows={payouts} mobile={payoutCardMapping}>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[480px]">
+              <table className="w-full text-sm min-w-[560px]">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] text-left text-xs font-semibold text-slate-500">
                     <th className="pb-2 pr-4">Period</th>
                     <th className="pb-2 pr-4">Amount</th>
+                    <th className="pb-2 pr-4">Method</th>
                     <th className="pb-2 pr-4">Date</th>
                     <th className="pb-2">Status</th>
                   </tr>
@@ -217,9 +284,8 @@ export default function AffiliateEarningsPage() {
                     <tr key={p.id} className="hover:bg-slate-50">
                       <td className="py-2.5 pr-4 text-xs text-slate-700">{p.period ?? "—"}</td>
                       <td className="py-2.5 pr-4 text-xs font-semibold text-slate-800">{formatPence(p.amount_pence ?? 0)}</td>
-                      <td className="py-2.5 pr-4 text-xs text-slate-500 whitespace-nowrap">
-                        {p.paid_at ? new Date(p.paid_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
-                      </td>
+                      <td className="py-2.5 pr-4 text-xs text-slate-500 capitalize">{p.method ?? "—"}</td>
+                      <td className="py-2.5 pr-4 text-xs text-slate-500 whitespace-nowrap">{payoutDate(p)}</td>
                       <td className="py-2.5">{payoutBadge(p.status)}</td>
                     </tr>
                   ))}

@@ -102,6 +102,15 @@ export function negotiateAcceptLanguage(
     .sort((a, b) => b.q - a.q)
 
   for (const { tag } of ranked) {
+    // For the `en` primary subtag, Accept-Language negotiation always resolves
+    // to en-GB (the platform canonical). Individual en-* variants (en-AU,
+    // en-CA, …) are only reachable via an explicit user profile preference, not
+    // via browser header negotiation — the platform is GB-first.
+    const primary = tag.toLowerCase().split("-")[0]
+    if (primary === "en") {
+      if (isSupportedLocale(tag) && tag === "en-GB") return "en-GB"
+      continue
+    }
     if (isSupportedLocale(tag)) return tag
   }
   for (const { tag } of ranked) {

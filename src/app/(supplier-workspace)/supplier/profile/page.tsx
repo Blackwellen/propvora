@@ -38,12 +38,6 @@ import type {
   SupplierAvailabilityDay,
 } from "@/components/supplier-workspace/types"
 
-const SUPPLIER_TYPES = [
-  "solo_contractor", "supplier_company", "agency", "emergency_supplier",
-  "compliance_assessor", "professional_service", "utility_partner", "logistics_partner",
-].map((v) => ({ value: v, label: humaniseStatus(v) }))
-
-const VISIBILITY = ["private", "workspace", "public"].map((v) => ({ value: v, label: humaniseStatus(v) }))
 
 /** Tolerant PATCH helper — resolves on 2xx, rejects otherwise so the inline
  *  editor surfaces an error toast and reverts. The sibling API owns the route.
@@ -106,15 +100,15 @@ export default function SupplierProfilePage() {
 
   return (
     <div className="space-y-5">
-      <MobileTopBar title="Profile" subtitle={p?.business_name ?? "Supplier profile"} />
+      <MobileTopBar title="Profile" subtitle={p?.display_name ?? "Supplier profile"} />
 
       <SupplierPageHeader
         title="Profile"
         subtitle="Your public-facing supplier profile, services, coverage and availability"
         actions={
-          p?.profile_visibility && (
-            <SupplierStatusBadge tone={p.profile_visibility === "public" ? "emerald" : "slate"}>
-              {humaniseStatus(p.profile_visibility)} visibility
+          p?.status && (
+            <SupplierStatusBadge tone={p.status === "active" ? "emerald" : "slate"}>
+              {humaniseStatus(p.status)}
             </SupplierStatusBadge>
           )
         }
@@ -134,13 +128,13 @@ export default function SupplierProfilePage() {
                 <div className="px-5 pb-5 -mt-10">
                   <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-md flex items-center justify-center">
                     <div className="w-full h-full rounded-xl bg-[#0EA5E9] flex items-center justify-center text-white text-xl font-bold">
-                      {(p?.business_name ?? "SP").slice(0, 2).toUpperCase()}
+                      {(p?.display_name ?? "SP").slice(0, 2).toUpperCase()}
                     </div>
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0">
-                      <h2 className="text-xl font-bold text-slate-900">{p?.business_name ?? "Your business name"}</h2>
-                      <p className="text-sm text-slate-500">{p?.supplier_type ? humaniseStatus(p.supplier_type) : "Supplier"}{p?.years_experience ? ` · ${p.years_experience} yrs experience` : ""}</p>
+                      <h2 className="text-xl font-bold text-slate-900">{p?.display_name ?? "Your business name"}</h2>
+                      <p className="text-sm text-slate-500">Supplier{p?.years_experience ? ` · ${p.years_experience} yrs experience` : ""}</p>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
@@ -148,13 +142,12 @@ export default function SupplierProfilePage() {
                       {p?.reviews_count ? <span className="text-xs text-slate-400">({p.reviews_count})</span> : null}
                     </div>
                   </div>
-                  {p?.description_short && <p className="mt-3 text-sm font-medium text-slate-700">{p.description_short}</p>}
-                  {p?.description_long && <p className="mt-2 text-sm text-slate-500 leading-relaxed">{p.description_long}</p>}
+                  {p?.bio && <p className="mt-3 text-sm font-medium text-slate-700">{p.bio}</p>}
                   <div className="mt-4 flex flex-wrap gap-1.5">
-                    {(p?.service_categories ?? []).length === 0 ? (
-                      <span className="text-sm text-slate-400 italic">Add service categories to appear in marketplace search</span>
+                    {(p?.trades ?? []).length === 0 ? (
+                      <span className="text-sm text-slate-400 italic">Add trade categories to appear in marketplace search</span>
                     ) : (
-                      (p?.service_categories ?? []).map((c) => <SupplierStatusBadge key={c} tone="blue">{humaniseStatus(c)}</SupplierStatusBadge>)
+                      (p?.trades ?? []).map((c) => <SupplierStatusBadge key={c} tone="blue">{humaniseStatus(c)}</SupplierStatusBadge>)
                     )}
                   </div>
                 </div>
@@ -168,10 +161,10 @@ export default function SupplierProfilePage() {
                     <h3 className="text-base font-semibold text-slate-900">Trust badges</h3>
                   </div>
                   <ul className="space-y-2">
-                    <TrustRow icon={BadgeCheck} label="Identity verified" on={/verified|approved/.test((p?.id_verification_status ?? "").toLowerCase())} />
-                    <TrustRow icon={ShieldCheck} label="Insurance on file" on={/valid|verified|active/.test((p?.insurance_status ?? "").toLowerCase())} />
-                    <TrustRow icon={Award} label="Licensed trade" on={/valid|verified|active/.test((p?.licence_status ?? "").toLowerCase())} />
-                    <TrustRow icon={Store} label="Published to marketplace" on={!!p?.marketplace_enabled} />
+                    <TrustRow icon={BadgeCheck} label="Identity verified" on={!!p?.insurance_verified} />
+                    <TrustRow icon={ShieldCheck} label="Insurance on file" on={!!p?.insurance_verified} />
+                    <TrustRow icon={Award} label="Licensed trade" on={!!p?.insurance_verified} />
+                    <TrustRow icon={Store} label="Published to marketplace" on={p?.status === "active"} />
                   </ul>
                 </SupplierCard>
 
@@ -180,7 +173,7 @@ export default function SupplierProfilePage() {
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between"><dt className="text-slate-500">Completed jobs</dt><dd className="font-semibold text-slate-800">{p?.completed_jobs_count ?? 0}</dd></div>
                     <div className="flex justify-between"><dt className="text-slate-500">Reviews</dt><dd className="font-semibold text-slate-800">{p?.reviews_count ?? 0}</dd></div>
-                    <div className="flex justify-between"><dt className="text-slate-500">Visibility</dt><dd className="font-semibold text-slate-800">{humaniseStatus(p?.profile_visibility ?? "private")}</dd></div>
+                    <div className="flex justify-between"><dt className="text-slate-500">Status</dt><dd className="font-semibold text-slate-800">{humaniseStatus(p?.status ?? "draft")}</dd></div>
                   </dl>
                   <Link href="/supplier/marketplace" className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]">
                     <Store className="w-3.5 h-3.5" /> Manage marketplace listing →
@@ -198,20 +191,20 @@ export default function SupplierProfilePage() {
                   <h2 className="text-base font-semibold text-slate-900">Business details</h2>
                 </div>
                 <dl className="space-y-3.5">
-                  <Row label="Business name">
-                    <InlineEditField label="business name" value={p?.business_name ?? ""} onSave={(v) => patchProfile(workspaceId, "business_name", v)} useSheetOnMobile />
+                  <Row label="Display name">
+                    <InlineEditField label="display name" value={p?.display_name ?? ""} onSave={(v) => patchProfile(workspaceId, "display_name", v)} useSheetOnMobile />
                   </Row>
-                  <Row label="Trading name">
-                    <InlineEditField label="trading name" value={p?.trading_name ?? ""} onSave={(v) => patchProfile(workspaceId, "trading_name", v)} useSheetOnMobile />
+                  <Row label="Base location">
+                    <InlineEditField label="base location" value={p?.base_location ?? ""} onSave={(v) => patchProfile(workspaceId, "base_location", v)} useSheetOnMobile />
                   </Row>
-                  <Row label="Supplier type">
-                    <InlineEditField label="supplier type" type="select" options={SUPPLIER_TYPES} value={p?.supplier_type ?? ""} onSave={(v) => patchProfile(workspaceId, "supplier_type", v)} useSheetOnMobile />
+                  <Row label="Service radius (km)">
+                    <InlineEditField label="service radius km" type="number" value={p?.service_radius_km ?? ""} onSave={(v) => patchProfile(workspaceId, "service_radius_km", v)} useSheetOnMobile />
                   </Row>
                   <Row label="Years experience">
                     <InlineEditField label="years experience" type="number" value={p?.years_experience ?? ""} onSave={(v) => patchProfile(workspaceId, "years_experience", v)} useSheetOnMobile />
                   </Row>
-                  <Row label="Team size">
-                    <InlineEditField label="team size" type="number" value={p?.team_size ?? ""} onSave={(v) => patchProfile(workspaceId, "team_size", v)} useSheetOnMobile />
+                  <Row label="Response time (hrs)">
+                    <InlineEditField label="response time hours" type="number" value={p?.response_time_hours ?? ""} onSave={(v) => patchProfile(workspaceId, "response_time_hours", v)} useSheetOnMobile />
                   </Row>
                 </dl>
               </SupplierCard>
@@ -223,11 +216,8 @@ export default function SupplierProfilePage() {
                     <h2 className="text-base font-semibold text-slate-900">About & headline</h2>
                   </div>
                   <dl className="space-y-3.5">
-                    <Row label="Short description">
-                      <InlineEditField label="short description" value={p?.description_short ?? ""} onSave={(v) => patchProfile(workspaceId, "description_short", v)} useSheetOnMobile placeholder="One-line headline" />
-                    </Row>
-                    <Row label="Full description" stacked>
-                      <InlineEditField label="full description" type="textarea" value={p?.description_long ?? ""} onSave={(v) => patchProfile(workspaceId, "description_long", v)} useSheetOnMobile placeholder="Tell property managers about your work…" />
+                    <Row label="Bio" stacked>
+                      <InlineEditField label="bio" type="textarea" value={p?.bio ?? ""} onSave={(v) => patchProfile(workspaceId, "bio", v)} useSheetOnMobile placeholder="Tell property managers about your work…" />
                     </Row>
                   </dl>
                 </SupplierCard>
@@ -238,23 +228,23 @@ export default function SupplierProfilePage() {
                     <h2 className="text-base font-semibold text-slate-900">Visibility</h2>
                   </div>
                   <dl className="space-y-3.5">
-                    <Row label="Profile visibility">
-                      <InlineEditField label="profile visibility" type="select" options={VISIBILITY} value={p?.profile_visibility ?? "private"} onSave={(v) => patchProfile(workspaceId, "profile_visibility", v)} useSheetOnMobile />
-                    </Row>
-                    <Row label="Service categories">
+                    <Row label="Trades covered">
                       <span className="flex flex-wrap gap-1.5 justify-end">
-                        {(p?.service_categories ?? []).length === 0 ? (
+                        {(p?.trades ?? []).length === 0 ? (
                           <span className="text-sm text-slate-400 italic">None yet</span>
                         ) : (
-                          (p?.service_categories ?? []).map((c) => (
+                          (p?.trades ?? []).map((c) => (
                             <SupplierStatusBadge key={c} tone="blue">{humaniseStatus(c)}</SupplierStatusBadge>
                           ))
                         )}
                       </span>
                     </Row>
+                    <Row label="Accepts emergency">
+                      <span className="text-sm font-semibold text-slate-800">{p?.accepts_emergency ? "Yes" : "No"}</span>
+                    </Row>
                   </dl>
                   <p className="mt-3 text-xs text-slate-400 flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5" /> Public profiles appear in the marketplace once verification is complete.
+                    <Eye className="w-3.5 h-3.5" /> Set status to active to publish your profile to the marketplace.
                   </p>
                 </SupplierCard>
               </div>

@@ -55,8 +55,27 @@ export default async function SupplierWorkspaceLayout({
     // keep default
   }
 
+  // Fetch workspace member count server-side so the shell can conditionally
+  // show the Team nav item (only when the workspace has 2+ members).
+  // Uses workspace_members (the general membership table). Tolerant: falls
+  // back to 1 (solo) if the query fails so the Team item simply stays hidden.
+  let teamMemberCount = 1
+  try {
+    const { count } = await supabase
+      .from("workspace_members")
+      .select("*", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+    teamMemberCount = count ?? 1
+  } catch {
+    // keep default — solo
+  }
+
   return (
-    <SupplierWorkspaceShell supplierName={supplierName} workspaceId={workspaceId}>
+    <SupplierWorkspaceShell
+      supplierName={supplierName}
+      workspaceId={workspaceId}
+      teamMemberCount={teamMemberCount}
+    >
       {children}
     </SupplierWorkspaceShell>
   )
