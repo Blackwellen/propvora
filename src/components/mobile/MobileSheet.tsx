@@ -109,7 +109,7 @@ export default function MobileSheet({
   if (!mounted || !open) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[120] lg:hidden" aria-hidden={false}>
+    <div className="fixed inset-0 z-[1200] lg:hidden" aria-hidden={false}>
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm motion-safe:animate-[fadeIn_0.15s_ease-out] motion-reduce:transition-none"

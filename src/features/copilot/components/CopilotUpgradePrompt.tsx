@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { X, Sparkles, Zap, LifeBuoy, BookOpen, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import { zIndex } from "@/lib/ui/z-index"
 
 interface CopilotUpgradePromptProps {
   isOpen: boolean
@@ -21,7 +22,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
         width: 380,
         maxWidth: "calc(100vw - 48px)",
         borderRadius: 24,
-        zIndex: 50,
+        zIndex: zIndex.panel,
         background: "#FFFFFF",
         border: "1px solid #E2E8F0",
         boxShadow:

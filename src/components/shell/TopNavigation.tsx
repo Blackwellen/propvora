@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Building2, ChevronDown, Calendar as CalendarIcon, Check, Loader2, Plus } from "lucide-react"
+import { createPortal } from "react-dom"
+import { Building2, ChevronDown, Calendar as CalendarIcon, Check, Loader2, Plus, Store, User as UserIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import GlobalSearch from "./GlobalSearch"
 import QuickCreateButton from "./QuickCreateButton"
@@ -10,11 +11,38 @@ import AccountMenu from "./AccountMenu"
 import TutorialLauncher from "@/guided-help/components/TutorialLauncher"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { zIndex } from "@/lib/ui/z-index"
+
+// ─── Workspace types → routing ─────────────────────────────────────────────
+// Each workspace carries a `type` that determines which shell/route-group it
+// lives in. Switching must land on the chosen workspace's OWN home so the
+// correct side-nav (operator / supplier / customer) renders.
+type WorkspaceType = "operator" | "supplier" | "customer"
 
 interface Workspace {
   id: string
   name: string
   slug: string
+  type: WorkspaceType
+}
+
+/** Home route (and therefore shell) for each workspace type. */
+const TYPE_HOME: Record<WorkspaceType, string> = {
+  operator: "/property-manager", // → rewrites to (app)/app, operator AppShell
+  supplier: "/supplier",          // → (supplier-workspace) group
+  customer: "/user",              // → rewrites to (customer)/customer
+}
+
+const TYPE_META: Record<WorkspaceType, { label: string; icon: typeof Building2 }> = {
+  operator: { label: "Property management", icon: Building2 },
+  supplier: { label: "Supplier", icon: Store },
+  customer: { label: "Customer", icon: UserIcon },
+}
+
+const TYPE_ORDER: WorkspaceType[] = ["operator", "supplier", "customer"]
+
+function normaliseType(raw: unknown): WorkspaceType {
+  return raw === "supplier" || raw === "customer" ? raw : "operator"
 }
 
 interface TopNavigationProps {
@@ -32,14 +60,28 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [loading, setLoading] = useState(false)
   const [switching, setSwitching] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
 
-  // Close on outside click or Escape
+  // Position the (portaled) panel under the trigger. Portaling to <body> escapes
+  // the topbar's `backdrop-filter` stacking context, which would otherwise trap
+  // the dropdown beneath the page content ("sinks under the top bar" bug).
+  useEffect(() => {
+    if (open && triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 8, left: r.left })
+    }
+  }, [open])
+
+  // Close on outside click or Escape (trigger + portaled panel both excluded).
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (
+        triggerRef.current?.contains(e.target as Node) ||
+        panelRef.current?.contains(e.target as Node)
+      ) return
+      setOpen(false)
     }
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false)
@@ -63,14 +105,14 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
       if (!user) return
       const { data } = await supabase
         .from("workspace_members")
-        .select("workspace_id, workspaces(id, name, slug)")
+        .select("workspace_id, workspaces(id, name, slug, type)")
         .eq("user_id", user.id)
-        .limit(20)
+        .limit(50)
       if (data) {
         const list: Workspace[] = data
           .map((row: { workspace_id: string; workspaces: unknown }) => {
-            const ws = row.workspaces as { id: string; name: string; slug: string } | null
-            return ws ? { id: ws.id, name: ws.name, slug: ws.slug } : null
+            const ws = row.workspaces as { id: string; name: string; slug: string; type?: string } | null
+            return ws ? { id: ws.id, name: ws.name, slug: ws.slug, type: normaliseType(ws.type) } : null
           })
           .filter(Boolean) as Workspace[]
         setWorkspaces(list)
@@ -82,37 +124,47 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
     }
   }
 
-  async function handleSwitch(id: string) {
-    if (id === activeId) { setOpen(false); return }
-    setSwitching(id)
+  async function handleSwitch(ws: Workspace) {
+    if (ws.id === activeId) { setOpen(false); return }
+    setSwitching(ws.id)
     try {
-      // Clears React Query cache + reloads workspace context (no cross-workspace leak)
-      await switchWorkspace(id)
-      router.push("/property-manager")
+      // 1. Persist the active workspace + clear cross-workspace cache.
+      await switchWorkspace(ws.id)
+      const home = TYPE_HOME[ws.type]
+      const currentType = normaliseType(workspace?.type)
+      // 2. Route to the chosen workspace's HOME so the correct shell/side-nav
+      //    renders. Crossing workspace TYPES means crossing route-group root
+      //    layouts (operator ↔ supplier ↔ customer), each with its own
+      //    server-side membership gate — a hard navigation guarantees the
+      //    destination layout runs and the side-nav fully swaps. Same-type
+      //    switches stay a soft navigation (faster, no full reload).
+      if (ws.type !== currentType) {
+        window.location.assign(home)
+        return // full page load takes over; keep spinner until unload.
+      }
+      router.push(home)
+      router.refresh()
     } catch {
-      // noop
+      // noop — stay put
     } finally {
       setSwitching(null)
       setOpen(false)
     }
   }
 
-  return (
-    <div className="relative shrink-0" ref={dropdownRef}>
-      <button
-        onClick={() => { setOpen((v) => !v); fetchWorkspaces() }}
-        aria-label="Switch workspace"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
-      >
-        <Building2 className="w-4 h-4 text-[#2563EB] shrink-0" />
-        <span className="max-w-[96px] sm:max-w-[160px] truncate">{activeName ?? "Your workspace"}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
-      </button>
+  const grouped = TYPE_ORDER
+    .map((type) => ({ type, items: workspaces.filter((w) => w.type === type) }))
+    .filter((g) => g.items.length > 0)
 
-      {open && (
-        <div className="absolute top-12 left-0 z-50 w-[240px] bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+  const panel = open && typeof window !== "undefined"
+    ? createPortal(
+        <div
+          ref={panelRef}
+          role="menu"
+          aria-label="Switch workspace"
+          style={{ position: "fixed", top: pos.top, left: pos.left, zIndex: zIndex.dropdown, width: 260 }}
+          className="bg-white rounded-2xl border border-slate-200 shadow-[0_16px_48px_rgba(15,23,42,0.16)] overflow-hidden"
+        >
           <div className="px-3 py-2.5 border-b border-slate-100">
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Your Workspaces</p>
           </div>
@@ -124,29 +176,41 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
           ) : workspaces.length === 0 ? (
             <div className="px-3 py-4 text-[12px] text-slate-400 text-center">No workspaces found</div>
           ) : (
-            <div className="py-1 max-h-[min(55vh,340px)] overflow-y-auto overscroll-contain">
-              {workspaces.map((ws) => {
-                const isActive = ws.id === activeId
-                const isSwitching = switching === ws.id
+            <div className="py-1 max-h-[min(60vh,380px)] overflow-y-auto overscroll-contain">
+              {grouped.map((group) => {
+                const meta = TYPE_META[group.type]
+                const GroupIcon = meta.icon
                 return (
-                  <button
-                    key={ws.id}
-                    onClick={() => handleSwitch(ws.id)}
-                    disabled={isSwitching}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                      <Building2 className="w-3.5 h-3.5 text-[#2563EB]" />
-                    </div>
-                    <span className={`flex-1 text-[13px] truncate ${isActive ? "font-semibold text-[#2563EB]" : "text-slate-700"}`}>
-                      {ws.name}
-                    </span>
-                    {isSwitching ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                    ) : isActive ? (
-                      <Check className="w-3.5 h-3.5 text-[#2563EB]" />
-                    ) : null}
-                  </button>
+                  <div key={group.type} className="py-0.5">
+                    <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      {meta.label}
+                    </p>
+                    {group.items.map((ws) => {
+                      const isActive = ws.id === activeId
+                      const isSwitching = switching === ws.id
+                      return (
+                        <button
+                          key={ws.id}
+                          role="menuitem"
+                          onClick={() => handleSwitch(ws)}
+                          disabled={isSwitching}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left disabled:opacity-60"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
+                            <GroupIcon className="w-3.5 h-3.5 text-[#2563EB]" />
+                          </div>
+                          <span className={`flex-1 text-[13px] truncate ${isActive ? "font-semibold text-[#2563EB]" : "text-slate-700"}`}>
+                            {ws.name}
+                          </span>
+                          {isSwitching ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                          ) : isActive ? (
+                            <Check className="w-3.5 h-3.5 text-[#2563EB]" />
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
                 )
               })}
             </div>
@@ -154,6 +218,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
 
           <div className="border-t border-slate-100 py-1">
             <button
+              role="menuitem"
               onClick={() => { setOpen(false); router.push("/onboarding") }}
               className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left"
             >
@@ -163,8 +228,26 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
               <span className="text-[13px] text-slate-500">Create new workspace</span>
             </button>
           </div>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <div className="shrink-0">
+      <button
+        ref={triggerRef}
+        onClick={() => { setOpen((v) => !v); fetchWorkspaces() }}
+        aria-label="Switch workspace"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+      >
+        <Building2 className="w-4 h-4 text-[#2563EB] shrink-0" />
+        <span className="max-w-[96px] sm:max-w-[160px] truncate">{activeName ?? "Your workspace"}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {panel}
     </div>
   )
 }

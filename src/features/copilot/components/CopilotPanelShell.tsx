@@ -10,6 +10,7 @@ import CopilotChatScreen from "../screens/CopilotChatScreen"
 import CopilotInboxScreen from "../screens/CopilotInboxScreen"
 import CopilotStartConversationScreen from "../screens/CopilotStartConversationScreen"
 import CopilotConversationView from "../screens/CopilotConversationView"
+import { zIndex } from "@/lib/ui/z-index"
 
 interface CopilotPanelShellProps {
   isOpen: boolean
@@ -68,7 +69,7 @@ export default function CopilotPanelShell({ isOpen, onClose }: CopilotPanelShell
         height: "90vh",
         maxHeight: "calc(100vh - 48px)",
         borderRadius: 28,
-        zIndex: 50,
+        zIndex: zIndex.panel,
         background: "#FFFFFF",
         border: "1px solid #E2E8F0",
         boxShadow: "0 32px 80px rgba(0,0,0,0.22), 0 8px 32px rgba(37,99,235,0.12)",
@@ -86,7 +87,7 @@ export default function CopilotPanelShell({ isOpen, onClose }: CopilotPanelShell
         minHeight: 600,
         maxHeight: "calc(100vh - 48px)",
         borderRadius: 28,
-        zIndex: 50,
+        zIndex: zIndex.panel,
         background: "#FFFFFF",
         border: "1px solid #E2E8F0",
         boxShadow:

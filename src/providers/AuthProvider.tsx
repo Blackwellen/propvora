@@ -19,6 +19,8 @@ interface Workspace {
   id: string
   name: string
   slug: string
+  /** Workspace kind — drives which shell/route-group it lives in. */
+  type: "operator" | "supplier" | "customer"
   business_type: string | null
   operation_interests: string[]
   plan: string
@@ -75,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id")
+          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)
