@@ -29,34 +29,31 @@ const STEPS: WizardStepDef[] = [
 ]
 
 const CATEGORIES: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: "maintenance", label: "Maintenance / repair", icon: Wrench },
-  { key: "connectivity", label: "Wi-Fi / connectivity", icon: Wifi },
-  { key: "cleanliness", label: "Cleanliness", icon: Sparkles },
-  { key: "safety", label: "Safety concern", icon: ShieldAlert },
-  { key: "access", label: "Access / check-in", icon: KeyRound },
+  { key: "plumbing", label: "Plumbing / water", icon: Wrench },
+  { key: "heating", label: "Heating / hot water", icon: Wrench },
+  { key: "electrical", label: "Electrical", icon: Wifi },
+  { key: "structural", label: "Structural / damp", icon: ShieldAlert },
+  { key: "security", label: "Locks / security", icon: KeyRound },
+  { key: "cleanliness", label: "Cleanliness / pests", icon: Sparkles },
+  { key: "appliances", label: "Appliances", icon: Wrench },
   { key: "other", label: "Something else", icon: HelpCircle },
 ]
 
 const SEVERITIES: { key: string; label: string; hint: string }[] = [
-  { key: "low", label: "Low", hint: "Minor — can wait" },
-  { key: "normal", label: "Normal", hint: "Should be looked at" },
-  { key: "high", label: "High", hint: "Affecting my stay" },
-  { key: "urgent", label: "Urgent", hint: "Needs attention now" },
+  { key: "low", label: "Low", hint: "Minor — can wait a few days" },
+  { key: "normal", label: "Normal", hint: "Should be looked at within a week" },
+  { key: "high", label: "High", hint: "Affecting daily living" },
+  { key: "urgent", label: "Urgent / emergency", hint: "Needs immediate attention (gas leak, flood, no heating in winter)" },
 ]
 
 const MAX_PHOTOS = 4
 
-export default function ReportIssueWizard({
-  bookingId,
-  bookingTitle,
-}: {
-  bookingId: string
-  bookingTitle: string
-}) {
+export default function MaintenanceWizard() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState(1)
   const [category, setCategory] = useState("")
+  const [room, setRoom] = useState("")
   const [subject, setSubject] = useState("")
   const [detail, setDetail] = useState("")
   const [severity, setSeverity] = useState("normal")
@@ -66,6 +63,7 @@ export default function ReportIssueWizard({
   const [uploadProgress, setUploadProgress] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [requestId, setRequestId] = useState<string | null>(null)
 
   const canContinue =
     step === 1 ? !!category
@@ -77,10 +75,8 @@ export default function ReportIssueWizard({
     if (!files) return
     const remaining = MAX_PHOTOS - photos.length
     const incoming = Array.from(files).slice(0, remaining)
-    const newFiles = [...photos, ...incoming]
-    const newPreviews = incoming.map((f) => URL.createObjectURL(f))
-    setPhotos(newFiles)
-    setPhotoPreviewUrls((prev) => [...prev, ...newPreviews])
+    setPhotos((prev) => [...prev, ...incoming])
+    setPhotoPreviewUrls((prev) => [...prev, ...incoming.map((f) => URL.createObjectURL(f))])
   }
 
   function removePhoto(i: number) {
@@ -89,7 +85,7 @@ export default function ReportIssueWizard({
     setPhotoPreviewUrls((prev) => prev.filter((_, j) => j !== i))
   }
 
-  async function uploadPhotos(): Promise<string[]> {
+  async function uploadPhotos(reqId: string): Promise<string[]> {
     if (photos.length === 0) return []
     const supabase = createClient()
     const urls: string[] = []
@@ -97,12 +93,12 @@ export default function ReportIssueWizard({
       const file = photos[i]
       setUploadProgress(`Uploading photo ${i + 1} of ${photos.length}…`)
       const ext = file.name.split(".").pop() ?? "jpg"
-      const path = `issues/${bookingId}/${Date.now()}-${i}.${ext}`
+      const path = `maintenance/${reqId}/${Date.now()}-${i}.${ext}`
       const { error: upErr } = await supabase.storage
         .from("customer-maintenance")
         .upload(path, file, { cacheControl: "3600", upsert: false })
       if (upErr) {
-        console.warn("[ReportIssueWizard] photo upload failed:", upErr.message)
+        console.warn("[MaintenanceWizard] photo upload failed:", upErr.message)
         continue
       }
       const { data: pub } = supabase.storage.from("customer-maintenance").getPublicUrl(path)
@@ -116,21 +112,35 @@ export default function ReportIssueWizard({
     setSubmitting(true)
     setError(null)
     try {
-      const photoUrls = await uploadPhotos()
-      const res = await fetch("/api/customer/issues", {
+      const res = await fetch("/api/customer/maintenance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId, category, severity, subject, detail, photoUrls }),
+        body: JSON.stringify({ category, severity, subject, detail, room }),
       })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error((j as { error?: string }).error || "Could not report issue")
+        const j = await res.json().catch(() => ({})) as { error?: string; requestId?: string }
+        throw new Error(j.error || "Could not submit request")
       }
+      const body = await res.json() as { requestId?: string }
+      const newId = body.requestId ?? "unknown"
+      setRequestId(newId)
+
+      // Upload photos now we have a request ID.
+      if (photos.length > 0) {
+        const photoUrls = await uploadPhotos(newId)
+        if (photoUrls.length > 0) {
+          await fetch("/api/customer/maintenance", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ requestId: newId, photoUrls }),
+          })
+        }
+      }
+
       setDone(true)
       router.refresh()
-      setTimeout(() => router.push(`/user/bookings/${bookingId}`), 1400)
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not report issue")
+      setError(e instanceof Error ? e.message : "Could not submit request")
       setSubmitting(false)
     }
   }
@@ -148,9 +158,9 @@ export default function ReportIssueWizard({
         onStep={setStep}
         onPrev={() => {}}
         onNext={() => {}}
-        closeHref={`/user/bookings/${bookingId}`}
-        title="Report an issue"
-        subtitle={bookingTitle}
+        closeHref="/user/maintenance"
+        title="Report a repair"
+        subtitle="Tenant maintenance"
         isLastStep
         canContinue={false}
       >
@@ -158,10 +168,17 @@ export default function ReportIssueWizard({
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
             <CheckCircle2 className="w-8 h-8 text-emerald-500" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Issue reported</h2>
+          <h2 className="text-xl font-bold text-slate-900">Request submitted</h2>
           <p className="mt-2 text-sm text-slate-500 max-w-sm">
-            Your host and property manager have been notified. You can track its status on your trip page.
+            Your property manager has been notified and will be in touch. Reference: <strong>{requestId}</strong>
           </p>
+          <button
+            type="button"
+            onClick={() => router.push("/user/maintenance")}
+            className="mt-6 rounded-xl bg-[#2563EB] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#1d4ed8] transition-colors"
+          >
+            View all requests
+          </button>
         </div>
       </CustomerWizardShell>
     )
@@ -174,18 +191,18 @@ export default function ReportIssueWizard({
       onStep={setStep}
       onPrev={() => setStep((s) => Math.max(1, s - 1))}
       onNext={next}
-      closeHref={`/user/bookings/${bookingId}`}
-      title="Report an issue"
-      subtitle={bookingTitle}
+      closeHref="/user/maintenance"
+      title="Report a repair"
+      subtitle="Tenant maintenance"
       isLastStep={step === STEPS.length}
       canContinue={canContinue}
-      submitLabel={uploadProgress || (submitting ? "Sending…" : "Submit report")}
+      submitLabel={uploadProgress || (submitting ? "Sending…" : "Submit request")}
       submitting={submitting}
     >
       {step === 1 && (
         <div>
-          <h2 className="text-lg font-bold text-slate-900">What&apos;s the issue about?</h2>
-          <p className="mt-1 text-sm text-slate-500">Pick the closest match so we route it to the right person.</p>
+          <h2 className="text-lg font-bold text-slate-900">What needs attention?</h2>
+          <p className="mt-1 text-sm text-slate-500">Pick the category that best fits the problem.</p>
           <div className="mt-5 grid grid-cols-2 gap-3">
             {CATEGORIES.map((c) => {
               const Icon = c.icon
@@ -212,16 +229,41 @@ export default function ReportIssueWizard({
 
       {step === 2 && (
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Tell us what happened</h2>
-          <p className="mt-1 text-sm text-slate-500">A short title, description and photos help us fix it faster.</p>
+          <h2 className="text-lg font-bold text-slate-900">Describe the problem</h2>
+          <p className="mt-1 text-sm text-slate-500">Good photos and detail help get this fixed faster.</p>
           <div className="mt-5 space-y-4">
             <div>
-              <label htmlFor="subject" className="block text-[13px] font-semibold text-slate-700 mb-1">Title</label>
-              <input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Heating not working in the bedroom" className={customerInputClass} />
+              <label htmlFor="room" className="block text-[13px] font-semibold text-slate-700 mb-1">
+                Room / location <span className="text-slate-400 font-normal">(optional)</span>
+              </label>
+              <input
+                id="room"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                placeholder="e.g. Master bedroom, kitchen, bathroom"
+                className={customerInputClass}
+              />
             </div>
             <div>
-              <label htmlFor="detail" className="block text-[13px] font-semibold text-slate-700 mb-1">Description</label>
-              <textarea id="detail" value={detail} onChange={(e) => setDetail(e.target.value)} rows={4} placeholder="Describe the problem, when it started and anything you've tried." className={customerTextareaClass} />
+              <label htmlFor="subject" className="block text-[13px] font-semibold text-slate-700 mb-1">Summary</label>
+              <input
+                id="subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="e.g. Boiler not producing hot water"
+                className={customerInputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="detail" className="block text-[13px] font-semibold text-slate-700 mb-1">Details</label>
+              <textarea
+                id="detail"
+                value={detail}
+                onChange={(e) => setDetail(e.target.value)}
+                rows={4}
+                placeholder="When did it start? What have you tried? Any safety concerns?"
+                className={customerTextareaClass}
+              />
             </div>
 
             {/* Photo capture */}
@@ -263,7 +305,7 @@ export default function ReportIssueWizard({
                     className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
                   >
                     <Camera className="w-4 h-4" />
-                    {photos.length === 0 ? "Add photos" : "Add more"}
+                    {photos.length === 0 ? "Take or attach photos" : "Add more"}
                   </button>
                 </>
               )}
@@ -275,7 +317,7 @@ export default function ReportIssueWizard({
       {step === 3 && (
         <div>
           <h2 className="text-lg font-bold text-slate-900">How urgent is it?</h2>
-          <p className="mt-1 text-sm text-slate-500">This sets the priority for your host and property manager.</p>
+          <p className="mt-1 text-sm text-slate-500">For emergencies (gas leaks, flooding, no electricity) call the emergency line directly.</p>
           <div className="mt-5 space-y-2.5">
             {SEVERITIES.map((s) => {
               const active = severity === s.key
@@ -304,14 +346,31 @@ export default function ReportIssueWizard({
 
       {step === 4 && (
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Review your report</h2>
-          <p className="mt-1 text-sm text-slate-500">Send this to your host and property manager.</p>
+          <h2 className="text-lg font-bold text-slate-900">Review your request</h2>
+          <p className="mt-1 text-sm text-slate-500">We&apos;ll notify your property manager immediately.</p>
           <dl className="mt-5 space-y-3 rounded-2xl border border-slate-200 p-4">
-            <div className="flex justify-between gap-3"><dt className="text-sm text-slate-500">Stay</dt><dd className="text-sm font-medium text-slate-800 text-right">{bookingTitle}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-sm text-slate-500">Category</dt><dd className="text-sm font-medium text-slate-800 text-right capitalize">{category}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-sm text-slate-500">Urgency</dt><dd className="text-sm font-medium text-slate-800 text-right capitalize">{severity}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-sm text-slate-500">Title</dt><dd className="text-sm font-medium text-slate-800 text-right">{subject}</dd></div>
-            <div><dt className="text-sm text-slate-500 mb-1">Description</dt><dd className="text-sm text-slate-700 whitespace-pre-line">{detail}</dd></div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-sm text-slate-500">Category</dt>
+              <dd className="text-sm font-medium text-slate-800 capitalize">{category.replace(/_/g, " ")}</dd>
+            </div>
+            {room && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-sm text-slate-500">Location</dt>
+                <dd className="text-sm font-medium text-slate-800">{room}</dd>
+              </div>
+            )}
+            <div className="flex justify-between gap-3">
+              <dt className="text-sm text-slate-500">Urgency</dt>
+              <dd className="text-sm font-medium text-slate-800 capitalize">{severity.replace(/_/g, " ")}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-sm text-slate-500">Summary</dt>
+              <dd className="text-sm font-medium text-slate-800 text-right">{subject}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-slate-500 mb-1">Details</dt>
+              <dd className="text-sm text-slate-700 whitespace-pre-line">{detail}</dd>
+            </div>
             {photoPreviewUrls.length > 0 && (
               <div>
                 <dt className="text-sm text-slate-500 mb-2">Photos ({photoPreviewUrls.length})</dt>

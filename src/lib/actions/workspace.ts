@@ -22,6 +22,16 @@ export interface CreateWorkspaceInput {
   workspaceType?: string
   /** Supplier-specific metadata stored in `workspaces.metadata` (JSON). */
   supplierMeta?: Record<string, unknown>
+  /** ISO 3166-1 alpha-2 country code captured during onboarding. Drives locale defaults. */
+  countryCode?: string
+  /** BCP-47 locale override (derived from countryCode if not supplied). */
+  defaultLocale?: string
+  /** ISO 4217 currency override (derived from countryCode if not supplied). */
+  defaultCurrency?: string
+  /** IANA timezone override (derived from countryCode if not supplied). */
+  defaultTimezone?: string
+  /** Date format string override (derived from countryCode if not supplied). */
+  defaultDateFormat?: string
 }
 
 export interface CreateWorkspaceResult {
@@ -126,10 +136,10 @@ export async function createWorkspace(
       .from("workspace_settings")
       .insert({
         workspace_id: workspace.id,
-        default_currency: "GBP",
-        default_timezone: "Europe/London",
-        default_date_format: "DD/MM/YYYY",
-        default_locale: "en-GB",
+        default_currency: data.defaultCurrency ?? "GBP",
+        default_timezone: data.defaultTimezone ?? "Europe/London",
+        default_date_format: data.defaultDateFormat ?? "DD/MM/YYYY",
+        default_locale: data.defaultLocale ?? "en-GB",
       })
     if (settingsError && settingsError.code !== "23505" && settingsError.code !== "42P01") {
       console.error("[createWorkspace] workspace_settings insert:", settingsError)

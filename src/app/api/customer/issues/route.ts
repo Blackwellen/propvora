@@ -35,17 +35,22 @@ export async function POST(req: Request) {
   }
   if (!workspaceId) return NextResponse.json({ error: "Not a customer" }, { status: 403 })
 
-  let payload: { bookingId?: string; category?: string; severity?: string; subject?: string; detail?: string }
+  let payload: { bookingId?: string; category?: string; severity?: string; subject?: string; detail?: string; photoUrls?: string[] }
   try {
     payload = await req.json()
   } catch {
     return NextResponse.json({ error: "Bad request" }, { status: 400 })
   }
 
-  const { bookingId, category, severity, subject, detail } = payload
+  const { bookingId, category, severity, subject, detail, photoUrls } = payload
   if (!bookingId || !subject?.trim() || !detail?.trim()) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 })
   }
+
+  // Sanitise photo URLs — only allow our own Supabase storage or R2 domain.
+  const safePhotoUrls = (photoUrls ?? []).filter(
+    (u) => typeof u === "string" && (u.includes(".supabase.co/storage") || u.includes(".r2.dev"))
+  )
 
   const writer = createAdminClient()
   try {
@@ -56,6 +61,7 @@ export async function POST(req: Request) {
       subject: subject.trim(),
       detail: detail.trim(),
       reportedBy: user.email ?? "guest",
+      photoUrls: safePhotoUrls,
     })
     if (!ok) return NextResponse.json({ error: "Could not report issue" }, { status: 400 })
 

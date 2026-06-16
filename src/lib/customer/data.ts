@@ -1133,7 +1133,7 @@ export async function createCustomerBookingIssue(
   writer: SupabaseClient,
   workspaceId: string,
   accountEmail: string | null,
-  args: { bookingId: string; category: string; severity: string; subject: string; detail: string; reportedBy?: string | null }
+  args: { bookingId: string; category: string; severity: string; subject: string; detail: string; reportedBy?: string | null; photoUrls?: string[] }
 ): Promise<boolean> {
   // Ownership gate: the guest must be able to read this booking under RLS.
   const booking = await getCustomerBooking(supabase, workspaceId, accountEmail, args.bookingId)
@@ -1162,6 +1162,7 @@ export async function createCustomerBookingIssue(
     detail: args.detail,
     status: "open",
     reported_by: args.reportedBy ?? "guest",
+    ...(args.photoUrls?.length ? { photo_urls: args.photoUrls } : {}),
   })
   if (error) throw error
   return true

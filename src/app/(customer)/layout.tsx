@@ -5,6 +5,7 @@ import {
   countCustomerUnreadNotifications,
   countCustomerUnreadMessages,
 } from "@/lib/customer"
+import { WorkspaceLocaleProvider } from "@/lib/i18n/WorkspaceLocaleProvider"
 
 /**
  * Customer workspace layout (v2, integrated into core — no feature flags).
@@ -78,15 +79,37 @@ export default async function CustomerLayout({
     countCustomerUnreadMessages(supabase, workspaceId),
   ])
 
+  let wsLocale = "en-GB"
+  let wsCurrency = "GBP"
+  let wsTimezone = "Europe/London"
+  let wsDateFormat = "DD/MM/YYYY"
+  try {
+    const { data: settings } = await supabase
+      .from("workspace_settings")
+      .select("default_locale, default_currency, default_timezone, default_date_format")
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+    if (settings) {
+      wsLocale = (settings.default_locale as string | null) ?? wsLocale
+      wsCurrency = (settings.default_currency as string | null) ?? wsCurrency
+      wsTimezone = (settings.default_timezone as string | null) ?? wsTimezone
+      wsDateFormat = (settings.default_date_format as string | null) ?? wsDateFormat
+    }
+  } catch {
+    // tolerate missing table
+  }
+
   return (
-    <CustomerShell
-      customerName={customerName}
-      customerEmail={user.email ?? undefined}
-      avatarUrl={avatarUrl}
-      unreadNotifications={unreadNotifications}
-      unreadMessages={unreadMessages}
-    >
-      {children}
-    </CustomerShell>
+    <WorkspaceLocaleProvider locale={wsLocale} currency={wsCurrency} timezone={wsTimezone} dateFormat={wsDateFormat}>
+      <CustomerShell
+        customerName={customerName}
+        customerEmail={user.email ?? undefined}
+        avatarUrl={avatarUrl}
+        unreadNotifications={unreadNotifications}
+        unreadMessages={unreadMessages}
+      >
+        {children}
+      </CustomerShell>
+    </WorkspaceLocaleProvider>
   )
 }

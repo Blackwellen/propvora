@@ -16,6 +16,7 @@ import {
   Loader2,
   ArrowRight,
   Upload,
+  Globe,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
@@ -41,6 +42,7 @@ type PlanId = "starter" | "pro" | "business"
 interface WizardState {
   // Step 2
   workspaceName: string
+  countryCode: string
   businessType: BusinessType | ""
   propertyCount: string
   // Step 3
@@ -51,6 +53,44 @@ interface WizardState {
   demoVariant: DemoVariant | ""
   // Step 6
   planId: PlanId
+}
+
+// ─── Country data ─────────────────────────────────────────────────────────────
+
+interface OnboardingCountry {
+  code: string
+  label: string
+  locale: string
+  currency: string
+  timezone: string
+  dateFormat: string
+}
+
+const ONBOARDING_COUNTRIES: OnboardingCountry[] = [
+  { code: "GB", label: "United Kingdom", locale: "en-GB", currency: "GBP", timezone: "Europe/London", dateFormat: "DD/MM/YYYY" },
+  { code: "IE", label: "Ireland", locale: "en-IE", currency: "EUR", timezone: "Europe/Dublin", dateFormat: "DD/MM/YYYY" },
+  { code: "US", label: "United States", locale: "en-US", currency: "USD", timezone: "America/New_York", dateFormat: "MM/DD/YYYY" },
+  { code: "AU", label: "Australia", locale: "en-AU", currency: "AUD", timezone: "Australia/Sydney", dateFormat: "DD/MM/YYYY" },
+  { code: "NZ", label: "New Zealand", locale: "en-NZ", currency: "NZD", timezone: "Pacific/Auckland", dateFormat: "DD/MM/YYYY" },
+  { code: "CA", label: "Canada", locale: "en-CA", currency: "CAD", timezone: "America/Toronto", dateFormat: "YYYY-MM-DD" },
+  { code: "FR", label: "France", locale: "fr-FR", currency: "EUR", timezone: "Europe/Paris", dateFormat: "DD/MM/YYYY" },
+  { code: "DE", label: "Germany", locale: "de-DE", currency: "EUR", timezone: "Europe/Berlin", dateFormat: "DD.MM.YYYY" },
+  { code: "ES", label: "Spain", locale: "es-ES", currency: "EUR", timezone: "Europe/Madrid", dateFormat: "DD/MM/YYYY" },
+  { code: "IT", label: "Italy", locale: "it-IT", currency: "EUR", timezone: "Europe/Rome", dateFormat: "DD/MM/YYYY" },
+  { code: "NL", label: "Netherlands", locale: "nl-NL", currency: "EUR", timezone: "Europe/Amsterdam", dateFormat: "DD/MM/YYYY" },
+  { code: "BE", label: "Belgium", locale: "fr-FR", currency: "EUR", timezone: "Europe/Brussels", dateFormat: "DD/MM/YYYY" },
+  { code: "PT", label: "Portugal", locale: "pt-BR", currency: "EUR", timezone: "Europe/Lisbon", dateFormat: "DD/MM/YYYY" },
+  { code: "SE", label: "Sweden", locale: "sv-SE", currency: "SEK", timezone: "Europe/Stockholm", dateFormat: "YYYY-MM-DD" },
+  { code: "DK", label: "Denmark", locale: "da-DK", currency: "DKK", timezone: "Europe/Copenhagen", dateFormat: "DD/MM/YYYY" },
+  { code: "FI", label: "Finland", locale: "fi-FI", currency: "EUR", timezone: "Europe/Helsinki", dateFormat: "DD/MM/YYYY" },
+  { code: "AT", label: "Austria", locale: "de-DE", currency: "EUR", timezone: "Europe/Vienna", dateFormat: "DD.MM.YYYY" },
+  { code: "CH", label: "Switzerland", locale: "de-DE", currency: "CHF", timezone: "Europe/Zurich", dateFormat: "DD.MM.YYYY" },
+  { code: "AE", label: "United Arab Emirates", locale: "en-GB", currency: "AED", timezone: "Asia/Dubai", dateFormat: "DD/MM/YYYY" },
+  { code: "JP", label: "Japan", locale: "ja-JP", currency: "JPY", timezone: "Asia/Tokyo", dateFormat: "YYYY/MM/DD" },
+]
+
+function countryFromCode(code: string): OnboardingCountry {
+  return ONBOARDING_COUNTRIES.find((c) => c.code === code) ?? ONBOARDING_COUNTRIES[0]
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -200,6 +240,7 @@ export default function OnboardingPage() {
 
   const [state, setState] = useState<WizardState>({
     workspaceName: "",
+    countryCode: "GB",
     businessType: "",
     propertyCount: "",
     operationInterests: [],
@@ -271,12 +312,18 @@ export default function OnboardingPage() {
     if (step !== 8) return
     const run = async () => {
       try {
+        const country = countryFromCode(state.countryCode)
         await createWorkspace({
           name: state.workspaceName || "My Portfolio",
           businessType: state.businessType,
           operationInterests: state.operationInterests,
           primaryOperationProfile: state.operationInterests[0],
           demoDataVariant: state.portfolioChoice === "demo" ? state.demoVariant || "full" : undefined,
+          countryCode: country.code,
+          defaultLocale: country.locale,
+          defaultCurrency: country.currency,
+          defaultTimezone: country.timezone,
+          defaultDateFormat: country.dateFormat,
         })
         // Onboarding complete — clear saved progress so it doesn't resume.
         try {
@@ -429,6 +476,27 @@ export default function OnboardingPage() {
                 error={errors.workspaceName}
                 hint="This is the name of your workspace — you can change it later"
               />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5 text-slate-400" />
+                  Country <span className="text-red-400 ml-0.5">*</span>
+                </label>
+                <select
+                  value={state.countryCode}
+                  onChange={(e) => update("countryCode", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                >
+                  {ONBOARDING_COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label} ({c.currency})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400">
+                  Sets your default currency, date format and locale. You can change this in workspace settings later.
+                </p>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">
@@ -802,6 +870,11 @@ export default function OnboardingPage() {
                   {
                     label: "Workspace name",
                     value: state.workspaceName || "My Portfolio",
+                    step: 2,
+                  },
+                  {
+                    label: "Country",
+                    value: countryFromCode(state.countryCode).label,
                     step: 2,
                   },
                   {
