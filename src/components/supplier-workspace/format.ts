@@ -1,31 +1,36 @@
 /* Small formatting helpers shared across supplier-workspace pages. */
 
-export function money(amount: number | null | undefined, currency = "GBP"): string {
+export function money(amount: number | null | undefined, currency = "GBP", locale = "en-GB"): string {
   if (amount == null || Number.isNaN(amount)) return "—"
   try {
-    return new Intl.NumberFormat("en-GB", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
       maximumFractionDigits: 2,
     }).format(amount)
   } catch {
-    return `£${amount.toLocaleString("en-GB")}`
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP",
+      minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
   }
 }
 
-export function shortDate(iso: string | null | undefined): string {
+export function shortDate(iso: string | null | undefined, locale = "en-GB"): string {
   if (!iso) return "—"
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+  return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", year: "numeric" }).format(d)
 }
 
-export function dayMonth(iso: string | null | undefined): string {
+export function dayMonth(iso: string | null | undefined, locale = "en-GB"): string {
   if (!iso) return "—"
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }).toUpperCase()
+  return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short" }).format(d).toUpperCase()
 }
 
 export function timeAgo(iso: string | null | undefined): string {
@@ -47,9 +52,9 @@ export function ratingStars(rating: number | null | undefined): string {
 }
 
 /** Format integer pence as currency (the supplier money convention). */
-export function moneyPence(pence: number | null | undefined, currency = "GBP"): string {
+export function moneyPence(pence: number | null | undefined, currency = "GBP", locale = "en-GB"): string {
   if (pence == null || Number.isNaN(pence)) return "—"
-  return money(pence / 100, currency)
+  return money(pence / 100, currency, locale)
 }
 
 /**

@@ -21,32 +21,37 @@ import type { ReservationStatus } from "./server"
 ─────────────────────────────────────────────────────────────────────────── */
 
 /** Format integer pence → localised currency string. The ONLY money edge. */
-export function fmtMoney(pence: number, currency = "GBP"): string {
+export function fmtMoney(pence: number, currency = "GBP", locale = "en-GB"): string {
   const value = (pence ?? 0) / 100
   try {
-    return new Intl.NumberFormat("en-GB", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       minimumFractionDigits: value % 1 === 0 ? 0 : 2,
       maximumFractionDigits: 2,
     }).format(value)
   } catch {
-    return `£${value.toLocaleString("en-GB")}`
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP",
+      minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(value)
   }
 }
 
-export function fmtDate(iso: string | null): string {
+export function fmtDate(iso: string | null, locale = "en-GB"): string {
   if (!iso) return "—"
   const d = new Date(`${iso}T00:00:00`)
   if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(d)
 }
 
-export function fmtDateShort(iso: string | null): string {
+export function fmtDateShort(iso: string | null, locale = "en-GB"): string {
   if (!iso) return "—"
   const d = new Date(`${iso}T00:00:00`)
   if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(d)
 }
 
 // ── Status badge ────────────────────────────────────────────────────────────
