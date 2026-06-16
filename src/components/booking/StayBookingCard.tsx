@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   AlertCircle,
   Check,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileSheet from "@/components/mobile/MobileSheet"
@@ -18,6 +19,7 @@ import { useIsMobile } from "@/components/mobile/useBreakpoint"
 import DateRangeCalendar from "./DateRangeCalendar"
 import GuestStepper from "./GuestStepper"
 import { formatMoney, formatDateLabel, nightsBetween, addDaysIso, todayIso } from "./format"
+import { BOOKING_POLICIES, type BookingPolicyMeta, type LegalBlock } from "@/lib/legal/booking-policies"
 
 /** The deep StayQuote shape returned by /api/booking/listing/quote. */
 interface StayQuote {
@@ -478,19 +480,35 @@ export default function StayBookingCard({
 
               {/* Acceptance checkboxes */}
               <div className="space-y-2.5">
-                <AcceptBox checked={acceptRules} onChange={setAcceptRules}>
+                <AcceptBox
+                  checked={acceptRules}
+                  onChange={setAcceptRules}
+                  policySlug="house-rules-policy"
+                >
                   I have read and agree to the house rules.
                 </AcceptBox>
-                <AcceptBox checked={acceptCancel} onChange={setAcceptCancel}>
+                <AcceptBox
+                  checked={acceptCancel}
+                  onChange={setAcceptCancel}
+                  policySlug="booking-cancellation-policy"
+                >
                   I accept the cancellation policy shown above.
                 </AcceptBox>
                 {hasDeposit && (
-                  <AcceptBox checked={acceptDeposit} onChange={setAcceptDeposit}>
+                  <AcceptBox
+                    checked={acceptDeposit}
+                    onChange={setAcceptDeposit}
+                    policySlug="damage-deposit-policy"
+                  >
                     I authorise a refundable security deposit of{" "}
                     {formatMoney(securityDepositPence ?? 0, currency)}.
                   </AcceptBox>
                 )}
-                <AcceptBox checked={acceptTerms} onChange={setAcceptTerms}>
+                <AcceptBox
+                  checked={acceptTerms}
+                  onChange={setAcceptTerms}
+                  policySlug="booking-terms"
+                >
                   I agree to the booking terms and to my details being shared with the host to manage my stay.
                 </AcceptBox>
               </div>
@@ -605,30 +623,146 @@ function Field({ label, required, children }: { label: string; required?: boolea
   )
 }
 
+/** Renders a single LegalBlock from the policy body. */
+function PolicyBlockRenderer({ block }: { block: LegalBlock }) {
+  if (block.kind === "h2") {
+    return <h2 className="text-[14px] font-bold text-[#0B1B3F] mt-5 mb-1.5">{block.text}</h2>
+  }
+  if (block.kind === "ul") {
+    return (
+      <ul className="list-disc pl-5 space-y-1 text-[13px] text-slate-600 leading-relaxed">
+        {block.items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    )
+  }
+  return <p className="text-[13px] text-slate-600 leading-relaxed">{block.text}</p>
+}
+
+/** Inline modal overlay showing a full booking policy document. No external deps. */
+function PolicyModal({ policy, onClose }: { policy: BookingPolicyMeta; onClose: () => void }) {
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose()
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="policy-modal-title"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      {/* Panel */}
+      <div className="relative z-10 w-full max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[85vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#EEF3FB] shrink-0">
+          <div>
+            <p id="policy-modal-title" className="text-[15px] font-bold text-[#0B1B3F]">
+              {policy.title}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Version {policy.currentVersion} · Effective {policy.effectiveFrom}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-4 shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            aria-label="Close policy"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        {/* Body */}
+        <div className="overflow-y-auto px-5 py-4 space-y-2 flex-1">
+          {policy.body.map((block, i) => (
+            <PolicyBlockRenderer key={i} block={block} />
+          ))}
+        </div>
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-[#EEF3FB] shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full h-10 rounded-xl bg-[#1D4ED8] text-white text-[13.5px] font-semibold hover:bg-[#1A45BE] transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AcceptBox({
   checked,
   onChange,
+  policySlug,
   children,
 }: {
   checked: boolean
   onChange: (v: boolean) => void
+  policySlug?: string
   children: React.ReactNode
 }) {
+  const [showPolicy, setShowPolicy] = useState(false)
+  const policy = policySlug
+    ? (BOOKING_POLICIES as Record<string, BookingPolicyMeta>)[policySlug]
+    : undefined
+
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      className="w-full text-left flex items-start gap-2.5 group"
-    >
-      <span
-        className={cn(
-          "mt-0.5 w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center transition-colors",
-          checked ? "bg-[#1D4ED8] border-[#1D4ED8]" : "border-slate-300 group-hover:border-slate-400"
-        )}
-      >
-        {checked && <Check className="w-3.5 h-3.5 text-white" />}
-      </span>
-      <span className="text-[12.5px] leading-relaxed text-slate-600">{children}</span>
-    </button>
+    <>
+      <div className="flex items-start gap-2.5">
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={checked}
+          onClick={() => onChange(!checked)}
+          className="shrink-0 mt-0.5 group"
+        >
+          <span
+            className={cn(
+              "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors",
+              checked ? "bg-[#1D4ED8] border-[#1D4ED8]" : "border-slate-300 group-hover:border-slate-400"
+            )}
+          >
+            {checked && <Check className="w-3.5 h-3.5 text-white" />}
+          </span>
+        </button>
+        <span className="text-[12.5px] leading-relaxed text-slate-600 flex-1">
+          {children}
+          {policy && (
+            <>
+              {" "}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowPolicy(true)
+                }}
+                className="text-[#1D4ED8] underline underline-offset-2 hover:text-[#1A45BE] transition-colors font-medium"
+              >
+                View policy
+              </button>
+            </>
+          )}
+        </span>
+      </div>
+      {showPolicy && policy && (
+        <PolicyModal policy={policy} onClose={() => setShowPolicy(false)} />
+      )}
+    </>
   )
 }
