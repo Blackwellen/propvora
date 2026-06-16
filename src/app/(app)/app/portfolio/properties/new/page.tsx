@@ -494,6 +494,36 @@ export default function NewPropertyPage() {
     try {
       const supabase = createClient()
       const workspaceId = workspace?.id
+
+      // ── Property count gate ──────────────────────────────────────────────
+      // Check the plan's property limit before inserting. Uses the anon client
+      // (RLS scopes the count to this workspace). Fails open on DB errors so a
+      // transient hiccup never blocks a paying user.
+      if (workspaceId) {
+        const { data: wsPlan } = await supabase
+          .from("workspaces")
+          .select("plan")
+          .eq("id", workspaceId)
+          .maybeSingle()
+        const { normaliseTier, PLAN_DISPLAY } = await import("@/lib/billing/plans")
+        const tier = normaliseTier((wsPlan as { plan?: string } | null)?.plan)
+        const planLimit = PLAN_DISPLAY[tier].features.properties
+        if (typeof planLimit === "number") {
+          const { count: propCount } = await supabase
+            .from("properties")
+            .select("id", { head: true, count: "exact" })
+            .eq("workspace_id", workspaceId)
+          if ((propCount ?? 0) >= planLimit) {
+            setSaveError(
+              `Your ${PLAN_DISPLAY[tier].name} plan includes up to ${planLimit} ${planLimit === 1 ? "property" : "properties"}. Upgrade your plan to add more.`
+            )
+            setSaving(false)
+            return
+          }
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────
+
       const { data: created, error } = await supabase
         .from("properties")
         .insert({

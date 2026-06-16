@@ -45,6 +45,21 @@ import type { BookingRow } from "../server"
    Each panel receives the minimal props it needs (no god-object).
 ─────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * Return a locale-aware narrow currency symbol for input field prefixes.
+ * Falls back to the ISO code if Intl.NumberFormat can't resolve a symbol.
+ */
+function currencySymbol(currency: string): string {
+  try {
+    const parts = new Intl.NumberFormat("en-GB", { style: "currency", currency, currencyDisplay: "narrowSymbol" })
+      .formatToParts(0)
+    const sym = parts.find((p) => p.type === "currency")?.value
+    return sym ?? currency
+  } catch {
+    return currency
+  }
+}
+
 const inputCls =
   "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
 
@@ -472,13 +487,13 @@ export function PricingPanel({
         <div className="grid grid-cols-2 gap-4">
           <Field label={`Base nightly (${listing.currency})`}>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">{currencySymbol(listing.currency)}</span>
               <input value={basePrice} onChange={(e) => setBasePrice(e.target.value)} type="number" min="0" className={cn(inputCls, "pl-7")} />
             </div>
           </Field>
           <Field label={`Weekend nightly (${listing.currency})`}>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">{currencySymbol(listing.currency)}</span>
               <input value={weekendPrice} onChange={(e) => setWeekendPrice(e.target.value)} type="number" min="0" placeholder="optional" className={cn(inputCls, "pl-7")} />
             </div>
           </Field>
@@ -596,9 +611,9 @@ export function FeesPanel({
       <PanelWrap title="Fees & deposit" desc="Per-stay fees and the security deposit amount.">
         <div className="grid grid-cols-2 gap-4">
           {feeRows.map(({ label, val, set, hint }) => (
-            <Field key={label} label={`${label} (£)`}>
+            <Field key={label} label={`${label} (${listing.currency})`}>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">£</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">{currencySymbol(listing.currency)}</span>
                 <input
                   value={val}
                   onChange={(e) => set(e.target.value)}

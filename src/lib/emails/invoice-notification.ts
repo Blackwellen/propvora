@@ -83,7 +83,7 @@ export function invoiceNotificationEmail(params: InvoiceEmailParams): {
           </table>
         </td></tr>
         <tr><td style="padding-top:28px; text-align:center;">
-          <p style="font-size:12px; color:#94A3B8; line-height:1.6;">&copy; ${new Date().getFullYear()} ${workspaceName || "Propvora"}. Sent via Propvora.</p>
+          <p style="font-size:12px; color:#94A3B8; line-height:1.6;">&copy; ${new Date().getFullYear()} ${workspaceName || "Propvora"}. Sent via Propvora &mdash; a trading name of Blackwellen Ltd.</p>
         </td></tr>
       </table>
     </td></tr>

@@ -156,6 +156,115 @@ export async function gateFeature(
   }
 }
 
+// ── Quota gates (count-based limits) ──────────────────────────────────────
+
+/**
+ * Gate: property count. Blocks creation when the workspace already has as many
+ * properties as the plan allows. Fails open on store error (never lock a paying
+ * user out on a transient DB hiccup); fails closed only when the limit is
+ * genuinely reached. Uses the anon client — RLS scopes the count to the caller's
+ * workspace automatically.
+ */
+export async function gatePropertyCount(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  const tier = await getWorkspaceTier(supabase, workspaceId)
+  const limit = PLAN_DISPLAY[tier].features.properties
+  if (limit === "Unlimited") return { allowed: true, tier }
+
+  let count = 0
+  try {
+    const { count: c, error } = await supabase
+      .from("properties")
+      .select("id", { head: true, count: "exact" })
+      .eq("workspace_id", workspaceId)
+    if (error) return { allowed: true, tier } // fail open
+    count = c ?? 0
+  } catch {
+    return { allowed: true, tier } // fail open
+  }
+
+  if (count < limit) return { allowed: true, tier }
+
+  // Find the next tier that allows more properties.
+  let upgradeTo: string | null = null
+  for (const t of PLAN_ORDER) {
+    const tLimit = PLAN_DISPLAY[t].features.properties
+    if (tLimit === "Unlimited" || (typeof tLimit === "number" && tLimit > limit)) {
+      upgradeTo = PLAN_DISPLAY[t].name
+      break
+    }
+  }
+
+  return {
+    allowed: false,
+    tier,
+    status: 402,
+    reason: upgradeTo
+      ? `Your ${PLAN_DISPLAY[tier].name} plan includes up to ${limit} ${limit === 1 ? "property" : "properties"}. Upgrade to ${upgradeTo} to add more.`
+      : `Your plan's property limit of ${limit} has been reached. Contact sales to increase it.`,
+  }
+}
+
+/**
+ * Gate: team seat count. Blocks invitation creation when the workspace's active
+ * members + pending invitations would meet or exceed the plan seat cap. Fails
+ * open on store error. Uses the anon client — RLS scopes counts to the caller's
+ * workspace.
+ */
+export async function gateTeamSeats(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  const tier = await getWorkspaceTier(supabase, workspaceId)
+  const limit = PLAN_DISPLAY[tier].features.teamSeats
+  if (limit === "Unlimited") return { allowed: true, tier }
+
+  let memberCount = 0
+  let pendingCount = 0
+  try {
+    const [membersRes, invitesRes] = await Promise.all([
+      supabase
+        .from("workspace_members")
+        .select("id", { head: true, count: "exact" })
+        .eq("workspace_id", workspaceId),
+      supabase
+        .from("workspace_invitations")
+        .select("id", { head: true, count: "exact" })
+        .eq("workspace_id", workspaceId)
+        .eq("status", "pending"),
+    ])
+    if (membersRes.error || invitesRes.error) return { allowed: true, tier } // fail open
+    memberCount = membersRes.count ?? 0
+    pendingCount = invitesRes.count ?? 0
+  } catch {
+    return { allowed: true, tier } // fail open
+  }
+
+  const total = memberCount + pendingCount
+  if (total < limit) return { allowed: true, tier }
+
+  // Find the next tier that allows more seats.
+  let upgradeTo: string | null = null
+  for (const t of PLAN_ORDER) {
+    const tLimit = PLAN_DISPLAY[t].features.teamSeats
+    if (tLimit === "Unlimited" || (typeof tLimit === "number" && tLimit > limit)) {
+      upgradeTo = PLAN_DISPLAY[t].name
+      break
+    }
+  }
+
+  return {
+    allowed: false,
+    tier,
+    status: 402,
+    reason: upgradeTo
+      ? `Your ${PLAN_DISPLAY[tier].name} plan includes ${limit} team ${limit === 1 ? "seat" : "seats"}. Upgrade to ${upgradeTo} to invite more members.`
+      : `Your plan's team seat limit of ${limit} has been reached. Contact sales to increase it.`,
+  }
+}
+
 // ── Named feature helpers (thin wrappers over gateFeature) ────────────────
 
 export function gateAdvancedReports(
