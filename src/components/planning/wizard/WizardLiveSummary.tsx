@@ -5,12 +5,58 @@ import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useWizard } from "./WizardContext"
 import { calculatePlanningSet, formatCurrency, type PlanningWizardData } from "@/lib/planning/calculations"
+import { calcRooms, calcIncomeTotals, deriveOccupiedUnits } from "@/lib/planning/income-calculations"
 import { getProfileByKey } from "@/lib/planning/profiles"
 import type { WizardState } from "./WizardContext"
 
 // ─── Adapter: WizardState → PlanningWizardData ───────────────────────────────
 
 function adaptStateToCalcData(state: WizardState): PlanningWizardData {
+  // Bridge every income tab into the live summary. The core calc engine's gross
+  // income only reads `rooms` (for room/unit profiles), so all non-room income
+  // streams (units, nightly, ancillary, parking, laundry, membership, corporate,
+  // other) are folded into a single synthetic line. We divide by the void
+  // multiplier so the engine's global void haircut nets out and these already
+  // utilisation-adjusted streams are not understated.
+  const occupiedUnits = deriveOccupiedUnits({
+    units: state.units,
+    rooms: state.rooms,
+    numUnits: state.numUnits,
+    voidAllowancePct: state.voidAllowancePct,
+  })
+  const totals = calcIncomeTotals({
+    rooms: state.rooms,
+    units: state.units,
+    nightlyRates: state.nightlyRates,
+    ancillaryLines: state.ancillaryLines,
+    parkingLines: state.parkingLines,
+    laundryLines: state.laundryLines,
+    membershipLines: state.membershipLines,
+    corporateLets: state.corporateLets,
+    otherIncomeLines: state.otherIncomeLines,
+    voidAllowancePct: state.voidAllowancePct,
+    nightlyVoidPct: state.nightlyVoidPct,
+    occupiedUnits,
+  })
+  const roomsGross = calcRooms(state.rooms, state.voidAllowancePct).grossMonthly
+  const voidMult = Math.max(0.01, 1 - (state.voidAllowancePct || 0) / 100)
+  const extraIncome = Math.max(0, totals.grossMonthly - roomsGross)
+
+  const bridgedRooms = state.rooms.map(r => ({
+    id: r.id,
+    name: r.name,
+    type: r.type,
+    monthlyRent: r.avgRentPcm,
+  }))
+  if (extraIncome > 0) {
+    bridgedRooms.push({
+      id: "__income_streams__",
+      name: "Other income streams",
+      type: "blended",
+      monthlyRent: Math.round(extraIncome / voidMult),
+    })
+  }
+
   return {
     profileKey: state.profileKey,
     propertyName: state.setName,
@@ -19,13 +65,8 @@ function adaptStateToCalcData(state: WizardState): PlanningWizardData {
     numUnits: state.numUnits,
     propertyValue: state.propertyValue,
 
-    // Income
-    rooms: state.rooms.map(r => ({
-      id: r.id,
-      name: r.name,
-      type: r.type,
-      monthlyRent: r.avgRentPcm,
-    })),
+    // Income — rooms plus all bridged income streams
+    rooms: bridgedRooms,
     voidAllowancePct: state.voidAllowancePct,
     occupancyPct: state.occupancyPct,
     adr: state.adr,

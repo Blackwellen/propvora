@@ -18,6 +18,155 @@ export interface RoomLine {
   notes: string
 }
 
+// ─── Income tab line types ──────────────────────────────────────────────────
+
+export interface UnitLine {
+  id: string
+  unitType: string
+  unitNumber: string
+  tenancyType: string
+  unitSizeSqFt: number
+  avgRentPcm: number
+  voidPct: number
+  furnished: string
+  notes: string
+}
+
+export interface NightlyRateLine {
+  id: string
+  category: string
+  baseRateWeekday: number
+  weekendUpliftPct: number
+  minStayNights: number
+  occupancyTargetPct: number
+  cleaningFee: number
+  channelDirectPct: number
+  channelOtaPct: number
+  channelCorpPct: number
+  seasonalityRule: string
+  notes: string
+}
+
+export interface OccupancyScenario {
+  id: string
+  name: string
+  kind: "base" | "upside" | "downside" | "ramp"
+  targetOccupancyPct: number | null
+  expectedVoidPct: number | null
+  turnoverPct: number | null
+  leaseUpPeriod: string
+  stabilisedPeriod: string
+  channel: string
+  segment: string
+  notes: string
+}
+
+export interface SeasonLine {
+  id: string
+  name: string
+  colour: string
+  dateRange: string
+  occupancyAdjPct: number
+  rateAdjPct: number
+  demandLevel: "High" | "Medium" | "Low"
+  localEvents: string
+  notes: string
+}
+
+export interface AncillaryLine {
+  id: string
+  name: string
+  pricingModel: string
+  unitPriceIncVat: number
+  frequency: string
+  adoptionRate: number
+  vatStatus: string
+  linkedUnitType: string
+  notes: string
+}
+
+export interface ParkingLine {
+  id: string
+  parkingType: string
+  spacesAvailable: number
+  reservedSpaces: number
+  rentableSpaces: number
+  monthlyFee: number
+  nightlyFee: number
+  currentUtilPct: number
+  targetUtilPct: number
+  permitType: string
+  chargeType: string
+  seasonality: string
+  notes: string
+}
+
+export interface LaundryLine {
+  id: string
+  serviceType: string
+  machineModel: string
+  washPrice: number
+  dryPrice: number
+  packagePrice: number
+  usageFreq: number
+  adoptionRate: number
+  costRecoveryPct: number
+  freePaid: string
+  notes: string
+}
+
+export interface MembershipLine {
+  id: string
+  name: string
+  billingBasis: string
+  pricePerUnit: number
+  billingFrequency: string
+  includedServices: string
+  eligibleUnits: number
+  vatStatus: string
+  takeUpRate: number
+  notes: string
+}
+
+export interface CorporateLetLine {
+  id: string
+  client: string
+  sector: string
+  unitAllocation: string
+  contractType: string
+  contractSubtype: string
+  expectedMonths: number
+  agreedRatePcm: number
+  occupancyCommitmentPct: number
+  invoicingFrequency: string
+  noticePeriod: string
+  notes: string
+}
+
+export interface OtherIncomeLine {
+  id: string
+  source: string
+  category: string
+  pricingBasis: string
+  amount: number
+  frequency: string
+  adoptionPct: number
+  vatRate: number
+  linkedUnitType: string
+  notes: string
+}
+
+export interface IncomeAiRecommendation {
+  id: string
+  incomeTab: string
+  recommendationType: string
+  title: string
+  body: string
+  estimatedImpactMonthly: number
+  status: "draft" | "reviewed" | "applied" | "dismissed"
+  createdAt: string
+}
+
 export interface ExpenseLine {
   id: string
   name: string
@@ -117,6 +266,24 @@ export interface WizardState {
   adr: number
   singleMonthlyRent: number
   landlordMonthlyRent: number
+
+  // Step 3: Income — extended revenue model
+  activeIncomeTab: string
+  units: UnitLine[]
+  nightlyRates: NightlyRateLine[]
+  nightlyVoidPct: number
+  occupancyScenarios: OccupancyScenario[]
+  occupancySensitivityMode: "month" | "propertyType"
+  seasons: SeasonLine[]
+  seasonalBaseStrategy: string
+  seasonalMode: "pct" | "index"
+  ancillaryLines: AncillaryLine[]
+  parkingLines: ParkingLine[]
+  laundryLines: LaundryLine[]
+  membershipLines: MembershipLine[]
+  corporateLets: CorporateLetLine[]
+  otherIncomeLines: OtherIncomeLine[]
+  incomeAiRecommendations: IncomeAiRecommendation[]
 
   // Step 4: Expenses + Bills
   expenses: ExpenseLine[]
@@ -250,6 +417,23 @@ const INITIAL_STATE: WizardState = {
   adr: 0,
   singleMonthlyRent: 0,
   landlordMonthlyRent: 0,
+
+  activeIncomeTab: "Rent per room",
+  units: [],
+  nightlyRates: [],
+  nightlyVoidPct: 10,
+  occupancyScenarios: [],
+  occupancySensitivityMode: "month",
+  seasons: [],
+  seasonalBaseStrategy: "4-Season UK (Default)",
+  seasonalMode: "pct",
+  ancillaryLines: [],
+  parkingLines: [],
+  laundryLines: [],
+  membershipLines: [],
+  corporateLets: [],
+  otherIncomeLines: [],
+  incomeAiRecommendations: [],
 
   expenses: [
     { id: "e1", name: "Management Fees", description: "Letting / management agent fees", category: "Management", frequency: "Monthly", isFixed: true, payer: "Landlord", monthlyAmount: 450, vatTreatment: "Ex VAT" },
