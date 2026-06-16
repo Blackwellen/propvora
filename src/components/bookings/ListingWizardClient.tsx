@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Circle,
+  Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
@@ -31,6 +32,9 @@ import {
 import type { BookingListing, ListingPhoto, ListingType, BookingMode, CancellationPolicy } from "@/lib/booking/booking-listings"
 import type { SavedPricingProfile } from "@/lib/booking/pricing-profiles"
 import type { PublishReadiness } from "@/lib/booking/booking-listings"
+import type { ListingAccommodation, CatalogueAmenity } from "@/lib/booking/accommodation"
+import type { KeylessLock } from "@/lib/booking/keyless"
+import { AccommodationStep } from "./listing-wizard/AccommodationStep"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Listing wizard — the start of the 18-step listing builder. Persisted state
@@ -45,12 +49,26 @@ interface Props {
   pricing: SavedPricingProfile | null
   readiness: PublishReadiness | null
   properties: { id: string; label: string; city: string | null }[]
+  accommodation: ListingAccommodation
+  amenityCatalogue: CatalogueAmenity[]
+  selectedAmenitySlugs: string[]
+  keylessLock: KeylessLock | null
 }
 
-type StepKey = "basics" | "capacity" | "amenities" | "photos" | "pricing" | "rules" | "availability" | "publish"
+type StepKey =
+  | "basics"
+  | "accommodation"
+  | "capacity"
+  | "amenities"
+  | "photos"
+  | "pricing"
+  | "rules"
+  | "availability"
+  | "publish"
 
 const STEPS: { key: StepKey; label: string; icon: React.ElementType }[] = [
   { key: "basics", label: "Property & type", icon: Home },
+  { key: "accommodation", label: "Accommodation", icon: Building2 },
   { key: "capacity", label: "Capacity", icon: Users },
   { key: "amenities", label: "Amenities", icon: Sparkles },
   { key: "photos", label: "Photos", icon: ImageIcon },
@@ -83,7 +101,17 @@ const POLICIES: { value: CancellationPolicy; label: string }[] = [
   { value: "non_refundable", label: "Non-refundable" },
 ]
 
-export function ListingWizardClient({ listing: initial, photos, pricing, readiness, properties }: Props) {
+export function ListingWizardClient({
+  listing: initial,
+  photos,
+  pricing,
+  readiness,
+  properties,
+  accommodation,
+  amenityCatalogue,
+  selectedAmenitySlugs,
+  keylessLock,
+}: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [active, setActive] = useState<StepKey>("basics")
@@ -221,6 +249,7 @@ export function ListingWizardClient({ listing: initial, photos, pricing, readine
 
   const stepDone: Record<StepKey, boolean> = {
     basics: !!propertyId && title.trim().length > 2,
+    accommodation: !!accommodation.accommodationCategory,
     capacity: maxGuests >= 1,
     amenities: amenities.length > 0,
     photos: photos.length > 0,
@@ -331,6 +360,17 @@ export function ListingWizardClient({ listing: initial, photos, pricing, readine
                   </Field>
                   <SaveBar onSave={saveBasics} pending={pending} />
                 </Section>
+              )}
+
+              {active === "accommodation" && (
+                <AccommodationStep
+                  listingId={initial.id}
+                  accommodation={accommodation}
+                  amenityCatalogue={amenityCatalogue}
+                  selectedAmenitySlugs={selectedAmenitySlugs}
+                  keylessLock={keylessLock}
+                  onSaved={() => router.refresh()}
+                />
               )}
 
               {active === "capacity" && (

@@ -15,6 +15,15 @@
 // ============================================================================
 
 import type { SupabaseClient } from "@supabase/supabase-js"
+import {
+  parseTypeDetails,
+  getCategoryMeta,
+  sectionsForCategory,
+  type AccommodationCategory,
+  type LetType,
+  type TypeDetails,
+  type CategorySections,
+} from "./accommodation"
 
 function isTolerable(err: unknown): boolean {
   const c = (err as { code?: string } | null)?.code
@@ -78,6 +87,14 @@ export interface PublicListingDetail extends PublicListingCard {
   maxNights: number | null
   hostName: string | null
   workspaceId: string
+  /** Accommodation typing — drives which detail sections + which CTA show. */
+  accommodationCategory: AccommodationCategory
+  accommodationLabel: string
+  letType: LetType
+  typeDetails: TypeDetails
+  sections: CategorySections
+  /** True for long/shared families → Apply/Enquire instead of nightly checkout. */
+  applyFlow: boolean
 }
 
 interface ListingRow {
@@ -102,6 +119,9 @@ interface ListingRow {
   currency: string
   compliance_status: string
   cover_photo_id: string | null
+  accommodation_category?: string | null
+  let_type?: string | null
+  type_details?: unknown
 }
 
 const CARD_COLS =
@@ -109,7 +129,8 @@ const CARD_COLS =
   "max_guests, bedrooms, beds, bathrooms, currency, cancellation_policy, compliance_status, cover_photo_id"
 
 const DETAIL_COLS =
-  CARD_COLS + ", description, amenities, house_rules, check_in_window, checkout_time"
+  CARD_COLS +
+  ", description, amenities, house_rules, check_in_window, checkout_time, accommodation_category, let_type, type_details"
 
 /** Load the active pricing profile's headline numbers for a set of listings. */
 async function loadProfileHeadlines(
@@ -480,6 +501,10 @@ export async function getPublicListingDetail(
     reviews.get(row.id)
   )
 
+  const catMeta = getCategoryMeta(row.accommodation_category ?? "short_stay")
+  const sections = sectionsForCategory(catMeta.value)
+  const typeDetails = parseTypeDetails(row.type_details ?? {})
+
   return {
     ...card,
     description: row.description,
@@ -493,6 +518,12 @@ export async function getPublicListingDetail(
     maxNights: profile?.maxNights ?? null,
     hostName: host,
     workspaceId: row.workspace_id,
+    accommodationCategory: catMeta.value,
+    accommodationLabel: catMeta.label,
+    letType: ((row.let_type as LetType | null) ?? catMeta.defaultLetType) as LetType,
+    typeDetails,
+    sections,
+    applyFlow: sections.applyFlow,
   }
 }
 

@@ -16,6 +16,8 @@ import { createClient } from "@/lib/supabase/server"
 import { getPublicListingDetail } from "@/lib/booking"
 import ListingGallery from "@/components/booking/ListingGallery"
 import StayBookingCard from "@/components/booking/StayBookingCard"
+import AccommodationDetails from "@/components/booking/AccommodationDetails"
+import EnquiryCard from "@/components/booking/EnquiryCard"
 import { STAY_TYPE_LABEL, STAY_POLICY_LABEL } from "@/components/booking/StayListingCard"
 
 export const runtime = "nodejs"
@@ -56,6 +58,8 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
   const place = [listing.city, listing.country].filter(Boolean).join(", ")
   const galleryImages = listing.photos.map((p) => p.url).filter((u): u is string => !!u)
   const rules = ruleEntries(listing.houseRules)
+  const isShortStay = !listing.applyFlow
+  const periodLabel = listing.accommodationCategory === "student_room" ? "week" : "month"
   const amenityGroups = listing.amenities.reduce<Record<string, string[]>>((acc, a) => {
     const g = a.group ?? "Amenities"
     ;(acc[g] ??= []).push(a.value ?? a.key.replace(/_/g, " "))
@@ -68,7 +72,7 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
       <div className="mb-4">
         <div className="flex items-center gap-2 flex-wrap mb-1.5">
           <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-blue-700">
-            {STAY_TYPE_LABEL[listing.listingType] ?? "Stay"}
+            {listing.accommodationLabel ?? STAY_TYPE_LABEL[listing.listingType] ?? "Stay"}
           </span>
           {listing.complianceStatus === "passed" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-emerald-700">
@@ -137,6 +141,15 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
             )}
           </section>
 
+          {/* Type-aware accommodation sections (long-let / shared / HMO / student) */}
+          {listing.applyFlow && (
+            <AccommodationDetails
+              details={listing.typeDetails}
+              sections={listing.sections}
+              currency={listing.currency}
+            />
+          )}
+
           {/* Amenities */}
           {Object.keys(amenityGroups).length > 0 && (
             <section>
@@ -197,15 +210,17 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
             </section>
           )}
 
-          {/* Cancellation */}
-          <section className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] mb-1">
-              <Home className="w-4 h-4 text-[#1D4ED8]" /> {STAY_POLICY_LABEL[listing.cancellationPolicy] ?? "Cancellation"}
-            </p>
-            <p className="text-[12.5px] text-slate-500 leading-relaxed">
-              The exact refund schedule is shown at checkout before you confirm and pay.
-            </p>
-          </section>
+          {/* Cancellation (nightly short-stays only) */}
+          {isShortStay && (
+            <section className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
+              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] mb-1">
+                <Home className="w-4 h-4 text-[#1D4ED8]" /> {STAY_POLICY_LABEL[listing.cancellationPolicy] ?? "Cancellation"}
+              </p>
+              <p className="text-[12.5px] text-slate-500 leading-relaxed">
+                The exact refund schedule is shown at checkout before you confirm and pay.
+              </p>
+            </section>
+          )}
 
           {/* Compliance note */}
           <div className="rounded-xl bg-[#F7F9FC] border border-[#EEF3FB] px-4 py-3.5 flex items-start gap-2.5">
@@ -217,20 +232,37 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
           </div>
         </div>
 
-        {/* Right: deep booking card */}
+        {/* Right: nightly checkout (short-stay) or apply/enquire (long/shared) */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-20">
-            <StayBookingCard
-              listingId={listing.id}
-              slug={listing.slug ?? listing.id}
-              title={listing.title}
-              currency={listing.currency}
-              maxGuests={listing.maxGuests}
-              fromNightlyPence={listing.fromNightlyPence}
-              cancellationPolicy={listing.cancellationPolicy}
-              securityDepositPence={listing.securityDepositPence}
-              minNights={listing.minNights}
-            />
+            {isShortStay ? (
+              <StayBookingCard
+                listingId={listing.id}
+                slug={listing.slug ?? listing.id}
+                title={listing.title}
+                currency={listing.currency}
+                maxGuests={listing.maxGuests}
+                fromNightlyPence={listing.fromNightlyPence}
+                cancellationPolicy={listing.cancellationPolicy}
+                securityDepositPence={listing.securityDepositPence}
+                minNights={listing.minNights}
+              />
+            ) : (
+              <EnquiryCard
+                listingId={listing.id}
+                title={listing.title}
+                currency={listing.currency}
+                fromPence={listing.fromNightlyPence}
+                pricePeriodLabel={periodLabel}
+                availableFrom={listing.typeDetails.availableFrom}
+                ctaLabel={
+                  listing.accommodationCategory === "long_term_let" ||
+                  listing.accommodationCategory === "mid_term_let"
+                    ? "Apply for this let"
+                    : "Enquire about this room"
+                }
+              />
+            )}
           </div>
         </div>
       </div>

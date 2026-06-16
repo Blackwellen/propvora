@@ -12,6 +12,14 @@ import {
 } from "@/lib/booking/booking-listings"
 import { getActivePricingProfile, type SavedPricingProfile } from "@/lib/booking/pricing-profiles"
 import { getAvailability, type AvailabilityDay } from "@/lib/booking/availability"
+import {
+  getListingAccommodation,
+  listAmenityCatalogue,
+  getListingAmenitySlugs,
+  type ListingAccommodation,
+  type CatalogueAmenity,
+} from "@/lib/booking/accommodation"
+import { getKeylessLock, type KeylessLock } from "@/lib/booking/keyless"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Deep operator booking loaders — booking_listings, listing detail (+ photos,
@@ -82,6 +90,14 @@ export interface ListingDetailData {
   photos: ListingPhoto[]
   pricing: SavedPricingProfile | null
   readiness: PublishReadiness | null
+  /** Accommodation typing (category / let_type / type_details). */
+  accommodation: ListingAccommodation | null
+  /** The full amenities catalogue (for the type-aware picker). */
+  amenityCatalogue: CatalogueAmenity[]
+  /** Slugs of amenities currently selected on this listing. */
+  selectedAmenitySlugs: string[]
+  /** Keyless lock config (short-stay / shared families). */
+  keylessLock: KeylessLock | null
 }
 
 /** Load a single listing's detail bundle for the wizard / editor. */
@@ -89,16 +105,40 @@ export async function loadListingDetail(
   workspaceId: string | null,
   listingId: string
 ): Promise<ListingDetailData> {
-  if (!workspaceId) return { listing: null, photos: [], pricing: null, readiness: null }
+  const empty: ListingDetailData = {
+    listing: null,
+    photos: [],
+    pricing: null,
+    readiness: null,
+    accommodation: null,
+    amenityCatalogue: [],
+    selectedAmenitySlugs: [],
+    keylessLock: null,
+  }
+  if (!workspaceId) return empty
   const supabase = await createClient()
   const listing = await getBookingListing(supabase, listingId)
-  if (!listing) return { listing: null, photos: [], pricing: null, readiness: null }
-  const [photos, pricing, readiness] = await Promise.all([
-    listListingPhotos(supabase, listingId),
-    getActivePricingProfile(supabase, listingId),
-    evaluatePublishReadiness(supabase, listingId),
-  ])
-  return { listing, photos, pricing, readiness }
+  if (!listing) return empty
+  const [photos, pricing, readiness, accommodation, amenityCatalogue, selectedAmenitySlugs, keylessLock] =
+    await Promise.all([
+      listListingPhotos(supabase, listingId),
+      getActivePricingProfile(supabase, listingId),
+      evaluatePublishReadiness(supabase, listingId),
+      getListingAccommodation(supabase, listingId),
+      listAmenityCatalogue(supabase),
+      getListingAmenitySlugs(supabase, listingId),
+      getKeylessLock(supabase, listingId),
+    ])
+  return {
+    listing,
+    photos,
+    pricing,
+    readiness,
+    accommodation,
+    amenityCatalogue,
+    selectedAmenitySlugs,
+    keylessLock,
+  }
 }
 
 export interface CalendarData {

@@ -209,7 +209,7 @@ export default function GuestPortal({
         <div className="p-5 sm:p-6">
           {tab === "trip" && <TripTab trip={trip} onRefresh={refresh} />}
           {tab === "pay" && <PayTab trip={trip} canPay={canPay} />}
-          {tab === "checkin" && <CheckinTab trip={trip} />}
+          {tab === "checkin" && <CheckinTab trip={trip} creds={creds} />}
           {tab === "issue" && <IssueTab creds={creds} />}
           {tab === "review" && <ReviewTab creds={creds} unlocked={reviewUnlocked} />}
         </div>
@@ -321,7 +321,46 @@ function PayTab({ trip, canPay }: { trip: GuestTrip; canPay: boolean }) {
   )
 }
 
-function CheckinTab({ trip }: { trip: GuestTrip }) {
+function CheckinTab({
+  trip,
+  creds,
+}: {
+  trip: GuestTrip
+  creds: { token?: string } | { ref?: string; email?: string }
+}) {
+  const [revealing, setRevealing] = useState(false)
+  const [code, setCode] = useState<string | null>(null)
+  const [codeInstructions, setCodeInstructions] = useState<string | null>(null)
+  const [codeError, setCodeError] = useState<string | null>(null)
+
+  async function revealCode() {
+    setRevealing(true)
+    setCodeError(null)
+    try {
+      const res = await fetch("/api/booking/keyless/release", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(creds),
+      })
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean
+        code?: string | null
+        instructions?: string | null
+        error?: string
+      }
+      if (!res.ok || !data.ok || !data.code) {
+        setCodeError(data.error ?? "Your access code isn't available yet.")
+        return
+      }
+      setCode(data.code)
+      setCodeInstructions(data.instructions ?? null)
+    } catch {
+      setCodeError("We couldn't fetch your access code. Please try again.")
+    } finally {
+      setRevealing(false)
+    }
+  }
+
   if (!trip.canCheckIn) {
     return (
       <div className="text-center py-4">
@@ -345,8 +384,49 @@ function CheckinTab({ trip }: { trip: GuestTrip }) {
       <Row label="Check-in window" value={trip.checkInWindow ?? "See host instructions"} />
       <Row label="Check-out by" value={trip.checkoutTime ?? "As agreed"} />
       <Row label="Arrival time" value={trip.arrivalTime ?? "Not specified"} />
+
+      {/* Keyless access code — safe-release gated server-side */}
+      <div className="mt-4 rounded-xl border border-[#EEF3FB] bg-[#F7F9FC] px-4 py-3.5">
+        <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] mb-1.5">
+          <KeyRound className="w-4 h-4 text-[#1D4ED8]" /> Door access code
+        </p>
+        {code ? (
+          <div>
+            <p className="text-[26px] font-bold tracking-[0.2em] text-[#0B1B3F]">{code}</p>
+            {codeInstructions && (
+              <p className="mt-1.5 text-[12.5px] text-slate-600 leading-relaxed whitespace-pre-line">
+                {codeInstructions}
+              </p>
+            )}
+            <p className="mt-1.5 text-[11.5px] text-slate-400">
+              Keep this private. It only works during your stay window.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-[12.5px] text-slate-500 leading-relaxed mb-2.5">
+              Your code is released once your payment is confirmed and you&apos;re inside your stay window.
+            </p>
+            <button
+              type="button"
+              onClick={revealCode}
+              disabled={revealing}
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+            >
+              {revealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+              {revealing ? "Checking…" : "Reveal my access code"}
+            </button>
+            {codeError && (
+              <p className="mt-2 flex items-center gap-1.5 text-[12.5px] text-amber-700">
+                <Info className="w-3.5 h-3.5 shrink-0" /> {codeError}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+
       <p className="mt-4 text-[12.5px] text-slate-500 leading-relaxed">
-        The host will share the exact address and access instructions directly. Keep your reference{" "}
+        The host will share the exact address directly. Keep your reference{" "}
         <span className="font-semibold text-slate-700">{trip.bookingRef}</span> to hand.
       </p>
     </div>

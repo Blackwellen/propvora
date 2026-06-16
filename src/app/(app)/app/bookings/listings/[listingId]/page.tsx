@@ -59,6 +59,38 @@ export default async function ListingDetailPage({
       pricing={detail.pricing}
       readiness={detail.readiness}
       properties={properties}
+      accommodation={
+        detail.accommodation ?? {
+          accommodationCategory: "short_stay",
+          letType: "entire",
+          typeDetails: {
+            wifiName: null,
+            wifiPassword: null,
+            checkInMethod: null,
+            minNights: null,
+            maxNights: null,
+            tenancyLengthMonths: null,
+            furnished: null,
+            billsIncluded: {},
+            depositPence: null,
+            depositScheme: null,
+            depositDeclaration: null,
+            availableFrom: null,
+            epcRating: null,
+            councilTaxBand: null,
+            floorPlanUrl: null,
+            roomSizeSqm: null,
+            ensuite: null,
+            sharedFacilities: {},
+            householdSize: null,
+            contractLengthMonths: null,
+          },
+          rawTypeDetails: {},
+        }
+      }
+      amenityCatalogue={detail.amenityCatalogue}
+      selectedAmenitySlugs={detail.selectedAmenitySlugs}
+      keylessLock={detail.keylessLock}
     />
   )
 }
