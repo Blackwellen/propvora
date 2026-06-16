@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -55,6 +56,16 @@ const MISSING = new Set(["42P01", "PGRST202", "PGRST204", "PGRST205"])
 
 export async function POST(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
+
+  // Strict: 5 reservation attempts per IP per 15 minutes.
+  const rl = await rateLimit({ key: clientKey(request, "booking:reserve"), limit: 5, windowMs: 15 * 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many reservation attempts. Please wait a moment and try again." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   try {
     const parsed = bodySchema.safeParse(await request.json().catch(() => null))
     if (!parsed.success) {

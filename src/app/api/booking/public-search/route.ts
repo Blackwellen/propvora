@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { searchPublicListings, type SearchListingsArgs } from "@/lib/booking/public"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -19,8 +21,18 @@ export const dynamic = "force-dynamic"
  *   bedrooms, bathrooms, beds, instant (0/1), verified (0/1),
  *   bounds (s,w,n,e), limit.
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
+
+  // 120 search requests per IP per minute — permits normal browsing, throttles scrapers.
+  const rl = await rateLimit({ key: clientKey(request, "booking:search"), limit: 120, windowMs: 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { listings: [] },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   try {
     const supabase = await createClient()
     const sp = new URL(request.url).searchParams

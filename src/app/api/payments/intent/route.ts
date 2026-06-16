@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -187,6 +188,15 @@ async function loadHeldBooking(
 }
 
 export async function POST(request: NextRequest) {
+  // Strict: 5 payment-intent creates per IP per 15 minutes — same as reserve.
+  const rl = await rateLimit({ key: clientKey(request, "payments:intent"), limit: 5, windowMs: 15 * 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many payment attempts. Please wait a moment and try again." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   // No secret key → payments not provisioned. NEVER attempt a Stripe call.
   if (!process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Payments are not available yet.", ready: false }, { status: 503 })

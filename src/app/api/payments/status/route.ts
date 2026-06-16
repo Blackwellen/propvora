@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -114,6 +115,15 @@ async function readPaymentStatus(
 }
 
 export async function GET(request: NextRequest) {
+  // 60 status polls per IP per minute — permits normal polling, blocks scrapers.
+  const rl = await rateLimit({ key: clientKey(request, "payments:status"), limit: 60, windowMs: 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ready: false, paymentStatus: null, bookingStatus: null },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   const url = new URL(request.url)
   const bookingRef = url.searchParams.get("bookingRef")?.trim() || undefined
   const paymentId = url.searchParams.get("paymentId")?.trim() || undefined

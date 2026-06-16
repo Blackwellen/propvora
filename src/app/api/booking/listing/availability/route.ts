@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { getAvailability } from "@/lib/booking"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -16,8 +18,18 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/
  * booking overlap + legacy blocked dates). Returns the set of NON-bookable dates
  * (everything not status='available') for the calendar to disable. Tolerant.
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
+
+  // 60 calendar loads per IP per minute — allows normal browsing, blocks scrapers.
+  const rl = await rateLimit({ key: clientKey(request, "booking:avail"), limit: 60, windowMs: 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ready: false, unavailableDates: [] },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   try {
     const url = new URL(request.url)
     const listingId = (url.searchParams.get("listingId") ?? "").trim()
@@ -33,7 +45,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       { ready, unavailableDates },
-      { headers: { "Cache-Control": "no-store" } }
+      { headers: { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=60" } }
     )
   } catch (err) {
     captureException(err, { source: "api/booking/listing/availability GET", requestId })

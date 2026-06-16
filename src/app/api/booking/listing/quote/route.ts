@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { quoteListingStay } from "@/lib/booking"
+import { rateLimit, clientKey } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -18,8 +20,18 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/
  * total is never trusted. Returns the full StayQuote shape (line items, deposit,
  * notes, ready flag). Never throws on a cold schema — `ready:false` instead.
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
+
+  // 30 price quotes per IP per 5 minutes — prevents pricing scrapers.
+  const rl = await rateLimit({ key: clientKey(request, "booking:quote"), limit: 30, windowMs: 5 * 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit reached. Please wait before requesting another price." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    )
+  }
+
   try {
     const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
     const listingId = typeof body?.listingId === "string" ? body.listingId.trim() : ""
