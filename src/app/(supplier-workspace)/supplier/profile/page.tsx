@@ -23,6 +23,7 @@ import {
   humaniseStatus,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { money } from "@/components/supplier-workspace/format"
 import type {
   SupplierProfile,
@@ -39,28 +40,31 @@ const SUPPLIER_TYPES = [
 const VISIBILITY = ["private", "workspace", "public"].map((v) => ({ value: v, label: humaniseStatus(v) }))
 
 /** Tolerant PATCH helper — resolves on 2xx, rejects otherwise so the inline
- *  editor surfaces an error toast and reverts. The sibling API owns the route. */
-async function patchProfile(field: string, val: string) {
+ *  editor surfaces an error toast and reverts. The sibling API owns the route.
+ *  `workspaceId` is REQUIRED by the route (else 400). */
+async function patchProfile(workspaceId: string | null, field: string, val: string) {
+  if (!workspaceId) throw new Error("Workspace not ready — please retry in a moment.")
   const res = await fetch("/api/supplier/profile", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ [field]: val }),
+    body: JSON.stringify({ workspaceId, [field]: val }),
   })
   if (!res.ok) throw new Error("Could not save — the profile service isn't available yet.")
 }
 
 export default function SupplierProfilePage() {
-  const profile = useSupplierApi<SupplierProfile>("/api/supplier/profile", {
+  const { workspaceId } = useSupplierWorkspace()
+  const profile = useSupplierApi<SupplierProfile>(useSupplierApiUrl("/api/supplier/profile"), {
     select: (j) => (j as { profile?: SupplierProfile }).profile ?? (j as SupplierProfile),
   })
-  const services = useSupplierApi<SupplierService[]>("/api/supplier/services", {
-    select: (j) => (j as { services?: SupplierService[] }).services ?? (Array.isArray(j) ? (j as SupplierService[]) : []),
+  const services = useSupplierApi<SupplierService[]>(useSupplierApiUrl("/api/supplier/services"), {
+    select: (j) => (j as { items?: SupplierService[]; services?: SupplierService[] }).items ?? (j as { services?: SupplierService[] }).services ?? (Array.isArray(j) ? (j as SupplierService[]) : []),
   })
-  const coverage = useSupplierApi<SupplierCoverageArea[]>("/api/supplier/coverage", {
-    select: (j) => (j as { areas?: SupplierCoverageArea[] }).areas ?? (Array.isArray(j) ? (j as SupplierCoverageArea[]) : []),
+  const coverage = useSupplierApi<SupplierCoverageArea[]>(useSupplierApiUrl("/api/supplier/coverage"), {
+    select: (j) => (j as { items?: SupplierCoverageArea[]; areas?: SupplierCoverageArea[] }).items ?? (j as { areas?: SupplierCoverageArea[] }).areas ?? (Array.isArray(j) ? (j as SupplierCoverageArea[]) : []),
   })
-  const availability = useSupplierApi<SupplierAvailabilityDay[]>("/api/supplier/availability", {
-    select: (j) => (j as { days?: SupplierAvailabilityDay[] }).days ?? (Array.isArray(j) ? (j as SupplierAvailabilityDay[]) : []),
+  const availability = useSupplierApi<SupplierAvailabilityDay[]>(useSupplierApiUrl("/api/supplier/availability"), {
+    select: (j) => (j as { items?: SupplierAvailabilityDay[]; days?: SupplierAvailabilityDay[] }).items ?? (j as { days?: SupplierAvailabilityDay[] }).days ?? (Array.isArray(j) ? (j as SupplierAvailabilityDay[]) : []),
   })
 
   const [tab, setTab] = useState<"details" | "services" | "coverage" | "availability">("details")
@@ -124,19 +128,19 @@ export default function SupplierProfilePage() {
                 </div>
                 <dl className="space-y-3.5">
                   <Row label="Business name">
-                    <InlineEditField label="business name" value={p?.business_name ?? ""} onSave={(v) => patchProfile("business_name", v)} useSheetOnMobile />
+                    <InlineEditField label="business name" value={p?.business_name ?? ""} onSave={(v) => patchProfile(workspaceId, "business_name", v)} useSheetOnMobile />
                   </Row>
                   <Row label="Trading name">
-                    <InlineEditField label="trading name" value={p?.trading_name ?? ""} onSave={(v) => patchProfile("trading_name", v)} useSheetOnMobile />
+                    <InlineEditField label="trading name" value={p?.trading_name ?? ""} onSave={(v) => patchProfile(workspaceId, "trading_name", v)} useSheetOnMobile />
                   </Row>
                   <Row label="Supplier type">
-                    <InlineEditField label="supplier type" type="select" options={SUPPLIER_TYPES} value={p?.supplier_type ?? ""} onSave={(v) => patchProfile("supplier_type", v)} useSheetOnMobile />
+                    <InlineEditField label="supplier type" type="select" options={SUPPLIER_TYPES} value={p?.supplier_type ?? ""} onSave={(v) => patchProfile(workspaceId, "supplier_type", v)} useSheetOnMobile />
                   </Row>
                   <Row label="Years experience">
-                    <InlineEditField label="years experience" type="number" value={p?.years_experience ?? ""} onSave={(v) => patchProfile("years_experience", v)} useSheetOnMobile />
+                    <InlineEditField label="years experience" type="number" value={p?.years_experience ?? ""} onSave={(v) => patchProfile(workspaceId, "years_experience", v)} useSheetOnMobile />
                   </Row>
                   <Row label="Team size">
-                    <InlineEditField label="team size" type="number" value={p?.team_size ?? ""} onSave={(v) => patchProfile("team_size", v)} useSheetOnMobile />
+                    <InlineEditField label="team size" type="number" value={p?.team_size ?? ""} onSave={(v) => patchProfile(workspaceId, "team_size", v)} useSheetOnMobile />
                   </Row>
                 </dl>
               </SupplierCard>
@@ -149,10 +153,10 @@ export default function SupplierProfilePage() {
                   </div>
                   <dl className="space-y-3.5">
                     <Row label="Short description">
-                      <InlineEditField label="short description" value={p?.description_short ?? ""} onSave={(v) => patchProfile("description_short", v)} useSheetOnMobile placeholder="One-line headline" />
+                      <InlineEditField label="short description" value={p?.description_short ?? ""} onSave={(v) => patchProfile(workspaceId, "description_short", v)} useSheetOnMobile placeholder="One-line headline" />
                     </Row>
                     <Row label="Full description" stacked>
-                      <InlineEditField label="full description" type="textarea" value={p?.description_long ?? ""} onSave={(v) => patchProfile("description_long", v)} useSheetOnMobile placeholder="Tell property managers about your work…" />
+                      <InlineEditField label="full description" type="textarea" value={p?.description_long ?? ""} onSave={(v) => patchProfile(workspaceId, "description_long", v)} useSheetOnMobile placeholder="Tell property managers about your work…" />
                     </Row>
                   </dl>
                 </SupplierCard>
@@ -164,7 +168,7 @@ export default function SupplierProfilePage() {
                   </div>
                   <dl className="space-y-3.5">
                     <Row label="Profile visibility">
-                      <InlineEditField label="profile visibility" type="select" options={VISIBILITY} value={p?.profile_visibility ?? "private"} onSave={(v) => patchProfile("profile_visibility", v)} useSheetOnMobile />
+                      <InlineEditField label="profile visibility" type="select" options={VISIBILITY} value={p?.profile_visibility ?? "private"} onSave={(v) => patchProfile(workspaceId, "profile_visibility", v)} useSheetOnMobile />
                     </Row>
                     <Row label="Service categories">
                       <span className="flex flex-wrap gap-1.5 justify-end">

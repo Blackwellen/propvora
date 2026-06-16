@@ -16,14 +16,15 @@ import {
   type SupplierKpi,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { money, shortDate } from "@/components/supplier-workspace/format"
 import type { SupplierEarningsSummary, SupplierPaymentRow } from "@/components/supplier-workspace/types"
 
 export default function SupplierEarningsPage() {
-  const summary = useSupplierApi<SupplierEarningsSummary>("/api/supplier/jobs/earnings", {
+  const summary = useSupplierApi<SupplierEarningsSummary>(useSupplierApiUrl("/api/supplier/jobs/earnings"), {
     select: (j) => (j as { summary?: SupplierEarningsSummary }).summary ?? (j as SupplierEarningsSummary),
   })
-  const payments = useSupplierApi<SupplierPaymentRow[]>("/api/supplier/jobs/payments", {
+  const payments = useSupplierApi<SupplierPaymentRow[]>(useSupplierApiUrl("/api/supplier/jobs/payments"), {
     select: (j) => (j as { payments?: SupplierPaymentRow[] }).payments ?? (Array.isArray(j) ? (j as SupplierPaymentRow[]) : []),
   })
 

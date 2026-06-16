@@ -15,6 +15,7 @@ import {
   humaniseStatus,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { money, shortDate, timeAgo } from "@/components/supplier-workspace/format"
 import type { SupplierQuoteRequest } from "@/components/supplier-workspace/types"
 
@@ -27,12 +28,16 @@ const FILTERS = [
 type FilterId = (typeof FILTERS)[number]["id"]
 
 export default function SupplierQuotesPage() {
-  const quotes = useSupplierApi<SupplierQuoteRequest[]>("/api/supplier/quotes", {
-    select: (j) =>
-      (j as { quotes?: SupplierQuoteRequest[]; data?: SupplierQuoteRequest[] }).quotes ??
-      (j as { data?: SupplierQuoteRequest[] }).data ??
-      (Array.isArray(j) ? (j as SupplierQuoteRequest[]) : []),
-  })
+  const quotes = useSupplierApi<SupplierQuoteRequest[]>(
+    useSupplierApiUrl("/api/supplier/quotes", { side: "supplier" }),
+    {
+      select: (j) =>
+        (j as { items?: SupplierQuoteRequest[]; quotes?: SupplierQuoteRequest[]; data?: SupplierQuoteRequest[] }).items ??
+        (j as { quotes?: SupplierQuoteRequest[] }).quotes ??
+        (j as { data?: SupplierQuoteRequest[] }).data ??
+        (Array.isArray(j) ? (j as SupplierQuoteRequest[]) : []),
+    }
+  )
 
   const [filter, setFilter] = useState<FilterId>("open")
   const [active, setActive] = useState<SupplierQuoteRequest | null>(null)

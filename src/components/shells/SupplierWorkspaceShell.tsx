@@ -10,6 +10,7 @@ import SkipLink from "@/components/a11y/SkipLink"
 import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
 import { SUPPLIER_NAV, isSupplierNavActive } from "@/components/supplier-workspace/nav"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
+import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
 /* ──────────────────────────────────────────────────────────────────────────
    SupplierWorkspaceShell — chrome for the first-class supplier-type workspace
@@ -39,9 +40,12 @@ function initialsOf(name: string): string {
 export default function SupplierWorkspaceShell({
   children,
   supplierName = "Supplier",
+  workspaceId = null,
 }: {
   children: React.ReactNode
   supplierName?: string
+  /** Resolved server-side by the group layout; threaded to client pages via context. */
+  workspaceId?: string | null
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -54,6 +58,7 @@ export default function SupplierWorkspaceShell({
   }
 
   return (
+    <SupplierWorkspaceProvider workspaceId={workspaceId}>
     <div className="min-h-screen bg-[#F6FAFF] flex">
       <SkipLink />
       {mobileOpen && (
@@ -172,5 +177,6 @@ export default function SupplierWorkspaceShell({
       {/* Dedicated mobile bottom nav (below lg only). */}
       <SupplierMobileBottomNav />
     </div>
+    </SupplierWorkspaceProvider>
   )
 }

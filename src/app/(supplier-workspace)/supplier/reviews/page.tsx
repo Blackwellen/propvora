@@ -11,6 +11,7 @@ import {
   SupplierNotReady,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { shortDate } from "@/components/supplier-workspace/format"
 import type { SupplierReview, SupplierProfile } from "@/components/supplier-workspace/types"
 
@@ -25,10 +26,10 @@ function Stars({ rating, size = "w-4 h-4" }: { rating: number; size?: string }) 
 }
 
 export default function SupplierReviewsPage() {
-  const profile = useSupplierApi<SupplierProfile>("/api/supplier/profile", {
+  const profile = useSupplierApi<SupplierProfile>(useSupplierApiUrl("/api/supplier/profile"), {
     select: (j) => (j as { profile?: SupplierProfile }).profile ?? (j as SupplierProfile),
   })
-  const reviews = useSupplierApi<SupplierReview[]>("/api/supplier/jobs/reviews", {
+  const reviews = useSupplierApi<SupplierReview[]>(useSupplierApiUrl("/api/supplier/jobs/reviews"), {
     select: (j) => (j as { reviews?: SupplierReview[] }).reviews ?? (Array.isArray(j) ? (j as SupplierReview[]) : []),
   })
 

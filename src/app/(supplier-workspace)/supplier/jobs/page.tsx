@@ -16,6 +16,7 @@ import {
   humaniseStatus,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { money, shortDate, timeAgo } from "@/components/supplier-workspace/format"
 import type { SupplierJob } from "@/components/supplier-workspace/types"
 
@@ -28,12 +29,16 @@ const FILTERS = [
 type FilterId = (typeof FILTERS)[number]["id"]
 
 export default function SupplierJobsPage() {
-  const jobs = useSupplierApi<SupplierJob[]>("/api/supplier/jobs", {
-    select: (j) =>
-      (j as { jobs?: SupplierJob[]; data?: SupplierJob[] }).jobs ??
-      (j as { data?: SupplierJob[] }).data ??
-      (Array.isArray(j) ? (j as SupplierJob[]) : []),
-  })
+  const jobs = useSupplierApi<SupplierJob[]>(
+    useSupplierApiUrl("/api/supplier/jobs", { side: "supplier" }),
+    {
+      select: (j) =>
+        (j as { items?: SupplierJob[]; jobs?: SupplierJob[]; data?: SupplierJob[] }).items ??
+        (j as { jobs?: SupplierJob[] }).jobs ??
+        (j as { data?: SupplierJob[] }).data ??
+        (Array.isArray(j) ? (j as SupplierJob[]) : []),
+    }
+  )
   const [filter, setFilter] = useState<FilterId>("active")
 
   const rows = jobs.data ?? []

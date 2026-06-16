@@ -56,6 +56,8 @@ export default async function SupplierWorkspaceLayout({
   }
 
   return (
-    <SupplierWorkspaceShell supplierName={supplierName}>{children}</SupplierWorkspaceShell>
+    <SupplierWorkspaceShell supplierName={supplierName} workspaceId={workspaceId}>
+      {children}
+    </SupplierWorkspaceShell>
   )
 }

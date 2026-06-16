@@ -16,6 +16,10 @@ export type {
   MarketplaceTransactionType,
 } from "./fees"
 
+// ── Shared types ────────────────────────────────────────────────────────────
+export { transactionTypeForListing, isMissingObject, toErrorMessage } from "./types"
+export type { ListingType, Result } from "./types"
+
 // ── P2: listings ──────────────────────────────────────────────────────────────
 export {
   createListing,
@@ -26,6 +30,9 @@ export {
   attachListingMedia,
   getListing,
   listWorkspaceListings,
+  setListingCategories,
+  setListingAvailability,
+  setListingPricing,
 } from "./listings"
 export type {
   ListingStatus,
@@ -34,6 +41,8 @@ export type {
   CreateListingInput,
   UpdateListingInput,
   ListListingsOptions,
+  ListingAvailabilityInput,
+  ListingPricingInput,
   Result as ListingResult,
 } from "./listings"
 
@@ -47,8 +56,22 @@ export {
 export type {
   TransactionStatus,
   MarketplaceTransaction,
+  MarketplaceOrder,
   CommissionLedgerEntry,
   CreateTransactionArgs,
   CreateTransactionResult,
   Result as TransactionResult,
 } from "./transactions"
+
+// ── P2: orders (fulfilment) ───────────────────────────────────────────────────
+export {
+  listOrders,
+  getOrder,
+  transitionOrderStatus,
+  isAllowedOrderTransition,
+} from "./orders"
+export type { OrderStatus, OrderSide, ListOrdersOptions } from "./orders"
+
+// ── Read-side search (FTS) ────────────────────────────────────────────────────
+export { searchListings, recordSearchEvent } from "./search"
+export type { PublicListing, SearchListingsParams, SearchListingsResult } from "./search"

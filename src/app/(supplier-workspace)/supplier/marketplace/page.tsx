@@ -14,7 +14,7 @@ import {
   SupplierNotReady,
   type SupplierKpi,
 } from "@/components/supplier-workspace/ui"
-import { useSupplierWorkspaceId } from "@/components/supplier-workspace/useSupplierWorkspaceId"
+import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import {
   normaliseOwn,
   categoryMeta,
@@ -34,7 +34,8 @@ import { ListingStatusPill } from "@/components/marketplace/ListingStatusPill"
 ─────────────────────────────────────────────────────────────────────────── */
 
 export default function SupplierMarketplacePage() {
-  const { workspaceId, loading: wsLoading } = useSupplierWorkspaceId()
+  const { workspaceId, ready } = useSupplierWorkspace()
+  const wsLoading = !ready
   const [listings, setListings] = useState<OwnListing[]>([])
   const [loading, setLoading] = useState(true)
   const [notReady, setNotReady] = useState(false)

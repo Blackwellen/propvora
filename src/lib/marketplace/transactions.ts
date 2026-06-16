@@ -65,11 +65,32 @@ export interface Result<T> {
   error: string | null
 }
 
-/** Result of {@link createMarketplaceTransaction}: header + the fee split + ledger. */
+/** A marketplace order row (the buyer-facing fulfilment record). */
+export interface MarketplaceOrder {
+  id: string
+  workspace_id: string
+  buyer_workspace_id: string | null
+  seller_workspace_id: string | null
+  listing_id: string | null
+  transaction_id: string | null
+  transaction_type: string | null
+  title: string
+  status: string
+  gross_pence: number
+  fee_pence: number
+  payout_pence: number
+  currency: string
+  amount: number
+  created_at: string | null
+  updated_at: string | null
+}
+
+/** Result of {@link createMarketplaceTransaction}: header + fee split + ledger + order. */
 export interface CreateTransactionResult {
   transaction: MarketplaceTransaction
   fee: FeeBreakdown
   ledger: CommissionLedgerEntry[]
+  order: MarketplaceOrder | null
 }
 
 const TXN_COLUMNS =
@@ -119,13 +140,20 @@ export interface CreateTransactionArgs {
   category?: string
   currency?: string
   metadata?: Record<string, unknown>
+  /** Human title for the order row (NOT NULL in marketplace_orders). */
+  orderTitle?: string
+  /** Property the order relates to, if any. */
+  propertyId?: string | null
 }
 
 /**
  * Create a marketplace transaction: resolve the fee via the P1 engine, insert
- * the transaction header, then append the matching commission-ledger entries
- * (platform_fee, provider_fee when > 0, seller_payout). Tolerant — returns a
- * structured error rather than throwing. All money integer pence.
+ * the transaction header, append the matching commission-ledger entries
+ * (platform_fee, provider_fee when > 0, seller_payout), and create the
+ * matching `marketplace_orders` fulfilment row. Best-effort sequence with real
+ * error handling — the transaction header is the source of truth; a downstream
+ * (ledger/order) failure is surfaced but does not roll back the header. Tolerant.
+ * All money integer pence.
  */
 export async function createMarketplaceTransaction(
   args: CreateTransactionArgs
@@ -201,17 +229,58 @@ export async function createMarketplaceTransaction(
       // Header is committed and is the source of truth; surface the ledger
       // failure but still return the transaction so the caller can reconcile.
       return {
-        data: { transaction, fee, ledger: [] },
+        data: { transaction, fee, ledger: [], order: null },
         error: `ledger_insert_failed:${toMessage(ledgerErr)}`,
       }
     }
     ledger = (ledgerData as unknown as CommissionLedgerEntry[]) ?? []
 
-    return { data: { transaction, fee, ledger }, error: null }
+    // 4. Create the matching fulfilment order. The legacy orders table requires
+    // a NOT NULL title + amount (major units, kept for legacy readers); the
+    // pence columns are the authoritative commerce figures.
+    const orderTitle = args.orderTitle?.trim() || `Order · ${transactionType}`
+    const { data: orderData, error: orderErr } = await supabase
+      .from("marketplace_orders")
+      .insert({
+        workspace_id: buyerWorkspaceId,
+        buyer_workspace_id: buyerWorkspaceId,
+        seller_workspace_id: sellerWorkspaceId,
+        listing_id: args.listingId ?? null,
+        property_id: args.propertyId ?? null,
+        transaction_id: transaction.id,
+        transaction_type: transactionType,
+        title: orderTitle,
+        status: "pending",
+        gross_pence: grossPence,
+        fee_pence: fee.platformFeePence,
+        payout_pence: fee.sellerPayoutPence,
+        currency,
+        amount: grossPence / 100,
+        total_amount: grossPence / 100,
+        metadata: args.metadata ?? {},
+      })
+      .select(ORDER_COLUMNS)
+      .single()
+    if (orderErr) {
+      // Header + ledger are committed; surface the order failure for reconcile.
+      return {
+        data: { transaction, fee, ledger, order: null },
+        error: `order_insert_failed:${toMessage(orderErr)}`,
+      }
+    }
+    const order = (orderData as unknown as MarketplaceOrder) ?? null
+
+    return { data: { transaction, fee, ledger, order }, error: null }
   } catch (err) {
     return { data: null, error: toMessage(err) }
   }
 }
+
+/** Columns selected for an order read. */
+const ORDER_COLUMNS =
+  "id, workspace_id, buyer_workspace_id, seller_workspace_id, listing_id, " +
+  "transaction_id, transaction_type, title, status, gross_pence, fee_pence, " +
+  "payout_pence, currency, amount, created_at, updated_at"
 
 /** Read a transaction, scoped to a workspace that is buyer OR seller. Tolerant. */
 export async function getTransaction(

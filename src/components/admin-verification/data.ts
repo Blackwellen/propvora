@@ -85,9 +85,10 @@ async function userNamesFor(ids: string[]): Promise<Record<string, string>> {
   if (unique.length === 0) return out
   try {
     const admin = createAdminClient()
-    const { data } = await admin.from("profiles").select("id, full_name").in("id", unique)
+    // profiles has `display_name` (NOT `full_name`, which does not exist).
+    const { data } = await admin.from("profiles").select("id, display_name").in("id", unique)
     for (const p of data ?? []) {
-      if (p.full_name) out[p.id as string] = p.full_name as string
+      if (p.display_name) out[p.id as string] = p.display_name as string
     }
   } catch {
     /* ignore */

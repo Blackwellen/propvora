@@ -24,6 +24,7 @@ import {
   SupplierLoadingState,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import type { SupplierProfile } from "@/components/supplier-workspace/types"
 
 /* The onboarding steps mirror the supplier onboarding wizard (canvas §5). Each
@@ -51,7 +52,8 @@ const STEPS: Step[] = [
 ]
 
 export default function SupplierOnboardingPage() {
-  const profile = useSupplierApi<SupplierProfile>("/api/supplier/profile", {
+  const { workspaceId } = useSupplierWorkspace()
+  const profile = useSupplierApi<SupplierProfile>(useSupplierApiUrl("/api/supplier/profile"), {
     select: (j) => (j as { profile?: SupplierProfile }).profile ?? (j as SupplierProfile),
   })
   const [advancing, setAdvancing] = useState(false)
@@ -70,7 +72,7 @@ export default function SupplierOnboardingPage() {
       const res = await fetch("/api/supplier/onboarding", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ step: stepKey, action: "advance" }),
+        body: JSON.stringify({ workspaceId, step: stepKey, action: "advance" }),
       })
       if (!res.ok) {
         setBanner(res.status === 503 || res.status === 404 ? "Onboarding service isn't available yet — complete this step from its page instead." : "Couldn't update onboarding.")

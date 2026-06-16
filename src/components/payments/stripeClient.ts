@@ -36,10 +36,13 @@ export interface StripeElementLike {
   destroy: () => void
 }
 
-declare global {
-  interface Window {
-    Stripe?: (key: string, opts?: Record<string, unknown>) => StripeLike
-  }
+// Access window.Stripe (injected by the CDN script) without augmenting the
+// global Window type — `@stripe/stripe-js`, when installed, already declares
+// `window.Stripe`, and a second conflicting declaration would error.
+type StripeGlobal = (key: string, opts?: Record<string, unknown>) => StripeLike
+function windowStripe(): StripeGlobal | undefined {
+  if (typeof window === "undefined") return undefined
+  return (window as unknown as { Stripe?: StripeGlobal }).Stripe
 }
 
 export function publishableKey(): string | null {
@@ -51,22 +54,22 @@ let scriptPromise: Promise<boolean> | null = null
 
 function loadScript(): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false)
-  if (window.Stripe) return Promise.resolve(true)
+  if (windowStripe()) return Promise.resolve(true)
   if (scriptPromise) return scriptPromise
   scriptPromise = new Promise<boolean>((resolve) => {
     const existing = document.querySelector<HTMLScriptElement>(
       'script[src="https://js.stripe.com/v3/"]'
     )
     if (existing) {
-      existing.addEventListener("load", () => resolve(!!window.Stripe))
+      existing.addEventListener("load", () => resolve(!!windowStripe()))
       existing.addEventListener("error", () => resolve(false))
-      if (window.Stripe) resolve(true)
+      if (windowStripe()) resolve(true)
       return
     }
     const s = document.createElement("script")
     s.src = "https://js.stripe.com/v3/"
     s.async = true
-    s.onload = () => resolve(!!window.Stripe)
+    s.onload = () => resolve(!!windowStripe())
     s.onerror = () => resolve(false)
     document.head.appendChild(s)
   })
@@ -78,9 +81,10 @@ export async function getStripe(): Promise<StripeLike | null> {
   const key = publishableKey()
   if (!key) return null
 
-  // 1. Prefer the npm loader if present.
+  // 1. Prefer the npm loader (@stripe/stripe-js is a declared dependency). The
+  // dynamic import + try/catch keeps the CDN fallback path working even if the
+  // module ever fails to load at runtime.
   try {
-    // @ts-ignore — optional dependency; may be absent on this branch.
     const mod = await import("@stripe/stripe-js")
     if (mod?.loadStripe) {
       const s = await mod.loadStripe(key)
@@ -92,9 +96,10 @@ export async function getStripe(): Promise<StripeLike | null> {
 
   // 2. CDN fallback.
   const ok = await loadScript()
-  if (!ok || !window.Stripe) return null
+  const ctor = windowStripe()
+  if (!ok || !ctor) return null
   try {
-    return window.Stripe(key)
+    return ctor(key)
   } catch {
     return null
   }

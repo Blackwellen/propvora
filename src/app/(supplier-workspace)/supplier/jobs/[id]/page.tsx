@@ -9,8 +9,7 @@ import {
   Calendar,
   Banknote,
   Activity,
-  MapPin,
-  Truck,
+  Play,
   CheckCircle2,
   ArrowRight,
 } from "lucide-react"
@@ -28,16 +27,17 @@ import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { money, shortDate, timeAgo } from "@/components/supplier-workspace/format"
 import type { SupplierJob, SupplierJobEvent } from "@/components/supplier-workspace/types"
 
-/* Forward-only, non-destructive status transitions. We deliberately offer ONLY
-   the next safe step from the supplier side and NEVER fabricate completion:
-   "Mark complete" submits a completion REQUEST that the property manager
-   approves. No CTA closes/pays/releases a job autonomously. */
+/* Forward-only, non-destructive status transitions that mirror the REAL
+   supplier-job state machine (src/lib/supplier/jobs.ts):
+     assigned → accepted → in_progress → completed
+   We deliberately offer ONLY the next safe step from the supplier side and
+   NEVER fabricate completion — "Mark complete" is the only path to 'completed'
+   and is written server-side (completeJob stamps completed_at). No CTA pays or
+   releases a job autonomously; the property manager handles approval/payout. */
 const NEXT_STEP: Record<string, { status: string; label: string; icon: typeof ArrowRight }> = {
-  scheduled: { status: "supplier_confirmed", label: "Confirm job", icon: CheckCircle2 },
-  supplier_confirmed: { status: "en_route", label: "Mark en route", icon: Truck },
-  en_route: { status: "arrived", label: "Mark arrived", icon: MapPin },
-  arrived: { status: "in_progress", label: "Start work", icon: Activity },
-  in_progress: { status: "completed_pending_evidence", label: "Mark work complete", icon: CheckCircle2 },
+  assigned: { status: "accepted", label: "Accept job", icon: CheckCircle2 },
+  accepted: { status: "in_progress", label: "Start work", icon: Play },
+  in_progress: { status: "completed", label: "Mark work complete", icon: CheckCircle2 },
 }
 
 export default function SupplierJobDetailPage() {
@@ -66,12 +66,18 @@ export default function SupplierJobDetailPage() {
     setBanner(null)
     try {
       const res = await fetch(`/api/supplier/jobs/${id}/status`, {
-        method: "POST",
+        method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ status: toStatus }),
+        body: JSON.stringify({ to: toStatus }),
       })
       if (!res.ok) {
-        setBanner(res.status === 503 || res.status === 404 ? "Status updates aren't available yet." : "Couldn't update the job status.")
+        setBanner(
+          res.status === 503 || res.status === 404
+            ? "Status updates aren't available yet."
+            : res.status === 409
+            ? "That step is no longer available for this job."
+            : "Couldn't update the job status."
+        )
         return
       }
       job.refresh()

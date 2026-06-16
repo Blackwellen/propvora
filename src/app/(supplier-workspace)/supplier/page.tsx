@@ -27,6 +27,7 @@ import {
   type SupplierKpi,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { money, dayMonth, ratingStars } from "@/components/supplier-workspace/format"
 import type {
   SupplierProfile,
@@ -43,18 +44,26 @@ const QUICK_ACTIONS = [
 ]
 
 export default function SupplierDashboardPage() {
-  const profile = useSupplierApi<SupplierProfile>("/api/supplier/profile", {
+  const profile = useSupplierApi<SupplierProfile>(useSupplierApiUrl("/api/supplier/profile"), {
     select: (j) => (j as { profile?: SupplierProfile }).profile ?? (j as SupplierProfile),
   })
-  const quotes = useSupplierApi<SupplierQuoteRequest[]>("/api/supplier/quotes", {
-    select: (j) => (j as { quotes?: SupplierQuoteRequest[]; data?: SupplierQuoteRequest[] }).quotes ??
-      (j as { data?: SupplierQuoteRequest[] }).data ?? (Array.isArray(j) ? (j as SupplierQuoteRequest[]) : []),
-  })
-  const jobs = useSupplierApi<SupplierJob[]>("/api/supplier/jobs", {
-    select: (j) => (j as { jobs?: SupplierJob[]; data?: SupplierJob[] }).jobs ??
-      (j as { data?: SupplierJob[] }).data ?? (Array.isArray(j) ? (j as SupplierJob[]) : []),
-  })
-  const earnings = useSupplierApi<SupplierEarningsSummary>("/api/supplier/jobs/earnings", {
+  const quotes = useSupplierApi<SupplierQuoteRequest[]>(
+    useSupplierApiUrl("/api/supplier/quotes", { side: "supplier" }),
+    {
+      select: (j) => (j as { items?: SupplierQuoteRequest[]; quotes?: SupplierQuoteRequest[]; data?: SupplierQuoteRequest[] }).items ??
+        (j as { quotes?: SupplierQuoteRequest[] }).quotes ??
+        (j as { data?: SupplierQuoteRequest[] }).data ?? (Array.isArray(j) ? (j as SupplierQuoteRequest[]) : []),
+    }
+  )
+  const jobs = useSupplierApi<SupplierJob[]>(
+    useSupplierApiUrl("/api/supplier/jobs", { side: "supplier" }),
+    {
+      select: (j) => (j as { items?: SupplierJob[]; jobs?: SupplierJob[]; data?: SupplierJob[] }).items ??
+        (j as { jobs?: SupplierJob[] }).jobs ??
+        (j as { data?: SupplierJob[] }).data ?? (Array.isArray(j) ? (j as SupplierJob[]) : []),
+    }
+  )
+  const earnings = useSupplierApi<SupplierEarningsSummary>(useSupplierApiUrl("/api/supplier/jobs/earnings"), {
     select: (j) => (j as { summary?: SupplierEarningsSummary }).summary ?? (j as SupplierEarningsSummary),
   })
 
