@@ -118,8 +118,8 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         "hover:shadow-[0_8px_24px_rgba(0,0,0,0.10),0_2px_6px_rgba(0,0,0,0.06)]",
         "hover:-translate-y-0.5 transition-all duration-250",
       )}>
-        {/* ── Cover — uploaded photo or gradient fallback ── */}
-        <div className="relative h-40 overflow-hidden"
+        {/* ── Cover — uploaded photo or gradient fallback (inset + fully rounded for curved bottom corners) ── */}
+        <div className="relative h-52 mx-2 mt-2 rounded-2xl overflow-hidden"
           style={!showImage ? { background: cover } : undefined}>
           {showImage ? (
             <Image
@@ -190,8 +190,8 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           </div>
         </div>
 
-        {/* ── Body — tight padding ── */}
-        <div className="px-3.5 pt-2.5 pb-3">
+        {/* ── Body — compressed to claw back ~30% card height ── */}
+        <div className="px-3.5 pt-1.5 pb-2">
           {/* Name + address */}
           <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug truncate group-hover:text-[#2563EB] transition-colors">
             {property.name}
@@ -209,7 +209,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           )}
 
           {/* Metrics row */}
-          <div className="flex items-center gap-3 mt-2.5 pt-2.5 border-t border-slate-100">
+          <div className="flex items-center gap-3 mt-1.5 pt-1.5 border-t border-slate-100">
             <div className="flex-1">
               <p className="text-[15px] font-black text-slate-900 leading-none">
                 {property.monthlyRent > 0 ? fmt(property.monthlyRent) : <span className="text-slate-300 text-sm">—</span>}

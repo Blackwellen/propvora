@@ -8,6 +8,11 @@
  */
 
 export * from "./types"
+export * from "./model"
 export * from "./intents"
 export * from "./escrow"
 export * from "./connect-transfers"
+
+// Server-only modules (holds / disputes / release-blocks) are imported directly
+// by server routes & actions — NOT re-exported here so a client import of a
+// payment type never pulls "server-only" code into the browser bundle.
