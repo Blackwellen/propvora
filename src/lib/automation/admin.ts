@@ -125,3 +125,50 @@ export async function listPlanLimits(supabase: SupabaseClient): Promise<Row[]> {
 export async function setNodeEnabled(supabase: SupabaseClient, nodeType: string, enabled: boolean): Promise<void> {
   await supabase.from("automation_node_registry").update({ enabled, updated_at: new Date().toISOString() }).eq("node_type", nodeType)
 }
+
+/** Editable governance fields for a plan (admin plan-limit editor). */
+export interface PlanLimitPatch {
+  max_active?: number
+  max_runs_month?: number
+  max_nodes?: number
+  max_webhooks?: number
+  retention_days?: number
+}
+
+/** Update a plan's governance limits. Service-role admin only. Clamped >= 0. */
+export async function updatePlanLimit(supabase: SupabaseClient, plan: string, patch: PlanLimitPatch): Promise<void> {
+  const clean: Record<string, number> = {}
+  for (const [k, v] of Object.entries(patch)) {
+    if (v == null || Number.isNaN(Number(v))) continue
+    clean[k] = Math.max(0, Math.round(Number(v)))
+  }
+  if (Object.keys(clean).length === 0) return
+  await supabase
+    .from("automation_plan_limits")
+    .update({ ...clean, updated_at: new Date().toISOString() })
+    .eq("plan", plan)
+}
+
+/**
+ * Force-replay a run: queue it for re-execution by stamping a replay request on
+ * the run row. The executor (which always re-applies the normal gates + approval
+ * safety) picks it up — admin replay NEVER bypasses payment/legal approval.
+ * Tolerant: returns false if the run can't be found or the column is absent.
+ */
+export async function forceReplayRun(supabase: SupabaseClient, runId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from("automation_runs")
+      .update({ status: "queued", replay_requested_at: new Date().toISOString() })
+      .eq("id", runId)
+    if (!error) return true
+    // Fallback: some deployments use a `requested_replay` boolean instead.
+    const { error: e2 } = await supabase
+      .from("automation_runs")
+      .update({ status: "queued" })
+      .eq("id", runId)
+    return !e2
+  } catch {
+    return false
+  }
+}

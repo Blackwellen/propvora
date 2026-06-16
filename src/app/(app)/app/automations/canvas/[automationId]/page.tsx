@@ -6,7 +6,7 @@ import OpsHeader from "@/components/automations-ops/OpsHeader"
 import { LayoutTemplate } from "lucide-react"
 import { getDefinition } from "@/lib/automation/definitions"
 import { getActiveVersion, listVersions } from "@/lib/automation/canvas-model"
-import NodeCanvas from "@/components/automations-engine/NodeCanvas"
+import CanvasShell from "@/components/automations-engine/flow/CanvasShell"
 
 export const metadata = {
   title: "Automation canvas - Propvora",
@@ -33,6 +33,15 @@ export default async function AutomationCanvasIdPage({ params }: { params: Promi
   const def = await getDefinition(supabase, workspaceId, automationId)
   if (!def) redirect("/property-manager/automations/my-automations")
 
+  // Workspace owners/admins may edit raw node JSON in the inspector.
+  const { data: member } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+  const canEditJson = ["owner", "admin"].includes(String((member as { role?: string } | null)?.role ?? ""))
+
   const [active, versions] = await Promise.all([
     getActiveVersion(supabase, workspaceId, automationId),
     listVersions(supabase, workspaceId, automationId),
@@ -55,11 +64,12 @@ export default async function AutomationCanvasIdPage({ params }: { params: Promi
         backHref="/property-manager/automations/my-automations"
         backLabel="My automations"
       />
-      <NodeCanvas
+      <CanvasShell
         workspaceId={workspaceId}
         definitionId={automationId}
         definitionName={def.name}
         initialGraph={initialGraph}
+        canEditJson={canEditJson}
       />
     </div>
   )

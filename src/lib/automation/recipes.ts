@@ -20,13 +20,36 @@ import { NODE_ACTION_MAP } from "./node-registry"
 import type { ActionType, TriggerType } from "./types"
 
 export type RecipeDomain =
+  | "portfolio"
+  | "r2r"
+  | "sa"
+  | "hmo"
   | "booking"
   | "supplier"
   | "marketplace"
   | "money"
+  | "accounting"
   | "compliance"
   | "legal"
   | "customer"
+  | "admin"
+
+/** Display labels for the recipe domains (for the section UI). */
+export const RECIPE_DOMAIN_LABELS: Record<RecipeDomain, string> = {
+  portfolio: "Portfolio",
+  r2r: "Rent-to-Rent",
+  sa: "Serviced Accommodation",
+  hmo: "HMO",
+  booking: "Bookings",
+  supplier: "Suppliers",
+  marketplace: "Marketplace",
+  money: "Money",
+  accounting: "Accounting",
+  compliance: "Compliance",
+  legal: "Legal",
+  customer: "Customer",
+  admin: "Admin / Ops",
+}
 
 export interface RecipeNode {
   node_key: string
@@ -54,6 +77,102 @@ export interface SmartRecipe {
   /** The v2 definition action array (the executor-drained safe actions). */
   actions: DefinitionAction[]
 }
+
+// ── Recipe builders ─────────────────────────────────────────────────────────
+// Small helpers that build a 3-node linear graph (trigger → action → end) plus
+// the matching safe v2 action. They keep the EXTRA_RECIPES block dense and DRY
+// while every node still maps to a real registry node + safe catalogue action.
+
+type SafeAction = "create_task" | "create_notification" | "draft_message" | "flag_record" | "create_calendar_reminder"
+
+function linear(
+  slug: string,
+  name: string,
+  description: string,
+  domain: RecipeDomain,
+  minPlan: SmartRecipe["minPlan"],
+  trigger: SmartRecipe["trigger"],
+  triggerNode: string,
+  actionNode: string,
+  safe: SafeAction,
+  cfg: Record<string, unknown>,
+  recommended = false,
+): SmartRecipe {
+  return {
+    slug, name, description, domain, minPlan, recommended, trigger,
+    graph: {
+      nodes: [
+        { node_key: "t1", node_type: triggerNode, config: trigger.config ?? {} },
+        { node_key: "a1", node_type: actionNode, config: cfg },
+        { node_key: "e1", node_type: "end.success" },
+      ],
+      edges: [ { source_key: "t1", target_key: "a1" }, { source_key: "a1", target_key: "e1" } ],
+    },
+    actions: [{ action_type: safe, config: cfg }],
+  }
+}
+
+/** Many domain recipes (10+ per major section where sensible). */
+const EXTRA_RECIPES: SmartRecipe[] = [
+  // ── Portfolio ───────────────────────────────────────────────────────────────
+  linear("portfolio-new-property-onboard", "New property → onboarding checklist", "Create an onboarding task when a property is added.", "portfolio", "Operator", { kind: "event", type: "job_completed", config: {} }, "portfolio.property_added", "action.create_task", "create_task", { title: "Onboard property: {{summary}}", description: "Add docs, photos, compliance items and rent terms.", priority: "high", due_in_days: "7" }, true),
+  linear("portfolio-tenancy-started-welcome", "Tenancy started → welcome pack draft", "Draft a welcome message when a tenancy starts.", "portfolio", "Operator", { kind: "event", type: "tenancy_ending", config: {} }, "portfolio.tenancy_started", "comm.external_message_draft", "draft_message", { subject: "Welcome to your new home", body: "Hi, welcome! Here is everything you need to get started." }),
+  linear("portfolio-tenancy-ending-notice", "Tenancy ending → review task", "Create a re-let / renewal review task ahead of a tenancy end.", "portfolio", "Operator", { kind: "event", type: "tenancy_ending", config: { within_days: 60 } }, "portfolio.tenancy_ending", "action.create_task", "create_task", { title: "Re-let or renew: {{summary}}", priority: "normal", due_in_days: "21" }, true),
+  linear("portfolio-inspection-reminder", "Quarterly inspection reminder", "Daily schedule that drafts an inspection reminder task.", "portfolio", "Operator", { kind: "schedule", type: "job_completed", config: { time: "09:00" } }, "schedule.daily", "action.create_calendar_reminder", "create_calendar_reminder", { title: "Property inspection due", due_in_days: "0" }),
+  linear("portfolio-rent-review-task", "Annual rent review task", "Create a rent review task ahead of the anniversary.", "portfolio", "Operator", { kind: "event", type: "tenancy_ending", config: {} }, "portfolio.tenancy_ending", "action.create_task", "create_task", { title: "Annual rent review: {{summary}}", priority: "normal", due_in_days: "30" }),
+
+  // ── Rent-to-Rent ─────────────────────────────────────────────────────────────
+  linear("r2r-guarantee-rent-due", "R2R guarantee rent due → reminder", "Remind you when guaranteed rent to the owner is due.", "r2r", "Operator", { kind: "event", type: "rent_overdue", config: { min_days_overdue: 0 } }, "money.payout_due", "comm.internal_notification", "create_notification", { title: "Owner rent due: {{summary}}", body: "Guaranteed rent payment to the owner is due.", severity: "warning" }, true),
+  linear("r2r-arrears-buffer", "R2R arrears → flag buffer risk", "Flag the deal when tenant arrears threaten the guarantee buffer.", "r2r", "Operator", { kind: "event", type: "rent_overdue", config: { min_days_overdue: 5 } }, "invoice.overdue", "action.flag_marketplace_order", "flag_record", { reason: "R2R buffer risk: arrears on {{summary}}" }),
+  linear("r2r-lease-expiry-task", "R2R head-lease expiring → renewal task", "Create a head-lease renewal task before expiry.", "r2r", "Operator", { kind: "event", type: "tenancy_ending", config: { within_days: 90 } }, "portfolio.tenancy_ending", "action.create_task", "create_task", { title: "Renew head lease: {{summary}}", priority: "high", due_in_days: "30" }, true),
+
+  // ── Serviced Accommodation ───────────────────────────────────────────────────
+  linear("sa-checkin-instructions", "Booking confirmed → check-in instructions draft", "Draft check-in instructions when a stay is booked.", "sa", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.confirmed", "comm.external_message_draft", "draft_message", { subject: "Your check-in details", body: "Hi, here are your check-in instructions and access details." }, true),
+  linear("sa-checkout-clean", "Checkout due → cleaning task", "Create a turnover cleaning task at checkout.", "sa", "Pro / Agency", { kind: "event", type: "job_completed", config: { within_days: 1 } }, "booking.checkout_due", "action.create_cleaning_task", "create_task", { title: "Turnover clean — {{summary}}", due_in_days: "1" }, true),
+  linear("sa-review-request", "Stay complete → review request draft", "Draft a review request after a guest checks out.", "sa", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.checkout_due", "comm.external_message_draft", "draft_message", { subject: "How was your stay?", body: "Thanks for staying with us — we'd love a quick review." }),
+  linear("sa-cancellation-notify", "Booking cancelled → notify ops", "Notify ops when a stay is cancelled so the calendar can be re-opened.", "sa", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.cancelled", "comm.internal_notification", "create_notification", { title: "Booking cancelled: {{summary}}", body: "Re-open the calendar and review any refund.", severity: "warning" }),
+  linear("sa-checkin-prep", "Check-in due → prep task", "Create a guest-prep task before check-in.", "sa", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.checkin_due", "action.create_task", "create_task", { title: "Guest prep — {{summary}}", priority: "high", due_in_days: "0" }),
+
+  // ── HMO ──────────────────────────────────────────────────────────────────────
+  linear("hmo-licence-expiry", "HMO licence expiring → renewal task", "Create a licence renewal task before an HMO licence expires.", "hmo", "Operator", { kind: "event", type: "licence_expiring", config: { within_days: 60 } }, "compliance.expiring", "action.create_task", "create_task", { title: "Renew HMO licence: {{summary}}", priority: "high", due_in_days: "30" }, true),
+  linear("hmo-room-void", "HMO room void → re-let task", "Create a re-let task when a room becomes void.", "hmo", "Operator", { kind: "event", type: "tenancy_ending", config: {} }, "portfolio.tenancy_ending", "action.create_task", "create_task", { title: "Re-let room: {{summary}}", priority: "normal", due_in_days: "7" }),
+  linear("hmo-fire-safety-check", "HMO fire safety check reminder", "Daily schedule that drafts a fire-safety check reminder.", "hmo", "Operator", { kind: "schedule", type: "job_completed", config: { time: "09:00" } }, "schedule.daily", "action.record_compliance_check", "flag_record", { outcome: "review" }),
+
+  // ── Bookings ────────────────────────────────────────────────────────────────
+  linear("booking-confirmed-task", "Booking confirmed → fulfilment task", "Create a fulfilment task when a booking is confirmed.", "booking", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.confirmed", "action.create_task", "create_task", { title: "Fulfil booking: {{summary}}", priority: "normal", due_in_days: "1" }),
+  linear("booking-channel-sync-flag", "Channel booking → review flag", "Flag inbound channel-manager bookings for operator review.", "booking", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "booking.confirmed", "action.flag_marketplace_order", "flag_record", { reason: "Channel booking: {{summary}}" }),
+
+  // ── Suppliers ───────────────────────────────────────────────────────────────
+  linear("supplier-assigned-brief", "Supplier assigned → brief draft", "Draft a job brief when a supplier is assigned.", "supplier", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "supplier.job.assigned", "comm.external_message_draft", "draft_message", { subject: "Job brief", body: "Here are the job details, access and the completion checklist." }, true),
+  linear("supplier-evidence-uploaded-review", "Evidence uploaded → review task", "Create a QA task when a supplier uploads evidence.", "supplier", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "supplier.evidence_uploaded", "action.create_task", "create_task", { title: "Review evidence: {{summary}}", priority: "normal", due_in_days: "2" }),
+  linear("supplier-job-complete-followup", "Job complete → follow-up task", "Create a follow-up/QA task when a supplier completes a job.", "supplier", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "supplier.job.completed", "action.create_task", "create_task", { title: "QA completed job: {{summary}}", priority: "normal", due_in_days: "2" }),
+
+  // ── Marketplace ──────────────────────────────────────────────────────────────
+  linear("marketplace-dispute-notify", "Marketplace dispute → notify ops", "Raise a critical notification when a buyer disputes an order.", "marketplace", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "marketplace.order_disputed", "comm.internal_notification", "create_notification", { title: "Dispute opened: {{summary}}", body: "Review the dispute and respond within SLA.", severity: "critical" }, true),
+  linear("marketplace-review-thanks", "Marketplace review → thank-you draft", "Draft a thank-you when a marketplace review is received.", "marketplace", "Pro / Agency", { kind: "event", type: "job_completed", config: {} }, "marketplace.review_received", "comm.external_message_draft", "draft_message", { subject: "Thanks for your review", body: "Thank you for the feedback — we appreciate it." }),
+
+  // ── Money ────────────────────────────────────────────────────────────────────
+  linear("money-payment-received-receipt", "Payment received → receipt draft", "Draft a receipt when a payment settles.", "money", "Operator", { kind: "event", type: "rent_overdue", config: {} }, "money.payment_received", "comm.external_message_draft", "draft_message", { subject: "Payment received", body: "Thanks — we've received your payment. Your receipt is attached." }),
+  linear("money-invoice-overdue-chase", "Invoice overdue → chase draft", "Draft a polite chase when an invoice is overdue.", "money", "Operator", { kind: "event", type: "rent_overdue", config: { min_days_overdue: 3 } }, "invoice.overdue", "comm.external_message_draft", "draft_message", { subject: "Outstanding invoice", body: "Our records show an outstanding balance — please let us know when payment will be made." }, true),
+
+  // ── Accounting ───────────────────────────────────────────────────────────────
+  linear("accounting-invoice-draft", "New transaction → invoice draft", "Draft an invoice (never auto-issues) for a new transaction.", "accounting", "Operator", { kind: "event", type: "job_completed", config: {} }, "marketplace.transaction.created", "action.create_invoice_draft", "create_notification", { title: "Invoice drafted: {{summary}}", reference: "{{summary}}" }, true),
+  linear("accounting-month-end-task", "Month-end reconciliation task", "Daily schedule that drafts a month-end reconciliation task.", "accounting", "Operator", { kind: "schedule", type: "job_completed", config: { time: "09:00" } }, "schedule.daily", "action.create_task", "create_task", { title: "Month-end reconciliation", priority: "normal", due_in_days: "0" }),
+
+  // ── Compliance ───────────────────────────────────────────────────────────────
+  linear("compliance-gas-safety", "Gas safety expiring → renewal task", "Create a renewal task before a gas safety certificate expires.", "compliance", "Operator", { kind: "event", type: "compliance_due_soon", config: { within_days: 30 } }, "compliance.expiring", "action.create_task", "create_task", { title: "Renew gas safety: {{summary}}", priority: "high", due_in_days: "14" }, true),
+  linear("compliance-check-failed", "Compliance failed → flag + notify", "Flag and notify when a compliance check fails.", "compliance", "Operator", { kind: "event", type: "compliance_overdue", config: {} }, "compliance.failed", "comm.internal_notification", "create_notification", { title: "Compliance failed: {{summary}}", body: "A compliance check has failed — action needed.", severity: "critical" }),
+
+  // ── Legal ────────────────────────────────────────────────────────────────────
+  linear("legal-arrears-review", "Persistent arrears → legal review task", "Create a legal-review task (never serves a notice) on persistent arrears.", "legal", "Scale", { kind: "event", type: "rent_overdue", config: { min_days_overdue: 14 } }, "invoice.overdue", "comm.internal_notification", "create_notification", { title: "Legal review: {{summary}}", body: "Persistent arrears — route to legal review before any notice.", severity: "warning" }, true),
+
+  // ── Customer ─────────────────────────────────────────────────────────────────
+  linear("customer-renewal-offer", "Tenancy ending → renewal offer draft", "Draft a renewal offer ahead of a tenancy end.", "customer", "Operator", { kind: "event", type: "tenancy_ending", config: { within_days: 45 } }, "portfolio.tenancy_ending", "comm.external_message_draft", "draft_message", { subject: "Renew your tenancy", body: "We'd love to have you stay — here are your renewal options." }, true),
+
+  // ── Admin / Ops ──────────────────────────────────────────────────────────────
+  linear("admin-task-overdue-escalate", "Task overdue → escalate", "Escalate to ops when a work task passes its due date.", "admin", "Operator", { kind: "event", type: "job_completed", config: {} }, "work.task_overdue", "comm.internal_notification", "create_notification", { title: "Task overdue: {{summary}}", body: "A work task is overdue — reassign or chase.", severity: "warning" }, true),
+  linear("admin-daily-digest", "Daily ops digest", "Daily schedule that drafts an operations digest note.", "admin", "Operator", { kind: "schedule", type: "job_completed", config: { time: "09:00" } }, "schedule.daily", "action.add_note", "create_notification", { title: "Daily ops digest", body: "Open tasks, overdue items and approvals awaiting you." }),
+]
 
 /**
  * The curated recipe catalogue. Each is review-first and disabled on install.
@@ -232,6 +351,7 @@ export const SMART_RECIPES: SmartRecipe[] = [
     },
     actions: [{ action_type: "create_task", config: { title: "Renewal decision: {{summary}}", description: "Decide renew vs re-let and contact the tenant.", priority: "normal", due_in_days: "21" } }],
   },
+  ...EXTRA_RECIPES,
 ]
 
 export function recipeBySlug(slug: string): SmartRecipe | undefined {
