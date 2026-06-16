@@ -139,7 +139,7 @@ export default function RunsList() {
             title: (r) => <span className="font-semibold text-slate-900">{triggerSource(r)} run</span>,
             subtitle: (r) => <span className="text-xs text-slate-500">{absoluteTime(r.created_at)}</span>,
             badge: (r) => <RunStatusPill status={r.status} />,
-            onRowClick: (r) => router.push(`/app/automations/runs/${r.id}`),
+            onRowClick: (r) => router.push(`/property-manager/automations/runs/${r.id}`),
             fields: [
               { label: "Started", render: (r) => relativeTime(r.started_at) },
               { label: "Finished", render: (r) => relativeTime(r.finished_at) },
@@ -150,7 +150,7 @@ export default function RunsList() {
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <tr className="border-b border-slate-200 bg-slate-50/60 text-left text-xs font-semibold uppercase text-slate-400">
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Source</th>
                   <th className="px-4 py-3">Started</th>
@@ -163,7 +163,7 @@ export default function RunsList() {
                 {filtered.map((r) => (
                   <tr
                     key={r.id}
-                    onClick={() => router.push(`/app/automations/runs/${r.id}`)}
+                    onClick={() => router.push(`/property-manager/automations/runs/${r.id}`)}
                     className="cursor-pointer border-b border-slate-100 last:border-0 hover:bg-slate-50/60"
                   >
                     <td className="px-4 py-3"><RunStatusPill status={r.status} /></td>

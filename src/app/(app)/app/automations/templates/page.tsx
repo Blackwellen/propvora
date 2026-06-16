@@ -3,7 +3,7 @@ import OpsHeader from "@/components/automations-ops/OpsHeader"
 import TemplateGallery from "@/components/automations-ops/TemplateGallery"
 
 export const metadata = {
-  title: "Template gallery · Automations · Propvora",
+  title: "Template gallery - Automations - Propvora",
   description: "Ready-made automations you can install as a draft in one click.",
 }
 

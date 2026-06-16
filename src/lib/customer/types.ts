@@ -49,7 +49,9 @@ export interface ListingSummary {
 export interface CustomerBooking {
   id: string
   listing_id: string | null
+  booking_listing_id: string | null
   property_id: string | null
+  booking_ref: string | null
   guest_name: string | null
   guest_email: string | null
   check_in: string | null
@@ -59,10 +61,16 @@ export interface CustomerBooking {
   currency: string
   subtotal_pence: number | null
   fees_pence: number | null
+  deposit_pence: number | null
   total_pence: number | null
   status: string
+  payment_status: string | null
+  arrival_time: string | null
   source: string | null
   created_at: string
+  /** Joined stay title, when the booking is backed by a booking_listing. */
+  listing_title?: string | null
+  listing_slug?: string | null
 }
 
 /** A marketplace order — the BUYER side of a marketplace_transaction. */

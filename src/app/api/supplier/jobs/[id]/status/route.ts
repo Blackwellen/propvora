@@ -8,6 +8,7 @@ import {
   type JobStatus,
   type TransitionResult,
 } from "@/lib/supplier/jobs"
+import { recordJobEvent } from "@/lib/supplier/evidence"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -107,6 +108,18 @@ export async function PATCH(
           })
 
     if (!result.ok) return transitionFailure(result)
+
+    // Append a real audit event for the transition (best-effort; never blocks
+    // the response if the events table isn't provisioned).
+    await recordJobEvent(supabase, {
+      assignmentId: id,
+      eventType: "status",
+      fromStatus: job.status,
+      toStatus: to,
+      actorUserId: user.id,
+      actorSide: isSupplier ? "supplier" : "operator",
+    })
+
     return NextResponse.json({ job: result.job })
   } catch (err) {
     captureException(err, { source: "api/supplier/jobs/[id]/status PATCH", requestId })

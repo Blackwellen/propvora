@@ -67,7 +67,7 @@ function Node({
         <span className={`grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br ${meta.cls} text-white shadow-sm`}>
           <meta.icon className="h-4 w-4" />
         </span>
-        <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${meta.chip}`}>{meta.label}</span>
+        <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase ${meta.chip}`}>{meta.label}</span>
         {onRemove && (
           <span
             role="button"
@@ -213,7 +213,7 @@ export function MobileStepList({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${meta.chip}`}>{meta.label}</span>
+            <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${meta.chip}`}>{meta.label}</span>
             <span className="truncate text-sm font-semibold text-slate-800">{title}</span>
           </div>
           <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div>

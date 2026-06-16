@@ -244,6 +244,10 @@ export default function PayClient() {
                 onClick={() => {
                   const p = new URLSearchParams()
                   if (bookingRef) p.set("ref", bookingRef)
+                  const hrid = search.get("hrid")
+                  const token = search.get("token")
+                  if (hrid) p.set("hrid", hrid)
+                  if (token) p.set("token", token)
                   p.set("status", bookingStatus ?? "pending_payment")
                   router.push(
                     `/stay/${encodeURIComponent(slug ?? "")}/confirmation?${p.toString()}`

@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, X, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -246,4 +246,194 @@ export function humaniseStatus(status: string): string {
   return status
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+export function SupplierButton({
+  children,
+  onClick,
+  type = "button",
+  variant = "primary",
+  size = "md",
+  disabled,
+  loading,
+  className,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  type?: "button" | "submit"
+  variant?: "primary" | "secondary" | "ghost" | "danger"
+  size?: "sm" | "md"
+  disabled?: boolean
+  loading?: boolean
+  className?: string
+}) {
+  const variants: Record<string, string> = {
+    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50",
+    secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50",
+    ghost: "text-slate-600 hover:bg-slate-100 disabled:opacity-50",
+    danger: "bg-red-600 text-white hover:bg-red-700 disabled:opacity-50",
+  }
+  const sizes: Record<string, string> = {
+    sm: "h-8 px-3 text-[13px] rounded-lg gap-1.5",
+    md: "h-10 px-4 text-sm rounded-xl gap-2",
+  }
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={cn(
+        "inline-flex items-center justify-center font-semibold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+        variants[variant],
+        sizes[size],
+        className
+      )}
+    >
+      {loading && <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin motion-reduce:animate-none" />}
+      {children}
+    </button>
+  )
+}
+
+/* ── Tabs (segmented) ───────────────────────────────────────────────────── */
+
+export interface SupplierTab {
+  key: string
+  label: string
+  icon?: LucideIcon
+  count?: number
+}
+
+export function SupplierTabs({
+  tabs,
+  active,
+  onChange,
+  className,
+}: {
+  tabs: SupplierTab[]
+  active: string
+  onChange: (key: string) => void
+  className?: string
+}) {
+  return (
+    <div className={cn("flex gap-1 overflow-x-auto no-scrollbar -mx-1 px-1", className)} role="tablist">
+      {tabs.map((t) => {
+        const Icon = t.icon
+        const isActive = t.key === active
+        return (
+          <button
+            key={t.key}
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(t.key)}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+              isActive ? "bg-[#0D1B2A] text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+            )}
+          >
+            {Icon && <Icon className="w-3.5 h-3.5" />}
+            {t.label}
+            {t.count != null && t.count > 0 && (
+              <span className={cn("ml-0.5 px-1.5 py-px rounded-full text-[10px] font-bold", isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600")}>
+                {t.count}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ── Labelled field (forms) ─────────────────────────────────────────────── */
+
+export function SupplierField({
+  label,
+  children,
+  hint,
+  required,
+}: {
+  label: string
+  children: React.ReactNode
+  hint?: string
+  required?: boolean
+}) {
+  return (
+    <label className="block">
+      <span className="block text-[13px] font-semibold text-slate-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </span>
+      {children}
+      {hint && <span className="block text-[11.5px] text-slate-400 mt-1">{hint}</span>}
+    </label>
+  )
+}
+
+export const supplierInputClass =
+  "w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+
+export const supplierTextareaClass =
+  "w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-y min-h-[88px]"
+
+/* ── Slide-over drawer ──────────────────────────────────────────────────── */
+
+export function SupplierDrawer({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+}) {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-[60] flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200 motion-reduce:animate-none">
+        <div className="flex items-center justify-between px-5 h-16 border-b border-slate-100 shrink-0">
+          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+          <button onClick={onClose} aria-label="Close" className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">{children}</div>
+        {footer && <div className="px-5 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-2">{footer}</div>}
+      </div>
+    </div>
+  )
+}
+
+/* ── Inline error / info banner ─────────────────────────────────────────── */
+
+export function SupplierBanner({
+  tone = "amber",
+  children,
+  onDismiss,
+}: {
+  tone?: "amber" | "red" | "emerald" | "blue"
+  children: React.ReactNode
+  onDismiss?: () => void
+}) {
+  const tones: Record<string, string> = {
+    amber: "border-amber-100 bg-amber-50 text-amber-800",
+    red: "border-red-100 bg-red-50 text-red-800",
+    emerald: "border-emerald-100 bg-emerald-50 text-emerald-800",
+    blue: "border-blue-100 bg-blue-50 text-blue-800",
+  }
+  return (
+    <div className={cn("flex items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5", tones[tone])}>
+      <p className="text-[13px] font-medium">{children}</p>
+      {onDismiss && (
+        <button onClick={onDismiss} className="text-[12px] font-semibold hover:underline shrink-0">Dismiss</button>
+      )}
+    </div>
+  )
 }

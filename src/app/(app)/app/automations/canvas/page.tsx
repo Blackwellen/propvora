@@ -4,7 +4,7 @@ import { UpgradePrompt } from "@/components/automations-builder/shared"
 import CanvasClient from "./CanvasClient"
 
 export const metadata = {
-  title: "Automation canvas · Propvora",
+  title: "Automation canvas - Propvora",
   description: "Build an automation as a visual trigger → conditions → action flow.",
 }
 

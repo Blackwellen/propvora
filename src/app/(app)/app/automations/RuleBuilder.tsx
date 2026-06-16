@@ -88,7 +88,7 @@ export default function RuleBuilder({ onClose, onCreated }: Props) {
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-blue-50 text-blue-600"><Sparkles className="h-4.5 w-4.5" /></div>
             <div>
-              <h2 className="text-base font-semibold text-slate-900">New Smart Rule</h2>
+              <h2 className="text-base font-semibold text-slate-900">New automation</h2>
               <p className="text-xs text-slate-500">Trigger → condition → action. Review-first by default.</p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function RuleBuilder({ onClose, onCreated }: Props) {
           {step === 3 && (
             <div className="space-y-4">
               <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
-                <div className="text-xs font-medium uppercase tracking-wide text-slate-400">Summary</div>
+                <div className="text-xs font-medium uppercase text-slate-400">Summary</div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-700">
                   <span className="font-semibold">{name || "Untitled rule"}</span>
                 </div>

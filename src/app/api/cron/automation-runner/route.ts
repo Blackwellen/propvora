@@ -18,6 +18,7 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { authorizeCron } from "@/lib/cron/auth"
 import { drainAutomationQueue } from "@/lib/automation/executor"
+import { escalateOverdueApprovals } from "@/lib/automation/approvals"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
@@ -41,6 +42,8 @@ async function handle(request: Request): Promise<NextResponse> {
   try {
     const admin = createAdminClient()
     const result = await drainAutomationQueue(admin, { limit: DRAIN_LIMIT })
+    // Escalate any approval objects past their SLA (best-effort, never fails the drain).
+    const escalated = await escalateOverdueApprovals(admin)
     return NextResponse.json({
       ok: true,
       claimed: result.claimed,
@@ -48,6 +51,7 @@ async function handle(request: Request): Promise<NextResponse> {
       succeeded: result.succeeded,
       failed: result.failed,
       skipped: result.skipped,
+      approvalsEscalated: escalated,
     })
   } catch (err) {
     captureException(err, { source: "api/cron/automation-runner", requestId })

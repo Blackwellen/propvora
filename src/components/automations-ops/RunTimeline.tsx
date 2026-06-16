@@ -35,7 +35,7 @@ function JsonBlock({ label, icon: Icon, value }: { label: string; icon: React.El
   const isEmpty = !value || Object.keys(value).length === 0
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50/60">
-      <div className="flex items-center gap-1.5 border-b border-slate-200 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+      <div className="flex items-center gap-1.5 border-b border-slate-200 px-3 py-1.5 text-[11px] font-semibold uppercase text-slate-400">
         <Icon className="h-3 w-3" /> {label}
       </div>
       <pre className="max-h-48 overflow-auto px-3 py-2 text-[11px] leading-relaxed text-slate-600">
@@ -118,13 +118,13 @@ export default function RunTimeline({ runId }: { runId: string }) {
 
       {/* Trigger context */}
       <div>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Trigger context</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase text-slate-400">Trigger context</h3>
         <JsonBlock label="trigger_context" icon={ArrowDownToLine} value={run.trigger_context} />
       </div>
 
       {/* Step timeline */}
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Step timeline</h3>
+        <h3 className="mb-3 text-xs font-semibold uppercase text-slate-400">Step timeline</h3>
         {steps.length === 0 ? (
           <OpsEmptyState
             icon={Activity}

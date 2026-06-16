@@ -188,7 +188,7 @@ export default function WebhookManager() {
               </p>
               <div className="mt-3 space-y-2">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">Receiver URL</div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase text-emerald-700">Receiver URL</div>
                   <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2">
                     <code className="min-w-0 flex-1 truncate text-xs text-slate-700">{reveal.url}</code>
                     <CopyButton value={reveal.url} />
@@ -196,7 +196,7 @@ export default function WebhookManager() {
                 </div>
                 {reveal.secret && (
                   <div>
-                    <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                    <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase text-emerald-700">
                       <KeyRound className="h-3 w-3" /> Signing secret (send as X-Propvora-Signature: sha256(secret))
                     </div>
                     <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2">
@@ -367,7 +367,7 @@ function DeliveriesPanel({ endpoint, deliveries, loading, onClose }: {
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
                     {d.source_ip && <span>from {d.source_ip}</span>}
                     {d.run_id && (
-                      <a href={`/app/automations/runs/${d.run_id}`} className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700">
+                      <a href={`/property-manager/automations/runs/${d.run_id}`} className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700">
                         view run <ChevronRight className="h-3 w-3" />
                       </a>
                     )}

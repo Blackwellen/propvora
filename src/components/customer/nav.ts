@@ -5,6 +5,14 @@ import {
   Heart,
   MessageSquare,
   UserCircle,
+  CreditCard,
+  KeyRound,
+  ShieldCheck,
+  FileText,
+  LifeBuoy,
+  Sparkles,
+  Star,
+  Headphones,
   type LucideIcon,
 } from "lucide-react"
 
@@ -25,10 +33,19 @@ export interface CustomerNavItem {
 
 export const CUSTOMER_NAV: CustomerNavItem[] = [
   { label: "Dashboard", href: "/user", icon: LayoutDashboard, short: "Home" },
-  { label: "Bookings", href: "/user/bookings", icon: CalendarCheck, short: "Stays" },
+  { label: "My Bookings", href: "/user/bookings", icon: CalendarCheck, short: "Stays" },
+  { label: "Trip Details", href: "/user/trip", icon: CalendarCheck, short: "Trip" },
+  { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
+  { label: "Payments", href: "/user/payments", icon: CreditCard, short: "Pay" },
+  { label: "Check-in", href: "/user/check-in", icon: KeyRound, short: "Access" },
+  { label: "House Rules", href: "/user/house-rules", icon: ShieldCheck, short: "Rules" },
+  { label: "Documents", href: "/user/documents", icon: FileText, short: "Docs" },
+  { label: "Report Issue", href: "/user/report-issue", icon: LifeBuoy, short: "Issue" },
+  { label: "Extras", href: "/user/extras", icon: Sparkles, short: "Extras" },
+  { label: "Reviews", href: "/user/reviews", icon: Star, short: "Review" },
+  { label: "Support", href: "/user/support", icon: Headphones, short: "Help" },
   { label: "Orders", href: "/user/orders", icon: ShoppingBag, short: "Orders" },
   { label: "Saved", href: "/user/saved", icon: Heart, short: "Saved" },
-  { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
   { label: "Profile", href: "/user/profile", icon: UserCircle, short: "Profile" },
 ]
 
@@ -41,9 +58,7 @@ export const CUSTOMER_PRIMARY: CustomerNavItem[] = [
 
 /** Everything reachable from the mobile "More" sheet. */
 export const CUSTOMER_MORE: CustomerNavItem[] = [
-  CUSTOMER_NAV[3], // Saved
-  CUSTOMER_NAV[4], // Messages
-  CUSTOMER_NAV[5], // Profile
+  ...CUSTOMER_NAV.slice(3),
 ]
 
 export function isCustomerNavActive(pathname: string, href: string): boolean {

@@ -95,10 +95,10 @@ export default function BuilderClient({ workspaceId, aiEnabled }: Props) {
         icon={Sparkles}
         actions={
           <>
-            <Link href="/app/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Link href="/property-manager/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <LayoutTemplate className="h-4 w-4" /> Canvas
             </Link>
-            <Link href="/app/automations" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Link href="/property-manager/automations" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <ArrowLeft className="h-4 w-4" /> All rules
             </Link>
           </>
@@ -166,7 +166,7 @@ export default function BuilderClient({ workspaceId, aiEnabled }: Props) {
             {saved && (
               <div className="mb-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs text-emerald-800">
                 <Check className="mt-0.5 h-4 w-4 shrink-0" /> Saved. It appears in your rules and stays review-first.{" "}
-                <Link href="/app/automations" className="font-medium underline">View</Link>
+                <Link href="/property-manager/automations" className="font-medium underline">View</Link>
               </div>
             )}
             <button

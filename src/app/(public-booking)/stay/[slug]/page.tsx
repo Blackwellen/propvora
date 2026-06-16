@@ -3,98 +3,23 @@ import { notFound } from "next/navigation"
 import {
   MapPin,
   Users,
+  BedDouble,
+  Bath,
   ShieldCheck,
-  CalendarCheck,
-  Sparkles,
   Info,
+  Clock,
+  LogOut,
+  CheckCircle2,
+  Home,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { getPublicListingDetail } from "@/lib/booking"
 import ListingGallery from "@/components/booking/ListingGallery"
-import BookingCheckout from "@/components/booking/BookingCheckout"
-import type { PublicListingView } from "@/components/booking/types"
+import StayBookingCard from "@/components/booking/StayBookingCard"
+import { STAY_TYPE_LABEL, STAY_POLICY_LABEL } from "@/components/booking/StayListingCard"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-const NOT_PROVISIONED = new Set(["42P01", "PGRST205", "PGRST204"])
-
-/**
- * Load a PUBLISHED stay-booking listing for public display. Reads with the
- * request's anon-keyed client — RLS permits published reads. The `[slug]` is
- * treated as the listing id (no slug column exists in the live schema yet); if
- * a `public_slug`/`slug` column is added later, this resolves by either.
- * Returns null for not-found / not-published / not-provisioned.
- */
-async function loadListing(slug: string): Promise<PublicListingView | null> {
-  const supabase = await createClient()
-
-  // Resolve by id first (the documented fallback), then by slug if present.
-  async function fetchRow(): Promise<Record<string, unknown> | null> {
-    // Try id match.
-    const byId = await supabase
-      .from("marketplace_listings")
-      .select("*")
-      .eq("id", slug)
-      .maybeSingle()
-    if (byId.error) {
-      if (NOT_PROVISIONED.has(byId.error.code ?? "")) return null
-      // a malformed-uuid error means slug isn't an id — fall through to slug.
-    } else if (byId.data) {
-      return byId.data as Record<string, unknown>
-    }
-
-    // Try a slug column if one exists (tolerant — column may be absent).
-    try {
-      const bySlug = await supabase
-        .from("marketplace_listings")
-        .select("*")
-        .eq("public_slug", slug)
-        .maybeSingle()
-      if (!bySlug.error && bySlug.data) return bySlug.data as Record<string, unknown>
-    } catch {
-      /* column absent — ignore */
-    }
-    return null
-  }
-
-  let row: Record<string, unknown> | null = null
-  try {
-    row = await fetchRow()
-  } catch {
-    return null
-  }
-  if (!row) return null
-  if (row.status !== "published" || row.transaction_type !== "stay_booking") {
-    return null
-  }
-
-  // Price: prefer base_price_pence (commerce schema), else legacy numeric price.
-  let basePence: number | null =
-    row.base_price_pence != null ? Math.trunc(Number(row.base_price_pence)) : null
-  if (basePence == null && row.price != null) {
-    const major = Number(row.price)
-    basePence = Number.isFinite(major) ? Math.round(major * 100) : null
-  }
-
-  const images = Array.isArray(row.images)
-    ? (row.images as unknown[]).filter((x): x is string => typeof x === "string")
-    : []
-
-  return {
-    id: String(row.id),
-    title: (row.title as string | null)?.trim() || "Your stay",
-    description: (row.description as string | null) ?? null,
-    currency: (row.currency as string | null) ?? "GBP",
-    basePricePence: basePence,
-    location:
-      (row.location as string | null) ??
-      (row.location_city as string | null) ??
-      null,
-    images,
-    maxGuests: row.max_guests != null ? Number(row.max_guests) : null,
-    countryCode: (row.country_code as string | null) ?? null,
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -102,120 +27,210 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const listing = await loadListing(slug)
+  const supabase = await createClient()
+  const listing = await getPublicListingDetail(supabase, slug)
   if (!listing) return { title: "Stay not found · Propvora" }
   return {
     title: `${listing.title} · Book direct · Propvora`,
-    description:
-      listing.description?.slice(0, 155) ??
-      "Reserve this stay directly with the property manager.",
+    description: listing.summary ?? listing.description?.slice(0, 155) ?? "Reserve this stay directly with the host.",
   }
 }
 
-const HIGHLIGHTS = [
-  { icon: CalendarCheck, label: "Instant date hold" },
-  { icon: ShieldCheck, label: "Secure checkout" },
-  { icon: Sparkles, label: "Professionally managed" },
-]
+function ruleEntries(houseRules: Record<string, unknown>): { label: string; value: string }[] {
+  const out: { label: string; value: string }[] = []
+  for (const [k, v] of Object.entries(houseRules || {})) {
+    if (v == null || v === "") continue
+    const label = k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    const value = typeof v === "boolean" ? (v ? "Allowed" : "Not allowed") : String(v)
+    out.push({ label, value })
+  }
+  return out
+}
 
-export default async function StayListingPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function StayListingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const listing = await loadListing(slug)
+  const supabase = await createClient()
+  const listing = await getPublicListingDetail(supabase, slug)
   if (!listing) notFound()
+
+  const place = [listing.city, listing.country].filter(Boolean).join(", ")
+  const galleryImages = listing.photos.map((p) => p.url).filter((u): u is string => !!u)
+  const rules = ruleEntries(listing.houseRules)
+  const amenityGroups = listing.amenities.reduce<Record<string, string[]>>((acc, a) => {
+    const g = a.group ?? "Amenities"
+    ;(acc[g] ??= []).push(a.value ?? a.key.replace(/_/g, " "))
+    return acc
+  }, {})
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-28 lg:pb-8">
-      {/* Title row */}
+      {/* Title */}
       <div className="mb-4">
-        <h1 className="text-[22px] sm:text-[28px] font-bold tracking-tight text-[#0B1B3F]">
-          {listing.title}
-        </h1>
-        {listing.location && (
+        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+          <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-blue-700">
+            {STAY_TYPE_LABEL[listing.listingType] ?? "Stay"}
+          </span>
+          {listing.complianceStatus === "passed" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-emerald-700">
+              <ShieldCheck className="w-3 h-3" /> Licence verified
+            </span>
+          )}
+          {listing.bookingMode === "instant" && (
+            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-amber-700">
+              Instant book
+            </span>
+          )}
+        </div>
+        <h1 className="text-[22px] sm:text-[28px] font-bold tracking-tight text-[#0B1B3F]">{listing.title}</h1>
+        {place && (
           <p className="mt-1 flex items-center gap-1.5 text-[13.5px] text-slate-500">
-            <MapPin className="w-4 h-4 text-slate-400" />
-            {listing.location}
+            <MapPin className="w-4 h-4 text-slate-400" /> {place}
           </p>
         )}
       </div>
 
-      {/* Gallery */}
-      <ListingGallery images={listing.images} title={listing.title} />
+      <ListingGallery images={galleryImages} title={listing.title} />
 
-      {/* Body: details + booking card */}
       <div className="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: description + facts */}
+        {/* Left */}
         <div className="lg:col-span-7 space-y-7">
-          {/* Highlights */}
-          <div className="flex flex-wrap gap-2.5">
-            {HIGHLIGHTS.map(({ icon: Icon, label }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#E2EAF6] px-3 py-1.5 text-[12.5px] font-medium text-slate-600"
-              >
-                <Icon className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                {label}
-              </span>
-            ))}
-          </div>
-
           {/* Facts */}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13.5px] text-slate-600 border-y border-[#EEF3FB] py-4">
-            {listing.maxGuests != null && (
-              <span className="inline-flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-slate-400" />
-                Sleeps {listing.maxGuests}
-              </span>
-            )}
-            {listing.location && (
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-slate-400" />
-                {listing.location}
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-slate-400" /> Sleeps {listing.maxGuests}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <BedDouble className="w-4 h-4 text-slate-400" /> {listing.bedrooms} bed
+              {listing.bedrooms === 1 ? "" : "s"} · {listing.beds} bed{listing.beds === 1 ? "" : "s"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Bath className="w-4 h-4 text-slate-400" /> {listing.bathrooms} bath
+              {listing.bathrooms === 1 ? "" : "s"}
+            </span>
           </div>
 
+          {/* Host */}
+          {listing.hostName && (
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-[#1D4ED8]/10 flex items-center justify-center text-[#1D4ED8] font-bold text-[15px]">
+                {listing.hostName.slice(0, 1).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-[#0B1B3F]">Managed by {listing.hostName}</p>
+                <p className="text-[12px] text-slate-500">Professional property manager on Propvora</p>
+              </div>
+            </div>
+          )}
+
           {/* Description */}
-          {listing.description ? (
-            <section>
-              <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-2.5">
-                About this stay
-              </h2>
+          <section>
+            <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-2.5">About this stay</h2>
+            {listing.description || listing.summary ? (
               <p className="text-[14px] leading-relaxed text-slate-600 whitespace-pre-line">
-                {listing.description}
+                {listing.description ?? listing.summary}
               </p>
-            </section>
-          ) : (
-            <section>
-              <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-2.5">
-                About this stay
-              </h2>
+            ) : (
               <p className="text-[14px] leading-relaxed text-slate-500">
-                The property manager hasn&apos;t added a full description yet. Choose
-                your dates to request a booking and they&apos;ll be in touch with the
-                details.
+                The host hasn&apos;t added a full description yet. Choose your dates to see live pricing and
+                reserve your stay.
               </p>
+            )}
+          </section>
+
+          {/* Amenities */}
+          {Object.keys(amenityGroups).length > 0 && (
+            <section>
+              <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-3">What this place offers</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                {Object.entries(amenityGroups).map(([group, items]) => (
+                  <div key={group}>
+                    <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                      {group}
+                    </p>
+                    <ul className="space-y-1.5">
+                      {items.map((it, i) => (
+                        <li key={i} className="flex items-center gap-2 text-[13.5px] text-slate-600">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> {it}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
-          {/* Compliance / role note */}
+          {/* Check-in / out */}
+          {(listing.checkInWindow || listing.checkoutTime) && (
+            <section className="grid grid-cols-2 gap-4">
+              {listing.checkInWindow && (
+                <div className="rounded-xl border border-[#EEF3FB] px-4 py-3">
+                  <p className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-400 uppercase tracking-wide mb-1">
+                    <Clock className="w-3.5 h-3.5" /> Check-in
+                  </p>
+                  <p className="text-[14px] font-semibold text-[#0B1B3F]">{listing.checkInWindow}</p>
+                </div>
+              )}
+              {listing.checkoutTime && (
+                <div className="rounded-xl border border-[#EEF3FB] px-4 py-3">
+                  <p className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-400 uppercase tracking-wide mb-1">
+                    <LogOut className="w-3.5 h-3.5" /> Check-out
+                  </p>
+                  <p className="text-[14px] font-semibold text-[#0B1B3F]">{listing.checkoutTime}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* House rules */}
+          {rules.length > 0 && (
+            <section>
+              <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-3">House rules</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                {rules.map((r, i) => (
+                  <li key={i} className="flex items-center justify-between gap-3 text-[13.5px] border-b border-[#F1F5FB] py-1.5">
+                    <span className="text-slate-500">{r.label}</span>
+                    <span className="font-medium text-[#0B1B3F]">{r.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Cancellation */}
+          <section className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] mb-1">
+              <Home className="w-4 h-4 text-[#1D4ED8]" /> {STAY_POLICY_LABEL[listing.cancellationPolicy] ?? "Cancellation"}
+            </p>
+            <p className="text-[12.5px] text-slate-500 leading-relaxed">
+              The exact refund schedule is shown at checkout before you confirm and pay.
+            </p>
+          </section>
+
+          {/* Compliance note */}
           <div className="rounded-xl bg-[#F7F9FC] border border-[#EEF3FB] px-4 py-3.5 flex items-start gap-2.5">
             <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
             <p className="text-[12px] leading-relaxed text-slate-500">
-              This stay is offered directly by the property manager. Local taxes,
-              registration or short-let rules may apply. Propvora provides the
-              booking software and is not legal or tax advice.
+              This stay is offered directly by the property manager. Local taxes, registration or short-let
+              rules may apply. Propvora provides the booking software and is not legal or tax advice.
             </p>
           </div>
         </div>
 
-        {/* Right: booking card (sticky on desktop) */}
+        {/* Right: deep booking card */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-20">
-            <BookingCheckout listing={listing} slug={slug} />
+            <StayBookingCard
+              listingId={listing.id}
+              slug={listing.slug ?? listing.id}
+              title={listing.title}
+              currency={listing.currency}
+              maxGuests={listing.maxGuests}
+              fromNightlyPence={listing.fromNightlyPence}
+              cancellationPolicy={listing.cancellationPolicy}
+              securityDepositPence={listing.securityDepositPence}
+              minNights={listing.minNights}
+            />
           </div>
         </div>
       </div>

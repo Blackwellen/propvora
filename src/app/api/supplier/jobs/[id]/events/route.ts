@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { getSupplierJob } from "@/lib/supplier/jobs"
+import { listJobEvents } from "@/lib/supplier/evidence"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -64,6 +65,21 @@ export async function GET(
     const isSupplier = await isWorkspaceMember(supabase, job.supplier_workspace_id, user.id)
     if (!isOperator && !isSupplier) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 })
+    }
+
+    // Prefer the REAL append-only audit log when present. Each row is a concrete
+    // recorded fact (a transition, an evidence add, a dispute). If the events
+    // table has rows, use them verbatim; otherwise fall back to a timeline
+    // DERIVED from the assignment's own timestamps (still real facts, just fewer).
+    const real = await listJobEvents(supabase, id)
+    if (real.length > 0) {
+      const mapped: JobEvent[] = real.map((e) => ({
+        id: e.id,
+        status: e.to_status ?? e.event_type,
+        note: e.note ?? undefined,
+        created_at: e.created_at,
+      }))
+      return NextResponse.json({ events: mapped })
     }
 
     // Build the derived timeline from real, recorded timestamps only.

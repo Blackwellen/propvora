@@ -141,3 +141,189 @@ export interface SupplierMarketplaceListing {
   leads?: number
   updated_at?: string
 }
+
+/* ── Deep-build shapes (match the new /api/supplier/* envelopes) ──────────── */
+
+export interface SupplierLead {
+  id: string
+  source: "quote_request" | "enquiry"
+  title: string
+  detail: string | null
+  status: string
+  counterpartyName: string | null
+  amountPence: number | null
+  currency: string | null
+  createdAt: string
+  quoteId: string | null
+  listingId: string | null
+}
+
+export interface SupplierPackageRow {
+  id: string
+  workspace_id: string
+  name: string
+  description: string | null
+  price_pence: number | null
+  currency: string
+  duration_days: number | null
+  inclusions: string[]
+  exclusions: string[]
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface SupplierInvoiceRow {
+  id: string
+  workspace_id: string
+  assignment_id: string | null
+  invoice_number: string | null
+  amount_pence: number | null
+  currency: string
+  status: string
+  submitted_at: string | null
+  approved_at: string | null
+  paid_at: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface SupplierInvoiceSummary {
+  totalPence: number
+  outstandingPence: number
+  paidPence: number
+  draftPence: number
+  currency: string
+}
+
+export interface SupplierPayoutRow {
+  id: string
+  amount_pence: number
+  currency: string
+  status: string
+  stripe_transfer_id: string | null
+  created_at: string
+}
+
+export interface SupplierPayoutSummary {
+  paidPence: number
+  pendingPence: number
+  failedPence: number
+  count: number
+  currency: string
+}
+
+export interface SupplierTeamRow {
+  id: string
+  user_id: string
+  role: string
+  created_at: string
+  name: string | null
+  email: string | null
+}
+
+export interface SupplierAssignmentRow {
+  id: string
+  quote_id: string | null
+  operator_workspace_id: string
+  supplier_workspace_id: string
+  job_id: string | null
+  status: string
+  scheduled_for: string | null
+  completed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SupplierEvidenceRow {
+  id: string
+  assignment_id: string
+  phase: "before" | "during" | "after"
+  r2_key: string
+  file_name: string | null
+  content_type: string | null
+  size_bytes: number | null
+  caption: string | null
+  created_at: string
+  url?: string
+}
+
+export interface SupplierDisputeRow {
+  id: string
+  assignment_id: string
+  raised_by_side: string
+  category: string
+  subject: string
+  detail: string | null
+  status: string
+  resolution: string | null
+  created_at: string
+}
+
+export interface SupplierVerificationBadge {
+  key: string
+  label: string
+  active: boolean
+}
+
+export interface SupplierVerificationSummary {
+  exists: boolean
+  level: number
+  levelLabel: string
+  status: string
+  badges: SupplierVerificationBadge[]
+  documentCheckStatus: string
+  selfieCheckStatus: string
+  manualReviewStatus: string
+  hasValidInsurance: boolean
+  hasValidLicence: boolean
+  insuranceExpiringSoon: boolean
+  licenceExpiringSoon: boolean
+  expiresAt: string | null
+  updatedAt: string | null
+}
+
+export interface SupplierInsuranceRow {
+  id: string
+  insurance_type: string
+  provider: string | null
+  policy_number_masked: string | null
+  coverage_amount_pence: number | null
+  valid_from: string | null
+  valid_to: string | null
+  minimum_cover_met: boolean
+  status: string
+  expired: boolean
+}
+
+export interface SupplierLicenceRow {
+  id: string
+  licence_type: string
+  issuing_body: string | null
+  licence_number_masked: string | null
+  country: string | null
+  region: string | null
+  valid_from: string | null
+  valid_to: string | null
+  required_for_categories: string[]
+  status: string
+  expired: boolean
+}
+
+export interface SupplierDashboardKpis {
+  openLeads: number
+  activeJobs: number
+  unscheduledJobs: number
+  completedJobs: number
+  payoutsPendingPence: number
+  payoutsPaidPence: number
+  invoicesOutstandingPence: number
+  invoicesCurrency: string
+  verificationLevel: number
+  verificationLabel: string
+  hasValidInsurance: boolean
+  insuranceExpiringSoon: boolean
+  licenceExpiringSoon: boolean
+  status: string
+  currency: string
+}

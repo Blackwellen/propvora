@@ -25,8 +25,18 @@ export default function ConfirmationClient() {
     | string
     | undefined
 
-  const reference = search.get("ref")
+  // `ref` is the booking id (used by payment routes); `hrid` is the human-quotable
+  // reference we show the guest; `token` opens the magic-link portal.
+  const bookingId = search.get("ref")
+  const humanRef = search.get("hrid")
+  const token = search.get("token")
+  const reference = humanRef ?? bookingId
   const status = search.get("status") ?? "pending_payment"
+  const portalHref = token
+    ? `/booking/${encodeURIComponent(humanRef ?? bookingId ?? "")}?token=${encodeURIComponent(token)}`
+    : humanRef
+      ? `/booking/${encodeURIComponent(humanRef)}`
+      : null
 
   const [copied, setCopied] = useState(false)
 
@@ -128,13 +138,22 @@ export default function ConfirmationClient() {
 
         {/* Actions */}
         <div className="px-6 sm:px-8 pb-7 flex flex-col sm:flex-row gap-3">
-          {slug && (
+          {portalHref ? (
             <Link
-              href={`/stay/${encodeURIComponent(slug)}`}
+              href={portalHref}
               className="flex-1 h-11 rounded-xl border border-[#D6E0F0] text-[#1D4ED8] text-[14px] font-semibold flex items-center justify-center hover:bg-blue-50 transition-colors"
             >
-              Back to the listing
+              Manage your booking
             </Link>
+          ) : (
+            slug && (
+              <Link
+                href={`/stay/${encodeURIComponent(slug)}`}
+                className="flex-1 h-11 rounded-xl border border-[#D6E0F0] text-[#1D4ED8] text-[14px] font-semibold flex items-center justify-center hover:bg-blue-50 transition-colors"
+              >
+                Back to the listing
+              </Link>
+            )
           )}
           <Link
             href="/"

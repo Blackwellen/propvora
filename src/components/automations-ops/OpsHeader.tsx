@@ -4,14 +4,12 @@ import React from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-// Shared premium page header for the Automation v2 ops sub-routes. Mirrors the
-// AutomationsClient header language (gradient icon chip + title/subtitle) and
-// adds a back-link to the main automations hub + optional right-side actions.
+// Shared page header for the Automation v2 ops sub-routes.
 export default function OpsHeader({
   icon: Icon,
   title,
   subtitle,
-  backHref = "/app/automations",
+  backHref = "/property-manager/automations",
   backLabel = "Automations",
   actions,
 }: {

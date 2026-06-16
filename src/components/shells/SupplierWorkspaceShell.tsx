@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
 import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
-import { SUPPLIER_NAV, isSupplierNavActive } from "@/components/supplier-workspace/nav"
+import { SUPPLIER_NAV_GROUPS, isSupplierNavActive } from "@/components/supplier-workspace/nav"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
 import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
@@ -95,35 +95,42 @@ export default function SupplierWorkspaceShell({
           </button>
         </div>
 
-        <nav aria-label="Supplier workspace" className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
-          {SUPPLIER_NAV.map((item) => {
-            const Icon = item.icon
-            const isActive = isSupplierNavActive(pathname, item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
-                  "text-[#94A3B8] hover:text-white hover:bg-white/8",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]",
-                  isActive && "text-white bg-[#1E3A5F]"
-                )}
-              >
-                <Icon className="w-5 h-5 shrink-0" />
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
+        <nav aria-label="Supplier workspace" className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+          {SUPPLIER_NAV_GROUPS.map((group) => (
+            <div key={group.label} className="space-y-0.5">
+              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#475569]">
+                {group.label}
+              </p>
+              {group.items.map((item) => {
+                const Icon = item.icon
+                const isActive = isSupplierNavActive(pathname, item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
+                      "text-[#94A3B8] hover:text-white hover:bg-white/8",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]",
+                      isActive && "text-white bg-[#1E3A5F]"
+                    )}
+                  >
+                    <Icon className="w-[18px] h-[18px] shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
 
           <Link
             href="/help"
             onClick={() => setMobileOpen(false)}
-            className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-white/8 transition-all duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]"
+            className="mt-2 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-white/8 transition-all duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]"
           >
-            <LifeBuoy className="w-5 h-5 shrink-0" />
+            <LifeBuoy className="w-[18px] h-[18px] shrink-0" />
             <span>Help &amp; Guides</span>
           </Link>
         </nav>

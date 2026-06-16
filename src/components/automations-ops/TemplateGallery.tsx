@@ -153,7 +153,7 @@ export default function TemplateGallery() {
 
       <div className="pt-1">
         <button
-          onClick={() => router.push("/app/automations")}
+          onClick={() => router.push("/property-manager/automations")}
           className="text-sm font-medium text-blue-600 hover:text-blue-700"
         >
           View your automations →

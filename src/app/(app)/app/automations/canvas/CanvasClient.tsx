@@ -111,10 +111,10 @@ export default function CanvasClient({ workspaceId }: Props) {
         icon={LayoutTemplate}
         actions={
           <>
-            <Link href="/app/automations/builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Link href="/property-manager/automations/ai-builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <Wand2 className="h-4 w-4" /> Describe instead
             </Link>
-            <Link href="/app/automations" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Link href="/property-manager/automations" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <ArrowLeft className="h-4 w-4" /> All rules
             </Link>
           </>
@@ -183,7 +183,7 @@ export default function CanvasClient({ workspaceId }: Props) {
           {saved && (
             <div className="mb-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs text-emerald-800">
               <Check className="mt-0.5 h-4 w-4 shrink-0" /> Saved as a review-first rule.{" "}
-              <Link href="/app/automations" className="font-medium underline">View</Link>
+              <Link href="/property-manager/automations" className="font-medium underline">View</Link>
             </div>
           )}
           <button

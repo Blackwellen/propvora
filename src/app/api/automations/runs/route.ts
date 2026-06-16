@@ -55,10 +55,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: true, runs: [], run: null }, { status: 200 })
     }
 
-    // Single run with steps.
+    // Single run with steps + the richer node-run + event timeline.
     if (runId && lib.getRun) {
       const run = await lib.getRun(ctx.supabase, ctx.workspaceId, runId)
-      return NextResponse.json({ ok: true, run: run ?? null }, { status: 200 })
+      let nodeRuns: unknown[] = []
+      let events: unknown[] = []
+      try {
+        const { listNodeRuns, listRunEvents } = await import("@/lib/automation/approvals")
+        nodeRuns = await listNodeRuns(ctx.supabase, runId)
+        events = await listRunEvents(ctx.supabase, runId)
+      } catch { /* tolerant */ }
+      return NextResponse.json({ ok: true, run: run ?? null, nodeRuns, events }, { status: 200 })
     }
 
     // List.

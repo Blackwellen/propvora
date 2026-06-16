@@ -45,3 +45,29 @@ export function ratingStars(rating: number | null | undefined): string {
   const r = Math.round(rating ?? 0)
   return "★★★★★".slice(0, r) + "☆☆☆☆☆".slice(0, 5 - r)
 }
+
+/** Format integer pence as currency (the supplier money convention). */
+export function moneyPence(pence: number | null | undefined, currency = "GBP"): string {
+  if (pence == null || Number.isNaN(pence)) return "—"
+  return money(pence / 100, currency)
+}
+
+/**
+ * Days until `iso` (negative if past). Null for missing/invalid dates.
+ */
+export function daysUntil(iso: string | null | undefined): number | null {
+  if (!iso) return null
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return null
+  return Math.ceil((t - Date.now()) / 86_400_000)
+}
+
+/** Short human label for a date's expiry state (e.g. "Expires in 12 days"). */
+export function expiryLabel(iso: string | null | undefined): string {
+  const d = daysUntil(iso)
+  if (d == null) return "No expiry"
+  if (d < 0) return `Expired ${shortDate(iso)}`
+  if (d === 0) return "Expires today"
+  if (d <= 30) return `Expires in ${d} day${d === 1 ? "" : "s"}`
+  return `Valid until ${shortDate(iso)}`
+}

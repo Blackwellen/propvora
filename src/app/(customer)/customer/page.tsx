@@ -37,7 +37,7 @@ export const metadata = { title: "Customer Workspace · Propvora" }
 export const dynamic = "force-dynamic"
 
 const QUICK_ACTIONS = [
-  { label: "Find a stay", href: "/app/marketplace", icon: MapPin, bg: "bg-blue-50", color: "text-blue-600" },
+  { label: "Find a stay", href: "/stay/search", icon: MapPin, bg: "bg-blue-50", color: "text-blue-600" },
   { label: "My bookings", href: "/customer/bookings", icon: CalendarCheck, bg: "bg-emerald-50", color: "text-emerald-600" },
   { label: "Saved", href: "/customer/saved", icon: Heart, bg: "bg-rose-50", color: "text-rose-600" },
   { label: "Messages", href: "/customer/messages", icon: MessageSquare, bg: "bg-violet-50", color: "text-violet-600" },
@@ -113,7 +113,7 @@ export default async function CustomerHomePage() {
               icon={CalendarCheck}
               title="No upcoming stays"
               description="When you book a property, your confirmed and pending stays appear here with dates, guests and the price you paid."
-              action={<CustomerViewLink href="/app/marketplace" label="Find a place to stay" />}
+              action={<CustomerViewLink href="/stay/search" label="Find a place to stay" />}
             />
           ) : (
             <ul className="space-y-2.5">

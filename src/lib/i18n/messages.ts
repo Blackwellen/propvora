@@ -32,9 +32,26 @@ type Messages = { [key: string]: string | Messages }
 const CATALOGUES: Record<Locale, Messages> = {
   "en-GB": enGB as Messages,
   "en-US": enUS as Messages,
+  "en-AU": enGB as Messages,
+  "en-NZ": enGB as Messages,
+  "en-IE": enGB as Messages,
+  "en-CA": enGB as Messages,
+  "fr-CA": frFR as Messages,
   "fr-FR": frFR as Messages,
   "de-DE": deDE as Messages,
   "es-ES": esES as Messages,
+  "it-IT": enGB as Messages,
+  "nl-NL": enGB as Messages,
+  "sv-SE": enGB as Messages,
+  "fi-FI": enGB as Messages,
+  "da-DK": enGB as Messages,
+  "cs-CZ": enGB as Messages,
+  "hr-HR": enGB as Messages,
+  "hu-HU": enGB as Messages,
+  "pt-BR": enGB as Messages,
+  "ja-JP": enGB as Messages,
+  "th-TH": enGB as Messages,
+  "tr-TR": enGB as Messages,
 }
 
 export type TParams = Record<string, string | number>

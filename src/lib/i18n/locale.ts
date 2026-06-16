@@ -5,10 +5,12 @@
  *
  * Resolve the ACTIVE locale from the available signals, in priority order:
  *
- *     1. explicit profile preference   (user picked a language)
- *     2. workspace default language    (workspace.default_language)
- *     3. Accept-Language header         (browser preference; best-effort match)
- *     4. DEFAULT_LOCALE (en-GB)
+ *     1. URL locale prefix             (/fr-FR/app)
+ *     2. explicit profile preference   (user picked a language)
+ *     3. workspace default language    (workspace.default_language)
+ *     4. country profile default       (country_profiles.default_locale)
+ *     5. Accept-Language header         (browser preference; best-effort match)
+ *     6. DEFAULT_LOCALE (en-GB)
  *
  * The result is ALWAYS a supported `Locale`. With no signal at all it is en-GB,
  * keeping the UK experience identical to today (the GB default invariant).
@@ -27,10 +29,14 @@ import {
 } from "./config"
 
 export interface ResolveLocaleArgs {
+  /** A locale from a URL prefix or proxy header. */
+  urlLocale?: string | null
   /** A locale the user explicitly chose (highest priority). */
   profileLocale?: string | null
   /** The workspace's default language. */
   workspaceLocale?: string | null
+  /** The resolved country profile's default locale. */
+  countryLocale?: string | null
   /** Raw `Accept-Language` header value (best-effort negotiation). */
   acceptLanguage?: string | null
 }
@@ -40,14 +46,20 @@ export interface ResolveLocaleArgs {
  * first supported match; defaults to en-GB. Never throws.
  */
 export function resolveLocale(args: ResolveLocaleArgs = {}): Locale {
-  const { profileLocale, workspaceLocale, acceptLanguage } = args
+  const { urlLocale, profileLocale, workspaceLocale, countryLocale, acceptLanguage } = args
 
+  if (isSupportedLocale(urlLocale)) return urlLocale
   if (isSupportedLocale(profileLocale)) return profileLocale
   if (isSupportedLocale(workspaceLocale)) return workspaceLocale
+  if (isSupportedLocale(countryLocale)) return countryLocale
 
   // Loose match: a profile/workspace value like "en" or "fr" maps to the first
   // supported locale sharing that primary language subtag.
-  const loose = matchPrimary(profileLocale) ?? matchPrimary(workspaceLocale)
+  const loose =
+    matchPrimary(urlLocale) ??
+    matchPrimary(profileLocale) ??
+    matchPrimary(workspaceLocale) ??
+    matchPrimary(countryLocale)
   if (loose) return loose
 
   const fromHeader = negotiateAcceptLanguage(acceptLanguage)
@@ -108,18 +120,22 @@ export function negotiateAcceptLanguage(
  * client code (the client never reaches this branch).
  */
 export async function getServerLocale(args: {
+  urlLocale?: string | null
   profileLocale?: string | null
   workspaceLocale?: string | null
+  countryLocale?: string | null
 } = {}): Promise<Locale> {
   let acceptLanguage: string | null = null
+  let urlLocale: string | null = args.urlLocale ?? null
   try {
     const { headers } = await import("next/headers")
     const h = await headers()
     acceptLanguage = h.get("accept-language")
+    urlLocale = urlLocale ?? h.get("x-propvora-locale")
   } catch {
     // Outside a request scope (e.g. build/test) — fall through to defaults.
   }
-  return resolveLocale({ ...args, acceptLanguage })
+  return resolveLocale({ ...args, urlLocale, acceptLanguage })
 }
 
 /**
@@ -128,8 +144,10 @@ export async function getServerLocale(args: {
  * `navigator`); returns en-GB until hydration provides the browser list.
  */
 export function getClientLocale(args: {
+  urlLocale?: string | null
   profileLocale?: string | null
   workspaceLocale?: string | null
+  countryLocale?: string | null
 } = {}): Locale {
   let acceptLanguage: string | null = null
   if (typeof navigator !== "undefined") {

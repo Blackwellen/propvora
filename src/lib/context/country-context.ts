@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { CountryContext, OfferStatus, PackStatus } from "./context-types"
 import { safeRow, toPackStatus } from "./_safe"
+import { getCountryProfile } from "@/lib/i18n/country-profiles"
 
 /**
  * Resolve the COUNTRY PACK block.
@@ -32,6 +33,20 @@ const GB_DEFAULT: Omit<CountryContext, "code" | "source" | "isFallback"> = {
 function genericDefault(
   code: string
 ): Omit<CountryContext, "code" | "source" | "isFallback"> {
+  const profile = getCountryProfile(code)
+  if (profile) {
+    return {
+      offerStatus: profile.offerStatus,
+      propertyFeaturesStatus: profile.propertyFeaturesStatus,
+      currency: profile.defaultCurrency,
+      locale: profile.defaultLocale,
+      legalStatus: profile.legalPackStatus,
+      taxStatus: profile.taxReviewStatus,
+      privacyStatus: profile.privacyReviewStatus,
+      disclaimers: [profile.legalDisclaimer].filter(Boolean),
+    }
+  }
+
   return {
     offerStatus: "unknown",
     propertyFeaturesStatus: "generic_only",
@@ -67,7 +82,7 @@ export async function resolveCountryContext(
   const fallback = code === "GB" ? GB_DEFAULT : genericDefault(code)
 
   const row = await safeRow<Record<string, unknown>>(() =>
-    supabase.from("country_packs").select("*").eq("country_code", code).maybeSingle()
+    supabase.from("country_packs").select("*").eq("code", code).maybeSingle()
   )
 
   if (!row) {

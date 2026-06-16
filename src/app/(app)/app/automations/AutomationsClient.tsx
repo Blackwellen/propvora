@@ -71,7 +71,7 @@ export default function AutomationsClient() {
   }
 
   const tabs: { id: Tab; label: string; icon: React.ElementType; badge?: number }[] = [
-    { id: "rules", label: "Rules", icon: Zap, badge: rules.length },
+    { id: "rules", label: "Automations", icon: Zap, badge: rules.length },
     { id: "inbox", label: "Review inbox", icon: Inbox, badge: pending.length },
     { id: "activity", label: "Activity", icon: History },
     { id: "templates", label: "Templates", icon: LayoutTemplate },
@@ -94,7 +94,7 @@ export default function AutomationsClient() {
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]"><Sparkles className="h-5 w-5" /></div>
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">Smart Rules</h1>
+            <h1 className="text-xl font-semibold text-slate-900">Automations</h1>
             <p className="text-sm text-slate-500">Automations that watch your portfolio and propose safe next steps — you stay in control.</p>
           </div>
         </div>
@@ -102,14 +102,14 @@ export default function AutomationsClient() {
           <button onClick={onEvaluate} disabled={busy === "evaluate"} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-60">
             <Play className="h-4 w-4" /> {busy === "evaluate" ? "Evaluating…" : "Run now"}
           </button>
-          <Link href="/app/automations/builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-            <Wand2 className="h-4 w-4 text-violet-500" /> Describe
+          <Link href="/property-manager/automations/ai-builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            <Wand2 className="h-4 w-4 text-violet-500" /> AI Builder
           </Link>
-          <Link href="/app/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+          <Link href="/property-manager/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
             <LayoutTemplate className="h-4 w-4 text-blue-500" /> Canvas
           </Link>
           <button onClick={() => setShowBuilder(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700">
-            <Plus className="h-4 w-4" /> New rule
+            <Plus className="h-4 w-4" /> New automation
           </button>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function AutomationsClient() {
 
       {/* KPI strip */}
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard label="Active rules" value={activeRules} sub={`${rules.length} total`} icon={Zap} tone="blue" />
+        <KpiCard label="Active automations" value={activeRules} sub={`${rules.length} total`} icon={Zap} tone="blue" />
         <KpiCard label="Pending review" value={pending.length} sub="awaiting approval" icon={Inbox} tone="amber" />
         <KpiCard label="Actions executed" value={executed} sub="all time" icon={Check} tone="emerald" />
         <KpiCard label="Runs (recent)" value={runs.length} sub="last 200" icon={History} tone="slate" />
@@ -191,7 +191,7 @@ function RulesTab({ rules, loading, busy, onToggle, onDelete, onNew }: {
 }) {
   if (loading) return <SkeletonRows />
   if (rules.length === 0) return (
-    <EmptyState icon={Zap} title="No rules yet" body="Create your first Smart Rule or install one from the template library." cta="New rule" onCta={onNew} />
+    <EmptyState icon={Zap} title="No automations yet" body="Create your first automation or install one from the recipe library." cta="New automation" onCta={onNew} />
   )
   return (
     <div className="space-y-3">
@@ -209,7 +209,7 @@ function RulesTab({ rules, loading, busy, onToggle, onDelete, onNew }: {
                 <span className="rounded bg-slate-100 px-1.5 py-0.5">{triggerLabel(r.trigger_type)}</span>
                 <ChevronRight className="h-3 w-3 text-slate-300" />
                 <span className="rounded bg-slate-100 px-1.5 py-0.5">{actionLabel(r.action_type)}</span>
-                {r.last_evaluated_at && <span className="ml-1 text-slate-400">· checked {relativeTime(r.last_evaluated_at)}</span>}
+                {r.last_evaluated_at && <span className="ml-1 text-slate-400">- checked {relativeTime(r.last_evaluated_at)}</span>}
               </div>
             </div>
           </div>
@@ -245,7 +245,7 @@ function InboxTab({ runs, loading, busy, onApprove, onSkip }: {
                 <span className="font-medium text-slate-600">{run.rule?.name}</span>
                 <ChevronRight className="h-3 w-3 text-slate-300" />
                 <span>Proposes: {actionLabel(run.action?.action_type ?? run.rule?.action_type ?? "")}</span>
-                <span className="text-slate-400">· {relativeTime(run.triggered_at)}</span>
+                <span className="text-slate-400">- {relativeTime(run.triggered_at)}</span>
               </div>
               {run.action?.payload && (
                 <div className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
@@ -283,7 +283,7 @@ function ActivityTab({ runs, loading }: { runs: ReturnType<typeof useRuns>["runs
               <StatusChip status={run.status} />
             </div>
             <div className="mt-0.5 text-xs text-slate-400">
-              {run.rule?.name} · {actionLabel(run.action?.action_type ?? run.rule?.action_type ?? "")} · {relativeTime(run.triggered_at)}
+              {run.rule?.name} - {actionLabel(run.action?.action_type ?? run.rule?.action_type ?? "")} - {relativeTime(run.triggered_at)}
               {run.error ? <span className="ml-1 text-red-500">— {run.error}</span> : null}
             </div>
           </div>
@@ -300,7 +300,7 @@ function TemplatesTab({ busy, onInstall }: { busy: string | null; onInstall: (ti
     <div className="space-y-6">
       {cats.map((cat) => (
         <div key={cat}>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{cat}</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase text-slate-400">{cat}</h3>
           <div className="grid gap-3 sm:grid-cols-2">
             {RULE_TEMPLATES.filter((t) => t.category === cat).map((t) => (
               <div key={t.template_id} className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">

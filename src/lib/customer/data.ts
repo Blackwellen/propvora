@@ -202,9 +202,21 @@ export async function unsaveListing(
 // ── Bookings (the customer's own stays) ──────────────────────────────────────
 
 const BOOKING_COLS =
-  "id, listing_id, property_id, guest_name, guest_email, check_in, check_out, " +
-  "nights, guests_count, currency, subtotal_pence, fees_pence, total_pence, " +
-  "status, source, created_at"
+  "id, listing_id, booking_listing_id, property_id, booking_ref, guest_name, guest_email, " +
+  "check_in, check_out, nights, guests_count, currency, subtotal_pence, fees_pence, " +
+  "deposit_pence, total_pence, status, payment_status, arrival_time, source, created_at, " +
+  "booking_listing:booking_listings(title, slug)"
+
+/** Flatten the embedded booking_listing join into listing_title/slug. */
+function mapBooking(row: unknown): CustomerBooking {
+  const r = (row ?? {}) as Record<string, unknown>
+  const bl = r.booking_listing as { title?: string; slug?: string } | null
+  return {
+    ...(r as unknown as CustomerBooking),
+    listing_title: bl?.title ?? null,
+    listing_slug: bl?.slug ?? null,
+  }
+}
 
 /**
  * The customer's stays. Honest scoping: matches EITHER bookings linked to their
@@ -229,7 +241,7 @@ export async function listCustomerBookings(
       if (tolerable(error)) return []
       throw error
     }
-    return (data as unknown as CustomerBooking[]) ?? []
+    return (data ?? []).map(mapBooking)
   } catch (e) {
     if (tolerable(e)) return []
     throw e
@@ -256,7 +268,53 @@ export async function getCustomerBooking(
       if (tolerable(error)) return null
       throw error
     }
-    return (data as unknown as CustomerBooking | null) ?? null
+    return data ? mapBooking(data) : null
+  } catch (e) {
+    if (tolerable(e)) return null
+    throw e
+  }
+}
+
+/** Issues the customer has reported on a booking (RLS-scoped). Tolerant → []. */
+export async function listCustomerBookingIssues(
+  supabase: SupabaseClient,
+  bookingId: string
+): Promise<Array<{ id: string; category: string; severity: string; subject: string; status: string; created_at: string }>> {
+  if (!bookingId) return []
+  try {
+    const { data, error } = await supabase
+      .from("booking_issues")
+      .select("id, category, severity, subject, status, created_at")
+      .eq("booking_id", bookingId)
+      .order("created_at", { ascending: false })
+    if (error) {
+      if (tolerable(error)) return []
+      throw error
+    }
+    return (data ?? []) as Array<{ id: string; category: string; severity: string; subject: string; status: string; created_at: string }>
+  } catch (e) {
+    if (tolerable(e)) return []
+    throw e
+  }
+}
+
+/** The customer's review for a booking, if any (RLS-scoped). Tolerant → null. */
+export async function getCustomerBookingReview(
+  supabase: SupabaseClient,
+  bookingId: string
+): Promise<{ id: string; rating: number; title: string | null; body: string | null } | null> {
+  if (!bookingId) return null
+  try {
+    const { data, error } = await supabase
+      .from("booking_reviews")
+      .select("id, rating, title, body")
+      .eq("booking_id", bookingId)
+      .maybeSingle()
+    if (error) {
+      if (tolerable(error)) return null
+      throw error
+    }
+    return (data as { id: string; rating: number; title: string | null; body: string | null } | null) ?? null
   } catch (e) {
     if (tolerable(e)) return null
     throw e

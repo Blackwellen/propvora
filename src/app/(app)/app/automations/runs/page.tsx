@@ -3,7 +3,7 @@ import OpsHeader from "@/components/automations-ops/OpsHeader"
 import RunsList from "@/components/automations-ops/RunsList"
 
 export const metadata = {
-  title: "Run history · Automations · Propvora",
+  title: "Run history - Automations - Propvora",
   description: "Observability for your automations — every recorded run and its outcome.",
 }
 

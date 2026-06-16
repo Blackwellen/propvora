@@ -9,9 +9,12 @@ import { MobileSheet } from "@/components/mobile"
 import {
   SUPPLIER_PRIMARY,
   SUPPLIER_MORE,
+  SUPPLIER_MORE_GROUPS,
   isSupplierNavActive,
   type SupplierNavItem,
 } from "./nav"
+
+void SUPPLIER_MORE // retained export; grouped variant used below
 
 /* ──────────────────────────────────────────────────────────────────────────
    SupplierMobileBottomNav — dedicated bottom tab bar for the supplier
@@ -99,29 +102,34 @@ export default function SupplierMobileBottomNav() {
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Manage your supplier workspace">
         <div className="pb-2 space-y-4">
-          <div className="grid grid-cols-3 gap-1.5">
-            {SUPPLIER_MORE.map((item) => {
-              const active = isSupplierNavActive(pathname, item.href)
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => setMoreOpen(false)}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-1.5 min-h-[76px] rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-                    active
-                      ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
-                      : "bg-white border-[#E8EEF8] text-slate-600 hover:bg-slate-50"
-                  )}
-                >
-                  <Icon className="w-[20px] h-[20px]" />
-                  <span className="text-[11.5px] font-semibold text-center px-1 leading-tight">{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
+          {SUPPLIER_MORE_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">{group.label}</p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {group.items.map((item) => {
+                  const active = isSupplierNavActive(pathname, item.href)
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setMoreOpen(false)}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-1.5 min-h-[76px] rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                        active
+                          ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
+                          : "bg-white border-[#E8EEF8] text-slate-600 hover:bg-slate-50"
+                      )}
+                    >
+                      <Icon className="w-[20px] h-[20px]" />
+                      <span className="text-[11.5px] font-semibold text-center px-1 leading-tight">{item.short ?? item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
 
           <div>
             <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">Support</p>

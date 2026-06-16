@@ -25,7 +25,7 @@ function BookingRow({ b }: { b: CustomerBooking }) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-slate-800 truncate">
-          {b.nights ? `${b.nights} night${b.nights === 1 ? "" : "s"} stay` : "Stay"}
+          {b.listing_title ?? (b.nights ? `${b.nights} night${b.nights === 1 ? "" : "s"} stay` : "Stay")}
         </p>
         <p className="text-xs text-slate-500 truncate">
           {shortDate(b.check_in)} → {shortDate(b.check_out)}
@@ -34,7 +34,13 @@ function BookingRow({ b }: { b: CustomerBooking }) {
       </div>
       <div className="text-right shrink-0">
         <p className="text-sm font-semibold text-slate-800">{moneyPence(b.total_pence, b.currency)}</p>
-        <CustomerStatusBadge tone={toneForStatus(b.status)}>{humanise(b.status)}</CustomerStatusBadge>
+        {["hold", "pending_payment"].includes(b.status) && (b.payment_status ?? "unpaid") === "unpaid" ? (
+          <span className="inline-block rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+            Payment due
+          </span>
+        ) : (
+          <CustomerStatusBadge tone={toneForStatus(b.status)}>{humanise(b.status)}</CustomerStatusBadge>
+        )}
       </div>
       <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
     </Link>
@@ -69,7 +75,7 @@ export default async function CustomerBookingsPage() {
             description="When you reserve a property, your stays appear here with dates, guests and the exact price you paid. Browse the marketplace to find your next place."
             action={
               <Link
-                href="/app/marketplace"
+                href="/stay/search"
                 className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
               >
                 <MapPin className="w-4 h-4" /> Find a stay

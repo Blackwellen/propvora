@@ -14,6 +14,8 @@ export * from "./rates"
 export * from "./reservations"
 export * from "./booking-listings"
 export * from "./pricing-profiles"
+export * from "./public"
+export * from "./portal"
 
 // pricing-engine re-exported under explicit names to avoid colliding with the
 // legacy `pricing.ts` quoteStay/StayQuote symbols. The deep engine is the

@@ -140,3 +140,224 @@ export const AUTOMATION_HARD_CAPS = [
 export function automationNodesByGroup(group: AutomationNodeGroup) {
   return AUTOMATION_NODE_REGISTRY.filter((node) => node.group === group)
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE MODEL — the canonical node categories + per-node config schema + the
+// mapping from a node to the SAFE executor action it compiles to. This is the
+// build-time source of truth the DB registry mirrors. Nothing here invents a
+// destructive action: every node either (a) compiles to a safe catalogue action,
+// (b) is a graph-control node (trigger/condition/branch/delay/end/utility/error
+// /lookup) with no side-effect, or (c) is a GATED node (payment/legal/AI/
+// external) that can never auto-run — it requires an approval object.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The 16 node categories (lowercase canonical keys used in the DB). */
+export const AUTOMATION_NODE_CATEGORIES = [
+  "trigger",
+  "condition",
+  "branch",
+  "delay",
+  "lookup",
+  "ai",
+  "action",
+  "communication",
+  "payment",
+  "approval",
+  "legal",
+  "integration",
+  "webhook",
+  "utility",
+  "error",
+  "end",
+] as const
+export type AutomationNodeCategory = (typeof AUTOMATION_NODE_CATEGORIES)[number]
+
+/** Map a registry group (display) → canonical category key. */
+export function groupToCategory(group: AutomationNodeGroup): AutomationNodeCategory {
+  switch (group) {
+    case "Trigger": return "trigger"
+    case "Condition": return "condition"
+    case "Branch": return "branch"
+    case "Delay": return "delay"
+    case "Lookup": return "lookup"
+    case "AI": return "ai"
+    case "Action": return "action"
+    case "Communication": return "communication"
+    case "Payment": return "payment"
+    case "Approval": return "approval"
+    case "Legal": return "legal"
+    case "Integration": return "integration"
+    case "Webhook/API": return "webhook"
+    case "Utility": return "utility"
+    case "Error": return "error"
+    case "End": return "end"
+  }
+}
+
+/** A single config field a node collects in the inspector. */
+export interface NodeConfigField {
+  key: string
+  label: string
+  kind: "text" | "textarea" | "number" | "select" | "boolean"
+  required?: boolean
+  default?: string | number | boolean
+  options?: Array<{ value: string; label: string }>
+  help?: string
+  supportsTokens?: boolean
+}
+
+/**
+ * Per-node config schema. Only nodes that take config appear here; everything
+ * else defaults to an empty schema. Keys mirror what the compiler/executor read.
+ */
+export const NODE_CONFIG_SCHEMAS: Record<string, NodeConfigField[]> = {
+  "record.created": [
+    { key: "entity", label: "Record type", kind: "text", help: "Logical table to watch (e.g. tenancies)." },
+  ],
+  "field.changed": [
+    { key: "entity", label: "Record type", kind: "text" },
+    { key: "field", label: "Field", kind: "text", required: true },
+  ],
+  "compliance.expiring": [
+    { key: "within_days", label: "Days ahead", kind: "number", default: 30, help: "Fire when due within this many days." },
+  ],
+  "invoice.overdue": [
+    { key: "min_days_overdue", label: "Min days overdue", kind: "number", default: 1 },
+  ],
+  "schedule.custom_cron": [
+    { key: "cron", label: "Cron expression", kind: "text", default: "0 9 * * *", required: true },
+  ],
+  "webhook.incoming": [
+    { key: "require_signature", label: "Require HMAC signature", kind: "boolean", default: true },
+  ],
+  "condition.if_else": [
+    { key: "field", label: "Field / fact", kind: "text", required: true },
+    { key: "op", label: "Operator", kind: "select", default: "eq", options: [
+      { value: "eq", label: "equals" }, { value: "neq", label: "not equals" },
+      { value: "gte", label: "≥" }, { value: "lte", label: "≤" },
+      { value: "gt", label: ">" }, { value: "lt", label: "<" },
+      { value: "contains", label: "contains" },
+    ] },
+    { key: "value", label: "Value", kind: "text" },
+  ],
+  "condition.plan_allows": [
+    { key: "feature", label: "Feature key", kind: "text", default: "automation" },
+  ],
+  "branch.match_country": [
+    { key: "field", label: "Country field", kind: "text", default: "country" },
+  ],
+  "delay.business_hours": [
+    { key: "min_hours", label: "Minimum delay (hours)", kind: "number", default: 1 },
+  ],
+  "ai.risk_score": [
+    { key: "subject", label: "What to score", kind: "text", supportsTokens: true, default: "{{summary}}" },
+  ],
+  "ai.draft_message": [
+    { key: "audience", label: "Audience", kind: "select", default: "tenant", options: [
+      { value: "tenant", label: "Tenant" }, { value: "guest", label: "Guest" },
+      { value: "supplier", label: "Supplier" }, { value: "owner", label: "Owner" },
+    ] },
+    { key: "instruction", label: "Instruction", kind: "textarea", supportsTokens: true },
+  ],
+  "action.create_task": [
+    { key: "title", label: "Task title", kind: "text", default: "{{summary}}", supportsTokens: true },
+    { key: "description", label: "Description", kind: "textarea", supportsTokens: true },
+    { key: "priority", label: "Priority", kind: "select", default: "normal", options: [
+      { value: "low", label: "Low" }, { value: "normal", label: "Normal" },
+      { value: "high", label: "High" }, { value: "urgent", label: "Urgent" },
+    ] },
+    { key: "due_in_days", label: "Due in (days)", kind: "number", default: 7 },
+  ],
+  "action.create_cleaning_task": [
+    { key: "title", label: "Task title", kind: "text", default: "Checkout clean — {{summary}}", supportsTokens: true },
+    { key: "due_in_days", label: "Due in (days)", kind: "number", default: 1 },
+  ],
+  "action.request_supplier_evidence": [
+    { key: "title", label: "Request title", kind: "text", default: "Evidence requested", supportsTokens: true },
+    { key: "description", label: "What to upload", kind: "textarea", supportsTokens: true },
+  ],
+  "comm.internal_notification": [
+    { key: "title", label: "Title", kind: "text", default: "{{summary}}", supportsTokens: true },
+    { key: "body", label: "Body", kind: "textarea", supportsTokens: true },
+    { key: "severity", label: "Severity", kind: "select", default: "info", options: [
+      { value: "info", label: "Info" }, { value: "warning", label: "Warning" }, { value: "critical", label: "Critical" },
+    ] },
+  ],
+  "comm.external_message_draft": [
+    { key: "subject", label: "Subject", kind: "text", default: "{{summary}}", supportsTokens: true },
+    { key: "body", label: "Draft body", kind: "textarea", supportsTokens: true },
+  ],
+  "payment.release_payout_after_approval": [
+    { key: "amount", label: "Amount (minor units)", kind: "number" },
+    { key: "reference", label: "Reference", kind: "text", supportsTokens: true },
+  ],
+  "payment.issue_refund_after_approval": [
+    { key: "amount", label: "Refund amount (minor units)", kind: "number" },
+    { key: "reason", label: "Reason", kind: "text", supportsTokens: true },
+  ],
+  "approval.request_human": [
+    { key: "title", label: "Approval title", kind: "text", default: "Approval required", supportsTokens: true },
+    { key: "summary", label: "What to approve", kind: "textarea", supportsTokens: true },
+    { key: "sla_hours", label: "Escalate after (hours)", kind: "number", default: 24 },
+  ],
+  "approval.request_legal_review": [
+    { key: "title", label: "Review title", kind: "text", default: "Legal review required", supportsTokens: true },
+    { key: "summary", label: "Context", kind: "textarea", supportsTokens: true },
+    { key: "sla_hours", label: "Escalate after (hours)", kind: "number", default: 48 },
+  ],
+  "legal.create_draft": [
+    { key: "document_type", label: "Document type", kind: "text", default: "notice" },
+    { key: "summary", label: "Draft summary", kind: "textarea", supportsTokens: true },
+  ],
+  "integration.stripe_connect": [
+    { key: "operation", label: "Operation", kind: "text", default: "lookup_account" },
+  ],
+  "error.retry_with_backoff": [
+    { key: "max_retries", label: "Max retries", kind: "number", default: 3 },
+    { key: "backoff_seconds", label: "Backoff (seconds)", kind: "number", default: 30 },
+  ],
+  "error.pause_after_threshold": [
+    { key: "threshold", label: "Failure threshold", kind: "number", default: 5 },
+  ],
+}
+
+/**
+ * The SAFE executor action a node compiles to, if any. Nodes that map to an
+ * action produce a real (reversible) side-effect through the existing executor.
+ * Nodes NOT in this map are graph-control or gated (no auto side-effect).
+ */
+export const NODE_ACTION_MAP: Record<string, "create_task" | "create_notification" | "draft_message" | "flag_record" | "create_calendar_reminder"> = {
+  "action.create_task": "create_task",
+  "action.create_cleaning_task": "create_task",
+  "action.request_supplier_evidence": "draft_message",
+  "comm.internal_notification": "create_notification",
+  "comm.external_message_draft": "draft_message",
+  "ai.draft_message": "draft_message",
+}
+
+const REGISTRY_BY_TYPE: Record<string, AutomationNodeDefinition> = Object.fromEntries(
+  AUTOMATION_NODE_REGISTRY.map((n) => [n.type, n]),
+)
+
+export function nodeDef(type: string): AutomationNodeDefinition | undefined {
+  return REGISTRY_BY_TYPE[type]
+}
+export function nodeCategory(type: string): AutomationNodeCategory | undefined {
+  const d = nodeDef(type)
+  return d ? groupToCategory(d.group) : undefined
+}
+export function nodeConfigSchema(type: string): NodeConfigField[] {
+  return NODE_CONFIG_SCHEMAS[type] ?? []
+}
+/** True if this node may never auto-run — it must go through an approval. */
+export function nodeRequiresApproval(type: string): boolean {
+  return Boolean(nodeDef(type)?.requiresApproval)
+}
+/** True if this node is hard-blocked from any automated execution. */
+export function nodeBlockedFromAutoRun(type: string): boolean {
+  return Boolean(nodeDef(type)?.blockedFromAutoRun)
+}
+/** Categories whose nodes can never silently auto-run a side-effect. */
+export const GATED_CATEGORIES: AutomationNodeCategory[] = ["payment", "legal"]
+/** Categories that are always review-required (draft/approval path). */
+export const APPROVAL_CATEGORIES: AutomationNodeCategory[] = ["payment", "legal", "approval"]

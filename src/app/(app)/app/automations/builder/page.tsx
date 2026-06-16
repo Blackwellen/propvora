@@ -4,7 +4,7 @@ import { UpgradePrompt } from "@/components/automations-builder/shared"
 import BuilderClient from "./BuilderClient"
 
 export const metadata = {
-  title: "Automation builder · Propvora",
+  title: "Automation builder - Propvora",
   description: "Describe an automation in plain English, review the draft, preview it, and save.",
 }
 

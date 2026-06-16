@@ -50,6 +50,9 @@ import { finishRun, recordRunStep } from "./runs"
 import { getDefinition, type AutomationDefinition, type DefinitionAction } from "./definitions"
 import { isWithinCap, incrementRunUsage } from "./caps"
 import { getWorkspaceTier } from "@/lib/billing/gates"
+import { recordNodeRun, recordRunEvent, createApproval, recordAutomationError } from "./approvals"
+import { getActiveVersion } from "./canvas-model"
+import { planToDefinitionActions, type CompiledPlanStep } from "./canvas-compile"
 import type { ActionType, RunContext, SmartRule } from "./types"
 
 const RUNS_TABLE = "automation_v2_runs"
@@ -241,6 +244,71 @@ async function executeClaimedRun(
   // record an actor for the audit trail.
   const actorId = def.created_by ?? run.workspaceId
 
+  await recordRunEvent(supabase, run.workspaceId, run.id, {
+    eventType: "run.started",
+    message: `Executing "${def.name}" (${actions.length} action(s)).`,
+    data: { definition_id: def.id, version: def.version },
+  })
+
+  // ── GOVERNANCE / SAFETY: gate any compiled gated steps to approvals ───────
+  // If the definition has an ACTIVE compiled node-graph version, surface its
+  // gated steps (payment/legal/approval/blocked) as APPROVAL objects and record
+  // them as awaiting_approval/blocked node-runs. The engine NEVER auto-runs these
+  // — payment/legal/destructive nodes always require a human decision. This is
+  // the executor-path enforcement of the safety contract.
+  let seq = 0
+  try {
+    const activeVersion = await getActiveVersion(supabase, run.workspaceId, def.id)
+    if (activeVersion && activeVersion.graph.nodes.length > 0) {
+      const compiledPlan = activeVersion.compiled as unknown as { steps?: CompiledPlanStep[] }
+      const steps = Array.isArray(compiledPlan?.steps) ? compiledPlan.steps : []
+      const { gated } = planToDefinitionActions({ trigger: null, steps, hasApprovalGate: false })
+      for (const g of gated) {
+        if (g.blocked) {
+          // Hard-blocked node (e.g. legal.auto_serve_notice): never executes.
+          await recordNodeRun(supabase, run.workspaceId, run.id, {
+            nodeKey: g.node_key, nodeType: g.node_type, category: g.category, seq: seq++,
+            status: "blocked",
+            output: { blocked: true, reason: "blocked_from_autorun" },
+            error: "This node is blocked from automated execution and requires a manual, audited action.",
+          })
+          await recordRunEvent(supabase, run.workspaceId, run.id, {
+            level: "warn", eventType: "node.blocked", nodeKey: g.node_key,
+            message: `"${g.node_type}" is blocked from auto-run.`,
+          })
+          continue
+        }
+        // Gated node (payment/legal/approval): create an approval, await it.
+        const approval = await createApproval(supabase, run.workspaceId, {
+          runId: run.id,
+          definitionId: def.id,
+          nodeKey: g.node_key,
+          nodeType: g.node_type,
+          category: g.category,
+          risk: g.risk,
+          title: `Approval required: ${g.node_type}`,
+          summary: `Automation "${def.name}" reached a ${g.category} node that needs human approval before anything happens.`,
+          payload: g.config,
+          requestedBy: def.created_by,
+          slaHours: Number(g.config?.sla_hours ?? 24),
+        })
+        await recordNodeRun(supabase, run.workspaceId, run.id, {
+          nodeKey: g.node_key, nodeType: g.node_type, category: g.category, seq: seq++,
+          status: "awaiting_approval",
+          approvalId: approval?.id ?? null,
+          output: { gated: true, approval_id: approval?.id ?? null },
+        })
+        await recordRunEvent(supabase, run.workspaceId, run.id, {
+          level: "warn", eventType: "approval.requested", nodeKey: g.node_key,
+          message: `Created approval for ${g.category} node "${g.node_type}".`,
+          data: { approval_id: approval?.id ?? null },
+        })
+      }
+    }
+  } catch {
+    /* governance recording is best-effort; never aborts the safe-action run */
+  }
+
   let stepsRun = 0
   let stepsFailed = 0
   let firstError: string | null = null
@@ -262,6 +330,13 @@ async function executeClaimedRun(
         status: "skipped",
         input: (action?.config as Record<string, unknown>) ?? {},
         output: { skipped: true, reason: "unsafe_or_unknown_action" },
+        error: firstError,
+      })
+      await recordNodeRun(supabase, run.workspaceId, run.id, {
+        nodeKey: `action_${i}`, nodeType: String(actionType ?? "unknown"), category: "action", seq: seq++,
+        status: "blocked",
+        input: (action?.config as Record<string, unknown>) ?? {},
+        output: { blocked: true, reason: "unsafe_or_unknown_action" },
         error: firstError,
       })
       continue
@@ -290,6 +365,10 @@ async function executeClaimedRun(
         input: payload,
         output: res.result,
       })
+      await recordNodeRun(supabase, run.workspaceId, run.id, {
+        nodeKey: `action_${i}`, nodeType: String(actionType), category: "action", seq: seq++,
+        status: "succeeded", input: payload, output: res.result,
+      })
     } else {
       stepsFailed++
       if (!firstError) firstError = res.error ?? "Action failed."
@@ -301,17 +380,34 @@ async function executeClaimedRun(
         output: {},
         error: res.error ?? "Action failed.",
       })
+      await recordNodeRun(supabase, run.workspaceId, run.id, {
+        nodeKey: `action_${i}`, nodeType: String(actionType), category: "action", seq: seq++,
+        status: "failed", input: payload, output: {}, error: res.error ?? "Action failed.",
+      })
+      await recordAutomationError(supabase, run.workspaceId, {
+        definitionId: def.id, runId: run.id, nodeKey: `action_${i}`, nodeType: String(actionType),
+        severity: "error", code: "action_failed", message: res.error ?? "Action failed.",
+      })
     }
   }
 
   // ── Finish honestly + meter only real, executed runs ──────────────────────
   if (stepsFailed > 0) {
     await finishRun(supabase, run.id, "failed", firstError ?? "One or more actions failed.")
+    await recordRunEvent(supabase, run.workspaceId, run.id, {
+      level: "error", eventType: "run.failed",
+      message: firstError ?? "One or more actions failed.",
+      data: { steps_run: stepsRun, steps_failed: stepsFailed },
+    })
     if (executedAny) await incrementRunUsage(supabase, run.workspaceId)
     return { ...base, status: "failed", stepsRun, stepsFailed, reason: firstError ?? undefined }
   }
 
   await finishRun(supabase, run.id, "succeeded", null)
+  await recordRunEvent(supabase, run.workspaceId, run.id, {
+    eventType: "run.succeeded", message: `Completed ${stepsRun} action(s).`,
+    data: { steps_run: stepsRun },
+  })
   await incrementRunUsage(supabase, run.workspaceId)
   return { ...base, status: "succeeded", stepsRun, stepsFailed }
 }
