@@ -7,6 +7,7 @@ import {
   Sparkles,
   MessageSquare,
   MapPin,
+  Bell,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
@@ -18,12 +19,14 @@ import {
   CustomerStatusBadge,
   type CustomerKpi,
 } from "@/components/customer/ui"
+import StaysSummaryChart from "@/components/customer/StaysSummaryChart"
 import {
   moneyPence,
   shortDate,
   dayMonth,
   humanise,
   toneForStatus,
+  timeAgo,
   isUpcoming,
 } from "@/components/customer/format"
 import {
@@ -31,6 +34,8 @@ import {
   listCustomerBookings,
   listCustomerOrders,
   listSavedListings,
+  getCustomerStaySummary,
+  listCustomerNotifications,
 } from "@/lib/customer"
 
 export const metadata = { title: "Customer Workspace · Propvora" }
@@ -38,24 +43,25 @@ export const dynamic = "force-dynamic"
 
 const QUICK_ACTIONS = [
   { label: "Find a stay", href: "/stay/search", icon: MapPin, bg: "bg-blue-50", color: "text-blue-600" },
-  { label: "My bookings", href: "/customer/bookings", icon: CalendarCheck, bg: "bg-emerald-50", color: "text-emerald-600" },
-  { label: "Saved", href: "/customer/saved", icon: Heart, bg: "bg-rose-50", color: "text-rose-600" },
-  { label: "Messages", href: "/customer/messages", icon: MessageSquare, bg: "bg-violet-50", color: "text-violet-600" },
+  { label: "My bookings", href: "/user/bookings", icon: CalendarCheck, bg: "bg-emerald-50", color: "text-emerald-600" },
+  { label: "Saved", href: "/user/saved", icon: Heart, bg: "bg-rose-50", color: "text-rose-600" },
+  { label: "Messages", href: "/user/messages", icon: MessageSquare, bg: "bg-violet-50", color: "text-violet-600" },
 ]
 
 export default async function CustomerHomePage() {
   const { supabase, workspaceId, email, displayName } = await requireCustomerContext()
 
-  const [bookings, orders, saved] = await Promise.all([
+  const [bookings, orders, saved, summary, notifications] = await Promise.all([
     listCustomerBookings(supabase, workspaceId, email),
     listCustomerOrders(supabase, workspaceId),
     listSavedListings(supabase, workspaceId),
+    getCustomerStaySummary(supabase, workspaceId, email),
+    listCustomerNotifications(supabase, workspaceId, 5),
   ])
 
   const upcoming = bookings
     .filter((b) => isUpcoming(b.check_in, b.status))
     .sort((a, b) => (a.check_in ?? "").localeCompare(b.check_in ?? ""))
-  const recentOrders = orders.slice(0, 4)
   const firstName = displayName.split(/[\s@]/)[0]
 
   const kpis: CustomerKpi[] = [
@@ -64,21 +70,21 @@ export default async function CustomerHomePage() {
       value: upcoming.length, label: "Upcoming stays",
       sub: upcoming.length > 0 ? `Next ${shortDate(upcoming[0].check_in)}` : "Nothing booked",
       subColor: upcoming.length > 0 ? "text-blue-600" : "text-slate-400",
-      href: "/customer/bookings",
+      href: "/user/bookings",
     },
     {
       icon: ShoppingBag, iconBg: "bg-emerald-50", iconColor: "text-emerald-600",
       value: orders.length, label: "Orders",
       sub: orders.length > 0 ? "Marketplace purchases" : "No purchases yet",
       subColor: "text-slate-500",
-      href: "/customer/orders",
+      href: "/user/orders",
     },
     {
       icon: Heart, iconBg: "bg-rose-50", iconColor: "text-rose-600",
       value: saved.length, label: "Saved listings",
       sub: saved.length > 0 ? "Your favourites" : "Save listings you like",
       subColor: "text-slate-500",
-      href: "/customer/saved",
+      href: "/user/saved",
     },
   ]
 
@@ -106,7 +112,7 @@ export default async function CustomerHomePage() {
         <CustomerCard className="p-5">
           <div className="flex items-center justify-between gap-3 mb-4">
             <h2 className="text-base font-semibold text-slate-900">Upcoming stays</h2>
-            <CustomerViewLink href="/customer/bookings" label="View all" />
+            <CustomerViewLink href="/user/bookings" label="View all" />
           </div>
           {upcoming.length === 0 ? (
             <CustomerEmptyState
@@ -120,7 +126,7 @@ export default async function CustomerHomePage() {
               {upcoming.slice(0, 5).map((b) => (
                 <li key={b.id}>
                   <Link
-                    href={`/customer/bookings/${b.id}`}
+                    href={`/user/bookings/${b.id}`}
                     className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors"
                   >
                     <div className="w-12 shrink-0 rounded-lg bg-blue-50 px-1 py-1.5 text-center">
@@ -128,7 +134,7 @@ export default async function CustomerHomePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-800 truncate">
-                        {b.nights ? `${b.nights} night${b.nights === 1 ? "" : "s"}` : "Stay"}
+                        {b.listing_title ?? (b.nights ? `${b.nights} night${b.nights === 1 ? "" : "s"}` : "Stay")}
                         {b.guests_count ? ` · ${b.guests_count} guest${b.guests_count === 1 ? "" : "s"}` : ""}
                       </p>
                       <p className="text-xs text-slate-500 truncate">
@@ -146,7 +152,7 @@ export default async function CustomerHomePage() {
           )}
         </CustomerCard>
 
-        {/* Quick actions + recent orders */}
+        {/* Quick actions + notifications */}
         <div className="space-y-4">
           <CustomerCard className="p-5">
             <h2 className="text-base font-semibold text-slate-900 mb-4">Quick actions</h2>
@@ -171,26 +177,23 @@ export default async function CustomerHomePage() {
 
           <CustomerCard className="p-5">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="text-base font-semibold text-slate-900">Recent orders</h2>
-              <CustomerViewLink href="/customer/orders" label="View all" />
+              <h2 className="text-base font-semibold text-slate-900">Recent activity</h2>
+              <CustomerViewLink href="/user/notifications" label="View all" />
             </div>
-            {recentOrders.length === 0 ? (
-              <p className="text-sm text-slate-500 py-2">No marketplace purchases yet.</p>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-slate-500 py-2">No recent notifications. We&apos;ll alert you about bookings, payments and messages.</p>
             ) : (
               <ul className="divide-y divide-slate-100">
-                {recentOrders.map((o) => (
-                  <li key={o.id} className="py-3 first:pt-0 last:pb-0">
-                    <Link href="/customer/orders" className="flex items-center gap-3 group">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-                        <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                {notifications.map((n) => (
+                  <li key={n.id} className="py-3 first:pt-0 last:pb-0">
+                    <Link href={n.href ?? "/user/notifications"} className="flex items-center gap-3 group">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <Bell className="w-4 h-4 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 truncate">
-                          {o.listing?.title ?? o.listing?.company_name ?? humanise(o.transaction_type) ?? "Order"}
-                        </p>
-                        <p className="text-xs text-slate-500 truncate">{shortDate(o.created_at)}</p>
+                        <p className="text-sm font-semibold text-slate-800 truncate">{n.title}</p>
+                        <p className="text-xs text-slate-500 truncate">{timeAgo(n.created_at)}</p>
                       </div>
-                      <CustomerStatusBadge tone={toneForStatus(o.status)}>{humanise(o.status)}</CustomerStatusBadge>
                       <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
                     </Link>
                   </li>
@@ -200,6 +203,8 @@ export default async function CustomerHomePage() {
           </CustomerCard>
         </div>
       </div>
+
+      <StaysSummaryChart summary={summary} />
     </div>
   )
 }

@@ -96,4 +96,97 @@ export interface CustomerThread {
   last_message: string | null
   last_sender: string | null
   last_at: string | null
+  booking_id?: string | null
+  unread?: number
+}
+
+/** A single message inside a customer thread. */
+export interface CustomerMessage {
+  id: string
+  thread_id: string
+  sender_role: "customer" | "host" | "system"
+  sender_name: string | null
+  body: string
+  created_at: string
+}
+
+/** A guest notification (booking confirmed, payment due, check-in, review, message). */
+export interface CustomerNotification {
+  id: string
+  kind: string
+  title: string
+  body: string | null
+  href: string | null
+  severity: "info" | "success" | "warning" | "critical"
+  entity_type: string | null
+  entity_id: string | null
+  read_at: string | null
+  created_at: string
+}
+
+/** A saved stay search the guest can re-run. */
+export interface CustomerSavedSearch {
+  id: string
+  label: string
+  query: Record<string, unknown>
+  created_at: string
+}
+
+/** Rich detail for a booking_listing, surfaced on the trip detail page. */
+export interface CustomerListingDetail {
+  id: string
+  title: string | null
+  summary: string | null
+  description: string | null
+  listing_type: string | null
+  max_guests: number | null
+  bedrooms: number | null
+  beds: number | null
+  bathrooms: number | null
+  amenities: string[]
+  house_rules: string[]
+  check_in_window: string | null
+  checkout_time: string | null
+  cancellation_policy: string | null
+  country_code: string | null
+  timezone: string | null
+}
+
+/** A guest-facing legal/policy document (booking terms, house rules, cancellation…). */
+export interface CustomerLegalDoc {
+  slug: string
+  title: string
+  version: string
+  jurisdiction: string | null
+  /** Whether the guest has accepted this document version for this booking. */
+  accepted: boolean
+  accepted_at: string | null
+}
+
+/** A receipt / payment line for the guest's payments page. */
+export interface CustomerReceipt {
+  id: string
+  booking_ref: string | null
+  booking_id: string
+  title: string | null
+  check_in: string | null
+  check_out: string | null
+  total_pence: number | null
+  deposit_pence: number | null
+  currency: string
+  status: string
+  payment_status: string | null
+  created_at: string
+}
+
+/** Compact "your stays" rollup for the dashboard / profile summary chart. */
+export interface CustomerStaySummary {
+  total_stays: number
+  completed_stays: number
+  upcoming_stays: number
+  total_nights: number
+  total_spend_pence: number
+  currency: string
+  /** Spend per month (last 6 months with stays), for a tiny bar chart. */
+  by_month: { month: string; nights: number; spend_pence: number }[]
 }

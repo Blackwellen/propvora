@@ -1,26 +1,27 @@
 import {
   LayoutDashboard,
   CalendarCheck,
+  MessageSquare,
+  Bell,
+  CreditCard,
   ShoppingBag,
   Heart,
-  MessageSquare,
   UserCircle,
-  CreditCard,
-  KeyRound,
-  ShieldCheck,
-  FileText,
-  LifeBuoy,
-  Sparkles,
-  Star,
-  Headphones,
   type LucideIcon,
 } from "lucide-react"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Customer WORKSPACE navigation — single source of truth shared by the desktop
    sidebar (CustomerShell) and the dedicated mobile bottom nav / "More" sheet.
+
    This is the first-class customer/guest-type workspace where a buyer manages
    their bookings, marketplace orders, saved listings, messages and profile.
+
+   URLs are the PUBLIC `/user/*` paths (next.config rewrites `/user/*` →
+   `/customer/*` internally). Per-trip surfaces (trip details, check-in, house
+   rules, documents, reviews, support) live as INTERNAL TABS on the booking
+   detail page — they are not top-level nav, which keeps the workspace focused
+   rather than bloated with one route per booking sub-section.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export interface CustomerNavItem {
@@ -34,26 +35,19 @@ export interface CustomerNavItem {
 export const CUSTOMER_NAV: CustomerNavItem[] = [
   { label: "Dashboard", href: "/user", icon: LayoutDashboard, short: "Home" },
   { label: "My Bookings", href: "/user/bookings", icon: CalendarCheck, short: "Stays" },
-  { label: "Trip Details", href: "/user/trip", icon: CalendarCheck, short: "Trip" },
   { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
+  { label: "Notifications", href: "/user/notifications", icon: Bell, short: "Alerts" },
   { label: "Payments", href: "/user/payments", icon: CreditCard, short: "Pay" },
-  { label: "Check-in", href: "/user/check-in", icon: KeyRound, short: "Access" },
-  { label: "House Rules", href: "/user/house-rules", icon: ShieldCheck, short: "Rules" },
-  { label: "Documents", href: "/user/documents", icon: FileText, short: "Docs" },
-  { label: "Report Issue", href: "/user/report-issue", icon: LifeBuoy, short: "Issue" },
-  { label: "Extras", href: "/user/extras", icon: Sparkles, short: "Extras" },
-  { label: "Reviews", href: "/user/reviews", icon: Star, short: "Review" },
-  { label: "Support", href: "/user/support", icon: Headphones, short: "Help" },
   { label: "Orders", href: "/user/orders", icon: ShoppingBag, short: "Orders" },
   { label: "Saved", href: "/user/saved", icon: Heart, short: "Saved" },
   { label: "Profile", href: "/user/profile", icon: UserCircle, short: "Profile" },
 ]
 
-/** The four primary destinations shown directly on the mobile bottom bar. */
+/** The three primary destinations shown directly on the mobile bottom bar. */
 export const CUSTOMER_PRIMARY: CustomerNavItem[] = [
   CUSTOMER_NAV[0], // Dashboard
   CUSTOMER_NAV[1], // Bookings
-  CUSTOMER_NAV[2], // Orders
+  CUSTOMER_NAV[2], // Messages
 ]
 
 /** Everything reachable from the mobile "More" sheet. */

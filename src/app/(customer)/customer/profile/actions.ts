@@ -1,11 +1,15 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { requireCustomerContext, upsertCustomerProfile } from "@/lib/customer"
+import {
+  requireCustomerContext,
+  upsertCustomerProfile,
+  deleteCustomerSavedSearch,
+} from "@/lib/customer"
 
-/* Server action to save the customer profile. The workspace is resolved inside
-   requireCustomerContext (redirects a non-customer), so a customer can only
-   ever write their OWN profile — RLS enforces the same. */
+/* Server actions to save the customer profile + manage saved searches. The
+   workspace is resolved inside requireCustomerContext (redirects a non-customer),
+   so a customer can only ever write their OWN data — RLS enforces the same. */
 
 export interface ProfileFormResult {
   ok: boolean
@@ -22,11 +26,11 @@ export async function saveCustomerProfileAction(
   const email = (formData.get("email") as string)?.trim() || null
   const phone = (formData.get("phone") as string)?.trim() || null
 
-  // Preferences (checkboxes → booleans).
   const preferences = {
     email_updates: formData.get("pref_email_updates") === "on",
     booking_reminders: formData.get("pref_booking_reminders") === "on",
     marketing: formData.get("pref_marketing") === "on",
+    sms_updates: formData.get("pref_sms_updates") === "on",
   }
 
   try {
@@ -44,4 +48,10 @@ export async function saveCustomerProfileAction(
   } catch {
     return { ok: false, error: "We couldn't save your profile right now. Please try again." }
   }
+}
+
+export async function deleteSavedSearchAction(id: string): Promise<void> {
+  const { supabase, workspaceId } = await requireCustomerContext()
+  await deleteCustomerSavedSearch(supabase, workspaceId, id)
+  revalidatePath("/customer/profile")
 }

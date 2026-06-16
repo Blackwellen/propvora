@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation"
 import CustomerShell from "@/components/shells/CustomerShell"
 import { createClient } from "@/lib/supabase/server"
+import {
+  countCustomerUnreadNotifications,
+  countCustomerUnreadMessages,
+} from "@/lib/customer"
 
 /**
  * Customer workspace layout (v2, integrated into core — no feature flags).
@@ -51,5 +55,18 @@ export default async function CustomerLayout({
     // keep default
   }
 
-  return <CustomerShell customerName={customerName}>{children}</CustomerShell>
+  const [unreadNotifications, unreadMessages] = await Promise.all([
+    countCustomerUnreadNotifications(supabase, workspaceId),
+    countCustomerUnreadMessages(supabase, workspaceId),
+  ])
+
+  return (
+    <CustomerShell
+      customerName={customerName}
+      unreadNotifications={unreadNotifications}
+      unreadMessages={unreadMessages}
+    >
+      {children}
+    </CustomerShell>
+  )
 }

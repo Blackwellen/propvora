@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
-import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
+import { LogOut, Menu, X, LifeBuoy, Bell, MessageSquare, Search } from "lucide-react"
 import { CUSTOMER_NAV, isCustomerNavActive } from "@/components/customer/nav"
 import CustomerMobileBottomNav from "@/components/customer/CustomerMobileNav"
 
@@ -41,9 +41,13 @@ function initialsOf(name: string): string {
 export default function CustomerShell({
   children,
   customerName = "Customer",
+  unreadNotifications = 0,
+  unreadMessages = 0,
 }: {
   children: React.ReactNode
   customerName?: string
+  unreadNotifications?: number
+  unreadMessages?: number
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -159,6 +163,40 @@ export default function CustomerShell({
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-sm font-semibold text-slate-700">Customer Workspace</span>
+
+          <div className="ml-auto flex items-center gap-1">
+            <Link
+              href="/user/search"
+              aria-label="Search"
+              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+            >
+              <Search className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/user/messages"
+              aria-label={`Messages${unreadMessages > 0 ? `, ${unreadMessages} unread` : ""}`}
+              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+            >
+              <MessageSquare className="w-5 h-5" />
+              {unreadMessages > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadMessages > 9 ? "9+" : unreadMessages}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/user/notifications"
+              aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadNotifications > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                </span>
+              )}
+            </Link>
+          </div>
         </header>
 
         <main

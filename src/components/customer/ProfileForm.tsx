@@ -1,8 +1,8 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { useFormStatus } from "react-dom"
-import { UserCircle, Mail, Phone, Bell, Check, AlertCircle } from "lucide-react"
+import { UserCircle, Mail, Phone, Bell, Check, AlertCircle, Pencil, X } from "lucide-react"
 import { CustomerCard } from "./ui"
 import type { CustomerProfile } from "@/lib/customer/types"
 import {
@@ -13,6 +13,7 @@ import {
 const PREFERENCES: { key: string; label: string; hint: string }[] = [
   { key: "pref_email_updates", label: "Email updates", hint: "Booking confirmations and changes" },
   { key: "pref_booking_reminders", label: "Booking reminders", hint: "Before check-in and check-out" },
+  { key: "pref_sms_updates", label: "SMS updates", hint: "Time-sensitive alerts to your phone" },
   { key: "pref_marketing", label: "Offers & news", hint: "Occasional product updates (optional)" },
 ]
 
@@ -36,6 +37,7 @@ function Field({
   defaultValue,
   type = "text",
   placeholder,
+  editing,
 }: {
   icon: React.ElementType
   label: string
@@ -43,23 +45,33 @@ function Field({
   defaultValue?: string
   type?: string
   placeholder?: string
+  editing: boolean
 }) {
   return (
     <div>
       <label htmlFor={name} className="block text-sm font-medium text-slate-700 mb-1.5">
         {label}
       </label>
-      <div className="relative">
-        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-        <input
-          id={name}
-          name={name}
-          type={type}
-          defaultValue={defaultValue}
-          placeholder={placeholder}
-          className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB] transition-colors"
-        />
-      </div>
+      {editing ? (
+        <div className="relative">
+          <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <input
+            id={name}
+            name={name}
+            type={type}
+            defaultValue={defaultValue}
+            placeholder={placeholder}
+            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB] transition-colors"
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
+          <Icon className="w-4 h-4 text-slate-400 shrink-0" />
+          <span className="text-sm text-slate-700">{defaultValue || <span className="text-slate-400">Not set</span>}</span>
+          {/* Keep value submittable even when collapsed. */}
+          <input type="hidden" name={name} value={defaultValue ?? ""} />
+        </div>
+      )}
     </div>
   )
 }
@@ -67,27 +79,37 @@ function Field({
 export default function ProfileForm({ profile }: { profile: CustomerProfile | null }) {
   const initial: ProfileFormResult = { ok: false }
   const [state, formAction] = useActionState(saveCustomerProfileAction, initial)
+  const [editing, setEditing] = useState(false)
   const prefs = (profile?.preferences ?? {}) as Record<string, unknown>
 
   return (
-    <form action={formAction} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <CustomerCard className="p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <UserCircle className="w-4 h-4 text-slate-500" />
-          <h2 className="text-base font-semibold text-slate-900">Your details</h2>
-        </div>
-        <div className="space-y-4">
-          <Field icon={UserCircle} label="Display name" name="display_name" defaultValue={profile?.display_name ?? ""} placeholder="How should we address you?" />
-          <Field icon={Mail} label="Contact email" name="email" type="email" defaultValue={profile?.email ?? ""} placeholder="you@example.com" />
-          <Field icon={Phone} label="Phone" name="phone" type="tel" defaultValue={profile?.phone ?? ""} placeholder="Optional" />
-        </div>
-      </CustomerCard>
+    <form action={formAction} className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CustomerCard className="p-5">
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2">
+              <UserCircle className="w-4 h-4 text-slate-500" />
+              <h2 className="text-base font-semibold text-slate-900">Your details</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEditing((e) => !e)}
+              className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#2563EB] hover:underline"
+            >
+              {editing ? <><X className="w-3.5 h-3.5" /> Cancel</> : <><Pencil className="w-3.5 h-3.5" /> Edit</>}
+            </button>
+          </div>
+          <div className="space-y-4">
+            <Field editing={editing} icon={UserCircle} label="Display name" name="display_name" defaultValue={profile?.display_name ?? ""} placeholder="How should we address you?" />
+            <Field editing={editing} icon={Mail} label="Contact email" name="email" type="email" defaultValue={profile?.email ?? ""} placeholder="you@example.com" />
+            <Field editing={editing} icon={Phone} label="Phone" name="phone" type="tel" defaultValue={profile?.phone ?? ""} placeholder="Optional" />
+          </div>
+        </CustomerCard>
 
-      <div className="space-y-4">
         <CustomerCard className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Bell className="w-4 h-4 text-slate-500" />
-            <h2 className="text-base font-semibold text-slate-900">Notification preferences</h2>
+            <h2 className="text-base font-semibold text-slate-900">Communication preferences</h2>
           </div>
           <div className="space-y-3">
             {PREFERENCES.map((p) => (
@@ -105,22 +127,25 @@ export default function ProfileForm({ profile }: { profile: CustomerProfile | nu
               </label>
             ))}
           </div>
+          <p className="mt-4 text-[11px] text-slate-400">
+            You control how Propvora and your hosts contact you. We never share your details with third parties.
+          </p>
         </CustomerCard>
+      </div>
 
-        <div className="flex items-center justify-between gap-3">
-          {state.ok ? (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
-              <Check className="w-4 h-4" /> Saved
-            </span>
-          ) : state.error ? (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
-              <AlertCircle className="w-4 h-4" /> {state.error}
-            </span>
-          ) : (
-            <span />
-          )}
-          <SubmitButton />
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        {state.ok ? (
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+            <Check className="w-4 h-4" /> Saved
+          </span>
+        ) : state.error ? (
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
+            <AlertCircle className="w-4 h-4" /> {state.error}
+          </span>
+        ) : (
+          <span />
+        )}
+        <SubmitButton />
       </div>
     </form>
   )
