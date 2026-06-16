@@ -3,7 +3,7 @@ import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { SMART_RECIPES, instantiateRecipe, type RecipeDomain } from "@/lib/automation/recipes"
-import { listDefinitions } from "@/lib/automation/definitions"
+import { listDefinitions, setDefinitionEnabled } from "@/lib/automation/definitions"
 
 // Supplier-workspace automations. Suppliers get a curated, supplier-relevant
 // slice of the recipe catalogue + a list of their own automations. Every recipe
@@ -102,5 +102,32 @@ export async function POST(request: Request) {
   } catch (err) {
     captureException(err, { source: "api/supplier/automations:POST", requestId })
     return NextResponse.json({ error: "Couldn't install the recipe.", requestId }, { status: 500 })
+  }
+}
+
+const patchSchema = z.object({
+  workspaceId: z.string().min(1).optional(),
+  definitionId: z.string().min(1),
+  enabled: z.boolean(),
+})
+
+export async function PATCH(request: Request) {
+  const requestId = requestIdFrom(request.headers)
+  try {
+    const parsed = patchSchema.safeParse(await request.json().catch(() => null))
+    if (!parsed.success) return NextResponse.json({ error: "A definitionId and enabled flag are required." }, { status: 400 })
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+
+    const workspaceId = await resolveSupplierWorkspace(supabase, user.id, parsed.data.workspaceId ?? null)
+    if (!workspaceId) return NextResponse.json({ error: "No supplier workspace" }, { status: 403 })
+
+    await setDefinitionEnabled(supabase as never, workspaceId, parsed.data.definitionId, parsed.data.enabled)
+    return NextResponse.json({ ok: true }, { status: 200 })
+  } catch (err) {
+    captureException(err, { source: "api/supplier/automations:PATCH", requestId })
+    return NextResponse.json({ error: "Couldn't update the automation.", requestId }, { status: 500 })
   }
 }
