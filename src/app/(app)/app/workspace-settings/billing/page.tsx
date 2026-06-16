@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
-import { ExternalLink, CreditCard } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { ExternalLink, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
 import { openBillingPortal } from "@/lib/billing/checkout"
 
 interface BillingForm {
@@ -14,27 +14,79 @@ interface BillingForm {
   country: string
 }
 
+type SaveStatus = "idle" | "saving" | "saved" | "error"
+
+const DEFAULT_FORM: BillingForm = {
+  billingName: "",
+  billingEmail: "",
+  vatNumber: "",
+  address: "",
+  city: "",
+  postcode: "",
+  country: "United Kingdom",
+}
+
 export default function BillingPage() {
-  const [form, setForm] = useState<BillingForm>({
-    billingName: "",
-    billingEmail: "",
-    vatNumber: "",
-    address: "",
-    city: "",
-    postcode: "",
-    country: "United Kingdom",
-  })
-  const [saved, setSaved] = useState(false)
+  const [form, setForm] = useState<BillingForm>(DEFAULT_FORM)
+  const [loading, setLoading] = useState(true)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle")
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [portalError, setPortalError] = useState<string | null>(null)
+
+  // Hydrate form from DB on mount
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch("/api/workspace/billing-details")
+        if (!res.ok) return
+        const { billingDetails } = await res.json()
+        if (!cancelled && billingDetails) {
+          setForm({
+            billingName: billingDetails.billingName ?? "",
+            billingEmail: billingDetails.billingEmail ?? "",
+            vatNumber: billingDetails.vatNumber ?? "",
+            address: billingDetails.address ?? "",
+            city: billingDetails.city ?? "",
+            postcode: billingDetails.postcode ?? "",
+            country: billingDetails.country ?? "United Kingdom",
+          })
+        }
+      } catch {
+        // Non-fatal — leave form at defaults
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
 
   const update = (key: keyof BillingForm, val: string) => {
     setForm(f => ({ ...f, [key]: val }))
-    setSaved(false)
+    setSaveStatus("idle")
+    setSaveError(null)
   }
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  const handleSave = async () => {
+    setSaveStatus("saving")
+    setSaveError(null)
+    try {
+      const res = await fetch("/api/workspace/billing-details", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error((body as { error?: string }).error ?? "Save failed")
+      }
+      setSaveStatus("saved")
+      setTimeout(() => setSaveStatus("idle"), 4000)
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Could not save billing details")
+      setSaveStatus("error")
+    }
   }
 
   return (
@@ -73,76 +125,99 @@ export default function BillingPage() {
       {/* Billing details form */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Billing Details</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            { label: "Billing name",    key: "billingName" as const,  placeholder: "Company or individual name" },
-            { label: "Billing email",   key: "billingEmail" as const, placeholder: "billing@example.com"         },
-            { label: "VAT / Tax number",key: "vatNumber" as const,    placeholder: "e.g. GB123456789"            },
-          ].map(field => (
-            <div key={field.key} className={field.key === "vatNumber" ? "sm:col-span-2" : ""}>
-              <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">
-                {field.label}
-              </label>
+
+        {loading ? (
+          <div className="space-y-3 animate-pulse">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-10 rounded-xl bg-slate-100" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { label: "Billing name",    key: "billingName" as const,  placeholder: "Company or individual name" },
+              { label: "Billing email",   key: "billingEmail" as const, placeholder: "billing@example.com"         },
+              { label: "VAT / Tax number",key: "vatNumber" as const,    placeholder: "e.g. GB123456789"            },
+            ].map(field => (
+              <div key={field.key} className={field.key === "vatNumber" ? "sm:col-span-2" : ""}>
+                <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">
+                  {field.label}
+                </label>
+                <input
+                  type="text"
+                  value={form[field.key]}
+                  onChange={e => update(field.key, e.target.value)}
+                  placeholder={field.placeholder}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                />
+              </div>
+            ))}
+
+            <div className="sm:col-span-2">
+              <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Street address</label>
               <input
                 type="text"
-                value={form[field.key]}
-                onChange={e => update(field.key, e.target.value)}
-                placeholder={field.placeholder}
+                value={form.address}
+                onChange={e => update("address", e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
               />
             </div>
-          ))}
+            <div>
+              <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">City</label>
+              <input
+                type="text"
+                value={form.city}
+                onChange={e => update("city", e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Postcode</label>
+              <input
+                type="text"
+                value={form.postcode}
+                onChange={e => update("postcode", e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Country</label>
+              <select
+                value={form.country}
+                onChange={e => update("country", e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              >
+                <option>United Kingdom</option>
+                <option>United States</option>
+                <option>Canada</option>
+                <option>Australia</option>
+                <option>Ireland</option>
+              </select>
+            </div>
+          </div>
+        )}
 
-          <div className="sm:col-span-2">
-            <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Street address</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={e => update("address", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-            />
-          </div>
-          <div>
-            <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">City</label>
-            <input
-              type="text"
-              value={form.city}
-              onChange={e => update("city", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-            />
-          </div>
-          <div>
-            <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Postcode</label>
-            <input
-              type="text"
-              value={form.postcode}
-              onChange={e => update("postcode", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Country</label>
-            <select
-              value={form.country}
-              onChange={e => update("country", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-            >
-              <option>United Kingdom</option>
-              <option>United States</option>
-              <option>Canada</option>
-              <option>Australia</option>
-              <option>Ireland</option>
-            </select>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-3 flex-wrap">
           <button
             onClick={handleSave}
-            className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            disabled={loading || saveStatus === "saving"}
+            className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {saved ? "Saved" : "Save billing details"}
+            {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Save billing details"}
           </button>
-          {saved && <p className="text-[12px] text-emerald-600 font-medium">Changes saved successfully</p>}
+
+          {saveStatus === "saved" && (
+            <span className="flex items-center gap-1.5 text-[12px] text-emerald-600 font-medium">
+              <CheckCircle className="w-3.5 h-3.5" />
+              Changes saved successfully
+            </span>
+          )}
+          {saveStatus === "error" && saveError && (
+            <span className="flex items-center gap-1.5 text-[12px] text-red-500 font-medium">
+              <AlertCircle className="w-3.5 h-3.5" />
+              {saveError}
+            </span>
+          )}
         </div>
       </div>
 

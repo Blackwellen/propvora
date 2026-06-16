@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import AppShell from "@/components/shell/AppShell"
 import { createClient } from "@/lib/supabase/server"
-import { canAccess } from "@/lib/subscription"
-import type { WorkspacePlan } from "@/types/database"
+import { normaliseTier, PLAN_DISPLAY } from "@/lib/billing/plans"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -60,7 +59,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .maybeSingle()
 
     if (workspace?.plan) {
-      aiCopilotEnabled = canAccess(workspace.plan as WorkspacePlan, "aiCopilot")
+      // Use the V2-authoritative normaliseTier + PLAN_DISPLAY so that V2 plan
+      // names (starter/operator/scale/pro_agency/enterprise) stored in the DB
+      // are handled correctly. The legacy canAccess() only knew V1 names and
+      // would return false for any V2 plan name.
+      const tier = normaliseTier(workspace.plan as string)
+      aiCopilotEnabled = PLAN_DISPLAY[tier].features.aiCopilot
     }
   } catch {
     // Non-fatal — default to restricted access.
