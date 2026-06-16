@@ -3,15 +3,7 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/automation-runner",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/expire-holds",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/reconcile",
+      "path": "/api/cron/daily",
       "schedule": "0 3 * * *"
     }
   ]
