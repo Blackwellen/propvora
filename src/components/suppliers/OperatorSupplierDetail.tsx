@@ -34,13 +34,20 @@ interface Section {
   show: boolean
 }
 
+interface OperatorProperty {
+  id: string
+  label: string
+}
+
 interface Props {
   supplier: SupplierDetail
   /** Pre-fill from session when the operator is signed in. */
   session?: { signedIn: boolean; email?: string | null; name?: string | null; buyerWorkspaceId?: string | null }
+  /** Operator's properties for the structured quote-request property selector. */
+  properties?: OperatorProperty[]
 }
 
-export function OperatorSupplierDetail({ supplier: s, session }: Props) {
+export function OperatorSupplierDetail({ supplier: s, session, properties = [] }: Props) {
   const verified = s.verificationStatus === "verified" || s.verificationStatus === "approved"
   const canCheckout = s.paymentsEnabled && s.transactionType === "service_package"
 
@@ -290,7 +297,7 @@ export function OperatorSupplierDetail({ supplier: s, session }: Props) {
               </Link>
             )}
 
-            <QuoteRequest listingId={s.id} session={session} urgent={s.acceptsEmergency} primary={!canCheckout} />
+            <QuoteRequest listingId={s.id} session={session} urgent={s.acceptsEmergency} primary={!canCheckout} properties={properties} />
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
@@ -311,28 +318,102 @@ export function OperatorSupplierDetail({ supplier: s, session }: Props) {
   )
 }
 
-/* ── Quote request — REAL enquiry write (no no-op) ─────────────────────────── */
-function QuoteRequest({ listingId, session, urgent, primary }: { listingId: string; session?: Props["session"]; urgent: boolean; primary: boolean }) {
+/* ── Quote request — STRUCTURED operator → supplier request ────────────────────
+   A signed-in operator with a workspace files a real two-sided quote request
+   (property, urgency, preferred date, budget) against
+   /api/marketplace/quote-requests → a `supplier_marketplace_quotes` row in
+   `requested` status that lands in the supplier's leads inbox. Guests / operators
+   without a workspace fall back to the lightweight enquiry write so the CTA is
+   never a dead end. */
+const URGENCY_OPTIONS: { value: "standard" | "urgent" | "emergency"; label: string }[] = [
+  { value: "standard", label: "Standard" },
+  { value: "urgent", label: "Urgent" },
+  { value: "emergency", label: "Emergency" },
+]
+
+function QuoteRequest({
+  listingId,
+  session,
+  urgent,
+  primary,
+  properties,
+}: {
+  listingId: string
+  session?: Props["session"]
+  urgent: boolean
+  primary: boolean
+  properties: OperatorProperty[]
+}) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState("")
   const [email, setEmail] = useState(session?.email ?? "")
+  const [propertyId, setPropertyId] = useState("")
+  const [urgency, setUrgency] = useState<"standard" | "urgent" | "emergency">(urgent ? "emergency" : "standard")
+  const [preferredDate, setPreferredDate] = useState("")
+  const [budgetMin, setBudgetMin] = useState("")
+  const [budgetMax, setBudgetMax] = useState("")
   const [phase, setPhase] = useState<"idle" | "sending" | "done">("idle")
   const [error, setError] = useState<string | null>(null)
 
+  // Structured path only when we have a real operator workspace to attribute to.
+  const structured = Boolean(session?.signedIn && session?.buyerWorkspaceId)
+
   async function send() {
-    if (!message.trim()) { setError("Please describe the job, timing and location."); return }
-    if (!session?.signedIn && !email.trim()) { setError("Please add an email so the supplier can reply."); return }
-    setPhase("sending"); setError(null)
+    if (!message.trim()) {
+      setError("Please describe the job, timing and location.")
+      return
+    }
+    if (!structured && !session?.signedIn && !email.trim()) {
+      setError("Please add an email so the supplier can reply.")
+      return
+    }
+    setPhase("sending")
+    setError(null)
     try {
+      if (structured) {
+        const selected = properties.find((p) => p.id === propertyId) ?? null
+        const res = await fetch("/api/marketplace/quote-requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            listingId,
+            operatorWorkspaceId: session!.buyerWorkspaceId,
+            description: message.trim(),
+            propertyId: selected?.id ?? undefined,
+            propertyLabel: selected?.label ?? undefined,
+            urgency,
+            preferredDate: preferredDate || undefined,
+            budgetMin: budgetMin ? Number(budgetMin) : undefined,
+            budgetMax: budgetMax ? Number(budgetMax) : undefined,
+          }),
+        })
+        const data = (await res.json().catch(() => null)) as { error?: string } | null
+        if (!res.ok) {
+          setError(data?.error ?? "We couldn't send your quote request. Please try again.")
+          setPhase("idle")
+          return
+        }
+        setPhase("done")
+        return
+      }
+
+      // Fallback: lightweight enquiry write (guests / no-workspace operators).
       const res = await fetch("/api/marketplace/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId, message: message.trim(), email: email.trim() || undefined, buyerWorkspaceId: session?.buyerWorkspaceId ?? undefined, gdprConsent: true }),
       })
       const data = (await res.json().catch(() => null)) as { error?: string } | null
-      if (!res.ok) { setError(data?.error ?? "We couldn't send your enquiry. Please try again."); setPhase("idle"); return }
+      if (!res.ok) {
+        setError(data?.error ?? "We couldn't send your enquiry. Please try again.")
+        setPhase("idle")
+        return
+      }
       setPhase("done")
-    } catch { setError("We couldn't send your enquiry. Please try again."); setPhase("idle") }
+    } catch {
+      setError("We couldn't send your request. Please try again.")
+      setPhase("idle")
+    }
   }
 
   if (phase === "done")
@@ -355,7 +436,85 @@ function QuoteRequest({ listingId, session, urgent, primary }: { listingId: stri
 
   return (
     <div className="space-y-2.5">
+      {structured && properties.length > 0 && (
+        <label className="block">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Property</span>
+          <select
+            value={propertyId}
+            onChange={(e) => setPropertyId(e.target.value)}
+            className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          >
+            <option value="">Select a property (optional)</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>{p.label}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Describe the job, timing and location…" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none" />
+
+      {structured && (
+        <>
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Urgency</span>
+            <div className="mt-1 grid grid-cols-3 gap-1.5">
+              {URGENCY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setUrgency(opt.value)}
+                  className={cn(
+                    "h-9 rounded-xl border text-[12px] font-semibold transition-colors",
+                    urgency === opt.value
+                      ? opt.value === "emergency"
+                        ? "border-red-500 bg-red-50 text-red-700"
+                        : "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="block">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Preferred date</span>
+            <input
+              type="date"
+              value={preferredDate}
+              onChange={(e) => setPreferredDate(e.target.value)}
+              className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            />
+          </label>
+
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Budget indication (optional, £)</span>
+            <div className="mt-1 grid grid-cols-2 gap-1.5">
+              <input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                value={budgetMin}
+                onChange={(e) => setBudgetMin(e.target.value)}
+                placeholder="Min"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+              <input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                value={budgetMax}
+                onChange={(e) => setBudgetMax(e.target.value)}
+                placeholder="Max"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
       {!session?.signedIn && (
         <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Your email" className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" />
       )}

@@ -26,6 +26,22 @@ export function shortDate(iso: string | null | undefined, locale = "en-GB"): str
   return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", year: "numeric" }).format(d)
 }
 
+/** Alias of `shortDate` — the supplier-marketplace surfaces import this name. */
+export function fmtDate(iso: string | null | undefined, locale = "en-GB"): string {
+  return shortDate(iso, locale)
+}
+
+/**
+ * Humanise a snake_case / kebab-case status or type token into a readable label,
+ * e.g. "pending_review" → "Pending review", "service_package" → "Service package".
+ */
+export function humaniseStatus(value: string | null | undefined): string {
+  if (!value) return "—"
+  const words = value.replace(/[_-]+/g, " ").trim().toLowerCase()
+  if (!words) return "—"
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
 export function dayMonth(iso: string | null | undefined, locale = "en-GB"): string {
   if (!iso) return "—"
   const d = new Date(iso)
