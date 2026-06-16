@@ -68,7 +68,7 @@ export default function ApplyClient() {
                   navigator.clipboard?.writeText(code).then(() => {
                     setCopied(true)
                     setTimeout(() => setCopied(false), 2000)
-                  })
+                  }).catch(() => {})
                 }}
                 className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300"
               >

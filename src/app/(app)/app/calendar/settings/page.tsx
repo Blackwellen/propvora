@@ -74,10 +74,15 @@ export default function CalendarSettingsPage() {
     : icalUrl
 
   function copyIcal() {
-    navigator.clipboard.writeText(fullIcalUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    navigator.clipboard
+      .writeText(fullIcalUrl)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      })
+      .catch(() => {
+        // Clipboard permission denied / unavailable — fail silently.
+      })
   }
 
   function toggle(key: keyof NotifPrefs) {
