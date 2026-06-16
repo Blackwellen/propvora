@@ -11,6 +11,8 @@ import { LogOut, Menu, X, LifeBuoy } from "lucide-react"
 import { SUPPLIER_NAV_GROUPS, isSupplierNavActive } from "@/components/supplier-workspace/nav"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
 import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
+import SupplierNotificationBell from "@/components/supplier-workspace/SupplierNotificationBell"
+import SupplierGlobalSearch from "@/components/supplier-workspace/SupplierGlobalSearch"
 
 /* ──────────────────────────────────────────────────────────────────────────
    SupplierWorkspaceShell — chrome for the first-class supplier-type workspace
@@ -168,7 +170,11 @@ export default function SupplierWorkspaceShell({
           >
             <Menu className="w-5 h-5" />
           </button>
-          <span className="text-sm font-semibold text-slate-700">Supplier Workspace</span>
+          <span className="text-sm font-semibold text-slate-700 shrink-0 hidden lg:inline">Supplier Workspace</span>
+          <div className="flex-1 flex justify-center px-2">
+            <SupplierGlobalSearch />
+          </div>
+          <SupplierNotificationBell />
         </header>
 
         <main

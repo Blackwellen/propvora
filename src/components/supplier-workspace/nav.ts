@@ -21,6 +21,8 @@ import {
   Store,
   UserCircle,
   Workflow,
+  Bell,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react"
 
@@ -71,9 +73,16 @@ export const SUPPLIER_NAV_GROUPS: SupplierNavGroup[] = [
     label: "Delivery",
     items: [
       { label: "Messages", href: "/supplier/messages", icon: MessagesSquare, short: "Inbox" },
+      { label: "Notifications", href: "/supplier/notifications", icon: Bell, short: "Alerts" },
       { label: "Evidence", href: "/supplier/evidence", icon: Images, short: "Evidence" },
       { label: "Automations", href: "/supplier/automations", icon: Workflow, short: "Auto" },
       { label: "Disputes", href: "/supplier/disputes", icon: AlertTriangle, short: "Disputes" },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { label: "Earnings", href: "/supplier/earnings", icon: TrendingUp, short: "Earnings" },
     ],
   },
   {

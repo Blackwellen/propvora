@@ -32,6 +32,7 @@ import {
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { moneyPence, dayMonth } from "@/components/supplier-workspace/format"
+import { SupplierAreaChart, SupplierBarChart, Donut, type DonutSlice } from "@/components/supplier-workspace/charts"
 import type {
   SupplierDashboardKpis,
   SupplierAssignmentRow,
@@ -40,6 +41,14 @@ import type {
 interface DashboardEnvelope {
   kpis: SupplierDashboardKpis
   activeJobs: SupplierAssignmentRow[]
+}
+
+interface AnalyticsEnvelope {
+  jobsOverTime: { label: string; value: number }[]
+  earningsOverTime: { label: string; value: number }[]
+  statusMix: { name: string; value: number; color: string }[]
+  completionRatePct: number
+  totalJobs: number
 }
 
 const QUICK_ACTIONS = [
@@ -55,10 +64,15 @@ export default function SupplierDashboardPage() {
   const dash = useSupplierApi<DashboardEnvelope>(useSupplierApiUrl("/api/supplier/dashboard"), {
     select: (j) => j as DashboardEnvelope,
   })
+  const analytics = useSupplierApi<AnalyticsEnvelope>(useSupplierApiUrl("/api/supplier/analytics"), {
+    select: (j) => j as AnalyticsEnvelope,
+  })
 
   const k = dash.data?.kpis
   const activeJobs = dash.data?.activeJobs ?? []
   const currency = k?.currency ?? "GBP"
+  const a = analytics.data
+  const statusSlices: DonutSlice[] = (a?.statusMix ?? []).map((s) => ({ name: s.name, value: s.value, color: s.color }))
 
   const kpis: SupplierKpi[] = [
     {
@@ -119,6 +133,39 @@ export default function SupplierDashboardPage() {
       )}
 
       <SupplierKpiStrip kpis={kpis} />
+
+      {/* Charts — every series derived from real workspace records. */}
+      {!analytics.notReady && (a?.totalJobs ?? 0) > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <SupplierCard className="p-5 lg:col-span-2">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-base font-semibold text-slate-900">Jobs over time</h2>
+              <span className="text-xs text-slate-400">Last 8 weeks</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mb-3">New job assignments per week</p>
+            <SupplierBarChart data={a?.jobsOverTime ?? []} height={200} />
+          </SupplierCard>
+
+          <SupplierCard className="p-5">
+            <h2 className="text-base font-semibold text-slate-900 mb-1">Job status mix</h2>
+            <p className="text-[11px] text-slate-400 mb-3">{a?.completionRatePct ?? 0}% completion rate</p>
+            <div className="flex items-center gap-4">
+              <div className="w-[120px] h-[120px] shrink-0">
+                <Donut data={statusSlices} />
+              </div>
+              <ul className="flex-1 min-w-0 space-y-1.5">
+                {statusSlices.map((s) => (
+                  <li key={s.name} className="flex items-center gap-2 text-xs">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
+                    <span className="text-slate-600 truncate">{s.name}</span>
+                    <span className="ml-auto font-semibold text-slate-800">{s.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SupplierCard>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
         {/* Upcoming / active jobs */}

@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Circle,
   ArrowRight,
+  Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MobileTopBar } from "@/components/mobile"
@@ -25,6 +26,7 @@ import {
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
+import { OnboardingWizard, type OnboardingInitial } from "@/components/supplier-workspace/wizard/OnboardingWizard"
 import type { SupplierProfile } from "@/components/supplier-workspace/types"
 
 /* The onboarding steps mirror the supplier onboarding wizard (canvas §5). Each
@@ -58,6 +60,7 @@ export default function SupplierOnboardingPage() {
   })
   const [advancing, setAdvancing] = useState(false)
   const [banner, setBanner] = useState<string | null>(null)
+  const [wizardOpen, setWizardOpen] = useState(false)
 
   const p = profile.data
   const steps = useMemo(() => STEPS.map((s) => ({ ...s, complete: s.done(p) })), [p])
@@ -90,7 +93,18 @@ export default function SupplierOnboardingPage() {
     <div className="space-y-5">
       <MobileTopBar title="Onboarding" subtitle={`${pct}% complete`} />
 
-      <SupplierPageHeader title="Get set up" subtitle="Complete these steps to publish your profile and start winning work" />
+      <SupplierPageHeader
+        title="Get set up"
+        subtitle="Complete these steps to publish your profile and start winning work"
+        actions={
+          <button
+            onClick={() => setWizardOpen(true)}
+            className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
+          >
+            <Sparkles className="w-4 h-4" /> Guided setup
+          </button>
+        }
+      />
 
       {banner && (
         <div className="flex items-center justify-between rounded-xl border border-amber-100 bg-amber-50 px-3.5 py-2.5">
@@ -166,6 +180,15 @@ export default function SupplierOnboardingPage() {
             )
           })}
         </SupplierCard>
+      )}
+
+      {wizardOpen && (
+        <OnboardingWizard
+          workspaceId={workspaceId}
+          initial={p as unknown as OnboardingInitial}
+          onClose={() => setWizardOpen(false)}
+          onSaved={() => { profile.refresh(); setBanner(null) }}
+        />
       )}
     </div>
   )

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import type { LucideIcon } from "lucide-react"
 import {
   UserCircle,
   Wrench,
@@ -11,6 +13,10 @@ import {
   Building2,
   Store,
   Eye,
+  Star,
+  ShieldCheck,
+  BadgeCheck,
+  Award,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import { InlineEditField } from "@/components/editing"
@@ -67,10 +73,11 @@ export default function SupplierProfilePage() {
     select: (j) => (j as { items?: SupplierAvailabilityDay[]; days?: SupplierAvailabilityDay[] }).items ?? (j as { days?: SupplierAvailabilityDay[] }).days ?? (Array.isArray(j) ? (j as SupplierAvailabilityDay[]) : []),
   })
 
-  const [tab, setTab] = useState<"details" | "services" | "coverage" | "availability">("details")
+  const [tab, setTab] = useState<"preview" | "details" | "services" | "coverage" | "availability">("preview")
   const p = profile.data
 
   const TABS = [
+    { id: "preview" as const, label: "Public preview", icon: Eye },
     { id: "details" as const, label: "Details", icon: UserCircle },
     { id: "services" as const, label: "Services", icon: Wrench },
     { id: "coverage" as const, label: "Coverage", icon: MapPin },
@@ -115,10 +122,74 @@ export default function SupplierProfilePage() {
       />
       <div className="md:hidden">{tabRail}</div>
 
-      {profile.loading && tab === "details" ? (
+      {profile.loading && (tab === "details" || tab === "preview") ? (
         <SupplierLoadingState rows={5} />
       ) : (
         <>
+          {tab === "preview" && (
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+              {/* Marketplace-style public card */}
+              <SupplierCard className="overflow-hidden">
+                <div className="h-28 bg-gradient-to-br from-[#0D1B2A] to-[#1E3A5F]" />
+                <div className="px-5 pb-5 -mt-10">
+                  <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-md flex items-center justify-center">
+                    <div className="w-full h-full rounded-xl bg-[#0EA5E9] flex items-center justify-center text-white text-xl font-bold">
+                      {(p?.business_name ?? "SP").slice(0, 2).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <h2 className="text-xl font-bold text-slate-900">{p?.business_name ?? "Your business name"}</h2>
+                      <p className="text-sm text-slate-500">{p?.supplier_type ? humaniseStatus(p.supplier_type) : "Supplier"}{p?.years_experience ? ` · ${p.years_experience} yrs experience` : ""}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                      <span className="text-sm font-semibold text-slate-800">{p?.average_rating?.toFixed(1) ?? "New"}</span>
+                      {p?.reviews_count ? <span className="text-xs text-slate-400">({p.reviews_count})</span> : null}
+                    </div>
+                  </div>
+                  {p?.description_short && <p className="mt-3 text-sm font-medium text-slate-700">{p.description_short}</p>}
+                  {p?.description_long && <p className="mt-2 text-sm text-slate-500 leading-relaxed">{p.description_long}</p>}
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {(p?.service_categories ?? []).length === 0 ? (
+                      <span className="text-sm text-slate-400 italic">Add service categories to appear in marketplace search</span>
+                    ) : (
+                      (p?.service_categories ?? []).map((c) => <SupplierStatusBadge key={c} tone="blue">{humaniseStatus(c)}</SupplierStatusBadge>)
+                    )}
+                  </div>
+                </div>
+              </SupplierCard>
+
+              {/* Trust + stats rail */}
+              <div className="space-y-4">
+                <SupplierCard className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <h3 className="text-base font-semibold text-slate-900">Trust badges</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    <TrustRow icon={BadgeCheck} label="Identity verified" on={/verified|approved/.test((p?.id_verification_status ?? "").toLowerCase())} />
+                    <TrustRow icon={ShieldCheck} label="Insurance on file" on={/valid|verified|active/.test((p?.insurance_status ?? "").toLowerCase())} />
+                    <TrustRow icon={Award} label="Licensed trade" on={/valid|verified|active/.test((p?.licence_status ?? "").toLowerCase())} />
+                    <TrustRow icon={Store} label="Published to marketplace" on={!!p?.marketplace_enabled} />
+                  </ul>
+                </SupplierCard>
+
+                <SupplierCard className="p-5">
+                  <h3 className="text-base font-semibold text-slate-900 mb-3">At a glance</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between"><dt className="text-slate-500">Completed jobs</dt><dd className="font-semibold text-slate-800">{p?.completed_jobs_count ?? 0}</dd></div>
+                    <div className="flex justify-between"><dt className="text-slate-500">Reviews</dt><dd className="font-semibold text-slate-800">{p?.reviews_count ?? 0}</dd></div>
+                    <div className="flex justify-between"><dt className="text-slate-500">Visibility</dt><dd className="font-semibold text-slate-800">{humaniseStatus(p?.profile_visibility ?? "private")}</dd></div>
+                  </dl>
+                  <Link href="/supplier/marketplace" className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]">
+                    <Store className="w-3.5 h-3.5" /> Manage marketplace listing →
+                  </Link>
+                </SupplierCard>
+              </div>
+            </div>
+          )}
+
           {tab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <SupplierCard className="p-5">
@@ -296,6 +367,18 @@ export default function SupplierProfilePage() {
         </>
       )}
     </div>
+  )
+}
+
+function TrustRow({ icon: Icon, label, on }: { icon: LucideIcon; label: string; on: boolean }) {
+  return (
+    <li className="flex items-center gap-2.5">
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${on ? "bg-emerald-50" : "bg-slate-100"}`}>
+        <Icon className={`w-4 h-4 ${on ? "text-emerald-600" : "text-slate-300"}`} />
+      </div>
+      <span className={`text-sm ${on ? "font-medium text-slate-700" : "text-slate-400"}`}>{label}</span>
+      {on && <span className="ml-auto text-[11px] font-semibold text-emerald-600">Verified</span>}
+    </li>
   )
 }
 

@@ -17,8 +17,13 @@ import {
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { money, shortDate } from "@/components/supplier-workspace/format"
+import { money, moneyPence, shortDate } from "@/components/supplier-workspace/format"
+import { SupplierAreaChart } from "@/components/supplier-workspace/charts"
 import type { SupplierEarningsSummary, SupplierPaymentRow } from "@/components/supplier-workspace/types"
+
+interface EarningsAnalytics {
+  earningsOverTime: { label: string; value: number }[]
+}
 
 export default function SupplierEarningsPage() {
   const summary = useSupplierApi<SupplierEarningsSummary>(useSupplierApiUrl("/api/supplier/jobs/earnings"), {
@@ -27,6 +32,11 @@ export default function SupplierEarningsPage() {
   const payments = useSupplierApi<SupplierPaymentRow[]>(useSupplierApiUrl("/api/supplier/jobs/payments"), {
     select: (j) => (j as { payments?: SupplierPaymentRow[] }).payments ?? (Array.isArray(j) ? (j as SupplierPaymentRow[]) : []),
   })
+  const analytics = useSupplierApi<EarningsAnalytics>(useSupplierApiUrl("/api/supplier/analytics"), {
+    select: (j) => j as EarningsAnalytics,
+  })
+  const earningsSeries = analytics.data?.earningsOverTime ?? []
+  const hasEarnings = earningsSeries.some((p) => p.value > 0)
 
   const s = summary.data
   const currency = s?.currency ?? "GBP"
@@ -77,6 +87,17 @@ export default function SupplierEarningsPage() {
         </SupplierCard>
       ) : (
         <SupplierKpiStrip kpis={kpis} />
+      )}
+
+      {hasEarnings && (
+        <SupplierCard className="p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-semibold text-slate-900">Earnings trend</h2>
+            <span className="text-xs text-slate-400">Paid invoices · last 8 weeks</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mb-3">Cash received per week, from real paid invoices</p>
+          <SupplierAreaChart data={earningsSeries} color="#10B981" format={(v) => moneyPence(v)} height={220} />
+        </SupplierCard>
       )}
 
       <SupplierCard className="p-5">

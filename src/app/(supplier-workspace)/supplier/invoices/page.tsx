@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ReceiptText, Plus, Send, Ban } from "lucide-react"
+import { ReceiptText, Plus, Send, Ban, Table2, LayoutGrid } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MobileTopBar, ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
@@ -10,6 +10,7 @@ import {
   SupplierKpiStrip, supplierInputClass, supplierTextareaClass,
   toneForStatus, humaniseStatus, type SupplierKpi,
 } from "@/components/supplier-workspace/ui"
+import { SupplierViewSwitcher } from "@/components/supplier-workspace/views"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { moneyPence, shortDate } from "@/components/supplier-workspace/format"
@@ -22,6 +23,7 @@ export default function SupplierInvoicesPage() {
     { select: (j) => j as { items: SupplierInvoiceRow[]; summary: SupplierInvoiceSummary } }
   )
   const [open, setOpen] = useState(false)
+  const [view, setView] = useState<"table" | "cards">("table")
   const [form, setForm] = useState({ invoice_number: "", amount: "", notes: "" })
   const [busy, setBusy] = useState(false)
   const [banner, setBanner] = useState<{ tone: "emerald" | "red"; msg: string } | null>(null)
@@ -81,7 +83,19 @@ export default function SupplierInvoicesPage() {
       <SupplierPageHeader
         title="Invoices"
         subtitle="Raise and track invoices for completed work. Submitted invoices go to the property manager for approval."
-        actions={<SupplierButton onClick={() => { setOpen(true); setBanner(null) }}><Plus className="w-4 h-4" /> New invoice</SupplierButton>}
+        actions={
+          <div className="flex items-center gap-2">
+            <SupplierViewSwitcher<"table" | "cards">
+              value={view}
+              onChange={setView}
+              options={[
+                { key: "table", label: "Table", icon: Table2 },
+                { key: "cards", label: "Cards", icon: LayoutGrid },
+              ]}
+            />
+            <SupplierButton onClick={() => { setOpen(true); setBanner(null) }}><Plus className="w-4 h-4" /> New invoice</SupplierButton>
+          </div>
+        }
       />
 
       {banner && <SupplierBanner tone={banner.tone} onDismiss={() => setBanner(null)}>{banner.msg}</SupplierBanner>}
@@ -99,6 +113,31 @@ export default function SupplierInvoicesPage() {
             action={<SupplierButton onClick={() => setOpen(true)}><Plus className="w-4 h-4" /> Create invoice</SupplierButton>}
           />
         </SupplierCard>
+      ) : view === "cards" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((i) => (
+            <SupplierCard key={i.id} className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{i.invoice_number ?? `INV ${i.id.slice(0, 8)}`}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Created {shortDate(i.created_at)}</p>
+                </div>
+                <SupplierStatusBadge tone={toneForStatus(i.status)}>{humaniseStatus(i.status)}</SupplierStatusBadge>
+              </div>
+              <p className="mt-3 text-2xl font-bold text-slate-900">{i.amount_pence != null ? moneyPence(i.amount_pence, i.currency) : "—"}</p>
+              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                <div><span className="text-slate-400 block">Submitted</span><span className="text-slate-700 font-medium">{shortDate(i.submitted_at)}</span></div>
+                <div><span className="text-slate-400 block">Paid</span><span className="text-slate-700 font-medium">{shortDate(i.paid_at)}</span></div>
+              </div>
+              {i.status === "draft" && (
+                <div className="mt-3 flex items-center gap-2">
+                  <SupplierButton size="sm" onClick={() => act(i.id, "submit")}><Send className="w-3.5 h-3.5" /> Submit</SupplierButton>
+                  <SupplierButton size="sm" variant="ghost" onClick={() => act(i.id, "void")}><Ban className="w-3.5 h-3.5" /> Void</SupplierButton>
+                </div>
+              )}
+            </SupplierCard>
+          ))}
+        </div>
       ) : (
         <ResponsiveTable rows={items} mobile={mobileMapping}>
           <SupplierCard className="overflow-hidden">

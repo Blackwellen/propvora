@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Hammer, Plus, Pencil } from "lucide-react"
+import Link from "next/link"
+import { Hammer, Plus, Pencil, Eye } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
   SupplierPageHeader, SupplierCard, SupplierLoadingState, SupplierEmptyState,
@@ -11,6 +12,8 @@ import {
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import { moneyPence } from "@/components/supplier-workspace/format"
+import { ServiceWizard } from "@/components/supplier-workspace/wizard/ServiceWizard"
+import { Sparkles } from "lucide-react"
 
 interface ServiceRow {
   id: string
@@ -34,6 +37,7 @@ export default function SupplierServicesPage() {
     { select: (j) => (j as { items?: ServiceRow[] }).items ?? [] }
   )
   const [open, setOpen] = useState(false)
+  const [wizardOpen, setWizardOpen] = useState(false)
   const [editing, setEditing] = useState<ServiceRow | null>(null)
   const [form, setForm] = useState(empty)
   const [busy, setBusy] = useState(false)
@@ -90,7 +94,12 @@ export default function SupplierServicesPage() {
       <SupplierPageHeader
         title="Services"
         subtitle="The à-la-carte services you offer, with pricing model and rates."
-        actions={<SupplierButton onClick={openCreate}><Plus className="w-4 h-4" /> New service</SupplierButton>}
+        actions={
+          <div className="flex items-center gap-2">
+            <SupplierButton variant="secondary" onClick={() => setWizardOpen(true)}><Sparkles className="w-4 h-4" /> Guided setup</SupplierButton>
+            <SupplierButton onClick={openCreate}><Plus className="w-4 h-4" /> New service</SupplierButton>
+          </div>
+        }
       />
 
       {banner && <SupplierBanner tone={banner.tone} onDismiss={() => setBanner(null)}>{banner.msg}</SupplierBanner>}
@@ -124,6 +133,9 @@ export default function SupplierServicesPage() {
                 {s.callout_fee_pence != null && <span className="text-xs text-slate-400">+ {moneyPence(s.callout_fee_pence)} call-out</span>}
               </div>
               <div className="mt-4 flex items-center gap-2">
+                <Link href={`/supplier/services/${s.id}`} className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-semibold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 gap-1.5">
+                  <Eye className="w-3.5 h-3.5" /> Open
+                </Link>
                 <SupplierButton size="sm" variant="secondary" onClick={() => openEdit(s)}><Pencil className="w-3.5 h-3.5" /> Edit</SupplierButton>
                 <SupplierButton size="sm" variant="ghost" onClick={() => toggle(s)}>{s.active ? "Deactivate" : "Activate"}</SupplierButton>
               </div>
@@ -167,6 +179,14 @@ export default function SupplierServicesPage() {
           </div>
         )}
       </SupplierDrawer>
+
+      {wizardOpen && (
+        <ServiceWizard
+          workspaceId={workspaceId}
+          onClose={() => setWizardOpen(false)}
+          onCreated={() => { svc.refresh(); setBanner({ tone: "emerald", msg: "Service created via guided setup." }) }}
+        />
+      )}
     </div>
   )
 }
