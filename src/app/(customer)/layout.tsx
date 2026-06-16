@@ -55,6 +55,24 @@ export default async function CustomerLayout({
     // keep default
   }
 
+  // Avatar URL — check auth user_metadata first (e.g. from OAuth / profile),
+  // then fall back to customer_profiles.avatar_url if present (tolerant).
+  const metaAvatar =
+    (user.user_metadata as { avatar_url?: string } | null)?.avatar_url ?? null
+  let avatarUrl: string | null = metaAvatar
+  if (!avatarUrl) {
+    try {
+      const { data: profile } = await supabase
+        .from("customer_profiles")
+        .select("avatar_url")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle()
+      avatarUrl = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null
+    } catch {
+      // tolerate missing column
+    }
+  }
+
   const [unreadNotifications, unreadMessages] = await Promise.all([
     countCustomerUnreadNotifications(supabase, workspaceId),
     countCustomerUnreadMessages(supabase, workspaceId),
@@ -63,6 +81,8 @@ export default async function CustomerLayout({
   return (
     <CustomerShell
       customerName={customerName}
+      customerEmail={user.email ?? undefined}
+      avatarUrl={avatarUrl}
       unreadNotifications={unreadNotifications}
       unreadMessages={unreadMessages}
     >
