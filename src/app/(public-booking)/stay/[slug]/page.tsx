@@ -31,6 +31,7 @@ import StayReviews from "@/components/booking/StayReviews"
 import StayLocationMap from "@/components/booking/StayLocationMap"
 import SimilarStays from "@/components/booking/SimilarStays"
 import AmenitiesModal from "@/components/booking/AmenitiesModal"
+import MobileBookingBar from "@/components/booking/MobileBookingBar"
 import { STAY_TYPE_LABEL, STAY_POLICY_LABEL } from "@/components/booking/StayListingCard"
 
 export const runtime = "nodejs"
@@ -99,6 +100,12 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-28 lg:pb-8">
+      <MobileBookingBar
+        fromNightlyPence={isShortStay ? listing.fromNightlyPence : null}
+        currency={listing.currency}
+        rating={listing.rating}
+        reviewCount={listing.reviewCount}
+      />
       {/* ── Title row ── */}
       <div className="mb-4">
         <h1 className="text-[22px] sm:text-[28px] font-bold tracking-tight text-[#0B1B3F] leading-tight">{listing.title}</h1>
@@ -452,7 +459,7 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
         </div>
 
         {/* ── Right column: booking card ── */}
-        <div className="lg:col-span-5">
+        <div id="booking-card" className="lg:col-span-5">
           <div className="lg:sticky lg:top-[88px]">
             {isShortStay ? (
               <StayBookingCard
