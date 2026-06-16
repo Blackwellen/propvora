@@ -428,7 +428,33 @@ export default function CustomerShell({
             </div>
 
             {/* ── RIGHT CLUSTER ─────────────────────────────────────── */}
-            <div className="shrink-0 flex items-center gap-2 ml-auto">
+            <div className="shrink-0 flex items-center gap-1 ml-auto">
+              {/* Primary nav links — visible on lg+ so common destinations don't need the account menu */}
+              {[
+                { label: "Home", href: "/user" },
+                { label: "My Trips", href: "/user/bookings" },
+                { label: "Saved", href: "/user/saved" },
+              ].map(({ label, href }) => {
+                const active = isCustomerNavActive(pathname, href)
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      "hidden lg:flex items-center px-3.5 py-2 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap",
+                      active
+                        ? "bg-slate-100 text-[#0D1B2A]"
+                        : "text-[#0D1B2A] hover:bg-slate-100"
+                    )}
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
+
+              {/* Divider */}
+              <div className="hidden lg:block w-px h-5 bg-slate-200 mx-1" />
+
               {/* List your property CTA */}
               <Link
                 href="/register?intent=operator"

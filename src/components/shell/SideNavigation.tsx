@@ -25,6 +25,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  HandCoins,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import ShellLogo from "./ShellLogo"
@@ -65,6 +66,7 @@ const NAV_GROUPS = [
     items: [
       { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
       { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
+      { label: "Affiliates", href: `${MANAGER_BASE}/money/affiliate`, icon: HandCoins },
     ],
   },
   {
