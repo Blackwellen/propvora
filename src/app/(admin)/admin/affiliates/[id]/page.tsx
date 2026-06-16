@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { levelByBand, formatPence } from "@/lib/affiliate/levels"
 import AffiliateActions from "./AffiliateActions"
 import PayoutReview, { type PayoutReviewRow } from "./PayoutReview"
+import AffiliateEdit from "@/components/admin-affiliates/AffiliateEdit"
 
 export const dynamic = "force-dynamic"
 
@@ -104,7 +105,17 @@ export default async function AdminAffiliateDetailPage({ params }: PageProps) {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Affiliate Details</CardTitle></CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Affiliate Details</CardTitle>
+          {enrolled && (
+            <AffiliateEdit
+              workspaceId={aff.workspace_id as string}
+              band={(aff.band as string) ?? "starter"}
+              payoutEmail={(aff.payout_email as string) ?? null}
+              origin={(aff.origin as string) ?? "internal"}
+            />
+          )}
+        </CardHeader>
         <CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[
             ["Referral code", (aff.referral_code as string) ?? "—"],

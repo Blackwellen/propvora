@@ -122,7 +122,7 @@ export async function setFeatureFlag(key: string, enabled: boolean): Promise<Act
     const { error } = await admin
       .from("platform_feature_flags")
       .update({ enabled, updated_at: new Date().toISOString() })
-      .eq("key", key)
+      .eq("flag_key", key)
     if (error) {
       // PostgREST returns PGRST205 (schema-cache miss) for a missing table over
       // the REST path; the raw 42P01 only appears on direct SQL.

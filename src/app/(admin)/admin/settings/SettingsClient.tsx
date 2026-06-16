@@ -1,19 +1,24 @@
 "use client"
 
 import React, { useState, useTransition } from "react"
-import { Save, AlertTriangle, Info } from "lucide-react"
+import { Save, AlertTriangle, Info, Wrench } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs"
 import { setFeatureFlag, savePlatformSetting } from "../actions"
+import { saveMaintenanceMode } from "@/lib/admin/mutations"
+import AiModelsManager from "@/components/admin-settings/AiModelsManager"
 import type { PlatformFlag } from "@/lib/admin/data"
+import type { ProviderRow, ModelRow } from "@/app/(admin)/admin/ai-models/data"
 
 interface Props {
   flagsAvailable: boolean
   flags: PlatformFlag[]
   settingsAvailable: boolean
   general: { platform_name?: string; support_email?: string; trial_length_days?: number }
+  maintenance: { enabled?: boolean; message?: string; allow_admins?: boolean }
+  ai: { available: boolean; providers: ProviderRow[]; models: ModelRow[] }
 }
 
 function Toast({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
@@ -25,9 +30,23 @@ function Toast({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
   )
 }
 
-export default function SettingsClient({ flagsAvailable, flags, settingsAvailable, general }: Props) {
+export default function SettingsClient({ flagsAvailable, flags, settingsAvailable, general, maintenance, ai }: Props) {
   const [tab, setTab] = useState("platform")
   const [, startTransition] = useTransition()
+
+  // Maintenance mode
+  const [maintEnabled, setMaintEnabled] = useState(!!maintenance.enabled)
+  const [maintMsg, setMaintMsg] = useState(maintenance.message ?? "")
+  const [maintAllowAdmins, setMaintAllowAdmins] = useState(maintenance.allow_admins ?? true)
+  const [savingMaint, setSavingMaint] = useState(false)
+  const [maintResult, setMaintResult] = useState<{ kind: "ok" | "err"; msg: string } | null>(null)
+
+  async function saveMaint() {
+    setSavingMaint(true); setMaintResult(null)
+    const res = await saveMaintenanceMode({ enabled: maintEnabled, message: maintMsg, allowAdmins: maintAllowAdmins })
+    setSavingMaint(false)
+    setMaintResult(res.ok ? { kind: "ok", msg: "Maintenance settings saved." } : { kind: "err", msg: res.error ?? "Failed to save" })
+  }
 
   // Flags
   const [flagState, setFlagState] = useState(flags)
@@ -70,6 +89,8 @@ export default function SettingsClient({ flagsAvailable, flags, settingsAvailabl
       <TabsList variant="underline">
         <TabsTrigger value="platform">Platform</TabsTrigger>
         <TabsTrigger value="flags">Feature Flags</TabsTrigger>
+        <TabsTrigger value="ai">AI Models</TabsTrigger>
+        <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
         <TabsTrigger value="integrations">Integrations</TabsTrigger>
       </TabsList>
 
@@ -128,6 +149,56 @@ export default function SettingsClient({ flagsAvailable, flags, settingsAvailabl
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* AI Models — full provider/model catalogue management */}
+      <TabsContent value="ai">
+        <AiModelsManager available={ai.available} providers={ai.providers} models={ai.models} />
+      </TabsContent>
+
+      {/* Maintenance mode */}
+      <TabsContent value="maintenance">
+        <Card className="max-w-xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Wrench className="w-4 h-4 text-amber-500" /> Maintenance Mode</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!settingsAvailable && (
+              <Toast kind="err" msg="platform_settings table not provisioned — maintenance settings cannot persist." />
+            )}
+            <div className="flex items-center justify-between py-2 border-b border-slate-50">
+              <div>
+                <p className="text-sm font-medium text-slate-800">Enable maintenance mode</p>
+                <p className="text-xs text-slate-400">Displays a maintenance notice to users platform-wide.</p>
+              </div>
+              <button
+                onClick={() => setMaintEnabled((v) => !v)}
+                aria-pressed={maintEnabled}
+                className={`w-10 h-[22px] rounded-full transition-colors relative shrink-0 ml-4 ${maintEnabled ? "bg-amber-500" : "bg-slate-200"}`}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${maintEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Notice message</label>
+              <textarea
+                value={maintMsg}
+                onChange={(e) => setMaintMsg(e.target.value)}
+                rows={3}
+                placeholder="We're performing scheduled maintenance and will be back shortly."
+                className="mt-1.5 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              />
+            </div>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input type="checkbox" checked={maintAllowAdmins} onChange={(e) => setMaintAllowAdmins(e.target.checked)} className="w-4 h-4 rounded accent-[#2563EB]" />
+              <span className="text-sm text-slate-700">Allow platform admins to bypass maintenance mode</span>
+            </label>
+            {maintResult && <Toast kind={maintResult.kind} msg={maintResult.msg} />}
+            <Button variant="primary" size="sm" onClick={saveMaint} loading={savingMaint} disabled={!settingsAvailable}>
+              <Save className="w-4 h-4" /> Save Maintenance Settings
+            </Button>
           </CardContent>
         </Card>
       </TabsContent>

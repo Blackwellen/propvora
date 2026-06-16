@@ -222,7 +222,10 @@ export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDeta
       .order("created_at", { ascending: true })
 
     const profileIds = [ws.owner_user_id as string, ...(memberRows ?? []).map((m) => m.user_id as string)]
-    const profiles = await profilesMap(profileIds)
+    const [profiles, emails] = await Promise.all([
+      profilesMap(profileIds),
+      emailsFor(profileIds),
+    ])
     const owner = profiles[ws.owner_user_id as string] ?? null
 
     const members = (memberRows ?? []).map((m) => {
@@ -230,7 +233,7 @@ export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDeta
       return {
         userId: m.user_id as string,
         name: p?.full_name ?? null,
-        email: p?.email ?? null,
+        email: emails[m.user_id as string] ?? null,
         role: (m.role as string) ?? "member",
         joinedAt: (m.created_at as string) ?? null,
       }
@@ -255,7 +258,7 @@ export async function getWorkspaceDetail(id: string): Promise<AdminWorkspaceDeta
       createdAt: (ws.created_at as string) ?? null,
       stripeCustomerId: (ws.stripe_customer_id as string) ?? null,
       demoDataLoaded: Boolean(ws.demo_data_loaded),
-      owner: { id: owner?.id ?? (ws.owner_user_id as string) ?? null, name: owner?.full_name ?? null, email: owner?.email ?? null },
+      owner: { id: owner?.id ?? (ws.owner_user_id as string) ?? null, name: owner?.full_name ?? null, email: emails[ws.owner_user_id as string] ?? null },
       members,
       dataSummary: { properties, contacts, tasks, tenancies, documents, invoices },
       recentAudit,
@@ -286,12 +289,15 @@ export async function listUsers(limit = 500): Promise<AdminUserRow[]> {
     if (error || !data) return []
 
     const ids = data.map((p) => p.id as string)
-    const memberships = await membershipCountsFor(ids)
+    const [memberships, emails] = await Promise.all([
+      membershipCountsFor(ids),
+      emailsFor(ids),
+    ])
 
     return data.map((p) => ({
       id: p.id as string,
       name: (p.full_name as string) ?? null,
-      email: null, // profiles has no email column (lives on auth.users)
+      email: emails[p.id as string] ?? null, // resolved from auth.users
       role: (p.role as string) ?? "user",
       createdAt: (p.created_at as string) ?? null,
       workspaceCount: memberships[p.id as string] ?? 0,
@@ -324,12 +330,22 @@ async function membershipCountsFor(userIds: string[]): Promise<Record<string, nu
 export interface AdminUserDetail {
   id: string
   name: string | null
+  firstName: string | null
+  lastName: string | null
   email: string | null
   role: string
   phone: string | null
+  country: string | null
   createdAt: string | null
   memberships: Array<{ workspaceId: string; workspaceName: string; role: string; joinedAt: string | null }>
   recentAudit: AdminAuditRow[]
+  security: {
+    emailConfirmed: boolean
+    lastSignInAt: string | null
+    banned: boolean
+    mfaEnrolled: boolean
+    provider: string | null
+  }
 }
 
 export async function getUserDetail(id: string): Promise<AdminUserDetail | null> {
@@ -337,7 +353,7 @@ export async function getUserDetail(id: string): Promise<AdminUserDetail | null>
     const admin = createAdminClient()
     const { data: p, error } = await admin
       .from("profiles")
-      .select("id, full_name:display_name, role:platform_role, phone, created_at")
+      .select("id, full_name:display_name, first_name, last_name, role:platform_role, phone, country_code, created_at")
       .eq("id", id)
       .maybeSingle()
     if (error || !p) return null
@@ -361,15 +377,43 @@ export async function getUserDetail(id: string): Promise<AdminUserDetail | null>
 
     const recentAudit = await listAudit({ userId: id, limit: 15 })
 
+    // Auth-layer security facts (email, sign-in, ban, MFA) from auth.users.
+    let email: string | null = null
+    const security = {
+      emailConfirmed: false,
+      lastSignInAt: null as string | null,
+      banned: false,
+      mfaEnrolled: false,
+      provider: null as string | null,
+    }
+    try {
+      const { data: au } = await admin.auth.admin.getUserById(id)
+      const u = au?.user
+      if (u) {
+        email = u.email ?? null
+        security.emailConfirmed = !!u.email_confirmed_at
+        security.lastSignInAt = u.last_sign_in_at ?? null
+        // banned_until is exposed on the admin user object at runtime.
+        const bannedUntil = (u as unknown as { banned_until?: string }).banned_until
+        security.banned = !!bannedUntil && new Date(bannedUntil) > new Date()
+        security.mfaEnrolled = (u.factors ?? []).some((f) => f.status === "verified")
+        security.provider = (u.app_metadata?.provider as string) ?? null
+      }
+    } catch { /* non-fatal */ }
+
     return {
       id: p.id as string,
       name: (p.full_name as string) ?? null,
-      email: null, // profiles has no email column (lives on auth.users)
+      firstName: (p.first_name as string) ?? null,
+      lastName: (p.last_name as string) ?? null,
+      email,
       role: (p.role as string) ?? "user",
       phone: (p.phone as string) ?? null,
+      country: (p.country_code as string) ?? null,
       createdAt: (p.created_at as string) ?? null,
       memberships,
       recentAudit,
+      security,
     }
   } catch {
     return null
@@ -813,6 +857,68 @@ export async function listAffiliateApplications(
   }
 }
 
+export interface AdminAffiliateDetail {
+  workspaceId: string
+  workspaceName: string | null
+  enrolled: boolean
+  approved: boolean
+  origin: string
+  band: string
+  referralCode: string | null
+  payoutEmail: string | null
+  commissionRate: number
+  referrals: number
+  pendingPence: number
+  clearedPence: number
+  paidPence: number
+  createdAt: string | null
+  appliedAt: string | null
+  recentAudit: AdminAuditRow[]
+}
+
+/** Full detail for one enrolled affiliate (keyed by workspace_id). */
+export async function getAffiliateDetail(workspaceId: string): Promise<AdminAffiliateDetail | null> {
+  try {
+    const admin = createAdminClient()
+    const { data: a, error } = await admin
+      .from("affiliates")
+      .select("workspace_id, enrolled, approved, origin, band, referral_code, payout_email, active_referrals_count, pending_pence, cleared_pence, paid_pence, created_at, applied_at")
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+    if (error || !a) return null
+
+    let workspaceName: string | null = null
+    try {
+      const { data: ws } = await admin.from("workspaces").select("name").eq("id", workspaceId).maybeSingle()
+      workspaceName = (ws?.name as string) ?? null
+    } catch { /* ignore */ }
+
+    const { levelByBand } = await import("@/lib/affiliate/levels")
+    const recentAudit = await listAudit({ workspaceId, limit: 15 })
+
+    return {
+      workspaceId,
+      workspaceName,
+      enrolled: !!a.enrolled,
+      approved: !!a.approved,
+      origin: (a.origin as string) ?? "internal",
+      band: (a.band as string) ?? "starter",
+      referralCode: (a.referral_code as string) ?? null,
+      payoutEmail: (a.payout_email as string) ?? null,
+      commissionRate: levelByBand(a.band as unknown as number | null).rate,
+      referrals: Number(a.active_referrals_count ?? 0),
+      pendingPence: Number(a.pending_pence ?? 0),
+      clearedPence: Number(a.cleared_pence ?? 0),
+      paidPence: Number(a.paid_pence ?? 0),
+      createdAt: (a.created_at as string) ?? null,
+      appliedAt: (a.applied_at as string) ?? null,
+      recentAudit,
+    }
+  } catch {
+    return null
+  }
+}
+
 // ── Feature flags & platform settings ──────────────────────────────────────
 
 export interface PlatformFlag {
@@ -857,6 +963,174 @@ export async function getPlatformFlags(): Promise<{ available: boolean; flags: P
     }
   } catch {
     return { available: false, flags: [] }
+  }
+}
+
+// ── Email resolution (auth.users) ───────────────────────────────────────────
+
+/**
+ * Resolve emails for a set of user ids from auth.users via the admin API.
+ * profiles has no email column, so this is the authoritative source. Paginates
+ * the admin list (capped) and returns a sparse id->email map. Never throws.
+ */
+export async function emailsFor(ids: string[]): Promise<Record<string, string>> {
+  const out: Record<string, string> = {}
+  const want = new Set(ids.filter(Boolean))
+  if (want.size === 0) return out
+  try {
+    const admin = createAdminClient()
+    // The admin API lists users page-by-page; for the admin console scale this
+    // is fine. Cap at 10 pages (10k users) to bound work.
+    for (let page = 1; page <= 10; page++) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
+      if (error || !data?.users?.length) break
+      for (const u of data.users) {
+        if (want.has(u.id) && u.email) out[u.id] = u.email
+      }
+      if (data.users.length < 1000) break
+      if (Object.keys(out).length >= want.size) break
+    }
+  } catch { /* ignore */ }
+  return out
+}
+
+/** Resolve a single user's email (auth.users). */
+export async function emailForUser(id: string): Promise<string | null> {
+  if (!id) return null
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin.auth.admin.getUserById(id)
+    if (error || !data?.user) return null
+    return data.user.email ?? null
+  } catch {
+    return null
+  }
+}
+
+// ── User picker (for create-workspace / create-affiliate selectors) ──────────
+
+export interface UserPick { id: string; name: string | null; email: string | null }
+
+/** Lightweight list of users for owner/assignment pickers. */
+export async function listUserPicks(limit = 200): Promise<UserPick[]> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from("profiles")
+      .select("id, display_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    const ids = (data ?? []).map((p) => p.id as string)
+    const emails = await emailsFor(ids)
+    return (data ?? []).map((p) => ({
+      id: p.id as string,
+      name: (p.display_name as string) ?? null,
+      email: emails[p.id as string] ?? null,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Workspaces NOT yet enrolled as affiliates (for the create-affiliate picker). */
+export async function listWorkspacePicks(limit = 300): Promise<Array<{ id: string; name: string }>> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from("workspaces")
+      .select("id, name")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    let enrolled = new Set<string>()
+    try {
+      const { data: aff } = await admin.from("affiliates").select("workspace_id")
+      enrolled = new Set((aff ?? []).map((a) => a.workspace_id as string))
+    } catch { /* ignore */ }
+    return (data ?? [])
+      .map((w) => ({ id: w.id as string, name: (w.name as string) ?? "Workspace" }))
+      .filter((w) => !enrolled.has(w.id))
+  } catch {
+    return []
+  }
+}
+
+// ── Dashboard KPI time-series (real, from created_at) ────────────────────────
+
+export interface TrendPoint { label: string; value: number }
+export interface DashboardTrends {
+  workspacesByMonth: TrendPoint[]
+  usersByMonth: TrendPoint[]
+  planMix: Array<{ label: string; value: number }>
+  statusMix: Array<{ label: string; value: number }>
+}
+
+function monthKey(iso: string): string {
+  const d = new Date(iso)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+function lastNMonths(n: number): string[] {
+  const out: string[] = []
+  const now = new Date()
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`)
+  }
+  return out
+}
+
+/** Real growth + composition series for the dashboard charts. 42P01-safe. */
+export async function getDashboardTrends(): Promise<DashboardTrends> {
+  const admin = createAdminClient()
+  const months = lastNMonths(6)
+  const labelFor = (k: string) => {
+    const [, m] = k.split("-")
+    return new Date(2000, Number(m) - 1, 1).toLocaleDateString("en-GB", { month: "short" })
+  }
+
+  const empty: DashboardTrends = {
+    workspacesByMonth: months.map((k) => ({ label: labelFor(k), value: 0 })),
+    usersByMonth: months.map((k) => ({ label: labelFor(k), value: 0 })),
+    planMix: [],
+    statusMix: [],
+  }
+
+  try {
+    const [wsRes, profRes] = await Promise.all([
+      admin.from("workspaces").select("created_at, plan, plan_status").limit(5000),
+      admin.from("profiles").select("created_at").limit(5000),
+    ])
+
+    const wsCounts: Record<string, number> = {}
+    const planMix: Record<string, number> = {}
+    const statusMix: Record<string, number> = {}
+    for (const w of wsRes.data ?? []) {
+      if (w.created_at) {
+        const k = monthKey(w.created_at as string)
+        wsCounts[k] = (wsCounts[k] ?? 0) + 1
+      }
+      const plan = (w.plan as string) ?? "starter"
+      planMix[plan] = (planMix[plan] ?? 0) + 1
+      const st = (w.plan_status as string) ?? "active"
+      statusMix[st] = (statusMix[st] ?? 0) + 1
+    }
+
+    const userCounts: Record<string, number> = {}
+    for (const p of profRes.data ?? []) {
+      if (p.created_at) {
+        const k = monthKey(p.created_at as string)
+        userCounts[k] = (userCounts[k] ?? 0) + 1
+      }
+    }
+
+    return {
+      workspacesByMonth: months.map((k) => ({ label: labelFor(k), value: wsCounts[k] ?? 0 })),
+      usersByMonth: months.map((k) => ({ label: labelFor(k), value: userCounts[k] ?? 0 })),
+      planMix: Object.entries(planMix).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value),
+      statusMix: Object.entries(statusMix).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value),
+    }
+  } catch {
+    return empty
   }
 }
 

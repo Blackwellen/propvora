@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
-import { getPlatformStats, listAudit, listWorkspaces } from "@/lib/admin/data"
+import { getPlatformStats, listAudit, listWorkspaces, getDashboardTrends } from "@/lib/admin/data"
+import DashboardCharts from "@/components/admin-dashboard/DashboardCharts"
 
 export const dynamic = "force-dynamic"
 
@@ -26,10 +27,11 @@ function planBadge(plan: string) {
 }
 
 export default async function AdminDashboardPage() {
-  const [stats, recentWorkspaces, recentAudit] = await Promise.all([
+  const [stats, recentWorkspaces, recentAudit, trends] = await Promise.all([
     getPlatformStats(),
     listWorkspaces(6),
     listAudit({ limit: 8 }),
+    getDashboardTrends(),
   ])
 
   const kpis: Array<{ label: string; value: string; icon: React.ElementType; colour: string; bg: string; href: string }> = [
@@ -76,6 +78,9 @@ export default async function AdminDashboardPage() {
           )
         })}
       </div>
+
+      {/* Growth + plan-mix charts — real series from created_at + plan/status */}
+      <DashboardCharts trends={trends} />
 
       {/* Billing note — honest, no fabricated MRR */}
       <Card className="p-4 border-amber-200 bg-[#FFFBEB]">

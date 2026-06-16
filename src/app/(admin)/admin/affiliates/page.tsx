@@ -3,9 +3,10 @@ import Link from "next/link"
 import { UserCheck, Inbox } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
-import { listAffiliates, listAffiliateApplications } from "@/lib/admin/data"
+import { listAffiliates, listAffiliateApplications, listWorkspacePicks } from "@/lib/admin/data"
 import { formatPence } from "@/lib/affiliate/levels"
 import ApplicationsReview from "./ApplicationsReview"
+import CreateAffiliateWizard from "@/components/admin-affiliates/CreateAffiliateWizard"
 
 export const dynamic = "force-dynamic"
 
@@ -17,21 +18,25 @@ function statusBadge(status: string) {
 }
 
 export default async function AdminAffiliatesPage() {
-  const [{ available, rows }, apps] = await Promise.all([
+  const [{ available, rows }, apps, workspacePicks] = await Promise.all([
     listAffiliates(500),
     listAffiliateApplications(500),
+    listWorkspacePicks(300),
   ])
 
   const pendingApps = apps.rows.filter((a) => a.status === "pending_review" || a.status === "submitted").length
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Affiliates</h1>
-        <p className="text-xs text-slate-500">
-          Applications, enrolled affiliates and live commission balances. Commission accrues from paid
-          invoices (Stripe) and clears after a 30-day cooling-off.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Affiliates</h1>
+          <p className="text-xs text-slate-500">
+            Applications, enrolled affiliates and live commission balances. Commission accrues from paid
+            invoices (Stripe) and clears after a 30-day cooling-off.
+          </p>
+        </div>
+        <CreateAffiliateWizard workspaces={workspacePicks} />
       </div>
 
       {/* Applications review */}

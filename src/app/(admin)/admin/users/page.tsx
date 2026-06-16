@@ -3,19 +3,24 @@ import { Users } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { listUsers } from "@/lib/admin/data"
 import UsersFilter from "./UsersFilter"
+import CreateUserWizard from "@/components/admin-users/CreateUserWizard"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminUsersPage() {
   const users = await listUsers(500)
+  const admins = users.filter((u) => u.role === "platform_admin" || u.role === "admin").length
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Users</h1>
-        <p className="text-xs text-slate-500">
-          {users.length} user{users.length === 1 ? "" : "s"} on the platform · live from profiles + memberships
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Users</h1>
+          <p className="text-xs text-slate-500">
+            {users.length} user{users.length === 1 ? "" : "s"} · {admins} admin{admins === 1 ? "" : "s"} · live from profiles + auth + memberships
+          </p>
+        </div>
+        <CreateUserWizard />
       </div>
 
       {users.length === 0 ? (
