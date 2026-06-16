@@ -125,7 +125,7 @@ export async function proxy(request: NextRequest) {
   // and "/affiliate/*". The PUBLIC marketing pages at "/affiliate-programme*"
   // must NOT be gated — so we match the affiliate app precisely, not by a loose
   // "/affiliate" startsWith (which would also catch "/affiliate-programme").
-  const protectedPrefixes = ["/app", "/supplier-portal", "/admin"]
+  const protectedPrefixes = ["/app", "/supplier-portal", "/supplier", "/admin"]
   const isAffiliateApp = pathname === "/affiliate" || pathname.startsWith("/affiliate/")
   const isProtected =
     (protectedPrefixes.some((p) => pathname.startsWith(p)) || isAffiliateApp) &&
