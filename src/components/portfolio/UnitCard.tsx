@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   BedDouble, Bath, Maximize2, Car,
-  Calendar, AlertTriangle, Sofa, ChevronRight, Home,
+  Calendar, AlertTriangle, Sofa, ChevronRight, Building2,
   Eye, Plus, Users, Archive,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -95,7 +95,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
         "hover:-translate-y-0.5 transition-all duration-250",
       )}>
         {/* ── Cover — uploaded photo or gradient fallback ── */}
-        <div className="relative mx-2 mt-2 rounded-2xl h-52 overflow-hidden"
+        <div className="relative mx-3 mt-3 rounded-xl h-36 overflow-hidden"
           style={!showImage ? { background: coverGradient } : undefined}>
           {showImage ? (
             <Image
@@ -108,7 +108,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center opacity-20">
-              <Home size={36} className="text-white" />
+              <Building2 size={40} className="text-white" />
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
