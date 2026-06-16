@@ -8,62 +8,34 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
 import {
+  Search,
+  Menu,
   LogOut,
   LifeBuoy,
-  Bell,
-  MessageSquare,
-  Search,
-  ChevronDown,
   UserCircle,
   Heart,
   CreditCard,
   CalendarCheck,
   MapPin,
   Users,
-  X,
+  Globe,
+  Bell,
+  MessageSquare,
+  Home,
+  Palmtree,
+  Building2,
+  Waves,
+  Trees,
+  Mountain,
+  Star,
+  Flame,
 } from "lucide-react"
-import { CUSTOMER_NAV, isCustomerNavActive } from "@/components/customer/nav"
+import { isCustomerNavActive } from "@/components/customer/nav"
 import CustomerMobileBottomNav from "@/components/customer/CustomerMobileNav"
 
-/* ──────────────────────────────────────────────────────────────────────────
-   CustomerShell — chrome for the first-class customer/guest-type workspace
-   (route group `(customer)`).
+/* ─── types ──────────────────────────────────────────────────────────────── */
 
-   SHELL MODEL: TOP-NAV ONLY (Airbnb account-area style). There is NO operator
-   sidebar and NO operator workspace switcher. The top bar holds the brand, a
-   horizontal section nav, an Airbnb-style search pill, and a personal ACCOUNT
-   DROPDOWN (avatar → profile, saved, payments, notifications, sign out) — a
-   personal-account menu, not a workspace switcher.
-
-   Access is gated by real product membership (`customer_workspace_members`) in
-   `(customer)/layout.tsx` — there are NO feature flags.
-
-   Mobile (<md): the horizontal nav collapses; each page renders its own
-   MobileTopBar and a dedicated bottom tab bar (CustomerMobileBottomNav) owns
-   primary navigation.
-─────────────────────────────────────────────────────────────────────────── */
-
-function initialsOf(name: string): string {
-  return (
-    name
-      .trim()
-      .split(/[\s@.]+/)
-      .map((w) => w[0])
-      .filter(Boolean)
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "CU"
-  )
-}
-
-const ACCOUNT_LINKS: { label: string; href: string; icon: React.ElementType }[] = [
-  { label: "Profile", href: "/user/profile", icon: UserCircle },
-  { label: "My Payments", href: "/user/payments", icon: CreditCard },
-  { label: "Saved Places", href: "/user/saved", icon: Heart },
-  { label: "Help", href: "/help", icon: LifeBuoy },
-]
-
-/* ── Airbnb-style search pill state ──────────────────────────────────────── */
+type SearchSection = "where" | "checkin" | "checkout" | "guests" | null
 
 interface SearchState {
   where: string
@@ -74,186 +46,72 @@ interface SearchState {
   infants: number
 }
 
-const EMPTY_SEARCH: SearchState = {
-  where: "",
-  checkin: "",
-  checkout: "",
-  adults: 1,
-  children: 0,
-  infants: 0,
-}
+const EMPTY: SearchState = { where: "", checkin: "", checkout: "", adults: 1, children: 0, infants: 0 }
 
-function buildSearchUrl(s: SearchState): string {
+function buildUrl(s: SearchState) {
   const p = new URLSearchParams()
   if (s.where) p.set("where", s.where)
   if (s.checkin) p.set("checkin", s.checkin)
   if (s.checkout) p.set("checkout", s.checkout)
-  const guests = s.adults + s.children
-  if (guests > 0) p.set("guests", String(guests))
-  if (s.infants > 0) p.set("infants", String(s.infants))
-  const qs = p.toString()
-  return qs ? `/stay/search?${qs}` : "/stay/search"
-}
-
-function pillLabel(s: SearchState): string {
-  const parts: string[] = []
-  parts.push(s.where || "Where")
-  if (s.checkin && s.checkout) {
-    parts.push(`${s.checkin} – ${s.checkout}`)
-  } else {
-    parts.push("Dates")
-  }
   const g = s.adults + s.children
-  parts.push(g > 0 ? `${g} guest${g === 1 ? "" : "s"}` : "Guests")
-  return parts.join("  ·  ")
+  if (g > 1 || s.infants > 0) {
+    p.set("guests", String(g))
+    if (s.infants) p.set("infants", String(s.infants))
+  }
+  return `/stay/search${p.toString() ? `?${p}` : ""}`
 }
 
-/* ── Search panel (popover on desktop, sheet on mobile) ─────────────────── */
+function initialsOf(name: string) {
+  return name.trim().split(/[\s@.]+/).map(w => w[0]).filter(Boolean).join("").slice(0, 2).toUpperCase() || "ME"
+}
 
-function SearchPanel({
-  initial,
-  onClose,
-  onSearch,
-}: {
-  initial: SearchState
-  onClose: () => void
-  onSearch: (s: SearchState) => void
-}) {
-  const [state, setState] = useState<SearchState>(initial)
-  const panelRef = useRef<HTMLDivElement>(null)
+/* ─── category chips ─────────────────────────────────────────────────────── */
 
-  function set<K extends keyof SearchState>(k: K, v: SearchState[K]) {
-    setState((prev) => ({ ...prev, [k]: v }))
-  }
+const CATEGORIES = [
+  { label: "All", icon: Home },
+  { label: "Trending", icon: Flame },
+  { label: "Apartments", icon: Building2 },
+  { label: "Countryside", icon: Trees },
+  { label: "Beachfront", icon: Waves },
+  { label: "Hillside", icon: Mountain },
+  { label: "Luxury", icon: Star },
+  { label: "Cabins", icon: Palmtree },
+]
 
-  function counter(label: string, sub: string, key: "adults" | "children" | "infants", min = 0) {
-    return (
-      <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
-        <div>
-          <p className="text-sm font-semibold text-slate-800">{label}</p>
-          <p className="text-xs text-slate-500">{sub}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => set(key, Math.max(min, state[key] - 1))}
-            disabled={state[key] <= min}
-            aria-label={`Decrease ${label}`}
-            className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 disabled:opacity-30 hover:border-slate-400 transition-colors"
-          >
-            −
-          </button>
-          <span className="w-5 text-center text-sm font-semibold text-slate-800">{state[key]}</span>
-          <button
-            type="button"
-            onClick={() => set(key, state[key] + 1)}
-            aria-label={`Increase ${label}`}
-            className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-slate-400 transition-colors"
-          >
-            +
-          </button>
-        </div>
-      </div>
-    )
-  }
+/* ─── guest counter row ──────────────────────────────────────────────────── */
 
+function GuestRow({
+  label, sub, value, min = 0, onChange,
+}: { label: string; sub: string; value: number; min?: number; onChange: (v: number) => void }) {
   return (
-    <div
-      ref={panelRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Search stays"
-      className="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-2xl p-5 space-y-4"
-    >
-      {/* Close */}
-      <div className="flex items-center justify-between">
-        <p className="text-base font-bold text-slate-900">Find your next stay</p>
+    <div className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0">
+      <div>
+        <p className="text-[14px] font-semibold text-[#0D1B2A]">{label}</p>
+        <p className="text-[12px] text-slate-500">{sub}</p>
+      </div>
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={onClose}
-          aria-label="Close search"
-          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-[18px] leading-none text-slate-600 disabled:opacity-25 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+        >−</button>
+        <span className="w-5 text-center text-[14px] font-semibold text-[#0D1B2A]">{value}</span>
+        <button
+          type="button"
+          onClick={() => onChange(value + 1)}
+          className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-[18px] leading-none text-slate-600 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+        >+</button>
       </div>
-
-      {/* Where */}
-      <div>
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-          Where
-        </label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={state.where}
-            onChange={(e) => set("where", e.target.value)}
-            placeholder="City, region or property name…"
-            autoFocus
-            className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-          />
-        </div>
-      </div>
-
-      {/* Dates */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-            Check-in
-          </label>
-          <input
-            type="date"
-            value={state.checkin}
-            onChange={(e) => set("checkin", e.target.value)}
-            className="w-full h-11 px-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-            Check-out
-          </label>
-          <input
-            type="date"
-            value={state.checkout}
-            onChange={(e) => set("checkout", e.target.value)}
-            min={state.checkin || undefined}
-            className="w-full h-11 px-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
-          />
-        </div>
-      </div>
-
-      {/* Guests */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Users className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Guests</span>
-        </div>
-        <div className="rounded-xl border border-slate-200 px-4">
-          {counter("Adults", "Ages 13 or above", "adults", 1)}
-          {counter("Children", "Ages 2–12", "children")}
-          {counter("Infants", "Under 2", "infants")}
-        </div>
-      </div>
-
-      {/* Search CTA */}
-      <button
-        type="button"
-        onClick={() => onSearch(state)}
-        className="w-full h-12 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
-      >
-        <Search className="w-4 h-4" />
-        Search stays
-      </button>
     </div>
   )
 }
 
-/* ── Shell ─────────────────────────────────────────────────────────────────── */
+/* ─── shell ──────────────────────────────────────────────────────────────── */
 
 export default function CustomerShell({
   children,
-  customerName = "Customer",
+  customerName = "Guest",
   customerEmail,
   avatarUrl,
   unreadNotifications = 0,
@@ -268,289 +126,431 @@ export default function CustomerShell({
 }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [accountOpen, setAccountOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const searchRef = useRef<HTMLDivElement>(null)
 
-  // Scroll detection for sticky header style transition.
+  const [scrolled, setScrolled] = useState(false)
+  const [activeSection, setActiveSection] = useState<SearchSection>(null)
+  const [search, setSearch] = useState<SearchState>(EMPTY)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [activeCategory, setActiveCategory] = useState("All")
+
+  const searchBarRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // ── scroll detection ───────────────────────────────────────────────────
   useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 8)
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    const fn = () => setScrolled(window.scrollY > 32)
+    window.addEventListener("scroll", fn, { passive: true })
+    return () => window.removeEventListener("scroll", fn)
   }, [])
 
-  // Close the account dropdown on outside-click, Escape, or route change.
+  // ── close panels on outside click ──────────────────────────────────────
   useEffect(() => {
-    if (!accountOpen) return
-    function onDown(e: MouseEvent) {
+    if (!activeSection && !menuOpen) return
+    function down(e: MouseEvent) {
+      if (searchBarRef.current && !searchBarRef.current.contains(e.target as Node)) {
+        setActiveSection(null)
+      }
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setAccountOpen(false)
+        setMenuOpen(false)
       }
     }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setAccountOpen(false)
+    function key(e: KeyboardEvent) {
+      if (e.key === "Escape") { setActiveSection(null); setMenuOpen(false) }
     }
-    document.addEventListener("mousedown", onDown)
-    document.addEventListener("keydown", onKey)
-    return () => {
-      document.removeEventListener("mousedown", onDown)
-      document.removeEventListener("keydown", onKey)
-    }
-  }, [accountOpen])
+    document.addEventListener("mousedown", down)
+    document.addEventListener("keydown", key)
+    return () => { document.removeEventListener("mousedown", down); document.removeEventListener("keydown", key) }
+  }, [activeSection, menuOpen])
 
-  // Close the search popover on outside-click or Escape.
-  useEffect(() => {
-    if (!searchOpen) return
-    function onDown(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false)
-      }
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setSearchOpen(false)
-    }
-    document.addEventListener("mousedown", onDown)
-    document.addEventListener("keydown", onKey)
-    return () => {
-      document.removeEventListener("mousedown", onDown)
-      document.removeEventListener("keydown", onKey)
-    }
-  }, [searchOpen])
+  // ── close on route change ──────────────────────────────────────────────
+  useEffect(() => { setActiveSection(null); setMenuOpen(false) }, [pathname])
 
-  // Close everything on route change.
-  useEffect(() => {
-    setAccountOpen(false)
-    setSearchOpen(false)
-  }, [pathname])
+  const set = useCallback(<K extends keyof SearchState>(k: K, v: SearchState[K]) => {
+    setSearch(s => ({ ...s, [k]: v }))
+  }, [])
 
-  async function handleSignOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+  const handleSearch = useCallback(() => {
+    setActiveSection(null)
+    router.push(buildUrl(search))
+  }, [router, search])
+
+  async function signOut() {
+    const sb = createClient()
+    await sb.auth.signOut()
     router.push("/login")
   }
 
-  const handleSearch = useCallback(
-    (s: SearchState) => {
-      setSearchOpen(false)
-      router.push(buildSearchUrl(s))
-    },
-    [router]
-  )
+  // ── pill labels ────────────────────────────────────────────────────────
+  const guestCount = search.adults + search.children
+  const guestLabel = guestCount === 1 && search.infants === 0
+    ? "1 guest"
+    : guestCount > 1 || search.infants > 0
+    ? `${guestCount} guest${guestCount !== 1 ? "s" : ""}${search.infants ? `, ${search.infants} infant${search.infants !== 1 ? "s" : ""}` : ""}`
+    : "Add guests"
+
+  const compactLabel = [
+    search.where || "Anywhere",
+    search.checkin && search.checkout ? `${search.checkin} – ${search.checkout}` : "Any week",
+    guestCount > 1 ? `${guestCount} guests` : "Add guests",
+  ].join("  ·  ")
+
+  // ── header height vars ─────────────────────────────────────────────────
+  // Expanded: 80px bar + 56px category row = 136px total
+  // Scrolled: 64px bar only
+  const EXPANDED_H = 136
+  const COMPACT_H = 64
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <SkipLink />
 
-      {/* ── Top nav: fixed, transparent at top, white+blur once scrolled. ── */}
+      {/* ── FIXED HEADER ────────────────────────────────────────────────── */}
       <header
         className={cn(
-          "hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-200",
+          "hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
-            : "bg-white border-b border-slate-200"
+            ? "bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-[0_1px_12px_rgba(0,0,0,0.08)]"
+            : "bg-white border-b border-transparent"
         )}
       >
-        <div className="max-w-[1440px] mx-auto w-full px-6 xl:px-8">
-          <div className="flex items-center gap-4 h-16">
+        {/* ── TOP BAR ─────────────────────────────────────────────────── */}
+        <div className="max-w-[1760px] mx-auto w-full px-6 xl:px-10">
+          <div
+            className={cn(
+              "flex items-center transition-all duration-300",
+              scrolled ? "h-16 gap-4" : "h-20 gap-6"
+            )}
+          >
 
-            {/* ── Brand (left) ── */}
-            <Link
-              href="/user"
-              aria-label="Propvora customer home"
-              className="flex items-center gap-2 shrink-0"
-            >
-              <div className="relative h-7 w-[132px]">
-                <Image
-                  src="/propvora-logo-dark.png"
-                  alt="Propvora"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
+            {/* LOGO */}
+            <Link href="/user" aria-label="Propvora home" className="shrink-0">
+              <div className={cn("relative transition-all duration-300", scrolled ? "h-7 w-[120px]" : "h-8 w-[140px]")}>
+                <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
               </div>
             </Link>
 
-            {/* ── Primary nav links (left, after brand, hidden below lg) ── */}
-            <nav
-              aria-label="Customer account"
-              className="hidden lg:flex items-center gap-0.5 min-w-0"
-            >
-              {CUSTOMER_NAV.map((item) => {
-                const isActive = isCustomerNavActive(pathname, item.href)
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={isActive ? "page" : undefined}
+            {/* ── SEARCH BAR (two states) ───────────────────────────── */}
+            <div className="flex-1 flex justify-center" ref={searchBarRef}>
+              {scrolled ? (
+                /* COMPACT PILL — shown when scrolled */
+                <button
+                  type="button"
+                  onClick={() => { setScrolled(false); setActiveSection("where") }}
+                  className={cn(
+                    "flex items-center gap-3 h-10 pl-4 pr-2 rounded-full border transition-all duration-200",
+                    "border-slate-200 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]",
+                    "hover:shadow-[0_3px_16px_rgba(0,0,0,0.16)] active:scale-[0.98]"
+                  )}
+                >
+                  <span className="text-[13px] font-semibold text-[#0D1B2A] max-w-[340px] truncate">
+                    {compactLabel}
+                  </span>
+                  <span className="w-7 h-7 rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
+                    <Search className="w-3.5 h-3.5 text-white" />
+                  </span>
+                </button>
+              ) : (
+                /* EXPANDED 3-SECTION BAR — shown at top */
+                <div
+                  className={cn(
+                    "relative flex rounded-full border bg-white transition-all duration-200 max-w-[820px] w-full",
+                    activeSection
+                      ? "shadow-[0_4px_24px_rgba(0,0,0,0.16)] border-transparent"
+                      : "border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.10)] hover:shadow-[0_3px_16px_rgba(0,0,0,0.14)]"
+                  )}
+                >
+                  {/* WHERE */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(s => s === "where" ? null : "where")}
                     className={cn(
-                      "relative px-3 py-2 rounded-lg text-[13.5px] font-medium whitespace-nowrap transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-                      isActive
-                        ? "text-[#2563EB]"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                      "flex flex-col items-start px-5 py-3 rounded-full flex-1 min-w-0 transition-colors text-left",
+                      activeSection === "where" ? "bg-white rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.12)]" : "hover:bg-slate-50"
                     )}
                   >
-                    {item.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[#2563EB]" />
-                    )}
-                    {item.href === "/user/messages" && unreadMessages > 0 && (
-                      <span className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#2563EB] text-white text-[9px] font-bold">
-                        {unreadMessages > 9 ? "9+" : unreadMessages}
+                    <span className="text-[11px] font-semibold text-[#0D1B2A] leading-none mb-0.5">Where</span>
+                    {activeSection === "where" ? (
+                      <input
+                        autoFocus
+                        type="text"
+                        value={search.where}
+                        onChange={e => set("where", e.target.value)}
+                        placeholder="Search destinations"
+                        className="w-full text-[13px] text-[#0D1B2A] placeholder:text-slate-400 bg-transparent border-0 outline-none leading-snug"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className={cn("text-[13px] leading-snug truncate", search.where ? "text-[#0D1B2A] font-medium" : "text-slate-400")}>
+                        {search.where || "Search destinations"}
                       </span>
                     )}
-                  </Link>
-                )
-              })}
-            </nav>
+                  </button>
 
-            {/* ── Airbnb-style search pill (centre) ── */}
-            <div className="flex-1 flex justify-center px-4" ref={searchRef}>
-              <button
-                type="button"
-                onClick={() => setSearchOpen((o) => !o)}
-                aria-expanded={searchOpen}
-                aria-haspopup="dialog"
-                aria-label="Open search"
-                className={cn(
-                  "flex items-center gap-2 h-10 px-4 rounded-full border text-sm font-medium transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-                  searchOpen
-                    ? "border-[#2563EB] text-[#2563EB] bg-[#EFF6FF] shadow-md"
-                    : "border-slate-300 text-slate-500 bg-white hover:border-slate-400 hover:shadow-sm"
-                )}
-              >
-                <Search className="w-4 h-4 shrink-0" />
-                <span className="max-w-[280px] truncate text-slate-600">{pillLabel(EMPTY_SEARCH)}</span>
-              </button>
+                  <div className="w-px bg-slate-200 my-3 self-stretch shrink-0" />
 
-              {/* Search popover */}
-              {searchOpen && (
-                <div className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 w-[520px] z-50">
-                  <SearchPanel
-                    initial={EMPTY_SEARCH}
-                    onClose={() => setSearchOpen(false)}
-                    onSearch={handleSearch}
-                  />
+                  {/* CHECK IN */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(s => s === "checkin" ? null : "checkin")}
+                    className={cn(
+                      "flex flex-col items-start px-5 py-3 rounded-full transition-colors min-w-[130px]",
+                      activeSection === "checkin" ? "bg-white rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.12)]" : "hover:bg-slate-50"
+                    )}
+                  >
+                    <span className="text-[11px] font-semibold text-[#0D1B2A] leading-none mb-0.5">Check in</span>
+                    {activeSection === "checkin" ? (
+                      <input
+                        autoFocus
+                        type="date"
+                        value={search.checkin}
+                        onChange={e => { set("checkin", e.target.value); setActiveSection("checkout") }}
+                        className="text-[13px] text-[#0D1B2A] bg-transparent border-0 outline-none leading-snug w-full"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className={cn("text-[13px] leading-snug", search.checkin ? "text-[#0D1B2A] font-medium" : "text-slate-400")}>
+                        {search.checkin || "Add dates"}
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="w-px bg-slate-200 my-3 self-stretch shrink-0" />
+
+                  {/* CHECK OUT */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(s => s === "checkout" ? null : "checkout")}
+                    className={cn(
+                      "flex flex-col items-start px-5 py-3 rounded-full transition-colors min-w-[130px]",
+                      activeSection === "checkout" ? "bg-white rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.12)]" : "hover:bg-slate-50"
+                    )}
+                  >
+                    <span className="text-[11px] font-semibold text-[#0D1B2A] leading-none mb-0.5">Check out</span>
+                    {activeSection === "checkout" ? (
+                      <input
+                        autoFocus
+                        type="date"
+                        value={search.checkout}
+                        onChange={e => set("checkout", e.target.value)}
+                        min={search.checkin || undefined}
+                        className="text-[13px] text-[#0D1B2A] bg-transparent border-0 outline-none leading-snug w-full"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className={cn("text-[13px] leading-snug", search.checkout ? "text-[#0D1B2A] font-medium" : "text-slate-400")}>
+                        {search.checkout || "Add dates"}
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="w-px bg-slate-200 my-3 self-stretch shrink-0" />
+
+                  {/* GUESTS + SEARCH BTN */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(s => s === "guests" ? null : "guests")}
+                    className={cn(
+                      "flex items-center gap-3 pl-5 pr-2 py-2 rounded-full transition-colors min-w-[160px]",
+                      activeSection === "guests" ? "bg-white rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.12)]" : "hover:bg-slate-50"
+                    )}
+                  >
+                    <div className="flex flex-col items-start flex-1 min-w-0">
+                      <span className="text-[11px] font-semibold text-[#0D1B2A] leading-none mb-0.5">Who</span>
+                      <span className={cn("text-[13px] leading-snug truncate", guestCount > 1 || search.infants > 0 ? "text-[#0D1B2A] font-medium" : "text-slate-400")}>
+                        {guestLabel}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); handleSearch() }}
+                      aria-label="Search stays"
+                      className={cn(
+                        "shrink-0 h-10 rounded-full flex items-center gap-2 transition-all font-semibold text-white",
+                        activeSection
+                          ? "px-4 bg-[#2563EB] hover:bg-[#1d4ed8] shadow-[0_4px_12px_rgba(37,99,235,0.4)]"
+                          : "w-10 bg-[#2563EB] hover:bg-[#1d4ed8] justify-center"
+                      )}
+                    >
+                      <Search className="w-4 h-4 shrink-0" />
+                      {activeSection && <span className="text-[13px]">Search</span>}
+                    </button>
+                  </button>
+
+                  {/* ── SECTION DROP-DOWN PANELS ─────────────────────── */}
+
+                  {/* WHERE panel */}
+                  {activeSection === "where" && (
+                    <div className="absolute top-[calc(100%+12px)] left-0 w-[360px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-4 z-50">
+                      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Suggested</p>
+                      {[
+                        { label: "London", sub: "United Kingdom", icon: "🇬🇧" },
+                        { label: "Manchester", sub: "United Kingdom", icon: "🇬🇧" },
+                        { label: "Edinburgh", sub: "Scotland", icon: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
+                        { label: "Bristol", sub: "South West", icon: "🇬🇧" },
+                        { label: "Birmingham", sub: "West Midlands", icon: "🇬🇧" },
+                      ].map(loc => (
+                        <button
+                          key={loc.label}
+                          type="button"
+                          onClick={() => { set("where", loc.label); setActiveSection("checkin") }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                        >
+                          <span className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl shrink-0">
+                            <MapPin className="w-4 h-4 text-slate-500" />
+                          </span>
+                          <div>
+                            <p className="text-[13px] font-semibold text-[#0D1B2A]">{loc.label}</p>
+                            <p className="text-[12px] text-slate-500">{loc.sub}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* GUESTS panel */}
+                  {activeSection === "guests" && (
+                    <div className="absolute top-[calc(100%+12px)] right-0 w-[340px] bg-white rounded-3xl shadow-2xl border border-slate-100 px-6 py-4 z-50">
+                      <GuestRow label="Adults" sub="Ages 13 or above" value={search.adults} min={1} onChange={v => set("adults", v)} />
+                      <GuestRow label="Children" sub="Ages 2–12" value={search.children} onChange={v => set("children", v)} />
+                      <GuestRow label="Infants" sub="Under 2" value={search.infants} onChange={v => set("infants", v)} />
+                      <button
+                        type="button"
+                        onClick={handleSearch}
+                        className="mt-4 w-full h-11 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-full font-semibold text-[13px] flex items-center justify-center gap-2 transition-colors shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
+                      >
+                        <Search className="w-4 h-4" />
+                        Search stays
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* ── Right cluster: messages, notifications, account ── */}
-            <div className="ml-auto flex items-center gap-1 shrink-0">
-              {/* Messages icon */}
+            {/* ── RIGHT CLUSTER ─────────────────────────────────────── */}
+            <div className="shrink-0 flex items-center gap-2 ml-auto">
+              {/* List your property CTA */}
               <Link
-                href="/user/messages"
-                aria-label={`Messages${unreadMessages > 0 ? `, ${unreadMessages} unread` : ""}`}
-                className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                href="/register?intent=operator"
+                className="hidden xl:flex items-center px-4 py-2 rounded-full text-[13px] font-semibold text-[#0D1B2A] hover:bg-slate-100 transition-colors whitespace-nowrap"
               >
-                <MessageSquare className="w-5 h-5" />
-                {unreadMessages > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
-                  </span>
-                )}
+                List your property
               </Link>
 
-              {/* Notifications icon */}
+              {/* Globe / language */}
+              <button
+                type="button"
+                aria-label="Language & region"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <Globe className="w-4 h-4" />
+              </button>
+
+              {/* Notification bell */}
               <Link
                 href="/user/notifications"
                 aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
-                className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                className="relative w-9 h-9 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                  </span>
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#2563EB]" />
                 )}
               </Link>
 
-              {/* Account dropdown */}
-              <div ref={menuRef} className="relative ml-1">
+              {/* Messages */}
+              <Link
+                href="/user/messages"
+                aria-label={`Messages${unreadMessages > 0 ? `, ${unreadMessages} unread` : ""}`}
+                className="relative w-9 h-9 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                {unreadMessages > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#2563EB]" />
+                )}
+              </Link>
+
+              {/* ── ACCOUNT PILL (hamburger + avatar) ─────────────── */}
+              <div ref={menuRef} className="relative">
                 <button
                   type="button"
-                  onClick={() => setAccountOpen((o) => !o)}
+                  onClick={() => setMenuOpen(o => !o)}
                   aria-haspopup="menu"
-                  aria-expanded={accountOpen}
-                  aria-label="Account menu"
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                  aria-expanded={menuOpen}
+                  aria-label="Open account menu"
+                  className={cn(
+                    "flex items-center gap-2 pl-3 pr-1.5 h-10 rounded-full border transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                    menuOpen
+                      ? "border-slate-300 shadow-[0_2px_12px_rgba(0,0,0,0.12)]"
+                      : "border-slate-200 hover:shadow-[0_2px_12px_rgba(0,0,0,0.10)]"
+                  )}
                 >
-                  {/* Avatar: photo if available, else coloured initials */}
+                  <Menu className="w-4 h-4 text-[#0D1B2A]" />
                   {avatarUrl ? (
-                    <span className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200">
-                      <Image
-                        src={avatarUrl}
-                        alt={customerName}
-                        width={32}
-                        height={32}
-                        className="object-cover w-full h-full"
-                      />
+                    <span className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-slate-200">
+                      <Image src={avatarUrl} alt={customerName} width={32} height={32} className="object-cover w-full h-full" />
                     </span>
                   ) : (
-                    <span className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                    <span className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-[12px] font-bold shrink-0">
                       {initialsOf(customerName)}
                     </span>
                   )}
-                  <ChevronDown
-                    className={cn("w-4 h-4 text-slate-400 transition-transform", accountOpen && "rotate-180")}
-                  />
                 </button>
 
-                {accountOpen && (
+                {/* ACCOUNT DROPDOWN */}
+                {menuOpen && (
                   <div
                     role="menu"
-                    aria-label="Account"
-                    className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white shadow-xl py-2 z-50"
+                    aria-label="Account menu"
+                    className="absolute right-0 mt-2 w-[240px] bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.16)] border border-slate-100 py-2 z-50"
                   >
-                    {/* User identity */}
-                    <div className="px-4 py-2.5 border-b border-slate-100">
-                      <p className="text-sm font-semibold text-slate-900 truncate">{customerName}</p>
-                      {customerEmail && (
-                        <p className="text-[11px] text-slate-500 truncate">{customerEmail}</p>
-                      )}
-                      {!customerEmail && (
-                        <p className="text-[11px] text-slate-500">Personal account</p>
-                      )}
+                    {/* Identity */}
+                    <div className="px-4 py-3 border-b border-slate-100">
+                      <p className="text-[13px] font-bold text-[#0D1B2A] truncate">{customerName}</p>
+                      {customerEmail && <p className="text-[11px] text-slate-500 truncate mt-0.5">{customerEmail}</p>}
                     </div>
 
-                    {/* Links */}
-                    <div className="py-1.5">
-                      {ACCOUNT_LINKS.map((l) => {
-                        const Icon = l.icon
+                    <div className="py-1">
+                      {[
+                        { label: "My Trips", href: "/user/bookings", icon: CalendarCheck },
+                        { label: "Messages", href: "/user/messages", icon: MessageSquare, badge: unreadMessages },
+                        { label: "Saved Places", href: "/user/saved", icon: Heart },
+                        { label: "My Payments", href: "/user/payments", icon: CreditCard },
+                        { label: "Profile", href: "/user/profile", icon: UserCircle },
+                        { label: "Help & support", href: "/help", icon: LifeBuoy },
+                      ].map(item => {
+                        const Icon = item.icon
+                        const isActive = isCustomerNavActive(pathname, item.href)
                         return (
                           <Link
-                            key={l.href}
-                            href={l.href}
+                            key={item.href}
+                            href={item.href}
                             role="menuitem"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:bg-slate-100"
+                            className={cn(
+                              "flex items-center gap-3 px-4 py-2.5 text-[13px] transition-colors",
+                              "focus-visible:outline-none focus-visible:bg-slate-50",
+                              isActive ? "text-[#2563EB] bg-[#EFF6FF]" : "text-slate-700 hover:bg-slate-50"
+                            )}
                           >
-                            <Icon className="w-4 h-4 text-slate-400 shrink-0" />
-                            {l.label}
+                            <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-[#2563EB]" : "text-slate-400")} />
+                            <span className="flex-1">{item.label}</span>
+                            {"badge" in item && (item.badge as number) > 0 && (
+                              <span className="min-w-[18px] h-4.5 px-1.5 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                                {(item.badge as number) > 9 ? "9+" : item.badge}
+                              </span>
+                            )}
                           </Link>
                         )
                       })}
-                      <Link
-                        href="/user/bookings"
-                        role="menuitem"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:bg-slate-100"
-                      >
-                        <CalendarCheck className="w-4 h-4 text-slate-400 shrink-0" />
-                        My Trips
-                      </Link>
                     </div>
 
-                    {/* Sign out */}
-                    <div className="pt-1.5 border-t border-slate-100">
+                    <div className="border-t border-slate-100 pt-1">
                       <button
                         type="button"
-                        onClick={handleSignOut}
                         role="menuitem"
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:bg-red-50"
+                        onClick={signOut}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none"
                       >
                         <LogOut className="w-4 h-4 shrink-0" />
                         Sign out
@@ -562,21 +562,56 @@ export default function CustomerShell({
             </div>
           </div>
         </div>
+
+        {/* ── CATEGORY FILTER ROW (visible only when not scrolled) ─── */}
+        <div
+          className={cn(
+            "border-t border-slate-100 overflow-hidden transition-all duration-300",
+            scrolled ? "h-0 opacity-0" : "h-14 opacity-100"
+          )}
+        >
+          <div className="max-w-[1760px] mx-auto px-6 xl:px-10 h-14 flex items-center gap-1 overflow-x-auto scrollbar-hide">
+            {CATEGORIES.map(cat => {
+              const Icon = cat.icon
+              const isActive = activeCategory === cat.label
+              return (
+                <button
+                  key={cat.label}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all shrink-0",
+                    isActive
+                      ? "bg-[#0D1B2A] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100"
+                  )}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  {cat.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </header>
 
-      {/* Spacer for fixed header (md+) */}
-      <div className="hidden md:block h-16 shrink-0" aria-hidden="true" />
+      {/* Spacer for fixed header */}
+      <div
+        className="hidden md:block shrink-0 transition-all duration-300"
+        style={{ height: scrolled ? COMPACT_H : EXPANDED_H }}
+        aria-hidden="true"
+      />
 
+      {/* ── MAIN ─────────────────────────────────────────────────────── */}
       <main
         id="main-content"
         tabIndex={-1}
-        aria-label="Main content"
-        className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 pb-24 md:pb-10 max-w-[1440px] mx-auto w-full bg-[#F6FAFF] focus:outline-none"
+        className="flex-1 min-w-0 focus:outline-none"
       >
         {children}
       </main>
 
-      {/* Dedicated mobile bottom nav (below md only). */}
+      {/* Mobile bottom nav */}
       <CustomerMobileBottomNav />
     </div>
   )
