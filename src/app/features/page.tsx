@@ -12,6 +12,11 @@ import WorkManagementSection from "@/components/marketing/features/WorkManagemen
 import SchedulingSection from "@/components/marketing/features/SchedulingSection"
 import SaveContactsSection from "@/components/marketing/features/SaveContactsSection"
 import SupplierMarketplaceSection from "@/components/marketing/features/SupplierMarketplaceSection"
+import AutomationsSection from "@/components/marketing/features/AutomationsSection"
+import SupplierMarketplaceDeeperSection from "@/components/marketing/features/SupplierMarketplaceDeeperSection"
+import BookingEngineSection from "@/components/marketing/features/BookingEngineSection"
+import InternationalSection from "@/components/marketing/features/InternationalSection"
+import AffiliateSection from "@/components/marketing/features/AffiliateSection"
 
 export const metadata: Metadata = {
   title: "Features | Propvora Property Operations Platform",
@@ -47,7 +52,12 @@ export default function FeaturesPage() {
         <WorkManagementSection />
         <SchedulingSection />
         <SaveContactsSection />
+        <BookingEngineSection />
+        <SupplierMarketplaceDeeperSection />
         <SupplierMarketplaceSection />
+        <AutomationsSection />
+        <InternationalSection />
+        <AffiliateSection />
       </main>
       <PublicFooter />
     </div>

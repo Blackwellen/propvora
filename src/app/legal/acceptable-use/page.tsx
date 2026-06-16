@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function AcceptableUsePage() {
   return (
-    <LegalLayout title="Acceptable Use Policy" lastUpdated="2 June 2025">
+    <LegalLayout title="Acceptable Use Policy" lastUpdated="16 June 2026">
       <Section num="1" title="Purpose">
         <p>
           This Acceptable Use Policy (&ldquo;AUP&rdquo;) sets out the rules for how you may use the Propvora platform. It forms part of the Propvora Terms of Service. By using the Service, you agree to comply with this AUP.

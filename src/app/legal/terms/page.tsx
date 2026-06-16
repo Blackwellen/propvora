@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" lastUpdated="2 June 2025">
+    <LegalLayout title="Terms of Service" lastUpdated="16 June 2026">
       <Section num="1" title="Introduction and Acceptance">
         <p>
           These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the Propvora platform, software, and services (collectively, the &ldquo;Service&rdquo;) provided by Blackwellen Ltd, trading as Propvora (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166, with its registered office at 61 Bridge Street, Kington, HR5 3DJ.
@@ -115,7 +115,7 @@ export default function TermsPage() {
 
       <Section num="8" title="Intellectual Property">
         <p>
-          The Service, including its software, design, user interface, content, and brand elements, is the exclusive intellectual property of Propvora Ltd and is protected by copyright, trademark, and other applicable laws. These Terms do not grant you any ownership rights in the Service.
+          The Service, including its software, design, user interface, content, and brand elements, is the exclusive intellectual property of Blackwellen Ltd (trading as Propvora) and is protected by copyright, trademark, and other applicable laws. These Terms do not grant you any ownership rights in the Service.
         </p>
         <p>
           You retain ownership of all Content you submit to the Service. By submitting Content, you grant Propvora a limited, non-exclusive, royalty-free licence to store, process, and display that Content as necessary to provide the Service to you.
@@ -202,7 +202,7 @@ export default function TermsPage() {
         <ul>
           <li>Email: <a href="mailto:legal@propvora.com">legal@propvora.com</a></li>
           <li>General: <a href="mailto:info@propvora.com">info@propvora.com</a></li>
-          <li>Registered company: Propvora Ltd, England and Wales</li>
+          <li>Registered company: Blackwellen Ltd (Company No. 16482166) trading as Propvora, England and Wales</li>
         </ul>
       </Section>
     </LegalLayout>

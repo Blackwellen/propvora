@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="2 June 2025">
+    <LegalLayout title="Privacy Policy" lastUpdated="16 June 2026">
       <Section num="1" title="Who We Are">
         <p>
           Propvora is a trading name of Blackwellen Ltd (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166, with its registered office at 61 Bridge Street, Kington, HR5 3DJ. Blackwellen Ltd is the data controller for personal data collected through the Propvora platform and is registered with the UK Information Commissioner&rsquo;s Office (ICO) under reference ZC160806.

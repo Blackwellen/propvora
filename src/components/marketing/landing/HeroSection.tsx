@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -9,10 +12,30 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+const AUDIENCES = [
+  "for property managers",
+  "for SA hosts",
+  "for HMO landlords",
+  "for portfolio investors",
+  "for letting agencies",
+]
+
 export default function HeroSection() {
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % AUDIENCES.length)
+    }, 2600)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-20 overflow-hidden bg-white">
-      {/* Radial glow */}
+      {/* Local keyframe for the cycling sub-text fade — scoped, no global edits */}
+      <style>{`@keyframes propvoraHeroFade{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}`}</style>
+
+      {/* Gradient / radial glow background */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute top-1/4 right-1/3 w-[600px] h-[600px] rounded-full opacity-30"
@@ -36,11 +59,10 @@ export default function HeroSection() {
               </span>
             </div>
 
-            <h1 className="text-[34px] sm:text-[48px] lg:text-[56px] font-bold text-[#06122F] leading-tight tracking-tight mb-6">
+            <h1 className="text-[34px] sm:text-[48px] lg:text-[56px] font-bold text-[#06122F] leading-tight tracking-tight mb-3">
               Run your property
               <br />
-              operations.
-              <br />
+              operations{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #2563EB, #0EA5E9)",
@@ -49,12 +71,27 @@ export default function HeroSection() {
                   backgroundClip: "text",
                 }}
               >
-                Smarter.
+                smarter.
               </span>
             </h1>
 
+            {/* Animated cycling sub-text */}
+            <div className="h-8 mb-6" aria-live="polite">
+              <p className="text-[18px] sm:text-[20px] font-semibold text-slate-500">
+                One connected workspace{" "}
+                <span
+                  key={index}
+                  className="inline-block text-blue-600"
+                  style={{ animation: "propvoraHeroFade 0.5s ease" }}
+                >
+                  {AUDIENCES[index]}
+                </span>
+                .
+              </p>
+            </div>
+
             <p className="text-[16px] text-slate-600 leading-relaxed max-w-lg mb-8">
-              Propvora helps property managers replace spreadsheets, scattered tools, and manual
+              Propvora helps property operators replace spreadsheets, scattered tools, and manual
               admin with one connected workspace for properties, units, tenants, suppliers, work,
               invoices, payments, and AI-powered operations.
             </p>
@@ -68,18 +105,19 @@ export default function HeroSection() {
                   boxShadow: "0 8px 24px rgba(37,99,235,0.35)",
                 }}
               >
-                Start Your Free Trial
+                Start free trial
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-slate-700 border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all"
               >
-                Book a Demo
+                Book a demo
                 <CalendarDays className="w-4 h-4 text-slate-400" />
               </Link>
             </div>
 
+            {/* Trust signal strip */}
             <div className="flex items-center gap-6 flex-wrap">
               {["No credit card required", "Setup in minutes", "Cancel anytime"].map((t) => (
                 <div key={t} className="flex items-center gap-1.5">
@@ -92,7 +130,6 @@ export default function HeroSection() {
 
           {/* Right: Dashboard mockup */}
           <div className="relative hidden lg:block">
-            {/* Main dashboard card */}
             <div
               className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-2xl bg-white"
               style={{

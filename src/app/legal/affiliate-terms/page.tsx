@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 
 export default function AffiliateTermsPage() {
   return (
-    <LegalLayout title="Affiliate Terms & Conditions" lastUpdated="2 June 2025">
+    <LegalLayout title="Affiliate Terms & Conditions" lastUpdated="16 June 2026">
       <Section num="1" title="Programme Overview">
         <p>
-          The Propvora Affiliate Programme (&ldquo;Programme&rdquo;) allows approved participants (&ldquo;Affiliates&rdquo;) to earn commission by referring new paying customers to Propvora. These Affiliate Terms (&ldquo;Terms&rdquo;) govern participation in the Programme and form a legally binding agreement between you (the Affiliate) and Propvora Ltd.
+          The Propvora Affiliate Programme (&ldquo;Programme&rdquo;) allows approved participants (&ldquo;Affiliates&rdquo;) to earn commission by referring new paying customers to Propvora. These Affiliate Terms (&ldquo;Terms&rdquo;) govern participation in the Programme and form a legally binding agreement between you (the Affiliate) and Blackwellen Ltd (trading as Propvora).
         </p>
         <p>
           Participation in the Programme is available to Propvora Business plan subscribers. By applying to and participating in the Programme, you agree to these Terms in full.
@@ -25,7 +25,7 @@ export default function AffiliateTermsPage() {
           <li>Be at least 18 years old and legally capable of entering a contract</li>
           <li>Have a valid bank account or PayPal account for payouts</li>
           <li>Comply with all applicable laws regarding promotional activities in your jurisdiction</li>
-          <li>Not be an employee, director, or contractor of Propvora Ltd</li>
+          <li>Not be an employee, director, or contractor of Blackwellen Ltd (trading as Propvora)</li>
         </ul>
         <p>
           Propvora reserves the right to reject or revoke Programme participation at its sole discretion, including where we believe an Affiliate is engaged in promotional methods that could damage Propvora&rsquo;s reputation.

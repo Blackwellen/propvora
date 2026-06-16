@@ -1,160 +1,163 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
-import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
-import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
-import { getPolicy } from "@/lib/legal/policies"
-
-const policy = getPolicy("seller-agreement")!
 
 export const metadata: Metadata = {
-  title: "Seller Agreement | Propvora",
+  title: "Supplier Terms | Propvora",
   description:
-    "Terms for operators and suppliers listing stays or services on the Propvora marketplace: responsibilities, fees, payouts, licensing and compliance.",
+    "Propvora Supplier Terms — the agreement for suppliers and tradespeople offering services through the Propvora marketplace.",
+  openGraph: {
+    title: "Supplier Terms | Propvora",
+    description:
+      "Propvora Supplier Terms — the agreement for suppliers and tradespeople offering services through the Propvora marketplace.",
+    type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Supplier Terms | Propvora",
+    description:
+      "Propvora Supplier Terms — the agreement for suppliers and tradespeople offering services through the Propvora marketplace.",
+  },
 }
 
 export default function SellerAgreementPage() {
   return (
-    <LegalLayout title="Seller Agreement" lastUpdated={policy.effectiveFrom}>
-      <PolicyIntro slug="seller-agreement" />
-
-      <LegalSection num="1" title="Who this agreement is for">
+    <LegalLayout title="Supplier Terms" lastUpdated="16 June 2026">
+      <Section num="1" title="Who These Terms Are For">
         <p>
-          This Seller Agreement applies if you list and sell on the Propvora
-          marketplace — including operators and hosts listing property stays, and
-          suppliers offering services (maintenance, cleaning, emergency callouts,
-          compliance and similar). It applies in addition to the{" "}
-          <a href="/legal/marketplace-terms">Marketplace Terms</a> and the
-          Propvora <a href="/legal/terms">Terms of Service</a>.
+          These Supplier Terms (&ldquo;Terms&rdquo;) apply if you register as a supplier or
+          tradesperson and offer services through the Propvora marketplace. They form a legally
+          binding agreement between you (the &ldquo;Supplier&rdquo;) and Blackwellen Ltd, trading as
+          Propvora (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or
+          &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166,
+          with its registered office at 61 Bridge Street, Kington, HR5 3DJ.
         </p>
-      </LegalSection>
-
-      <LegalSection num="2" title="You are the contracting party">
         <p>
-          When a guest books your stay or a buyer orders your service, the
-          resulting contract is between <strong>you and that customer</strong>.
-          Propvora is the facilitator and is not a party to it. You are
-          responsible for delivering what you list, to the standard and within
-          the timeframe you advertise, and for your own staff, subcontractors and
-          team members.
+          They apply in addition to our <a href="/legal/terms">Terms of Service</a>,{" "}
+          <a href="/legal/privacy">Privacy Policy</a> and{" "}
+          <a href="/legal/acceptable-use">Acceptable Use Policy</a>.
         </p>
-      </LegalSection>
+      </Section>
 
-      <LegalSection num="3" title="Your representations">
-        <p>By listing, you represent and warrant on an ongoing basis that:</p>
+      <Section num="2" title="Propvora's Role">
+        <p>
+          Propvora operates a marketplace that connects suppliers with property operators
+          (&ldquo;Operators&rdquo;) who need maintenance, cleaning, compliance and related services.
+          Propvora is a technology platform and facilitator. We are not a party to the contract for
+          any service you agree to perform — that contract is between you and the Operator.
+        </p>
+        <p>
+          We do not employ suppliers, supervise their work, or guarantee the volume, value or
+          frequency of jobs.
+        </p>
+      </Section>
+
+      <Section num="3" title="Supplier Responsibilities">
+        <p>As a Supplier, you are solely responsible for:</p>
         <ul>
-          <li>
-            you have the legal right to offer the stay or service (including
-            ownership, a right to let, or a right to operate as applicable);
-          </li>
-          <li>
-            you hold all licences, registrations, certifications and permissions
-            your offering requires (for example local short-let registration, gas
-            and electrical safety certification, HMO licensing, trade
-            qualifications);
-          </li>
-          <li>
-            you hold any insurance reasonably required for your activity and
-            keep it current;
-          </li>
-          <li>
-            your listings are accurate, not misleading, and comply with consumer
-            and advertising law; and
-          </li>
-          <li>
-            you will comply with all applicable property, safety, employment, tax
-            and data-protection laws.
-          </li>
+          <li>The quality, safety and timely completion of all work you undertake</li>
+          <li>Holding and maintaining all licences, registrations and accreditations required for your trade (for example Gas Safe, NICEIC, or equivalent)</li>
+          <li>Holding adequate and valid insurance, including public liability insurance, for the work you perform</li>
+          <li>Complying with all applicable health and safety, building, and consumer-protection laws</li>
+          <li>Providing accurate information about your business, qualifications, coverage areas and availability</li>
+          <li>Carrying out any DBS or right-to-work checks required for the work and location</li>
         </ul>
-        <LegalCallout type="warning">
-          Verification badges shown on your profile evidence that you submitted
-          documents checked to a stated level. They do not transfer your legal
-          responsibilities to Propvora, and they are not a warranty by Propvora
-          to your customers. You remain fully responsible for compliance.
-        </LegalCallout>
-      </LegalSection>
-
-      <LegalSection num="4" title="Fees and platform commission">
         <p>
-          Propvora charges a platform fee on marketplace transactions. The
-          current default supplier and public-booking marketplace fee is{" "}
-          <strong>2.5%</strong> of the gross transaction amount, plus
-          payment-provider fees, unless a different rate is shown for your plan,
-          category or country at the time of the transaction. The applicable fee
-          is disclosed before a transaction completes. We may vary fees on
-          reasonable notice; fees in force when a transaction is made apply to
-          that transaction.
+          You must keep the documents and evidence on your profile current. We may suspend or remove
+          a profile where required documents have lapsed or cannot be verified.
         </p>
-      </LegalSection>
+      </Section>
 
-      <LegalSection num="5" title="Payments and payouts">
+      <Section num="4" title="Verification">
         <p>
-          Marketplace payments are processed by <strong>Stripe</strong>, and
-          payouts to you are made through <strong>Stripe Connect</strong>. You
-          must connect and maintain a Stripe account and complete Stripe&rsquo;s
-          identity and bank verification. Stripe&rsquo;s own terms apply to your
-          Stripe account. Propvora facilitates payouts but does not hold your
-          funds as a bank.
+          We may offer verification of identity, business details, insurance and licences.
+          Verification badges indicate that we have received and reviewed evidence at a point in
+          time; they are not a guarantee of work quality and do not transfer responsibility for the
+          work to Propvora. Operators remain responsible for satisfying themselves that a Supplier is
+          suitable for a given job.
         </p>
-        <p>Payouts may be held or delayed where:</p>
-        <ul>
-          <li>a stay or service is not yet completed and a payment hold applies;</li>
-          <li>required evidence of completion is missing;</li>
-          <li>a dispute, chargeback or refund is open;</li>
-          <li>
-            a licence or insurance required for the category has lapsed or is
-            invalid; or
-          </li>
-          <li>a sanctions, fraud or risk review is in progress.</li>
-        </ul>
-      </LegalSection>
+      </Section>
 
-      <LegalSection num="6" title="Cancellations, refunds and disputes">
+      <Section num="5" title="Fees and Platform Charges">
         <p>
-          You must honour the cancellation tier and any refund terms you set for
-          a listing, alongside the marketplace{" "}
-          <a href="/legal/cancellation-policy">Cancellation Policy</a> and{" "}
-          <a href="/legal/refund-policy">Refund Policy</a> and your
-          customer&rsquo;s statutory rights. You agree to respond to disputes
-          promptly and to provide reasonable evidence. Where Propvora operates a
-          payment hold, we may withhold or reverse a payout to give effect to a
-          refund or dispute outcome consistent with these policies and applicable
-          law.
+          Suppliers can register and list on Propvora free of charge. We may charge optional fees
+          for enhanced supplier features (for example a Pro Profile, team tools, promoted placement
+          or emergency availability), and a platform or service fee on transactions facilitated
+          through the marketplace.
         </p>
-      </LegalSection>
-
-      <LegalSection num="7" title="Conduct, reviews and off-platform dealing">
         <p>
-          You must comply with the{" "}
-          <a href="/legal/acceptable-use-marketplace">
-            Marketplace Acceptable Use Policy
-          </a>
-          . You must not solicit off-platform payment to avoid fees or
-          protections, manipulate reviews, or pressure customers over reviews.
+          Where a platform fee applies, the applicable rate will be shown to you before you accept
+          the relevant job or feature.{" "}
+          <strong>
+            Indicative platform fee: up to 5% of the transaction value (placeholder — to be
+            confirmed).
+          </strong>{" "}
+          All fees are exclusive of VAT unless stated otherwise.
         </p>
-      </LegalSection>
+      </Section>
 
-      <LegalSection num="8" title="Suspension and termination">
+      <Section num="6" title="Payments">
         <p>
-          We may suspend or remove your listings or account where you breach this
-          agreement, where required by law, or to protect users from harm,
-          fraud or safety risks. You may stop listing at any time; obligations
-          relating to in-progress transactions, refunds, disputes and payouts
-          survive.
+          Where payments are processed through the platform, they are handled by our payment
+          provider, Stripe, including via Stripe Connect. You must provide accurate payout details
+          and complete any identity or business verification Stripe requires. Propvora does not hold
+          client money and is not responsible for delays caused by incomplete verification or by the
+          payment provider.
         </p>
-      </LegalSection>
+      </Section>
 
-      <LegalSection num="9" title="Liability and indemnity">
+      <Section num="7" title="Disputes">
         <p>
-          You are responsible for losses arising from your listings, stays and
-          services, and you agree to indemnify Propvora against third-party
-          claims arising from your breach of this agreement or of applicable law,
-          to the extent permitted by law. Nothing here excludes liability that
-          cannot be excluded under English law. This agreement is governed by the
-          laws of England and Wales.
+          Disputes about a service are, in the first instance, between the Supplier and the
+          Operator. You agree to engage in good faith to resolve any dispute promptly. Propvora may,
+          at its discretion, provide a dispute-resolution process and request evidence (such as
+          quotes, photos and messages) from both parties to help reach a fair outcome, but Propvora
+          is not obliged to adjudicate and is not liable for the outcome of any dispute.
         </p>
-      </LegalSection>
+      </Section>
 
-      <PolicyEntityFooter />
+      <Section num="8" title="Limitation of Liability">
+        <p>
+          To the maximum extent permitted by law, Propvora is not liable for any loss arising from a
+          Supplier&rsquo;s work, conduct, or failure to perform, or from any contract between a
+          Supplier and an Operator. Our total liability to you in connection with these Terms shall
+          not exceed the fees you have paid to us in the 12 months preceding the claim.
+        </p>
+        <p>
+          Nothing in these Terms limits liability for death or personal injury caused by negligence,
+          fraud, or any liability that cannot be excluded under English law.
+        </p>
+      </Section>
+
+      <Section num="9" title="Suspension and Termination">
+        <p>
+          You may stop using the marketplace at any time. We may suspend or remove a Supplier where
+          required documents lapse, where there is a breach of these Terms or our policies, where
+          there is evidence of fraud or unsafe work, or where we are required to do so by law.
+        </p>
+      </Section>
+
+      <Section num="10" title="Governing Law">
+        <p>
+          These Terms are governed by the laws of England and Wales, and the courts of England and
+          Wales have exclusive jurisdiction. For any questions, contact{" "}
+          <a href="mailto:legal@propvora.com">legal@propvora.com</a>.
+        </p>
+      </Section>
     </LegalLayout>
+  )
+}
+
+function Section({ num, title, children }: { num: string; title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-10">
+      <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-baseline gap-2">
+        <span className="text-blue-600 text-base font-bold">{num}.</span>
+        {title}
+      </h2>
+      <div className="space-y-4 text-slate-700 leading-relaxed text-sm [&_a]:text-blue-600 [&_a:hover]:text-blue-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_strong]:font-semibold [&_strong]:text-slate-900">
+        {children}
+      </div>
+    </div>
   )
 }

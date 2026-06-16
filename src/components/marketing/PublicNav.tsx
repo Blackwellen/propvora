@@ -19,11 +19,10 @@ const legalLinks = [
 ]
 
 const navLinks = [
-  { label: "Stays", href: "/stay/search" },
-  { label: "Suppliers", href: "/marketplace/suppliers" },
   { label: "Features", href: "/features" },
   { label: "Walkthrough", href: "/walkthrough" },
   { label: "Pricing", href: "/pricing" },
+  { label: "For Suppliers", href: "/suppliers" },
   { label: "About", href: "/about" },
   { label: "Help", href: "/help" },
 ]

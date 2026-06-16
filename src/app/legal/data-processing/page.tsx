@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function DataProcessingPage() {
   return (
-    <LegalLayout title="Data Processing Agreement" lastUpdated="2 June 2025">
+    <LegalLayout title="Data Processing Agreement" lastUpdated="16 June 2026">
       <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-sm mb-8">
         <strong>Note:</strong> This Data Processing Agreement (&ldquo;DPA&rdquo;) applies to business customers using Propvora to process personal data on behalf of others (for example, storing and managing tenant personal data). By using the Propvora Service as a business, you agree to the terms of this DPA. This DPA forms part of the Propvora Terms of Service.
       </div>
@@ -19,7 +19,7 @@ export default function DataProcessingPage() {
         </p>
         <ul>
           <li><strong>Data Controller:</strong> You, the business customer who determines the purposes and means of processing personal data using the Propvora platform (&ldquo;Controller&rdquo;).</li>
-          <li><strong>Data Processor:</strong> Propvora Ltd, which processes personal data on your behalf in order to provide the Service (&ldquo;Processor&rdquo;).</li>
+          <li><strong>Data Processor:</strong> Blackwellen Ltd (Company No. 16482166) trading as Propvora, which processes personal data on your behalf in order to provide the Service (&ldquo;Processor&rdquo;).</li>
         </ul>
         <p>
           Where Propvora processes personal data for its own purposes (e.g., account management, billing), Propvora acts as a Data Controller in its own right, as described in the Privacy Policy.

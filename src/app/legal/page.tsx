@@ -8,22 +8,16 @@ import {
   Database,
   Share2,
   Brain,
-  ChevronRight,
-  Store,
   Tag,
-  ShoppingBag,
-  Undo2,
-  CalendarX,
-  ShieldAlert,
+  CalendarCheck,
+  ChevronRight,
 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
-import { POLICY_LIST } from "@/lib/legal/policies"
-import { GUEST_POLICY_LIST, HOST_POLICY_LIST } from "@/lib/legal/booking-policies"
 
 export const metadata: Metadata = {
   title: "Legal | Propvora",
-  description: "Propvora legal documents: Terms of Service, Privacy Policy, Cookie Policy, Acceptable Use, Data Processing Agreement, Affiliate Terms, AI Disclaimer, and marketplace policies (Marketplace Terms, Seller Agreement, Buyer Terms, Refund and Cancellation policies).",
+  description: "Propvora legal documents: Terms of Service, Privacy Policy, Cookie Policy, Acceptable Use, Data Processing Agreement, Affiliate Terms and AI Disclaimer.",
 }
 
 const documents = [
@@ -90,38 +84,25 @@ const documents = [
     bg: "bg-sky-50",
     border: "border-sky-200",
   },
+  {
+    icon: Tag,
+    title: "Supplier Terms",
+    description: "The agreement for suppliers and tradespeople offering services through the Propvora marketplace — responsibilities, verification, fees, payments and disputes.",
+    href: "/legal/seller-agreement",
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Booking Terms",
+    description: "Guest-facing terms for stays booked through a host's Propvora booking page. Propvora provides the booking software; your contract for the stay is with the host.",
+    href: "/legal/booking-terms",
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+  },
 ]
-
-const marketplaceIcons: Record<string, typeof Store> = {
-  "marketplace-terms": Store,
-  "seller-agreement": Tag,
-  "buyer-terms": ShoppingBag,
-  "refund-policy": Undo2,
-  "cancellation-policy": CalendarX,
-  "acceptable-use": ShieldAlert,
-}
-
-const marketplaceDocuments = POLICY_LIST.map((p) => ({
-  icon: marketplaceIcons[p.slug] ?? Store,
-  title: p.title,
-  description: p.summary,
-  href: p.href,
-  color: "text-indigo-600",
-  bg: "bg-indigo-50",
-  border: "border-indigo-200",
-}))
-
-const guestBookingDocuments = GUEST_POLICY_LIST.map((p) => ({
-  title: p.title,
-  description: p.summary,
-  href: p.href,
-}))
-
-const hostBookingDocuments = HOST_POLICY_LIST.map((p) => ({
-  title: p.title,
-  description: p.summary,
-  href: p.href,
-}))
 
 export default function LegalPage() {
   return (
@@ -161,90 +142,6 @@ export default function LegalPage() {
                 <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
               </Link>
             ))}
-          </div>
-
-          {/* Marketplace policies */}
-          <div className="mt-14">
-            <h2 className="text-xl font-bold text-slate-900 mb-1">Marketplace policies</h2>
-            <p className="text-slate-600 text-sm mb-5">
-              Policies for the Propvora marketplace — booking stays and ordering supplier services.
-              Propvora facilitates the marketplace; the contract for each stay or service is with the
-              operator or supplier providing it.
-            </p>
-            <div className="space-y-4">
-              {marketplaceDocuments.map((doc) => (
-                <Link
-                  key={doc.href}
-                  href={doc.href}
-                  className="group flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all"
-                >
-                  <div className={`w-12 h-12 rounded-xl ${doc.bg} border ${doc.border} flex items-center justify-center flex-shrink-0`}>
-                    <doc.icon className={`h-6 w-6 ${doc.color}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
-                      {doc.title}
-                    </h3>
-                    <p className="text-slate-600 text-sm leading-relaxed">{doc.description}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Booking & direct-booking — guest-facing */}
-          <div className="mt-14">
-            <h2 className="text-xl font-bold text-slate-900 mb-1">Booking policies (guests)</h2>
-            <p className="text-slate-600 text-sm mb-5">
-              The terms and policies that apply when you book a stay through a host&rsquo;s
-              Propvora booking page. For a direct booking, your contract for the stay is with the
-              host; Propvora provides the booking software.
-            </p>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {guestBookingDocuments.map((doc) => (
-                <Link
-                  key={doc.href}
-                  href={doc.href}
-                  className="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-all"
-                >
-                  <FileText className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                      {doc.title}
-                    </h3>
-                    <p className="text-slate-600 text-xs leading-relaxed mt-0.5">{doc.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Host / property-manager-facing */}
-          <div className="mt-14">
-            <h2 className="text-xl font-bold text-slate-900 mb-1">Host &amp; property-manager terms</h2>
-            <p className="text-slate-600 text-sm mb-5">
-              The terms, warranties and disclaimers that apply to hosts and property managers who
-              take direct bookings through Propvora. Hosts are the contracting party for the stay;
-              Propvora is a software facilitator and is not the host, insurer, or tax/legal adviser.
-            </p>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {hostBookingDocuments.map((doc) => (
-                <Link
-                  key={doc.href}
-                  href={doc.href}
-                  className="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-all"
-                >
-                  <ShieldAlert className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                      {doc.title}
-                    </h3>
-                    <p className="text-slate-600 text-xs leading-relaxed mt-0.5">{doc.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </div>
 
           <div className="mt-12 p-6 rounded-2xl bg-slate-50 border border-slate-200">

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function AiDisclaimerPage() {
   return (
-    <LegalLayout title="AI Copilot Disclaimer" lastUpdated="2 June 2025">
+    <LegalLayout title="AI Copilot Disclaimer" lastUpdated="16 June 2026">
       <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-sm mb-8">
         <strong>Important:</strong> Propvora AI Copilot is a productivity assistance tool. It does not provide regulated financial advice, legal advice, property investment advice, or valuation services. All AI outputs must be reviewed by you before use, and professional advice should be sought for significant decisions.
       </div>

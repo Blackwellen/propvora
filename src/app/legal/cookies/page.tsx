@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <LegalLayout title="Cookie Policy" lastUpdated="2 June 2025">
+    <LegalLayout title="Cookie Policy" lastUpdated="16 June 2026">
       <Section num="1" title="What Are Cookies?">
         <p>
           Cookies are small text files placed on your device when you visit a website. They allow the website to remember your preferences, maintain your session, and gather analytics about how the site is used. Cookies can be &ldquo;session cookies&rdquo; (deleted when you close your browser) or &ldquo;persistent cookies&rdquo; (stored for a defined period).
