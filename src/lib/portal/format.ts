@@ -10,10 +10,14 @@ export type BadgeVariant =
   | "sky"
   | "ai"
 
-export function formatMoney(amount: number | null | undefined, currency = "GBP"): string {
+export function formatMoney(
+  amount: number | null | undefined,
+  currency = "GBP",
+  locale = "en-GB"
+): string {
   const value = typeof amount === "number" && !Number.isNaN(amount) ? amount : 0
   try {
-    return new Intl.NumberFormat("en-GB", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: currency || "GBP",
       minimumFractionDigits: 2,
@@ -31,15 +35,16 @@ export function formatMoney(amount: number | null | undefined, currency = "GBP")
 
 export function formatDate(
   d: string | null | undefined,
-  opts?: Intl.DateTimeFormatOptions
+  opts?: Intl.DateTimeFormatOptions,
+  locale = "en-GB"
 ): string {
   if (!d) return "—"
   const date = new Date(d)
   if (Number.isNaN(date.getTime())) return "—"
-  return date.toLocaleDateString(
-    "en-GB",
+  return new Intl.DateTimeFormat(
+    locale,
     opts ?? { day: "numeric", month: "short", year: "numeric" }
-  )
+  ).format(date)
 }
 
 export const JOB_STATUS_META: Record<string, { label: string; variant: BadgeVariant }> = {
