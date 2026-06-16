@@ -75,3 +75,17 @@ export type { OrderStatus, OrderSide, ListOrdersOptions } from "./orders"
 // ── Read-side search (FTS) ────────────────────────────────────────────────────
 export { searchListings, recordSearchEvent } from "./search"
 export type { PublicListing, SearchListingsParams, SearchListingsResult } from "./search"
+
+// ── Supplier procurement (operator buyer side) ────────────────────────────────
+export { searchSuppliers, getSupplierDetail, getSuppliersByIds } from "./suppliers"
+export type {
+  SupplierCard,
+  SupplierDetail,
+  SupplierSearchParams,
+  SupplierSearchResult,
+  SupplierServiceCard,
+  SupplierCoverageZone,
+  SupplierCredential,
+  SupplierReviewCard,
+  PriceBand,
+} from "./suppliers"

@@ -572,6 +572,78 @@ export async function listPublicAmenities(
   }
 }
 
+/** A single public review for a published listing (social proof). */
+export interface PublicListingReview {
+  id: string
+  rating: number
+  title: string | null
+  body: string | null
+  createdAt: string
+}
+
+/**
+ * Published-listing reviews (most recent first). Reads the anon-readable
+ * `booking_reviews` rows (RLS `booking_reviews_public_read` only exposes reviews
+ * of `status='published'` listings). Reviewer identity is NOT exposed publicly —
+ * guest names live on `bookings`, which is not anon-readable — so the detail page
+ * shows these as verified-guest reviews. Tolerant → [].
+ */
+export async function getPublicListingReviews(
+  supabase: SupabaseClient,
+  listingId: string,
+  limit = 12
+): Promise<PublicListingReview[]> {
+  if (!listingId) return []
+  try {
+    const { data, error } = await supabase
+      .from("booking_reviews")
+      .select("id, rating, title, body, created_at")
+      .eq("listing_id", listingId)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !Array.isArray(data)) return []
+    return (data as Record<string, unknown>[]).map((r) => ({
+      id: String(r.id),
+      rating: Number(r.rating) || 0,
+      title: (r.title as string | null) ?? null,
+      body: (r.body as string | null) ?? null,
+      createdAt: String(r.created_at ?? ""),
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * "Similar stays" for the detail page: other PUBLISHED listings, preferring the
+ * same city, then the same listing_type, excluding the current one. Fully
+ * browse-safe (reuses `searchPublicListings` projection). Tolerant → [].
+ */
+export async function getSimilarPublicListings(
+  supabase: SupabaseClient,
+  listing: Pick<PublicListingDetail, "id" | "city" | "listingType">,
+  limit = 4
+): Promise<PublicListingCard[]> {
+  try {
+    // Pull a generous candidate pool, then rank client-side by relevance so we
+    // never depend on a column that may be absent (city lives on properties).
+    const pool = await searchPublicListings(supabase, { limit: 60 })
+    const others = pool.filter((c) => c.id !== listing.id)
+    const city = (listing.city ?? "").trim().toLowerCase()
+    const score = (c: PublicListingCard): number => {
+      let s = 0
+      if (city && (c.city ?? "").toLowerCase() === city) s += 2
+      if (c.listingType === listing.listingType) s += 1
+      return s
+    }
+    return others
+      .sort((a, b) => score(b) - score(a))
+      .slice(0, limit)
+  } catch {
+    return []
+  }
+}
+
 /** Host display name = workspace name. Tolerant → null. */
 async function loadHostName(supabase: SupabaseClient, workspaceId: string): Promise<string | null> {
   try {

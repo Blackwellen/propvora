@@ -13,11 +13,14 @@ import {
   Home,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { getPublicListingDetail } from "@/lib/booking"
+import { getPublicListingDetail, getPublicListingReviews, getSimilarPublicListings } from "@/lib/booking"
 import ListingGallery from "@/components/booking/ListingGallery"
 import StayBookingCard from "@/components/booking/StayBookingCard"
 import AccommodationDetails from "@/components/booking/AccommodationDetails"
 import EnquiryCard from "@/components/booking/EnquiryCard"
+import StayReviews from "@/components/booking/StayReviews"
+import StayLocationMap from "@/components/booking/StayLocationMap"
+import SimilarStays from "@/components/booking/SimilarStays"
 import { STAY_TYPE_LABEL, STAY_POLICY_LABEL } from "@/components/booking/StayListingCard"
 
 export const runtime = "nodejs"
@@ -54,6 +57,11 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
   const supabase = await createClient()
   const listing = await getPublicListingDetail(supabase, slug)
   if (!listing) notFound()
+
+  const [reviews, similar] = await Promise.all([
+    getPublicListingReviews(supabase, listing.id),
+    getSimilarPublicListings(supabase, listing, 4),
+  ])
 
   const place = [listing.city, listing.country].filter(Boolean).join(", ")
   const galleryImages = listing.photos.map((p) => p.url).filter((u): u is string => !!u)
@@ -222,6 +230,54 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
             </section>
           )}
 
+          {/* Location (approximate area only) */}
+          <StayLocationMap
+            title={listing.title}
+            place={place}
+            latitude={listing.latitude}
+            longitude={listing.longitude}
+          />
+
+          {/* Reviews (real booking_reviews; renders nothing when none) */}
+          <StayReviews reviews={reviews} averageRating={listing.rating} reviewCount={listing.reviewCount} />
+
+          {/* Things to know */}
+          <section>
+            <h2 className="text-[16px] font-semibold text-[#0B1B3F] mb-3">Things to know</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
+                <p className="text-[12.5px] font-semibold text-[#0B1B3F] mb-1">House rules</p>
+                <ul className="space-y-1 text-[12.5px] text-slate-500">
+                  {listing.checkInWindow && <li>Check-in: {listing.checkInWindow}</li>}
+                  {listing.checkoutTime && <li>Check-out: {listing.checkoutTime}</li>}
+                  {rules.slice(0, 3).map((r, i) => (
+                    <li key={i}>
+                      {r.label}: {r.value}
+                    </li>
+                  ))}
+                  {!listing.checkInWindow && !listing.checkoutTime && rules.length === 0 && (
+                    <li>Shared with you before check-in.</li>
+                  )}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
+                <p className="text-[12.5px] font-semibold text-[#0B1B3F] mb-1">Cancellation</p>
+                <p className="text-[12.5px] text-slate-500 leading-relaxed">
+                  {STAY_POLICY_LABEL[listing.cancellationPolicy] ?? "Direct booking policy"}. The exact refund
+                  schedule is shown at checkout before you pay.
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
+                <p className="text-[12.5px] font-semibold text-[#0B1B3F] mb-1">Safety &amp; compliance</p>
+                <p className="text-[12.5px] text-slate-500 leading-relaxed">
+                  {listing.complianceStatus === "passed"
+                    ? "Licence verified by Propvora. Payment is held securely until check-in."
+                    : "Payment is held securely until check-in. Ask the host about local licensing."}
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Compliance note */}
           <div className="rounded-xl bg-[#F7F9FC] border border-[#EEF3FB] px-4 py-3.5 flex items-start gap-2.5">
             <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
@@ -266,6 +322,9 @@ export default async function StayListingPage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </div>
+
+      {/* Similar published stays (same city / type preferred) */}
+      <SimilarStays listings={similar} />
     </div>
   )
 }

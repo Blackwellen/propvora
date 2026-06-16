@@ -1,35 +1,49 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
-import { LogOut, Menu, X, LifeBuoy, Bell, MessageSquare, Search } from "lucide-react"
+import {
+  LogOut,
+  LifeBuoy,
+  Bell,
+  MessageSquare,
+  Search,
+  ChevronDown,
+  UserCircle,
+  Heart,
+  CreditCard,
+} from "lucide-react"
 import { CUSTOMER_NAV, isCustomerNavActive } from "@/components/customer/nav"
 import CustomerMobileBottomNav from "@/components/customer/CustomerMobileNav"
 
 /* ──────────────────────────────────────────────────────────────────────────
    CustomerShell — chrome for the first-class customer/guest-type workspace
-   (route group `(customer)`). Distinct from the operator AppShell and the
-   recipient/tenant portals.
+   (route group `(customer)`).
+
+   SHELL MODEL: TOP-NAV ONLY (Airbnb account-area style). There is NO operator
+   sidebar and NO operator workspace switcher. The top bar holds the brand, a
+   horizontal section nav, search / messages / notifications icons, and a
+   personal ACCOUNT DROPDOWN (avatar → profile, saved, payments, notifications,
+   sign out) — a personal-account menu, not a workspace switcher.
 
    Access is gated by real product membership (`customer_workspace_members`) in
    `(customer)/layout.tsx` — there are NO feature flags.
 
-   Desktop: dark fixed sidebar (matching SupplierWorkspaceShell tokens) with the
-   full customer section nav.
-   Mobile (<lg): the sidebar is hidden and a dedicated bottom tab bar
-   (CustomerMobileBottomNav) takes over — Dashboard · Bookings · Orders · More.
+   Mobile (<lg): the horizontal nav collapses; each page renders its own
+   MobileTopBar and a dedicated bottom tab bar (CustomerMobileBottomNav) owns
+   primary navigation.
 ─────────────────────────────────────────────────────────────────────────── */
 
 function initialsOf(name: string): string {
   return (
     name
       .trim()
-      .split(/\s+/)
+      .split(/[\s@.]+/)
       .map((w) => w[0])
       .filter(Boolean)
       .join("")
@@ -37,6 +51,13 @@ function initialsOf(name: string): string {
       .toUpperCase() || "CU"
   )
 }
+
+const ACCOUNT_LINKS: { label: string; href: string; icon: React.ElementType }[] = [
+  { label: "Profile", href: "/user/profile", icon: UserCircle },
+  { label: "Saved", href: "/user/saved", icon: Heart },
+  { label: "Payments", href: "/user/payments", icon: CreditCard },
+  { label: "Notifications", href: "/user/notifications", icon: Bell },
+]
 
 export default function CustomerShell({
   children,
@@ -51,7 +72,31 @@ export default function CustomerShell({
 }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Close the account dropdown on outside-click, Escape, or route change.
+  useEffect(() => {
+    if (!accountOpen) return
+    function onDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setAccountOpen(false)
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setAccountOpen(false)
+    }
+    document.addEventListener("mousedown", onDown)
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("mousedown", onDown)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [accountOpen])
+
+  useEffect(() => {
+    setAccountOpen(false)
+  }, [pathname])
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -60,154 +105,156 @@ export default function CustomerShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] flex">
+    <div className="min-h-screen bg-[#F6FAFF] flex flex-col">
       <SkipLink />
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
 
-      {/* Desktop sidebar (also the drawer target on tablet via the header
-          hamburger; on phones the bottom nav is the primary nav). */}
-      <aside
-        aria-label="Customer workspace sidebar"
-        className={cn(
-          "fixed top-0 left-0 bottom-0 z-50 w-64 flex flex-col bg-[#0D1B2A]",
-          "transition-transform duration-250 motion-reduce:transition-none lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        )}
-      >
-        <div className="flex items-center gap-3 h-16 px-4 border-b border-white/8 shrink-0">
-          <div className="relative h-8 w-[148px] shrink-0">
-            <Image src="/propvora-logo-white.png" alt="Propvora" fill className="object-contain object-left" priority />
-          </div>
-          <span className="ml-2 px-1.5 py-0.5 bg-[#0EA5E9]/20 text-[#38bdf8] text-[10px] font-semibold rounded shrink-0">
-            CUSTOMER
-          </span>
-          <button
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
-            className="lg:hidden p-2 rounded text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+      {/* ── Top nav (lg+). On mobile each page owns a MobileTopBar + bottom nav. ── */}
+      <header className="hidden lg:block sticky top-0 z-40 bg-white border-b border-slate-200">
+        <div className="max-w-[1400px] mx-auto w-full px-6 xl:px-8">
+          <div className="flex items-center gap-6 h-16">
+            {/* Brand */}
+            <Link href="/user" aria-label="Propvora customer home" className="flex items-center gap-2 shrink-0">
+              <div className="relative h-7 w-[132px]">
+                <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
+              </div>
+              <span className="px-1.5 py-0.5 bg-[#EFF6FF] text-[#2563EB] text-[10px] font-bold rounded tracking-wide">
+                ACCOUNT
+              </span>
+            </Link>
 
-        <nav aria-label="Customer workspace" className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
-          {CUSTOMER_NAV.map((item) => {
-            const Icon = item.icon
-            const isActive = isCustomerNavActive(pathname, item.href)
-            return (
+            {/* Horizontal section nav */}
+            <nav aria-label="Customer account" className="flex items-center gap-0.5 min-w-0 overflow-x-auto">
+              {CUSTOMER_NAV.map((item) => {
+                const isActive = isCustomerNavActive(pathname, item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "px-3 py-2 rounded-lg text-[13.5px] font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                      isActive ? "text-[#2563EB] bg-[#EFF6FF]" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {/* Right cluster: search, messages, notifications, account dropdown */}
+            <div className="ml-auto flex items-center gap-1 shrink-0">
               <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
-                  "text-[#94A3B8] hover:text-white hover:bg-white/8",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]",
-                  isActive && "text-white bg-[#1E3A5F]"
-                )}
+                href="/user/search"
+                aria-label="Search"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
               >
-                <Icon className="w-5 h-5 shrink-0" />
-                <span>{item.label}</span>
+                <Search className="w-5 h-5" />
               </Link>
-            )
-          })}
+              <Link
+                href="/user/messages"
+                aria-label={`Messages${unreadMessages > 0 ? `, ${unreadMessages} unread` : ""}`}
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              >
+                <MessageSquare className="w-5 h-5" />
+                {unreadMessages > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/user/notifications"
+                aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                  </span>
+                )}
+              </Link>
 
-          <Link
-            href="/help"
-            onClick={() => setMobileOpen(false)}
-            className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-white/8 transition-all duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1B2A]"
-          >
-            <LifeBuoy className="w-5 h-5 shrink-0" />
-            <span>Help &amp; Guides</span>
-          </Link>
-        </nav>
+              {/* Account dropdown (personal-account menu, NOT a workspace switcher) */}
+              <div ref={menuRef} className="relative ml-1">
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((o) => !o)}
+                  aria-haspopup="menu"
+                  aria-expanded={accountOpen}
+                  aria-label="Account menu"
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                >
+                  <span className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                    {initialsOf(customerName)}
+                  </span>
+                  <ChevronDown
+                    className={cn("w-4 h-4 text-slate-400 transition-transform", accountOpen && "rotate-180")}
+                  />
+                </button>
 
-        <div className="shrink-0 border-t border-white/8 px-2 py-3">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-[#0EA5E9] flex items-center justify-center text-white text-xs font-semibold shrink-0">
-              {initialsOf(customerName)}
+                {accountOpen && (
+                  <div
+                    role="menu"
+                    aria-label="Account"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/8 py-2 z-50"
+                  >
+                    <div className="px-4 py-2.5 border-b border-slate-100">
+                      <p className="text-sm font-semibold text-slate-900 truncate">{customerName}</p>
+                      <p className="text-[11px] text-slate-500">Personal account</p>
+                    </div>
+                    <div className="py-1.5">
+                      {ACCOUNT_LINKS.map((l) => {
+                        const Icon = l.icon
+                        return (
+                          <Link
+                            key={l.href}
+                            href={l.href}
+                            role="menuitem"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:bg-slate-100"
+                          >
+                            <Icon className="w-4 h-4 text-slate-400 shrink-0" />
+                            {l.label}
+                          </Link>
+                        )
+                      })}
+                      <Link
+                        href="/help"
+                        role="menuitem"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:bg-slate-100"
+                      >
+                        <LifeBuoy className="w-4 h-4 text-slate-400 shrink-0" />
+                        Help &amp; Guides
+                      </Link>
+                    </div>
+                    <div className="pt-1.5 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        role="menuitem"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:bg-red-50"
+                      >
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{customerName}</p>
-              <p className="text-[11px] text-[#64748B] truncate">Customer workspace</p>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="p-2 rounded text-[#64748B] hover:text-red-400 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
-              title="Sign out"
-              aria-label="Sign out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </div>
-      </aside>
+      </header>
 
-      <div className="flex-1 min-w-0 lg:pl-64 flex flex-col min-h-screen">
-        {/* Desktop/tablet header — on phones the MobileTopBar in each page +
-            the bottom nav own navigation, so this slim bar is lg-only chrome
-            plus a tablet hamburger to reveal the drawer. */}
-        <header className="hidden md:flex h-16 bg-white border-b border-slate-200 items-center px-4 gap-4 shrink-0 sticky top-0 z-30">
-          <button
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <span className="text-sm font-semibold text-slate-700">Customer Workspace</span>
-
-          <div className="ml-auto flex items-center gap-1">
-            <Link
-              href="/user/search"
-              aria-label="Search"
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
-            >
-              <Search className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/user/messages"
-              aria-label={`Messages${unreadMessages > 0 ? `, ${unreadMessages} unread` : ""}`}
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
-            >
-              <MessageSquare className="w-5 h-5" />
-              {unreadMessages > 0 && (
-                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
-                  {unreadMessages > 9 ? "9+" : unreadMessages}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/user/notifications"
-              aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadNotifications > 0 && (
-                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                  {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                </span>
-              )}
-            </Link>
-          </div>
-        </header>
-
-        <main
-          id="main-content"
-          tabIndex={-1}
-          aria-label="Main content"
-          className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 pb-24 lg:pb-8 max-w-[1400px] mx-auto w-full bg-[#F6FAFF] focus:outline-none"
-        >
-          {children}
-        </main>
-      </div>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        aria-label="Main content"
+        className="flex-1 min-w-0 overflow-x-hidden px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 pb-24 lg:pb-10 max-w-[1400px] mx-auto w-full bg-[#F6FAFF] focus:outline-none"
+      >
+        {children}
+      </main>
 
       {/* Dedicated mobile bottom nav (below lg only). */}
       <CustomerMobileBottomNav />

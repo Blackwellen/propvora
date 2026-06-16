@@ -1,20 +1,22 @@
 import { getMarketplaceAccess } from "@/components/marketplace/server"
-import { MarketplaceBrowseClient } from "@/components/marketplace/MarketplaceBrowseClient"
+import { SupplierDirectoryClient } from "@/components/suppliers/SupplierDirectoryClient"
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Operator supplier directory (procurement). The OPERATOR is the buyer who
+   browses + procures vetted suppliers. Entitlement is resolved server-side;
+   the interactive directory island owns search/filter/compare. Real data via
+   /api/marketplace/suppliers → lib/marketplace/suppliers.ts.
+─────────────────────────────────────────────────────────────────────────── */
 
 export const dynamic = "force-dynamic"
 
 export default async function MarketplaceSuppliersPage() {
   const access = await getMarketplaceAccess()
   return (
-    <MarketplaceBrowseClient
+    <SupplierDirectoryClient
       canBrowse={access.canBrowse}
-      canPublish={access.canPublish}
       planName={access.planName}
       defaultCountry={access.defaultCountry}
-      initialCategory="suppliers"
-      lockCategory
-      title="Suppliers & trades"
-      description="Vetted cleaning, gas, electrical and maintenance suppliers across Propvora"
     />
   )
 }
