@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
-import { getWorkspaceSnapshot, renderSnapshot } from "@/lib/ai/workspace-context"
+import { getFullWorkspaceContext, renderWorkspaceContext, capabilitiesFor } from "@/lib/ai/workspace-context"
+import { parseSlashCommand } from "@/lib/ai/commands"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
 import { checkCaps } from "@/lib/ai/caps"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
@@ -80,8 +81,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Live workspace snapshot (RLS-scoped, 42P01-safe → real data, never leaks cross-workspace)
-    const snapshot = workspaceId ? await getWorkspaceSnapshot(supabase, workspaceId) : {}
+    // 4b. Slash-command dispatch. If the message starts with a known command we
+    // run the command's structured instruction (with the user's trailing args)
+    // instead of the raw "/foo …" text, and flag draft commands so the client can
+    // gate them behind explicit approval. Unknown "/x" text falls through to chat.
+    const slash = parseSlashCommand(message)
+
+    // 5. Live, TYPE-AWARE workspace context (RLS-scoped, 42P01-safe → real data,
+    // never leaks cross-workspace). Resolves operator/supplier/customer + modules.
+    const { profile, caps, snapshot } = workspaceId
+      ? await getFullWorkspaceContext(supabase, workspaceId)
+      : {
+          profile: { type: "operator" as const, subType: null, businessType: null, name: null, plan: null },
+          caps: capabilitiesFor("operator"),
+          snapshot: {},
+        }
 
     // 5b. Resolve the workspace jurisdiction + country-pack status (GB-safe default).
     // Drives the jurisdiction clause: GB keeps full review-only depth; non-reviewed
@@ -131,17 +145,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 8. System prompt with REAL workspace context. The live snapshot is
-    // untrusted-ish (may contain user-entered text) so it's fenced + injection
-    // sanitised; the safety clauses override anything inside it.
-    const fencedSnapshot = fenceUntrusted("WORKSPACE DATA", renderSnapshot(snapshot))
-    const systemPrompt = `You are the Propvora AI Copilot, an expert assistant for UK property operations management.
+    // 8. System prompt with REAL, TYPE-AWARE workspace context. The live context
+    // block is untrusted-ish (may contain user-entered text) so it's fenced +
+    // injection sanitised; the safety clauses override anything inside it.
+    const fencedContext = fenceUntrusted(
+      "WORKSPACE CONTEXT",
+      renderWorkspaceContext(profile, caps, snapshot)
+    )
 
-You help property operators with portfolio (properties, units, tenancies), work & maintenance (tasks, jobs, suppliers), money (income, expenses, invoices, arrears), compliance (EPC, Gas Safety, EICR), legal readiness (Section 21/8, HMO), planning and contacts.
+    // If this is a recognised slash command the running workspace type can use,
+    // run the command's structured instruction; otherwise treat it as plain chat.
+    const activeCommand =
+      slash && (slash.command.capability === "always" || caps[slash.command.capability as keyof typeof caps])
+        ? slash.command
+        : null
+
+    const commandClause = activeCommand
+      ? `\nThe user invoked the /${activeCommand.slug.replace(/^\//, "")} command. ${
+          activeCommand.requiresApproval
+            ? "Produce the requested DRAFT only — do not claim anything was created, sent or executed; the user reviews and approves it."
+            : "Answer it using the live workspace context above."
+        }`
+      : ""
+
+    const systemPrompt = `You are the Propvora AI Copilot, an expert assistant for property operations. You serve operators, suppliers and customers — adapt to the WORKSPACE PROFILE below and only offer actions relevant to that workspace type and its available modules.
+
+Across the platform Propvora covers: portfolio (properties, units, tenancies), work & maintenance (tasks, jobs, suppliers), a Marketplace OS (listings, orders, disputes), Bookings & accommodation (listings, reservations, availability, pricing, calendar), a Supplier workspace (jobs, quotes, verification), Payments/holds/disputes/payouts, an Automations engine, internationalisation (country packs) and compliance/legal readiness.
 
 Current page context: ${contextRoute ?? "Main dashboard"}
 
-${fencedSnapshot}
+${fencedContext}
 
 ${SAFETY_CLAUSES}
 
@@ -149,8 +182,15 @@ ${jurisdictionClause}
 
 Guidelines:
 - Use the live workspace counts above when relevant; if a figure isn't shown, say you don't have it rather than inventing one.
+- Tailor advice to the workspace TYPE and AVAILABLE MODULES above. Do not suggest actions for modules this workspace doesn't have.
 - Follow the JURISDICTION rules above: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
-- Be concise (under 300 words unless asked for detail). Use clear structure for lists.`
+- Be concise (under 300 words unless asked for detail). Use clear structure for lists.${commandClause}`
+
+    // The actual user turn: for a command, send its instruction + any trailing
+    // args the user typed; otherwise the raw message.
+    const userTurn = activeCommand
+      ? `${activeCommand.prompt}${slash && slash.args ? `\n\nAdditional context from the user: ${slash.args}` : ""}`
+      : message.trim()
 
     // 9. Resolve the provider/model chain and open a streamed completion.
     const chain = await resolveModelChain(supabase)
@@ -160,7 +200,7 @@ Guidelines:
       messages: [
         { role: "system", content: systemPrompt },
         ...history.map((h) => ({ role: h.role, content: h.content })),
-        { role: "user", content: message.trim() },
+        { role: "user", content: userTurn },
       ],
     })
 
@@ -209,7 +249,7 @@ Guidelines:
           await recordUsage(supabase, {
             workspaceId,
             userId: user.id,
-            actionType: "chat",
+            actionType: activeCommand ? `command:${activeCommand.slug}` : "chat",
             model: usage.model,
             inputTokens: usage.tokensIn,
             outputTokens: usage.tokensOut,
@@ -225,6 +265,10 @@ Guidelines:
         "X-Thread-Id": thread ?? "",
         "X-AI-Provider": gw.model.provider,
         "X-AI-Model": gw.model.modelId,
+        "X-AI-Command": activeCommand?.slug ?? "",
+        // Draft commands must be approved before anything is created/sent.
+        "X-AI-Requires-Approval": activeCommand?.requiresApproval ? "1" : "0",
+        "X-Workspace-Type": profile.type,
       },
     })
   } catch (err: unknown) {

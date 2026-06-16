@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
-import { getWorkspaceSnapshot, renderSnapshot } from "@/lib/ai/workspace-context"
+import { getFullWorkspaceContext, renderWorkspaceContext } from "@/lib/ai/workspace-context"
+import { COPILOT_COMMANDS, getCommand } from "@/lib/ai/commands"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
 import { checkCaps } from "@/lib/ai/caps"
 import { resolveModelChain, gatewayComplete, recordUsageEvent } from "@/lib/ai/gateway"
@@ -18,66 +19,42 @@ const actionsSchema = z.object({
 })
 
 /* ------------------------------------------------------------------ */
-/* Supported action types and their prompts                            */
+/* Supported actions — sourced from the shared command registry so the   */
+/* contextual-action set always matches the slash-command catalogue.     */
+/*                                                                        */
+/* Legacy action keys (used by older UI) are aliased onto registry slugs  */
+/* so existing callers keep working while new surfaces are covered.       */
 /* ------------------------------------------------------------------ */
-type ActionType =
-  | "explain-portfolio"
-  | "find-missing-docs"
-  | "check-arrears"
-  | "review-planning"
-  | "upcoming-priorities"
-  | "cashflow-forecast"
-  | "draft-landlord-offer"
-  | "compliance-check"
-
 interface ActionConfig {
   prompt: string
   requiresApproval: boolean
   mutationType?: string
+  /** Capability this action needs ("always" → any workspace). */
+  capability: string
 }
 
-const ACTION_CONFIGS: Record<ActionType, ActionConfig> = {
-  "explain-portfolio": {
-    prompt:
-      "Provide a concise portfolio health summary for a UK property operator. Cover: total properties, estimated occupancy, gross monthly rent range, any void units or concerns. Be specific and actionable. Under 200 words.",
-    requiresApproval: false,
-  },
-  "find-missing-docs": {
-    prompt:
-      "List the most common missing documents for UK rental properties and tenancies. Include: Gas Safety Certificate, EICR, EPC, signed AST, deposit protection, Right to Rent checks. Explain the legal risk of each. Under 250 words.",
-    requiresApproval: false,
-  },
-  "check-arrears": {
-    prompt:
-      "Provide advice for a UK property operator checking rent arrears. Explain what to look for, legal thresholds before serving notice (Section 8), and suggest example chase message templates. End by asking: 'Would you like me to draft personalised chase messages for specific tenants?' Under 250 words.",
-    requiresApproval: false,
-  },
-  "review-planning": {
-    prompt:
-      "Help a UK property operator review their planning sets (strategic acquisition/development plans). Cover: key risk areas, planning permission timelines, what documents should be in a complete planning set, common oversights. Under 250 words.",
-    requiresApproval: false,
-  },
-  "upcoming-priorities": {
-    prompt:
-      "List the top weekly priorities for a UK property manager. Organise by urgency: compliance due, maintenance jobs, rent collection, tenant communications, legal deadlines. Provide a prioritised checklist format. Under 200 words.",
-    requiresApproval: false,
-  },
-  "cashflow-forecast": {
-    prompt:
-      "Explain how a UK property operator should analyse their 30-day cashflow. Cover: gross rent in, mortgage payments, management fees, maintenance reserves, insurance, voids risk. Provide a simple framework and example calculation. Under 250 words.",
-    requiresApproval: false,
-  },
-  "draft-landlord-offer": {
-    prompt:
-      "Draft a professional landlord acquisition offer letter for a UK property. Include: property address placeholder, offered price, proposed completion timeline, any special conditions (subject to survey, vacant possession). Make it professional and compelling. Under 300 words.",
-    requiresApproval: true,
-    mutationType: "document-creation",
-  },
-  "compliance-check": {
-    prompt:
-      "Provide a UK rental property compliance checklist. Cover: Gas Safety (annual), EICR (every 5 years), EPC (every 10 years, min E rating), smoke/CO alarms, Legionella risk assessment, HMO licensing if applicable, deposit protection (30 days). Include frequency and legal consequences of non-compliance. Under 300 words.",
-    requiresApproval: false,
-  },
+// Legacy action key → registry slug.
+const LEGACY_ALIASES: Record<string, string> = {
+  "explain-portfolio": "/explain-portfolio",
+  "find-missing-docs": "/find-missing-docs",
+  "check-arrears": "/chase-arrears",
+  "review-planning": "/review-planning",
+  "upcoming-priorities": "/upcoming-priorities",
+  "cashflow-forecast": "/cashflow-forecast",
+  "draft-landlord-offer": "/draft-landlord-offer",
+  "compliance-check": "/review-compliance",
+}
+
+function resolveAction(action: string): ActionConfig | null {
+  const slug = LEGACY_ALIASES[action] ?? (action.startsWith("/") ? action : `/${action}`)
+  const cmd = getCommand(slug) ?? COPILOT_COMMANDS.find((c) => c.slug === slug)
+  if (!cmd) return null
+  return {
+    prompt: cmd.prompt,
+    requiresApproval: cmd.requiresApproval,
+    mutationType: cmd.mutationType,
+    capability: cmd.capability,
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -103,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
     const { action, workspaceId, recordId } = parseResult.data
 
-    const actionConfig = ACTION_CONFIGS[action as ActionType]
+    const actionConfig = resolveAction(action)
     if (!actionConfig) {
       return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })
     }
@@ -131,10 +108,10 @@ export async function POST(request: NextRequest) {
       }
 
       // HARD CAPS — fail closed. Refuse over any rolling-window or cost limit.
-      const caps = await checkCaps(supabase, workspaceId)
-      if (!caps.allowed) {
+      const capCheck = await checkCaps(supabase, workspaceId)
+      if (!capCheck.allowed) {
         return NextResponse.json(
-          { error: caps.reason, quotaExceeded: true, limit: caps.exceeded, tier: caps.tier },
+          { error: capCheck.reason, quotaExceeded: true, limit: capCheck.exceeded, tier: capCheck.tier },
           { status: 429 }
         )
       }
@@ -149,10 +126,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. Build contextual system prompt with LIVE workspace data. The snapshot
-    // is fenced + injection-sanitised; safety clauses override anything inside.
-    const snapshot = await getWorkspaceSnapshot(supabase, workspaceId)
-    const fencedSnapshot = fenceUntrusted("WORKSPACE DATA", renderSnapshot(snapshot))
+    // 4. Build contextual system prompt with LIVE, TYPE-AWARE workspace data.
+    // The context block is fenced + injection-sanitised; safety clauses override.
+    const { profile, caps: wsCaps, snapshot } = await getFullWorkspaceContext(supabase, workspaceId)
+
+    // Capability gate: an action whose module this workspace type doesn't have is
+    // refused (e.g. a customer workspace asking for /draft-landlord-offer).
+    if (
+      actionConfig.capability !== "always" &&
+      !wsCaps[actionConfig.capability as keyof typeof wsCaps]
+    ) {
+      return NextResponse.json(
+        { error: `This action isn't available for a ${profile.type} workspace.` },
+        { status: 400 }
+      )
+    }
+
+    const fencedSnapshot = fenceUntrusted(
+      "WORKSPACE CONTEXT",
+      renderWorkspaceContext(profile, wsCaps, snapshot)
+    )
 
     // Jurisdiction-aware framing. The canned actions are UK-shaped; for a
     // non-reviewed jurisdiction this clause downgrades legal/tax depth to generic

@@ -1,7 +1,13 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { CopilotPageContext } from "../context/useCopilotPageContext"
+import { useWorkspace } from "@/providers/AuthProvider"
+import {
+  COPILOT_COMMANDS,
+  capabilitiesFor as fallbackCaps,
+  commandsForCapabilities,
+} from "@/lib/ai/commands-client"
 
 interface SlashCommand {
   slug: string
@@ -11,36 +17,16 @@ interface SlashCommand {
   category: string
 }
 
-const COMMANDS: SlashCommand[] = [
-  { slug: "/summarise", label: "/summarise", description: "Summarise the current page", shortcut: "⌘1", category: "Compliance" },
-  { slug: "/review-compliance", label: "/review-compliance", description: "Review all compliance items", shortcut: "⌘2", category: "Compliance" },
-  { slug: "/find-missing-docs", label: "/find-missing-docs", description: "Find missing documents", shortcut: "⌘3", category: "Compliance" },
-  { slug: "/create-task", label: "/create-task", description: "Create a new task", shortcut: "⌘4", category: "Tasks & Work" },
-  { slug: "/create-work-order", label: "/create-work-order", description: "Create a work order", shortcut: "⌘5", category: "Tasks & Work" },
-  { slug: "/draft-supplier-message", label: "/draft-supplier-message", description: "Draft a message to a supplier", shortcut: "⌘6", category: "Communication" },
-  { slug: "/send-reminder", label: "/send-reminder", description: "Send a reminder to a contact", shortcut: "⌘7", category: "Communication" },
-  { slug: "/log-note", label: "/log-note", description: "Log a note against a record", shortcut: "⌘8", category: "Notes" },
-  { slug: "/generate-report", label: "/generate-report", description: "Generate a report", shortcut: "⌘9", category: "Documents" },
-  { slug: "/chase-arrears", label: "/chase-arrears", description: "Chase outstanding arrears", shortcut: "⌘A", category: "Communication" },
-  { slug: "/book-inspection", label: "/book-inspection", description: "Book a property inspection", shortcut: "⌘B", category: "Tasks & Work" },
-  { slug: "/check-tenancy", label: "/check-tenancy", description: "Check tenancy status and details", shortcut: "⌘C", category: "Compliance" },
-]
+// Default catalogue (operator type) derived from the SHARED registry so the
+// palette can never drift from what actually has a handler. When a workspace is
+// available we refine this to the workspace-TYPE-filtered list from the API.
+function toUi(slug: string, label: string, description: string, category: string, shortcut?: string | null): SlashCommand {
+  return { slug, label, description, category, shortcut: shortcut ?? "" }
+}
 
-// Category counts derived from COMMANDS so they can never drift out of sync.
-const CATEGORIES = (() => {
-  const order = ["Compliance", "Tasks & Work", "Communication", "Documents", "Notes"]
-  const counts = COMMANDS.reduce<Record<string, number>>((acc, c) => {
-    acc[c.category] = (acc[c.category] ?? 0) + 1
-    return acc
-  }, {})
-  return [
-    { label: "All actions", count: COMMANDS.length },
-    ...order.filter((l) => counts[l]).map((l) => ({ label: l, count: counts[l] })),
-  ]
-})()
-
-// Starter suggestions (not per-user history — labelled "Suggested" honestly).
-const SUGGESTED_COMMANDS = ["/review-compliance", "/chase-arrears", "/create-task"]
+const DEFAULT_COMMANDS: SlashCommand[] = commandsForCapabilities(fallbackCaps("operator")).map((c) =>
+  toUi(c.slug, c.label, c.description, c.category, c.shortcut)
+)
 
 interface SlashCommandPaletteProps {
   query: string
@@ -55,11 +41,48 @@ export default function SlashCommandPalette({
   onSelect,
   onClose,
 }: SlashCommandPaletteProps) {
+  const { workspace } = useWorkspace()
+  const [commands, setCommands] = useState<SlashCommand[]>(DEFAULT_COMMANDS)
   const [activeCategory, setActiveCategory] = useState("All actions")
   const [selectedIndex, setSelectedIndex] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
 
-  const filtered = COMMANDS.filter((c) => {
+  // Refine to the workspace-TYPE-filtered catalogue (operator/supplier/customer).
+  useEffect(() => {
+    if (!workspace?.id) return
+    let cancelled = false
+    fetch(`/api/ai/commands?workspaceId=${encodeURIComponent(workspace.id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.commands?.length) return
+        setCommands(
+          data.commands.map((c: { slug: string; label: string; description: string; category: string; shortcut: string | null }) =>
+            toUi(c.slug, c.label, c.description, c.category, c.shortcut)
+          )
+        )
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [workspace?.id])
+
+  // Categories + suggestions derived from the live command set (never drift).
+  const CATEGORIES = useMemo(() => {
+    const counts = commands.reduce<Record<string, number>>((acc, c) => {
+      acc[c.category] = (acc[c.category] ?? 0) + 1
+      return acc
+    }, {})
+    const order = Object.keys(counts)
+    return [{ label: "All actions", count: commands.length }, ...order.map((l) => ({ label: l, count: counts[l] }))]
+  }, [commands])
+
+  const SUGGESTED_COMMANDS = useMemo(
+    () => commands.slice(0, 3).map((c) => c.slug),
+    [commands]
+  )
+
+  const filtered = commands.filter((c) => {
     const matchesCategory =
       activeCategory === "All actions" || c.category === activeCategory
     const q = query.replace(/^\//, "").toLowerCase()
@@ -154,9 +177,11 @@ export default function SlashCommandPalette({
                 <p className="text-[11.5px] font-semibold text-blue-700">{cmd.label}</p>
                 <p className="text-[10px] text-slate-500">{cmd.description}</p>
               </div>
-              <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-mono ml-2 shrink-0">
-                {cmd.shortcut}
-              </span>
+              {cmd.shortcut ? (
+                <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-mono ml-2 shrink-0">
+                  {cmd.shortcut}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
@@ -167,7 +192,7 @@ export default function SlashCommandPalette({
             Suggested
           </p>
           {SUGGESTED_COMMANDS.map((slug) => {
-            const cmd = COMMANDS.find((c) => c.slug === slug)
+            const cmd = commands.find((c) => c.slug === slug)
             return cmd ? (
               <button
                 key={slug}

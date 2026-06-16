@@ -15,6 +15,7 @@
     "test:security": "node scripts/test/run-all.mjs",
     "test:rls": "node scripts/test/rls-isolation.mjs",
     "test:gates": "node scripts/test/billing-gates.mjs",
+    "test:copilot": "node --experimental-strip-types scripts/test/copilot-functions.mjs",
     "test:e2e": "playwright test",
     "audit:schema": "node scripts/audit-queries.mjs",
     "audit:rls": "node scripts/audit-rls.mjs"
