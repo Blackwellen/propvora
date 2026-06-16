@@ -159,6 +159,22 @@ export async function PATCH(
     void _omitWs2
     void _omitCb
 
+    // Moderation gate: suppliers cannot publish directly.
+    // Sending status='published' is redirected to 'pending_review'.
+    // Only a platform-admin approval (POST /api/admin/marketplace/listings/[id]/moderate)
+    // can move a listing to 'published'.
+    if (patch.status === "published") {
+      patch.status = "pending_review"
+    }
+
+    // Strip privileged fields that only admins may set.
+    delete patch.is_featured
+    delete patch.verified
+    delete patch.rating
+    delete patch.review_count
+    delete patch.view_count
+    delete patch.enquiry_count
+
     if (typeof updateListing === "function") {
       try {
         const updated = await updateListing(supabase, id, patch)

@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  ShieldCheck,
 } from "lucide-react"
 
 function initialsOf(name: string): string {
@@ -32,10 +33,11 @@ function initialsOf(name: string): string {
 }
 
 const supplierNav = [
-  { label: "Dashboard", href: "/supplier-portal",            icon: LayoutDashboard },
-  { label: "Jobs",      href: "/supplier-portal/jobs",       icon: Wrench },
-  { label: "Invoices",  href: "/supplier-portal/invoices",   icon: FileText },
-  { label: "Settings",  href: "/supplier-portal/settings",   icon: Settings },
+  { label: "Dashboard",     href: "/supplier-portal",                 icon: LayoutDashboard },
+  { label: "Jobs",          href: "/supplier-portal/jobs",            icon: Wrench },
+  { label: "Invoices",      href: "/supplier-portal/invoices",        icon: FileText },
+  { label: "Verification",  href: "/supplier-portal/verification",    icon: ShieldCheck },
+  { label: "Settings",      href: "/supplier-portal/settings",        icon: Settings },
 ]
 
 export default function SupplierShell({ children }: { children: React.ReactNode }) {

@@ -65,12 +65,13 @@ const ADMIN_NAV_GROUPS = [
   {
     label: "MARKETPLACE",
     items: [
-      { label: "Oversight",    href: "/admin/marketplace",              icon: Store },
-      { label: "Transactions", href: "/admin/marketplace/transactions", icon: PoundSterling },
-      { label: "Disputes",     href: "/admin/marketplace/disputes",     icon: Gavel },
-      { label: "Payouts",      href: "/admin/marketplace/payouts",      icon: Wallet },
-      { label: "Workspaces",   href: "/admin/marketplace/workspaces",   icon: Building2 },
-      { label: "Risk",         href: "/admin/risk",                     icon: ShieldAlert },
+      { label: "Oversight",    href: "/admin/marketplace",                  icon: Store },
+      { label: "Moderation",  href: "/admin/marketplace/moderation",      icon: ShieldCheck },
+      { label: "Transactions", href: "/admin/marketplace/transactions",   icon: PoundSterling },
+      { label: "Disputes",     href: "/admin/marketplace/disputes",       icon: Gavel },
+      { label: "Payouts",      href: "/admin/marketplace/payouts",        icon: Wallet },
+      { label: "Workspaces",   href: "/admin/marketplace/workspaces",     icon: Building2 },
+      { label: "Risk",         href: "/admin/risk",                       icon: ShieldAlert },
     ],
   },
   {
