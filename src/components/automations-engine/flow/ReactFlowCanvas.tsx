@@ -21,11 +21,126 @@ import "@xyflow/react/dist/style.css"
 import {
   Search, Plus, Trash2, Copy, Undo2, Redo2, Maximize2, Minimize2, Save,
   CheckCircle2, AlertTriangle, X, FlaskConical, Layout, FileJson, ShieldAlert,
+  Download, Upload, Layers, Bell, Shield, Wrench, CalendarCheck, FileText, Clock,
+  MessageSquare, ChevronRight,
 } from "lucide-react"
 import { FlowNode, type FlowNodeData } from "./FlowNode"
 import { loadRegistry, saveGraph, type RegistryNode, type CompileResultDTO } from "../api"
 
 const nodeTypes = { propvora: FlowNode }
+
+// ── Canvas templates for the advanced node-graph canvas ───────────────────────
+interface CanvasNodeTemplate {
+  node_type: string; label: string; pos_x: number; pos_y: number; config: Record<string, unknown>
+}
+interface CanvasEdgeTemplate { source_key: string; target_key: string; branch_label: string | null }
+interface CanvasTemplate {
+  id: string
+  name: string
+  description: string
+  icon: React.ElementType
+  nodes: CanvasNodeTemplate[]
+  edges: CanvasEdgeTemplate[]
+}
+
+const ADV_TEMPLATES: CanvasTemplate[] = [
+  {
+    id: "rent-due-reminder",
+    name: "Rent due reminder",
+    description: "3 days before rent is due → email/SMS tenant.",
+    icon: Bell,
+    nodes: [
+      { node_type: "rent.overdue", label: "Rent overdue trigger", pos_x: 80, pos_y: 120, config: { min_days_overdue: -3 } },
+      { node_type: "comms.send_email", label: "Send rent reminder email", pos_x: 320, pos_y: 120, config: { subject: "Reminder: Rent due soon", body: "Your rent is due in 3 days." } },
+    ],
+    edges: [{ source_key: "rent.overdue_0", target_key: "comms.send_email_1", branch_label: null }],
+  },
+  {
+    id: "cert-expiry-alert",
+    name: "Certificate expiry alert",
+    description: "30 days before a cert expires → notify operator.",
+    icon: Shield,
+    nodes: [
+      { node_type: "compliance.due_soon", label: "Compliance due soon", pos_x: 80, pos_y: 120, config: { within_days: 30 } },
+      { node_type: "notify.create_notification", label: "Notify operator", pos_x: 320, pos_y: 120, config: { title: "Certificate expiring: {{summary}}", severity: "warning" } },
+    ],
+    edges: [{ source_key: "compliance.due_soon_0", target_key: "notify.create_notification_1", branch_label: null }],
+  },
+  {
+    id: "new-maintenance-request",
+    name: "New maintenance request",
+    description: "On job created → assign supplier + notify.",
+    icon: Wrench,
+    nodes: [
+      { node_type: "work.task_created", label: "Maintenance created", pos_x: 80, pos_y: 120, config: {} },
+      { node_type: "work.assign_supplier", label: "Assign supplier", pos_x: 320, pos_y: 80, config: {} },
+      { node_type: "notify.create_notification", label: "Notify team", pos_x: 320, pos_y: 200, config: { title: "New maintenance: {{summary}}", severity: "info" } },
+    ],
+    edges: [
+      { source_key: "work.task_created_0", target_key: "work.assign_supplier_1", branch_label: null },
+      { source_key: "work.task_created_0", target_key: "notify.create_notification_2", branch_label: null },
+    ],
+  },
+  {
+    id: "booking-confirmed-welcome",
+    name: "Booking confirmed",
+    description: "On booking confirmed → guest welcome email.",
+    icon: CalendarCheck,
+    nodes: [
+      { node_type: "booking.confirmed", label: "Booking confirmed", pos_x: 80, pos_y: 120, config: {} },
+      { node_type: "comms.send_email", label: "Welcome email", pos_x: 320, pos_y: 120, config: { subject: "Your booking is confirmed", body: "Welcome! Your booking has been confirmed." } },
+    ],
+    edges: [{ source_key: "booking.confirmed_0", target_key: "comms.send_email_1", branch_label: null }],
+  },
+  {
+    id: "job-completed-invoice",
+    name: "Job completed → invoice",
+    description: "On job completed → create invoice draft.",
+    icon: FileText,
+    nodes: [
+      { node_type: "work.task_created", label: "Job completed", pos_x: 80, pos_y: 120, config: { status: "completed" } },
+      { node_type: "finance.create_invoice", label: "Create invoice draft", pos_x: 320, pos_y: 120, config: {} },
+    ],
+    edges: [{ source_key: "work.task_created_0", target_key: "finance.create_invoice_1", branch_label: null }],
+  },
+  {
+    id: "lease-ending-renewal",
+    name: "Lease ending soon",
+    description: "60 days before tenancy ends → notify + start renewal.",
+    icon: Clock,
+    nodes: [
+      { node_type: "portfolio.tenancy_ending", label: "Tenancy ending (60d)", pos_x: 80, pos_y: 120, config: { within_days: 60 } },
+      { node_type: "notify.create_notification", label: "Notify agent", pos_x: 320, pos_y: 80, config: { title: "Tenancy ending: {{summary}}", severity: "warning" } },
+      { node_type: "work.task_created", label: "Create renewal task", pos_x: 320, pos_y: 200, config: { title: "Start renewal process: {{summary}}" } },
+    ],
+    edges: [
+      { source_key: "portfolio.tenancy_ending_0", target_key: "notify.create_notification_1", branch_label: null },
+      { source_key: "portfolio.tenancy_ending_0", target_key: "work.task_created_2", branch_label: null },
+    ],
+  },
+  {
+    id: "supplier-job-overdue",
+    name: "Supplier job overdue",
+    description: "Past due_date, not completed → escalate.",
+    icon: AlertTriangle,
+    nodes: [
+      { node_type: "work.task_overdue", label: "Job overdue", pos_x: 80, pos_y: 120, config: {} },
+      { node_type: "notify.create_notification", label: "Escalate alert", pos_x: 320, pos_y: 120, config: { title: "Job overdue: {{summary}}", severity: "critical" } },
+    ],
+    edges: [{ source_key: "work.task_overdue_0", target_key: "notify.create_notification_1", branch_label: null }],
+  },
+  {
+    id: "new-portal-message",
+    name: "New portal message",
+    description: "On portal message received → notify workspace member.",
+    icon: MessageSquare,
+    nodes: [
+      { node_type: "record.created", label: "Portal message received", pos_x: 80, pos_y: 120, config: { entity: "portal_messages" } },
+      { node_type: "notify.create_notification", label: "Notify member", pos_x: 320, pos_y: 120, config: { title: "New portal message: {{summary}}", severity: "info" } },
+    ],
+    edges: [{ source_key: "record.created_0", target_key: "notify.create_notification_1", branch_label: null }],
+  },
+]
 
 interface InitNode {
   node_key: string; node_type: string; label: string; category: string
@@ -99,6 +214,8 @@ function CanvasInner({ workspaceId, definitionId, definitionName, initialGraph, 
   const [saving, setSaving] = useState(false)
   const [compile, setCompile] = useState<CompileResultDTO | null>(null)
   const [toast, setToast] = useState<{ kind: "ok" | "err"; msg: string } | null>(null)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const importRef = useRef<HTMLInputElement>(null)
 
   // Undo/redo stacks (graph snapshots).
   const undoStack = useRef<Array<{ nodes: PNode[]; edges: Edge[]; configs: Record<string, Record<string, unknown>> }>>([])
@@ -195,6 +312,99 @@ function CanvasInner({ workspaceId, definitionId, definitionName, initialGraph, 
     return { ...n, data: { ...n.data, hasConfigError: missing } }
   }), [nodes, configs, regMap])
 
+  // JSON export: dumps the current graph as a downloadable file
+  function exportGraph() {
+    const payload = {
+      definitionName,
+      nodes: nodes.map((n) => ({
+        node_key: n.id, node_type: n.data.nodeType, label: n.data.label,
+        config: configs[n.id] ?? {}, pos_x: Math.round(n.position.x), pos_y: Math.round(n.position.y),
+      })),
+      edges: edges.map((e) => ({ source_key: e.source, target_key: e.target, branch_label: (e.label as string) ?? null })),
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${definitionName.trim().replace(/\s+/g, "-").toLowerCase() || "automation"}-graph.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // JSON import: loads a previously exported graph JSON
+  function onImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(String(ev.target?.result ?? ""))
+        if (parsed && Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) {
+          snapshot()
+          const initGraph: InitialGraph = { nodes: parsed.nodes, edges: parsed.edges }
+          setNodes(toFlowNodes(initGraph, regMap))
+          setEdges(toFlowEdges(initGraph))
+          setConfigs(Object.fromEntries((parsed.nodes as InitNode[]).map((n) => [n.node_key, n.config ?? {}])))
+          setToast({ kind: "ok", msg: "Graph imported successfully. Save to persist." })
+        } else {
+          setToast({ kind: "err", msg: "Invalid graph file — expected {nodes, edges}." })
+        }
+      } catch {
+        setToast({ kind: "err", msg: "Couldn't parse the JSON file." })
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ""
+  }
+
+  // Load a template: replaces current graph with template nodes/edges
+  function loadTemplate(tmpl: CanvasTemplate) {
+    snapshot()
+    let counter = 0
+    const keyMap = new Map<string, string>()
+    const newNodes: PNode[] = tmpl.nodes.map((tn) => {
+      const rawKey = `${tn.node_type}_${counter++}`
+      const id = nextKey(tn.node_type)
+      keyMap.set(rawKey, id)
+      const def = regMap.get(tn.node_type)
+      return {
+        id, type: "propvora",
+        position: { x: tn.pos_x, y: tn.pos_y },
+        data: {
+          label: tn.label || def?.label || tn.node_type,
+          nodeType: tn.node_type,
+          category: (def?.category ?? "action") as FlowNodeData["category"],
+          requiresApproval: Boolean(def?.requiresApproval),
+          blocked: Boolean(def?.blockedFromAutoRun),
+          risk: def?.risk ?? "low",
+        },
+      } as PNode
+    })
+    const newEdges: Edge[] = tmpl.edges.map((te, i) => {
+      const srcKey = keyMap.get(te.source_key) ?? te.source_key
+      const tgtKey = keyMap.get(te.target_key) ?? te.target_key
+      return {
+        id: `te_${i}`,
+        source: srcKey,
+        target: tgtKey,
+        label: te.branch_label ?? undefined,
+        markerEnd: { type: MarkerType.ArrowClosed },
+        animated: false,
+      }
+    })
+    const newConfigs: Record<string, Record<string, unknown>> = {}
+    tmpl.nodes.forEach((tn, idx) => {
+      const id = newNodes[idx]?.id
+      if (id) newConfigs[id] = tn.config ?? {}
+    })
+    setNodes(newNodes)
+    setEdges(newEdges)
+    setConfigs(newConfigs)
+    setSelectedId(null)
+    setShowTemplates(false)
+    setToast({ kind: "ok", msg: `Loaded template "${tmpl.name}". Save to persist.` })
+  }
+
   async function persist(publish: boolean) {
     setSaving(true); setToast(null)
     try {
@@ -231,10 +441,21 @@ function CanvasInner({ workspaceId, definitionId, definitionName, initialGraph, 
 
   return (
     <div className={fullscreen ? "fixed inset-0 z-[60] flex flex-col bg-white" : "rounded-2xl border border-slate-200 bg-white shadow-sm"}>
+      {/* Hidden import input */}
+      <input ref={importRef} type="file" accept=".json,application/json" className="hidden" onChange={onImportFile} />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-3 py-2.5">
         <button onClick={() => setPaletteOpen((v) => !v)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
           <Plus className="h-3.5 w-3.5" /> Nodes
+        </button>
+        {/* Templates toggle */}
+        <button
+          onClick={() => setShowTemplates((v) => !v)}
+          title="Templates"
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${showTemplates ? "border-violet-300 bg-violet-50 text-violet-700" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+        >
+          <Layers className="h-3.5 w-3.5" /> Templates
         </button>
         <div className="flex items-center gap-1">
           <ToolBtn title="Undo" onClick={undo} icon={Undo2} />
@@ -244,6 +465,14 @@ function CanvasInner({ workspaceId, definitionId, definitionName, initialGraph, 
         </div>
         <div className="mx-1 hidden text-[11px] text-slate-400 sm:block">{nodes.length} nodes · {edges.length} edges</div>
         <div className="ml-auto flex items-center gap-2">
+          {/* JSON import */}
+          <button onClick={() => importRef.current?.click()} title="Import JSON graph" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+            <Upload className="h-3.5 w-3.5" /> Import
+          </button>
+          {/* JSON export */}
+          <button onClick={exportGraph} title="Export graph as JSON" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+            <Download className="h-3.5 w-3.5" /> Export
+          </button>
           <button onClick={() => persist(false)} disabled={saving} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">
             <Save className="h-3.5 w-3.5" /> Save draft
           </button>
@@ -253,6 +482,33 @@ function CanvasInner({ workspaceId, definitionId, definitionName, initialGraph, 
           <ToolBtn title={fullscreen ? "Exit fullscreen" : "Fullscreen"} onClick={() => setFullscreen((v) => !v)} icon={fullscreen ? Minimize2 : Maximize2} />
         </div>
       </div>
+
+      {/* Templates panel */}
+      {showTemplates && (
+        <div className="border-b border-slate-200 bg-slate-50 px-3 py-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-700">Canvas templates — click to load</span>
+            <button onClick={() => setShowTemplates(false)} className="grid h-6 w-6 place-items-center rounded text-slate-400 hover:bg-slate-200"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {ADV_TEMPLATES.map((t) => {
+              const Icon = t.icon
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => loadTemplate(t)}
+                  title={t.description}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50 transition"
+                >
+                  <Icon className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+                  {t.name}
+                  <ChevronRight className="h-3 w-3 text-slate-300" />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {toast && (
         <div className={["flex items-start gap-2 px-3 py-2 text-xs", toast.kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"].join(" ")}>
