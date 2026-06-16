@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parseResult.error.issues }, { status: 400 })
   }
   const { workspaceId, preserveEdited } = parseResult.data
+  void preserveEdited
 
   // Verify workspace membership (owner or admin only)
   const { data: member } = await supabase
@@ -43,11 +44,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  // Removal is handled by the SQL function delete_demo_data(workspace_id) —
-  // deletes every demo row in FK-safe order and clears demo_data_loaded.
-  const { error } = await supabase.rpc('delete_demo_data', {
+  // Removal is handled by the consolidated SQL function reset_demo_data(
+  // workspace_id) — the matching teardown for seed_full_demo_workspace. It
+  // removes EXACTLY the demo rows this workspace was seeded with (operator
+  // substrate + deep finance/ledger/automations/documents, or supplier/customer
+  // rows) in FK-safe order and clears demo_data_loaded.
+  const { error } = await supabase.rpc('reset_demo_data', {
     p_workspace_id: workspaceId,
-    p_preserve_edited: preserveEdited ?? false,
   })
   if (error) {
     console.error('[demo/reset] Reset failed:', error.message)

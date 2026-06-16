@@ -56,12 +56,15 @@ export async function POST(request: Request) {
     )
   }
 
-  // Demo data is seeded by the SQL function seed_demo_workspace(workspace_id,
-  // user_id) — the single, schema-correct source (sets demo_data_loaded + the
-  // 30-day demo_expires_at stamps itself). `variant` is accepted for API
-  // compatibility but the SQL seeder loads the full coherent dataset.
+  // Demo data is seeded by the SQL function seed_full_demo_workspace(
+  // workspace_id, user_id) — the single, consolidated, schema-correct source.
+  // It is type-aware (operator → portfolio + deep finance/ledger/automations/
+  // documents; supplier → supplier profile/services/packages; customer →
+  // marketplace activity), sets demo_data_loaded and stamps the 30-day expiry
+  // itself. `variant` is accepted for API compatibility but the seeder loads
+  // the full coherent dataset for the workspace's type.
   void variant
-  const { error } = await supabase.rpc('seed_demo_workspace', {
+  const { error } = await supabase.rpc('seed_full_demo_workspace', {
     p_workspace_id: workspaceId,
     p_user_id: user.id,
   })

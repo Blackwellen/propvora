@@ -1254,8 +1254,16 @@ export interface Database {
         Args: { p_workspace_id: string; p_user_id: string }
         Returns: string
       }
+      seed_full_demo_workspace: {
+        Args: { p_workspace_id: string; p_user_id: string }
+        Returns: string
+      }
       delete_demo_data: {
         Args: { p_workspace_id: string; p_preserve_edited?: boolean }
+        Returns: undefined
+      }
+      reset_demo_data: {
+        Args: { p_workspace_id: string }
         Returns: undefined
       }
       demo_data_status: {
