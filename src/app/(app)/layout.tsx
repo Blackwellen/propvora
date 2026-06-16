@@ -4,8 +4,7 @@ import { headers } from "next/headers"
 import AppShell from "@/components/shell/AppShell"
 import BrandingStyle from "@/lib/branding/BrandingStyle"
 import { createClient } from "@/lib/supabase/server"
-import { canAccess } from "@/lib/subscription"
-import type { WorkspacePlan } from "@/types/database"
+import { normaliseTier, PLAN_DISPLAY } from "@/lib/billing/plans"
 import type { BrandColours } from "@/lib/branding/theme"
 import { WorkspaceLocaleProvider } from "@/lib/i18n/WorkspaceLocaleProvider"
 
@@ -70,7 +69,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .maybeSingle()
 
     if (workspace?.plan) {
-      aiCopilotEnabled = canAccess(workspace.plan as WorkspacePlan, "aiCopilot")
+      // Use the V2-authoritative normaliseTier + PLAN_DISPLAY so that V2 plan
+      // names (starter/operator/scale/pro_agency/enterprise) stored in the DB
+      // are handled correctly. The legacy canAccess() only knew V1 names and
+      // would return false for any V2 plan name.
+      const tier = normaliseTier(workspace.plan as string)
+      aiCopilotEnabled = PLAN_DISPLAY[tier].features.aiCopilot
     }
     brandColor = (workspace?.brand_color as string | null) ?? null
     brandColours = (workspace?.brand_colours as Partial<BrandColours> | null) ?? null
