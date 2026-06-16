@@ -56,8 +56,13 @@ export interface PublicListingCard {
   latitude: number | null
   longitude: number | null
   coverUrl: string | null
+  /** Gallery photo URLs (cover first) for card carousels. May be empty. */
+  photoUrls: string[]
   cancellationPolicy: string
   complianceStatus: string
+  /** Review aggregate (0–5) + count, or nulls when there are no reviews. */
+  rating: number | null
+  reviewCount: number | null
 }
 
 /** Full published detail view (detail page). */
@@ -144,12 +149,12 @@ async function loadProfileHeadlines(
   return map
 }
 
-/** Load cover photo url for a set of listings (one per listing). */
-async function loadCoverPhotos(
+/** Load ALL photo urls (cover first) per listing for card carousels. */
+async function loadPhotoGalleries(
   supabase: SupabaseClient,
   listingIds: string[]
-): Promise<Map<string, string>> {
-  const map = new Map<string, string>()
+): Promise<Map<string, string[]>> {
+  const map = new Map<string, string[]>()
   if (listingIds.length === 0) return map
   try {
     const { data, error } = await supabase
@@ -162,10 +167,48 @@ async function loadCoverPhotos(
     for (const r of data as Record<string, unknown>[]) {
       const lid = String(r.listing_id)
       const url = (r.url as string | null) ?? null
-      if (url && !map.has(lid)) map.set(lid, url)
+      if (!url) continue
+      const arr = map.get(lid) ?? []
+      if (!arr.includes(url)) arr.push(url)
+      map.set(lid, arr)
     }
   } catch {
     /* tolerant */
+  }
+  return map
+}
+
+/** Load review aggregates (avg rating, count) per listing. Tolerant → empty. */
+async function loadReviewAggregates(
+  supabase: SupabaseClient,
+  listingIds: string[]
+): Promise<Map<string, { rating: number; count: number }>> {
+  const map = new Map<string, { rating: number; count: number }>()
+  if (listingIds.length === 0) return map
+  for (const table of ["booking_reviews", "marketplace_reviews"]) {
+    try {
+      const { data, error } = await supabase
+        .from(table)
+        .select("listing_id, rating")
+        .in("listing_id", listingIds)
+      if (error || !Array.isArray(data)) continue
+      const acc = new Map<string, { sum: number; n: number }>()
+      for (const r of data as Record<string, unknown>[]) {
+        const lid = String(r.listing_id)
+        const rating = Number(r.rating)
+        if (!Number.isFinite(rating)) continue
+        const a = acc.get(lid) ?? { sum: 0, n: 0 }
+        a.sum += rating
+        a.n += 1
+        acc.set(lid, a)
+      }
+      for (const [lid, a] of acc) {
+        if (a.n > 0 && !map.has(lid)) map.set(lid, { rating: a.sum / a.n, count: a.n })
+      }
+      if (map.size > 0) break
+    } catch {
+      /* tolerant — table may not exist */
+    }
   }
   return map
 }
@@ -198,12 +241,61 @@ async function loadPropertyLocations(
   return map
 }
 
+/**
+ * Approximate city centroids (UK + a few intl) used ONLY as a map fallback when
+ * a listing has no precise property coordinates. The pin is an APPROXIMATE area
+ * marker (never an exact address), keeping the public map honest while letting
+ * city-named listings appear on it. Matched against the listing title/city.
+ */
+const CITY_CENTROIDS: Array<[string, number, number]> = [
+  ["london", 51.5074, -0.1278],
+  ["shoreditch", 51.5265, -0.0784],
+  ["manchester", 53.4808, -2.2426],
+  ["brighton", 50.8225, -0.1372],
+  ["edinburgh", 55.9533, -3.1883],
+  ["leeds", 53.8008, -1.5491],
+  ["headingley", 53.8189, -1.5817],
+  ["bristol", 51.4545, -2.5879],
+  ["birmingham", 52.4862, -1.8904],
+  ["liverpool", 53.4084, -2.9916],
+  ["glasgow", 55.8642, -4.2518],
+  ["cardiff", 51.4816, -3.1791],
+  ["sheffield", 53.3811, -1.4701],
+  ["newcastle", 54.9783, -1.6178],
+  ["nottingham", 52.9548, -1.1581],
+  ["oxford", 51.752, -1.2577],
+  ["cambridge", 52.2053, 0.1218],
+  ["bath", 51.3811, -2.3596],
+  ["york", 53.959, -1.0815],
+]
+
+/** Find an approximate centroid from a haystack (title + city), or null. */
+function approxCentroid(haystack: string): { lat: number; lng: number } | null {
+  const hay = haystack.toLowerCase()
+  for (const [name, lat, lng] of CITY_CENTROIDS) {
+    if (hay.includes(name)) return { lat, lng }
+  }
+  return null
+}
+
 function cardFromRow(
   row: ListingRow,
   profile: { base: number; cleaning: number; deposit: number; minNights: number; maxNights: number | null; currency: string } | undefined,
-  cover: string | undefined,
-  loc: { city: string | null; country: string | null; lat: number | null; lng: number | null } | undefined
+  photos: string[] | undefined,
+  loc: { city: string | null; country: string | null; lat: number | null; lng: number | null } | undefined,
+  review?: { rating: number; count: number } | undefined
 ): PublicListingCard {
+  const gallery = photos ?? []
+  // Real coordinates win; otherwise derive an APPROXIMATE area pin from the name.
+  let lat = loc?.lat ?? null
+  let lng = loc?.lng ?? null
+  if (lat == null || lng == null) {
+    const approx = approxCentroid(`${row.title ?? ""} ${row.summary ?? ""} ${loc?.city ?? ""}`)
+    if (approx) {
+      lat = approx.lat
+      lng = approx.lng
+    }
+  }
   return {
     id: row.id,
     slug: row.slug,
@@ -220,11 +312,14 @@ function cardFromRow(
     cleaningFeePence: profile ? profile.cleaning : null,
     city: loc?.city ?? null,
     country: loc?.country ?? null,
-    latitude: loc?.lat ?? null,
-    longitude: loc?.lng ?? null,
-    coverUrl: cover ?? null,
+    latitude: lat,
+    longitude: lng,
+    coverUrl: gallery[0] ?? null,
+    photoUrls: gallery,
     cancellationPolicy: row.cancellation_policy || "flexible",
     complianceStatus: row.compliance_status || "pending",
+    rating: review ? Math.round(review.rating * 10) / 10 : null,
+    reviewCount: review ? review.count : null,
   }
 }
 
@@ -236,6 +331,16 @@ export interface SearchListingsArgs {
   maxPence?: number | null
   listingType?: string | null
   cancellation?: string | null
+  /** Minimum bedrooms / bathrooms / beds. */
+  bedrooms?: number | null
+  bathrooms?: number | null
+  beds?: number | null
+  /** Only instant-bookable listings. */
+  instantOnly?: boolean | null
+  /** Only listings with a passed compliance check. */
+  verifiedOnly?: boolean | null
+  /** Map-bounds filter [south, west, north, east] (lat/lng). */
+  bounds?: [number, number, number, number] | null
   limit?: number
 }
 
@@ -263,6 +368,11 @@ export async function searchPublicListings(
     if (args.listingType) q = q.eq("listing_type", args.listingType)
     if (args.cancellation) q = q.eq("cancellation_policy", args.cancellation)
     if (args.guests && args.guests > 0) q = q.gte("max_guests", args.guests)
+    if (args.bedrooms && args.bedrooms > 0) q = q.gte("bedrooms", args.bedrooms)
+    if (args.bathrooms && args.bathrooms > 0) q = q.gte("bathrooms", args.bathrooms)
+    if (args.beds && args.beds > 0) q = q.gte("beds", args.beds)
+    if (args.instantOnly) q = q.eq("booking_mode", "instant")
+    if (args.verifiedOnly) q = q.eq("compliance_status", "passed")
 
     const { data, error } = await q
     if (error || !Array.isArray(data)) return []
@@ -270,14 +380,21 @@ export async function searchPublicListings(
     const ids = rows.map((r) => r.id)
     const propIds = rows.map((r) => r.property_id).filter((x): x is string => !!x)
 
-    const [profiles, covers, locs] = await Promise.all([
+    const [profiles, galleries, locs, reviews] = await Promise.all([
       loadProfileHeadlines(supabase, ids),
-      loadCoverPhotos(supabase, ids),
+      loadPhotoGalleries(supabase, ids),
       loadPropertyLocations(supabase, propIds),
+      loadReviewAggregates(supabase, ids),
     ])
 
     let cards = rows.map((r) =>
-      cardFromRow(r, profiles.get(r.id), covers.get(r.id), r.property_id ? locs.get(r.property_id) : undefined)
+      cardFromRow(
+        r,
+        profiles.get(r.id),
+        galleries.get(r.id),
+        r.property_id ? locs.get(r.property_id) : undefined,
+        reviews.get(r.id)
+      )
     )
 
     // Post-enrichment filters (price range, city contains).
@@ -286,6 +403,18 @@ export async function searchPublicListings(
     if (args.city && args.city.trim()) {
       const needle = args.city.trim().toLowerCase()
       cards = cards.filter((c) => (c.city ?? "").toLowerCase().includes(needle))
+    }
+    if (args.bounds) {
+      const [s, w, n, e] = args.bounds
+      cards = cards.filter(
+        (c) =>
+          c.latitude != null &&
+          c.longitude != null &&
+          c.latitude >= s &&
+          c.latitude <= n &&
+          c.longitude >= w &&
+          c.longitude <= e
+      )
     }
     return cards
   } catch (err) {
@@ -332,17 +461,24 @@ export async function getPublicListingDetail(
   const row = await fetchRow()
   if (!row) return null
 
-  const [profiles, covers, locs, photos, amenities, host] = await Promise.all([
+  const [profiles, galleries, locs, photos, amenities, host, reviews] = await Promise.all([
     loadProfileHeadlines(supabase, [row.id]),
-    loadCoverPhotos(supabase, [row.id]),
+    loadPhotoGalleries(supabase, [row.id]),
     row.property_id ? loadPropertyLocations(supabase, [row.property_id]) : Promise.resolve(new Map()),
     listPublicPhotos(supabase, row.id),
     listPublicAmenities(supabase, row.id),
     loadHostName(supabase, row.workspace_id),
+    loadReviewAggregates(supabase, [row.id]),
   ])
 
   const profile = profiles.get(row.id)
-  const card = cardFromRow(row, profile, covers.get(row.id), row.property_id ? locs.get(row.property_id) : undefined)
+  const card = cardFromRow(
+    row,
+    profile,
+    galleries.get(row.id),
+    row.property_id ? locs.get(row.property_id) : undefined,
+    reviews.get(row.id)
+  )
 
   return {
     ...card,

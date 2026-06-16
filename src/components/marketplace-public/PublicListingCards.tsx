@@ -3,12 +3,33 @@
 import React, { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Star, BadgeCheck, Zap, BedDouble, Bath, Siren, Clock } from "lucide-react"
+import { MapPin, Star, BadgeCheck, Zap, BedDouble, Bath, Siren, Clock, Heart, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PriceTag } from "@/components/marketplace/PriceTag"
 import type { PublicListing } from "@/lib/marketplace/search"
 import { intentForTransactionType, publicListingHref } from "./intent"
 import { trustFromListing } from "./trust"
+import { useMpWishlist } from "./useMpWishlist"
+
+/* ── Wishlist heart (anon-safe, localStorage) ── */
+function WishHeart({ id }: { id: string }) {
+  const { has, toggle } = useMpWishlist()
+  const saved = has(id)
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        toggle(id)
+      }}
+      aria-label={saved ? "Remove from saved" : "Save listing"}
+      className="absolute right-2.5 top-2.5 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/85 backdrop-blur-sm shadow-sm transition-transform hover:scale-110 active:scale-95"
+    >
+      <Heart className={cn("h-4 w-4 transition-colors", saved ? "fill-rose-500 text-rose-500" : "text-slate-600")} />
+    </button>
+  )
+}
 
 /* ──────────────────────────────────────────────────────────────────────────
    Public marketplace cards — bound to REAL search results (PublicListing).
@@ -91,6 +112,7 @@ export function StayCard({ listing, className }: CardProps) {
     <Link href={href} className={cn("block group", className)}>
       <article className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full">
         <Cover listing={listing} height="h-48">
+          <WishHeart id={listing.id} />
           {listing.instantBook && (
             <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm">
               <Zap className="w-3 h-3" /> Instant book
@@ -111,7 +133,10 @@ export function StayCard({ listing, className }: CardProps) {
             </p>
           )}
           <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-slate-100">
-            <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
+            <span>
+              <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
+              <span className="block text-[11px] text-slate-400">total shown at checkout</span>
+            </span>
             <span className="text-[11px] font-medium text-slate-400">View stay →</span>
           </div>
         </div>
@@ -128,6 +153,7 @@ export function SupplierCard({ listing, className }: CardProps) {
     <Link href={href} className={cn("block group", className)}>
       <article className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full">
         <Cover listing={listing} height="h-36">
+          <WishHeart id={listing.id} />
           {trust.includes("verified") && (
             <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 shadow-sm">
               <BadgeCheck className="w-3 h-3" /> Verified
@@ -147,8 +173,18 @@ export function SupplierCard({ listing, className }: CardProps) {
               <span className="truncate">{listing.location ?? listing.region ?? listing.city}</span>
             </p>
           )}
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <Rating rating={listing.rating} count={listing.reviewCount} />
+            {trust.includes("verified") && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+                <ShieldCheck className="w-3 h-3" /> Vetted
+              </span>
+            )}
+            {listing.instantBook && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB]">
+                <Clock className="w-3 h-3" /> Fast response
+              </span>
+            )}
           </div>
           <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-slate-100">
             <div>

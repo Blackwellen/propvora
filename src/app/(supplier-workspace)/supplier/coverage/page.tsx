@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MapPin, Plus, Trash2, Save, Globe } from "lucide-react"
+import Link from "next/link"
+import { MapPin, Plus, Trash2, Save, Globe, Hexagon } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
   SupplierPageHeader, SupplierCard, SupplierLoadingState, SupplierEmptyState,
@@ -80,6 +81,20 @@ export default function SupplierCoveragePage() {
       />
 
       {banner && <SupplierBanner tone={banner.tone} onDismiss={() => setBanner(null)}>{banner.msg}</SupplierBanner>}
+
+      <Link
+        href="/supplier/zones"
+        className="flex items-center gap-3 rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:border-blue-300 transition-colors group"
+      >
+        <span className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+          <Hexagon className="w-5 h-5 text-blue-600" />
+        </span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-[14px] font-semibold text-slate-900">Service zones (new)</span>
+          <span className="block text-[12.5px] text-slate-600">Draw named zones on a map and assign teams — richer than flat coverage areas.</span>
+        </span>
+        <span className="text-[13px] font-semibold text-blue-600 group-hover:translate-x-0.5 transition-transform">Open →</span>
+      </Link>
 
       {cov.loading ? (
         <SupplierCard className="p-5"><SupplierLoadingState rows={4} /></SupplierCard>

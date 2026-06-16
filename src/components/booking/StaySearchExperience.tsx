@@ -1,262 +1,347 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
-import { Search, SlidersHorizontal, Map as MapIcon, List, X, Users } from "lucide-react"
+import {
+  Search, SlidersHorizontal, Map as MapIcon, List, X, Loader2, ChevronDown, Check,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
-import StayListingCard, { STAY_TYPE_LABEL, STAY_POLICY_LABEL } from "./StayListingCard"
-import { formatMoney } from "./format"
+import StayListingCard from "./StayListingCard"
+import StayFilterSheet from "./StayFilterSheet"
+import {
+  EMPTY_FILTERS, SORT_OPTIONS, activeFilterCount, filtersFromParams, filtersToParams,
+  filtersToApiParams, refineAndSort, type StayFilters, type SortKey,
+} from "./stayFilters"
 import type { PublicListingCard } from "@/lib/booking/public"
 
-const StayMap = dynamic(() => import("./StayMap"), { ssr: false })
+const StayMap = dynamic(() => import("./StayMap"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse rounded-2xl bg-slate-100" />,
+})
 
 function stayHref(l: PublicListingCard): string {
   return `/stay/${encodeURIComponent(l.slug ?? l.id)}`
 }
 
-const TYPE_OPTIONS = Object.keys(STAY_TYPE_LABEL)
-const POLICY_OPTIONS = Object.keys(STAY_POLICY_LABEL)
-
 /**
- * The /stay search + map experience over REAL published booking_listings (passed
- * from the server). Filters (text, guests, price, type, cancellation) are applied
- * client-side over the loaded set for instant feedback; the displayed prices are
- * the active pricing profile "from" rates resolved server-side. View toggles
- * between a list and a Leaflet split map. Mobile-first.
+ * The /stay search + map experience over REAL published booking_listings.
+ *
+ * Filter state is URL-synced (shareable + back-button safe). Server-driven
+ * filters re-query /api/booking/public-search (debounced); client refinements
+ * (amenities, rating) + sort apply over the returned set. List / split-map /
+ * full-map views, "search as I move the map", a desktop filter popover and a
+ * mobile/tablet bottom sheet. Mobile-first throughout.
  */
 export default function StaySearchExperience({
-  listings,
+  listings: initialListings,
   initialView = "list",
 }: {
   listings: PublicListingCard[]
   initialView?: "list" | "map"
 }) {
-  const [q, setQ] = useState("")
-  const [guests, setGuests] = useState(0)
-  const [maxPrice, setMaxPrice] = useState<number | null>(null)
-  const [type, setType] = useState<string | null>(null)
-  const [policy, setPolicy] = useState<string | null>(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [filters, setFilters] = useState<StayFilters>(() =>
+    filtersFromParams(new URLSearchParams(searchParams?.toString() ?? ""))
+  )
+  const [listings, setListings] = useState<PublicListingCard[]>(initialListings)
+  const [loading, setLoading] = useState(false)
   const [view, setView] = useState<"list" | "map">(initialView)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [sortOpen, setSortOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [searchOnMove, setSearchOnMove] = useState(false)
+  const boundsRef = useRef<[number, number, number, number] | null>(null)
+  const hydrated = useRef(false)
 
   const priceCeiling = useMemo(() => {
-    const prices = listings.map((l) => l.fromNightlyPence ?? 0).filter((p) => p > 0)
+    const prices = initialListings.map((l) => l.fromNightlyPence ?? 0).filter((p) => p > 0)
     return prices.length ? Math.max(...prices) : 0
-  }, [listings])
+  }, [initialListings])
 
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase()
-    return listings.filter((l) => {
-      if (needle) {
-        const hay = `${l.title} ${l.summary ?? ""} ${l.city ?? ""} ${l.country ?? ""}`.toLowerCase()
-        if (!hay.includes(needle)) return false
+  // Server fetch for the server-driven filters.
+  const reqId = useRef(0)
+  const fetchListings = useCallback(
+    async (f: StayFilters, bounds: [number, number, number, number] | null) => {
+      const myReq = ++reqId.current
+      setLoading(true)
+      try {
+        const p = filtersToApiParams(f, bounds)
+        const res = await fetch(`/api/booking/public-search?${p.toString()}`, {
+          headers: { accept: "application/json" },
+        })
+        if (myReq !== reqId.current) return
+        const json = (await res.json().catch(() => null)) as { listings?: PublicListingCard[] } | null
+        setListings(Array.isArray(json?.listings) ? json!.listings! : [])
+      } catch {
+        if (myReq === reqId.current) setListings([])
+      } finally {
+        if (myReq === reqId.current) setLoading(false)
       }
-      if (guests > 0 && l.maxGuests < guests) return false
-      if (maxPrice != null && (l.fromNightlyPence ?? Infinity) > maxPrice) return false
-      if (type && l.listingType !== type) return false
-      if (policy && l.cancellationPolicy !== policy) return false
-      return true
-    })
-  }, [listings, q, guests, maxPrice, type, policy])
+    },
+    []
+  )
 
-  const activeFilters = (guests > 0 ? 1 : 0) + (maxPrice != null ? 1 : 0) + (type ? 1 : 0) + (policy ? 1 : 0)
+  // URL sync + debounced re-query whenever the server-driven filters change.
+  useEffect(() => {
+    const p = filtersToParams(filters)
+    const qs = p.toString()
+    router.replace(qs ? `/stay/search?${qs}` : "/stay/search", { scroll: false })
 
-  function reset() {
-    setGuests(0)
-    setMaxPrice(null)
-    setType(null)
-    setPolicy(null)
-  }
+    // Skip the first run when SSR seed already matches the (default) filters.
+    if (!hydrated.current) {
+      hydrated.current = true
+      const seedMatches =
+        activeFilterCount(filters) === 0 && !filters.q && !filters.city
+      if (seedMatches) return
+    }
+    const t = setTimeout(() => {
+      void fetchListings(filters, searchOnMove ? boundsRef.current : null)
+    }, 300)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    filters.q, filters.city, filters.guests, filters.minPence, filters.maxPence, filters.type,
+    filters.cancellation, filters.bedrooms, filters.bathrooms, filters.beds, filters.instantOnly,
+    filters.verifiedOnly,
+  ])
+
+  const patch = (x: Partial<StayFilters>) => setFilters((f) => ({ ...f, ...x }))
+  const clear = () => setFilters({ ...EMPTY_FILTERS, sort: filters.sort })
+  const count = activeFilterCount(filters)
+
+  const visible = useMemo(() => refineAndSort(listings, filters), [listings, filters])
+
+  const onBoundsChange = useCallback(
+    (b: [number, number, number, number]) => {
+      boundsRef.current = b
+      if (searchOnMove) void fetchListings(filters, b)
+    },
+    [searchOnMove, filters, fetchListings]
+  )
+
+  const sortLabel = SORT_OPTIONS.find((s) => s.key === filters.sort)?.label ?? "Recommended"
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-5 sm:py-7">
-      {/* Search bar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+    <div className="mx-auto max-w-[1500px] px-4 sm:px-6 py-5 sm:py-7">
+      {/* Search + toolbar */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={filters.q}
+            onChange={(e) => patch({ q: e.target.value })}
             placeholder="Search by place, city or property name"
-            className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#D6E0F0] bg-white text-[14px] text-[#0B1B3F] placeholder:text-slate-400 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/20 outline-none"
+            className="h-12 w-full rounded-xl border border-[#D6E0F0] bg-white pl-11 pr-4 text-[14px] text-[#0B1B3F] placeholder:text-slate-400 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/20"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setFiltersOpen((v) => !v)}
             className={cn(
-              "h-12 px-4 rounded-xl border text-[13.5px] font-semibold inline-flex items-center gap-2 transition-colors",
-              activeFilters > 0
-                ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]"
-                : "border-[#D6E0F0] bg-white text-slate-600 hover:border-slate-300"
+              "inline-flex h-12 items-center gap-2 rounded-xl border px-4 text-[13.5px] font-semibold transition-colors",
+              count > 0 ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]" : "border-[#D6E0F0] bg-white text-slate-600 hover:border-slate-300"
             )}
           >
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-            {activeFilters > 0 && (
-              <span className="ml-0.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1D4ED8] text-white text-[11px]">
-                {activeFilters}
+            <SlidersHorizontal className="h-4 w-4" /> Filters
+            {count > 0 && (
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1D4ED8] text-[11px] text-white">
+                {count}
               </span>
             )}
           </button>
-          <div className="h-12 rounded-xl border border-[#D6E0F0] bg-white p-1 flex">
+
+          {/* Sort */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setSortOpen((v) => !v)}
+              className="inline-flex h-12 items-center gap-2 rounded-xl border border-[#D6E0F0] bg-white px-4 text-[13.5px] font-semibold text-slate-600 hover:border-slate-300"
+            >
+              <span className="hidden sm:inline">Sort:</span> {sortLabel}
+              <ChevronDown className="h-4 w-4 text-slate-400" />
+            </button>
+            {sortOpen && (
+              <>
+                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setSortOpen(false)} aria-hidden tabIndex={-1} />
+                <div className="absolute right-0 z-20 mt-1 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                  {SORT_OPTIONS.map((s) => (
+                    <button
+                      key={s.key}
+                      onClick={() => {
+                        patch({ sort: s.key as SortKey })
+                        setSortOpen(false)
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px]",
+                        filters.sort === s.key ? "bg-blue-50 font-semibold text-[#1D4ED8]" : "text-slate-600 hover:bg-slate-50"
+                      )}
+                    >
+                      {s.label}
+                      {filters.sort === s.key && <Check className="h-4 w-4" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* View toggle */}
+          <div className="flex h-12 rounded-xl border border-[#D6E0F0] bg-white p-1">
             <button
               type="button"
               onClick={() => setView("list")}
               aria-pressed={view === "list"}
               className={cn(
-                "px-3 rounded-lg text-[13px] font-medium inline-flex items-center gap-1.5 transition-colors",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors",
                 view === "list" ? "bg-[#1D4ED8] text-white" : "text-slate-500 hover:bg-slate-50"
               )}
             >
-              <List className="w-4 h-4" /> List
+              <List className="h-4 w-4" /> <span className="hidden sm:inline">List</span>
             </button>
             <button
               type="button"
               onClick={() => setView("map")}
               aria-pressed={view === "map"}
               className={cn(
-                "px-3 rounded-lg text-[13px] font-medium inline-flex items-center gap-1.5 transition-colors",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors",
                 view === "map" ? "bg-[#1D4ED8] text-white" : "text-slate-500 hover:bg-slate-50"
               )}
             >
-              <MapIcon className="w-4 h-4" /> Map
+              <MapIcon className="h-4 w-4" /> <span className="hidden sm:inline">Map</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Filter panel */}
+      {/* Desktop inline filter panel */}
       {filtersOpen && (
-        <div className="mb-5 rounded-2xl border border-[#E2EAF6] bg-white p-4 sm:p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[14px] font-semibold text-[#0B1B3F]">Refine results</h3>
-            <button onClick={reset} className="text-[12.5px] text-[#1D4ED8] font-medium hover:underline">
-              Clear all
+        <div className="mb-5 hidden rounded-2xl border border-[#E2EAF6] bg-white p-5 shadow-sm sm:block">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-[15px] font-semibold text-[#0B1B3F]">Refine your search</h3>
+            <button onClick={() => setFiltersOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Guests */}
-            <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5">Guests</label>
-              <div className="flex items-center gap-2 rounded-xl border border-[#D6E0F0] px-3 h-11">
-                <Users className="w-4 h-4 text-slate-400" />
-                <input
-                  type="number"
-                  min={0}
-                  value={guests || ""}
-                  onChange={(e) => setGuests(Math.max(0, Number(e.target.value) || 0))}
-                  placeholder="Any"
-                  className="w-full text-[14px] outline-none bg-transparent"
-                />
-              </div>
-            </div>
-            {/* Max price */}
-            <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5">
-                Max price / night
-                {priceCeiling > 0 && maxPrice != null && (
-                  <span className="ml-1 text-slate-400">{formatMoney(maxPrice, "GBP")}</span>
-                )}
-              </label>
-              {priceCeiling > 0 ? (
-                <input
-                  type="range"
-                  min={0}
-                  max={priceCeiling}
-                  step={1000}
-                  value={maxPrice ?? priceCeiling}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#1D4ED8] mt-3"
-                />
-              ) : (
-                <p className="text-[12px] text-slate-400 mt-2.5">No priced stays yet</p>
-              )}
-            </div>
-            {/* Type */}
-            <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5">Property type</label>
-              <select
-                value={type ?? ""}
-                onChange={(e) => setType(e.target.value || null)}
-                className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none bg-white"
-              >
-                <option value="">Any type</option>
-                {TYPE_OPTIONS.map((t) => (
-                  <option key={t} value={t}>
-                    {STAY_TYPE_LABEL[t]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Cancellation */}
-            <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5">Cancellation</label>
-              <select
-                value={policy ?? ""}
-                onChange={(e) => setPolicy(e.target.value || null)}
-                className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none bg-white"
-              >
-                <option value="">Any policy</option>
-                {POLICY_OPTIONS.map((p) => (
-                  <option key={p} value={p}>
-                    {STAY_POLICY_LABEL[p]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <StayFilterSheet filters={filters} priceCeiling={priceCeiling} onChange={patch} onClear={clear} />
         </div>
       )}
 
-      {/* Result count */}
-      <div className="flex items-center justify-between mb-3">
+      {/* Result count + search-on-move */}
+      <div className="mb-3 flex items-center justify-between gap-2">
         <p className="text-[13px] text-slate-500">
-          <span className="font-semibold text-[#0B1B3F]">{filtered.length}</span>{" "}
-          {filtered.length === 1 ? "stay" : "stays"} available
+          {loading ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+            </span>
+          ) : (
+            <>
+              <span className="font-semibold text-[#0B1B3F]">{visible.length}</span>{" "}
+              {visible.length === 1 ? "stay" : "stays"}
+            </>
+          )}
         </p>
-        {activeFilters > 0 && (
-          <button onClick={reset} className="text-[12.5px] text-slate-500 inline-flex items-center gap-1 hover:text-[#1D4ED8]">
-            <X className="w-3.5 h-3.5" /> Reset filters
-          </button>
+        {view === "map" && (
+          <label className="hidden cursor-pointer items-center gap-2 text-[12.5px] font-medium text-slate-600 lg:flex">
+            <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="accent-[#1D4ED8]" />
+            Search as I move the map
+          </label>
         )}
       </div>
 
-      {/* Empty */}
-      {listings.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-16 text-center">
-          <MapIcon className="w-9 h-9 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays published yet</h3>
-          <p className="mt-1.5 text-[13px] text-slate-500 max-w-sm mx-auto">
-            Direct-booking stays appear here the moment a property manager publishes one. Check back soon.
-          </p>
+      {/* Results */}
+      {loading && visible.length === 0 ? (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-[300px] animate-pulse rounded-2xl bg-slate-100" />
+          ))}
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-14 text-center">
-          <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays match your filters</h3>
-          <button onClick={reset} className="mt-3 text-[13px] font-semibold text-[#1D4ED8] hover:underline">
-            Clear filters
-          </button>
-        </div>
+      ) : initialListings.length === 0 ? (
+        <EmptyAll />
+      ) : visible.length === 0 ? (
+        <EmptyFiltered onClear={clear} />
       ) : view === "list" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filtered.map((l) => (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {visible.map((l) => (
             <StayListingCard key={l.id} listing={l} href={stayHref(l)} onHover={setActiveId} />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-4">
-          <div className="space-y-3 lg:max-h-[72vh] lg:overflow-y-auto lg:pr-1">
-            {filtered.map((l) => (
-              <StayListingCard key={l.id} listing={l} href={stayHref(l)} onHover={setActiveId} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_1.15fr]">
+          {/* List rail (hidden on small screens in map view; map is full there) */}
+          <div className="hidden space-y-2.5 lg:block lg:max-h-[76vh] lg:overflow-y-auto lg:pr-1">
+            {visible.map((l) => (
+              <StayListingCard key={l.id} listing={l} href={stayHref(l)} onHover={setActiveId} layout="row" />
             ))}
           </div>
-          <div className="h-[60vh] lg:h-[72vh] lg:sticky lg:top-20">
-            <StayMap listings={filtered} activeId={activeId} hrefFor={stayHref} className="w-full h-full" />
+          <div className="h-[68vh] lg:sticky lg:top-20 lg:h-[76vh]">
+            <StayMap
+              listings={visible}
+              activeId={activeId}
+              hrefFor={stayHref}
+              onHoverId={setActiveId}
+              onBoundsChange={onBoundsChange}
+              className="h-full w-full"
+            />
+          </div>
+          {/* Mobile/tablet: horizontal card strip under the map */}
+          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 lg:hidden">
+            {visible.map((l) => (
+              <div key={l.id} className="w-[260px] shrink-0">
+                <StayListingCard listing={l} href={stayHref(l)} onHover={setActiveId} />
+              </div>
+            ))}
           </div>
         </div>
       )}
+
+      {/* Mobile/tablet filter bottom sheet */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          <button className="absolute inset-0 bg-slate-900/40" onClick={() => setFiltersOpen(false)} aria-label="Close filters" />
+          <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl">
+            <div className="sticky -top-5 -mx-5 mb-3 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-3.5">
+              <h3 className="text-[16px] font-bold text-[#0B1B3F]">Filters</h3>
+              <button onClick={() => setFiltersOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <StayFilterSheet filters={filters} priceCeiling={priceCeiling} onChange={patch} onClear={clear} />
+            <button
+              onClick={() => setFiltersOpen(false)}
+              className="mt-5 h-12 w-full rounded-xl bg-[#1D4ED8] text-[14px] font-semibold text-white"
+            >
+              Show {visible.length} {visible.length === 1 ? "stay" : "stays"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EmptyAll() {
+  return (
+    <div className="rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-16 text-center">
+      <MapIcon className="mx-auto mb-3 h-9 w-9 text-slate-300" />
+      <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays published yet</h3>
+      <p className="mx-auto mt-1.5 max-w-sm text-[13px] text-slate-500">
+        Direct-booking stays appear here the moment a property manager publishes one. Check back soon.
+      </p>
+    </div>
+  )
+}
+
+function EmptyFiltered({ onClear }: { onClear: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-14 text-center">
+      <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays match your filters</h3>
+      <button onClick={onClear} className="mt-3 text-[13px] font-semibold text-[#1D4ED8] hover:underline">
+        Clear filters
+      </button>
     </div>
   )
 }

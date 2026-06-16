@@ -134,18 +134,88 @@ export function haversineKm(
 }
 
 /**
+ * A structural service-zone shape (mirrors `ServiceZone` in `zones.ts`) so
+ * `coversLocation` can consult zones WITHOUT importing zones.ts (which imports
+ * coverage.ts — avoids a module cycle). The full zone type is a superset.
+ */
+export interface ZoneLike {
+  shape_type: "radius" | "postcode" | "region" | "polygon"
+  centre_lat: number | null
+  centre_lng: number | null
+  radius_km: number | null
+  value: string | null
+  polygon: [number, number][] | null
+  is_active: boolean
+}
+
+function pointInPolygonRing(polygon: [number, number][], lng: number, lat: number): boolean {
+  if (polygon.length < 3) return false
+  let inside = false
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i]
+    const [xj, yj] = polygon[j]
+    const intersect = yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi
+    if (intersect) inside = !inside
+  }
+  return inside
+}
+
+function zoneCovers(zone: ZoneLike, location: TestLocation): boolean {
+  if (!zone.is_active) return false
+  switch (zone.shape_type) {
+    case "radius":
+      return (
+        zone.centre_lat != null &&
+        zone.centre_lng != null &&
+        zone.radius_km != null &&
+        location.latitude != null &&
+        location.longitude != null &&
+        haversineKm(zone.centre_lat, zone.centre_lng, location.latitude, location.longitude) <= zone.radius_km
+      )
+    case "polygon":
+      return (
+        zone.polygon != null &&
+        location.latitude != null &&
+        location.longitude != null &&
+        pointInPolygonRing(zone.polygon, location.longitude, location.latitude)
+      )
+    case "postcode":
+      return (
+        zone.value != null &&
+        location.postcode != null &&
+        normalisePostcode(zone.value).length > 0 &&
+        normalisePostcode(location.postcode).startsWith(normalisePostcode(zone.value))
+      )
+    case "region":
+      return (
+        zone.value != null &&
+        location.region != null &&
+        zone.value.trim().toLowerCase() === location.region.trim().toLowerCase()
+      )
+    default:
+      return false
+  }
+}
+
+/**
  * Does the supplier's declared coverage include `location`?
  *   - national  → always true.
  *   - radius    → true if location lat/lng is within radius_km of the area centre.
  *   - postcode  → true if location.postcode matches the area value by prefix
  *                 (outward-code-or-finer, whitespace/case-insensitive).
  *   - region    → true if location.region case-insensitively matches the value.
- * An empty coverage list means "not covered" (false).
+ * When `zones` are supplied (the richer named-zone layer), ANY zone covering the
+ * location grants coverage too — zones are consulted first.
+ * An empty coverage list (and no covering zone) means "not covered" (false).
  */
 export function coversLocation(
   areas: CoverageArea[],
-  location: TestLocation
+  location: TestLocation,
+  zones?: ZoneLike[]
 ): boolean {
+  if (zones && zones.length > 0) {
+    for (const z of zones) if (zoneCovers(z, location)) return true
+  }
   for (const area of areas) {
     switch (area.area_type) {
       case "national":

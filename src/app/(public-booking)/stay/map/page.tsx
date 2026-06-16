@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { MapPin } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { searchPublicListings } from "@/lib/booking"
@@ -32,7 +33,9 @@ export default async function StayMapPage() {
         </div>
       </section>
 
-      <StaySearchExperience listings={listings} initialView="map" />
+      <Suspense fallback={<div className="mx-auto max-w-[1500px] px-4 sm:px-6 py-7 text-[13px] text-slate-400">Loading map…</div>}>
+        <StaySearchExperience listings={listings} initialView="map" />
+      </Suspense>
     </div>
   )
 }

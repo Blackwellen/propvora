@@ -10,5 +10,6 @@
 export * from "./profile"
 export * from "./services"
 export * from "./coverage"
+export * from "./zones"
 export * from "./availability"
 export * from "./provisioning"

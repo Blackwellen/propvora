@@ -242,52 +242,106 @@ export default function CheckoutClient({
     )
   }
 
-  // ── Payment form ──
-  return (
-    <Wrap>
-      <button onClick={() => router.back()} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700 mb-4 transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Back
-      </button>
-
-      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-wide">Secure escrow payment</p>
-      <h1 className="text-[17px] font-bold text-[#0B1B3F] mt-0.5">{listingTitle}</h1>
-
-      {/* Amount summary */}
-      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-1.5 text-[12.5px]">
-        <div className="flex items-center justify-between"><span className="text-slate-500">Amount</span><span className="font-semibold text-slate-800 tabular-nums">{amt}</span></div>
-        {feePence != null && (
-          <div className="flex items-center justify-between"><span className="text-slate-400">Includes platform fee</span><span className="text-slate-500 tabular-nums">{formatPence(feePence, cur)}</span></div>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-[#F7F9FC] border border-[#EEF3FB] p-3.5">
-        <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-        <p className="text-[12px] leading-relaxed text-slate-500">
-          We&apos;ll authorise your card now, but the funds are <span className="font-semibold text-slate-600">held in escrow</span> and only released once the booking is completed.
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <label className="block text-[12px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Card details</label>
-        <div className="rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 min-h-[48px] focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/20 transition-colors">
-          <div ref={cardMount} />
+  // ── Payment form (premium two-column + sticky summary + mobile pay bar) ──
+  const summary = (
+    <div className="rounded-2xl border border-[#E2EAF6] bg-white p-5 shadow-[0_4px_24px_rgba(15,23,42,0.06)]">
+      <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-400">Order summary</p>
+      <h2 className="mt-1 text-[15px] font-bold leading-snug text-[#0B1B3F]">{listingTitle}</h2>
+      <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-[13px]">
+        <div className="flex items-center justify-between">
+          <span className="text-slate-500">Subtotal</span>
+          <span className="font-semibold tabular-nums text-slate-800">{amt}</span>
         </div>
-        {cardError && <p className="mt-1.5 text-[12px] text-red-600 flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5 shrink-0" /> {cardError}</p>}
+        {feePence != null && (
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">Includes platform fee</span>
+            <span className="tabular-nums text-slate-500">{formatPence(feePence, cur)}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between border-t border-slate-100 pt-2.5">
+          <span className="text-[14px] font-bold text-[#0B1B3F]">Total due now</span>
+          <span className="text-[16px] font-bold tabular-nums text-[#0B1B3F]">{amt}</span>
+        </div>
+      </div>
+      <ul className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-[12px] text-slate-500">
+        <li className="flex items-start gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> Funds held in escrow until the work is completed</li>
+        <li className="flex items-start gap-2"><Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" /> Card secured by Stripe — Propvora never stores your card</li>
+        <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#2563EB]" /> Authorised now, captured only on completion</li>
+      </ul>
+    </div>
+  )
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10 pb-24 lg:pb-10">
+      <button onClick={() => router.back()} className="mb-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-slate-700">
+        <ChevronLeft className="h-4 w-4" /> Back
+      </button>
+
+      {/* Stepper */}
+      <div className="mb-5 flex items-center gap-2 text-[12px] font-semibold">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EFF6FF] px-3 py-1 text-[#2563EB]">1 · Review</span>
+        <span className="h-px w-5 bg-slate-200" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B1B3F] px-3 py-1 text-white">2 · Pay</span>
+        <span className="h-px w-5 bg-slate-200" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-slate-400">3 · Confirmed</span>
       </div>
 
-      {error && <p className="mt-3 text-[12.5px] text-red-600 flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}</p>}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+        {/* Payment card */}
+        <div className="rounded-2xl border border-[#E2EAF6] bg-white p-6 shadow-[0_4px_24px_rgba(15,23,42,0.06)] sm:p-7">
+          <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-400">Secure escrow payment</p>
+          <h1 className="mt-0.5 text-[18px] font-bold text-[#0B1B3F]">Payment details</h1>
 
-      <button
-        onClick={pay}
-        disabled={submitting}
-        className="mt-4 w-full h-12 rounded-xl bg-[#2563EB] text-white text-[14.5px] font-semibold hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-      >
-        {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Authorising…</> : <><Lock className="w-4 h-4" /> Pay {amt}</>}
-      </button>
-      <p className="mt-3 text-[11.5px] text-slate-400 text-center flex items-center justify-center gap-1.5">
-        <Lock className="w-3 h-3 shrink-0" /> Secured by Stripe · Funds held in escrow until completion
-      </p>
-    </Wrap>
+          <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-[#EEF3FB] bg-[#F7F9FC] p-3.5">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+            <p className="text-[12px] leading-relaxed text-slate-500">
+              We&apos;ll authorise your card now, but the funds are <span className="font-semibold text-slate-600">held in escrow</span> and only released once the booking is completed.
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-slate-500">Card details</label>
+            <div className="min-h-[48px] rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 transition-colors focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/20">
+              <div ref={cardMount} />
+            </div>
+            {cardError && <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-red-600"><AlertCircle className="h-3.5 w-3.5 shrink-0" /> {cardError}</p>}
+          </div>
+
+          {error && <p className="mt-3 flex items-center gap-1.5 text-[12.5px] text-red-600"><AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}</p>}
+
+          <button
+            onClick={pay}
+            disabled={submitting}
+            className="mt-5 hidden h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-[14.5px] font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
+          >
+            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorising…</> : <><Lock className="h-4 w-4" /> Pay {amt}</>}
+          </button>
+          <p className="mt-3 hidden items-center justify-center gap-1.5 text-center text-[11.5px] text-slate-400 lg:flex">
+            <Lock className="h-3 w-3 shrink-0" /> Secured by Stripe · Funds held in escrow until completion
+          </p>
+        </div>
+
+        {/* Summary (sticky on desktop) */}
+        <aside className="lg:sticky lg:top-[72px] lg:self-start">{summary}</aside>
+      </div>
+
+      {/* Mobile sticky pay bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E2EAF6] bg-white/95 p-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-1">
+          <div className="min-w-0">
+            <p className="text-[11px] text-slate-400">Total due now</p>
+            <p className="text-[16px] font-bold tabular-nums text-[#0B1B3F]">{amt}</p>
+          </div>
+          <button
+            onClick={pay}
+            disabled={submitting}
+            className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-[14.5px] font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorising…</> : <><Lock className="h-4 w-4" /> Pay securely</>}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 

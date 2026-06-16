@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { searchPublicListings } from "@/lib/booking"
@@ -34,7 +35,9 @@ export default async function StaySearchPage() {
         </div>
       </section>
 
-      <StaySearchExperience listings={listings} initialView="list" />
+      <Suspense fallback={<div className="mx-auto max-w-[1500px] px-4 sm:px-6 py-7 text-[13px] text-slate-400">Loading stays…</div>}>
+        <StaySearchExperience listings={listings} initialView="list" />
+      </Suspense>
     </div>
   )
 }
