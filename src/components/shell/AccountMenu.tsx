@@ -26,7 +26,7 @@ export default function AccountMenu({
 }: AccountMenuProps) {
   const [open, setOpen] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
-  const [liveUser, setLiveUser] = useState<{ name: string; email: string | null } | null>(null)
+  const [liveUser, setLiveUser] = useState<{ name: string; email: string | null; avatarUrl: string | null } | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -40,16 +40,21 @@ export default function AccountMenu({
         const { data: { user: u } } = await supabase.auth.getUser()
         if (!u || cancelled) return
         let display = (u.user_metadata?.display_name as string) || ""
+        let avatarUrl: string | null = null
         try {
           const { data: p } = await supabase
             .from("profiles")
-            .select("display_name, first_name, last_name")
+            .select("display_name, first_name, last_name, avatar_url")
             .eq("id", u.id)
             .maybeSingle()
-          if (p) display = (p.display_name as string) || [p.first_name, p.last_name].filter(Boolean).join(" ") || display
+          if (p) {
+            display = (p.display_name as string) || [p.first_name, p.last_name].filter(Boolean).join(" ") || display
+            const key = p.avatar_url as string | null
+            if (key) avatarUrl = key.startsWith("http") || key.startsWith("/api/") ? key : `/api/files/${key}`
+          }
         } catch { /* ignore */ }
         if (!display) display = u.email?.split("@")[0] ?? "Your account"
-        if (!cancelled) setLiveUser({ name: display, email: u.email ?? null })
+        if (!cancelled) setLiveUser({ name: display, email: u.email ?? null, avatarUrl })
       } catch { /* ignore */ }
     })()
     return () => { cancelled = true }
@@ -153,8 +158,13 @@ export default function AccountMenu({
         aria-haspopup="true"
         className="flex items-center gap-2.5 h-[44px] px-3 rounded-2xl bg-white border border-[#E2EAF6] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
       >
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm">
-          {displayInitials}
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm overflow-hidden">
+          {liveUser?.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={liveUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            displayInitials
+          )}
         </div>
         <div className="text-left hidden sm:block">
           <p className="text-[13px] font-semibold text-[#071B4D] leading-tight">{displayName}</p>

@@ -243,6 +243,12 @@ export default function JurisdictionSettingsPage() {
           Where your workspace operates. This controls which legal, tax and compliance features
           apply and how the AI Copilot frames guidance.
         </p>
+        <a
+          href="/app/workspace/global"
+          className="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-medium text-blue-600 hover:text-blue-700"
+        >
+          View full Global &amp; internationalisation settings →
+        </a>
       </div>
 
       {loadError && (

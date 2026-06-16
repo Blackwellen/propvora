@@ -70,6 +70,13 @@ const ACCOUNTING_TABS = [
     matchPrefix: "/app/accounting/forecast",
   },
   {
+    key: "owner-statements",
+    label: "Owner Statements",
+    href: "/app/accounting/owner-statements",
+    icon: FileText,
+    matchPrefix: "/app/accounting/owner-statements",
+  },
+  {
     key: "reports",
     label: "Reports",
     href: "/app/accounting/reports",

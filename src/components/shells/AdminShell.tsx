@@ -34,6 +34,7 @@ import {
   Gavel,
   Wallet,
   ShieldAlert,
+  Globe2,
 } from "lucide-react"
 
 // ─── Nav config ──────────────────────────────────────────────────────────────
@@ -94,6 +95,7 @@ const ADMIN_NAV_GROUPS = [
   {
     label: "SYSTEM",
     items: [
+      { label: "Global",    href: "/admin/global",    icon: Globe2 },
       { label: "Audit Log", href: "/admin/audit",     icon: FileText },
       { label: "Security",  href: "/admin/security",  icon: ShieldCheck },
       { label: "Health",    href: "/admin/health",    icon: Activity },

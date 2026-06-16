@@ -12,18 +12,30 @@ import {
   AlertTriangle,
   Vault,
   Siren,
+  ShieldAlert,
+  Percent,
+  Banknote,
+  Undo2,
+  Scale,
 } from "lucide-react"
 
-// 8 tabs — day-to-day financial tracking. Accounting (journal, reconciliation, MTD, reports) lives in /app/accounting
+// Day-to-day financial tracking + the P5 money rails (holds/commissions/payouts/
+// refunds/disputes). Accounting (journal, reconciliation, MTD, reports) lives in
+// /app/accounting.
 const MONEY_TABS = [
-  { key: "overview",   label: "Overview",   href: "/app/money",              icon: LayoutDashboard },
-  { key: "income",     label: "Income",     href: "/app/money/income",       icon: TrendingUp },
-  { key: "expenses",   label: "Expenses",   href: "/app/money/expenses",     icon: TrendingDown },
-  { key: "invoices",   label: "Invoices",   href: "/app/money/invoices",     icon: FileText },
-  { key: "bills",      label: "Bills",      href: "/app/money/bills",        icon: Receipt },
-  { key: "arrears",    label: "Arrears",    href: "/app/money/arrears",      icon: AlertTriangle },
-  { key: "deposits",   label: "Deposits",   href: "/app/money/deposits",     icon: Vault },
-  { key: "rent-chase", label: "Rent Chase", href: "/app/money/rent-chase",   icon: Siren },
+  { key: "overview",    label: "Overview",    href: "/app/money",              icon: LayoutDashboard },
+  { key: "income",      label: "Income",      href: "/app/money/income",       icon: TrendingUp },
+  { key: "expenses",    label: "Expenses",    href: "/app/money/expenses",     icon: TrendingDown },
+  { key: "invoices",    label: "Invoices",    href: "/app/money/invoices",     icon: FileText },
+  { key: "bills",       label: "Bills",       href: "/app/money/bills",        icon: Receipt },
+  { key: "arrears",     label: "Arrears",     href: "/app/money/arrears",      icon: AlertTriangle },
+  { key: "deposits",    label: "Deposits",    href: "/app/money/deposits",     icon: Vault },
+  { key: "holds",       label: "Holds",       href: "/app/money/holds",        icon: ShieldAlert },
+  { key: "commissions", label: "Commissions", href: "/app/money/commissions",  icon: Percent },
+  { key: "payouts",     label: "Payouts",     href: "/app/money/payouts",      icon: Banknote },
+  { key: "refunds",     label: "Refunds",     href: "/app/money/refunds",      icon: Undo2 },
+  { key: "disputes",    label: "Disputes",    href: "/app/money/disputes",     icon: Scale },
+  { key: "rent-chase",  label: "Rent Chase",  href: "/app/money/rent-chase",   icon: Siren },
 ] as const
 
 interface MoneyTabNavProps {

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { Upload, Check, Loader2, Info } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { uploadFile, validateUploadFile } from "@/lib/upload"
+import { broadcastBranding } from "@/lib/branding/BrandingLiveApply"
 
 /** Resolve a stored R2 key to its authed streaming URL (survives refresh). */
 function keyToUrl(key: string | null): string | null {
@@ -136,12 +137,17 @@ export default function BrandingPage() {
         setWorkspaceId(wsId)
         const { data: ws } = await supabase
           .from("workspaces")
-          .select("logo_url, brand_colours")
+          .select("logo_url, brand_color, brand_colours")
           .eq("id", wsId)
           .maybeSingle()
         if (ws?.logo_url) setLogoKey(ws.logo_url as string)
         const bc = ws?.brand_colours as Partial<BrandColours> | null
-        if (bc && typeof bc === "object") setColours((c) => ({ ...c, ...bc }))
+        const single = ws?.brand_color as string | null
+        if (bc && typeof bc === "object") {
+          setColours((c) => ({ ...c, ...bc }))
+        } else if (single) {
+          setColours((c) => ({ ...c, primary: single }))
+        }
       } catch { /* defaults */ }
     }
     load()
@@ -162,9 +168,18 @@ export default function BrandingPage() {
       const supabase = createClient()
       const { error } = await supabase
         .from("workspaces")
-        .update({ logo_url: logoKey, brand_colours: colours, updated_at: new Date().toISOString() })
+        .update({
+          logo_url: logoKey,
+          // Persist BOTH shapes: the rich jsonb palette and the single
+          // brand_color (primary) the app shell reads for first-paint theming.
+          brand_color: colours.primary,
+          brand_colours: colours,
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", workspaceId)
       if (error) { setSaveError("Branding columns may not exist on the workspaces table yet."); return }
+      // Apply the new colours across the live app immediately (no reload).
+      broadcastBranding({ brandColor: colours.primary, brandColours: colours })
       setSaved(true)
       setIsDirty(false)
       setTimeout(() => setSaved(false), 3000)
@@ -247,7 +262,7 @@ export default function BrandingPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand text-white text-[13px] font-semibold transition-colors disabled:opacity-70"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
             {saving ? "Saving…" : saved ? "Saved" : "Save branding"}

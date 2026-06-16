@@ -137,7 +137,36 @@
   --border-focus:    #2563EB;
 
   --ring-focus:      0 0 0 3px rgba(37, 99, 235, 0.25);
+
+  /* --- Workspace branding (overridden at runtime by BrandingStyle) ---
+     These defaults mirror the Propvora palette; the authed app shell injects
+     per-workspace values onto [data-brand-root] / :root so every consumer of
+     var(--brand) re-paints to the workspace colour. */
+  --brand:        #2563EB;
+  --brand-strong: #1D4ED8;
+  --brand-hover:  #1d4ed8;
+  --brand-soft:   #EFF6FF;
+  --on-brand:     #FFFFFF;
+  --accent:       #7C3AED;
+  --accent-soft:  #F5F3FF;
+  --on-accent:    #FFFFFF;
 }
+
+/* ============================================================
+   WORKSPACE BRANDING UTILITIES
+   Components opt into the workspace colour via these classes; they read the
+   --brand / --accent CSS variables injected by BrandingStyle so changing the
+   colour in settings re-paints the UI live.
+   ============================================================ */
+.bg-brand        { background-color: var(--brand); color: var(--on-brand); }
+.bg-brand:hover  { background-color: var(--brand-hover); }
+.bg-brand-soft   { background-color: var(--brand-soft); }
+.text-brand      { color: var(--brand); }
+.border-brand    { border-color: var(--brand); }
+.ring-brand      { box-shadow: var(--ring-focus); }
+.bg-accent-brand { background-color: var(--accent); color: var(--on-accent); }
+.text-accent-brand { color: var(--accent); }
+.fill-brand      { fill: var(--brand); }
 
 
 /* ============================================================
@@ -173,7 +202,7 @@ ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
    so the focus indicator is always visible even on elements where a custom
    box-shadow would otherwise override the ring (WCAG 2.2 — 2.4.7 / 2.4.11). */
 :focus-visible {
-  outline: 2px solid #2563EB;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
   box-shadow: var(--ring-focus);
 }
@@ -189,8 +218,8 @@ ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
   z-index: 100;
   margin: 0.5rem;
   padding: 0.625rem 1rem;
-  background: #2563EB;
-  color: #FFFFFF;
+  background: var(--brand);
+  color: var(--on-brand);
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 0.5rem;

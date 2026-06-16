@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
-  User, Shield, Bell, Settings, Camera, Check, Eye, EyeOff,
+  User, Shield, Bell, Settings, Check, Eye, EyeOff,
   Monitor, Smartphone, LogOut, Lock, Palette, LayoutTemplate, PanelLeftOpen, RotateCcw,
 } from "lucide-react"
 import { useEffect } from "react"
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { createClient } from "@/lib/supabase/client"
+import AvatarUploader from "@/components/settings/AvatarUploader"
 import { useShellStyle } from "@/contexts/ShellStyleContext"
 import { SHELL_STYLE_META, type ShellStyle, type ShellLayout } from "@/lib/shell"
 import { useGuidedHelp } from "@/guided-help/GuidedHelpProvider"
@@ -363,6 +364,9 @@ function ProfileTab() {
   const [saved,  setSaved]  = useState(false)
   const [email,  setEmail]  = useState("")
   const [userId, setUserId] = useState<string | null>(null)
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null)
+  const [avatarKey, setAvatarKey] = useState<string | null>(null)
+  const [avatarSaved, setAvatarSaved] = useState(false)
   const [error,  setError]  = useState<string | null>(null)
   const form = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
@@ -380,10 +384,22 @@ function ProfileTab() {
         setEmail(user.email ?? "")
         const { data: profile, error } = await supabase
           .from("profiles")
-          .select("full_name:display_name, phone")
+          .select("full_name:display_name, phone, avatar_url, current_workspace_id")
           .eq("id", user.id)
           .maybeSingle()
         if (error && (error as { code?: string }).code !== "42P01") { /* non-fatal */ }
+        setAvatarKey((profile?.avatar_url as string | null) ?? null)
+        let wsId = (profile?.current_workspace_id as string | null) ?? null
+        if (!wsId) {
+          const { data: m } = await supabase
+            .from("workspace_members")
+            .select("workspace_id")
+            .eq("user_id", user.id)
+            .limit(1)
+            .maybeSingle()
+          wsId = (m?.workspace_id as string | null) ?? null
+        }
+        setWorkspaceId(wsId)
         form.reset({
           full_name: profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? "",
           phone: profile?.phone ?? "",
@@ -393,6 +409,24 @@ function ProfileTab() {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Persist a newly uploaded avatar key immediately so it survives refresh and
+  // shows across the app (nav menu reads profiles.avatar_url).
+  async function persistAvatar(key: string) {
+    setAvatarKey(key)
+    try {
+      const supabase = createClient()
+      const uid = userId ?? (await supabase.auth.getUser()).data.user?.id
+      if (!uid) return
+      await supabase.from("profiles").update({ avatar_url: key }).eq("id", uid)
+      setAvatarSaved(true)
+      setTimeout(() => setAvatarSaved(false), 2000)
+    } catch { /* non-fatal */ }
+  }
+
+  const nameValue = form.watch("full_name") || email || "U"
+  const profileInitials = nameValue
+    .trim().split(/\s+/).map((w) => w[0]).filter(Boolean).join("").slice(0, 2).toUpperCase() || "U"
 
   async function onSubmit(data: ProfileData) {
     setSaving(true); setError(null)
@@ -416,18 +450,18 @@ function ProfileTab() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex items-center gap-5">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-xl font-bold">JT</div>
-          <button type="button" className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors">
-            <Camera className="w-3 h-3 text-slate-600" />
-          </button>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-slate-900">Profile Photo</p>
-          <p className="text-xs text-slate-400 mt-0.5">JPG or PNG, max 2MB</p>
-          <Button type="button" variant="outline" size="xs" className="mt-2">Upload Photo</Button>
-        </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        <AvatarUploader
+          currentKey={avatarKey}
+          workspaceId={workspaceId}
+          initials={profileInitials}
+          onUploaded={persistAvatar}
+        />
+        {avatarSaved && (
+          <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+            <Check className="w-3 h-3" /> Photo saved
+          </span>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -464,11 +498,33 @@ function SecurityTab() {
   const [saving, setSaving]         = useState(false)
   const [saved,  setSaved]          = useState(false)
   const [sessions, setSessions]     = useState(SESSIONS)
+  const [pwdError, setPwdError] = useState<string | null>(null)
   const form = useForm<PasswordData>({ resolver: zodResolver(passwordSchema) })
 
-  async function onSubmit(_: PasswordData) {
-    setSaving(true); await new Promise(r => setTimeout(r, 1000)); setSaving(false); setSaved(true); form.reset()
-    setTimeout(() => setSaved(false), 2000)
+  // Real password change via Supabase auth. We re-authenticate with the current
+  // password first (updateUser does not verify it) so a stolen session can't
+  // silently rotate the password.
+  async function onSubmit(data: PasswordData) {
+    setSaving(true); setPwdError(null)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.email) { setPwdError("Not signed in."); return }
+      const { error: reauthErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: data.current,
+      })
+      if (reauthErr) { setPwdError("Current password is incorrect."); return }
+      const { error } = await supabase.auth.updateUser({ password: data.password })
+      if (error) { setPwdError(error.message); return }
+      await supabase.from("profiles").update({ password_changed_at: new Date().toISOString() }).eq("id", user.id)
+      setSaved(true); form.reset()
+      setTimeout(() => setSaved(false), 2500)
+    } catch {
+      setPwdError("Could not update password. Please try again.")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -493,6 +549,7 @@ function SecurityTab() {
               {form.formState.errors[field] && <p className="text-xs text-red-600">{form.formState.errors[field]?.message}</p>}
             </div>
           ))}
+          {pwdError && <p className="text-xs text-red-600">{pwdError}</p>}
           <Button type="submit" variant="primary" loading={saving} leftIcon={saved ? <Check className="w-4 h-4" /> : undefined}>
             {saved ? "Password Updated!" : "Update Password"}
           </Button>
@@ -552,8 +609,32 @@ function NotificationsTab() {
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
 
+  // Hydrate notification toggles from profiles.preferences.notifications.
+  useEffect(() => {
+    (async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data } = await supabase.from("profiles").select("preferences").eq("id", user.id).maybeSingle()
+        const stored = (data?.preferences as { notifications?: Record<string, boolean> } | null)?.notifications
+        if (stored) setPrefs(p => ({ ...p, ...stored }))
+      } catch { /* defaults */ }
+    })()
+  }, [])
+
   async function handleSave() {
-    setSaving(true); await new Promise(r => setTimeout(r, 800)); setSaving(false); setSaved(true)
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase.from("profiles").select("preferences").eq("id", user.id).maybeSingle()
+        const existing = (data?.preferences as Record<string, unknown> | null) ?? {}
+        await supabase.from("profiles").update({ preferences: { ...existing, notifications: prefs } }).eq("id", user.id)
+      }
+      setSaved(true)
+    } catch { /* non-fatal */ } finally { setSaving(false) }
     setTimeout(() => setSaved(false), 2000)
   }
 
@@ -581,16 +662,63 @@ function NotificationsTab() {
 /* ================================================================== */
 /* Preferences tab                                                      */
 /* ================================================================== */
+const PREF_FIELDS = [
+  { key: "locale",          label: "Language",    options: ["en-GB", "en-US", "cy"],                 labels: { "en-GB": "English (GB)", "en-US": "English (US)", "cy": "Welsh" } },
+  { key: "date_format",     label: "Date Format", options: ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"], labels: {} as Record<string, string> },
+  { key: "currency_display", label: "Currency",   options: ["GBP", "EUR", "USD"],                    labels: { GBP: "GBP (£)", EUR: "EUR (€)", USD: "USD ($)" } },
+  { key: "timezone",        label: "Timezone",    options: ["Europe/London", "UTC", "America/New_York"], labels: {} as Record<string, string> },
+] as const
+
 function PreferencesTab() {
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
+  const [vals, setVals] = useState<Record<string, string>>({
+    locale: "en-GB", date_format: "DD/MM/YYYY", currency_display: "GBP", timezone: "Europe/London",
+  })
 
   // Guided product tour / tips toggle — persisted by the guided-help provider
   // (localStorage "propvora.help.enabled" + best-effort guided_help_state).
   const { enabled: tourEnabled, setEnabled: setTourEnabled } = useGuidedHelp()
 
+  // Hydrate from the profiles row (real columns: locale, date_format, …).
+  useEffect(() => {
+    (async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data } = await supabase
+          .from("profiles")
+          .select("locale, date_format, currency_display, timezone")
+          .eq("id", user.id).maybeSingle()
+        if (data) {
+          setVals(v => ({
+            ...v,
+            locale: (data.locale as string) || v.locale,
+            date_format: (data.date_format as string) || v.date_format,
+            currency_display: (data.currency_display as string) || v.currency_display,
+            timezone: (data.timezone as string) || v.timezone,
+          }))
+        }
+      } catch { /* defaults */ }
+    })()
+  }, [])
+
   async function handleSave() {
-    setSaving(true); await new Promise(r => setTimeout(r, 800)); setSaving(false); setSaved(true)
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase.from("profiles").update({
+          locale: vals.locale,
+          date_format: vals.date_format,
+          currency_display: vals.currency_display,
+          timezone: vals.timezone,
+        }).eq("id", user.id)
+      }
+      setSaved(true)
+    } catch { /* non-fatal */ } finally { setSaving(false) }
     setTimeout(() => setSaved(false), 2000)
   }
 
@@ -605,17 +733,14 @@ function PreferencesTab() {
         <Toggle checked={tourEnabled} onChange={setTourEnabled} />
       </div>
 
-      {[
-        { label: "Language",    options: ["English (GB)", "English (US)", "Welsh"],           default: "English (GB)" },
-        { label: "Date Format", options: ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],          default: "DD/MM/YYYY" },
-        { label: "Currency",    options: ["GBP (£)", "EUR (€)", "USD ($)"],                    default: "GBP (£)" },
-        { label: "Timezone",    options: ["Europe/London (GMT+1)", "UTC", "America/New_York"], default: "Europe/London (GMT+1)" },
-      ].map(pref => (
-        <div key={pref.label} className="space-y-1.5">
+      {PREF_FIELDS.map(pref => (
+        <div key={pref.key} className="space-y-1.5">
           <label className="text-sm font-medium text-slate-700">{pref.label}</label>
-          <select defaultValue={pref.default}
+          <select
+            value={vals[pref.key]}
+            onChange={e => setVals(v => ({ ...v, [pref.key]: e.target.value }))}
             className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 appearance-none">
-            {pref.options.map(o => <option key={o}>{o}</option>)}
+            {pref.options.map(o => <option key={o} value={o}>{(pref.labels as Record<string, string>)[o] ?? o}</option>)}
           </select>
         </div>
       ))}

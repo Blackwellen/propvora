@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import AppShell from "@/components/shell/AppShell"
+import BrandingStyle from "@/lib/branding/BrandingStyle"
 import { createClient } from "@/lib/supabase/server"
 import { canAccess } from "@/lib/subscription"
 import type { WorkspacePlan } from "@/types/database"
+import type { BrandColours } from "@/lib/branding/theme"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -13,6 +15,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Fetch the workspace plan server-side so feature gates are enforced here,
   // never on the client. Default to 'trial' if not resolvable.
   let aiCopilotEnabled = false
+  let brandColor: string | null = null
+  let brandColours: Partial<BrandColours> | null = null
 
   const supabase = await createClient()
   const {
@@ -55,16 +59,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   try {
     const { data: workspace } = await supabase
       .from("workspaces")
-      .select("plan")
+      .select("plan, brand_color, brand_colours")
       .eq("id", workspaceId)
       .maybeSingle()
 
     if (workspace?.plan) {
       aiCopilotEnabled = canAccess(workspace.plan as WorkspacePlan, "aiCopilot")
     }
+    brandColor = (workspace?.brand_color as string | null) ?? null
+    brandColours = (workspace?.brand_colours as Partial<BrandColours> | null) ?? null
   } catch {
-    // Non-fatal — default to restricted access.
+    // Non-fatal — default to restricted access + default branding.
   }
 
-  return <AppShell aiCopilotEnabled={aiCopilotEnabled}>{children}</AppShell>
+  return (
+    <BrandingStyle brandColor={brandColor} brandColours={brandColours}>
+      <AppShell aiCopilotEnabled={aiCopilotEnabled}>{children}</AppShell>
+    </BrandingStyle>
+  )
 }

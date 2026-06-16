@@ -11,8 +11,21 @@
 
 import { Resend } from "resend"
 
-const FROM_ADDRESS =
-  process.env.RESEND_FROM_ADDRESS ?? "hello@propvora.com"
+/**
+ * Resolve the configured sender. The deployment env sets RESEND_FROM_EMAIL and
+ * RESEND_FROM_NAME; we format them as `Name <email>` so emails arrive with a
+ * friendly display name. RESEND_FROM_ADDRESS is honoured as a legacy override.
+ */
+function resolveFrom(): string {
+  const explicit = process.env.RESEND_FROM_ADDRESS?.trim()
+  if (explicit) return explicit
+  const email =
+    process.env.RESEND_FROM_EMAIL?.trim() || "hello@propvora.com"
+  const name = process.env.RESEND_FROM_NAME?.trim()
+  return name ? `${name} <${email}>` : email
+}
+
+const FROM_ADDRESS = resolveFrom()
 
 /**
  * Parameters accepted by sendEmail.
@@ -61,7 +74,9 @@ export async function sendEmail(
       to: params.to,
       subject: params.subject,
       html: params.html,
-      ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+      // Resend SDK v6 expects `replyTo` (camelCase); it maps to reply_to on the
+      // wire. The old snake_case key was silently dropped.
+      ...(params.replyTo ? { replyTo: params.replyTo } : {}),
     })
 
     if (error) {

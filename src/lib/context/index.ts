@@ -45,3 +45,27 @@ export { resolveCountryContext } from "./country-context"
 export { resolvePropertyContext } from "./property-context"
 export { resolvePermissionContext } from "./permission-context"
 export { resolveRiskContext } from "./risk-context"
+
+// ── Internationalisation / country-pack context engine ──────────────────────
+// The full intl bundle + the derived GATES block every surface obeys.
+export { resolveCountryPackContext, deriveGates } from "./country-pack-context"
+export { resolveSanctionsContext, isHardBlockedCode, HARD_BLOCKED_COUNTRY_CODES } from "./sanctions-context"
+export { resolveReleaseGateContext } from "./release-gate-context"
+export { resolveTaxContext } from "./tax-context"
+export { resolvePrivacyContext } from "./privacy-context"
+export { resolveLocaleContext } from "./locale-context"
+export { enforceRouteContext } from "./route-enforcement"
+export type { RouteVerdict, RouteVerdictKind } from "./route-enforcement"
+
+export type {
+  IntlCountryContext,
+  CountryGates,
+  SanctionsContext,
+  ReleaseGateContext,
+  TaxContext,
+  PrivacyContext,
+  LocaleContext,
+  ReleaseState,
+  SanctionsClassification,
+  TaxScheme,
+} from "./intl-types"
