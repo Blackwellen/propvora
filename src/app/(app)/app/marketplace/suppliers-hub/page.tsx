@@ -84,7 +84,7 @@ export default async function SuppliersHubPage() {
 
       {/* Supplier grid */}
       <section className="pb-10 px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {providers.map((p) => (
             <ProviderCard key={p.id} provider={p} basePath="/app/marketplace/suppliers-hub" />
           ))}

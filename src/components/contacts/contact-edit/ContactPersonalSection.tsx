@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { FieldLabel, TextInput, SectionCard, CONTACT_TYPE_OPTIONS, STATUS_OPTIONS } from "./shared"
 
 interface Props {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
   control: import("react-hook-form").Control<Record<string, unknown>>
   watch: import("react-hook-form").UseFormWatch<Record<string, unknown>>
   errors: import("react-hook-form").FieldErrors

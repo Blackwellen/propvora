@@ -4,7 +4,7 @@ import React from "react"
 import { FieldLabel, TextInput, SectionCard } from "./shared"
 
 interface Props {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
 }
 
 export function ContactAddressSection({ register }: Props) {

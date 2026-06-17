@@ -20,7 +20,7 @@ export default async function EmergencyPage() {
   const services = await getPublicEmergencyServices()
 
   return (
-    <PublicPageShell>
+    <PublicPageShell hideFooter>
       {/* Urgent safety banner */}
       <div className="bg-red-600 text-white text-center py-3 px-4 text-sm font-semibold">
         <AlertTriangle className="inline h-4 w-4 mr-1.5 mb-0.5" />
@@ -71,13 +71,13 @@ export default async function EmergencyPage() {
       </section>
 
       {/* Emergency services grid */}
-      <section className="py-12 px-4">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-12 px-6 lg:px-10">
+        <div className="max-w-[1400px] mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-slate-900">Emergency services available now</h2>
             <span className="text-sm text-red-600 font-medium">{services.length} services</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
             {services.map(service => (
               <EmergencyServiceCard key={service.id} service={service} />
             ))}

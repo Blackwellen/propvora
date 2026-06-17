@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, Star, MapPin, Clock, Shield, CheckCircle } from 'lucide-react'
@@ -6,9 +8,9 @@ import type { PublicProvider } from '@/lib/public-marketplace/types'
 
 export default function ProviderFeaturedCard({ provider, basePath = '/providers' }: { provider: PublicProvider; basePath?: string }) {
   return (
-    <div className="flex flex-col border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white hover:shadow-lg transition-shadow min-w-[280px] max-w-[320px]">
+    <div className="flex min-w-[280px] max-w-[320px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg active:translate-y-0 active:scale-[0.995]">
       {/* Banner image */}
-      <div className="relative aspect-[16/7] shrink-0">
+      <div className="relative aspect-[3/2] shrink-0">
         <Image
           src={provider.heroImage}
           alt={provider.companyName}
@@ -86,7 +88,7 @@ export default function ProviderFeaturedCard({ provider, basePath = '/providers'
           </div>
           <Link
             href={`${basePath}/${provider.slug}`}
-            className="block w-full border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl py-2.5 text-sm font-semibold text-center transition-colors"
+            className="block w-full rounded-xl border border-blue-600 py-2.5 text-center text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
             View profile →
           </Link>

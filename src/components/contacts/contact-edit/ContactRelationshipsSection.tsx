@@ -7,7 +7,7 @@ import { FieldLabel, TextInput, SectionCard, PREFERRED_CONTACT_OPTIONS } from ".
 import { cn } from "@/lib/utils"
 
 interface Props {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
   control: import("react-hook-form").Control<Record<string, unknown>>
   showSecondaryPhone: boolean
   setShowSecondaryPhone: (v: boolean) => void

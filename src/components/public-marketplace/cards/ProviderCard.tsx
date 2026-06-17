@@ -1,112 +1,109 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, Star, MapPin, Clock, Shield, CheckCircle } from 'lucide-react'
+import { Clock, Heart, MapPin, Shield, Sparkles, Star } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
+const FEATURE_ITEMS = [
+  { icon: Clock, title: 'Fast response', subtitle: 'Typically replies in 30 mins' },
+  { icon: Shield, title: 'Fully insured', subtitle: 'GBP5M public liability' },
+  { icon: Sparkles, title: 'Qualified engineers', subtitle: 'Gas Safe registered' },
+  { icon: MapPin, title: 'Local coverage', subtitle: '24/7 emergency' },
+]
+
 export default function ProviderCard({ provider, basePath = '/providers' }: { provider: PublicProvider; basePath?: string }) {
   return (
-    <div className="flex flex-col h-full border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white hover:shadow-md transition-shadow">
-      {/* Banner image with overlays */}
-      <div className="relative aspect-[16/7] shrink-0">
+    <div className="relative aspect-[702/490] w-full [container-type:inline-size] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.01] active:translate-y-0 active:scale-[0.995]">
+    <article className="absolute left-0 top-0 flex h-[490px] w-[702px] origin-top-left flex-col overflow-hidden rounded-[22px] border border-slate-200 bg-white font-sans shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-shadow duration-200 hover:shadow-[0_24px_58px_rgba(15,23,42,0.18)]" style={{ transform: 'scale(calc(100cqw / 702px))' }}>
+      <div className="relative h-[32.7%] min-h-[160px] shrink-0">
         <Image
           src={provider.heroImage}
           alt={provider.companyName}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 702px"
         />
-        {/* Verified supplier badge — top left */}
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 text-emerald-600 border border-emerald-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
-          <CheckCircle className="w-3 h-3" />
+        <span className="absolute left-[22px] top-[20px] inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[14px] font-[650] leading-4 text-emerald-700 shadow-sm">
+          <Shield className="h-4 w-4" />
           Verified supplier
-        </div>
-        {/* Heart — top right */}
+        </span>
         <button
-          onClick={e => { e.preventDefault(); e.stopPropagation() }}
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+          }}
           aria-label="Save provider"
-          className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-sm transition-colors"
+          className="absolute right-[19px] top-[17px] flex h-[50px] w-[50px] items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.12)] transition-colors hover:bg-slate-50"
         >
-          <Heart className="w-4 h-4 text-slate-600" />
+          <Heart className="h-6 w-6" />
         </button>
-        {/* Avatar — bottom-left overlapping */}
-        <div className="absolute bottom-0 left-4 translate-y-1/2">
-          <div className="relative w-14 h-14 rounded-full border-4 border-white shadow-md overflow-hidden bg-white">
-            <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="56px" />
-          </div>
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 p-4 pt-10 space-y-2">
-        {/* Name + Pro + Rating */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="font-bold text-slate-900 text-sm truncate">{provider.companyName}</h3>
+      <div className="flex h-[27.3%] min-h-[134px] items-center px-[18px] py-[18px]">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
+          <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="80px" />
+        </div>
+        <div className="ml-[28px] min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="truncate text-[20px] font-[750] leading-7 text-slate-950">{provider.companyName}</h3>
             {provider.proBadge && (
-              <span className="shrink-0 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-md ml-0.5">Pro</span>
+              <span className="rounded-md bg-blue-600 px-2 py-1 text-[12px] font-[800] leading-4 text-white">Pro</span>
             )}
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span className="text-sm font-semibold text-slate-900">{provider.rating}</span>
-          </div>
+          <p className="mt-[7px] truncate text-[14px] font-[500] leading-5 text-slate-500">{provider.trade} Services</p>
+          <p className="mt-[7px] flex items-center gap-2 truncate text-[14px] font-[500] leading-5 text-slate-500">
+            <MapPin className="h-4 w-4 text-slate-500" />
+            {provider.location}
+          </p>
         </div>
-
-        {/* Trade */}
-        <p className="text-slate-500 text-sm">{provider.trade}</p>
-
-        {/* Location */}
-        <div className="flex items-center gap-1 text-slate-500 text-sm">
-          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="truncate">{provider.location}</span>
-        </div>
-
-        <hr className="border-slate-100 my-1" />
-
-        {/* Trust grid: 4 columns */}
-        <div className="grid grid-cols-4 gap-1">
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <Clock className="w-4 h-4 text-blue-500" />
-            <span className="text-slate-700 text-[11px] font-medium leading-tight">Fast response</span>
-            <span className="text-slate-400 text-[10px] leading-tight">{provider.responseTime}</span>
+        <div className="ml-4 flex shrink-0 flex-col items-end gap-[18px]">
+          <div className="flex items-center gap-1.5 text-[14px] leading-5">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+            <span className="font-[800] text-slate-950">{provider.rating}</span>
+            <span className="font-[500] text-slate-500">({provider.reviewCount})</span>
           </div>
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <Shield className="w-4 h-4 text-blue-500" />
-            <span className="text-slate-700 text-[11px] font-medium leading-tight">Fully insured</span>
-            <span className="text-slate-400 text-[10px] leading-tight">{provider.insuranceAmount ?? '£5M'}</span>
-          </div>
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <CheckCircle className="w-4 h-4 text-blue-500" />
-            <span className="text-slate-700 text-[11px] font-medium leading-tight">Qualified</span>
-            <span className="text-slate-400 text-[10px] leading-tight">Engineers</span>
-          </div>
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <MapPin className="w-4 h-4 text-blue-500" />
-            <span className="text-slate-700 text-[11px] font-medium leading-tight">Local cover</span>
-            <span className="text-slate-400 text-[10px] leading-tight">{provider.coverageRadius} mi</span>
-          </div>
-        </div>
-
-        <hr className="border-slate-100 my-1" />
-
-        {/* Price + CTA */}
-        <div className="mt-auto">
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Services from</p>
-          <div className="flex items-end justify-between gap-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-slate-900">{formatPence(provider.fromPrice)}</span>
-              <span className="text-slate-500 text-sm"> / visit</span>
-            </div>
-          </div>
-          <Link
-            href={`${basePath}/${provider.slug}`}
-            className="mt-3 block w-full border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl py-2.5 text-sm font-semibold text-center transition-colors"
-          >
-            View profile →
-          </Link>
+          {provider.vetted && (
+            <span className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 text-[14px] font-[700] leading-5 text-emerald-700">
+              <Shield className="h-4 w-4" />
+              Vetted
+            </span>
+          )}
         </div>
       </div>
+
+      <div className="mx-[18px] grid h-[20%] min-h-[98px] grid-cols-4 border-y border-slate-200 py-[20px]">
+        {FEATURE_ITEMS.map(({ icon: Icon, title, subtitle }, index) => (
+          <div key={title} className={`flex gap-3 px-3 ${index > 0 ? 'border-l border-slate-200' : ''}`}>
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              <Icon className="h-4 w-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-[12.5px] font-[700] leading-4 text-slate-950">{title}</span>
+              <span className="mt-1 block text-[12px] font-[500] leading-4 text-slate-500">{subtitle}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex h-[20%] min-h-[98px] items-center justify-between px-[20px] py-[21px]">
+        <div>
+          <p className="text-[12px] font-[700] uppercase leading-4 text-slate-500">Services from</p>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-[24px] font-[800] leading-[30px] text-slate-950">{formatPence(provider.fromPrice)}</span>
+            <span className="text-[14px] font-[500] leading-5 text-slate-500">/ visit</span>
+          </div>
+        </div>
+        <Link
+          href={`${basePath}/${provider.slug}`}
+          className="inline-flex h-11 min-w-[150px] items-center justify-center gap-3 rounded-lg border border-blue-600 px-4 text-[15px] font-[700] leading-5 text-blue-600 transition-colors hover:bg-blue-50"
+        >
+          View profile
+          <span aria-hidden>{'->'}</span>
+        </Link>
+      </div>
+    </article>
     </div>
   )
 }

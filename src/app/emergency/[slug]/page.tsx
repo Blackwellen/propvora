@@ -36,15 +36,10 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
   const relatedServices = allServices.filter(s => s.slug !== slug).slice(0, 5)
 
   return (
-    <PublicPageShell>
-      {/* Safety banner */}
-      <div className="bg-red-600 text-white text-center py-2.5 px-4 text-sm font-medium">
-        If you smell gas or are in danger, call <strong>999</strong> or National Gas Emergency{' '}
-        <a href="tel:08001119999" className="underline font-bold">0800 111 999</a> immediately
-      </div>
+    <PublicPageShell marketplaceNav hideFooter>
 
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 pt-6 pb-2">
+      <div className="mx-auto max-w-[1400px] px-6 pb-2 pt-5 lg:px-10">
         <nav className="flex items-center gap-1.5 text-sm text-slate-500">
           <Link href="/emergency" className="hover:text-slate-900">Emergency</Link>
           <ChevronRight className="h-3.5 w-3.5" />
@@ -55,22 +50,24 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
       </div>
 
       {/* THREE-COLUMN LAYOUT */}
-      <div className="max-w-7xl mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="mx-auto max-w-[1400px] px-6 pb-8 lg:px-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[410px_1fr_316px]">
 
           {/* LEFT (30%) */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="space-y-6">
             {/* Hero image */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[8px]">
               <Image src={service.heroImage} alt={service.title} fill className="object-cover" sizes="33vw" priority />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
               {/* URGENT RESPONSE badge */}
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-600 text-white rounded-full px-3 py-1 text-xs font-bold">
+              <div className="absolute left-4 top-4 rounded-[8px] bg-white px-4 py-3 text-red-600 shadow-lg">
+                <div className="flex items-center gap-2 text-[12px] font-[900] uppercase">
                 <AlertCircle className="h-3.5 w-3.5" />
                 URGENT RESPONSE
+                </div>
+                <p className="mt-1 text-[11px] font-[700] text-slate-700">We&apos;re on call and ready to go</p>
               </div>
-              <p className="absolute bottom-3 left-3 text-white/80 text-xs">We&apos;re on call and ready to go</p>
 
               {/* Image caption */}
               <div className="absolute bottom-3 right-3 bg-white/20 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-lg">
@@ -84,7 +81,7 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
                 { label: 'Police vetted DBS', sub: 'DBS checked', color: 'bg-blue-50', iconColor: 'text-blue-600' },
                 { label: 'Fully insured', sub: service.insuranceAmount ?? '£5M', color: 'bg-emerald-50', iconColor: 'text-emerald-600' },
                 { label: '24/7 availability', sub: '365 days', color: 'bg-red-50', iconColor: 'text-red-600' },
-                { label: 'Fast response', sub: service.responseTimeMin + '-' + service.responseTimeMax + ' mins', color: 'bg-violet-50', iconColor: 'text-violet-600' },
+                { label: 'Fast response', sub: service.responseTimeMin + '-' + service.responseTimeMax + ' mins', color: 'bg-blue-50', iconColor: 'text-blue-600' },
               ].map(({ label, sub, color, iconColor }) => (
                 <div key={label} className={`p-3 ${color} rounded-xl text-center`}>
                   <Shield className={`h-5 w-5 mx-auto mb-1 ${iconColor}`} />
@@ -96,12 +93,12 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
           </div>
 
           {/* CENTER (40%) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="space-y-6 pt-5">
             {/* Category + title */}
             <div>
               <p className="text-red-600 text-xs font-bold uppercase tracking-widest mb-2">EMERGENCY SERVICE</p>
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-3xl font-bold text-slate-900 leading-tight">{service.title}</h1>
+                <h1 className="text-[40px] font-[800] leading-[1.05] text-slate-950">{service.title}</h1>
                 <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-semibold">Pro</span>
               </div>
               <p className="text-slate-500 text-base">{service.subtitle}</p>
@@ -230,8 +227,8 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
           </div>
 
           {/* RIGHT (30%) — sticky emergency CTA */}
-          <div className="lg:col-span-3">
-            <div className="bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden sticky top-20">
+          <div>
+            <div className="sticky top-20 overflow-hidden rounded-[14px] border border-red-100 bg-white shadow-[0_18px_50px_rgba(239,68,68,0.12)]">
               {/* Header text */}
               <div className="px-4 pt-4 pb-2">
                 <p className="text-red-600 text-xs font-bold uppercase tracking-widest">NEED IMMEDIATE HELP?</p>

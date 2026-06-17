@@ -63,7 +63,7 @@ export default async function EmergencyHubPage() {
       {services.length > 0 ? (
         <section className="pb-10">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Available emergency services</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {services.map((service) => (
               <EmergencyServiceCard key={service.id} service={service} basePath="/app/marketplace/suppliers-hub/emergency" />
             ))}

@@ -8,22 +8,12 @@ import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
-  { label: 'Stays', href: '/stays', match: '/stays' },
-  { label: 'Services', href: '/services', match: '/services' },
-  { label: 'Providers', href: '/providers', match: '/providers' },
-  { label: 'Emergency', href: '/emergency', match: '/emergency' },
-  { label: 'How it works', href: '/how-it-works', match: '/how-it-works' },
+  { label: 'Stays', href: '/stays', matches: ['/stays'] },
+  { label: 'Services', href: '/services', matches: ['/services'] },
+  { label: 'Suppliers', href: '/suppliers', matches: ['/suppliers', '/providers'] },
+  { label: 'Emergency', href: '/emergency', matches: ['/emergency'] },
+  { label: 'How it works', href: '/features', matches: ['/features'] },
 ]
-
-type RightCTA = 'default' | 'list-property' | 'list-service' | 'list-business'
-
-function getRightCTA(pathname: string): RightCTA {
-  if (pathname.startsWith('/stays')) return 'list-property'
-  if (pathname.startsWith('/services')) return 'list-service'
-  if (pathname.startsWith('/providers')) return 'list-business'
-  if (pathname.startsWith('/emergency')) return 'list-service'
-  return 'default'
-}
 
 export default function PublicMarketplaceNav() {
   const pathname = usePathname()
@@ -36,8 +26,6 @@ export default function PublicMarketplaceNav() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const ctaType = getRightCTA(pathname)
-
   return (
     <header
       className={cn(
@@ -45,7 +33,7 @@ export default function PublicMarketplaceNav() {
         scrolled && 'shadow-sm',
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <div className="flex items-center h-16 gap-6">
           {/* Logo */}
           <Link href="/" className="shrink-0">
@@ -62,7 +50,7 @@ export default function PublicMarketplaceNav() {
           {/* Center nav */}
           <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.match || pathname.startsWith(link.match + '/')
+              const isActive = link.matches.some(match => pathname === match || pathname.startsWith(match + '/'))
               return (
                 <Link
                   key={link.href}
@@ -82,58 +70,21 @@ export default function PublicMarketplaceNav() {
 
           {/* Right CTAs */}
           <div className="hidden md:flex items-center gap-3 shrink-0 ml-auto">
-            {ctaType === 'default' && (
-              <>
-                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  Get started
-                </Link>
-              </>
-            )}
-            {ctaType === 'list-property' && (
-              <>
-                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  List a property
-                </Link>
-              </>
-            )}
-            {ctaType === 'list-service' && (
-              <>
-                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  List a service
-                </Link>
-              </>
-            )}
-            {ctaType === 'list-business' && (
-              <>
-                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  List your business
-                </Link>
-              </>
-            )}
+            <Link
+              href="/register"
+              className="px-5 py-2 text-sm font-semibold text-blue-600 rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
+            >
+              List a property
+            </Link>
+            <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-blue-600">
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              Get started
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -150,7 +101,7 @@ export default function PublicMarketplaceNav() {
         {mobileOpen && (
           <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
             {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.match || pathname.startsWith(link.match + '/')
+              const isActive = link.matches.some(match => pathname === match || pathname.startsWith(match + '/'))
               return (
                 <Link
                   key={link.href}

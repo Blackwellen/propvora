@@ -1,6 +1,5 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -8,11 +7,10 @@ import {
   List, Map, Star, Zap, Check, Heart, BedDouble, Bath,
 } from 'lucide-react'
 import { useState } from 'react'
-import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
+import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import StaysMap from '@/components/public-marketplace/maps/StaysMap'
 import { SEED_STAYS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
-
-const StaysMap = dynamic(() => import('@/components/public-marketplace/maps/StaysMap'), { ssr: false })
 
 const AREA_CHIPS = ['All areas', 'City Centre', 'Spinningfields', 'Northern Quarter', 'Salford Quays', 'Didsbury', 'Chorlton']
 
@@ -39,12 +37,10 @@ export default function StaysMapPage() {
   })
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <PublicMarketplaceNav />
-
+    <PublicPageShell mapMode marketplaceNav className="flex-1 flex flex-col overflow-hidden">
       {/* TOP SEARCH BAR */}
-      <div className="bg-white border-b border-slate-200 px-4 py-3 shrink-0">
-        <div className="flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden max-w-4xl">
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-6 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 flex-1 border-r border-slate-200 min-w-0">
             <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
             <div className="min-w-0">
@@ -90,22 +86,22 @@ export default function StaysMapPage() {
       </div>
 
       {/* FILTER CHIPS ROW */}
-      <div className="bg-white border-b border-slate-100 px-4 py-2.5 shrink-0">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
           {FILTER_CHIPS.map(chip => (
-            <button key={chip.value} className="shrink-0 px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap">
+            <button key={chip.value} className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap">
               {chip.label}
             </button>
           ))}
           <div className="ml-auto shrink-0">
-            <button className="text-blue-600 text-xs font-medium whitespace-nowrap">Clear all</button>
+            <button className="text-blue-600 text-sm font-semibold whitespace-nowrap">Clear all</button>
           </div>
         </div>
       </div>
 
       {/* RESULTS HEADER */}
-      <div className="bg-white border-b border-slate-100 px-4 py-2 shrink-0">
-        <div className="flex items-center justify-between">
+      <div className="bg-white px-6 lg:px-10 py-4 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div>
             <span className="text-lg font-bold text-slate-900">1,248 stays</span>
             <span className="text-slate-500 text-sm ml-2">Across Greater Manchester</span>
@@ -131,9 +127,9 @@ export default function StaysMapPage() {
       </div>
 
       {/* SPLIT LAYOUT */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto w-full flex flex-1 gap-4 overflow-hidden px-6 lg:px-10 pb-8">
         {/* LEFT COLUMN */}
-        <aside className="w-[420px] flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0">
+        <aside className="w-[455px] flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm">
           <div className="flex-1 overflow-y-auto">
             {filtered.map((stay, i) => {
               const price = formatPence(stay.pricePerNight)
@@ -206,16 +202,16 @@ export default function StaysMapPage() {
         </aside>
 
         {/* MAP */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <StaysMap stays={filtered} />
 
           {/* Area chips overlay — top of map */}
-          <div className="absolute top-3 left-3 right-3 z-[1000] flex items-center gap-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto scrollbar-hide pointer-events-auto">
             {AREA_CHIPS.map(area => (
               <button
                 key={area}
                 onClick={() => setActiveArea(area)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap ${
+                className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap ${
                   activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
@@ -225,7 +221,7 @@ export default function StaysMapPage() {
             {/* Search as I move toggle */}
             <button
               onClick={() => setSearchAsMove(p => !p)}
-              className={`ml-auto shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap ${
+              className={`ml-auto shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-md transition-colors whitespace-nowrap ${
                 searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'
               }`}
             >
@@ -235,17 +231,17 @@ export default function StaysMapPage() {
           </div>
 
           {/* Bottom left card */}
-          <div className="absolute bottom-6 left-4 z-[1000] bg-white rounded-xl shadow-md px-4 py-2.5 text-xs text-slate-600 pointer-events-none">
+          <div className="absolute bottom-8 left-8 z-[1000] bg-white rounded-xl shadow-md px-5 py-3 text-xs text-slate-600 pointer-events-none">
             Showing 1,248 stays • Tap on a pin to view stay
           </div>
 
           {/* Map / Satellite toggle */}
-          <div className="absolute bottom-6 right-4 z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
+          <div className="absolute bottom-8 right-8 z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
             <button className="px-3 py-1.5 text-xs font-medium bg-white text-slate-900">Map</button>
             <button className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-500 border-l border-slate-200">Satellite</button>
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageShell>
   )
 }

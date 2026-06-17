@@ -5,7 +5,7 @@ import { X } from "lucide-react"
 import { FieldLabel, SectionCard } from "./shared"
 
 interface Props {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
   tags: string[]
   tagInput: string
   setTagInput: (v: string) => void

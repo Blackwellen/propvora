@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { FieldLabel, TextInput, SectionCard, Toggle, SUPPLIER_CATEGORIES_EDIT, ENQUIRY_SOURCE_OPTIONS, APPLICANT_STATUS_OPTIONS } from "./shared"
 
 interface SupplierProps {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
   control: import("react-hook-form").Control<Record<string, unknown>>
   watch: import("react-hook-form").UseFormWatch<Record<string, unknown>>
   selectedCategories: string[]
@@ -74,7 +74,7 @@ export function SupplierDetailsSection({ register, control, watch, selectedCateg
 }
 
 interface ApplicantProps {
-  register: ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  register: import("react-hook-form").UseFormRegister<Record<string, unknown>>
   watch: import("react-hook-form").UseFormWatch<Record<string, unknown>>
 }
 

@@ -1,15 +1,13 @@
 ﻿'use client'
 
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, MapPin, List, Map, Star, CheckCircle } from 'lucide-react'
+import { Building2, Clock, Heart, List, Map, MapPin, Search, Shield, SlidersHorizontal, Star, Users } from 'lucide-react'
 import { useState } from 'react'
-import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
+import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import ProvidersMap from '@/components/public-marketplace/maps/ProvidersMap'
 import { SEED_PROVIDERS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
-
-const ProvidersMap = dynamic(() => import('@/components/public-marketplace/maps/ProvidersMap'), { ssr: false })
 
 const AREA_CHIPS = ['All areas', 'City Centre', 'Didsbury', 'Salford Quays', 'Stockport', 'Chorlton', 'Prestwich', 'Altrincham']
 const FILTER_CHIPS = [
@@ -35,13 +33,94 @@ export default function ProvidersMapPage() {
   })
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <PublicMarketplaceNav />
+    <PublicPageShell mapMode marketplaceNav className="flex-1 flex flex-col overflow-hidden">
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-6 shrink-0">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-center">
+          <div>
+            <h1 className="text-[26px] font-extrabold leading-tight text-slate-950">Find trusted service providers in your area</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Search vetted businesses by trade, location and coverage. Compare, shortlist and connect with confidence.</p>
+          </div>
+          <div className="flex items-stretch rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="flex flex-1 items-center gap-3 border-r border-slate-200 px-5 py-4">
+              <Building2 className="h-5 w-5 text-slate-500" />
+              <div>
+                <p className="text-xs font-bold text-slate-900">Trade</p>
+                <p className="text-sm text-slate-500">All trades</p>
+              </div>
+            </div>
+            <div className="flex flex-1 items-center gap-3 border-r border-slate-200 px-5 py-4">
+              <Users className="h-5 w-5 text-slate-500" />
+              <div>
+                <p className="text-xs font-bold text-slate-900">Provider / business</p>
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Company name" className="w-full bg-transparent text-sm text-slate-500 outline-none placeholder-slate-500" />
+              </div>
+            </div>
+            <div className="flex flex-1 items-center gap-3 border-r border-slate-200 px-5 py-4">
+              <MapPin className="h-5 w-5 text-slate-500" />
+              <div>
+                <p className="text-xs font-bold text-slate-900">Location</p>
+                <p className="text-sm text-slate-500">Manchester, UK</p>
+              </div>
+            </div>
+            <button className="m-3 inline-flex min-w-[170px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white hover:bg-blue-700">
+              Search providers
+              <Search className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
+          <button className="relative shrink-0 rounded-xl border border-slate-200 p-2 text-blue-600">
+            <SlidersHorizontal className="h-5 w-5" />
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">2</span>
+          </button>
+          {[
+            ['Vetted', Shield],
+            ['Fully insured', Shield],
+            ['Certified', Shield],
+            ['Commercial', Building2],
+            ['Residential', Building2],
+            ['Fast response', Clock],
+            ['24/7 service', Clock],
+            ['Top rated', Star],
+          ].map(([label, Icon]) => (
+            <button key={label as string} className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+              <Icon className="h-4 w-4" />
+              {label as string}
+            </button>
+          ))}
+          <button className="ml-auto shrink-0 text-sm font-semibold text-blue-600">Clear all</button>
+        </div>
+      </div>
+
+      <div className="bg-white px-6 lg:px-10 py-4 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+          <div>
+            <p className="text-lg font-extrabold text-slate-950">{filtered.length} providers match your criteria</p>
+            <p className="text-sm text-slate-500">Showing results for Manchester, within 15 miles</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600">
+              <Heart className="h-4 w-4" />
+              Save search
+            </button>
+            <div className="flex items-center overflow-hidden rounded-xl border border-slate-200">
+              <Link href="/providers" className="inline-flex items-center gap-2 px-7 py-2 text-sm font-bold text-slate-600"><List className="h-4 w-4" />List</Link>
+              <button className="inline-flex items-center gap-2 bg-blue-600 px-7 py-2 text-sm font-bold text-white"><Map className="h-4 w-4" />Map</button>
+            </div>
+            <select className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 outline-none">
+              <option>Sort: Recommended</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       {/* SPLIT LAYOUT — full height under nav */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto w-full flex flex-1 gap-4 overflow-hidden px-6 lg:px-10 pb-8">
         {/* LEFT COLUMN */}
-        <aside className="w-[480px] flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0">
+        <aside className="w-[455px] flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm">
           {/* Header */}
           <div className="px-4 py-3 border-b border-slate-100 shrink-0">
             <p className="font-bold text-slate-900 text-base">{filtered.length} providers match your criteria</p>
@@ -92,7 +171,7 @@ export default function ProvidersMapPage() {
                   <div className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Featured</div>
                   {provider.vetted && (
                     <div className="absolute top-2 right-10 flex items-center gap-0.5 bg-white/90 text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5 text-[10px] font-medium">
-                      <CheckCircle className="w-2.5 h-2.5" />Vetted
+                      <Shield className="w-2.5 h-2.5" />Vetted
                     </div>
                   )}
                   <button className="absolute top-2 right-2 bg-white/90 rounded-full p-1.5" onClick={e => e.preventDefault()}>
@@ -121,7 +200,7 @@ export default function ProvidersMapPage() {
                     <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{provider.coverageRadius} mi</span>
                   </div>
                   <div className="flex items-center gap-1.5 mb-2">
-                    {provider.vetted && <span className="text-[10px] text-emerald-700 font-medium flex items-center gap-0.5"><CheckCircle className="h-2.5 w-2.5" />Fully insured</span>}
+                    {provider.vetted && <span className="text-[10px] text-emerald-700 font-medium flex items-center gap-0.5"><Shield className="h-2.5 w-2.5" />Fully insured</span>}
                     {provider.gasSafe && <span className="text-[10px] text-blue-700 font-medium">Gas Safe</span>}
                     {provider.emergency24h && <span className="text-[10px] text-slate-500">24/7 service</span>}
                   </div>
@@ -141,24 +220,24 @@ export default function ProvidersMapPage() {
         </aside>
 
         {/* MAP */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ProvidersMap providers={filtered} />
 
           {/* Area chips overlay */}
-          <div className="absolute top-3 left-3 right-3 z-[1000] flex items-center gap-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto scrollbar-hide pointer-events-auto">
             {AREA_CHIPS.map(area => (
-              <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
+              <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-4 py-2 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
                 {area}
               </button>
             ))}
-            <button onClick={() => setSearchAsMove(p => !p)} className={["ml-auto shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md whitespace-nowrap", searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'].join(' ')}>
+            <button onClick={() => setSearchAsMove(p => !p)} className={["ml-auto shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-md whitespace-nowrap", searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'].join(' ')}>
               <span className={["w-3.5 h-3.5 rounded-full border-2 transition-colors", searchAsMove ? 'bg-white border-white' : 'border-slate-400'].join(' ')} />
               Search as I move the map
             </button>
           </div>
 
           {/* Coverage key */}
-          <div className="absolute bottom-6 right-4 z-[1000] bg-white rounded-xl shadow-md p-3 text-xs space-y-1.5">
+          <div className="absolute bottom-8 right-8 z-[1000] bg-white rounded-xl shadow-md p-4 text-xs space-y-2">
             <p className="font-semibold text-slate-700 mb-2">Coverage key</p>
             <div className="flex items-center gap-2 text-slate-600"><span className="w-3 h-3 rounded-full bg-blue-600 shrink-0" />Exact location</div>
             <div className="flex items-center gap-2 text-slate-600"><span className="w-3 h-3 rounded-full border-2 border-dashed border-blue-500 shrink-0" />Service coverage</div>
@@ -166,7 +245,7 @@ export default function ProvidersMapPage() {
           </div>
 
           {/* Search area info */}
-          <div className="absolute bottom-6 left-4 z-[1000] bg-white rounded-xl shadow-md p-3 text-xs">
+          <div className="absolute bottom-8 left-8 z-[1000] bg-white rounded-xl shadow-md p-4 text-xs">
             <p className="font-semibold text-slate-700">Search area: Manchester, 15 miles radius</p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-slate-500">Providers in this area:</span>
@@ -175,12 +254,12 @@ export default function ProvidersMapPage() {
           </div>
 
           {/* Map / Satellite toggle */}
-          <div className="absolute bottom-6 right-[12rem] z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
+          <div className="absolute bottom-8 right-[13rem] z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
             <button className="px-3 py-1.5 text-xs font-medium bg-white text-slate-900">Map</button>
             <button className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-500 border-l border-slate-200">Satellite</button>
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageShell>
   )
 }

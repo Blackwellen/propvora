@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, Share2, MessageCircle } from 'lucide-react'
+import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, MessageCircle } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import { getPublicProviderBySlug, getPublicProviders } from '@/lib/public-marketplace/queries'
 import { SEED_PROVIDERS } from '@/lib/public-marketplace/seed-fallback'
@@ -35,14 +35,14 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
   const relatedProviders = allProviders.filter(p => p.slug !== slug).slice(0, 3)
 
   return (
-    <PublicPageShell>
+    <PublicPageShell marketplaceNav hideFooter>
       {/* HERO BANNER */}
-      <div className="relative h-[280px] overflow-hidden">
+      <div className="relative h-[188px] overflow-visible border-b border-slate-200">
         <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover" sizes="100vw" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/50 to-slate-950/25" />
 
         {/* Breadcrumb */}
-        <nav className="absolute top-4 left-6 flex items-center gap-1.5 text-sm text-white/80">
+        <nav className="absolute left-[max(40px,calc((100vw-1400px)/2+40px))] top-4 flex items-center gap-1.5 text-[12px] font-[600] text-white/80">
           <Link href="/providers" className="hover:text-white">Providers</Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span>{provider.trade}</span>
@@ -51,8 +51,8 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
         </nav>
 
         {/* Logo card */}
-        <div className="absolute bottom-6 left-6">
-          <div className="relative w-32 h-32 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white">
+        <div className="absolute bottom-[-22px] left-[max(40px,calc((100vw-1400px)/2+40px))]">
+          <div className="relative h-[156px] w-[156px] overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.20)]">
             <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="128px" />
             {provider.vetted && (
               <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg">Top Rated</div>
@@ -61,9 +61,9 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
         </div>
 
         {/* Title overlay */}
-        <div className="absolute bottom-6 left-[172px] right-[320px]">
+        <div className="absolute bottom-7 left-[max(220px,calc((100vw-1400px)/2+220px))] right-[380px]">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-bold text-white leading-tight">{provider.companyName}</h1>
+            <h1 className="text-[34px] font-[800] leading-tight text-white">{provider.companyName}</h1>
             {provider.proBadge && <span className="bg-blue-600 text-white text-xs px-2.5 py-1 rounded font-semibold">Pro</span>}
           </div>
           <p className="text-white/80 text-sm mb-2">{provider.trade}</p>
@@ -92,7 +92,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
         </div>
 
         {/* Floating CTA card */}
-        <div className="absolute right-6 top-6 bg-white shadow-xl rounded-2xl p-5 w-56">
+        <div className="absolute right-[max(40px,calc((100vw-1400px)/2+40px))] top-8 w-[252px] rounded-[14px] bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.18)]">
           <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm mb-2 transition-colors">
             Request quote →
           </button>
@@ -109,9 +109,9 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* TRUST ROW */}
-      <div className="bg-white border-b border-slate-100 py-4">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+      <div className="bg-white py-3">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+          <div className="ml-[176px] grid grid-cols-3 gap-4 md:grid-cols-5">
             {[
               { icon: Clock, label: 'Fast response', sub: provider.responseTime },
               { icon: Shield, label: 'Fully insured', sub: provider.insuranceAmount ?? '£5M' },
@@ -132,9 +132,9 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* STATS STRIP */}
-      <div className="bg-slate-50 border-b border-slate-100 py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+      <div className="bg-white py-5">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+          <div className="grid grid-cols-3 gap-0 overflow-hidden rounded-[12px] border border-slate-200 bg-white text-center md:grid-cols-6">
             {[
               { value: provider.jobsDone.toLocaleString() + '+', label: 'Jobs' },
               { value: '98%', label: 'Repeat' },
@@ -143,9 +143,9 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
               { value: provider.coverageRadius + ' mi', label: 'Coverage' },
               { value: provider.emergency24h ? '24/7' : 'On request', label: 'Emergency' },
             ].map(({ value, label }) => (
-              <div key={label}>
-                <p className="text-3xl font-bold text-slate-900">{value}</p>
-                <p className="text-slate-400 text-sm mt-0.5">{label}</p>
+              <div key={label} className="border-r border-slate-200 px-4 py-4 last:border-r-0">
+                <p className="text-[23px] font-[800] leading-none text-slate-950">{value}</p>
+                <p className="mt-1 text-[12px] font-[500] text-slate-500">{label}</p>
               </div>
             ))}
           </div>
@@ -153,8 +153,8 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* TABS */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="sticky top-16 z-30 border-b border-slate-200 bg-white">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex gap-1 overflow-x-auto scrollbar-hide">
             {TABS.map((tab, i) => (
               <div
@@ -170,10 +170,10 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="mx-auto max-w-[1400px] px-6 py-4 lg:px-10">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_540px]">
           {/* LEFT + MIDDLE (2/3) */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-4">
             {/* About */}
             {provider.description && (
               <div>
@@ -344,9 +344,9 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                     <span className="text-slate-600">{cat}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-400 rounded-full" style={{ width: `${90 + Math.random() * 10}%` }} />
+                        <div className="h-full bg-amber-400 rounded-full" style={{ width: `${cat === 'Value' ? 91 : cat === 'Communication' ? 95 : cat === 'Quality' ? 97 : 96}%` }} />
                       </div>
-                      <span className="font-semibold text-slate-900 w-6">4.{Math.floor(8 + Math.random() * 2)}</span>
+                      <span className="font-semibold text-slate-900 w-6">{cat === 'Value' ? '4.7' : '4.9'}</span>
                     </div>
                   </div>
                 ))}
@@ -370,7 +370,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                   <Users className="h-4 w-4 text-blue-500 shrink-0" />{provider.teamSize} member team
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Shield className="h-4 w-4 text-violet-500 shrink-0" />Insured up to {provider.insuranceAmount}
+                  <Shield className="h-4 w-4 text-blue-500 shrink-0" />Insured up to {provider.insuranceAmount}
                 </div>
               </div>
 

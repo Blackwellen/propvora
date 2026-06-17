@@ -27,7 +27,7 @@ const TABS = ['Overview', 'Packages & Pricing', 'Add-ons', 'Reviews', 'Provider'
 const TRUST_STRIP = [
   { icon: CheckCircle, title: 'Deposit-back guarantee', desc: 'If your deposit fails, we refund the service.', color: 'text-emerald-600' },
   { icon: Shield, title: 'Vetted & trusted pros', desc: 'All providers are background-checked.', color: 'text-blue-600' },
-  { icon: Shield, title: 'Secure payments', desc: 'Escrow-protected, full dispute resolution.', color: 'text-violet-600' },
+  { icon: Shield, title: 'Secure payments', desc: 'Escrow-protected, full dispute resolution.', color: 'text-blue-600' },
   { icon: Star, title: 'Satisfaction guaranteed', desc: '100% satisfaction or we make it right.', color: 'text-amber-500' },
 ]
 
@@ -39,10 +39,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   const allImages = [offer.heroImage, ...offer.gallery].filter(Boolean)
 
   return (
-    <PublicPageShell>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <PublicPageShell marketplaceNav hideFooter>
+      <div className="relative mx-auto max-w-[1400px] px-6 py-5 lg:px-10">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-4">
+        <nav className="mb-7 flex items-center gap-1.5 text-[13px] font-[500] text-slate-500">
           <Link href="/services" className="hover:text-slate-900">Services</Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span>{offer.category}</span>
@@ -50,10 +50,14 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           <span className="text-slate-900 truncate max-w-xs">{offer.title}</span>
         </nav>
 
+        <aside className="absolute right-10 top-11 hidden w-[464px] lg:block">
+          <ServicePackageSelector offer={offer} />
+        </aside>
+
         {/* Top badges + actions */}
         <div className="flex items-center justify-between gap-4 mb-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs bg-violet-100 text-violet-700 border border-violet-200 px-2.5 py-1 rounded-full font-semibold">
+            <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full font-semibold">
               Trusted service
             </span>
             {offer.verified && (
@@ -73,8 +77,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl font-bold text-slate-900 mb-1">{offer.title}</h1>
-        <p className="text-slate-500 text-base mb-4">{offer.subtitle}</p>
+        <h1 className="mb-1 text-[42px] font-[800] leading-[1.05] text-slate-950 lg:max-w-[840px]">{offer.title}</h1>
+        <p className="mb-4 text-[17px] font-[500] text-slate-500 lg:max-w-[840px]">{offer.subtitle}</p>
 
         {/* Rating + stats */}
         <div className="flex flex-wrap items-center gap-4 mb-5 text-sm">
@@ -90,7 +94,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Provider strip */}
-        <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl mb-6">
+        <div className="mb-6 flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 lg:max-w-[840px]">
           <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
             <Image src={offer.providerAvatar} alt={offer.providerName} fill className="object-cover" sizes="40px" />
           </div>
@@ -116,7 +120,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
         {/* GALLERY */}
         {allImages.length > 0 && (
-          <div className="grid grid-cols-5 gap-2 mb-6 h-64 rounded-2xl overflow-hidden">
+          <div className="mb-6 grid h-[276px] grid-cols-5 gap-3 overflow-hidden rounded-[12px] lg:max-w-[840px]">
             <div className="col-span-3 relative">
               <Image src={allImages[0]} alt={offer.title} fill className="object-cover" sizes="55vw" priority />
             </div>
@@ -136,7 +140,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         )}
 
         {/* TRUST STRIP */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 lg:max-w-[840px]">
           {TRUST_STRIP.map(({ icon: Icon, title, desc, color }) => (
             <div key={title} className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
               <Icon className={`h-5 w-5 shrink-0 mt-0.5 ${color}`} />
@@ -149,7 +153,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* TABS */}
-        <div className="flex gap-1 border-b border-slate-200 mb-8 overflow-x-auto scrollbar-hide">
+        <div className="mb-5 flex gap-1 overflow-x-auto border-b border-slate-200 scrollbar-hide lg:max-w-[840px]">
           {TABS.map((tab, i) => (
             <div
               key={tab}
@@ -163,9 +167,9 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* TWO-COLUMN */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_464px]">
           {/* LEFT */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="space-y-5">
             {/* About */}
             <div>
               <h2 className="text-xl font-bold text-slate-900 mb-3">About this service</h2>
@@ -237,8 +241,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {/* RIGHT — sticky package selector */}
-          <div className="lg:col-span-2">
-            <div className="sticky top-24">
+          <div className="lg:hidden">
+            <div className="sticky top-20">
               <ServicePackageSelector offer={offer} />
             </div>
           </div>

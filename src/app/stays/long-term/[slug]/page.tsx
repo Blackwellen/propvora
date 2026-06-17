@@ -68,7 +68,7 @@ export default async function LongTermRentalDetailPage({
 
   return (
     <PublicPageShell>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
         {/* Sub-nav */}
         <div className="mb-6">
           <StayTypeTabs basePath="/stays" />

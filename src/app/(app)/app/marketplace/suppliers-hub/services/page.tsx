@@ -107,7 +107,7 @@ export default async function ServicesHubPage() {
 
       {/* Grid */}
       <section className="pb-10 px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {offers.map((offer) => (
             <ServiceOfferCard key={offer.id} offer={offer} basePath="/app/marketplace/suppliers-hub/services" />
           ))}

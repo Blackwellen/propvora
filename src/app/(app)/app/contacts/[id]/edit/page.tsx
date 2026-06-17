@@ -86,7 +86,7 @@ export default function ContactEditPage() {
 
   useEffect(() => {
     if (!liveContact) return
-    const raw = liveContact as Record<string, unknown>
+    const raw = liveContact as unknown as Record<string, unknown>
     reset({
       contact_type: (raw.contact_type as ContactType) ?? "other",
       entity_type: ((raw.entity_type as "person" | "organisation") ?? (raw.company_name ? "organisation" : "person")),
@@ -170,7 +170,7 @@ export default function ContactEditPage() {
   }
 
   const isSaving = updateMutation.isPending
-  const displayName = (liveContact as Record<string, unknown>)?.full_name as string ?? "Contact"
+  const displayName = ((liveContact as unknown as Record<string, unknown>)?.full_name as string) ?? "Contact"
 
   if (isLoading) {
     return (
@@ -196,7 +196,7 @@ export default function ContactEditPage() {
     )
   }
 
-  const reg = register as unknown as ReturnType<import("react-hook-form").UseFormRegister<Record<string, unknown>>>
+  const reg = register as unknown as import("react-hook-form").UseFormRegister<Record<string, unknown>>
   const ctrl = control as unknown as import("react-hook-form").Control<Record<string, unknown>>
   const wch = watch as unknown as import("react-hook-form").UseFormWatch<Record<string, unknown>>
 

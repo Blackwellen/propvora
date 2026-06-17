@@ -20,7 +20,7 @@ export default function LongTermRentalsMapPage() {
   const [featured, ...rest] = rentals
 
   return (
-    <PublicPageShell className="flex-1 flex flex-col overflow-hidden">
+    <PublicPageShell mapMode className="flex-1 flex flex-col overflow-hidden">
       {/* Top bar */}
       <div className="px-4 pt-4 pb-3 bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto">

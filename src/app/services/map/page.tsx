@@ -1,15 +1,13 @@
 ﻿'use client'
 
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, MapPin, Calendar, List, Map, Star, Check, Heart, Clock, Shield } from 'lucide-react'
 import { useState } from 'react'
-import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
+import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import ServicesMap from '@/components/public-marketplace/maps/ServicesMap'
 import { SEED_SERVICE_OFFERS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
-
-const ServicesMap = dynamic(() => import('@/components/public-marketplace/maps/ServicesMap'), { ssr: false })
 
 const AREA_CHIPS = ['All areas', 'City Centre', 'Salford', 'Northern Quarter', 'Didsbury', 'Chorlton', 'Stockport']
 const FILTER_CHIPS = [
@@ -32,12 +30,10 @@ export default function ServicesMapPage() {
   })
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <PublicMarketplaceNav />
-
+    <PublicPageShell mapMode marketplaceNav className="flex-1 flex flex-col overflow-hidden">
       {/* TOP SEARCH BAR */}
-      <div className="bg-white border-b border-slate-200 px-4 py-3 shrink-0">
-        <div className="flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden max-w-5xl">
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-6 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 flex-1 border-r border-slate-200">
             <Search className="h-4 w-4 text-slate-400 shrink-0" />
             <input type="text" placeholder="Plumbing and Heating" value={query} onChange={e => setQuery(e.target.value)} className="w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
@@ -60,10 +56,10 @@ export default function ServicesMapPage() {
       </div>
 
       {/* FILTER CHIPS */}
-      <div className="bg-white border-b border-slate-100 px-4 py-2.5 shrink-0">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+      <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
           {FILTER_CHIPS.map(chip => (
-            <button key={chip.value} className="shrink-0 px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 whitespace-nowrap">
+            <button key={chip.value} className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 whitespace-nowrap">
               {chip.label}
             </button>
           ))}
@@ -71,9 +67,9 @@ export default function ServicesMapPage() {
       </div>
 
       {/* SPLIT LAYOUT */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto w-full flex flex-1 gap-4 overflow-hidden px-6 lg:px-10 pb-8">
         {/* LEFT */}
-        <aside className="w-[440px] flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0">
+        <aside className="w-[455px] flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
             <div>
               <span className="font-bold text-slate-900">{filtered.length} services found</span>
@@ -129,31 +125,31 @@ export default function ServicesMapPage() {
         </aside>
 
         {/* MAP */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ServicesMap offers={filtered} />
 
           {/* Area chips overlay */}
-          <div className="absolute top-3 left-3 right-3 z-[1000] flex items-center gap-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto scrollbar-hide pointer-events-auto">
             {AREA_CHIPS.map(area => (
-              <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
+              <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-4 py-2 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
                 {area}
               </button>
             ))}
-            <button onClick={() => setSearchAsMove(p => !p)} className={["ml-auto shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md whitespace-nowrap", searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'].join(' ')}>
+            <button onClick={() => setSearchAsMove(p => !p)} className={["ml-auto shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-md whitespace-nowrap", searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'].join(' ')}>
               <span className={["w-3.5 h-3.5 rounded-full border-2 transition-colors", searchAsMove ? 'bg-white border-white' : 'border-slate-400'].join(' ')} />
               Search as I move the map
             </button>
           </div>
 
-          <div className="absolute bottom-6 left-4 z-[1000] bg-white rounded-xl shadow-md px-4 py-2.5 text-xs text-slate-600 pointer-events-none max-w-xs">
+          <div className="absolute bottom-8 left-8 z-[1000] bg-white rounded-xl shadow-md px-5 py-3 text-xs text-slate-600 pointer-events-none max-w-xs">
             Showing {filtered.length} services in this area
           </div>
-          <div className="absolute bottom-6 right-4 z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
+          <div className="absolute bottom-8 right-8 z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
             <button className="px-3 py-1.5 text-xs font-medium bg-white text-slate-900">Map</button>
             <button className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-500 border-l border-slate-200">Satellite</button>
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageShell>
   )
 }

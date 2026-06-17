@@ -39,7 +39,7 @@ export default async function LongTermRentalsPage() {
   const rentals = await getPublicLongTermRentals()
 
   return (
-    <PublicPageShell>
+    <PublicPageShell hideFooter>
       {/* Hero */}
       <section className="pt-12 pb-10 px-4 bg-gradient-to-b from-blue-50 to-white">
         <div className="max-w-6xl mx-auto">
@@ -66,7 +66,7 @@ export default async function LongTermRentalsPage() {
       </section>
 
       {/* Filter chips */}
-      <div className="sticky top-16 z-30 bg-white border-b border-slate-100 px-4 py-3">
+      <div className="sticky top-20 z-30 bg-white border-b border-slate-100 px-4 py-3">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
             {FILTER_CHIPS.map((chip) => (
@@ -102,7 +102,7 @@ export default async function LongTermRentalsPage() {
 
             {/* Right panel */}
             <div className="hidden xl:block w-72 shrink-0">
-              <div className="sticky top-32">
+              <div className="sticky top-36">
                 <LongTermRentalInfoPanel />
               </div>
             </div>

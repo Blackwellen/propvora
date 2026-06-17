@@ -54,10 +54,10 @@ export default async function ServicesPage() {
   ])
 
   return (
-    <PublicPageShell>
+    <PublicPageShell hideFooter>
       {/* TOP SECTION — two-column */}
       <section className="bg-white pb-6 pt-6 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             {/* LEFT */}
             <div className="lg:col-span-1">
@@ -116,8 +116,8 @@ export default async function ServicesPage() {
       </section>
 
       {/* FILTER CHIPS */}
-      <div className="border-b border-slate-100 bg-white sticky top-16 z-30 py-3">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
               <Filter className="h-3.5 w-3.5" />
@@ -143,7 +143,7 @@ export default async function ServicesPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
         {/* RESULTS TOOLBAR */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <div>
@@ -185,7 +185,7 @@ export default async function ServicesPage() {
                 </button>
               </div>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 scrollbar-hide">
               {featuredOffers.map(offer => (
                 <ServiceOfferCard key={offer.id} offer={offer} featured />
               ))}
@@ -208,7 +208,7 @@ export default async function ServicesPage() {
         </div>
 
         {/* COMPACT CARD GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
           {allOffers.map(offer => (
             <ServiceOfferCard key={offer.id} offer={offer} />
           ))}
@@ -223,7 +223,7 @@ export default async function ServicesPage() {
 
       {/* TRUST STRIP */}
       <section className="bg-slate-50 border-t border-slate-100 py-10">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {TRUST_ITEMS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex flex-col items-start gap-3">

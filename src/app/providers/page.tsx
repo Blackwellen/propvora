@@ -51,10 +51,10 @@ export default async function ProvidersPage() {
   ])
 
   return (
-    <PublicPageShell>
+    <PublicPageShell hideFooter>
       {/* TOP SECTION — two-column */}
       <section className="bg-white border-b border-slate-100 pb-8 pt-6">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             {/* LEFT */}
             <div className="lg:col-span-1">
@@ -111,8 +111,8 @@ export default async function ProvidersPage() {
       </section>
 
       {/* FILTER CHIPS */}
-      <div className="border-b border-slate-100 bg-white sticky top-16 z-30 py-3">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {FILTER_CHIPS.map((chip) => (
               <button
@@ -135,7 +135,7 @@ export default async function ProvidersPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
         {/* RESULTS TOOLBAR */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-2">
@@ -166,7 +166,7 @@ export default async function ProvidersPage() {
                 View all featured →
               </Link>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 scrollbar-hide">
               {featuredProviders.map(provider => (
                 <ProviderFeaturedCard key={provider.id} provider={provider} />
               ))}
@@ -184,7 +184,7 @@ export default async function ProvidersPage() {
         </div>
 
         {/* PROVIDERS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch mb-12">
           {allProviders.map(provider => (
             <ProviderCard key={provider.id} provider={provider} />
           ))}

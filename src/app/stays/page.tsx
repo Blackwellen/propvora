@@ -38,10 +38,10 @@ export default async function StaysPage() {
   const stays = await getPublicStays()
 
   return (
-    <PublicPageShell>
+    <PublicPageShell hideFooter>
       {/* TOP SECTION — two-column */}
       <section className="bg-white border-b border-slate-100 pb-8 pt-6">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             {/* LEFT: heading */}
             <div className="lg:col-span-1">
@@ -115,8 +115,8 @@ export default async function StaysPage() {
       </section>
 
       {/* FILTER CHIPS ROW — sticky */}
-      <div className="border-b border-slate-100 bg-white sticky top-16 z-30 py-3">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {/* Filter icon with badge */}
             <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
@@ -143,7 +143,7 @@ export default async function StaysPage() {
       </div>
 
       {/* RESULTS TOOLBAR */}
-      <div className="max-w-7xl mx-auto px-4 py-5">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5">
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="text-xl font-bold text-slate-900">1,248 stays</span>
@@ -168,7 +168,7 @@ export default async function StaysPage() {
       </div>
 
       {/* CARD GRID */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
           {stays.map((stay) => (
             <StayCard key={stay.id} stay={stay} />
@@ -183,7 +183,7 @@ export default async function StaysPage() {
 
       {/* TRUST STRIP */}
       <section className="bg-slate-50 border-t border-slate-100 py-10">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {TRUST_ITEMS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex flex-col items-start gap-3">
