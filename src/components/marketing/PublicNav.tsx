@@ -19,12 +19,13 @@ const legalLinks = [
 ]
 
 const navLinks = [
+  { label: "Stays", href: "/stays" },
+  { label: "Suppliers", href: "/suppliers" },
+  { label: "Services", href: "/services" },
+  { label: "Emergency", href: "/emergency" },
   { label: "Features", href: "/features" },
-  { label: "Walkthrough", href: "/walkthrough" },
   { label: "Pricing", href: "/pricing" },
-  { label: "For Suppliers", href: "/suppliers" },
   { label: "About", href: "/about" },
-  { label: "Help", href: "/help" },
 ]
 
 export default function PublicNav() {

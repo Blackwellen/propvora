@@ -6,12 +6,14 @@ import NewsletterSignup from "@/components/marketing/NewsletterSignup"
 
 const footerLinks = {
   product: [
+    { label: "Stays", href: "/stays" },
+    { label: "Suppliers", href: "/suppliers" },
+    { label: "Services", href: "/services" },
+    { label: "Emergency", href: "/emergency" },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Product walkthrough", href: "/walkthrough" },
     { label: "Partner Programme", href: "/affiliate-programme" },
     { label: "Help Centre", href: "/help" },
-    { label: "FAQ", href: "/faq" },
   ],
   company: [
     { label: "About", href: "/about" },
