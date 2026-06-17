@@ -1,17 +1,18 @@
-'use client'
+﻿'use client'
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, List, Map, ToggleLeft, Star, CheckCircle } from 'lucide-react'
+import { Search, MapPin, List, Map, Star, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import { SEED_PROVIDERS } from '@/lib/public-marketplace/seed-fallback'
+import { formatPence } from '@/lib/marketplace/money'
 
 const ProvidersMap = dynamic(() => import('@/components/public-marketplace/maps/ProvidersMap'), { ssr: false })
 
+const AREA_CHIPS = ['All areas', 'City Centre', 'Didsbury', 'Salford Quays', 'Stockport', 'Chorlton', 'Prestwich', 'Altrincham']
 const FILTER_CHIPS = [
-  { label: 'All', value: '' },
   { label: 'Vetted', value: 'vetted' },
   { label: 'Gas Safe', value: 'gassafe' },
   { label: 'NICEIC', value: 'niceic' },
@@ -19,9 +20,10 @@ const FILTER_CHIPS = [
 ]
 
 export default function ProvidersMapPage() {
-  const [activeFilter, setActiveFilter] = useState('')
+  const [activeArea, setActiveArea] = useState('All areas')
   const [searchAsMove, setSearchAsMove] = useState(false)
   const [query, setQuery] = useState('')
+  const [activeFilter, setActiveFilter] = useState('')
 
   const filtered = SEED_PROVIDERS.filter(p => {
     if (query && !p.companyName.toLowerCase().includes(query.toLowerCase()) && !p.trade.toLowerCase().includes(query.toLowerCase())) return false
@@ -35,11 +37,19 @@ export default function ProvidersMapPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <PublicMarketplaceNav />
+
+      {/* SPLIT LAYOUT — full height under nav */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar */}
-        <aside className="w-80 flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0">
-          {/* Search */}
-          <div className="p-3 border-b border-slate-100">
+        {/* LEFT COLUMN */}
+        <aside className="w-[480px] flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0">
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-slate-100 shrink-0">
+            <p className="font-bold text-slate-900 text-base">{filtered.length} providers match your criteria</p>
+            <p className="text-slate-500 text-xs mt-0.5">Showing results for Manchester, within 15 miles</p>
+          </div>
+
+          {/* Search + filters */}
+          <div className="px-4 py-3 border-b border-slate-100 shrink-0 space-y-2">
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
               <Search className="h-4 w-4 text-slate-400 shrink-0" />
               <input
@@ -50,20 +60,12 @@ export default function ProvidersMapPage() {
                 className="flex-1 text-sm bg-transparent outline-none text-slate-700 placeholder-slate-400"
               />
             </div>
-          </div>
-
-          {/* Filter chips */}
-          <div className="p-3 border-b border-slate-100">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               {FILTER_CHIPS.map(chip => (
                 <button
                   key={chip.value}
                   onClick={() => setActiveFilter(chip.value === activeFilter ? '' : chip.value)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    activeFilter === chip.value
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'
-                  }`}
+                  className={["px-3 py-1 rounded-full text-xs font-medium border transition-colors", activeFilter === chip.value ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'].join(' ')}
                 >
                   {chip.label}
                 </button>
@@ -71,87 +73,112 @@ export default function ProvidersMapPage() {
             </div>
           </div>
 
-          {/* List/Map toggle */}
-          <div className="p-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Link
-                href="/providers"
-                className="flex items-center gap-1.5 flex-1 justify-center py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                <List className="h-3.5 w-3.5" />
-                List view
-              </Link>
-              <button className="flex items-center gap-1.5 flex-1 justify-center py-2 bg-slate-900 text-white rounded-lg text-xs font-medium">
-                <Map className="h-3.5 w-3.5" />
-                Map view
-              </button>
+          {/* List/Map toggle + results count */}
+          <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <span className="text-xs text-slate-500">{filtered.length} providers in this area</span>
+            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+              <Link href="/providers" className="flex items-center gap-0.5 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"><List className="h-3 w-3" />List</Link>
+              <button className="flex items-center gap-0.5 px-2 py-1 text-xs font-medium bg-slate-900 text-white"><Map className="h-3 w-3" />Map</button>
             </div>
           </div>
 
-          {/* Results count */}
-          <div className="px-3 py-2 text-xs text-slate-500">
-            {filtered.length} providers in this area
-          </div>
-
-          {/* Compact provider cards */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {/* Provider list */}
+          <div className="flex-1 overflow-y-auto">
             {filtered.map(provider => (
-              <div key={provider.id} className="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-all">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                    <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="40px" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold text-slate-900 truncate">{provider.companyName}</p>
-                      {provider.proBadge && (
-                        <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-semibold shrink-0">Pro</span>
-                      )}
+              <Link key={provider.id} href={"/providers/" + provider.slug} className="block border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                {/* Banner image */}
+                <div className="relative aspect-[16/8] overflow-hidden">
+                  <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover" sizes="480px" />
+                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Featured</div>
+                  {provider.vetted && (
+                    <div className="absolute top-2 right-10 flex items-center gap-0.5 bg-white/90 text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5 text-[10px] font-medium">
+                      <CheckCircle className="w-2.5 h-2.5" />Vetted
                     </div>
-                    <p className="text-xs text-slate-500 truncate">{provider.trade}</p>
-                  </div>
+                  )}
+                  <button className="absolute top-2 right-2 bg-white/90 rounded-full p-1.5" onClick={e => e.preventDefault()}>
+                    <svg className="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  </button>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-                    <span className="text-xs font-semibold text-slate-700">{provider.rating}</span>
-                    {provider.vetted && (
-                      <span className="ml-1 flex items-center gap-0.5 text-xs text-emerald-600">
-                        <CheckCircle className="h-3 w-3" />Vetted
-                      </span>
-                    )}
-                  </div>
-                  <Link
-                    href={`/providers/${provider.slug}`}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700"
-                  >
-                    View profile →
-                  </Link>
-                </div>
-              </div>
-            ))}
-            {filtered.length === 0 && (
-              <div className="text-center py-8 text-slate-400 text-sm">
-                No providers match your filters
-              </div>
-            )}
-          </div>
 
-          {/* Search as I move toggle */}
-          <div className="p-3 border-t border-slate-100">
-            <button
-              onClick={() => setSearchAsMove(prev => !prev)}
-              className="flex items-center gap-2 text-sm text-slate-600 w-full"
-            >
-              <ToggleLeft className={`h-5 w-5 ${searchAsMove ? 'text-blue-600' : 'text-slate-400'}`} />
-              Search as I move the map
-            </button>
+                {/* Content below banner */}
+                <div className="px-4 pb-4 pt-2 relative">
+                  {/* Avatar overlapping from banner */}
+                  <div className="relative w-12 h-12 rounded-full border-2 border-white shadow overflow-hidden bg-white -mt-6 mb-1">
+                    <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="48px" />
+                  </div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-bold text-slate-900 text-sm">{provider.companyName}</h3>
+                    {provider.proBadge && <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded">Pro</span>}
+                    <div className="flex items-center gap-0.5 ml-auto">
+                      <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+                      <span className="text-xs font-semibold text-slate-700">{provider.rating}</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-xs mb-2">{provider.trade}</p>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                    <span>{provider.jobsDone.toLocaleString()} jobs</span>
+                    <span>{provider.responseTime}</span>
+                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{provider.coverageRadius} mi</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    {provider.vetted && <span className="text-[10px] text-emerald-700 font-medium flex items-center gap-0.5"><CheckCircle className="h-2.5 w-2.5" />Fully insured</span>}
+                    {provider.gasSafe && <span className="text-[10px] text-blue-700 font-medium">Gas Safe</span>}
+                    {provider.emergency24h && <span className="text-[10px] text-slate-500">24/7 service</span>}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">From</p>
+                      <span className="text-base font-bold text-slate-900">{formatPence(provider.fromPrice)}</span>
+                      <span className="text-xs text-slate-500"> / visit</span>
+                    </div>
+                    <span className="text-xs font-semibold text-blue-600">View profile</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            <button className="w-full py-4 text-sm font-medium text-blue-600 hover:bg-slate-50 border-t border-slate-100">Load more providers</button>
           </div>
         </aside>
 
-        {/* Map */}
-        <div className="flex-1 relative">
+        {/* MAP */}
+        <div className="flex-1 relative overflow-hidden">
           <ProvidersMap providers={filtered} />
+
+          {/* Area chips overlay */}
+          <div className="absolute top-3 left-3 right-3 z-[1000] flex items-center gap-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+            {AREA_CHIPS.map(area => (
+              <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
+                {area}
+              </button>
+            ))}
+            <button onClick={() => setSearchAsMove(p => !p)} className={["ml-auto shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md whitespace-nowrap", searchAsMove ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'].join(' ')}>
+              <span className={["w-3.5 h-3.5 rounded-full border-2 transition-colors", searchAsMove ? 'bg-white border-white' : 'border-slate-400'].join(' ')} />
+              Search as I move the map
+            </button>
+          </div>
+
+          {/* Coverage key */}
+          <div className="absolute bottom-6 right-4 z-[1000] bg-white rounded-xl shadow-md p-3 text-xs space-y-1.5">
+            <p className="font-semibold text-slate-700 mb-2">Coverage key</p>
+            <div className="flex items-center gap-2 text-slate-600"><span className="w-3 h-3 rounded-full bg-blue-600 shrink-0" />Exact location</div>
+            <div className="flex items-center gap-2 text-slate-600"><span className="w-3 h-3 rounded-full border-2 border-dashed border-blue-500 shrink-0" />Service coverage</div>
+            <div className="flex items-center gap-2 text-slate-600"><span className="w-3 h-3 rounded-full border-2 border-slate-400 shrink-0" />Your search area</div>
+          </div>
+
+          {/* Search area info */}
+          <div className="absolute bottom-6 left-4 z-[1000] bg-white rounded-xl shadow-md p-3 text-xs">
+            <p className="font-semibold text-slate-700">Search area: Manchester, 15 miles radius</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-slate-500">Providers in this area:</span>
+              <span className="bg-blue-600 text-white px-2 py-0.5 rounded-full font-semibold">{filtered.length}</span>
+            </div>
+          </div>
+
+          {/* Map / Satellite toggle */}
+          <div className="absolute bottom-6 right-[12rem] z-[1000] flex items-center border border-slate-200 rounded-xl overflow-hidden shadow-md">
+            <button className="px-3 py-1.5 text-xs font-medium bg-white text-slate-900">Map</button>
+            <button className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-500 border-l border-slate-200">Satellite</button>
+          </div>
         </div>
       </div>
     </div>

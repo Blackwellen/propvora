@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users } from 'lucide-react'
+import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, Share2, MessageCircle } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
-import ProviderCard from '@/components/public-marketplace/cards/ProviderCard'
 import { getPublicProviderBySlug, getPublicProviders } from '@/lib/public-marketplace/queries'
 import { SEED_PROVIDERS } from '@/lib/public-marketplace/seed-fallback'
+import { formatPence } from '@/lib/marketplace/money'
 
 export async function generateStaticParams() {
   return SEED_PROVIDERS.map(p => ({ slug: p.slug }))
@@ -22,6 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+const TABS = ['Overview', 'Services', 'Reviews', 'Portfolio', 'Certifications', 'Team', 'Coverage', 'FAQs']
+
 export default async function ProviderDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const [provider, allProviders] = await Promise.all([
@@ -34,89 +36,164 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
 
   return (
     <PublicPageShell>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* HERO BANNER */}
+      <div className="relative h-[280px] overflow-hidden">
+        <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-5">
-          <Link href="/providers" className="hover:text-slate-900">Providers</Link>
+        <nav className="absolute top-4 left-6 flex items-center gap-1.5 text-sm text-white/80">
+          <Link href="/providers" className="hover:text-white">Providers</Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span>{provider.trade}</span>
           <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-slate-900 truncate max-w-xs">{provider.companyName}</span>
+          <span className="text-white truncate max-w-xs">{provider.companyName}</span>
         </nav>
 
-        {/* Hero banner */}
-        <div className="relative h-64 rounded-2xl overflow-hidden mb-0">
-          <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover" sizes="100vw" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Logo card */}
+        <div className="absolute bottom-6 left-6">
+          <div className="relative w-32 h-32 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white">
+            <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="128px" />
+            {provider.vetted && (
+              <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg">Top Rated</div>
+            )}
+          </div>
         </div>
 
-        {/* Logo / avatar overlapping */}
-        <div className="flex items-end gap-4 -mt-8 px-4 mb-4">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white shadow-md shrink-0 bg-white">
-            <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="80px" />
+        {/* Title overlay */}
+        <div className="absolute bottom-6 left-[172px] right-[320px]">
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-3xl font-bold text-white leading-tight">{provider.companyName}</h1>
+            {provider.proBadge && <span className="bg-blue-600 text-white text-xs px-2.5 py-1 rounded font-semibold">Pro</span>}
           </div>
-          <div className="flex-1 min-w-0 pb-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900">{provider.companyName}</h1>
-              {provider.proBadge && <span className="text-xs bg-blue-600 text-white px-2.5 py-1 rounded font-semibold">Pro</span>}
-              {provider.vetted && (
-                <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-semibold border border-emerald-100">
-                  <CheckCircle className="h-3 w-3" />Vetted
-                </span>
-              )}
+          <p className="text-white/80 text-sm mb-2">{provider.trade}</p>
+          <div className="flex items-center gap-3">
+            {provider.vetted && (
+              <span className="flex items-center gap-1 text-emerald-400 text-xs font-semibold">
+                <CheckCircle className="h-3.5 w-3.5" />Verified
+              </span>
+            )}
+            {provider.vetted && (
+              <span className="flex items-center gap-1 text-emerald-400 text-xs font-semibold">
+                <CheckCircle className="h-3.5 w-3.5" />Vetted
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-1.5">
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />)}
             </div>
-            <p className="text-sm text-slate-500 mt-0.5">{provider.trade} · {provider.location}</p>
+            <span className="text-white font-bold text-sm">{provider.rating}</span>
+            <span className="text-white/70 text-xs">({provider.reviewCount} reviews)</span>
+            <span className="text-white/70 text-xs flex items-center gap-1 ml-2">
+              <MapPin className="h-3 w-3" />{provider.location}
+            </span>
           </div>
         </div>
 
-        {/* Rating + quick info */}
-        <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
-          <div className="flex items-center gap-1.5">
-            <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-            <span className="font-bold text-slate-900">{provider.rating}</span>
-            <span className="text-slate-500">({provider.reviewCount} reviews)</span>
+        {/* Floating CTA card */}
+        <div className="absolute right-6 top-6 bg-white shadow-xl rounded-2xl p-5 w-56">
+          <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm mb-2 transition-colors">
+            Request quote →
+          </button>
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-xl text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors mb-2">
+            <MessageCircle className="h-4 w-4" />Contact provider
+          </button>
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-xl text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors mb-2">
+            <Briefcase className="h-4 w-4" />View services
+          </button>
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-xl text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">
+            <Heart className="h-4 w-4" />Save provider
+          </button>
+        </div>
+      </div>
+
+      {/* TRUST ROW */}
+      <div className="bg-white border-b border-slate-100 py-4">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+            {[
+              { icon: Clock, label: 'Fast response', sub: provider.responseTime },
+              { icon: Shield, label: 'Fully insured', sub: provider.insuranceAmount ?? '£5M' },
+              { icon: CheckCircle, label: 'Gas Safe', sub: provider.gasSafe ? 'No. 556789' : 'Registered' },
+              { icon: Clock, label: '24/7 emergency', sub: provider.emergency24h ? 'Available' : 'On request' },
+              { icon: CheckCircle, label: 'DBS checked', sub: 'Verified' },
+            ].map(({ icon: Icon, label, sub }) => (
+              <div key={label} className="flex items-center gap-3">
+                <Icon className="h-5 w-5 text-blue-600 shrink-0" />
+                <div>
+                  <p className="font-semibold text-slate-700 text-sm">{label}</p>
+                  <p className="text-slate-400 text-xs">{sub}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <span className="text-slate-300">|</span>
-          <span className="text-slate-600 flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{provider.location}</span>
         </div>
+      </div>
 
-        {/* Stats strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          {[
-            { label: 'Jobs done', value: provider.jobsDone.toLocaleString() + '+' },
-            { label: 'Rating', value: provider.rating + '★' },
-            { label: 'Avg response', value: provider.responseTime },
-            { label: 'Years active', value: provider.yearsActive + ' yrs' },
-            { label: 'Team size', value: provider.teamSize + ' staff' },
-            { label: 'Coverage', value: provider.coverageRadius + ' mi radius' },
-          ].map(stat => (
-            <div key={stat.label} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-              <p className="text-base font-bold text-slate-900">{stat.value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{stat.label}</p>
-            </div>
-          ))}
+      {/* STATS STRIP */}
+      <div className="bg-slate-50 border-b border-slate-100 py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+            {[
+              { value: provider.jobsDone.toLocaleString() + '+', label: 'Jobs' },
+              { value: '98%', label: 'Repeat' },
+              { value: provider.responseTime, label: 'Response' },
+              { value: provider.yearsActive + '+', label: 'Years' },
+              { value: provider.coverageRadius + ' mi', label: 'Coverage' },
+              { value: provider.emergency24h ? '24/7' : 'On request', label: 'Emergency' },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <p className="text-3xl font-bold text-slate-900">{value}</p>
+                <p className="text-slate-400 text-sm mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm">
-            Request a quote
-          </button>
-          <button className="flex items-center gap-2 px-6 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl transition-colors text-sm">
-            Contact provider
-          </button>
-          <button className="flex items-center gap-2 px-6 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl transition-colors text-sm">
-            Save provider
-          </button>
+      {/* TABS */}
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {TABS.map((tab, i) => (
+              <div
+                key={tab}
+                className={`shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  i === 0 ? 'border-blue-600 text-blue-600 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {tab}{tab === 'Reviews' ? ` ${provider.reviewCount}` : ''}
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* LEFT + MIDDLE (2/3) */}
           <div className="lg:col-span-2 space-y-8">
             {/* About */}
             {provider.description && (
               <div>
                 <h2 className="text-xl font-bold text-slate-900 mb-3">About</h2>
                 <p className="text-slate-600 leading-relaxed">{provider.description}</p>
+              </div>
+            )}
+
+            {/* Why customers choose us */}
+            {provider.certifications && provider.certifications.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Why customers choose us</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Transparent pricing', 'Qualified engineers', 'DBS checked', 'Rapid response', 'Satisfaction guarantee', 'Genuine reviews'].map(h => (
+                    <div key={h} className="flex items-center gap-2.5 text-sm text-slate-700">
+                      <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                      {h}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -127,8 +204,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {provider.services.map(service => (
                     <span key={service} className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 px-3 py-2.5 rounded-xl border border-slate-100">
-                      <Briefcase className="h-3.5 w-3.5 text-blue-500 shrink-0" />
-                      {service}
+                      <Briefcase className="h-3.5 w-3.5 text-blue-500 shrink-0" />{service}
                     </span>
                   ))}
                 </div>
@@ -138,23 +214,22 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
             {/* Certifications */}
             {provider.certifications.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Certifications & accreditations</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Certifications & compliance</h2>
                 <div className="flex flex-wrap gap-2">
                   {provider.certifications.map(cert => (
                     <span key={cert} className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 shadow-sm">
-                      <Shield className="h-4 w-4 text-blue-500 shrink-0" />
-                      {cert}
+                      <Shield className="h-4 w-4 text-blue-500 shrink-0" />{cert}
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Team members */}
+            {/* Team */}
             {provider.teamMembers && provider.teamMembers.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">The team</h2>
-                <div className="flex flex-wrap gap-4">
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Our team</h2>
+                <div className="flex flex-wrap gap-3">
                   {provider.teamMembers.map(member => (
                     <div key={member.name} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
                       <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
@@ -170,24 +245,10 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
               </div>
             )}
 
-            {/* Coverage areas */}
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">Coverage areas</h2>
-              <p className="text-sm text-slate-500 mb-3">Within {provider.coverageRadius} miles</p>
-              <div className="flex flex-wrap gap-2">
-                {provider.coverageCities.map(city => (
-                  <span key={city} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
-                    <MapPin className="h-3 w-3" />
-                    {city}
-                  </span>
-                ))}
-              </div>
-            </div>
-
             {/* FAQs */}
             {provider.faqs && provider.faqs.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Frequently asked questions</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">FAQs</h2>
                 <div className="space-y-3">
                   {provider.faqs.map(faq => (
                     <details key={faq.q} className="group border border-slate-200 rounded-xl overflow-hidden">
@@ -195,9 +256,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                         <span className="font-medium text-slate-900 text-sm">{faq.q}</span>
                         <span className="text-slate-400 text-lg font-light ml-4 shrink-0 group-open:rotate-45 transition-transform">+</span>
                       </summary>
-                      <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">
-                        {faq.a}
-                      </div>
+                      <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">{faq.a}</div>
                     </details>
                   ))}
                 </div>
@@ -221,40 +280,104 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
             {/* Related providers */}
             {relatedProviders.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Other providers you might like</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">You might also like</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {relatedProviders.map(p => (
-                    <ProviderCard key={p.id} provider={p} />
+                    <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-3">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                          <Image src={p.logo} alt={p.companyName} fill className="object-cover" sizes="40px" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-slate-900 truncate">{p.companyName}</p>
+                          <p className="text-[10px] text-slate-500">{p.trade}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+                          <span className="text-xs font-semibold">{p.rating}</span>
+                        </div>
+                        <Link href={`/providers/${p.slug}`} className="text-xs font-semibold text-blue-600">View →</Link>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right col — sticky contact panel */}
-          <div className="lg:col-span-1">
+          {/* RIGHT (1/3) */}
+          <div className="space-y-4">
+            {/* Coverage map placeholder */}
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-slate-100 h-48 flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-slate-600">Primary area: Greater Manchester</p>
+                  <p className="text-xs text-slate-400 mt-1">Within {provider.coverageRadius} miles</p>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-semibold text-slate-900 mb-2">Coverage areas</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {provider.coverageCities.map(city => (
+                    <span key={city} className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-100">
+                      <MapPin className="h-2.5 w-2.5" />{city}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Review card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                <span className="text-2xl font-bold text-slate-900">{provider.rating}</span>
+                <span className="text-sm text-slate-500">({provider.reviewCount} reviews)</span>
+              </div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Top rated by homeowners</p>
+              <div className="space-y-2">
+                {['Reliability', 'Quality', 'Communication', 'Value'].map(cat => (
+                  <div key={cat} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-600">{cat}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-400 rounded-full" style={{ width: `${90 + Math.random() * 10}%` }} />
+                      </div>
+                      <span className="font-semibold text-slate-900 w-6">4.{Math.floor(8 + Math.random() * 2)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sticky contact panel */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 sticky top-20">
               <h3 className="text-base font-bold text-slate-900 mb-1">{provider.companyName}</h3>
               <div className="flex items-center gap-1.5 mb-4">
                 <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
                 <span className="font-semibold text-slate-900">{provider.rating}</span>
-                <span className="text-sm text-slate-500">({provider.reviewCount} reviews)</span>
+                <span className="text-sm text-slate-500">({provider.reviewCount})</span>
               </div>
 
               <div className="space-y-2.5 text-sm mb-5">
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Clock className="h-4 w-4 text-emerald-500 shrink-0" />
-                  Responds in {provider.responseTime}
+                  <Clock className="h-4 w-4 text-emerald-500 shrink-0" />Responds in {provider.responseTime}
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Users className="h-4 w-4 text-blue-500 shrink-0" />
-                  {provider.teamSize} member team
+                  <Users className="h-4 w-4 text-blue-500 shrink-0" />{provider.teamSize} member team
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Shield className="h-4 w-4 text-violet-500 shrink-0" />
-                  Insured up to {provider.insuranceAmount}
+                  <Shield className="h-4 w-4 text-violet-500 shrink-0" />Insured up to {provider.insuranceAmount}
                 </div>
               </div>
+
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Services from</p>
+              <p className="text-2xl font-bold text-slate-900 mb-4">
+                {formatPence(provider.fromPrice)}<span className="text-sm font-normal text-slate-500"> / visit</span>
+              </p>
 
               <button className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors mb-2 text-sm">
                 Request a quote
@@ -268,10 +391,6 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                   Available 24/7 for emergencies
                 </div>
               )}
-
-              <p className="text-center text-xs text-slate-400 mt-4">
-                From <span className="font-semibold text-slate-600">£{(provider.fromPrice / 100).toFixed(0)}</span>/visit
-              </p>
             </div>
           </div>
         </div>

@@ -1,81 +1,198 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, MapPin, Clock, Zap, CheckCircle } from 'lucide-react'
+import { Heart, Star, MapPin, Clock, Check, Users, Zap } from 'lucide-react'
+import { formatPence } from '@/lib/marketplace/money'
 import type { PublicServiceOffer } from '@/lib/public-marketplace/types'
 
-export default function ServiceOfferCard({ offer, featured, basePath = "/services" }: { offer: PublicServiceOffer; featured?: boolean; basePath?: string }) {
-  const price = (offer.basePrice / 100).toFixed(0)
-
-  if (featured) {
-    return (
-      <Link href={`${basePath}/${offer.slug}`} className="group block min-w-72 max-w-80">
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all">
-          <div className="relative h-44 overflow-hidden">
-            <Image src={offer.heroImage} alt={offer.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="320px" />
-            <div className="absolute top-2 left-2 flex gap-1.5">
-              <span className="bg-amber-400 text-amber-900 text-xs font-bold px-2 py-0.5 rounded-full">Featured</span>
-              {offer.verified && <span className="bg-emerald-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Verified</span>}
-            </div>
-          </div>
-          <div className="p-4">
-            <h3 className="font-bold text-slate-900 text-sm mb-1">{offer.title}</h3>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="relative w-6 h-6 rounded-full overflow-hidden shrink-0">
-                <Image src={offer.providerAvatar} alt={offer.providerName} fill className="object-cover" sizes="24px" />
-              </div>
-              <span className="text-xs text-slate-600">{offer.providerName}</span>
-              {offer.providerPro && <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-semibold">Pro</span>}
-            </div>
-            <div className="flex items-center gap-1 mb-2">
-              <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-              <span className="text-sm font-semibold">{offer.rating}</span>
-              <span className="text-xs text-slate-400">({offer.reviewCount})</span>
-            </div>
-            <div className="text-xs text-slate-500 space-y-1 mb-3">
-              <p className="flex items-center gap-1"><Clock className="h-3 w-3" />{offer.duration} · {offer.responseTime} response</p>
-              <p className="flex items-center gap-1"><MapPin className="h-3 w-3" />{offer.location}</p>
-              <p className="flex items-center gap-1 text-blue-600 font-medium"><Zap className="h-3 w-3" />Next: {offer.nextAvailable}</p>
-            </div>
-            <div className="space-y-1 mb-3">
-              {offer.deliverables.slice(0, 3).map(d => (
-                <p key={d} className="flex items-center gap-1 text-xs text-slate-600">
-                  <CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />{d}
-                </p>
-              ))}
-            </div>
-            <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-              <span className="text-base font-bold text-slate-900">£{price} <span className="text-xs font-normal text-slate-500">fixed price</span></span>
-              <span className="text-xs font-semibold text-blue-600 group-hover:text-blue-700">View details →</span>
-            </div>
-          </div>
-        </div>
-      </Link>
-    )
-  }
+// ─── FEATURED (large, used in horizontal scroll) ─────────────────────────────
+function FeaturedServiceOfferCard({ offer, basePath }: { offer: PublicServiceOffer; basePath: string }) {
+  const isUrgent = !!offer.urgent
 
   return (
-    <Link href={`${basePath}/${offer.slug}`} className="group block">
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
-        <div className="relative h-32 overflow-hidden">
-          <Image src={offer.heroImage} alt={offer.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, 25vw" />
-          {offer.urgent && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">Urgent</span>
-          )}
+    <div className="flex flex-col border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white hover:shadow-lg transition-shadow min-w-[280px]">
+      {/* Image */}
+      <div className="relative aspect-[16/9] shrink-0">
+        <Image
+          src={offer.heroImage}
+          alt={offer.title}
+          fill
+          className="object-cover"
+          sizes="320px"
+        />
+        {/* Featured badge top-left */}
+        <div className="absolute top-3 left-3 bg-violet-600 text-white text-xs px-2.5 py-1 rounded-full">
+          {isUrgent ? 'Urgent' : offer.featured ? 'Featured' : 'Popular'}
         </div>
-        <div className="p-3">
-          <h3 className="text-sm font-semibold text-slate-900 line-clamp-1 mb-1">{offer.title}</h3>
-          <p className="text-xs text-slate-500 line-clamp-1 mb-2">{offer.providerName}</p>
-          <div className="flex items-center gap-1 mb-2">
-            <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-            <span className="text-xs font-semibold">{offer.rating}</span>
-            <span className="text-xs text-slate-400">({offer.reviewCount})</span>
+        {/* Verified badge right */}
+        {offer.verified && (
+          <div className="absolute top-3 right-10 bg-white/90 text-emerald-600 rounded-full px-2 py-0.5 text-xs flex items-center gap-1">
+            <Check className="w-3 h-3" />Verified
           </div>
-          <div className="flex items-center justify-between border-t border-slate-100 pt-2">
-            <span className="text-sm font-bold text-slate-900">From £{price}</span>
-            <span className="text-xs font-semibold text-blue-600 group-hover:text-blue-700">View →</span>
+        )}
+        {/* Heart */}
+        <button
+          onClick={e => { e.preventDefault(); e.stopPropagation() }}
+          aria-label="Save offer"
+          className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-sm transition-colors"
+        >
+          <Heart className="w-3.5 h-3.5 text-slate-600" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col flex-1 p-4 space-y-2">
+        <h3 className="font-semibold text-slate-900 text-[15px] leading-tight line-clamp-2">{offer.title}</h3>
+
+        {/* Provider row */}
+        <div className="flex items-center gap-2">
+          <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0">
+            <Image src={offer.providerAvatar} alt={offer.providerName} fill className="object-cover" sizes="28px" />
+          </div>
+          <span className="text-slate-600 text-sm truncate">{offer.providerName}</span>
+          {offer.providerPro && <span className="shrink-0 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded font-semibold">Pro</span>}
+          <span className="shrink-0 text-slate-400 text-xs">Business account</span>
+        </div>
+
+        {/* Rating + response + size */}
+        <div className="flex items-center gap-3 text-xs text-slate-500">
+          <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-400 fill-amber-400" />{offer.rating} ({offer.reviewCount})</span>
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{offer.responseTime}</span>
+          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{offer.jobsDone}+ jobs</span>
+        </div>
+
+        {/* Deliverables */}
+        <div className="space-y-1">
+          {offer.deliverables.slice(0, 3).map(d => (
+            <div key={d} className="flex items-center gap-1 text-xs text-slate-600">
+              <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />{d}
+            </div>
+          ))}
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-1 text-slate-500 text-xs">
+          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />{offer.location}
+        </div>
+
+        {/* Next available */}
+        <div className="flex items-center gap-1 text-xs">
+          <span className="text-slate-400">Next available:</span>
+          <span className={`font-medium ${isUrgent ? 'text-red-600' : 'text-blue-600'}`}>
+            {isUrgent ? 'Today — urgent' : offer.nextAvailable}
+          </span>
+        </div>
+
+        {/* Price + CTA */}
+        <div className="mt-auto pt-1">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-xl font-bold text-slate-900">{formatPence(offer.basePrice)}</span>
+            <span className="text-xs text-slate-400 ml-1">Fixed price</span>
+          </div>
+          <Link
+            href={`${basePath}/${offer.slug}`}
+            className="block w-full border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl py-2 text-sm font-medium text-center transition-colors"
+          >
+            View details →
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── COMPACT (small, used in category grid) ───────────────────────────────────
+function CompactServiceOfferCard({ offer, basePath }: { offer: PublicServiceOffer; basePath: string }) {
+  return (
+    <div className="flex flex-col h-full border border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow">
+      {/* Two-column: image left, content right */}
+      <div className="flex flex-row flex-1">
+        {/* Image */}
+        <div className="relative w-24 shrink-0">
+          <Image
+            src={offer.heroImage}
+            alt={offer.title}
+            fill
+            className="object-cover"
+            sizes="96px"
+          />
+        </div>
+        {/* Content */}
+        <div className="flex flex-col flex-1 p-3 min-w-0 space-y-1.5">
+          {/* Top badges */}
+          <div className="flex flex-wrap gap-1">
+            {offer.verified && (
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-full">Verified</span>
+            )}
+            {offer.providerPro && (
+              <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded">Pro</span>
+            )}
+          </div>
+
+          <h3 className="font-semibold text-slate-800 text-sm leading-tight line-clamp-2">{offer.title}</h3>
+
+          <div className="flex items-center gap-1 text-xs text-slate-500">
+            <span>{offer.providerName}</span>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs">
+            <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+            <span className="font-semibold text-slate-700">{offer.rating}</span>
+            <span className="text-slate-400">({offer.reviewCount})</span>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs text-slate-500">
+            <Clock className="w-3 h-3 text-slate-400 shrink-0" />{offer.responseTime}
+          </div>
+
+          {/* Deliverables */}
+          <div className="space-y-0.5">
+            {offer.deliverables.slice(0, 3).map(d => (
+              <div key={d} className="flex items-center gap-1 text-[10px] text-slate-600">
+                <Check className="w-2.5 h-2.5 text-emerald-500 shrink-0" />{d}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 text-[10px] text-slate-500">
+            <MapPin className="w-2.5 h-2.5 text-slate-400 shrink-0" />{offer.location}
+          </div>
+
+          <div className="flex items-center gap-1 text-[10px]">
+            <span className="text-slate-400">Next:</span>
+            <span className={`font-medium ${offer.urgent ? 'text-red-600' : 'text-blue-600'}`}>{offer.nextAvailable}</span>
           </div>
         </div>
       </div>
-    </Link>
+
+      {/* Bottom: price + link */}
+      <div className="flex items-center justify-between px-3 pb-3 pt-1 border-t border-slate-100 mt-auto">
+        <div>
+          <span className="text-lg font-bold text-slate-900">{formatPence(offer.basePrice)}</span>
+          <span className="text-xs text-slate-400 ml-0.5">/ fixed</span>
+        </div>
+        <Link
+          href={`${basePath}/${offer.slug}`}
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+        >
+          View details →
+        </Link>
+      </div>
+    </div>
   )
+}
+
+// ─── PUBLIC EXPORT ─────────────────────────────────────────────────────────────
+export default function ServiceOfferCard({
+  offer,
+  featured,
+  basePath = '/services',
+}: {
+  offer: PublicServiceOffer
+  featured?: boolean
+  basePath?: string
+}) {
+  if (featured) {
+    return <FeaturedServiceOfferCard offer={offer} basePath={basePath} />
+  }
+  return <CompactServiceOfferCard offer={offer} basePath={basePath} />
 }
