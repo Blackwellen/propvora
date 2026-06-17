@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { Star, MapPin } from 'lucide-react'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
-export default function ProviderFeaturedCard({ provider }: { provider: PublicProvider }) {
+export default function ProviderFeaturedCard({ provider, basePath = "/providers" }: { provider: PublicProvider; basePath?: string }) {
   return (
-    <Link href={`/providers/${provider.slug}`} className="group block min-w-72 max-w-80">
+    <Link href={`${basePath}/${provider.slug}`} className="group block min-w-72 max-w-80">
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all">
         <div className="relative h-36 overflow-hidden">
           <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover" sizes="320px" />

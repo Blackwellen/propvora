@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { Star, MapPin, CheckCircle, Clock } from 'lucide-react'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
-export default function ProviderCard({ provider }: { provider: PublicProvider }) {
+export default function ProviderCard({ provider, basePath = "/providers" }: { provider: PublicProvider; basePath?: string }) {
   const fromPrice = (provider.fromPrice / 100).toFixed(0)
   return (
-    <Link href={`/providers/${provider.slug}`} className="group block">
+    <Link href={`${basePath}/${provider.slug}`} className="group block">
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
         <div className="relative h-36 overflow-hidden">
           <Image src={provider.heroImage} alt={provider.companyName} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, 50vw" />

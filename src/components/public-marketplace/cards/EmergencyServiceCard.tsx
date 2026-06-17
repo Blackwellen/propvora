@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Clock, Phone } from 'lucide-react'
 import type { PublicEmergencyService } from '@/lib/public-marketplace/types'
 
-export default function EmergencyServiceCard({ service }: { service: PublicEmergencyService }) {
+export default function EmergencyServiceCard({ service, basePath = "/emergency" }: { service: PublicEmergencyService; basePath?: string }) {
   const categoryIcons: Record<string, string> = {
     Plumbing: '🔧',
     Electrical: '⚡',
@@ -14,7 +14,7 @@ export default function EmergencyServiceCard({ service }: { service: PublicEmerg
   const icon = categoryIcons[service.category] ?? '🚨'
 
   return (
-    <Link href={`/emergency/${service.slug}`} className="group block">
+    <Link href={`${basePath}/${service.slug}`} className="group block">
       <div className="bg-white rounded-2xl border-2 border-red-100 hover:border-red-200 overflow-hidden shadow-sm hover:shadow-md transition-all p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-xl shrink-0">

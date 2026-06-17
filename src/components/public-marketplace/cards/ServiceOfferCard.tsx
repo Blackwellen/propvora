@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { Star, MapPin, Clock, Zap, CheckCircle } from 'lucide-react'
 import type { PublicServiceOffer } from '@/lib/public-marketplace/types'
 
-export default function ServiceOfferCard({ offer, featured }: { offer: PublicServiceOffer; featured?: boolean }) {
+export default function ServiceOfferCard({ offer, featured, basePath = "/services" }: { offer: PublicServiceOffer; featured?: boolean; basePath?: string }) {
   const price = (offer.basePrice / 100).toFixed(0)
 
   if (featured) {
     return (
-      <Link href={`/services/${offer.slug}`} className="group block min-w-72 max-w-80">
+      <Link href={`${basePath}/${offer.slug}`} className="group block min-w-72 max-w-80">
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all">
           <div className="relative h-44 overflow-hidden">
             <Image src={offer.heroImage} alt={offer.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="320px" />
@@ -54,7 +54,7 @@ export default function ServiceOfferCard({ offer, featured }: { offer: PublicSer
   }
 
   return (
-    <Link href={`/services/${offer.slug}`} className="group block">
+    <Link href={`${basePath}/${offer.slug}`} className="group block">
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
         <div className="relative h-32 overflow-hidden">
           <Image src={offer.heroImage} alt={offer.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, 25vw" />

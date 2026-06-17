@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { Star } from 'lucide-react'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
-export default function RelatedProviderCard({ provider }: { provider: PublicProvider }) {
+export default function RelatedProviderCard({ provider, basePath = "/providers" }: { provider: PublicProvider; basePath?: string }) {
   return (
-    <Link href={`/providers/${provider.slug}`} className="group block">
+    <Link href={`${basePath}/${provider.slug}`} className="group block">
       <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:shadow-sm transition-all">
         <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
           <Image src={provider.logo} alt={provider.companyName} fill className="object-cover" sizes="48px" />
