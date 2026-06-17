@@ -8,6 +8,7 @@ import {
   Heart,
   UserCircle,
   Compass,
+  Hotel,
   type LucideIcon,
 } from "lucide-react"
 
@@ -44,6 +45,7 @@ export interface CustomerNavItem {
 export const CUSTOMER_NAV: CustomerNavItem[] = [
   { label: "Home", href: "/user", icon: LayoutDashboard, short: "Home" },
   { label: "Explore", href: "/stay/search", icon: Compass, short: "Explore" },
+  { label: "Stays", href: "/user/stays", icon: Hotel, short: "Stays" },
   { label: "My Trips", href: "/user/bookings", icon: CalendarCheck, short: "Trips" },
   { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
   { label: "Saved", href: "/user/saved", icon: Heart, short: "Saved" },
@@ -61,15 +63,16 @@ export const CUSTOMER_ALL: CustomerNavItem[] = [
 /** The three primary destinations shown directly on the mobile bottom bar. */
 export const CUSTOMER_PRIMARY: CustomerNavItem[] = [
   CUSTOMER_NAV[0], // Home
-  CUSTOMER_NAV[2], // My Trips
-  CUSTOMER_NAV[3], // Messages
+  CUSTOMER_NAV[3], // My Trips
+  CUSTOMER_NAV[4], // Messages
 ]
 
 /** Everything reachable from the mobile "More" sheet. */
 export const CUSTOMER_MORE: CustomerNavItem[] = [
   CUSTOMER_NAV[1], // Explore
-  CUSTOMER_NAV[4], // Saved
-  ...CUSTOMER_ALL.slice(5), // Notifications, Payments, Orders, Profile
+  CUSTOMER_NAV[2], // Stays
+  CUSTOMER_NAV[5], // Saved
+  ...CUSTOMER_ALL.slice(6), // Notifications, Payments, Orders, Profile
 ]
 
 export function isCustomerNavActive(pathname: string, href: string): boolean {

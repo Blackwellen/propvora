@@ -432,6 +432,7 @@ export default function CustomerShell({
               {/* Primary nav links — visible on lg+ so common destinations don't need the account menu */}
               {[
                 { label: "Home", href: "/user" },
+                { label: "Stays", href: "/user/stays" },
                 { label: "My Trips", href: "/user/bookings" },
                 { label: "Saved", href: "/user/saved" },
               ].map(({ label, href }) => {
