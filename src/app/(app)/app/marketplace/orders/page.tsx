@@ -5,7 +5,7 @@ import { listOrders, type OrderSide } from "@/lib/marketplace/orders"
 import { getMarketplaceAccess } from "@/components/marketplace/server"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
-import { formatPence } from "@/components/marketplace/PriceTag"
+import { formatPence } from "@/lib/marketplace/money"
 import { MarketplaceEmptyState } from "@/components/marketplace/MarketplaceEmptyState"
 
 /* Marketplace ORDERS — buyer + seller fulfilment records from the REAL kernel

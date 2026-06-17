@@ -2,15 +2,7 @@
 
 import React from "react"
 import { cn } from "@/lib/utils"
-
-/* ──────────────────────────────────────────────────────────────────────────
-   PriceTag — formats integer PENCE → a localised currency string.
-
-   Money is integer pence end-to-end across the marketplace; this primitive is
-   the ONLY place value is humanised. It never mutates the underlying integer.
-   `pricingModel` (e.g. "per_night", "fixed", "hourly") is rendered as a small
-   suffix so a price reads "£120 / night".
-─────────────────────────────────────────────────────────────────────────── */
+import { formatPence as formatMarketplacePence } from "@/lib/marketplace/money"
 
 const PRICING_SUFFIX: Record<string, string> = {
   per_night: "/ night",
@@ -28,31 +20,14 @@ export function formatPence(
   pence: number | null | undefined,
   currency: string | null | undefined = "GBP"
 ): string {
-  if (pence === null || pence === undefined || !Number.isFinite(Number(pence))) return "—"
-  const code = (currency ?? "GBP").toUpperCase()
-  const major = Number(pence) / 100
-  // No fractional part for whole amounts; otherwise up to 2 dp.
-  const hasFraction = Math.round(Number(pence)) % 100 !== 0
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: hasFraction ? 2 : 0,
-      maximumFractionDigits: 2,
-    }).format(major)
-  } catch {
-    // Unknown currency code → plain prefix fallback.
-    return `${code} ${major.toLocaleString("en-GB", { minimumFractionDigits: hasFraction ? 2 : 0 })}`
-  }
+  return formatMarketplacePence(pence, currency)
 }
 
 interface PriceTagProps {
   pence: number | null | undefined
   currency?: string | null
   pricingModel?: string | null
-  /** Visual size of the amount. */
   size?: "sm" | "md" | "lg"
-  /** Label shown when there is no price. */
   emptyLabel?: string
   className?: string
 }
