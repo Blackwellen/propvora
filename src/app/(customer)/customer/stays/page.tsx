@@ -4,6 +4,7 @@ import PublicFilterChips from '@/components/public-marketplace/PublicFilterChips
 import PublicResultsToolbar from '@/components/public-marketplace/PublicResultsToolbar'
 import MarketplaceTrustStrip from '@/components/public-marketplace/MarketplaceTrustStrip'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
+import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
 import { getPublicStays } from '@/lib/public-marketplace/queries'
 
 export const metadata: Metadata = {
@@ -30,6 +31,9 @@ export default async function CustomerStaysPage() {
       {/* Hero */}
       <section className="bg-gradient-to-b from-blue-50 to-white pt-12 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <StayTypeTabs basePath="/customer/stays" />
+          </div>
           <h1 className="text-4xl font-extrabold text-slate-900 mb-3">Find a Stay</h1>
           <p className="text-lg text-slate-500 mb-8 max-w-2xl">
             Verified short-lets, serviced apartments and long-stay rentals across Greater Manchester and beyond.

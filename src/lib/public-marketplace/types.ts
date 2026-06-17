@@ -120,6 +120,55 @@ export interface PublicServiceOffer {
   lng: number
 }
 
+export interface PublicLongTermRental {
+  id: string
+  slug: string
+  title: string
+  propertyType: 'Flat' | 'House' | 'Studio' | 'Room' | 'Townhouse' | 'Penthouse' | 'Bungalow'
+  location: string
+  city: string
+  postcode: string
+  lat: number
+  lng: number
+  beds: number
+  bathrooms: number
+  maxOccupants: number
+  furnishingStatus: 'Furnished' | 'Part furnished' | 'Unfurnished'
+  billsIncluded: boolean
+  petsAllowed: boolean
+  parkingAvailable: boolean
+  gardenAvailable: boolean
+  studentFriendly: boolean
+  familyFriendly: boolean
+  professionalFriendly: boolean
+  monthlyRentPence: number // always pence
+  depositPence: number // always pence
+  holdingDepositPence?: number
+  councilTaxBand?: string
+  epcRating?: string
+  licenceVerified: boolean
+  landlordVerified: boolean
+  agentVerified: boolean
+  depositProtectionScheme?: string
+  availableFrom: string // ISO date string
+  minTenancyMonths: number
+  maxTenancyMonths?: number
+  rating: number
+  reviewCount: number
+  hostName: string
+  hostAvatar: string
+  hostProBadge: boolean
+  heroImage: string
+  gallery: string[]
+  amenities: string[]
+  badges: string[]
+  description?: string
+  nearbyTransport?: string[]
+  nearbyAmenities?: string[]
+  rooms?: { name: string; description: string }[]
+  features?: string[]
+}
+
 export interface PublicEmergencyService {
   id: string
   slug: string

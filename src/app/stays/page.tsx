@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
+import StayTypeTabs from "@/components/marketplace/stays/StayTypeTabs"
 import { Search, MapPin, Star, Shield, Zap } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -40,6 +41,9 @@ export default function StaysPage() {
       {/* Hero */}
       <section className="pt-32 pb-16 px-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center mb-8">
+            <StayTypeTabs basePath="/stays" />
+          </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 leading-tight mb-4">
             Find your perfect stay
           </h1>

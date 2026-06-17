@@ -16,7 +16,7 @@ const csp = [
   `default-src 'self'`,
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://*.stripe.com https://www.googletagmanager.com`,
   `style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com`,
-  `img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com https://*.supabase.co https://*.supabase.in https://*.r2.cloudflarestorage.com https://*.r2.dev https://*.stripe.com https://www.googletagmanager.com https://www.google-analytics.com`,
+  `img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com https://*.supabase.co https://*.supabase.in https://*.r2.cloudflarestorage.com https://*.r2.dev https://*.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://images.unsplash.com`,
   `connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://nominatim.openstreetmap.org https://api.stripe.com https://*.stripe.com https://*.basemaps.cartocdn.com https://www.google-analytics.com`,
   `frame-src 'self' https://js.stripe.com https://*.stripe.com https://hooks.stripe.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
       // Cloudflare R2 public buckets / custom domains
       { protocol: "https", hostname: "*.r2.dev" },
+      // Unsplash CDN (demo/seed images)
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
   headers: async () => [
@@ -67,6 +69,11 @@ const nextConfig: NextConfig = {
     },
   ],
   redirects: async () => [
+    // Long-term rental aliases
+    { source: "/rent", destination: "/stays/long-term", permanent: false },
+    { source: "/lettings", destination: "/stays/long-term", permanent: false },
+    { source: "/stays/rent", destination: "/stays/long-term", permanent: false },
+    { source: "/stays/long-term-rentals", destination: "/stays/long-term", permanent: false },
     {
       source: "/app",
       destination: "/property-manager",
@@ -87,6 +94,14 @@ const nextConfig: NextConfig = {
       destination: "/user/:path*",
       permanent: false,
     },
+    // Marketplace section aliases
+    { source: "/marketplace/stays", destination: "/stays", permanent: false },
+    { source: "/marketplace/services", destination: "/services", permanent: false },
+    { source: "/marketplace/providers", destination: "/providers", permanent: false },
+    { source: "/emergency", destination: "/emergency/emergency-locksmith-call-out", permanent: false },
+    { source: "/stays/property-map", destination: "/stays/map", permanent: false },
+    { source: "/services/zone-map", destination: "/services/map", permanent: false },
+    { source: "/providers/zone-map", destination: "/providers/map", permanent: false },
   ],
   rewrites: async () => ({
     beforeFiles: [
