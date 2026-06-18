@@ -33,6 +33,8 @@ interface NavDest {
   label: string
   href: string
   icon: LucideIcon
+  /** Hidden unless navFlags[flag] === true (V2/V1.5 gating). */
+  flag?: string
 }
 
 /* The 4 primary route destinations flanking the raised centre Copilot button:
@@ -51,9 +53,9 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
   {
     label: "Core",
     items: [
-      { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar },
-      { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe },
-      { label: "Suppliers", href: `${MANAGER_BASE}/marketplace/suppliers`, icon: Store },
+      { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar, flag: "bookingManagement" },
+      { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe, flag: "marketplaceEnabled" },
+      { label: "Suppliers", href: `${MANAGER_BASE}/marketplace/suppliers`, icon: Store, flag: "marketplaceEnabled" },
       { label: "Planning", href: `${MANAGER_BASE}/planning`, icon: Map },
       { label: "Contacts", href: `${MANAGER_BASE}/contacts`, icon: Users },
       { label: "Portals", href: `${MANAGER_BASE}/portals`, icon: Globe },
@@ -64,7 +66,7 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
     label: "Finance",
     items: [
       { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
-      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
+      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator, flag: "accountingGl" },
     ],
   },
   {
@@ -96,6 +98,8 @@ interface MobileBottomNavProps {
   onOpenChat?: () => void
   /** Unread Copilot/Inbox count shown as a badge on the centre button. */
   unreadCount?: number
+  /** Server-resolved feature flags; tagged items hidden when off. */
+  navFlags?: Record<string, boolean>
 }
 
 /** A single flat tab (route link). */
@@ -141,9 +145,14 @@ export default function MobileBottomNav({
   chatOpen = false,
   onOpenChat,
   unreadCount = 0,
+  navFlags,
 }: MobileBottomNavProps) {
   const pathname = usePathname()
   const [moreOpen, setMoreOpen] = useState(false)
+  // Flag gating: drop tagged V2/V1.5 items + any group left empty.
+  const moreGroups = MORE_GROUPS
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.flag || navFlags?.[i.flag] === true) }))
+    .filter((g) => g.items.length > 0)
 
   const moreActive = MORE_HREFS.some((h) => isActiveHref(pathname, h))
 
@@ -250,7 +259,7 @@ export default function MobileBottomNav({
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Jump to any section">
         <div className="pb-2 space-y-4">
-          {MORE_GROUPS.map((group) => (
+          {moreGroups.map((group) => (
             <div key={group.label}>
               <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">
                 {group.label}

@@ -103,6 +103,7 @@ export default function PortalShell({
             workspaceName={workspaceName}
             displayName={displayName}
             onOpenMobile={() => setMobileOpen(true)}
+            helpHref={`${base}/messages`}
           />
         </div>
 

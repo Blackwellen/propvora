@@ -41,14 +41,24 @@ export const PORTAL_NAV: Record<PortalKind, PortalNavGroup[]> = {
   ],
   landlord: [
     { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
-    { label: "PORTFOLIO", items: [{ label: "Properties", segment: "properties", icon: Building2 }] },
-    { label: "FINANCE", items: [{ label: "Financials", segment: "financials", icon: Wallet }] },
+    { label: "PORTFOLIO", items: [
+      { label: "Properties", segment: "properties", icon: Building2 },
+      { label: "Documents", segment: "documents", icon: FileText },
+    ] },
+    { label: "FINANCE", items: [
+      { label: "Financials", segment: "financials", icon: Wallet },
+      { label: "Payments", segment: "payments", icon: CreditCard },
+    ] },
+    { label: "OPERATIONS", items: [{ label: "Maintenance", segment: "maintenance", icon: Wrench }] },
     { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
   ],
   supplier: [
     { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
     { label: "WORK", items: [{ label: "Jobs", segment: "jobs", icon: ClipboardList }] },
-    { label: "FINANCE", items: [{ label: "Invoices", segment: "invoices", icon: FileText }] },
+    { label: "FINANCE", items: [
+      { label: "Invoices", segment: "invoices", icon: FileText },
+      { label: "Payments", segment: "payments", icon: CreditCard },
+    ] },
     { label: "DOCUMENTS", items: [{ label: "Documents", segment: "documents", icon: FolderOpen }] },
     { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
   ],

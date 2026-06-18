@@ -32,6 +32,13 @@ export const V2_FLAG_KEYS = [
   "canvasLite",
   "multiCountryPortfolio",
   "globalCountryPacks",
+  "accountingGl",
+  "automationsFull",
+  "portalTenant",
+  "portalLandlord",
+  "portalSupplier",
+  "registrationCustomer",
+  "registrationSupplier",
 ] as const
 
 /** A v2 feature flag identifier (camelCase). */
@@ -176,6 +183,59 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     dbKey: toDbKey("globalCountryPacks"),
     label: "Global Country Packs",
     description: "Country pack legal/tax/compliance depth and support-status gating.",
+    defaultEnabled: false,
+  },
+  accountingGl: {
+    key: "accountingGl",
+    dbKey: toDbKey("accountingGl"),
+    label: "Accounting — General Ledger",
+    description:
+      "Full double-entry accounting GL (chart of accounts, journals, trial balance, MTD filing, reconciliation). Off = Money basics only; accounting is positioned as a Xero/QuickBooks integration. Never in V1 nav.",
+    defaultEnabled: false,
+  },
+  automationsFull: {
+    key: "automationsFull",
+    dbKey: toDbKey("automationsFull"),
+    label: "Automations — Full Canvas",
+    description:
+      "Full automation engine (visual canvas, node registry, webhooks, integrations marketplace, usage marketplace, advanced run debugger). Off = automations-lite (presets/approvals/reminders) via canvasLite only. Requires canvasLite.",
+    defaultEnabled: false,
+  },
+  // ── Operational portal kill-switches (V1 Layer B — default ON) ───────────────
+  portalTenant: {
+    key: "portalTenant",
+    dbKey: toDbKey("portalTenant"),
+    label: "Tenant Portal",
+    description: "Magic-link tenant portal (tenancy, payments, maintenance, documents, messages). Operational kill-switch — ON in V1.",
+    defaultEnabled: true,
+  },
+  portalLandlord: {
+    key: "portalLandlord",
+    dbKey: toDbKey("portalLandlord"),
+    label: "Landlord Portal",
+    description: "Magic-link landlord/owner portal (properties, financials, owner statements, maintenance, documents). Operational kill-switch — ON in V1.",
+    defaultEnabled: true,
+  },
+  portalSupplier: {
+    key: "portalSupplier",
+    dbKey: toDbKey("portalSupplier"),
+    label: "Supplier Portal",
+    description: "Magic-link supplier portal (jobs, documents/evidence, invoices, payments, messages). Operational kill-switch — ON in V1.",
+    defaultEnabled: true,
+  },
+  // ── Registration / login segments (V2 personas — default OFF) ────────────────
+  registrationCustomer: {
+    key: "registrationCustomer",
+    dbKey: toDbKey("registrationCustomer"),
+    label: "Customer Registration",
+    description: "Show the Customer choice on /register and the Customer tab on /login. Off in V1 (customer workspace is staged).",
+    defaultEnabled: false,
+  },
+  registrationSupplier: {
+    key: "registrationSupplier",
+    dbKey: toDbKey("registrationSupplier"),
+    label: "Supplier Registration",
+    description: "Show the Supplier choice on /register and the Supplier tab on /login. Off in V1 until the supplier workspace is staged on.",
     defaultEnabled: false,
   },
 }

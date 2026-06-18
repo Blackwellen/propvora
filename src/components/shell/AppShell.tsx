@@ -19,9 +19,11 @@ interface AppShellProps {
   children: React.ReactNode
   /** Whether the workspace plan includes AI Copilot access. Passed from the server layout. */
   aiCopilotEnabled?: boolean
+  /** Server-resolved nav-relevant feature flags (V2/V1.5 surfaces). Off = hidden from nav. */
+  navFlags?: Record<string, boolean>
 }
 
-export default function AppShell({ children, aiCopilotEnabled = false }: AppShellProps) {
+export default function AppShell({ children, aiCopilotEnabled = false, navFlags }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("shell-collapsed") === "true"
@@ -58,7 +60,7 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
 
       {/* Fixed sidebar — floats over content */}
       <div className="hidden lg:block">
-        <SideNavigation collapsed={collapsed} onToggle={handleToggle} />
+        <SideNavigation collapsed={collapsed} onToggle={handleToggle} navFlags={navFlags} />
       </div>
 
       {/* Content column — offset for the sidebar on lg+ only; full width below
@@ -86,6 +88,7 @@ export default function AppShell({ children, aiCopilotEnabled = false }: AppShel
         chatOpen={chatOpen}
         onOpenChat={() => setChatOpen(true)}
         unreadCount={unreadCount}
+        navFlags={navFlags}
       />
 
       {/* Global chat bubble — desktop/lg+ only. Below lg the MobileBottomNav

@@ -4,6 +4,7 @@ import { headers } from "next/headers"
 import AppShell from "@/components/shell/AppShell"
 import BrandingStyle from "@/lib/branding/BrandingStyle"
 import { createClient } from "@/lib/supabase/server"
+import { resolveNavFlags, resolveFlags } from "@/lib/flags"
 import { normaliseTier, PLAN_DISPLAY } from "@/lib/billing/plans"
 import type { BrandColours } from "@/lib/branding/theme"
 import { WorkspaceLocaleProvider } from "@/lib/i18n/WorkspaceLocaleProvider"
@@ -61,6 +62,41 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/onboarding")
   }
 
+  // Resolve nav-relevant feature flags server-side (workspace override → global
+  // → registry default OFF) and apply parent/child dependency rules. Passed to
+  // the shell so V2/V1.5 surfaces never appear in the operator nav while off.
+  const navFlags = await resolveNavFlags({ supabase, workspaceId })
+
+  // Escrow / holds / marketplace-disputes are marketplace-payment (Layer D)
+  // surfaces that happen to live under Money. Money BASICS stay in V1, but these
+  // sub-routes are gated behind their flags (which themselves require the
+  // marketplace master + payments via the dependency rules). Redirect to Money
+  // when off so there's no V2 surface leak by direct URL.
+  const v2Gates = await resolveFlags(
+    ["marketplaceEscrow", "marketplaceDisputes", "accountingGl", "automationsFull"],
+    { supabase, workspaceId }
+  )
+  let pathname = ""
+  try {
+    pathname = (await headers()).get("x-pathname") ?? ""
+  } catch {
+    pathname = ""
+  }
+  const inEscrow = pathname.startsWith("/property-manager/money/escrow") || pathname.startsWith("/property-manager/money/holds")
+  const inDisputes = pathname.startsWith("/property-manager/money/disputes") || pathname.startsWith("/property-manager/bookings/disputes")
+  // Full double-entry GL is Layer D — Money basics stay in V1, the GL is gated.
+  const inGl = pathname.startsWith("/property-manager/accounting")
+  // Full automation canvas/webhooks/integrations are Layer D; automations-lite stays.
+  const inCanvas =
+    pathname.startsWith("/property-manager/automations/canvas") ||
+    pathname.startsWith("/property-manager/automations/builder") ||
+    pathname.startsWith("/property-manager/automations/webhooks") ||
+    pathname.startsWith("/property-manager/automations/integrations")
+  if (inEscrow && !v2Gates.marketplaceEscrow) redirect("/property-manager/money")
+  if (inDisputes && !v2Gates.marketplaceDisputes) redirect("/property-manager/money")
+  if (inGl && !v2Gates.accountingGl) redirect("/property-manager/money")
+  if (inCanvas && !v2Gates.automationsFull) redirect("/property-manager/automations")
+
   try {
     const { data: workspace } = await supabase
       .from("workspaces")
@@ -107,7 +143,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         timezone={wsTimezone}
         dateFormat={wsDateFormat}
       >
-        <AppShell aiCopilotEnabled={aiCopilotEnabled}>{children}</AppShell>
+        <AppShell aiCopilotEnabled={aiCopilotEnabled} navFlags={navFlags}>{children}</AppShell>
       </WorkspaceLocaleProvider>
     </BrandingStyle>
   )

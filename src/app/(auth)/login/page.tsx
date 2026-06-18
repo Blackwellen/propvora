@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -83,10 +83,25 @@ const ALLOWED_REDIRECTS = [
 ]
 
 /** True only when an explicit, allow-listed destination was supplied (e.g. the
- *  proxy bounced an unauthenticated user off a protected page). When present it
- *  WINS over the persona router so the user lands back where they were headed. */
+ *  proxy bounced an unauthenticated user off a protected page). */
 function isAllowedRedirect(url: string | null): url is string {
   return !!url && ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed))
+}
+
+/** Each persona's own workspace areas. Used to tell whether a bounced-back
+ *  redirect belongs to the SAME persona the user just picked. */
+const PERSONA_AREAS: { persona: LoginPersona; prefixes: string[] }[] = [
+  { persona: "customer", prefixes: ["/user", "/customer"] },
+  { persona: "operator", prefixes: ["/property-manager", "/app"] },
+  { persona: "supplier", prefixes: ["/supplier", "/supplier-portal"] },
+]
+
+/** True when the bounced-back redirect points at a DIFFERENT persona's
+ *  workspace than the one the user explicitly chose. In that case the user's
+ *  active persona choice must win — otherwise picking "Customer" after being
+ *  bounced off /supplier would still drop them in the supplier workspace. */
+function redirectConflictsWithPersona(url: string, persona: LoginPersona): boolean {
+  return PERSONA_AREAS.some((a) => a.persona !== persona && a.prefixes.some((p) => url.startsWith(p)))
 }
 
 const LOGIN_PERSONA_KEY = "propvora.login.persona"
@@ -108,7 +123,6 @@ function isLoginPersona(v: unknown): v is LoginPersona {
 }
 
 function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const explicitRedirect = searchParams.get("redirectTo")
   const [showPassword, setShowPassword] = useState(false)
@@ -116,8 +130,24 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
 
   // Persona = which workspace the same account wants to enter. Smart default:
-  // remember the last persona this browser used; new visitors start on Customer.
-  const [persona, setPersona] = useState<LoginPersona>("customer")
+  // Persona segments are feature-flagged. Operator is always available; Customer
+  // and Supplier tabs appear only when their registration flags are on (V1: off).
+  const [persona, setPersona] = useState<LoginPersona>("operator")
+  const [segFlags, setSegFlags] = useState({ registrationCustomer: false, registrationSupplier: false })
+  useEffect(() => {
+    let mounted = true
+    fetch("/api/flags/public")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!mounted || !d) return
+        setSegFlags({ registrationCustomer: Boolean(d.registrationCustomer), registrationSupplier: Boolean(d.registrationSupplier) })
+      })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+  const visiblePersonas = PERSONAS.filter(
+    (p) => p.id === "operator" || (p.id === "customer" && segFlags.registrationCustomer) || (p.id === "supplier" && segFlags.registrationSupplier)
+  )
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LOGIN_PERSONA_KEY)
@@ -126,6 +156,11 @@ function LoginForm() {
       /* storage unavailable — keep default */
     }
   }, [])
+  // If the active persona segment is flagged off, fall back to operator.
+  useEffect(() => {
+    if (!visiblePersonas.some((p) => p.id === persona)) setPersona("operator")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [segFlags])
 
   const {
     register,
@@ -167,10 +202,12 @@ function LoginForm() {
     }
 
     // An explicit, allow-listed redirect (e.g. the proxy bounced the user off a
-    // protected page) always wins. Otherwise the chosen persona decides the
-    // destination — provisioning a customer workspace on the fly when needed.
+    // protected page) wins — UNLESS it points at a different persona's workspace
+    // than the one the user actively chose, in which case the persona choice
+    // wins (picking "Customer" must never drop you in supplier/PM). Otherwise the
+    // chosen persona decides — provisioning a customer workspace when needed.
     let destination: string
-    if (isAllowedRedirect(explicitRedirect)) {
+    if (isAllowedRedirect(explicitRedirect) && !redirectConflictsWithPersona(explicitRedirect, persona)) {
       destination = explicitRedirect
     } else {
       try {
@@ -185,8 +222,12 @@ function LoginForm() {
       }
     }
 
-    router.push(destination)
-    router.refresh()
+    // Hard navigation (not router.push + refresh): a client refresh would
+    // re-request /login, which the proxy redirects to /app for an authenticated
+    // user — clobbering the persona destination (e.g. a customer would land on
+    // /property-manager). A full load of `destination` is permitted by the proxy
+    // and lands the user exactly where their persona says.
+    window.location.assign(destination)
   }
 
   return (
@@ -239,7 +280,7 @@ function LoginForm() {
                   aria-label="Sign in as"
                   className="grid grid-cols-3 gap-1 rounded-2xl bg-slate-100/80 p-1"
                 >
-                  {PERSONAS.map((p) => {
+                  {visiblePersonas.map((p) => {
                     const active = persona === p.id
                     return (
                       <button

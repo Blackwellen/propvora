@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAdmin } from "@/lib/admin/guard"
 import { writeAudit } from "@/lib/admin/audit"
+import { FLAG_REGISTRY, isV2FlagKey } from "@/lib/flags/registry"
+import { FLAG_META } from "@/lib/flags/meta"
 
 /**
  * Platform-admin WRITE layer (real persistence).
@@ -610,6 +612,73 @@ export async function saveMaintenanceMode(input: {
       after: value,
     })
     revalidatePath("/admin/settings")
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Action failed" }
+  }
+}
+
+// ─── Feature flags ─────────────────────────────────────────────────────────────
+
+/**
+ * Enable/disable a GLOBAL platform feature flag. Server-enforced admin only.
+ * Applies parent/child safety (cannot enable a flag while its parent is off),
+ * upserts `platform_feature_flags`, writes an audit entry with the reason, and
+ * revalidates the admin console + operator app + public site (so nav/guards
+ * re-resolve).
+ */
+export async function setGlobalFlag(
+  flagKey: string,
+  enabled: boolean,
+  reason?: string
+): Promise<ActionResult> {
+  try {
+    const identity = await requireAdmin()
+    if (!isV2FlagKey(flagKey)) return { ok: false, error: "Unknown feature flag." }
+    const def = FLAG_REGISTRY[flagKey]
+    const meta = FLAG_META[flagKey]
+
+    const admin = createAdminClient()
+
+    const dbKeys = [def.dbKey, ...(meta.parent ? [FLAG_REGISTRY[meta.parent].dbKey] : [])]
+    const { data: rows } = await admin
+      .from("platform_feature_flags")
+      .select("flag_key, enabled")
+      .in("flag_key", dbKeys)
+    const stateByDb = new Map<string, boolean>(
+      ((rows ?? []) as Array<{ flag_key: string; enabled: boolean }>).map((r) => [r.flag_key, Boolean(r.enabled)])
+    )
+    const before = stateByDb.get(def.dbKey) ?? def.defaultEnabled
+
+    // Dependency safety: cannot enable a child while its parent is OFF.
+    if (enabled && meta.parent) {
+      const parentOn = stateByDb.get(FLAG_REGISTRY[meta.parent].dbKey) ?? FLAG_REGISTRY[meta.parent].defaultEnabled
+      if (!parentOn) {
+        return { ok: false, error: `Enable "${FLAG_REGISTRY[meta.parent].label}" first — ${def.label} depends on it.` }
+      }
+    }
+
+    const { error } = await admin
+      .from("platform_feature_flags")
+      .upsert({ flag_key: def.dbKey, enabled }, { onConflict: "flag_key" })
+    if (error) {
+      if (error.code === "42P01" || error.code === "PGRST205")
+        return { ok: false, error: "platform_feature_flags table not provisioned yet." }
+      return { ok: false, error: `Could not save flag: ${error.message}` }
+    }
+
+    await writeAudit({
+      actorId: identity.userId,
+      action: "feature_flag.changed",
+      resourceType: "feature_flag",
+      resourceId: def.dbKey,
+      before: { enabled: before },
+      after: { enabled, reason: reason ?? null, stage: meta.stage, module: meta.module, risk: meta.risk },
+    })
+
+    revalidatePath("/admin/feature-flags")
+    revalidatePath("/property-manager", "layout")
+    revalidatePath("/", "layout")
     return { ok: true }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Action failed" }

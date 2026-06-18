@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, Suspense } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -23,6 +23,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { resolveLoginDestination } from "@/lib/actions/workspace"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
@@ -217,6 +218,20 @@ const INTENT_CARDS: {
 // ─── Intent chooser (Step 0) ───────────────────────────────────────────────────
 
 function IntentChooser({ onSelect }: { onSelect: (intent: Intent) => void }) {
+  // Registration segments are feature-flagged. Operator always; Customer and
+  // Supplier appear only when their registration flags are on (V1: off).
+  const [seg, setSeg] = useState({ registrationCustomer: false, registrationSupplier: false })
+  useEffect(() => {
+    let mounted = true
+    fetch("/api/flags/public")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (mounted && d) setSeg({ registrationCustomer: Boolean(d.registrationCustomer), registrationSupplier: Boolean(d.registrationSupplier) }) })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+  const cards = INTENT_CARDS.filter(
+    (c) => c.intent === "operator" || (c.intent === "customer" && seg.registrationCustomer) || (c.intent === "supplier" && seg.registrationSupplier)
+  )
   return (
     <div className="w-full max-w-[480px]">
       <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-6 sm:p-8">
@@ -230,7 +245,7 @@ function IntentChooser({ onSelect }: { onSelect: (intent: Intent) => void }) {
         </div>
 
         <div className="space-y-3">
-          {INTENT_CARDS.map((card) => (
+          {cards.map((card) => (
             <button
               key={card.intent}
               type="button"
@@ -350,7 +365,7 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
     }
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email.trim().toLowerCase(),
       password: data.password,
       options: {
@@ -364,6 +379,30 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
     if (error) {
       setAuthError(mapAuthError(error.code, error.message))
       setIsLoading(false)
+      return
+    }
+
+    // When Supabase email confirmation is OFF, signUp returns a live session and
+    // NO confirmation email is sent — so the /auth/callback (which routes by
+    // intent) never fires. Route by intent here so a customer signup lands in
+    // the customer workspace (/user) instead of falling through to onboarding.
+    if (signUpData.session) {
+      // best-effort welcome email
+      try {
+        void fetch("/api/email/welcome", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.email.trim().toLowerCase(), userName: data.fullName.trim(), workspaceName: "" }),
+        })
+      } catch { /* non-critical */ }
+      let destination = "/onboarding"
+      try { destination = await resolveLoginDestination(intent) }
+      catch { destination = intent === "customer" ? "/user" : intent === "supplier" ? "/onboarding/supplier" : "/onboarding" }
+      // Hard navigation (not push + refresh): a client refresh re-requests
+      // /register, which the proxy redirects to /app for the now-authenticated
+      // user — clobbering the persona destination (a customer would land on
+      // /property-manager / onboarding). A full load of `destination` is allowed
+      // by the proxy and lands the user where their intent says.
+      window.location.assign(destination)
       return
     }
     try {

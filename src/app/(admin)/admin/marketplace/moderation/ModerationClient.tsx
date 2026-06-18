@@ -10,10 +10,20 @@ import {
   MapPin,
   ShieldCheck,
   AlertCircle,
+  Flag,
+  Timer,
 } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import { AdminPageHeader, AdminKpiStrip, type AdminKpi } from "@/components/admin/ui"
+
+export interface ModerationKpis {
+  pending: number
+  approvedToday: number
+  rejectedToday: number
+  flagged: number
+}
 
 interface ListingRow {
   id: string
@@ -245,9 +255,11 @@ function ListingCard({
 export default function ModerationClient({
   listings,
   schemaGap,
+  kpis,
 }: {
   listings: ListingRow[]
   schemaGap: boolean
+  kpis?: ModerationKpis
 }) {
   const [actionStates, setActionStates] = useState<Record<string, ItemActionState>>(() => {
     const s: Record<string, ItemActionState> = {}
@@ -294,26 +306,27 @@ export default function ModerationClient({
     return !s || s === "idle" || s === "approving" || s === "rejecting" || s === "error"
   }).length
 
+  const kpiCards: AdminKpi[] = [
+    { label: "Pending queue", value: (kpis?.pending ?? pendingCount).toLocaleString("en-GB"), icon: Clock, tone: "amber" },
+    { label: "Approved today", value: (kpis?.approvedToday ?? 0).toLocaleString("en-GB"), icon: CheckCircle2, tone: "emerald" },
+    { label: "Rejected today", value: (kpis?.rejectedToday ?? 0).toLocaleString("en-GB"), icon: XCircle, tone: "red" },
+    { label: "Flagged content", value: (kpis?.flagged ?? 0).toLocaleString("en-GB"), icon: Flag, tone: "violet" },
+    { label: "Avg review time", value: "—", icon: Timer, tone: "sky", sub: "no SLA data yet" },
+  ]
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
-            Listing moderation
-          </h1>
-          <p className="text-xs text-slate-500">
-            Review and approve or reject supplier marketplace listings before they go live.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold">
-            <Clock className="w-3.5 h-3.5" />
-            {pendingCount} pending
-          </span>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={ShieldCheck}
+        title="Listing moderation"
+        subtitle="Review and approve or reject supplier marketplace listings before they go live. Every decision is attributed to your admin account and audited — nothing is auto-approved."
+        breadcrumb={[
+          { label: "Marketplace", href: "/admin/marketplace" },
+          { label: "Moderation" },
+        ]}
+      />
+
+      <AdminKpiStrip kpis={kpiCards} cols={5} />
 
       {/* Schema gap notice */}
       {schemaGap && (

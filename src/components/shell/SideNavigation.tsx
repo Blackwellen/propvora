@@ -41,6 +41,8 @@ export interface ShellNavItem {
   label: string
   href: string
   icon: React.ElementType
+  /** When set, the item is only shown if navFlags[flag] === true (V2/V1.5 gating). */
+  flag?: string
 }
 export interface ShellNavGroup {
   label: string
@@ -63,6 +65,8 @@ interface SideNavigationProps {
   onNavigate?: () => void
   /** Optional workspace nav config; defaults to the Property Manager menu. */
   navConfig?: ShellNavConfig
+  /** Server-resolved feature flags; items tagged with a `flag` are hidden when off. */
+  navFlags?: Record<string, boolean>
 }
 
 const NAV_GROUPS = [
@@ -75,9 +79,14 @@ const NAV_GROUPS = [
     items: [
       { label: "Portfolio",  href: `${MANAGER_BASE}/portfolio`,   icon: Building2 },
       { label: "Work",       href: `${MANAGER_BASE}/work`,        icon: Briefcase },
-      { label: "Bookings",   href: `${MANAGER_BASE}/bookings`,    icon: Calendar },
-      { label: "Listings",   href: `${MANAGER_BASE}/listings`,   icon: ListChecks },
-      { label: "Suppliers",  href: `${MANAGER_BASE}/marketplace/suppliers-hub`,  icon: Store },
+      // Bookings/Listings are V2 direct-booking surfaces — hidden until flagged on.
+      { label: "Bookings",   href: `${MANAGER_BASE}/bookings`,    icon: Calendar, flag: "bookingManagement" },
+      { label: "Listings",   href: `${MANAGER_BASE}/listings`,    icon: ListChecks, flag: "directBookingPages" },
+      // In V1 supplier coordination lives inside Work (assign trades to jobs) and
+      // Contacts (your own supplier directory + compliance) — there is no standalone
+      // Suppliers item. This entry IS the marketplace suppliers hub; it only appears
+      // when the marketplace is enabled.
+      { label: "Suppliers",  href: `${MANAGER_BASE}/marketplace/suppliers-hub`, icon: Store, flag: "marketplaceEnabled" },
       { label: "Planning",   href: `${MANAGER_BASE}/planning`,   icon: Map },
       { label: "Contacts",   href: `${MANAGER_BASE}/contacts`,    icon: Users },
       { label: "Portals",    href: `${MANAGER_BASE}/portals`,     icon: MessageSquareMore },
@@ -88,7 +97,8 @@ const NAV_GROUPS = [
     label: "FINANCE",
     items: [
       { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
-      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
+      // Full double-entry GL — V2; Money basics cover V1. Hidden until flagged on.
+      { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator, flag: "accountingGl" },
       { label: "Affiliate", href: `${MANAGER_BASE}/affiliates`, icon: HandCoins },
     ],
   },
@@ -98,7 +108,8 @@ const NAV_GROUPS = [
       { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
       { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
       { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale },
-      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow },
+      // Automations-lite (presets) is V1.5 under canvasLite; full canvas is automationsFull.
+      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow, flag: "canvasLite" },
     ],
   },
   {
@@ -129,13 +140,20 @@ export default function SideNavigation({
   onToggle,
   onNavigate,
   navConfig,
+  navFlags,
 }: SideNavigationProps) {
   const pathname = usePathname()
   const { workspace } = useWorkspace()
 
   // Resolve the active workspace config (defaults to Property Manager).
   const base = navConfig?.base ?? MANAGER_BASE
-  const groups: ShellNavGroup[] = navConfig?.groups ?? NAV_GROUPS
+  const rawGroups: ShellNavGroup[] = navConfig?.groups ?? NAV_GROUPS
+  // Flag gating: drop items tagged with a `flag` that isn't enabled in navFlags,
+  // then drop any group left empty. With all V2/V1.5 flags off (default) this
+  // hides Bookings, Listings, Accounting (full GL) and Automations from V1.
+  const groups: ShellNavGroup[] = rawGroups
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.flag || navFlags?.[i.flag] === true) }))
+    .filter((g) => g.items.length > 0)
   const workspaceHref = navConfig?.workspaceHref ?? `${MANAGER_BASE}/workspace-settings`
   const accountHref = navConfig?.accountHref ?? `${MANAGER_BASE}/account`
   const [user, setUser] = useState<{ name: string; email: string | null }>({ name: "Your account", email: null })

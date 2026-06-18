@@ -35,6 +35,15 @@ import {
   Wallet,
   ShieldAlert,
   Globe2,
+  CalendarCheck,
+  Home,
+  FolderArchive,
+  ServerCog,
+  PauseCircle,
+  LifeBuoy,
+  Languages,
+  Gauge,
+  Flag,
 } from "lucide-react"
 
 // ─── Nav config ──────────────────────────────────────────────────────────────
@@ -49,15 +58,20 @@ const ADMIN_NAV_GROUPS = [
     items: [
       { label: "Customers",     href: "/admin/customers",     icon: UserCheck },
       { label: "Users",         href: "/admin/users",         icon: Users },
+      { label: "Suppliers",     href: "/admin/suppliers",     icon: ShieldCheck },
       { label: "Workspaces",    href: "/admin/workspaces",    icon: Building2 },
       { label: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
       { label: "Affiliates",    href: "/admin/affiliates",    icon: UserCheck },
+      { label: "Portals",       href: "/admin/portals",       icon: ExternalLink },
+      { label: "Documents",     href: "/admin/documents",     icon: FolderArchive },
     ],
   },
   {
     label: "DATA",
     items: [
       { label: "Portfolios", href: "/admin/portfolios", icon: BarChart2 },
+      { label: "Stays",      href: "/admin/stays",      icon: Home },
+      { label: "Bookings",   href: "/admin/bookings",   icon: CalendarCheck },
       { label: "Work",       href: "/admin/work",       icon: Wrench },
       { label: "Planning",   href: "/admin/planning",   icon: Map },
     ],
@@ -65,42 +79,45 @@ const ADMIN_NAV_GROUPS = [
   {
     label: "MARKETPLACE",
     items: [
-      { label: "Oversight",    href: "/admin/marketplace",                  icon: Store },
-      { label: "Moderation",  href: "/admin/marketplace/moderation",      icon: ShieldCheck },
-      { label: "Transactions", href: "/admin/marketplace/transactions",   icon: PoundSterling },
-      { label: "Disputes",     href: "/admin/marketplace/disputes",       icon: Gavel },
-      { label: "Payouts",      href: "/admin/marketplace/payouts",        icon: Wallet },
-      { label: "Workspaces",   href: "/admin/marketplace/workspaces",     icon: Building2 },
-      { label: "Risk",         href: "/admin/risk",                       icon: ShieldAlert },
+      { label: "Oversight",            href: "/admin/marketplace/oversight",     icon: Store },
+      { label: "Moderation",           href: "/admin/marketplace/moderation",    icon: ShieldCheck },
+      { label: "Transactions",         href: "/admin/marketplace/transactions",  icon: PoundSterling },
+      { label: "Disputes",             href: "/admin/marketplace/disputes",      icon: Gavel },
+      { label: "Payouts",              href: "/admin/marketplace/payouts",       icon: Wallet },
+      { label: "Lettings",             href: "/admin/marketplace/lettings",      icon: Home },
+      { label: "Marketplace Suppliers", href: "/admin/marketplace/suppliers",    icon: Store },
     ],
   },
   {
-    label: "OPS",
+    label: "OPERATIONS",
     items: [
-      { label: "Verification",  href: "/admin/verification",  icon: ShieldCheck },
-      { label: "Automations",   href: "/admin/automations",   icon: Activity },
-      { label: "Data Requests", href: "/admin/data-requests", icon: FileText },
-      { label: "Bug Reports",    href: "/admin/bugs",          icon: Bug },
-      { label: "Stripe Events",  href: "/admin/stripe-events",  icon: CreditCard },
-      { label: "AI Usage",       href: "/admin/ai-usage",       icon: Activity },
-      { label: "AI Models",      href: "/admin/ai-models",      icon: Sparkles },
+      { label: "Feature Flags",         href: "/admin/feature-flags",         icon: Flag },
+      { label: "Risk",                  href: "/admin/risk",                  icon: ShieldAlert },
+      { label: "ID Verification",       href: "/admin/id-verification",       icon: ShieldCheck },
+      { label: "Supplier Verification", href: "/admin/supplier-verification", icon: ShieldCheck },
+      { label: "Automations",           href: "/admin/automations",           icon: Activity },
+      { label: "Automation Usage",      href: "/admin/automation-usage",      icon: Gauge },
+      { label: "Cron Management",       href: "/admin/cron-management",       icon: ServerCog },
+      { label: "Maintenance Mode",      href: "/admin/maintenance-mode",      icon: PauseCircle },
+      { label: "Data Requests",         href: "/admin/data-requests",         icon: FileText },
+      { label: "Bug Reports",           href: "/admin/bug-reports",           icon: Bug },
+      { label: "Stripe Events",         href: "/admin/stripe-events",         icon: CreditCard },
+      { label: "AI Usage",              href: "/admin/ai-usage",              icon: Activity },
+      { label: "AI Models",             href: "/admin/ai-models",             icon: Sparkles },
     ],
   },
   {
-    label: "COMMS",
+    label: "COMMS / SETTINGS",
     items: [
-      { label: "Changelog",     href: "/admin/changelog",     icon: Newspaper },
-      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
-    ],
-  },
-  {
-    label: "SYSTEM",
-    items: [
-      { label: "Global",    href: "/admin/global",    icon: Globe2 },
-      { label: "Audit Log", href: "/admin/audit",     icon: FileText },
-      { label: "Security",  href: "/admin/security",  icon: ShieldCheck },
-      { label: "Health",    href: "/admin/health",    icon: Activity },
-      { label: "Settings",  href: "/admin/settings",  icon: Settings },
+      { label: "Changelog",           href: "/admin/changelog",           icon: Newspaper },
+      { label: "Announcements",       href: "/admin/announcements",       icon: Megaphone },
+      { label: "Announcement Bar",    href: "/admin/announcement-bar",    icon: Megaphone },
+      { label: "Global",              href: "/admin/global",              icon: Globe2 },
+      { label: "Global Translations", href: "/admin/global-translations", icon: Languages },
+      { label: "Audit Log",           href: "/admin/audit-log",           icon: FileText },
+      { label: "Security",            href: "/admin/security",            icon: ShieldCheck },
+      { label: "Health",              href: "/admin/health",              icon: Activity },
+      { label: "Settings",            href: "/admin/settings",            icon: Settings },
     ],
   },
 ]
@@ -117,6 +134,7 @@ function AdminSidebar({
   onSignOut: () => void
 }) {
   const pathname = usePathname()
+  const navItems = ADMIN_NAV_GROUPS.flatMap((group) => group.items)
 
   return (
     <aside
@@ -180,7 +198,13 @@ function AdminSidebar({
               const active =
                 item.href === "/admin"
                   ? pathname === "/admin"
-                  : pathname.startsWith(item.href)
+                  : (pathname === item.href || pathname.startsWith(`${item.href}/`)) &&
+                    !navItems.some(
+                      (other) =>
+                        other.href !== item.href &&
+                        other.href.startsWith(`${item.href}/`) &&
+                        (pathname === other.href || pathname.startsWith(`${other.href}/`))
+                    )
               const Icon = item.icon
               return (
                 <Link
@@ -292,7 +316,30 @@ function AdminTopNav() {
       {/* Center spacer */}
       <div className="flex-1" />
 
-      {/* Right: back to app */}
+      {/* Right: utility links + back to app (matches the reference header) */}
+      <Link
+        href="/admin/audit-log"
+        className="hidden md:flex items-center gap-1.5 h-10 px-3 rounded-xl text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
+      >
+        <FileText className="w-4 h-4 text-slate-400" />
+        <span>Audit Log</span>
+      </Link>
+      <Link
+        href="/admin/health"
+        className="hidden md:flex items-center gap-1.5 h-10 px-3 rounded-xl text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
+      >
+        <Activity className="w-4 h-4 text-slate-400" />
+        <span>Health</span>
+      </Link>
+      <Link
+        href="/admin/settings"
+        className="hidden lg:flex items-center gap-1.5 h-10 px-3 rounded-xl text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
+        aria-label="Help and support"
+      >
+        <LifeBuoy className="w-4 h-4 text-slate-400" />
+        <span>Help &amp; support</span>
+      </Link>
+      <div className="hidden md:block w-px h-6 bg-slate-200 mx-1" />
       <Link
         href="/app"
         className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-medium text-[#2563EB] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"

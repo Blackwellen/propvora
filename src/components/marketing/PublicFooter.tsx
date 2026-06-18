@@ -3,20 +3,22 @@ import Image from "next/image"
 import { Mail, MapPin } from "lucide-react"
 import CookiePreferencesLink from "@/components/consent/CookiePreferencesLink"
 import NewsletterSignup from "@/components/marketing/NewsletterSignup"
+import { getGlobalFlag } from "@/lib/flags/public"
 
 const footerLinks = {
   product: [
-    { label: "Stays", href: "/stays" },
-    { label: "Suppliers", href: "/suppliers" },
-    { label: "Services", href: "/services" },
-    { label: "Emergency", href: "/emergency" },
+    { label: "Stays", href: "/stays", mk: true },
+    { label: "Suppliers", href: "/suppliers", mk: true },
+    { label: "Services", href: "/services", mk: true },
+    { label: "Emergency", href: "/emergency", mk: true },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Partner Programme", href: "/affiliate-programme" },
     { label: "Help Centre", href: "/help" },
-  ],
+  ] as { label: string; href: string; mk?: boolean }[],
   company: [
     { label: "About", href: "/about" },
+    { label: "Roadmap", href: "/roadmap" },
     { label: "Contact", href: "/contact" },
     { label: "Help Centre", href: "/help" },
     { label: "Legal", href: "/legal" },
@@ -32,7 +34,10 @@ const footerLinks = {
   ],
 }
 
-export default function PublicFooter() {
+export default async function PublicFooter() {
+  // Marketplace footer links are only shown when the marketplace is enabled.
+  const marketplaceOn = await getGlobalFlag("marketplaceEnabled")
+  const productLinks = footerLinks.product.filter((l) => !l.mk || marketplaceOn)
   return (
     <footer className="bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
@@ -74,7 +79,7 @@ export default function PublicFooter() {
           <div>
             <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Product</h3>
             <ul className="space-y-2.5">
-              {footerLinks.product.map((link) => (
+              {productLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

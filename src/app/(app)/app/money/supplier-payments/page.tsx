@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Truck, AlertCircle, Plus, Download, ChevronDown, CheckCircle, CreditCard,
   Eye, X,
@@ -11,6 +11,8 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -28,30 +30,6 @@ type SupplierPayment = {
   method: "bank_transfer" | "stripe" | "manual" | "cheque"
   stripe_status: "not_configured" | "pending" | "processing" | "paid" | "failed"
 }
-
-/* ------------------------------------------------------------------ */
-/* Mock data                                                           */
-/* ------------------------------------------------------------------ */
-const MOCK_PAYMENTS: SupplierPayment[] = [
-  { id: "sp1",  supplier: "Kevin Walsh Plumbing",  bill: "BILL-001", property: "14 Birchwood Rd",  amount:  320, due_date: "2026-06-05", status: "approved",             method: "stripe",        stripe_status: "not_configured" },
-  { id: "sp2",  supplier: "Premier Insurance",     bill: "BILL-005", property: "All Properties",   amount:  980, due_date: "2026-06-10", status: "approved",             method: "bank_transfer", stripe_status: "not_configured" },
-  { id: "sp3",  supplier: "ProPainters Ltd",       bill: "BILL-003", property: "22 Park Lane",     amount: 2400, due_date: "2026-06-15", status: "awaiting_review",      method: "bank_transfer", stripe_status: "not_configured" },
-  { id: "sp4",  supplier: "SafeCheck Compliance",  bill: "BILL-007", property: "7 Elm Close",      amount:  450, due_date: "2026-06-12", status: "approved",             method: "stripe",        stripe_status: "not_configured" },
-  { id: "sp5",  supplier: "CleanCo Services",      bill: "BILL-009", property: "5 Bridge St",      amount:  850, due_date: "2026-05-30", status: "overdue",              method: "manual",        stripe_status: "not_configured" },
-  { id: "sp6",  supplier: "Kevin Walsh Plumbing",  bill: "BILL-002", property: "7 Elm Close",      amount:  615, due_date: "2026-06-20", status: "awaiting_review",      method: "bank_transfer", stripe_status: "not_configured" },
-  { id: "sp7",  supplier: "BroadBand Plus",        bill: "BILL-010", property: "14 Birchwood Rd",  amount:   38, due_date: "2026-06-01", status: "paid",                 method: "manual",        stripe_status: "not_configured" },
-  { id: "sp8",  supplier: "Kevin Walsh Plumbing",  bill: "BILL-004", property: "22 Park Lane",     amount:  900, due_date: "2026-05-28", status: "paid",                 method: "bank_transfer", stripe_status: "not_configured" },
-  { id: "sp9",  supplier: "Emerald Electricals",   bill: "BILL-011", property: "3 Oak Street",     amount:  670, due_date: "2026-06-25", status: "scheduled_for_payment",method: "stripe",        stripe_status: "not_configured" },
-  { id: "sp10", supplier: "Premier Insurance",     bill: "BILL-006", property: "18 Rose Lane",     amount:  595, due_date: "2026-06-30", status: "awaiting_review",      method: "bank_transfer", stripe_status: "not_configured" },
-]
-
-const TOP_SUPPLIERS = [
-  { name: "Kevin Walsh Plumbing", spend: 1835, bills: 3 },
-  { name: "Premier Insurance",    spend:  980, bills: 1 },
-  { name: "ProPainters Ltd",      spend: 2400, bills: 1 },
-  { name: "SafeCheck Compliance", spend:  450, bills: 1 },
-  { name: "CleanCo Services",     spend:  850, bills: 1 },
-]
 
 const STATUS_MAP: Record<PaymentStatus, { label: string; cls: string }> = {
   awaiting_review:       { label: "Awaiting Review",      cls: "bg-amber-50 text-amber-700 border-amber-200" },
@@ -91,10 +69,50 @@ function KpiCard({ label, value, sub, colour }: { label: string; value: string; 
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 export default function SupplierPaymentsPage() {
+  const { workspace } = useWorkspace()
   const [supplierFilter, setSupplierFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [propertyFilter, setPropertyFilter] = useState("all")
-  const [payments, setPayments] = useState<SupplierPayment[]>(MOCK_PAYMENTS)
+  const [payments, setPayments] = useState<SupplierPayment[]>([])
+
+  useEffect(() => {
+    if (!workspace?.id) return
+    const supabase = createClient()
+    async function fetchPayments() {
+      try {
+        const { data, error } = await supabase
+          .from("supplier_payments")
+          .select("id, supplier_name, amount, status, due_date, paid_date, job_ref, invoice_ref")
+          .eq("workspace_id", workspace!.id)
+          .order("due_date", { ascending: false })
+          .limit(50)
+        if (error) return
+        const mapped: SupplierPayment[] = (data ?? []).map((row: {
+          id: string
+          supplier_name: string | null
+          amount: number | null
+          status: string | null
+          due_date: string | null
+          job_ref: string | null
+          invoice_ref: string | null
+        }) => ({
+          id: row.id,
+          supplier: row.supplier_name ?? "Unknown",
+          bill: row.invoice_ref ?? row.job_ref ?? "—",
+          property: "—",
+          amount: row.amount ?? 0,
+          due_date: row.due_date ?? "",
+          status: (row.status as PaymentStatus) ?? "awaiting_review",
+          method: "bank_transfer" as const,
+          stripe_status: "not_configured" as const,
+        }))
+        setPayments(mapped)
+      } catch {
+        // 42P01-safe: table may not exist yet
+      }
+    }
+    fetchPayments()
+  }, [workspace?.id])
 
   const filtered = payments.filter(p => {
     if (supplierFilter && !p.supplier.toLowerCase().includes(supplierFilter.toLowerCase())) return false
@@ -118,6 +136,18 @@ export default function SupplierPaymentsPage() {
   const approvedAmt          = payments.filter(p => p.status === "approved").reduce((s, p) => s + p.amount, 0)
 
   const properties = Array.from(new Set(payments.map(p => p.property)))
+
+  // Derive top suppliers from live payments (aggregate by supplier name, top 5 by spend)
+  const topSuppliersMap: Record<string, { spend: number; bills: number }> = {}
+  for (const p of payments) {
+    if (!topSuppliersMap[p.supplier]) topSuppliersMap[p.supplier] = { spend: 0, bills: 0 }
+    topSuppliersMap[p.supplier].spend += p.amount
+    topSuppliersMap[p.supplier].bills += 1
+  }
+  const TOP_SUPPLIERS = Object.entries(topSuppliersMap)
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.spend - a.spend)
+    .slice(0, 5)
 
   // Row → card mapping for the mobile card list (mirrors the desktop table).
   const paymentCardMapping: MobileCardMapping<SupplierPayment> = {
@@ -352,7 +382,7 @@ export default function SupplierPaymentsPage() {
             </div>
             <div className="p-4 space-y-3">
               {TOP_SUPPLIERS.map((s, i) => {
-                const maxSpend = TOP_SUPPLIERS[0].spend
+                const maxSpend = TOP_SUPPLIERS[0]?.spend ?? 1
                 return (
                   <div key={s.name}>
                     <div className="flex items-center justify-between mb-1">

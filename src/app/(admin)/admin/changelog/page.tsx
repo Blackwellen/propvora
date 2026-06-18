@@ -1,29 +1,33 @@
-import { Sparkles } from "lucide-react"
+import React from "react"
+import { Rocket, CheckCircle2, FileEdit, CalendarDays, Tag } from "lucide-react"
+import { AdminPageHeader, AdminKpiStrip, type AdminKpi } from "@/components/admin/ui"
 import { adminListChangelog } from "@/lib/comms/data"
+import { getChangelogKpis } from "@/lib/admin/pages/batch4"
 import ChangelogEditor from "./ChangelogEditor"
 
 export const dynamic = "force-dynamic"
+export const metadata = { title: "Changelog — Propvora admin" }
 
 export default async function AdminChangelogPage() {
-  const entries = await adminListChangelog(200)
+  const [entries, kpis] = await Promise.all([adminListChangelog(200), getChangelogKpis()])
+
+  const cards: AdminKpi[] = [
+    { label: "Releases published", value: kpis.releasesPublished, icon: CheckCircle2, tone: "emerald" },
+    { label: "Drafts", value: kpis.draftCount, icon: FileEdit, tone: "amber" },
+    { label: "This month", value: kpis.thisMonth, icon: CalendarDays, tone: "blue" },
+    { label: "Latest version", value: kpis.latestVersion ?? "—", icon: Tag, tone: "violet" },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#2563EB]" />
-            Changelog
-          </h1>
-          <p className="text-sm text-slate-500">
-            Author and publish product release notes. Published entries appear on the public{" "}
-            <a href="/changelog" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">
-              /changelog
-            </a>{" "}
-            page.
-          </p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={Rocket}
+        title="Changelog"
+        subtitle="Author and publish product release notes. Published entries appear on the public /changelog page."
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Communications" }, { label: "Changelog" }]}
+      />
+
+      <AdminKpiStrip kpis={cards} cols={4} />
 
       <ChangelogEditor initialEntries={entries} />
     </div>

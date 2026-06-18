@@ -30,6 +30,13 @@ interface ListingRow {
  * approve/reject action. Uses the service-role admin client (cross-workspace
  * read) behind a server-side admin identity gate.
  */
+export interface ModerationKpis {
+  pending: number
+  approvedToday: number
+  rejectedToday: number
+  flagged: number
+}
+
 export default async function MarketplaceModerationPage() {
   const identity = await getAdminIdentity()
   if (!identity) redirect("/admin-login")
@@ -38,6 +45,7 @@ export default async function MarketplaceModerationPage() {
 
   let listings: ListingRow[] = []
   let schemaGap = false
+  const kpis: ModerationKpis = { pending: 0, approvedToday: 0, rejectedToday: 0, flagged: 0 }
 
   try {
     const { data, error } = await adminDb
@@ -57,10 +65,34 @@ export default async function MarketplaceModerationPage() {
       }
     } else {
       listings = (data ?? []) as ListingRow[]
+      kpis.pending = listings.length
+      kpis.flagged = listings.filter(
+        (l) => (l.metadata as Record<string, unknown> | null)?.flagged === true
+      ).length
+
+      // Approved / rejected today — derived from moderation timestamps in
+      // metadata (set by the moderate route). Schema-gap-safe & best-effort.
+      try {
+        const startOfDay = new Date()
+        startOfDay.setHours(0, 0, 0, 0)
+        const { data: decided } = await adminDb
+          .from("marketplace_listings")
+          .select("status, metadata")
+          .in("status", ["published", "draft"])
+          .gte("updated_at", startOfDay.toISOString())
+          .limit(2000)
+        for (const d of decided ?? []) {
+          const meta = (d as { metadata?: Record<string, unknown> }).metadata ?? {}
+          if (meta.moderation_approved_at) kpis.approvedToday++
+          else if (meta.moderation_rejected_at) kpis.rejectedToday++
+        }
+      } catch {
+        /* non-fatal */
+      }
     }
   } catch {
     schemaGap = true
   }
 
-  return <ModerationClient listings={listings} schemaGap={schemaGap} />
+  return <ModerationClient listings={listings} schemaGap={schemaGap} kpis={kpis} />
 }

@@ -12,6 +12,7 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateMoneyInvoice } from "@/hooks/useMoneyData"
 import type { InsertMoneyInvoice, InvoiceType } from "@/hooks/useMoneyData"
+import { createClient } from "@/lib/supabase/client"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -47,33 +48,11 @@ type FormData = {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                            */
+/* Static constants                                                     */
 /* ------------------------------------------------------------------ */
 const INVOICE_TYPES = [
   "Rent Invoice", "Service Charge Invoice", "Supplier Recharge", "Management Fee",
   "Utility Recharge Invoice", "Tenant Invoice", "Cleaning Recharge Invoice", "Landlord Charge",
-]
-
-const MOCK_CONTACTS = [
-  "Sarah Mitchell", "James Okafor", "Emily Patel", "David Thornton",
-  "Kevin Walsh Ltd", "Chen Wei", "Priya Sharma", "Tom Bradley",
-]
-
-const MOCK_PROPERTIES = [
-  "14 Birchwood Rd", "7 Elm Close", "22 Park Lane", "5 Bridge St",
-  "12 Maple Avenue", "3 Oak Street", "18 Rose Lane", "9 Cedar Drive",
-]
-
-const MOCK_TENANCIES = [
-  "Mitchell — 14 Birchwood (AST 2025–2026)",
-  "Okafor — 7 Elm Close (AST 2025–2026)",
-  "Patel — 22 Park Lane (AST 2025–2026)",
-]
-
-const MOCK_JOBS = [
-  "JOB-2026-001: Boiler repair — 14 Birchwood",
-  "JOB-2026-002: Painting — 7 Elm Close",
-  "JOB-2026-003: Deep clean — 22 Park Lane",
 ]
 
 const EMAIL_TEMPLATES = ["Basic", "Branded", "Reminder", "Final Notice"]
@@ -220,6 +199,61 @@ export default function NewInvoicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createdId, setCreatedId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const [dbContacts, setDbContacts] = useState<{ id: string; name: string; email: string | null }[]>([])
+  const [dbProperties, setDbProperties] = useState<{ id: string; address: string }[]>([])
+  const [dbTenancies, setDbTenancies] = useState<{ id: string; reference: string | null }[]>([])
+  const [dbJobs, setDbJobs] = useState<{ id: string; title: string }[]>([])
+
+  useEffect(() => {
+    if (!workspace?.id) return
+    const supabase = createClient()
+    async function fetchDropdowns() {
+      try {
+        const [contactsRes, propertiesRes, tenanciesRes, jobsRes] = await Promise.all([
+          supabase
+            .from("contacts")
+            .select("id, name, email")
+            .eq("workspace_id", workspace!.id)
+            .order("name")
+            .limit(50),
+          supabase
+            .from("properties")
+            .select("id, address")
+            .eq("workspace_id", workspace!.id)
+            .order("address")
+            .limit(50),
+          supabase
+            .from("tenancies")
+            .select("id, reference")
+            .eq("workspace_id", workspace!.id)
+            .order("created_at", { ascending: false })
+            .limit(50),
+          supabase
+            .from("jobs")
+            .select("id, title")
+            .eq("workspace_id", workspace!.id)
+            .order("created_at", { ascending: false })
+            .limit(50),
+        ])
+        if (!contactsRes.error && contactsRes.data) {
+          setDbContacts(contactsRes.data as { id: string; name: string; email: string | null }[])
+        }
+        if (!propertiesRes.error && propertiesRes.data) {
+          setDbProperties(propertiesRes.data as { id: string; address: string }[])
+        }
+        if (!tenanciesRes.error && tenanciesRes.data) {
+          setDbTenancies(tenanciesRes.data as { id: string; reference: string | null }[])
+        }
+        if (!jobsRes.error && jobsRes.data) {
+          setDbJobs(jobsRes.data as { id: string; title: string }[])
+        }
+      } catch {
+        // 42P01-safe: tables may not exist yet
+      }
+    }
+    fetchDropdowns()
+  }, [workspace?.id])
 
   const [formData, setFormData] = useState<FormData>({
     invoice_type: "Rent Invoice",
@@ -383,7 +417,7 @@ export default function NewInvoicePage() {
             <Field label="Select Contact">
               <Select value={formData.recipient_name} onChange={e => updateForm({ recipient_name: e.target.value })}>
                 <option value="">— Select a contact —</option>
-                {MOCK_CONTACTS.map(c => <option key={c}>{c}</option>)}
+                {dbContacts.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
               </Select>
             </Field>
             <Field label="Email Address">
@@ -415,7 +449,7 @@ export default function NewInvoicePage() {
             <Field label="Property (optional)">
               <Select value={formData.property} onChange={e => updateForm({ property: e.target.value })}>
                 <option value="">— None —</option>
-                {MOCK_PROPERTIES.map(p => <option key={p}>{p}</option>)}
+                {dbProperties.map(p => <option key={p.id} value={p.address}>{p.address}</option>)}
               </Select>
             </Field>
             <Field label="Unit (optional)">
@@ -429,13 +463,13 @@ export default function NewInvoicePage() {
             <Field label="Tenancy (optional)">
               <Select value={formData.tenancy} onChange={e => updateForm({ tenancy: e.target.value })}>
                 <option value="">— None —</option>
-                {MOCK_TENANCIES.map(t => <option key={t}>{t}</option>)}
+                {dbTenancies.map(t => <option key={t.id} value={t.id}>{t.reference ?? t.id}</option>)}
               </Select>
             </Field>
             <Field label="Job (optional)">
               <Select value={formData.job} onChange={e => updateForm({ job: e.target.value })}>
                 <option value="">— None —</option>
-                {MOCK_JOBS.map(j => <option key={j}>{j}</option>)}
+                {dbJobs.map(j => <option key={j.id} value={j.id}>{j.title}</option>)}
               </Select>
             </Field>
           </div>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import CustomerShell from "@/features/customer/shell/CustomerShell"
 import { createClient } from "@/lib/supabase/server"
+import { getGlobalFlag } from "@/lib/flags/public"
 import {
   countCustomerUnreadNotifications,
   countCustomerUnreadMessages,
@@ -26,6 +27,11 @@ export default async function CustomerLayout({
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect("/login?redirectTo=/user")
+
+  // Staged platform: the customer/guest workspace is Layer D — gated behind the
+  // global `customerWorkspace` flag (V1 default OFF). Defence-in-depth on top of
+  // the membership gate below, so the whole group is unreachable when off.
+  if (!(await getGlobalFlag("customerWorkspace"))) redirect("/property-manager")
 
   // Core gate: must belong to a customer workspace. We admit EITHER path so the
   // gate matches the RLS helper is_customer_workspace_member():

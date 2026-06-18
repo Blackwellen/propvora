@@ -4,6 +4,7 @@ import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { rateLimit, clientKey } from "@/lib/rate-limit"
+import { flagGate } from "@/lib/flags/api-gate"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -55,6 +56,8 @@ function clientIp(request: NextRequest): string | null {
 const MISSING = new Set(["42P01", "PGRST202", "PGRST204", "PGRST205"])
 
 export async function POST(request: NextRequest) {
+  const gated = await flagGate("directBookingPages")
+  if (gated) return gated
   const requestId = requestIdFrom(request.headers)
 
   // Strict: 5 reservation attempts per IP per 15 minutes.

@@ -132,7 +132,7 @@ const links = {}
 for (const portalType of ["tenant", "landlord", "supplier"]) {
   const d = discovered[portalType]
   const token = randomBytes(32).toString("base64url")
-  const expiresAt = new Date(Date.now() + 8 * 3600 * 1000).toISOString()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString() // 7-day dev TTL (was 8h — kept expiring)
   const scope = { workspaceId: ws, contactId: d.contactId, portalType, permissions: {}, ...d.scope }
   const { data, error } = await safe(sb.from("portal_sessions").insert({
     workspace_id: ws, contact_id: d.contactId, portal_type: portalType, scope,
@@ -151,7 +151,7 @@ const server = http.createServer((req, res) => {
   const type = (req.url || "").replace("/go/", "").split("?")[0]
   const l = links[type]
   if (!l) { res.writeHead(404).end("unknown portal type"); return }
-  res.writeHead(302, { "Set-Cookie": `pv_portal_session=${l.cookie}; Path=/; Max-Age=28800; SameSite=Lax`, Location: l.dest })
+  res.writeHead(302, { "Set-Cookie": `pv_portal_session=${l.cookie}; Path=/; Max-Age=604800; SameSite=Lax`, Location: l.dest })
   res.end()
 })
 server.listen(0, () => {

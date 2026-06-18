@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import {
@@ -10,6 +10,8 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -56,9 +58,6 @@ const BILL_STATUSES: { value: BillStatus; label: string }[] = [
   { value: "disputed", label: "Disputed" },
 ]
 
-const MOCK_SUPPLIERS = ["Kevin Walsh Plumbing","British Gas","Swift Electricals","Premier Insurance","Solicitors LLP","CleanCo Services","ProPainters Ltd","Broadband Plus","SafeCheck Compliance","Move-in Cleaners"]
-const MOCK_PROPERTIES = ["14 Birchwood Rd","7 Elm Close","22 Park Lane","5 Bridge St","12 Maple Ave","9 Cedar Drive","45 Grove Road","2 Willow Way"]
-const MOCK_JOBS = [{ id: "JOB-2026-034", title: "Boiler replacement" },{ id: "JOB-2026-029", title: "Electrical rewire" },{ id: "JOB-2026-041", title: "Full redecoration" },{ id: "JOB-2026-038", title: "Leak repair" }]
 const PAYMENT_METHODS = ["Bank Transfer (BACS)","Faster Payments","CHAPS","Direct Debit","Cheque","Stripe Connect"]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -96,7 +95,55 @@ function newLineItem(): LineItem {
 
 export default function BillEditPage() {
   const params = useParams()
+  const { workspace } = useWorkspace()
   const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "bill-001"
+
+  const [dbSuppliers, setDbSuppliers] = useState<string[]>([])
+  const [dbProperties, setDbProperties] = useState<{ id: string; address: string }[]>([])
+  const [dbJobs, setDbJobs] = useState<{ id: string; title: string }[]>([])
+
+  useEffect(() => {
+    if (!workspace?.id) return
+    const supabase = createClient()
+    async function fetchDropdowns() {
+      try {
+        const [suppliersRes, propertiesRes, jobsRes] = await Promise.all([
+          supabase
+            .from("contacts")
+            .select("id, name")
+            .eq("workspace_id", workspace!.id)
+            .eq("type", "supplier")
+            .order("name")
+            .limit(50),
+          supabase
+            .from("properties")
+            .select("id, address")
+            .eq("workspace_id", workspace!.id)
+            .order("address")
+            .limit(50),
+          supabase
+            .from("jobs")
+            .select("id, title")
+            .eq("workspace_id", workspace!.id)
+            .neq("status", "complete")
+            .order("created_at", { ascending: false })
+            .limit(50),
+        ])
+        if (!suppliersRes.error && suppliersRes.data) {
+          setDbSuppliers(suppliersRes.data.map((r: { name: string }) => r.name).filter(Boolean))
+        }
+        if (!propertiesRes.error && propertiesRes.data) {
+          setDbProperties(propertiesRes.data as { id: string; address: string }[])
+        }
+        if (!jobsRes.error && jobsRes.data) {
+          setDbJobs(jobsRes.data as { id: string; title: string }[])
+        }
+      } catch {
+        // 42P01-safe: tables may not exist yet
+      }
+    }
+    fetchDropdowns()
+  }, [workspace?.id])
 
   const [saving, setSaving] = useState(false)
   const [showDangerous, setShowDangerous] = useState(false)
@@ -225,7 +272,8 @@ export default function BillEditPage() {
         <SectionCard title="Supplier" icon={<ChevronDown className="w-4 h-4" />}>
           <Field label="Supplier Contact">
             <select value={form.supplier} onChange={(e) => setField("supplier", e.target.value)} className={selectCls}>
-              {MOCK_SUPPLIERS.map((s) => <option key={s} value={s}>{s}</option>)}
+              <option value="">Select supplier…</option>
+              {dbSuppliers.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </Field>
         </SectionCard>
@@ -305,13 +353,13 @@ export default function BillEditPage() {
             <Field label="Property">
               <select value={form.property} onChange={(e) => setField("property", e.target.value)} className={selectCls}>
                 <option value="">No property linked</option>
-                {MOCK_PROPERTIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                {dbProperties.map((p) => <option key={p.id} value={p.address}>{p.address}</option>)}
               </select>
             </Field>
             <Field label="Linked Job">
               <select value={form.job} onChange={(e) => setField("job", e.target.value)} className={selectCls}>
                 <option value="">No job linked</option>
-                {MOCK_JOBS.map((j) => <option key={j.id} value={j.id}>{j.id} — {j.title}</option>)}
+                {dbJobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
               </select>
             </Field>
           </div>

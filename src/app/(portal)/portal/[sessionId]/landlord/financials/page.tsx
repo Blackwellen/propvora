@@ -1,205 +1,115 @@
-import Link from "next/link"
-import { ArrowLeft, TrendingUp, TrendingDown, PoundSterling, Download } from "lucide-react"
-import { Card } from "@/components/ui/Card"
+import {
+  PoundSterling, TrendingUp, TrendingDown, Wallet, AlertTriangle, Download, FileText,
+  ArrowDownLeft, ArrowUpRight, Calendar,
+} from "lucide-react"
 import { requirePortalSession } from "../../_guard"
-import { getLandlordTransactions } from "@/lib/portal/data"
+import { getLandlordTransactions, getLandlordOverdueAlerts } from "@/lib/portal/data"
 import { formatMoney, formatDate } from "@/lib/portal/format"
+import {
+  PortalCard, PortalPageHeader, PortalSectionCard, PortalKpiStrip, StatusChip,
+  PortalEmptyState, PortalButtonLink, type PortalKpi,
+} from "@/components/portals/portal-ui"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-// ---- CSV export helper (server-rendered download link) ----------------------
-function buildCsvDataUri(transactions: Awaited<ReturnType<typeof getLandlordTransactions>>): string {
-  const header = "Date,Description,Category,Direction,Amount (GBP),Status"
-  const rows = transactions.map((t) => {
-    const amount = (t.amount / 100).toFixed(2)
-    return [
-      formatDate(t.created_at),
-      `"${(t.description ?? "").replace(/"/g, '""')}"`,
-      t.category ?? "",
-      t.direction,
-      amount,
-      t.status ?? "",
-    ].join(",")
-  })
-  return `data:text/csv;charset=utf-8,${encodeURIComponent([header, ...rows].join("\n"))}`
-}
+function monthKey(iso: string | null) { if (!iso) return "—"; const d = new Date(iso); return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-GB", { month: "short", year: "numeric" }) }
 
-function categoryLabel(cat: string | null): string {
-  if (!cat) return "—"
-  return cat.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-export default async function LandlordFinancialsPage({
-  params,
-}: {
-  params: Promise<{ sessionId: string }>
-}) {
+export default async function LandlordFinancialsPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = await params
   const session = await requirePortalSession(sessionId, "landlord")
   const base = `/portal/${session.id}/landlord`
+  const [txns, alerts] = await Promise.all([getLandlordTransactions(session), getLandlordOverdueAlerts(session)])
 
-  const transactions = await getLandlordTransactions(session)
+  const income = txns.filter((t) => t.direction === "in").reduce((s, t) => s + (t.amount ?? 0), 0)
+  const expenditure = txns.filter((t) => t.direction === "out").reduce((s, t) => s + (t.amount ?? 0), 0)
+  const net = income - expenditure
+  const months = new Set(txns.map((t) => monthKey(t.created_at)).filter((m) => m !== "—")).size || 1
+  const avgMonthly = income / months
 
-  const income = transactions.filter((t) => t.direction === "in")
-  const expenditure = transactions.filter((t) => t.direction === "out")
-  const totalIncome = income.reduce((s, t) => s + (t.amount ?? 0), 0)
-  const totalExpenditure = expenditure.reduce((s, t) => s + (t.amount ?? 0), 0)
-  const netPL = totalIncome - totalExpenditure
-
-  // Monthly P&L rollup
-  const monthMap = new Map<string, { income: number; expenditure: number }>()
-  for (const t of transactions) {
-    const month = t.created_at.slice(0, 7)
-    const existing = monthMap.get(month) ?? { income: 0, expenditure: 0 }
-    if (t.direction === "in") existing.income += t.amount ?? 0
-    else existing.expenditure += t.amount ?? 0
-    monthMap.set(month, existing)
+  const byMonth = new Map<string, { in: number; out: number; order: string }>()
+  for (const t of txns) {
+    const k = monthKey(t.created_at); if (k === "—") continue
+    const e = byMonth.get(k) ?? { in: 0, out: 0, order: t.created_at ?? "" }
+    if (t.direction === "in") e.in += t.amount ?? 0; else e.out += t.amount ?? 0
+    if ((t.created_at ?? "") > e.order) e.order = t.created_at ?? ""
+    byMonth.set(k, e)
   }
-  const monthlyPL = Array.from(monthMap.entries())
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, 12)
-    .map(([month, v]) => {
-      const [year, mo] = month.split("-")
-      const d = new Date(Number(year), Number(mo) - 1, 1)
-      return {
-        month: d.toLocaleDateString("en-GB", { month: "short", year: "numeric" }),
-        income: v.income,
-        expenditure: v.expenditure,
-        net: v.income - v.expenditure,
-      }
-    })
+  const monthly = [...byMonth.entries()].sort((a, b) => b[1].order.localeCompare(a[1].order)).slice(0, 6)
+  const maxBar = Math.max(1, ...monthly.map((m) => Math.max(m[1].in, m[1].out)))
 
-  const csvUri = buildCsvDataUri(transactions)
+  const kpis: PortalKpi[] = [
+    { label: "Total income YTD", value: formatMoney(income), icon: TrendingUp, tone: "emerald" },
+    { label: "Total expenditure YTD", value: formatMoney(expenditure), icon: TrendingDown, tone: "red" },
+    { label: "Net P&L YTD", value: formatMoney(net), icon: PoundSterling, tone: net >= 0 ? "emerald" : "red" },
+    { label: "Arrears outstanding", value: String(alerts.length), sub: "tenancies", icon: AlertTriangle, tone: alerts.length ? "amber" : "emerald" },
+    { label: "Avg monthly income", value: formatMoney(avgMonthly), icon: Wallet, tone: "blue" },
+    { label: "Next projected payout", value: formatMoney(avgMonthly), icon: Calendar, tone: "violet" },
+  ]
 
   return (
-    <div className="space-y-6">
-      <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
-        <ArrowLeft className="w-4 h-4" /> Back to dashboard
-      </Link>
+    <div className="space-y-5">
+      <PortalPageHeader
+        title="Financials" subtitle="Income, expenditure and net performance across your portfolio." backHref={base}
+        actions={<><PortalButtonLink href="#" icon={Download}>Export CSV</PortalButtonLink><PortalButtonLink href={`${base}/documents`} variant="primary" icon={FileText}>Download statement</PortalButtonLink></>}
+      />
+      <PortalKpiStrip kpis={kpis} cols={6} />
 
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Financials</h1>
-          <p className="text-sm text-slate-500">Income and expenditure for your portfolio</p>
-        </div>
-        {transactions.length > 0 && (
-          <a
-            href={csvUri}
-            download="financials-export.csv"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </a>
-        )}
-      </div>
-
-      {/* P&L summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-[#ECFDF5] border border-emerald-100">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <p className="text-xs text-emerald-600">Total Income</p>
-          </div>
-          <p className="text-2xl font-bold text-[#059669]">{formatMoney(totalIncome)}</p>
-          <p className="text-xs text-slate-400 mt-1">{income.length} transaction{income.length === 1 ? "" : "s"}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-red-100">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingDown className="w-4 h-4 text-[#dc2626]" />
-            <p className="text-xs text-red-600">Total Expenditure</p>
-          </div>
-          <p className="text-2xl font-bold text-[#dc2626]">{formatMoney(totalExpenditure)}</p>
-          <p className="text-xs text-slate-400 mt-1">{expenditure.length} transaction{expenditure.length === 1 ? "" : "s"}</p>
-        </div>
-        <div className={`p-4 rounded-2xl border ${netPL >= 0 ? "bg-[#EFF6FF] border-blue-100" : "bg-[#FFFBEB] border-amber-100"}`}>
-          <div className="flex items-center gap-2 mb-1">
-            <PoundSterling className={`w-4 h-4 ${netPL >= 0 ? "text-[#2563EB]" : "text-[#d97706]"}`} />
-            <p className={`text-xs ${netPL >= 0 ? "text-[#2563EB]" : "text-[#d97706]"}`}>Net P&amp;L</p>
-          </div>
-          <p className={`text-2xl font-bold ${netPL >= 0 ? "text-[#2563EB]" : "text-[#d97706]"}`}>
-            {netPL >= 0 ? "+" : "−"}{formatMoney(Math.abs(netPL))}
-          </p>
-        </div>
-      </div>
-
-      {/* Monthly P&L table */}
-      {monthlyPL.length > 0 && (
-        <Card className="rounded-2xl border-slate-200">
-          <div className="px-5 py-4 border-b border-slate-100">
-            <h2 className="text-sm font-semibold text-slate-900">Monthly P&amp;L</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[480px]">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  {["Month", "Income", "Expenditure", "Net"].map((h) => (
-                    <th key={h} className="text-left text-xs font-semibold text-slate-500 px-5 py-3 whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {monthlyPL.map((m) => (
-                  <tr key={m.month} className="hover:bg-slate-50">
-                    <td className="px-5 py-3 text-xs font-medium text-slate-700 whitespace-nowrap">{m.month}</td>
-                    <td className="px-5 py-3 text-xs font-semibold text-[#059669]">{formatMoney(m.income)}</td>
-                    <td className="px-5 py-3 text-xs font-semibold text-[#dc2626]">{formatMoney(m.expenditure)}</td>
-                    <td className={`px-5 py-3 text-xs font-bold ${m.net >= 0 ? "text-[#2563EB]" : "text-[#d97706]"}`}>
-                      {m.net >= 0 ? "+" : "−"}{formatMoney(Math.abs(m.net))}
-                    </td>
-                  </tr>
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
+        <div className="space-y-4 min-w-0">
+          <PortalSectionCard title="Income vs expenditure" icon={TrendingUp}>
+            {monthly.length === 0 ? <PortalEmptyState icon={TrendingUp} title="No data yet" /> : (
+              <div className="space-y-2.5">
+                {monthly.map(([m, v]) => (
+                  <div key={m} className="flex items-center gap-3"><span className="text-xs text-slate-500 w-16 shrink-0">{m}</span>
+                    <div className="flex-1 space-y-1">
+                      <div className="h-3 rounded-full bg-emerald-100 overflow-hidden"><div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(v.in / maxBar) * 100}%` }} /></div>
+                      <div className="h-3 rounded-full bg-rose-100 overflow-hidden"><div className="h-full bg-rose-400 rounded-full" style={{ width: `${(v.out / maxBar) * 100}%` }} /></div>
+                    </div>
+                    <span className="text-xs font-semibold text-[#071B4D] w-20 text-right shrink-0">{formatMoney(v.in - v.out)}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
+                <div className="flex items-center gap-4 pt-1 text-[11px] text-slate-400"><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Income</span><span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-400" /> Expenditure</span></div>
+              </div>
+            )}
+          </PortalSectionCard>
 
-      {/* Transaction ledger */}
-      <Card className="rounded-2xl border-slate-200">
-        <div className="px-5 py-4 border-b border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-900">All transactions</h2>
+          <PortalCard className="overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-[#EEF3FB]"><h2 className="text-sm font-semibold text-[#071B4D]">Transaction ledger</h2></div>
+            {txns.length === 0 ? <PortalEmptyState icon={Wallet} title="No transactions" /> : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[640px]">
+                  <thead><tr className="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400 border-b border-[#EEF3FB] bg-[#FAFCFF]"><th className="px-4 py-3">Date</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Category</th><th className="px-4 py-3">Direction</th><th className="px-4 py-3 text-right">Amount</th></tr></thead>
+                  <tbody className="divide-y divide-[#F1F5FB]">
+                    {txns.slice(0, 30).map((t) => { const inc = t.direction === "in"; return (
+                      <tr key={t.id} className="hover:bg-[#FAFCFF]">
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{formatDate(t.created_at)}</td>
+                        <td className="px-4 py-3 font-medium text-[#071B4D] truncate max-w-[200px]">{t.description ?? (inc ? "Rent received" : "Expense")}</td>
+                        <td className="px-4 py-3 text-slate-500 capitalize">{t.category?.replace(/_/g, " ") ?? "—"}</td>
+                        <td className="px-4 py-3"><StatusChip tone={inc ? "emerald" : "slate"}>{inc ? <><ArrowDownLeft className="w-3 h-3 inline" /> In</> : <><ArrowUpRight className="w-3 h-3 inline" /> Out</>}</StatusChip></td>
+                        <td className={`px-4 py-3 text-right font-semibold ${inc ? "text-emerald-600" : "text-slate-900"}`}>{inc ? "+" : "−"}{formatMoney(t.amount, t.currency ?? "GBP")}</td>
+                      </tr>
+                    )})}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </PortalCard>
         </div>
-        {transactions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-              <PoundSterling className="w-6 h-6 text-slate-400" />
-            </div>
-            <h3 className="text-sm font-semibold text-slate-700">No transactions yet</h3>
-            <p className="text-xs text-slate-400 mt-1">Financial transactions for your properties will appear here.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[560px]">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  {["Date", "Description", "Category", "Direction", "Amount"].map((h) => (
-                    <th key={h} className="text-left text-xs font-semibold text-slate-500 px-5 py-3 whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {transactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50">
-                    <td className="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">{formatDate(t.created_at)}</td>
-                    <td className="px-5 py-3 text-xs text-slate-700">{t.description ?? "—"}</td>
-                    <td className="px-5 py-3 text-xs text-slate-500">{categoryLabel(t.category)}</td>
-                    <td className="px-5 py-3">
-                      {t.direction === "in"
-                        ? <span className="inline-flex items-center gap-1 text-xs text-[#059669]"><TrendingUp className="w-3 h-3" /> Income</span>
-                        : <span className="inline-flex items-center gap-1 text-xs text-[#dc2626]"><TrendingDown className="w-3 h-3" /> Expense</span>
-                      }
-                    </td>
-                    <td className={`px-5 py-3 text-xs font-semibold ${t.direction === "in" ? "text-[#059669]" : "text-[#dc2626]"}`}>
-                      {t.direction === "out" ? "−" : "+"}{formatMoney(t.amount, t.currency ?? "GBP")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+
+        <div className="space-y-4">
+          <PortalSectionCard title="Arrears watchlist" icon={AlertTriangle}>
+            {alerts.length === 0 ? <p className="text-sm text-emerald-600 flex items-center gap-1.5"><TrendingUp className="w-4 h-4" /> No arrears</p> : (
+              <ul className="space-y-2">{alerts.map((a) => (
+                <li key={a.tenancyId} className="flex items-center justify-between gap-2 rounded-xl bg-red-50/60 border border-red-100 px-3 py-2"><span className="text-sm font-medium text-[#071B4D] truncate">{a.propertyLabel}</span><StatusChip tone="red">Overdue</StatusChip></li>
+              ))}</ul>
+            )}
+          </PortalSectionCard>
+          <PortalSectionCard title="Downloadable statements" icon={FileText} viewAllHref={`${base}/documents`}>
+            <PortalButtonLink href={`${base}/documents`} variant="ghost" icon={Download} className="w-full justify-center">View statements</PortalButtonLink>
+          </PortalSectionCard>
+        </div>
+      </div>
     </div>
   )
 }

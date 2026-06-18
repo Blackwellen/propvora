@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 import { MarketplaceShell } from "@/components/marketplace-public/MarketplaceShell"
+import { getGlobalFlag } from "@/lib/flags/public"
 
 /**
  * Public marketplace layout — UNAUTHENTICATED (anon-readable).
@@ -18,6 +20,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default function MarketplacePublicLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketplacePublicLayout({ children }: { children: React.ReactNode }) {
+  // Staged platform: the public marketplace is hidden until the global
+  // `marketplaceEnabled` flag is on (V1 default OFF). No URL leak, no checkout.
+  if (!(await getGlobalFlag("marketplaceEnabled"))) {
+    redirect("/")
+  }
   return <MarketplaceShell>{children}</MarketplaceShell>
 }

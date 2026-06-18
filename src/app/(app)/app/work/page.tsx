@@ -130,7 +130,7 @@ export default function WorkPage() {
 
   // ─── Live KPI calculations ───────────────────────────────────────────────
   const kpiValues = useMemo(() => {
-    if (!hasLiveData) return SEED_KPIS
+    if (!hasLiveData) return { openWork: 0, overdue: 0, waitingSupplier: 0, revenueBlocking: 0, invoicePending: 0, dueThisWeek: 0, scheduledJobs: 0, completionRate: 0 }
     const now = new Date()
     const weekAhead = new Date(now.getTime() + 7 * 86_400_000)
 
@@ -159,8 +159,8 @@ export default function WorkPage() {
       openWork,
       overdue,
       waitingSupplier,
-      revenueBlocking: SEED_KPIS.revenueBlocking,
-      invoicePending: SEED_KPIS.invoicePending,
+      revenueBlocking: 0,
+      invoicePending: 0,
       dueThisWeek,
       scheduledJobs,
       completionRate,
@@ -169,7 +169,13 @@ export default function WorkPage() {
 
   // ─── Pipeline data ───────────────────────────────────────────────────────
   const pipelineData = useMemo(() => {
-    if (!hasLiveData) return SEED_PIPELINE
+    if (!hasLiveData) return [
+      { name: "To Do",       value: 0, color: "#94A3B8" },
+      { name: "In Progress", value: 0, color: "#2563EB" },
+      { name: "Waiting",     value: 0, color: "#F59E0B" },
+      { name: "Blocked",     value: 0, color: "#EF4444" },
+      { name: "Done",        value: 0, color: "#10B981" },
+    ]
     return [
       { name: "To Do",       value: tasks.filter(t => t.status === "todo").length,        color: "#94A3B8" },
       { name: "In Progress", value: tasks.filter(t => t.status === "in_progress").length, color: "#2563EB" },
@@ -183,7 +189,7 @@ export default function WorkPage() {
 
   // ─── Overdue / chase items ───────────────────────────────────────────────
   const chaseItems = useMemo(() => {
-    if (!hasLiveData) return SEED_CHASE
+    if (!hasLiveData) return []
     const now = new Date()
     return tasks
       .filter(t => t.due_date && new Date(t.due_date) < now && !["done", "cancelled"].includes(t.status))
@@ -203,7 +209,7 @@ export default function WorkPage() {
 
   // ─── Upcoming tasks (due in 7 days) ─────────────────────────────────────
   const upcomingItems = useMemo(() => {
-    if (!hasLiveData) return SEED_UPCOMING
+    if (!hasLiveData) return []
     const now = new Date()
     const weekAhead = new Date(now.getTime() + 7 * 86_400_000)
     return tasks
@@ -224,7 +230,7 @@ export default function WorkPage() {
 
   // ─── Blocked items ───────────────────────────────────────────────────────
   const blockedItems = useMemo(() => {
-    if (!hasLiveData) return SEED_BLOCKED
+    if (!hasLiveData) return []
     return tasks
       .filter(t => t.status === "blocked")
       .slice(0, 3)
@@ -236,11 +242,11 @@ export default function WorkPage() {
       }))
   }, [tasks, hasLiveData])
 
-  const displayBlocked = blockedItems.length > 0 ? blockedItems : SEED_BLOCKED
+  const displayBlocked = blockedItems
 
   // ─── Recent activity (most recently updated tasks/jobs) ──────────────────
   const activityItems = useMemo(() => {
-    if (!hasLiveData) return SEED_ACTIVITY
+    if (!hasLiveData) return []
     const events = [
       ...tasks.map(t => ({
         ts: t.updated_at ?? t.created_at,
@@ -258,7 +264,7 @@ export default function WorkPage() {
       .filter(e => e.ts)
       .sort((a, b) => new Date(b.ts!).getTime() - new Date(a.ts!).getTime())
       .slice(0, 5)
-    if (events.length === 0) return SEED_ACTIVITY
+    if (events.length === 0) return []
     return events.map(e => ({
       icon: e.done ? CheckCircle2 : ClipboardList,
       bg: e.done ? "bg-emerald-50" : "bg-blue-50",
@@ -272,7 +278,7 @@ export default function WorkPage() {
   // ─── Supplier response health (from supplier-linked jobs) ────────────────
   const supplierHealth = useMemo(() => {
     const supplierJobs = jobs.filter(j => j.supplier_contact_id)
-    if (!hasLiveData || supplierJobs.length === 0) return SUPPLIER_HEALTH
+    if (!hasLiveData || supplierJobs.length === 0) return []
     const now = new Date()
     const CLOSED = ["complete", "invoiced", "closed"]
     let onTime = 0, late = 0, overdue = 0
@@ -546,7 +552,7 @@ export default function WorkPage() {
                 startAngle={90}
                 endAngle={-270}
               >
-                {SUPPLIER_HEALTH.map((entry, index) => (
+                {supplierHealth.map((entry, index) => (
                   <Cell key={index} fill={entry.color} />
                 ))}
               </Pie>

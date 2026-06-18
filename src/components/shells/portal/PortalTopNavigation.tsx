@@ -1,6 +1,7 @@
 "use client"
 
-import { Building2, Menu, LogOut } from "lucide-react"
+import Link from "next/link"
+import { Building2, Menu, LogOut, LifeBuoy } from "lucide-react"
 import type { PortalKind } from "./portal-nav"
 
 const BADGE: Record<PortalKind, string> = { supplier: "SUPPLIER", landlord: "LANDLORD", tenant: "TENANT" }
@@ -21,11 +22,14 @@ export default function PortalTopNavigation({
   workspaceName,
   displayName,
   onOpenMobile,
+  helpHref,
 }: {
   kind: PortalKind
   workspaceName: string
   displayName: string
   onOpenMobile: () => void
+  /** "Help & support" target — the messages/support channel for this portal. */
+  helpHref: string
 }) {
   return (
     <header
@@ -55,13 +59,32 @@ export default function PortalTopNavigation({
         <span className="max-w-[120px] sm:max-w-[200px] truncate">{workspaceName}</span>
       </div>
 
+      {/* Supplier: the portal context pill sits in the LEFT cluster beside the
+          workspace pill (per the supplier design) — not crowding the right group. */}
+      {kind === "supplier" && (
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[11px] font-semibold shrink-0">
+          {BADGE[kind]} PORTAL
+        </span>
+      )}
+
       {/* Spacer (search removed) */}
       <div className="flex-1 min-w-0" />
 
-      {/* Right: portal badge + contact identity + sign out */}
-      <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[11px] font-semibold shrink-0">
-        {BADGE[kind]} PORTAL
-      </span>
+      {/* Help & support — moved here from the sidebar (no floating help circle) */}
+      <Link
+        href={helpHref}
+        className="inline-flex items-center gap-1.5 h-10 px-3 rounded-xl bg-white border border-[#E2EAF6] text-[13px] font-semibold text-[#071B4D] hover:border-[#2563EB]/40 hover:text-[#2563EB] transition-colors shadow-sm shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+      >
+        <LifeBuoy className="w-4 h-4 text-[#2563EB]" />
+        <span className="hidden sm:inline">Help &amp; support</span>
+      </Link>
+
+      {/* Right: portal badge (tenant/landlord only — supplier's is on the left) */}
+      {kind !== "supplier" && (
+        <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[11px] font-semibold shrink-0">
+          {BADGE[kind]} PORTAL
+        </span>
+      )}
 
       <div className="flex items-center gap-2 h-10 pl-1 pr-2.5 rounded-full bg-white border border-[#E2EAF6] shrink-0">
         <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">

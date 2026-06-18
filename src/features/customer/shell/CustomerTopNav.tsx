@@ -6,6 +6,7 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import PersonaLinks from "@/components/shell/PersonaLinks"
 import {
   Home,
   Compass,
@@ -229,6 +230,11 @@ export default function CustomerTopNav({
                     )
                   })}
                 </div>
+                {/* Cross-persona shortcuts — the customer shell has no
+                    workspace switcher, so members who also run a property-
+                    management or supplier workspace get explicit doors here.
+                    Omitted entirely when there's no matching workspace. */}
+                <PersonaLinks targets={["operator", "supplier"]} onNavigate={() => setMenuOpen(false)} />
                 <div className="border-t border-slate-100 pt-1">
                   <button
                     type="button"

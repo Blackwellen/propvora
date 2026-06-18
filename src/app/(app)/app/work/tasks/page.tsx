@@ -581,7 +581,7 @@ export default function TasksPage() {
         isLive: true,
       }))
     }
-    return DEMO_TASKS
+    return []
   }, [tasksData])
 
   // Filter option lists derived from the live/demo dataset

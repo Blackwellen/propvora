@@ -1,155 +1,177 @@
 import React from "react"
-import { RefreshCw, CheckCircle2, AlertCircle, Database, Zap, Mail, CreditCard, HardDrive, Activity } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
-import { Button } from "@/components/ui/Button"
-import { cn } from "@/lib/utils"
-import { createAdminClient } from "@/lib/supabase/admin"
+import {
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Database,
+  Mail,
+  CreditCard,
+  HardDrive,
+  Zap,
+  Server,
+  RefreshCw,
+  ShieldCheck,
+  ListChecks,
+  Gauge,
+} from "lucide-react"
+import {
+  AdminPageHeader,
+  AdminKpiStrip,
+  AdminCard,
+  AdminSectionCard,
+  AdminStatusChip,
+  AdminRightRail,
+  AdminBanner,
+  type AdminKpi,
+  type AdminTone,
+} from "@/components/admin/ui"
+import { getHealthReport } from "@/lib/admin/pages/batch5"
 
-// Check which env vars are present (server-side only)
-function checkEnvVars() {
-  return {
-    supabase:  !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    resend:    !!process.env.RESEND_API_KEY,
-    r2:        !!process.env.R2_ACCESS_KEY_ID || !!process.env.CLOUDFLARE_R2_ACCESS_KEY,
-    stripe:    !!process.env.STRIPE_SECRET_KEY,
-    openai:    !!process.env.OPENAI_API_KEY,
-  }
+export const dynamic = "force-dynamic"
+
+const ICONS: Record<string, React.ElementType> = {
+  "Supabase Database": Database,
+  "Supabase Auth": Activity,
+  "Resend Email": Mail,
+  "Cloudflare R2": HardDrive,
+  "Stripe": CreditCard,
+  "AI Gateway": Zap,
 }
 
-async function pingSupabase(): Promise<{ ok: boolean; latencyMs: number }> {
-  const start = Date.now()
-  try {
-    const admin = createAdminClient()
-    const { error } = await admin.from("workspaces").select("id").limit(1)
-    return { ok: !error, latencyMs: Date.now() - start }
-  } catch {
-    return { ok: false, latencyMs: Date.now() - start }
-  }
+function svcTone(status: string): AdminTone {
+  if (status === "healthy") return "emerald"
+  if (status === "not_configured") return "slate"
+  return "red"
 }
-
-function statusBadge(status: "healthy" | "not_configured" | "degraded") {
-  if (status === "healthy")        return <Badge variant="success" dot size="sm">Healthy</Badge>
-  if (status === "not_configured") return <Badge variant="warning" dot size="sm">Not configured</Badge>
-  return <Badge variant="danger" dot size="sm">Degraded</Badge>
+function svcLabel(status: string) {
+  if (status === "healthy") return "Healthy"
+  if (status === "not_configured") return "Not configured"
+  return "Degraded"
 }
 
 export default async function AdminHealthPage() {
-  const env = checkEnvVars()
-  const supabasePing = await pingSupabase()
+  const report = await getHealthReport()
 
-  const services: Array<{
-    name: string
-    status: "healthy" | "not_configured" | "degraded"
-    detail: string
-    icon: React.ElementType
-  }> = [
-    {
-      name:   "Supabase Database",
-      status: supabasePing.ok ? "healthy" : "degraded",
-      detail: supabasePing.ok ? `Latency: ${supabasePing.latencyMs}ms` : "Connection failed",
-      icon:   Database,
-    },
-    {
-      name:   "Supabase Auth",
-      status: env.supabase ? "healthy" : "not_configured",
-      detail: env.supabase ? "Env vars present" : "NEXT_PUBLIC_SUPABASE_URL or SERVICE_ROLE_KEY missing",
-      icon:   Activity,
-    },
-    {
-      name:   "Resend Email",
-      status: env.resend ? "healthy" : "not_configured",
-      detail: env.resend ? "RESEND_API_KEY configured" : "RESEND_API_KEY not set",
-      icon:   Mail,
-    },
-    {
-      name:   "Cloudflare R2",
-      status: env.r2 ? "healthy" : "not_configured",
-      detail: env.r2 ? "R2 credentials present" : "R2_ACCESS_KEY_ID not set",
-      icon:   HardDrive,
-    },
-    {
-      name:   "Stripe",
-      status: env.stripe ? "healthy" : "not_configured",
-      detail: env.stripe ? "STRIPE_SECRET_KEY configured" : "STRIPE_SECRET_KEY not set",
-      icon:   CreditCard,
-    },
-    {
-      name:   "OpenAI / AI",
-      status: env.openai ? "healthy" : "not_configured",
-      detail: env.openai ? "OPENAI_API_KEY configured" : "OPENAI_API_KEY not set",
-      icon:   Zap,
-    },
+  const overallTone: AdminTone = report.overall === "healthy" ? "emerald" : report.overall === "degraded" ? "amber" : "red"
+  const overallLabel = report.overall === "healthy" ? "All systems operational" : report.overall === "degraded" ? "Degraded performance" : "Service disruption"
+  const OverallIcon = report.overall === "healthy" ? CheckCircle2 : report.overall === "down" ? XCircle : AlertTriangle
+
+  const healthy = report.services.filter((s) => s.status === "healthy").length
+  const configured = report.services.filter((s) => s.status !== "not_configured").length
+
+  const kpis: AdminKpi[] = [
+    { label: "Overall status", value: report.overall === "healthy" ? "Healthy" : report.overall === "degraded" ? "Degraded" : "Down", icon: Activity, tone: overallTone },
+    { label: "Services healthy", value: `${healthy}/${report.services.length}`, icon: Server, tone: healthy === report.services.length ? "emerald" : "amber" },
+    { label: "DB latency", value: report.dbLatencyMs != null ? `${report.dbLatencyMs} ms` : "—", icon: Gauge, tone: report.dbLatencyMs != null && report.dbLatencyMs < 250 ? "emerald" : "amber" },
+    { label: "Integrations live", value: `${configured}/${report.services.length}`, icon: ShieldCheck, tone: "blue" },
   ]
-
-  const allHealthy   = services.every(s => s.status === "healthy")
-  const notConfigured = services.filter(s => s.status === "not_configured").length
-  const degraded      = services.filter(s => s.status === "degraded").length
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">System Health</h1>
-          <p className="text-xs text-slate-500">Last checked: {new Date().toLocaleTimeString("en-GB")}</p>
-        </div>
-        <form action="">
-          <Button variant="outline" size="sm" type="submit">
-            <RefreshCw className="w-4 h-4" /> Refresh
-          </Button>
-        </form>
-      </div>
+      <AdminPageHeader
+        title="System health"
+        subtitle={`Live service reachability and queue depth. Last checked ${new Date(report.checkedAt).toLocaleTimeString("en-GB")}.`}
+        icon={Activity}
+        actions={
+          <form>
+            <button type="submit" className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-[#E2EAF6] bg-white text-[13px] font-semibold text-slate-700 hover:bg-slate-50 hover:border-[#C8DBF5] transition-colors">
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </button>
+          </form>
+        }
+      />
 
       {/* Overall status banner */}
-      {allHealthy ? (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-[#ECFDF5] border border-emerald-200">
-          <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
+      <AdminCard className={overallTone === "emerald" ? "border-emerald-200 bg-[#ECFDF5]/60" : overallTone === "amber" ? "border-amber-200 bg-[#FFFBEB]" : "border-red-200 bg-[#FEF2F2]"}>
+        <div className="flex items-center gap-3">
+          <OverallIcon className={`w-6 h-6 shrink-0 ${overallTone === "emerald" ? "text-emerald-600" : overallTone === "amber" ? "text-amber-600" : "text-red-600"}`} />
           <div>
-            <p className="text-sm font-semibold text-emerald-800">All systems operational</p>
-            <p className="text-xs text-emerald-600">All env vars configured and Supabase is reachable</p>
+            <p className="text-[15px] font-semibold text-[#0B1B3F]">{overallLabel}</p>
+            <p className="text-[12.5px] text-slate-600">{healthy} of {report.services.length} services healthy · database {report.dbLatencyMs != null ? `reachable in ${report.dbLatencyMs}ms` : "unreachable"}.</p>
           </div>
         </div>
-      ) : (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-[#FFFBEB] border border-amber-200">
-          <AlertCircle className="w-5 h-5 text-[#F59E0B]" />
-          <div>
-            <p className="text-sm font-semibold text-amber-800">
-              {degraded > 0 ? `${degraded} service${degraded > 1 ? "s" : ""} degraded` : ""}{" "}
-              {notConfigured > 0 ? `${notConfigured} service${notConfigured > 1 ? "s" : ""} not configured` : ""}
-            </p>
-            <p className="text-xs text-amber-600">Check the service list below for details</p>
-          </div>
-        </div>
-      )}
+      </AdminCard>
 
-      {/* Service status */}
-      <Card>
-        <CardHeader><CardTitle>Service Status</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {services.map((svc) => {
-              const Icon = svc.icon
-              return (
-                <div key={svc.name} className={cn("flex items-center justify-between p-3 rounded-xl border",
-                  svc.status === "healthy"        ? "border-emerald-100 bg-[#ECFDF5]/50" :
-                  svc.status === "not_configured" ? "border-amber-200 bg-[#FFFBEB]" :
-                  "border-red-200 bg-[#FEF2F2]")}>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                      <Icon className="w-4 h-4 text-slate-600" />
+      <AdminKpiStrip kpis={kpis} cols={4} />
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
+        <div className="space-y-5 min-w-0">
+          {/* Live services grid */}
+          <AdminSectionCard title="Live services" icon={Server}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {report.services.map((svc) => {
+                const Icon = ICONS[svc.name] ?? Server
+                return (
+                  <div key={svc.name} className={`flex items-center justify-between rounded-xl border p-3 ${svc.status === "healthy" ? "border-emerald-100 bg-[#ECFDF5]/40" : svc.status === "degraded" ? "border-red-200 bg-[#FEF2F2]" : "border-[#E2EAF6] bg-[#FAFCFF]"}`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-8 h-8 rounded-lg bg-white border border-[#E2EAF6] flex items-center justify-center shadow-sm shrink-0"><Icon className="w-4 h-4 text-slate-600" /></span>
+                      <div className="min-w-0">
+                        <p className="text-[12.5px] font-semibold text-[#0B1B3F] truncate">{svc.name}</p>
+                        <p className="text-[11px] text-slate-400 truncate">{svc.detail}{svc.latencyMs != null ? ` · ${svc.latencyMs}ms` : ""}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold text-slate-800">{svc.name}</p>
-                      <p className="text-[10px] text-slate-400">{svc.detail}</p>
-                    </div>
+                    <AdminStatusChip tone={svcTone(svc.status)} dot>{svcLabel(svc.status)}</AdminStatusChip>
                   </div>
-                  {statusBadge(svc.status)}
+                )
+              })}
+            </div>
+          </AdminSectionCard>
+
+          {/* Incidents timeline */}
+          <AdminSectionCard title="Incident timeline" icon={ListChecks}>
+            {report.overall === "healthy" ? (
+              <div className="flex items-center gap-3 py-3">
+                <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><CheckCircle2 className="w-4 h-4" /></span>
+                <div>
+                  <p className="text-[13px] font-medium text-[#0B1B3F]">No active incidents</p>
+                  <p className="text-[11px] text-slate-400">All monitored services responded normally at the last check.</p>
                 </div>
-              )
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {report.services.filter((s) => s.status === "degraded").map((s) => (
+                  <li key={s.name} className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                    <div>
+                      <p className="text-[13px] text-slate-700"><span className="font-semibold text-[#0B1B3F]">{s.name}</span> degraded</p>
+                      <p className="text-[11px] text-slate-400">{s.detail} · detected {new Date(report.checkedAt).toLocaleTimeString("en-GB")}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </AdminSectionCard>
+        </div>
+
+        {/* Right rail — queues + DR readiness */}
+        <AdminRightRail>
+          <AdminSectionCard title="Job & queue health" icon={ListChecks}>
+            <ul className="space-y-2.5">
+              {report.queues.map((qx) => (
+                <li key={qx.name} className="flex items-center justify-between">
+                  <span className="text-[13px] text-slate-600">{qx.name}</span>
+                  {!qx.available
+                    ? <AdminStatusChip tone="slate">n/a</AdminStatusChip>
+                    : <AdminStatusChip tone={qx.pending > 0 ? "amber" : "emerald"}>{qx.pending} pending</AdminStatusChip>}
+                </li>
+              ))}
+            </ul>
+          </AdminSectionCard>
+
+          <AdminSectionCard title="Disaster recovery readiness" icon={ShieldCheck}>
+            <ul className="space-y-2 text-[12.5px]">
+              <li className="flex items-center justify-between"><span className="text-slate-600">Managed Postgres backups</span><AdminStatusChip tone="emerald" dot>Supabase</AdminStatusChip></li>
+              <li className="flex items-center justify-between"><span className="text-slate-600">Object storage durability</span><AdminStatusChip tone={report.services.find((s) => s.name === "Cloudflare R2")?.status === "healthy" ? "emerald" : "slate"} dot>R2</AdminStatusChip></li>
+              <li className="flex items-center justify-between"><span className="text-slate-600">Config restore (settings)</span><AdminStatusChip tone="emerald" dot>Versioned</AdminStatusChip></li>
+            </ul>
+          </AdminSectionCard>
+
+          <AdminBanner tone="blue" icon={Gauge}>
+            Status is a live point-in-time check from this server. Historical uptime and latency trends require an external monitoring sink, which is not yet wired — no synthetic uptime figures are shown.
+          </AdminBanner>
+        </AdminRightRail>
+      </div>
     </div>
   )
 }

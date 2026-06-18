@@ -304,6 +304,82 @@ export async function switchWorkspace(workspaceId: string): Promise<void> {
   revalidatePath("/app")
 }
 
+/** Home route (and shell route-group) for each persona/workspace type. */
+const PERSONA_HOME: Record<"customer" | "operator" | "supplier", string> = {
+  customer: "/user",
+  operator: "/property-manager",
+  supplier: "/supplier",
+}
+
+/**
+ * Cross-persona navigation for a single account that holds several memberships
+ * (same email, different workspace types). Finds the caller's workspace of the
+ * requested `type`, makes it the active workspace, and returns the home route of
+ * that persona's shell. Returns `null` when the account has no workspace of that
+ * type — callers use that to omit the link entirely (no greyed-out dead ends).
+ *
+ * This is what powers the avatar-dropdown "Go to customer site / property
+ * manager / supplier" shortcuts. Customer is deliberately absent from the
+ * operator/supplier workspace switcher, so it needs this explicit door (and the
+ * customer shell has no switcher at all, so it needs the reverse doors too).
+ */
+export async function switchToPersona(
+  type: "customer" | "operator" | "supplier"
+): Promise<string | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("workspace_members")
+    .select("workspace_id, workspaces!inner(type)")
+    .eq("user_id", user.id)
+    .eq("workspaces.type", type)
+    .limit(1)
+    .maybeSingle()
+
+  const workspaceId = (data as { workspace_id?: string } | null)?.workspace_id
+  if (!workspaceId) return null
+
+  await supabase
+    .from("profiles")
+    .update({ current_workspace_id: workspaceId, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+
+  return PERSONA_HOME[type]
+}
+
+/**
+ * Which persona workspaces does the caller belong to (same account, by type)?
+ * Used to decide which cross-persona avatar links to render.
+ */
+export async function getPersonaMemberships(): Promise<{
+  customer: boolean
+  operator: boolean
+  supplier: boolean
+}> {
+  const result = { customer: false, operator: false, supplier: false }
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return result
+
+  const { data } = await supabase
+    .from("workspace_members")
+    .select("workspaces!inner(type)")
+    .eq("user_id", user.id)
+    .limit(50)
+
+  for (const row of data ?? []) {
+    const t = (row as { workspaces?: { type?: string } | null }).workspaces?.type
+    if (t === "customer" || t === "operator" || t === "supplier") result[t] = true
+  }
+  return result
+}
+
 /**
  * One-shot customer workspace bootstrap — called from the auth callback when
  * a user registers with intent=customer. Creates a customer-type workspace with

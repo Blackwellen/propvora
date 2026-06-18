@@ -104,6 +104,37 @@ const nextConfig: NextConfig = {
     { source: "/stays/property-map", destination: "/stays/map", permanent: false },
     { source: "/services/zone-map", destination: "/services/map", permanent: false },
     { source: "/providers/zone-map", destination: "/providers/map", permanent: false },
+    // Platform Admin route standardisation (old → clean /admin structure)
+    { source: "/admin/marketplace", destination: "/admin/marketplace/oversight", permanent: false },
+    { source: "/admin/verification", destination: "/admin/id-verification", permanent: false },
+    { source: "/admin/verification/:path*", destination: "/admin/id-verification/:path*", permanent: false },
+    { source: "/admin/maintenance", destination: "/admin/maintenance-mode", permanent: false },
+    { source: "/admin/cron", destination: "/admin/cron-management", permanent: false },
+    { source: "/admin/automations/usage-caps", destination: "/admin/automation-usage", permanent: false },
+    { source: "/admin/bugs", destination: "/admin/bug-reports", permanent: false },
+    { source: "/admin/bugs/:path*", destination: "/admin/bug-reports/:path*", permanent: false },
+    { source: "/admin/audit", destination: "/admin/audit-log", permanent: false },
+    { source: "/admin/global/translations", destination: "/admin/global-translations", permanent: false },
+    { source: "/admin/announcements/bar", destination: "/admin/announcement-bar", permanent: false },
+
+    // Settings canonical — /property-manager/settings → workspace settings hub
+    { source: "/property-manager/settings", destination: "/property-manager/workspace-settings", permanent: false },
+    { source: "/property-manager/settings/:path*", destination: "/property-manager/workspace-settings/:path*", permanent: false },
+    // Stale scattered settings routes → workspace-settings equivalents
+    { source: "/property-manager/settings/calendar-notifications", destination: "/property-manager/workspace-settings/notifications", permanent: false },
+    { source: "/property-manager/settings/compliance", destination: "/property-manager/workspace-settings/compliance", permanent: false },
+    { source: "/property-manager/settings/payments-stripe", destination: "/property-manager/workspace-settings/integrations", permanent: false },
+
+    // Calendar view collapse — /calendar/{view} → /calendar?view={view}
+    { source: "/property-manager/calendar/week", destination: "/property-manager/calendar?view=week", permanent: false },
+    { source: "/property-manager/calendar/month", destination: "/property-manager/calendar?view=month", permanent: false },
+    { source: "/property-manager/calendar/day", destination: "/property-manager/calendar?view=day", permanent: false },
+    { source: "/property-manager/calendar/agenda", destination: "/property-manager/calendar?view=agenda", permanent: false },
+    { source: "/property-manager/calendar/gantt", destination: "/property-manager/calendar?view=gantt", permanent: false },
+    { source: "/property-manager/calendar/timeline", destination: "/property-manager/calendar?view=timeline", permanent: false },
+    { source: "/property-manager/calendar/schedule", destination: "/property-manager/calendar?view=schedule", permanent: false },
+    { source: "/property-manager/calendar/views", destination: "/property-manager/calendar", permanent: false },
+    { source: "/property-manager/calendar/views/:view", destination: "/property-manager/calendar?view=:view", permanent: false },
   ],
   rewrites: async () => ({
     beforeFiles: [

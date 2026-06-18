@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import {
@@ -9,6 +9,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -33,38 +35,12 @@ type LineItem = {
   tax_rate: number
 }
 
-/* ------------------------------------------------------------------ */
-/* Mock data                                                            */
-/* ------------------------------------------------------------------ */
-const MOCK_INVOICES: Invoice[] = [
-  { id: "inv-001", invoice_number: "INV-2026-001", recipient: "Sarah Mitchell",  property: "14 Birchwood Rd",  type: "rent_invoice",              amount: 1150, issue_date: "2026-05-01", due_date: "2026-06-01", status: "paid" },
-  { id: "inv-002", invoice_number: "INV-2026-002", recipient: "James Okafor",    property: "7 Elm Close",       type: "rent_invoice",              amount: 1400, issue_date: "2026-05-01", due_date: "2026-06-01", status: "overdue" },
-  { id: "inv-003", invoice_number: "INV-2026-003", recipient: "Emily Patel",     property: "22 Park Lane",      type: "rent_invoice",              amount: 1350, issue_date: "2026-05-15", due_date: "2026-06-15", status: "sent" },
-  { id: "inv-004", invoice_number: "INV-2026-004", recipient: "David Thornton",  property: "5 Bridge St",       type: "service_charge_invoice",    amount: 480,  issue_date: "2026-05-20", due_date: "2026-06-20", status: "due" },
-  { id: "inv-005", invoice_number: "INV-2026-005", recipient: "Kevin Walsh Ltd", property: "12 Maple Avenue",   type: "supplier_recharge",         amount: 320,  issue_date: "2026-05-10", due_date: "2026-05-31", status: "overdue" },
-  { id: "inv-006", invoice_number: "INV-2026-006", recipient: "Mark Johnson",    property: "All Properties",    type: "management_fee",            amount: 920,  issue_date: "2026-06-01", due_date: "2026-06-15", status: "draft" },
-  { id: "inv-007", invoice_number: "INV-2026-007", recipient: "Sarah Mitchell",  property: "14 Birchwood Rd",  type: "rent_invoice",              amount: 1150, issue_date: "2026-06-01", due_date: "2026-07-01", status: "planned" },
-  { id: "inv-008", invoice_number: "INV-2026-008", recipient: "Chen Wei",        property: "3 Oak Street",      type: "utility_recharge_invoice",  amount: 145,  issue_date: "2026-05-28", due_date: "2026-06-10", status: "sent" },
-  { id: "inv-009", invoice_number: "INV-2026-009", recipient: "Priya Sharma",   property: "18 Rose Lane",      type: "rent_invoice",              amount: 1600, issue_date: "2026-04-01", due_date: "2026-05-01", status: "paid" },
-  { id: "inv-010", invoice_number: "INV-2026-010", recipient: "Tom Bradley",    property: "9 Cedar Drive",     type: "tenant_invoice",            amount: 280,  issue_date: "2026-05-25", due_date: "2026-06-08", status: "due" },
-  { id: "inv-011", invoice_number: "INV-2026-011", recipient: "Lisa Park",      property: "45 Grove Road",     type: "rent_invoice",              amount: 1250, issue_date: "2026-06-01", due_date: "2026-07-01", status: "scheduled" },
-  { id: "inv-012", invoice_number: "INV-2026-012", recipient: "Ahmed Hassan",   property: "2 Willow Way",      type: "cleaning_recharge_invoice", amount: 195,  issue_date: "2026-05-22", due_date: "2026-06-05", status: "paid" },
-  { id: "inv-013", invoice_number: "INV-2026-013", recipient: "Rachel Green",   property: "7 Elm Close",       type: "landlord_charge",           amount: 6200, issue_date: "2026-06-01", due_date: "2026-06-15", status: "draft" },
-  { id: "inv-014", invoice_number: "INV-2026-014", recipient: "Daniel Moore",   property: "14 Birchwood Rd",  type: "service_charge_invoice",    amount: 360,  issue_date: "2026-05-05", due_date: "2026-05-20", status: "disputed" },
-  { id: "inv-015", invoice_number: "INV-2026-015", recipient: "Sophie Turner",  property: "22 Park Lane",      type: "rent_invoice",              amount: 1350, issue_date: "2026-05-01", due_date: "2026-06-01", status: "paid" },
-]
-
 const INVOICE_TYPES = [
   "Rent Invoice", "Service Charge Invoice", "Supplier Recharge", "Management Fee",
   "Utility Recharge Invoice", "Tenant Invoice", "Cleaning Recharge Invoice", "Landlord Charge",
 ]
 
 const INVOICE_STATUSES = ["draft", "planned", "scheduled", "sent", "viewed", "due", "overdue", "part_paid", "paid", "disputed", "cancelled"]
-
-const MOCK_CONTACTS = [
-  "Sarah Mitchell", "James Okafor", "Emily Patel", "David Thornton",
-  "Kevin Walsh Ltd", "Chen Wei", "Priya Sharma", "Tom Bradley",
-]
 
 const PAYMENT_METHODS = ["Bank Transfer (BACS)", "Credit / Debit Card", "Stripe Online", "Cheque", "Other"]
 
@@ -288,22 +264,23 @@ function CancelConfirmModal({ onClose, onConfirm }: { onClose: () => void; onCon
 export default function EditInvoicePage() {
   const params = useParams()
   const router = useRouter()
-  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "inv-001"
+  const { workspace } = useWorkspace()
+  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : ""
 
-  const source = MOCK_INVOICES.find(inv => inv.id === id) ?? MOCK_INVOICES[0]
+  const [notFound, setNotFound] = useState(false)
+  const [loadingInvoice, setLoadingInvoice] = useState(true)
+  const [dbContacts, setDbContacts] = useState<string[]>([])
 
-  /* Form state */
-  const [invoiceType, setInvoiceType] = useState(
-    source.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
-  )
-  const [invoiceNumber, setInvoiceNumber] = useState(source.invoice_number)
-  const [status, setStatus] = useState(source.status)
+  /* Form state — initialised with empty defaults; hydrated by useEffect below */
+  const [invoiceType, setInvoiceType] = useState("Rent Invoice")
+  const [invoiceNumber, setInvoiceNumber] = useState("")
+  const [status, setStatus] = useState("draft")
   const [notes, setNotes] = useState("")
-  const [recipientName, setRecipientName] = useState(source.recipient)
-  const [billingAddress, setBillingAddress] = useState(`${source.property}, London`)
-  const [property, setProperty] = useState(source.property)
-  const [issueDate, setIssueDate] = useState(source.issue_date)
-  const [dueDate, setDueDate] = useState(source.due_date)
+  const [recipientName, setRecipientName] = useState("")
+  const [billingAddress, setBillingAddress] = useState("")
+  const [property, setProperty] = useState("")
+  const [issueDate, setIssueDate] = useState("")
+  const [dueDate, setDueDate] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("Bank Transfer (BACS)")
   const [stripeEnabled, setStripeEnabled] = useState(false)
   const [paymentRef, setPaymentRef] = useState("")
@@ -313,8 +290,74 @@ export default function EditInvoicePage() {
   const [tags, setTags] = useState("")
 
   const [lineItems, setLineItems] = useState<LineItem[]>([
-    { id: "li-1", description: `${invoiceType} — June 2026`, quantity: 1, unit_price: source.amount, tax_rate: 0 },
+    { id: "li-1", description: "Invoice line — June 2026", quantity: 1, unit_price: 0, tax_rate: 0 },
   ])
+
+  // Fetch the real invoice + contacts from Supabase
+  useEffect(() => {
+    if (!workspace?.id || !id) return
+    const supabase = createClient()
+    async function fetchData() {
+      try {
+        const [invoiceRes, contactsRes] = await Promise.all([
+          supabase
+            .from("invoices")
+            .select("id, invoice_type, status, amount, issue_date, due_date, description")
+            .eq("workspace_id", workspace!.id)
+            .eq("id", id)
+            .maybeSingle(),
+          supabase
+            .from("contacts")
+            .select("id, name")
+            .eq("workspace_id", workspace!.id)
+            .order("name")
+            .limit(50),
+        ])
+
+        if (!contactsRes.error && contactsRes.data) {
+          setDbContacts((contactsRes.data as { id: string; name: string }[]).map(c => c.name).filter(Boolean))
+        }
+
+        if (invoiceRes.error || !invoiceRes.data) {
+          setNotFound(true)
+          setLoadingInvoice(false)
+          return
+        }
+
+        const inv = invoiceRes.data as {
+          id: string
+          invoice_type: string | null
+          status: string | null
+          amount: number | null
+          issue_date: string | null
+          due_date: string | null
+          description: string | null
+        }
+        const typeLabel = (inv.invoice_type ?? "other")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (c: string) => c.toUpperCase())
+        setInvoiceType(typeLabel)
+        setInvoiceNumber(inv.id)
+        setStatus(inv.status ?? "draft")
+        setIssueDate(inv.issue_date ?? "")
+        setDueDate(inv.due_date ?? "")
+        setLineItems([{ id: "li-1", description: inv.description ?? typeLabel, quantity: 1, unit_price: inv.amount ?? 0, tax_rate: 0 }])
+      } catch {
+        // 42P01-safe
+      } finally {
+        setLoadingInvoice(false)
+      }
+    }
+    fetchData()
+  }, [workspace?.id, id])
+
+  // Redirect if invoice not found
+  useEffect(() => {
+    if (notFound) router.replace("/app/money/invoices")
+  }, [notFound, router])
+
+  // Derive a display-safe source object for breadcrumb / header
+  const source = { id, invoice_number: invoiceNumber || id, recipient: recipientName }
 
   const [isSaving, setIsSaving] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
@@ -344,6 +387,14 @@ export default function EditInvoicePage() {
     await new Promise(r => setTimeout(r, 1200))
     setIsSaving(false)
     router.push(`/app/money/invoices/${id}`)
+  }
+
+  if (loadingInvoice) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <span className="w-6 h-6 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -428,7 +479,8 @@ export default function EditInvoicePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Contact">
                 <SelectInput value={recipientName} onChange={e => setRecipientName(e.target.value)}>
-                  {MOCK_CONTACTS.map(c => <option key={c}>{c}</option>)}
+                  <option value="">— Select a contact —</option>
+                  {dbContacts.map(c => <option key={c}>{c}</option>)}
                 </SelectInput>
               </Field>
               <Field label="Property">

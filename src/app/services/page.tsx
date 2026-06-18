@@ -47,7 +47,11 @@ const TRUST_ITEMS = [
   { icon: HeadphonesIcon, title: 'Managed bookings', desc: 'Our team handles disputes and complaints 24/7.' },
 ]
 
+import { redirect as _gateRedirect } from "next/navigation"
+import { getGlobalFlag as _gateFlag } from "@/lib/flags/public"
+
 export default async function ServicesPage() {
+  if (!(await _gateFlag("marketplaceEnabled"))) _gateRedirect("/")
   const [allOffers, featuredOffers] = await Promise.all([
     getPublicServiceOffers(),
     getFeaturedServiceOffers(),

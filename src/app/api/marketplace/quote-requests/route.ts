@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { flagGate } from "@/lib/flags/api-gate"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -79,6 +80,8 @@ async function isMember(
 }
 
 export async function POST(request: Request) {
+  const gated = await flagGate("marketplaceEnabled")
+  if (gated) return gated
   const requestId = requestIdFrom(request.headers)
   try {
     const supabase = await createClient()

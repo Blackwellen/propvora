@@ -1,34 +1,50 @@
 import React from "react"
-import { Sparkles } from "lucide-react"
-import { Card } from "@/components/ui/Card"
+import { Sparkles, Cpu, Boxes, Star, Coins } from "lucide-react"
+import {
+  AdminPageHeader,
+  AdminKpiStrip,
+  AdminNotConfigured,
+  type AdminKpi,
+} from "@/components/admin/ui"
 import { getAiGatewayAdminData } from "./data"
 import AiModelsClient from "./AiModelsClient"
 
 export const dynamic = "force-dynamic"
+export const metadata = { title: "AI models — Propvora admin" }
+
+function fmtCost(pence: number) { return `£${(pence / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` }
 
 export default async function AdminAiModelsPage() {
   const data = await getAiGatewayAdminData(30)
 
+  const activeModels = data.models.filter((m) => m.enabled).length
+  const activeProviders = data.providers.filter((p) => p.enabled).length
+  const defaultModel = data.models.find((m) => m.isDefault)
+
+  const kpis: AdminKpi[] = [
+    { label: "Active models", value: activeModels, icon: Cpu, tone: "blue", sub: `${data.models.length} in catalogue` },
+    { label: "Providers", value: activeProviders, icon: Boxes, tone: "violet", sub: `${data.providers.length} configured` },
+    { label: "Default model", value: defaultModel ? defaultModel.label : "None", icon: Star, tone: "amber" },
+    { label: `Spend (${data.windowDays}d)`, value: fmtCost(data.totals.costPence), icon: Coins, tone: "emerald" },
+  ]
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">AI Model Controls</h1>
-        <p className="text-xs text-slate-500">
-          Multi-provider gateway. Enable providers and models, set the default, and review usage &amp; cost by
-          workspace. API keys come from server environment variables only — never stored here.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={Sparkles}
+        title="AI models"
+        subtitle="Multi-provider gateway. Enable providers and models, set the default route, and review usage & cost by workspace. API keys come from server environment variables only — never stored here."
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Platform" }, { label: "AI models" }]}
+      />
 
       {!data.available ? (
-        <Card className="py-12 text-center">
-          <Sparkles className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-sm text-slate-500 font-medium">AI gateway tables not provisioned</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Run migration <code className="font-mono">20260615010000_ai_gateway.sql</code> to create the
-            provider/model catalogue.
-          </p>
-        </Card>
+        <AdminNotConfigured
+          title="AI gateway tables not provisioned"
+          description="Run the ai_gateway migration to create the provider / model catalogue. Active models, providers and cost guardrails will appear here."
+        />
       ) : (
+        <>
+          <AdminKpiStrip kpis={kpis} cols={4} />
         <AiModelsClient
           providers={data.providers}
           models={data.models}
@@ -36,6 +52,7 @@ export default async function AdminAiModelsPage() {
           totals={data.totals}
           windowDays={data.windowDays}
         />
+        </>
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ChevronDown, User, Settings, LogOut } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import PersonaLinks from "./PersonaLinks"
 
 interface AccountMenuProps {
   name?: string
@@ -136,6 +137,10 @@ export default function AccountMenu({
           <Settings className="w-4 h-4 text-slate-400" />
           Workspace Settings
         </Link>
+        {/* Cross-persona shortcut — customer is excluded from the workspace
+            switcher, so it gets an explicit door here (only if the account has
+            a customer workspace). */}
+        <PersonaLinks targets={["customer"]} onNavigate={() => setOpen(false)} />
         <div className="h-px bg-slate-100 mx-3 my-1" />
         <button
           onClick={handleSignOut}

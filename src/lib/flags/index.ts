@@ -145,3 +145,53 @@ export async function resolveFlags(
   )
   return Object.fromEntries(entries)
 }
+
+/**
+ * Parent/child flag dependency rules (audit doc 17 §5.3). Applied AFTER raw
+ * resolution so a child flag can never be effectively-on while its parent is
+ * off — even if a stray DB row says otherwise. Pure + tolerant: only mutates
+ * keys that are present in the supplied map.
+ */
+export function applyFlagDependencies(
+  map: Record<string, boolean>
+): Record<string, boolean> {
+  const out = { ...map }
+  const off = (k: string) => { if (k in out) out[k] = false }
+
+  // Marketplace sub-flags require the master switch.
+  if (out.marketplaceEnabled === false) {
+    ["marketplaceStays", "marketplaceSuppliers", "marketplaceEmergency",
+     "marketplacePayments", "marketplaceEscrow", "marketplaceDisputes"].forEach(off)
+  }
+  // Escrow + disputes require marketplace payments.
+  if (out.marketplacePayments === false) {
+    ["marketplaceEscrow", "marketplaceDisputes"].forEach(off)
+  }
+  // Full automation canvas implies (and requires) canvas-lite.
+  if (out.automationsFull === true && "canvasLite" in out) out.canvasLite = true
+  return out
+}
+
+/** Flag keys that influence operator navigation / surface visibility. */
+export const NAV_FLAG_KEYS: V2FlagKey[] = [
+  "marketplaceEnabled",
+  "bookingManagement",
+  "directBookingPages",
+  "accountingGl",
+  "automationsFull",
+  "canvasLite",
+  "customerWorkspace",
+  "supplierWorkspace",
+]
+
+/**
+ * Resolve the nav-relevant flags for a context and apply dependency rules.
+ * Returns a plain serialisable boolean map safe to pass from a server layout
+ * into client navigation components. Defaults (all OFF) on any failure.
+ */
+export async function resolveNavFlags(
+  options: IsFeatureEnabledOptions = {}
+): Promise<Record<string, boolean>> {
+  const raw = await resolveFlags(NAV_FLAG_KEYS, options)
+  return applyFlagDependencies(raw)
+}

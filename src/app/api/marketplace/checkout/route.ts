@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type Stripe from "stripe"
+import { flagGate } from "@/lib/flags/api-gate"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { createMarketplaceTransaction } from "@/lib/marketplace/transactions"
@@ -109,6 +110,8 @@ function resolveTransactionType(listing: ListingForCheckout): MarketplaceTransac
 }
 
 export async function POST(request: NextRequest) {
+  const gated = await flagGate("marketplaceEnabled")
+  if (gated) return gated
   const requestId = requestIdFrom(request.headers)
   try {
     const supabase = await createClient()

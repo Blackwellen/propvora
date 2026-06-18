@@ -20,8 +20,10 @@ export interface RateResult {
 }
 
 /**
- * Fixed-window per-workspace rate check. Best-effort: on any store error we
- * allow the request (fail-open) so logging problems never lock users out.
+ * Fixed-window per-workspace rate check. Fails CLOSED on spend protection: if we
+ * cannot read/verify the counter, we DENY rather than allow unbounded AI spend
+ * (audit rule: "do not fail open on spend caps"). A transient counter-store
+ * failure briefly pauses AI for that workspace instead of removing the ceiling.
  */
 export async function checkRate(
   supabase: SupabaseClient,
@@ -37,7 +39,8 @@ export async function checkRate(
       .eq("workspace_id", workspaceId)
       .eq("window_start", windowStart)
       .maybeSingle()
-    if (error) return { allowed: true, remaining: limit }
+    // Fail CLOSED: an unreadable counter must not lift the cap.
+    if (error) return { allowed: false, remaining: 0 }
 
     const current = (data?.count as number | undefined) ?? 0
     if (current >= limit) return { allowed: false, remaining: 0 }
@@ -51,7 +54,8 @@ export async function checkRate(
       )
     return { allowed: true, remaining: Math.max(0, limit - current - 1) }
   } catch {
-    return { allowed: true, remaining: limit }
+    // Fail CLOSED on any store error — protect against runaway spend.
+    return { allowed: false, remaining: 0 }
   }
 }
 

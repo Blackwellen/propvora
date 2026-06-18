@@ -59,11 +59,17 @@ export async function sendEmail(
   const apiKey = process.env.RESEND_API_KEY
 
   if (!apiKey) {
-    console.warn(
-      "[email] RESEND_API_KEY is not set — skipping send to:",
-      typeof params.to === "string" ? params.to : params.to.join(", ")
-    )
-    return { error: null }
+    const to = typeof params.to === "string" ? params.to : params.to.join(", ")
+    const msg = "RESEND_API_KEY is not configured — email not sent"
+    // Do NOT return a success-shaped result: a misconfigured production env must
+    // surface so health checks + callers detect that auth/reset/invite/portal
+    // emails are silently dropping, rather than assuming they sent.
+    if (process.env.NODE_ENV === "production") {
+      console.error("[email]", msg, "→", to)
+    } else {
+      console.warn("[email]", msg, "(dev) →", to)
+    }
+    return { error: msg }
   }
 
   const resend = new Resend(apiKey)

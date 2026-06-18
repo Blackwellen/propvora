@@ -16,7 +16,11 @@ export const metadata: Metadata = {
   },
 }
 
+import { redirect as _gateRedirect } from "next/navigation"
+import { getGlobalFlag as _gateFlag } from "@/lib/flags/public"
+
 export default async function EmergencyPage() {
+  if (!(await _gateFlag("marketplaceEnabled"))) _gateRedirect("/")
   const services = await getPublicEmergencyServices()
 
   return (

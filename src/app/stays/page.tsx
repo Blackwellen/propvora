@@ -34,7 +34,11 @@ const TRUST_ITEMS = [
   { icon: HeadphonesIcon, title: '24/7 guest support', desc: 'Round-the-clock help for guests and customers.' },
 ]
 
+import { redirect as _gateRedirect } from "next/navigation"
+import { getGlobalFlag as _gateFlag } from "@/lib/flags/public"
+
 export default async function StaysPage() {
+  if (!(await _gateFlag("marketplaceEnabled"))) _gateRedirect("/")
   const stays = await getPublicStays()
 
   return (

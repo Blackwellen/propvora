@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { ShieldCheck } from "lucide-react"
+import { getGlobalFlag } from "@/lib/flags/public"
 
 /**
  * Public direct-booking layout — UNAUTHENTICATED (guest checkout).
@@ -22,11 +24,16 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default function PublicBookingLayout({
+export default async function PublicBookingLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Staged platform: public direct-booking pages are hidden until the global
+  // `directBookingPages` flag is on (V1 default OFF). Independent of marketplace.
+  if (!(await getGlobalFlag("directBookingPages"))) {
+    redirect("/")
+  }
   return (
     <div className="min-h-screen bg-[#F7F9FC] text-[#0B1B3F] antialiased flex flex-col">
       {/* Slim trust header */}

@@ -270,7 +270,6 @@ function TodaySchedulePanel({ jobs }: { jobs: DemoJob[] }) {
 
 function JobPipelinePanel({ jobs }: { jobs: DemoJob[] }) {
   const pipelineData = useMemo(() => {
-    if (jobs.length === 0) return PIPELINE_DATA
     const counts: Record<string, number> = {}
     jobs.forEach(j => { counts[j.status] = (counts[j.status] ?? 0) + 1 })
     return [
@@ -309,7 +308,6 @@ function JobPipelinePanel({ jobs }: { jobs: DemoJob[] }) {
 
 function CostExposurePanel({ jobs }: { jobs: DemoJob[] }) {
   const costData = useMemo(() => {
-    if (jobs.length === 0) return COST_EXPOSURE_DATA
     // Parse quoted amounts for cost exposure
     const parseAmount = (v: string) => {
       const n = parseFloat(v.replace(/[^0-9.]/g, ""))
@@ -787,19 +785,7 @@ export default function JobsPage() {
         isLive: true,
       }))
     }
-    // Demo rows: derive an ISO scheduled date from the "16 May" style label so
-    // the Calendar/Timeline views have something real to lay out against.
-    const year = new Date().getFullYear()
-    return DEMO_JOBS.map((j) => {
-      const datePart = j.scheduledStart.split(",")[0]?.trim()
-      const parsed = datePart ? new Date(`${datePart} ${year}`) : null
-      return {
-        ...j,
-        scheduledDateIso: parsed && !isNaN(parsed.getTime())
-          ? `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`
-          : null,
-      }
-    })
+    return []
   }, [jobsData])
 
   const propertyOptions = useMemo(

@@ -14,6 +14,7 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateMoneyBill } from "@/hooks/useMoneyData"
 import type { InsertMoneyBill } from "@/hooks/useMoneyData"
+import { createClient } from "@/lib/supabase/client"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -69,37 +70,6 @@ const BILL_TYPES: { value: BillType; label: string }[] = [
   { value: "landlord_rent_bill", label: "Landlord Rent Bill" },
 ]
 
-const MOCK_SUPPLIERS = [
-  "Kevin Walsh Plumbing",
-  "British Gas",
-  "Swift Electricals",
-  "Premier Insurance",
-  "Solicitors LLP",
-  "CleanCo Services",
-  "ProPainters Ltd",
-  "Broadband Plus",
-  "SafeCheck Compliance",
-  "Move-in Cleaners",
-]
-
-const MOCK_PROPERTIES = [
-  "14 Birchwood Rd",
-  "7 Elm Close",
-  "22 Park Lane",
-  "5 Bridge St",
-  "12 Maple Ave",
-  "9 Cedar Drive",
-  "45 Grove Road",
-  "2 Willow Way",
-]
-
-const MOCK_JOBS = [
-  { id: "JOB-2026-034", title: "Boiler replacement" },
-  { id: "JOB-2026-029", title: "Electrical rewire" },
-  { id: "JOB-2026-041", title: "Full redecoration" },
-  { id: "JOB-2026-038", title: "Leak repair" },
-]
-
 const PAYMENT_METHODS = ["Bank Transfer (BACS)", "Faster Payments", "CHAPS", "Direct Debit", "Cheque", "Stripe Connect"]
 
 const STEPS = [
@@ -149,6 +119,53 @@ export default function NewBillPage() {
   const [done, setDone] = useState(false)
   const [createdId, setCreatedId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const [dbSuppliers, setDbSuppliers] = useState<string[]>([])
+  const [dbProperties, setDbProperties] = useState<{ id: string; address: string }[]>([])
+  const [dbJobs, setDbJobs] = useState<{ id: string; title: string }[]>([])
+
+  useEffect(() => {
+    if (!workspace?.id) return
+    const supabase = createClient()
+    async function fetchDropdowns() {
+      try {
+        const [suppliersRes, propertiesRes, jobsRes] = await Promise.all([
+          supabase
+            .from("contacts")
+            .select("id, name")
+            .eq("workspace_id", workspace!.id)
+            .eq("type", "supplier")
+            .order("name")
+            .limit(50),
+          supabase
+            .from("properties")
+            .select("id, address")
+            .eq("workspace_id", workspace!.id)
+            .order("address")
+            .limit(50),
+          supabase
+            .from("jobs")
+            .select("id, title")
+            .eq("workspace_id", workspace!.id)
+            .neq("status", "complete")
+            .order("created_at", { ascending: false })
+            .limit(50),
+        ])
+        if (!suppliersRes.error && suppliersRes.data) {
+          setDbSuppliers(suppliersRes.data.map((r: { name: string }) => r.name).filter(Boolean))
+        }
+        if (!propertiesRes.error && propertiesRes.data) {
+          setDbProperties(propertiesRes.data as { id: string; address: string }[])
+        }
+        if (!jobsRes.error && jobsRes.data) {
+          setDbJobs(jobsRes.data as { id: string; title: string }[])
+        }
+      } catch {
+        // 42P01-safe: tables may not exist yet
+      }
+    }
+    fetchDropdowns()
+  }, [workspace?.id])
 
   const [form, setForm] = useState<WizardState>({
     bill_type: "",
@@ -311,7 +328,7 @@ export default function NewBillPage() {
             <Field label="Supplier">
               <select value={form.supplier} onChange={(e) => setField("supplier", e.target.value)} className={selectCls}>
                 <option value="">Select supplier…</option>
-                {MOCK_SUPPLIERS.map((s) => (
+                {dbSuppliers.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
@@ -334,8 +351,8 @@ export default function NewBillPage() {
             <Field label="Property">
               <select value={form.property} onChange={(e) => setField("property", e.target.value)} className={selectCls}>
                 <option value="">No property linked</option>
-                {MOCK_PROPERTIES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                {dbProperties.map((p) => (
+                  <option key={p.id} value={p.address}>{p.address}</option>
                 ))}
               </select>
             </Field>
@@ -350,8 +367,8 @@ export default function NewBillPage() {
             <Field label="Linked Job">
               <select value={form.job} onChange={(e) => setField("job", e.target.value)} className={selectCls}>
                 <option value="">No job linked</option>
-                {MOCK_JOBS.map((j) => (
-                  <option key={j.id} value={j.id}>{j.id} — {j.title}</option>
+                {dbJobs.map((j) => (
+                  <option key={j.id} value={j.id}>{j.title}</option>
                 ))}
               </select>
             </Field>

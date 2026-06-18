@@ -44,7 +44,11 @@ const TRUST_ITEMS_2 = [
   { icon: Star, title: 'Quality standards', desc: 'Providers rated below 4.2 are removed from the platform.' },
 ]
 
+import { redirect as _gateRedirect } from "next/navigation"
+import { getGlobalFlag as _gateFlag } from "@/lib/flags/public"
+
 export default async function ProvidersPage() {
+  if (!(await _gateFlag("marketplaceEnabled"))) _gateRedirect("/")
   const [allProviders, featuredProviders] = await Promise.all([
     getPublicProviders(),
     getFeaturedProviders(),

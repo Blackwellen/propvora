@@ -18,13 +18,14 @@ const legalLinks = [
   { label: "AI Disclaimer", href: "/legal/ai-disclaimer" },
 ]
 
-const navLinks = [
-  { label: "Stays", href: "/stays" },
-  { label: "Suppliers", href: "/suppliers" },
-  { label: "Services", href: "/services" },
-  { label: "Emergency", href: "/emergency" },
+const navLinks: { label: string; href: string; marketplace?: boolean }[] = [
+  { label: "Stays", href: "/stays", marketplace: true },
+  { label: "Suppliers", href: "/suppliers", marketplace: true },
+  { label: "Services", href: "/services", marketplace: true },
+  { label: "Emergency", href: "/emergency", marketplace: true },
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
+  { label: "Roadmap", href: "/roadmap" },
   { label: "About", href: "/about" },
 ]
 
@@ -33,6 +34,20 @@ export default function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
   const [authed, setAuthed] = useState<boolean | null>(null)
+  // Staged platform: marketplace links are only advertised when the global
+  // marketplace flag is on. Defaults hidden (off) until the endpoint confirms.
+  const [marketplaceOn, setMarketplaceOn] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    fetch("/api/flags/public")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (mounted && d) setMarketplaceOn(Boolean(d.marketplace)) })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
+  const visibleLinks = navLinks.filter((l) => !l.marketplace || marketplaceOn)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -85,7 +100,7 @@ export default function PublicNav() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -179,7 +194,7 @@ export default function PublicNav() {
       {mobileOpen && (
         <div className="md:hidden bg-white border-t border-slate-200 shadow-xl">
           <div className="px-4 py-4 space-y-1">
-            {navLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

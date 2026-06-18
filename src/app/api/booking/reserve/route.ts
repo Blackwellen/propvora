@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { flagGate } from "@/lib/flags/api-gate"
 import { z } from "zod"
 import {
   validateQuoteInput,
@@ -63,6 +64,8 @@ function clientIp(request: NextRequest): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const gated = await flagGate("bookingManagement")
+  if (gated) return gated
   const requestId = requestIdFrom(request.headers)
   try {
     const parsed = bodySchema.safeParse(await request.json().catch(() => null))
