@@ -1,10 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { Search, MapPin, ChevronDown, Filter, Map, Star, CheckCircle, Shield, Lock, HeadphonesIcon } from 'lucide-react'
+import { Search, MapPin, ChevronDown, CheckCircle, Shield, Lock, HeadphonesIcon, Star } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
-import ProviderCard from '@/components/public-marketplace/cards/ProviderCard'
-import ProviderFeaturedCard from '@/components/public-marketplace/cards/ProviderFeaturedCard'
 import { getPublicProviders, getFeaturedProviders } from '@/lib/public-marketplace/queries'
+import ProvidersFilterClient from './ProvidersFilterClient'
 
 export const metadata: Metadata = {
   title: 'Providers | Propvora — Find trusted service providers',
@@ -15,20 +13,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
-
-const FILTER_CHIPS = [
-  { label: 'All filters 2', value: '', active: true, badge: true },
-  { label: 'Vetted', value: 'vetted', active: true },
-  { label: 'Emergency cover', value: 'emergency' },
-  { label: 'Insurance', value: 'insurance' },
-  { label: 'Commercial', value: 'commercial' },
-  { label: 'Residential', value: 'residential' },
-  { label: 'Gas Safe', value: 'gassafe' },
-  { label: 'NICEIC', value: 'niceic', red: true },
-  { label: 'Top rated', value: 'toprated' },
-  { label: 'Fast response', value: 'fast' },
-  { label: '••• More filters', value: 'more' },
-]
 
 const TRUST_ITEMS_1 = [
   { icon: CheckCircle, title: 'Vetted backgrounds', desc: 'Every provider is fully background-checked before listing.' },
@@ -114,92 +98,9 @@ export default async function ProvidersPage() {
         </div>
       </section>
 
-      {/* FILTER CHIPS */}
-      <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {FILTER_CHIPS.map((chip) => (
-              <button
-                key={chip.value}
-                className={`shrink-0 px-4 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap relative ${
-                  chip.active
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : chip.red
-                    ? 'border-red-200 text-red-600 hover:bg-red-50'
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {chip.badge && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">2</span>
-                )}
-                {chip.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <ProvidersFilterClient allProviders={allProviders} featuredProviders={featuredProviders} />
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
-        {/* RESULTS TOOLBAR */}
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-slate-900">1,248 providers found</span>
-            <span className="text-slate-500 text-sm">Serving Manchester, within 25 miles</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/providers/map" className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Map className="h-4 w-4" />Map view
-            </Link>
-            <select className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none">
-              <option>Sort by: Recommended</option>
-              <option>Rating: Highest first</option>
-              <option>Most jobs done</option>
-            </select>
-          </div>
-        </div>
-
-        {/* FEATURED PROVIDERS — horizontal scroll */}
-        {featuredProviders.length > 0 && (
-          <div className="mb-10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                Featured providers
-              </h2>
-              <Link href="/providers?filter=featured" className="text-sm text-blue-600 font-medium hover:text-blue-700">
-                View all featured →
-              </Link>
-            </div>
-            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 scrollbar-hide">
-              {featuredProviders.map(provider => (
-                <ProviderFeaturedCard key={provider.id} provider={provider} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* VIEW TOGGLE */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-sm font-medium text-slate-600">View</span>
-          <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
-            <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-slate-900 text-white">Grid</button>
-            <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 border-l border-slate-200">List</button>
-          </div>
-        </div>
-
-        {/* PROVIDERS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch mb-12">
-          {allProviders.map(provider => (
-            <ProviderCard key={provider.id} provider={provider} />
-          ))}
-        </div>
-
-        {allProviders.length === 0 && (
-          <div className="text-center py-24">
-            <p className="text-slate-500 text-lg">No providers found. Try adjusting your filters.</p>
-          </div>
-        )}
-
         {/* COMPARE SHORTLISTED */}
         <div className="border border-slate-200 rounded-xl p-4 flex items-center gap-4 mb-12">
           <div className="flex-1">

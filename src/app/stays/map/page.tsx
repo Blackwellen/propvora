@@ -31,8 +31,22 @@ export default function StaysMapPage() {
   const [searchAsMove, setSearchAsMove] = useState(false)
   const [query, setQuery] = useState('')
 
+  const AREA_LOCATION_MAP: Record<string, string[]> = {
+    'City Centre': ['city centre', 'central', 'deansgate', 'spinningfields'],
+    'Spinningfields': ['spinningfields'],
+    'Northern Quarter': ['northern quarter', 'nq'],
+    'Salford Quays': ['salford quays', 'salford'],
+    'Didsbury': ['didsbury'],
+    'Chorlton': ['chorlton'],
+  }
+
   const filtered = SEED_STAYS.filter(s => {
     if (query && !s.title.toLowerCase().includes(query.toLowerCase()) && !s.location.toLowerCase().includes(query.toLowerCase())) return false
+    if (activeArea !== 'All areas') {
+      const keywords = AREA_LOCATION_MAP[activeArea] ?? [activeArea.toLowerCase()]
+      const haystack = (s.location + ' ' + s.city).toLowerCase()
+      if (!keywords.some(kw => haystack.includes(kw))) return false
+    }
     return true
   })
 

@@ -24,8 +24,26 @@ export default function ServicesMapPage() {
   const [searchAsMove, setSearchAsMove] = useState(false)
   const [query, setQuery] = useState('')
 
+  const [activeFilter, setActiveFilter] = useState('')
+
+  const AREA_LOCATION_MAP: Record<string, string[]> = {
+    'City Centre': ['city centre', 'central', 'deansgate'],
+    'Salford': ['salford'],
+    'Northern Quarter': ['northern quarter', 'nq'],
+    'Didsbury': ['didsbury'],
+    'Chorlton': ['chorlton'],
+    'Stockport': ['stockport'],
+  }
+
   const filtered = SEED_SERVICE_OFFERS.filter(o => {
     if (query && !o.title.toLowerCase().includes(query.toLowerCase()) && !o.providerName.toLowerCase().includes(query.toLowerCase())) return false
+    if (activeFilter === 'verified' && !o.verified) return false
+    if (activeFilter === 'emergency' && !o.urgent) return false
+    if (activeArea !== 'All areas') {
+      const keywords = AREA_LOCATION_MAP[activeArea] ?? [activeArea.toLowerCase()]
+      const haystack = (o.location + ' ' + o.city).toLowerCase()
+      if (!keywords.some(kw => haystack.includes(kw))) return false
+    }
     return true
   })
 
@@ -59,7 +77,11 @@ export default function ServicesMapPage() {
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
           {FILTER_CHIPS.map(chip => (
-            <button key={chip.value} className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 whitespace-nowrap">
+            <button
+              key={chip.value}
+              onClick={() => setActiveFilter(chip.value === activeFilter ? '' : chip.value)}
+              className={["shrink-0 px-4 py-2 rounded-xl border text-sm font-medium whitespace-nowrap transition-colors", activeFilter === chip.value ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'].join(' ')}
+            >
               {chip.label}
             </button>
           ))}

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
-import LongTermRentalCard from '@/components/marketplace/stays/LongTermRentalCard'
 import LongTermRentalInfoPanel from '@/components/marketplace/stays/LongTermRentalInfoPanel'
+import LongTermRentalsFilterClient from './LongTermRentalsFilterClient'
 import { getPublicLongTermRentals } from '@/lib/public-marketplace/queries'
-import { Home, Building2, BedDouble, Wallet, Zap } from 'lucide-react'
+import { Home, Building2, Wallet, Zap } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Long-term Rentals | Propvora — Verified 6+ month lettings across the UK',
@@ -16,17 +16,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
-
-const FILTER_CHIPS = [
-  { id: 'manchester', label: 'Manchester', city: 'Manchester' },
-  { id: 'london', label: 'London', city: 'London' },
-  { id: 'birmingham', label: 'Birmingham', city: 'Birmingham' },
-  { id: 'leeds', label: 'Leeds', city: 'Leeds' },
-  { id: '2beds', label: '2+ beds', minBeds: 2 },
-  { id: 'bills', label: 'Bills included' },
-  { id: 'furnished', label: 'Furnished' },
-  { id: 'available', label: 'Available now' },
-]
 
 const TRUST_POINTS = [
   { icon: Home, label: 'Verified homes', desc: 'Every listing is checked before going live.' },
@@ -65,50 +54,7 @@ export default async function LongTermRentalsPage() {
         </div>
       </section>
 
-      {/* Filter chips */}
-      <div className="sticky top-20 z-30 bg-white border-b border-slate-100 px-4 py-3">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
-            {FILTER_CHIPS.map((chip) => (
-              <button
-                key={chip.id}
-                className="shrink-0 px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-full bg-white hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-slate-600 transition-all"
-              >
-                {chip.label}
-              </button>
-            ))}
-            <div className="shrink-0 ml-auto">
-              <button className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-full bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1.5">
-                <BedDouble className="h-3.5 w-3.5" />
-                Filters
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <section className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex gap-8">
-            {/* Grid */}
-            <div className="flex-1 min-w-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {rentals.map((rental) => (
-                  <LongTermRentalCard key={rental.id} rental={rental} basePath="/stays/long-term" />
-                ))}
-              </div>
-            </div>
-
-            {/* Right panel */}
-            <div className="hidden xl:block w-72 shrink-0">
-              <div className="sticky top-36">
-                <LongTermRentalInfoPanel />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <LongTermRentalsFilterClient rentals={rentals} />
 
       {/* Trust strip */}
       <section className="py-12 px-4 bg-slate-50 border-t border-slate-100">

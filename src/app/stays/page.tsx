@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { Search, MapPin, Calendar, Users, Filter, Map, ChevronDown, Shield, CheckCircle, Lock, HeadphonesIcon } from 'lucide-react'
+import { Search, MapPin, Calendar, Users, ChevronDown, Shield, CheckCircle, Lock, HeadphonesIcon } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
-import StayCard from '@/components/public-marketplace/cards/StayCard'
 import { getPublicStays } from '@/lib/public-marketplace/queries'
+import StaysFilterClient from './StaysFilterClient'
 
 export const metadata: Metadata = {
   title: 'Stays | Propvora — Book verified short-lets & serviced accommodation',
@@ -14,18 +13,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
-
-const FILTER_CHIPS = [
-  { label: 'Price ↓', value: 'price' },
-  { label: 'Type ↓', value: 'type' },
-  { label: 'Bedrooms ↓', value: 'beds' },
-  { label: 'Pets', value: 'pets' },
-  { label: 'Instant book', value: 'instant' },
-  { label: 'Verified', value: 'verified' },
-  { label: 'Short lets', value: 'short' },
-  { label: 'Long stays', value: 'long' },
-  { label: '••• More filters', value: 'more' },
-]
 
 const TRUST_ITEMS = [
   { icon: Shield, title: 'Verified stays', desc: 'Every listing is operator-verified before going live.' },
@@ -118,72 +105,7 @@ export default async function StaysPage() {
         </div>
       </section>
 
-      {/* FILTER CHIPS ROW — sticky */}
-      <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {/* Filter icon with badge */}
-            <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
-              <Filter className="h-3.5 w-3.5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">2</span>
-            </button>
-
-            {FILTER_CHIPS.map((chip) => (
-              <button
-                key={chip.value}
-                className="shrink-0 px-4 py-1.5 rounded-full border border-slate-200 text-sm font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-colors"
-              >
-                {chip.label}
-              </button>
-            ))}
-
-            <div className="ml-auto shrink-0">
-              <button className="text-blue-600 text-sm font-medium hover:text-blue-700 whitespace-nowrap">
-                Clear all
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RESULTS TOOLBAR */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-xl font-bold text-slate-900">1,248 stays</span>
-            <span className="text-slate-500 text-sm ml-2">Across Greater Manchester</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/stays/map"
-              className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <Map className="h-4 w-4" />
-              Map view
-            </Link>
-            <select className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none">
-              <option>Sort: Recommended ↓</option>
-              <option>Price: Low to high</option>
-              <option>Price: High to low</option>
-              <option>Rating: Highest first</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* CARD GRID */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
-          {stays.map((stay) => (
-            <StayCard key={stay.id} stay={stay} />
-          ))}
-        </div>
-        {stays.length === 0 && (
-          <div className="text-center py-24">
-            <p className="text-slate-500 text-lg">No stays found. Try adjusting your filters.</p>
-          </div>
-        )}
-      </div>
+      <StaysFilterClient stays={stays} />
 
       {/* TRUST STRIP */}
       <section className="bg-slate-50 border-t border-slate-100 py-10">

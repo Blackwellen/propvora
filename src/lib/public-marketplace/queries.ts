@@ -1,40 +1,29 @@
-import { SEED_STAYS, SEED_PROVIDERS, SEED_SERVICE_OFFERS, SEED_EMERGENCY_SERVICES, SEED_LONG_TERM_RENTALS } from './seed-fallback'
+import { SEED_EMERGENCY_SERVICES } from './seed-fallback'
+import { EXPANDED_STAYS, EXPANDED_PROVIDERS, EXPANDED_SERVICE_OFFERS, EXPANDED_LONG_TERM_RENTALS } from './seed-expander'
 import type { PublicStay, PublicProvider, PublicServiceOffer, PublicEmergencyService, PublicLongTermRental } from './types'
 
 export async function getPublicStays(): Promise<PublicStay[]> {
-  try {
-    return SEED_STAYS
-  } catch {
-    return SEED_STAYS
-  }
+  return EXPANDED_STAYS
 }
 
 export async function getPublicStayBySlug(slug: string): Promise<PublicStay | null> {
-  return SEED_STAYS.find(s => s.slug === slug) ?? null
+  return EXPANDED_STAYS.find(s => s.slug === slug) ?? null
 }
 
 export async function getPublicProviders(): Promise<PublicProvider[]> {
-  try {
-    return SEED_PROVIDERS
-  } catch {
-    return SEED_PROVIDERS
-  }
+  return EXPANDED_PROVIDERS
 }
 
 export async function getPublicProviderBySlug(slug: string): Promise<PublicProvider | null> {
-  return SEED_PROVIDERS.find(p => p.slug === slug) ?? null
+  return EXPANDED_PROVIDERS.find(p => p.slug === slug) ?? null
 }
 
 export async function getPublicServiceOffers(): Promise<PublicServiceOffer[]> {
-  try {
-    return SEED_SERVICE_OFFERS
-  } catch {
-    return SEED_SERVICE_OFFERS
-  }
+  return EXPANDED_SERVICE_OFFERS
 }
 
 export async function getPublicServiceOfferBySlug(slug: string): Promise<PublicServiceOffer | null> {
-  return SEED_SERVICE_OFFERS.find(s => s.slug === slug) ?? null
+  return EXPANDED_SERVICE_OFFERS.find(s => s.slug === slug) ?? null
 }
 
 export async function getPublicEmergencyServices(): Promise<PublicEmergencyService[]> {
@@ -50,11 +39,11 @@ export async function getPublicEmergencyServiceBySlug(slug: string): Promise<Pub
 }
 
 export async function getFeaturedProviders(): Promise<PublicProvider[]> {
-  return SEED_PROVIDERS.filter(p => p.featured)
+  return EXPANDED_PROVIDERS.filter(p => p.featured)
 }
 
 export async function getFeaturedServiceOffers(): Promise<PublicServiceOffer[]> {
-  return SEED_SERVICE_OFFERS.filter(s => s.featured)
+  return EXPANDED_SERVICE_OFFERS.filter(s => s.featured)
 }
 
 // ─── Long-Term Rentals ──────────────────────────────────────────────────────
@@ -73,9 +62,7 @@ export async function getPublicLongTermRentals(
   filters?: LongTermRentalFilters,
 ): Promise<PublicLongTermRental[]> {
   try {
-    // When the DB table exists, query here. For now, fall back to seed data.
-    // The table `marketplace_long_term_rentals` may not exist yet (42P01-safe).
-    let results = SEED_LONG_TERM_RENTALS
+    let results = EXPANDED_LONG_TERM_RENTALS
 
     if (filters?.city) {
       results = results.filter(r => r.city.toLowerCase() === filters.city!.toLowerCase())
@@ -104,18 +91,14 @@ export async function getPublicLongTermRentals(
 
     return results
   } catch {
-    return SEED_LONG_TERM_RENTALS
+    return EXPANDED_LONG_TERM_RENTALS
   }
 }
 
 export async function getPublicLongTermRentalBySlug(
   slug: string,
 ): Promise<PublicLongTermRental | null> {
-  try {
-    return SEED_LONG_TERM_RENTALS.find(r => r.slug === slug) ?? null
-  } catch {
-    return SEED_LONG_TERM_RENTALS.find(r => r.slug === slug) ?? null
-  }
+  return EXPANDED_LONG_TERM_RENTALS.find(r => r.slug === slug) ?? null
 }
 
 export async function getPublicLongTermRentalMapData(

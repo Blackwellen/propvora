@@ -23,12 +23,27 @@ export default function ProvidersMapPage() {
   const [query, setQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('')
 
+  const AREA_LOCATION_MAP: Record<string, string[]> = {
+    'City Centre': ['city centre', 'central', 'deansgate', 'spinningfields'],
+    'Didsbury': ['didsbury'],
+    'Salford Quays': ['salford quays', 'salford'],
+    'Stockport': ['stockport'],
+    'Chorlton': ['chorlton'],
+    'Prestwich': ['prestwich'],
+    'Altrincham': ['altrincham'],
+  }
+
   const filtered = SEED_PROVIDERS.filter(p => {
     if (query && !p.companyName.toLowerCase().includes(query.toLowerCase()) && !p.trade.toLowerCase().includes(query.toLowerCase())) return false
-    if (activeFilter === 'vetted') return p.vetted
-    if (activeFilter === 'gassafe') return !!p.gasSafe
-    if (activeFilter === 'niceic') return !!p.niceic
-    if (activeFilter === 'emergency') return p.emergency24h
+    if (activeFilter === 'vetted' && !p.vetted) return false
+    if (activeFilter === 'gassafe' && !p.gasSafe) return false
+    if (activeFilter === 'niceic' && !p.niceic) return false
+    if (activeFilter === 'emergency' && !p.emergency24h) return false
+    if (activeArea !== 'All areas') {
+      const keywords = AREA_LOCATION_MAP[activeArea] ?? [activeArea.toLowerCase()]
+      const haystack = (p.location + ' ' + p.city).toLowerCase()
+      if (!keywords.some(kw => haystack.includes(kw))) return false
+    }
     return true
   })
 
