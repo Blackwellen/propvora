@@ -23,7 +23,7 @@ export async function resolvePublicSession(): Promise<PublicSession> {
     try {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("current_workspace_id, full_name")
+        .select("current_workspace_id, full_name:display_name")
         .eq("id", user.id)
         .maybeSingle()
       buyerWorkspaceId = (profile?.current_workspace_id as string | undefined) ?? null

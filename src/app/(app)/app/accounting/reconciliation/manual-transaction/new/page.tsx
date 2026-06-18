@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import { Building2, User, Calendar, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -17,7 +17,8 @@ const WIZARD_STEPS = [
 ]
 
 export default function ManualTransactionPage() {
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
   const [lines, setLines] = useState<DebitCreditLine[]>([])
   const totalDebits = lines.filter((l) => l.type === "Debit").reduce((s, l) => s + l.grossAmount, 0)
@@ -224,7 +225,7 @@ export default function ManualTransactionPage() {
 
   return (
     <>
-    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref="/app/accounting/reconciliation" />
+    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref={sectionLink("/app/accounting/reconciliation")} />
     <AccountingWizardShell
       breadcrumbNumber="09"
       breadcrumbLabel="Create Manual Transaction"

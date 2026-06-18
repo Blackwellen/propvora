@@ -22,6 +22,7 @@ import { CalendarTabNav } from "@/components/calendar/CalendarTabNav"
 import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarItems,
   bucketItems,
@@ -116,6 +117,7 @@ function KpiRow({ items }: { items: CalendarItem[] }) {
    Today schedule card
 ───────────────────────────────────────────── */
 function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading: boolean }) {
+  const sectionLink = useSectionLink()
   const [expanded, setExpanded] = useState(false)
   const now = new Date()
   const todayItems = items
@@ -137,7 +139,7 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
           </div>
         </div>
         <Link
-          href="/app/calendar/views/day"
+          href={sectionLink("/app/calendar/views/day")}
           className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
         >
           Full day view <ChevronRight className="w-3.5 h-3.5" />
@@ -239,6 +241,7 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
    Attention queue (overdue across all sources)
 ───────────────────────────────────────────── */
 function AttentionQueueCard({ items }: { items: CalendarItem[] }) {
+  const sectionLink = useSectionLink()
   const overdue = bucketItems(items).overdue
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
   return (
@@ -279,7 +282,7 @@ function AttentionQueueCard({ items }: { items: CalendarItem[] }) {
         </div>
       )}
       <div className="px-4 py-3 border-t border-slate-50">
-        <Link href="/app/calendar/schedule" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/app/calendar/schedule")} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
           View full schedule &gt;
         </Link>
       </div>
@@ -291,6 +294,7 @@ function AttentionQueueCard({ items }: { items: CalendarItem[] }) {
    Upcoming this week by source
 ───────────────────────────────────────────── */
 function UpcomingWeekCard({ items }: { items: CalendarItem[] }) {
+  const sectionLink = useSectionLink()
   const week = bucketItems(items).thisWeek
   const sources: CalendarSource[] = ["work", "compliance", "portfolio", "money", "planning", "contacts", "calendar"]
   const byType = sources
@@ -304,7 +308,7 @@ function UpcomingWeekCard({ items }: { items: CalendarItem[] }) {
           <CalendarDays className="w-4 h-4 text-blue-500" />
           <span className="text-[14px] font-semibold text-slate-900">Upcoming This Week</span>
         </div>
-        <Link href="/app/calendar/views/week" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/app/calendar/views/week")} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
           View all &rarr;
         </Link>
       </div>
@@ -368,6 +372,7 @@ function SourcesCard({ items }: { items: CalendarItem[] }) {
    Page Root
 ───────────────────────────────────────────── */
 export default function CalendarOverviewPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { items, isLoading } = useCalendarItems(workspace?.id)
   const memoItems = useMemo(() => items, [items])
@@ -377,10 +382,10 @@ export default function CalendarOverviewPage() {
       <MobileTopBar
         title="Calendar"
         subtitle="Scheduling hub"
-        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
         overflowActions={[
-          { label: "New reminder", icon: Bell, href: "/app/calendar/reminders/new" },
-          { label: "Export / Settings", icon: Download, href: "/app/calendar/settings" },
+          { label: "New reminder", icon: Bell, href: sectionLink("/app/calendar/reminders/new") },
+          { label: "Export / Settings", icon: Download, href: sectionLink("/app/calendar/settings") },
         ]}
       />
       <div className="md:hidden -mx-4">
@@ -394,21 +399,21 @@ export default function CalendarOverviewPage() {
           actions={
             <>
               <Link
-                href="/app/calendar/events/new"
+                href={sectionLink("/app/calendar/events/new")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 New Event
               </Link>
               <Link
-                href="/app/calendar/reminders/new"
+                href={sectionLink("/app/calendar/reminders/new")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
               >
                 <Bell className="w-4 h-4" />
                 New Reminder
               </Link>
               <Link
-                href="/app/calendar/settings"
+                href={sectionLink("/app/calendar/settings")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
               >
                 <Download className="w-4 h-4" />

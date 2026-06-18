@@ -37,18 +37,17 @@ export interface AutomationNavItem {
 }
 
 export const AUTOMATION_NAV_ITEMS: AutomationNavItem[] = [
-  { label: "Home", href: "/property-manager/automations", match: ["/automations"] },
+  { label: "Home", href: "/property-manager/automations/home", match: ["/automations", "/automations/home"] },
   { label: "Recipes", href: "/property-manager/automations/recipes", match: ["/automations/recipes", "/automations/templates"] },
   { label: "My Automations", href: "/property-manager/automations/my-automations", match: ["/automations/my-automations"] },
-  { label: "Canvas Builder", href: "/property-manager/automations/canvas", match: ["/automations/canvas"] },
-  { label: "Runs & Logs", href: "/property-manager/automations/runs", match: ["/automations/runs"] },
+  { label: "Canvas Builder", href: "/property-manager/automations/canvas", match: ["/automations/canvas", "/automations/builder"] },
+  { label: "Runs & Logs", href: "/property-manager/automations/runs-logs", match: ["/automations/runs-logs", "/automations/runs"] },
   { label: "Approvals", href: "/property-manager/automations/approvals", match: ["/automations/approvals"] },
   { label: "Errors", href: "/property-manager/automations/errors", match: ["/automations/errors"] },
   { label: "Integrations", href: "/property-manager/automations/integrations", match: ["/automations/integrations"] },
   { label: "Webhooks", href: "/property-manager/automations/webhooks", match: ["/automations/webhooks"] },
-  { label: "AI Builder", href: "/property-manager/automations/ai-builder", match: ["/automations/ai-builder", "/automations/builder"] },
-  { label: "Usage & Limits", href: "/property-manager/automations/usage", match: ["/automations/usage"] },
-  { label: "Settings", href: "/property-manager/automations/settings", match: ["/automations/settings"] },
+  { label: "AI Builder", href: "/property-manager/automations/ai-builder", match: ["/automations/ai-builder"] },
+  { label: "Usage & Limits", href: "/property-manager/automations/usage-limits", match: ["/automations/usage-limits", "/automations/usage"] },
   { label: "Admin Controls", href: "/property-manager/automations/admin-controls", match: ["/automations/admin-controls"] },
 ]
 

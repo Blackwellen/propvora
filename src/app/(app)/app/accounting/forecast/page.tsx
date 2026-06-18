@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
@@ -33,6 +34,7 @@ interface ForecastScenario {
 }
 
 export default function ForecastPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [scenarios, setScenarios] = useState<ForecastScenario[]>([])
   const [loading, setLoading] = useState(true)
@@ -108,7 +110,7 @@ export default function ForecastPage() {
       <MobileTopBar
         title="Forecast Scenarios"
         subtitle="Accounting"
-        primaryAction={{ label: "New scenario", icon: Plus, href: "/app/accounting/forecast/scenarios/new" }}
+        primaryAction={{ label: "New scenario", icon: Plus, href: sectionLink("/app/accounting/forecast/scenarios/new") }}
         overflowActions={scenarios.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
       />
 
@@ -136,7 +138,7 @@ export default function ForecastPage() {
         <div className="flex items-center gap-2 shrink-0">
           <Button variant="outline" size="sm" leftIcon={<Download className="w-3.5 h-3.5" />} onClick={exportCsv} disabled={scenarios.length === 0}>Export</Button>
           <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-            <Link href="/app/accounting/forecast/scenarios/new">New Scenario</Link>
+            <Link href={sectionLink("/app/accounting/forecast/scenarios/new")}>New Scenario</Link>
           </Button>
         </div>
       </div>
@@ -169,7 +171,7 @@ export default function ForecastPage() {
               No projections are shown until a scenario is defined.
             </p>
             <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-              <Link href="/app/accounting/forecast/scenarios/new">Create Base Plan</Link>
+              <Link href={sectionLink("/app/accounting/forecast/scenarios/new")}>Create Base Plan</Link>
             </Button>
           </div>
         ) : (
@@ -227,7 +229,7 @@ export default function ForecastPage() {
         <LineChart className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
         <p className="text-xs text-blue-700">
           Forecast vs actual variance is derived from posted journal lines in the{" "}
-          <Link href="/app/accounting/reports" className="font-semibold underline">Financial Reports</Link>.
+          <Link href={sectionLink("/app/accounting/reports")} className="font-semibold underline">Financial Reports</Link>.
           Detailed monthly projections appear once a scenario has line-item assumptions configured.
         </p>
       </div>

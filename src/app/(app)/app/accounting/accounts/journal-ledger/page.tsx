@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -284,6 +285,7 @@ function NewEntryModal({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function JournalLedgerPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { entries, accounts, rows, loading, refetch } = useJournalLedger()
   const [search, setSearch] = useState("")
@@ -615,7 +617,7 @@ export default function JournalLedgerPage() {
         {filtered.length > 0 && (
           <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
             <span className="text-xs text-slate-500">Showing {filtered.length} of {rows.length} ledger lines</span>
-            <Link href="/app/accounting/reports" className="text-xs font-medium text-[#2563EB] hover:underline">
+            <Link href={sectionLink("/app/accounting/reports")} className="text-xs font-medium text-[#2563EB] hover:underline">
               View Trial Balance & Reports →
             </Link>
           </div>

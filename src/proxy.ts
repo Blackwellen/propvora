@@ -121,14 +121,25 @@ export async function proxy(request: NextRequest) {
   const publicAdminPaths = ["/admin-login"]
 
   // Protected route prefixes — require authentication.
-  // NOTE: the authenticated affiliate dashboard lives at exactly "/affiliate"
-  // and "/affiliate/*". The PUBLIC marketing pages at "/affiliate-programme*"
-  // must NOT be gated — so we match the affiliate app precisely, not by a loose
-  // "/affiliate" startsWith (which would also catch "/affiliate-programme").
+  // The affiliate experience now lives as internal-tabbed sections under the
+  // already-gated /property-manager and /user prefixes, so no separate
+  // "/affiliate" case is needed. The PUBLIC marketing pages at
+  // "/affiliate-programme*" remain ungated.
   const protectedPrefixes = ["/app", "/property-manager", "/supplier", "/user", "/admin"]
-  const isAffiliateApp = pathname === "/affiliate" || pathname.startsWith("/affiliate/")
+
+  // Public checkout funnel — the guest `/checkout/*` group must be reachable
+  // WITHOUT an auth account (access is scoped by a session token via RLS, not a
+  // Postgres role). It deliberately does NOT start with any protected prefix,
+  // but we allowlist it explicitly so a future prefix change can never gate it
+  // by accident. NOTE: the authenticated `/property-manager/checkout/*`
+  // equivalents ARE gated (they live under the protected `/property-manager`
+  // prefix and are intentionally excluded from this allowlist).
+  const publicCheckout =
+    pathname === "/checkout" || pathname.startsWith("/checkout/")
+
   const isProtected =
-    (protectedPrefixes.some((p) => pathname.startsWith(p)) || isAffiliateApp) &&
+    !publicCheckout &&
+    protectedPrefixes.some((p) => pathname.startsWith(p)) &&
     !publicAdminPaths.includes(pathname)
 
   if (isProtected && !user) {

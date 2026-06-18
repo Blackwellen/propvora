@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -12,6 +13,7 @@ const WIZARD_STEPS = [
 ]
 
 export default function NewDisbursementPage() {
+  const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
   const [client, setClient] = useState("Maple Avenue Ltd (CLI-001)")
   const [payee, setPayee] = useState("Wickes Building Supplies Ltd")
@@ -156,7 +158,7 @@ export default function NewDisbursementPage() {
   const footer = (
     <>
       <Button variant="ghost" size="sm" asChild>
-        <Link href="/app/accounting/client-accounts">Cancel</Link>
+        <Link href={sectionLink("/app/accounting/client-accounts")}>Cancel</Link>
       </Button>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm">Save as Draft</Button>
@@ -169,7 +171,7 @@ export default function NewDisbursementPage() {
 
   return (
     <>
-    <MobileTopBar title="New Disbursement" subtitle="Client Accounts" showBack backHref="/app/accounting/client-accounts" />
+    <MobileTopBar title="New Disbursement" subtitle="Client Accounts" showBack backHref={sectionLink("/app/accounting/client-accounts")} />
     <AccountingWizardShell
       breadcrumbNumber="11"
       breadcrumbLabel="New Disbursement"

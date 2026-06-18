@@ -69,8 +69,10 @@ export async function getCommissionLedger(
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("affiliate_commissions")
-      .select("id, created_at, status, commission_pence, referral_id, invoice_ref")
-      .eq("affiliate_workspace_id", workspaceId)
+      // live shape: amount/currency + referred_workspace_id + workspace_id (table currently empty).
+      // TODO(affiliate): verify `amount` units vs commission_pence (pence) before commissions carry data.
+      .select("id, created_at, status, commission_pence:amount, referral_id:referred_workspace_id")
+      .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false })
       .limit(200)
     if (error) {
@@ -99,8 +101,8 @@ export async function getMonthlyEarnings(
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("affiliate_commissions")
-      .select("created_at, commission_pence, status")
-      .eq("affiliate_workspace_id", workspaceId)
+      .select("created_at, commission_pence:amount, status")
+      .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true })
     if (error) {
       if (isMissing(error)) return []
@@ -216,7 +218,8 @@ export async function getReferralDetails(
     const { data, error } = await supabase
       .from("affiliate_referrals")
       .select(
-        "id, status, created_at, first_invoice_at, initial_commission_pence, recurring_commission_pence, recurring_months_remaining, referred_plan, workspace_created"
+        // referred_plan / workspace_created don't exist on live affiliate_referrals — mapped to null/false below
+        "id, status, created_at, first_invoice_at, initial_commission_pence, recurring_commission_pence, recurring_months_remaining"
       )
       .eq("affiliate_workspace_id", workspaceId)
       .order("created_at", { ascending: false })

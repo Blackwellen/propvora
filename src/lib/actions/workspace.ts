@@ -320,15 +320,26 @@ export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: strin
 
   if (userError || !user) throw new Error("Not authenticated.")
 
-  // No-op if already has a workspace
-  const { data: existing } = await supabase
+  // ── Persona-aware no-op ────────────────────────────────────────────────────
+  // A single account can be operator AND/OR supplier AND/OR customer (same
+  // email, different memberships). So we only no-op when this user ALREADY has a
+  // CUSTOMER-type workspace — never because they happen to own an operator or
+  // supplier workspace. This is what lets a property manager / supplier also log
+  // in "as a customer" with the very same email.
+  const { data: existingCustomer } = await supabase
     .from("workspace_members")
-    .select("workspace_id")
+    .select("workspace_id, workspaces!inner(type)")
     .eq("user_id", user.id)
+    .eq("workspaces.type", "customer")
     .limit(1)
     .maybeSingle()
 
-  if (existing?.workspace_id) return { workspaceId: existing.workspace_id }
+  if (existingCustomer?.workspace_id) {
+    // Make sure the dedicated membership row the (customer) layout gates on
+    // exists, then we're done — idempotent.
+    await ensureCustomerMembershipRow(supabase, existingCustomer.workspace_id, user.id)
+    return { workspaceId: existingCustomer.workspace_id }
+  }
 
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ||
@@ -361,21 +372,133 @@ export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: strin
 
   if (wsError) throw new Error("Failed to create account.")
 
-  await supabase.from("workspace_members").insert({
-    workspace_id: workspace.id,
-    user_id: user.id,
-    role: "owner",
-    invited_by: user.id,
-    accepted_at: new Date().toISOString(),
-    status: "active",
-  })
-
+  // Owner row in workspace_members (idempotent — a bootstrap trigger may also
+  // add it). This grants is_workspace_member(), which the customer RLS admits.
   await supabase
+    .from("workspace_members")
+    .upsert(
+      {
+        workspace_id: workspace.id,
+        user_id: user.id,
+        role: "owner",
+        invited_by: user.id,
+        accepted_at: new Date().toISOString(),
+        status: "active",
+      },
+      { onConflict: "workspace_id,user_id", ignoreDuplicates: true }
+    )
+
+  // Dedicated customer-membership row — the (customer) route group gates on this.
+  await ensureCustomerMembershipRow(supabase, workspace.id, user.id)
+
+  // Only adopt this as the user's active workspace if they don't already have
+  // one — never steal an operator/supplier user's current workspace.
+  const { data: profile } = await supabase
     .from("profiles")
-    .update({ current_workspace_id: workspace.id })
+    .select("current_workspace_id")
     .eq("id", user.id)
+    .maybeSingle()
+  if (!profile?.current_workspace_id) {
+    await supabase
+      .from("profiles")
+      .update({ current_workspace_id: workspace.id })
+      .eq("id", user.id)
+  }
 
   revalidatePath("/customer")
 
   return { workspaceId: workspace.id }
+}
+
+/** Idempotently ensure the customer_workspace_members row the (customer) layout
+ *  gate reads. Tolerant: a missing table (pre-migration) never throws. */
+async function ensureCustomerMembershipRow(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  workspaceId: string,
+  userId: string
+): Promise<void> {
+  try {
+    await supabase
+      .from("customer_workspace_members")
+      .upsert(
+        { workspace_id: workspaceId, user_id: userId, role: "owner" },
+        { onConflict: "workspace_id,user_id", ignoreDuplicates: true }
+      )
+  } catch {
+    // table absent in this environment — non-fatal
+  }
+}
+
+/** Personas a user can log into. Customer is a buyer/guest identity that never
+ *  appears in the operator workspace switcher. */
+export type LoginPersona = "customer" | "operator" | "supplier"
+
+/**
+ * Resolve where a freshly-authenticated user should land for the persona they
+ * chose on the login screen. One account can hold several personas (same email);
+ * the choice is a DESTINATION, not a separate credential.
+ *
+ *   - customer  → ensure a customer workspace exists (bootstrap if needed) → /user
+ *   - supplier  → /supplier if they have a supplier workspace, else the supplier
+ *                 onboarding wizard
+ *   - operator  → /property-manager if they have an operator workspace, else the
+ *                 operator onboarding wizard
+ *
+ * Tolerant by design: any lookup failure falls back to a safe default for the
+ * chosen persona so login never dead-ends.
+ */
+export async function resolveLoginDestination(
+  persona: LoginPersona
+): Promise<string> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return "/login"
+
+  if (persona === "customer") {
+    try {
+      await bootstrapCustomerWorkspace()
+    } catch {
+      // Non-fatal — they can still reach the marketplace; /user gate will guide.
+    }
+    return "/user"
+  }
+
+  // Which workspace TYPES does this account already belong to?
+  const types = new Set<string>()
+  try {
+    const { data } = await supabase
+      .from("workspace_members")
+      .select("workspaces!inner(type)")
+      .eq("user_id", user.id)
+      .limit(50)
+    for (const row of data ?? []) {
+      const t = (row as { workspaces?: { type?: string } | null }).workspaces?.type
+      if (t) types.add(t)
+    }
+  } catch {
+    // fall through to onboarding defaults
+  }
+
+  if (persona === "supplier") {
+    if (types.has("supplier")) return "/supplier"
+    // Also admit the dedicated supplier-membership table (tolerant).
+    try {
+      const { data } = await supabase
+        .from("supplier_workspace_members")
+        .select("workspace_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle()
+      if (data?.workspace_id) return "/supplier"
+    } catch {
+      /* table absent — fall through */
+    }
+    return "/onboarding/supplier"
+  }
+
+  // operator
+  if (types.has("operator")) return "/property-manager"
+  return "/onboarding"
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import { Plus, Trash2, ArrowLeft, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -26,7 +26,8 @@ function blankLine(): EditableLine {
 }
 
 export default function NewJournalEntryPage() {
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { data: accounts } = useLedgerAccounts()
   const { canPost, loading: roleLoading } = useLedgerRole()
@@ -93,7 +94,7 @@ export default function NewJournalEntryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <MobileTopBar title="New Journal Entry" subtitle="General Ledger" showBack backHref="/app/accounting/ledger/journal" />
+      <MobileTopBar title="New Journal Entry" subtitle="General Ledger" showBack backHref={sectionLink("/app/accounting/ledger/journal")} />
 
       <button onClick={() => router.back()} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ArrowLeft className="w-4 h-4" /> Back

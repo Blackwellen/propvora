@@ -107,6 +107,12 @@ const nextConfig: NextConfig = {
   ],
   rewrites: async () => ({
     beforeFiles: [
+      // Authenticated checkout shares the full-screen public checkout shell
+      // (no app sidebar). Must precede the generic /property-manager rewrite.
+      {
+        source: "/property-manager/checkout/:path*",
+        destination: "/checkout/:path*",
+      },
       {
         source: "/property-manager",
         destination: "/app",

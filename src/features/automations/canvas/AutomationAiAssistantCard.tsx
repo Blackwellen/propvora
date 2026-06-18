@@ -6,6 +6,7 @@
 import React, { useState } from "react"
 import { Sparkles, X, Loader2, ShieldCheck, Send } from "lucide-react"
 import Link from "next/link"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 interface Props {
   onClose: () => void
@@ -20,6 +21,7 @@ const QUICK_PROMPTS = [
 ]
 
 export function AutomationAiAssistantCard({ onClose, onSuggestNodes }: Props) {
+  const sectionLink = useSectionLink()
   const [prompt, setPrompt] = useState("")
   const [loading, setLoading] = useState(false)
   const [reply, setReply] = useState<string | null>(null)
@@ -132,7 +134,7 @@ export function AutomationAiAssistantCard({ onClose, onSuggestNodes }: Props) {
           <ShieldCheck className="h-3 w-3 shrink-0 text-slate-400" />
           <p className="text-[10px] text-slate-400">
             AI suggestions only — you confirm all changes.{" "}
-            <Link href="/property-manager/automations/ai-builder" className="text-violet-500 underline">
+            <Link href={sectionLink("/property-manager/automations/ai-builder")} className="text-violet-500 underline">
               Full AI Builder →
             </Link>
           </p>

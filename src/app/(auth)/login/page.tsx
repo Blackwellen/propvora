@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, Suspense } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -16,10 +16,15 @@ import {
   Shield,
   Cloud,
   Users,
+  Home,
+  LayoutDashboard,
+  Wrench,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { cn } from "@/lib/utils"
+import { resolveLoginDestination, type LoginPersona } from "@/lib/actions/workspace"
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
@@ -73,22 +78,54 @@ const ALLOWED_REDIRECTS = [
   "/app",
   "/admin",
   "/supplier-portal",
-  "/affiliate",
   "/invite",
   "/onboarding",
 ]
 
-function safeRedirect(url: string): string {
-  return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/property-manager"
+/** True only when an explicit, allow-listed destination was supplied (e.g. the
+ *  proxy bounced an unauthenticated user off a protected page). When present it
+ *  WINS over the persona router so the user lands back where they were headed. */
+function isAllowedRedirect(url: string | null): url is string {
+  return !!url && ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed))
+}
+
+const LOGIN_PERSONA_KEY = "propvora.login.persona"
+
+const PERSONAS: { id: LoginPersona; label: string; short: string; icon: typeof Home }[] = [
+  { id: "customer", label: "Customer", short: "Book & manage stays", icon: Home },
+  { id: "operator", label: "Property Manager", short: "Manage your portfolio", icon: LayoutDashboard },
+  { id: "supplier", label: "Supplier", short: "Trade & services", icon: Wrench },
+]
+
+const PERSONA_SUBHEAD: Record<LoginPersona, string> = {
+  customer: "Sign in to book stays, track your trips and manage your bookings.",
+  operator: "Sign in to access your property management workspace.",
+  supplier: "Sign in to manage job requests, quotes and your trade profile.",
+}
+
+function isLoginPersona(v: unknown): v is LoginPersona {
+  return v === "customer" || v === "operator" || v === "supplier"
 }
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = safeRedirect(searchParams.get("redirectTo") ?? "/property-manager")
+  const explicitRedirect = searchParams.get("redirectTo")
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  // Persona = which workspace the same account wants to enter. Smart default:
+  // remember the last persona this browser used; new visitors start on Customer.
+  const [persona, setPersona] = useState<LoginPersona>("customer")
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LOGIN_PERSONA_KEY)
+      if (isLoginPersona(saved)) setPersona(saved)
+    } catch {
+      /* storage unavailable — keep default */
+    }
+  }, [])
 
   const {
     register,
@@ -112,7 +149,7 @@ function LoginForm() {
     }
 
     const supabase = createClient()
-    const { data: signInData, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email.trim().toLowerCase(),
       password: data.password,
     })
@@ -122,33 +159,29 @@ function LoginForm() {
       return
     }
 
-    // Decide destination: an explicit redirectTo wins; otherwise route users
-    // with no workspace into onboarding, and everyone else into the app.
-    let destination = redirectTo
-    if (redirectTo === "/property-manager" || redirectTo === "/app") {
-      try {
-        const userId = signInData.user?.id
-        if (userId) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("current_workspace_id")
-            .eq("id", userId)
-            .maybeSingle()
+    // Remember this persona as the smart default for next time.
+    try {
+      localStorage.setItem(LOGIN_PERSONA_KEY, persona)
+    } catch {
+      /* non-fatal */
+    }
 
-          let hasWorkspace = !!profile?.current_workspace_id
-          if (!hasWorkspace) {
-            const { data: membership } = await supabase
-              .from("workspace_members")
-              .select("workspace_id")
-              .eq("user_id", userId)
-              .limit(1)
-              .maybeSingle()
-            hasWorkspace = !!membership?.workspace_id
-          }
-          if (!hasWorkspace) destination = "/onboarding"
-        }
+    // An explicit, allow-listed redirect (e.g. the proxy bounced the user off a
+    // protected page) always wins. Otherwise the chosen persona decides the
+    // destination — provisioning a customer workspace on the fly when needed.
+    let destination: string
+    if (isAllowedRedirect(explicitRedirect)) {
+      destination = explicitRedirect
+    } else {
+      try {
+        destination = await resolveLoginDestination(persona)
       } catch {
-        // Non-fatal — default to /app.
+        destination =
+          persona === "customer"
+            ? "/user"
+            : persona === "supplier"
+            ? "/supplier"
+            : "/property-manager"
       }
     }
 
@@ -189,13 +222,45 @@ function LoginForm() {
             {/* Card */}
             <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-slate-100/80 p-6 sm:p-8">
               {/* Heading */}
-              <div className="mb-7">
+              <div className="mb-5">
                 <h1 className="text-[28px] font-bold text-[#06122F] tracking-tight mb-1.5">
                   Welcome back
                 </h1>
                 <p className="text-[14px] text-slate-500 leading-relaxed">
-                  Sign in to access your property management workspace.
+                  {PERSONA_SUBHEAD[persona]}
                 </p>
+              </div>
+
+              {/* Persona switch — one account, choose where to sign in. The same
+                  email can be a customer, property manager and supplier. */}
+              <div className="mb-5">
+                <div
+                  role="tablist"
+                  aria-label="Sign in as"
+                  className="grid grid-cols-3 gap-1 rounded-2xl bg-slate-100/80 p-1"
+                >
+                  {PERSONAS.map((p) => {
+                    const active = persona === p.id
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setPersona(p.id)}
+                        className={cn(
+                          "flex flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2.5 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                          active
+                            ? "bg-white text-[#06122F] shadow-[0_1px_4px_rgba(15,23,42,0.10)]"
+                            : "text-slate-500 hover:text-slate-700"
+                        )}
+                      >
+                        <p.icon className={cn("h-4 w-4", active ? "text-[#2563EB]" : "text-slate-400")} />
+                        <span className="text-[12px] font-semibold leading-tight">{p.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* Error */}
@@ -313,10 +378,10 @@ function LoginForm() {
               <p className="mt-6 text-center text-[13px] text-slate-500">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href="/register"
+                  href={`/register?intent=${persona}`}
                   className="font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
                 >
-                  Sign up
+                  Create one
                 </Link>
               </p>
 

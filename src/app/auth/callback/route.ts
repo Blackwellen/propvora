@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { recordCoreAcceptances } from "@/lib/legal/acceptance"
 import { bootstrapCustomerWorkspace } from "@/lib/actions/workspace"
 
-const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/affiliate", "/onboarding", "/customer", "/supplier"]
+const ALLOWED_REDIRECTS = ["/app", "/admin", "/supplier-portal", "/onboarding", "/customer", "/supplier"]
 
 function safeRedirect(url: string): string {
   return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/app"

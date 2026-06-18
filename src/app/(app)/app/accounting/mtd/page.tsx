@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useEffect, useState } from "react"
 import {
@@ -60,6 +61,7 @@ function periodStatusChip(status: MtdPeriod["status"]) {
 }
 
 export default function MtdPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [connection, setConnection] = useState<MtdConnection | null>(null)
   const [submissions, setSubmissions] = useState<MtdSubmission[]>([])
@@ -479,7 +481,7 @@ export default function MtdPage() {
               <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
               <p className="text-xs text-blue-700">
                 Need a full breakdown before filing? Use the live{" "}
-                <a href="/app/accounting/reports" className="font-semibold underline">Financial Reports</a>{" "}
+                <a href={sectionLink("/app/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
                 (P&amp;L computed from your ledger).
               </p>
             </div>
@@ -493,7 +495,7 @@ export default function MtdPage() {
           <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
           <p className="text-xs text-blue-700">
             Need a full breakdown before filing? Use the live{" "}
-            <a href="/app/accounting/reports" className="font-semibold underline">Financial Reports</a>{" "}
+            <a href={sectionLink("/app/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
             (P&amp;L computed from your ledger).
           </p>
         </div>

@@ -15,6 +15,7 @@ import CalendarViewsSwitcher from "@/components/calendar/CalendarViewsSwitcher"
 import { MobileTopBar } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarItems,
   bucketItems,
@@ -43,6 +44,7 @@ function buildMonthGrid(year: number, month0: number): Array<Date | null> {
 }
 
 export default function CalendarMonthPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { items, isLoading } = useCalendarItems(workspace?.id)
 
@@ -107,7 +109,7 @@ export default function CalendarMonthPage() {
       <MobileTopBar
         title="Calendar"
         subtitle={monthLabel}
-        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
       />
       <div className="md:hidden -mx-4">
         <CalendarTabNav />
@@ -119,7 +121,7 @@ export default function CalendarMonthPage() {
           description="Full month view — events, jobs, tenancies, compliance and planning dates."
           actions={
             <Link
-              href="/app/calendar/events/new"
+              href={sectionLink("/app/calendar/events/new")}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
@@ -244,7 +246,7 @@ export default function CalendarMonthPage() {
                             </Link>
                           ))}
                           {dayItems.length > 3 && (
-                            <Link href="/app/calendar/views/agenda" className="text-[10px] text-blue-600 hover:text-blue-800 font-medium text-left px-1 mt-0.5">
+                            <Link href={sectionLink("/app/calendar/views/agenda")} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium text-left px-1 mt-0.5">
                               + {dayItems.length - 3} more
                             </Link>
                           )}

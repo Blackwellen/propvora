@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-const ALLOWED_REDIRECTS = ["/property-manager", "/user", "/supplier", "/app", "/admin", "/supplier-portal", "/affiliate"]
+const ALLOWED_REDIRECTS = ["/property-manager", "/user", "/supplier", "/app", "/admin", "/supplier-portal"]
 
 function safeRedirect(url: string): string {
   return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/property-manager"

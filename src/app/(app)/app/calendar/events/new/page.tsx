@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   Calendar,
   CheckSquare,
@@ -521,6 +521,7 @@ function Step6({ form, goTo }: { form: FormData; goTo: (s: number) => void }) {
 /* Step 7 — Success                                                     */
 /* ------------------------------------------------------------------ */
 function Step7({ form, onReset, createdId }: { form: FormData; onReset: () => void; createdId: string | null }) {
+  const sectionLink = useSectionLink()
   return (
     <div className="flex flex-col items-center text-center py-10 space-y-5">
       <div className="w-20 h-20 rounded-full bg-[#ECFDF5] flex items-center justify-center">
@@ -539,11 +540,11 @@ function Step7({ form, onReset, createdId }: { form: FormData; onReset: () => vo
       <div className="flex flex-wrap gap-3 justify-center">
         {createdId && (
           <Button variant="primary" asChild>
-            <a href={`/app/calendar/events/${createdId}`}>View Event</a>
+            <a href={sectionLink(`/app/calendar/events/${createdId}`)}>View Event</a>
           </Button>
         )}
         <Button variant="outline" asChild>
-          <a href="/app/calendar">Back to Calendar</a>
+          <a href={sectionLink("/app/calendar")}>Back to Calendar</a>
         </Button>
         <Button variant="ghost" leftIcon={<RefreshCw className="w-4 h-4" />} onClick={onReset}>Create Another</Button>
       </div>
@@ -629,7 +630,8 @@ function SummaryRail({ form, step }: { form: FormData; step: number }) {
 /* Page                                                                 */
 /* ------------------------------------------------------------------ */
 export default function NewEventPage() {
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormData>(defaultForm)
@@ -756,7 +758,7 @@ export default function NewEventPage() {
 
   return (
     <div className="space-y-0">
-      <MobileTopBar title="New Event" subtitle="Create event" showBack backHref="/app/calendar/events" />
+      <MobileTopBar title="New Event" subtitle="Create event" showBack backHref={sectionLink("/app/calendar/events")} />
       <div className="hidden md:block">
         <CalendarTabNav />
       </div>

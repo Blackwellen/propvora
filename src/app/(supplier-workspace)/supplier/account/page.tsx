@@ -7,6 +7,7 @@ import SupplierBusinessProfile from "../profile/business"
 import SupplierTeamPage from "../team/page"
 import SupplierSettingsPage from "../settings/page"
 import MarketplacePage from "../marketplace/page"
+import { TeamRolesBilling, EnterpriseSettings } from "@/features/supplier/team/account/TeamAccountViews"
 
 /* Account hub (Team) ← Account + Settings + Profile + Team. Holds the
    Marketplace "Public Listing" controls (Marketplace is NOT a side-nav item).
@@ -26,11 +27,13 @@ export default function SupplierAccountHub() {
     )
   }
 
+  // Team plan: Team tab → Team/Roles/Billing (image 29); Settings tab → the
+  // enterprise security/marketplace/admin surface (image 30).
   const tabs: SupplierHubTab[] = [
     { key: "profile", label: "Business Profile", render: () => <SupplierBusinessProfile /> },
     { key: "listing", label: "Public Listing", render: () => <MarketplacePage /> },
-    { key: "team", label: "Team", render: () => <SupplierTeamPage /> },
-    { key: "settings", label: "Settings", render: () => <SupplierSettingsPage /> },
+    { key: "team", label: "Team", render: () => (isTeam ? <TeamRolesBilling /> : <SupplierTeamPage />) },
+    { key: "settings", label: "Settings", render: () => (isTeam ? <EnterpriseSettings /> : <SupplierSettingsPage />) },
     { key: "marketplace", label: "Marketplace Preview", render: () => <MarketplacePage /> },
   ]
 

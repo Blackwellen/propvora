@@ -10,6 +10,7 @@ import { MobileTopBar } from '@/components/mobile'
 import { ChevronLeft, ChevronRight, ExternalLink, Plus, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarItems,
   startOfDay,
@@ -79,6 +80,7 @@ function SectionGroup({ title, events }: { title: string; events: CalendarItem[]
 }
 
 export default function CalendarDayPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { items, isLoading } = useCalendarItems(workspace?.id)
   const [cursor, setCursor] = useState(() => startOfDay(new Date()))
@@ -112,7 +114,7 @@ export default function CalendarDayPage() {
       <MobileTopBar
         title="Day"
         subtitle={dayLabel}
-        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
       />
       <div className="md:hidden">
         <CalendarTabNav />
@@ -129,7 +131,7 @@ export default function CalendarDayPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/app/calendar/events/new" className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <Link href={sectionLink("/app/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
             <Plus className="w-3.5 h-3.5" />New Event
           </Link>
         </div>

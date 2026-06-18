@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useSectionBasePath, resolveSectionHref } from "@/components/sections/SectionBasePath"
 import {
   LayoutDashboard,
   CalendarDays,
@@ -67,7 +68,14 @@ const CALENDAR_TABS = [
 ] as const
 
 export function CalendarTabNav({ actions }: { actions?: React.ReactNode }) {
-  const pathname = usePathname()
+  const rawPathname = usePathname()
+  const ctx = useSectionBasePath()
+  // Rebase the live pathname back onto /app/calendar so the existing match
+  // logic works identically whether mounted under /app or /supplier.
+  const pathname =
+    ctx && rawPathname.startsWith(ctx.base)
+      ? "/app/calendar" + rawPathname.slice(ctx.base.length)
+      : rawPathname
 
   function isActive(tab: (typeof CALENDAR_TABS)[number]): boolean {
     if (tab.exact) {
@@ -90,7 +98,7 @@ export function CalendarTabNav({ actions }: { actions?: React.ReactNode }) {
             return (
               <Link
                 key={tab.key}
-                href={tab.href}
+                href={resolveSectionHref(tab.href, ctx)}
                 className={cn(
                   "flex items-center gap-2 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                   active

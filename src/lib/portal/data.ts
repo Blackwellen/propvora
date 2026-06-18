@@ -435,7 +435,7 @@ export async function getTenantPayments(
   try {
     const { data, error } = await admin
       .from("money_transactions")
-      .select("id, created_at, amount, currency, direction, description, status, reference, category")
+      .select("id, created_at, amount, currency, direction, description, reference, category")
       .eq("workspace_id", session.workspaceId)
       .in("property_id", propertyIds)
       .order("created_at", { ascending: false })
@@ -479,7 +479,7 @@ export async function getTenantDocuments(
   try {
     const { data, error } = await admin
       .from("property_documents")
-      .select("id, created_at, name, type, file_path, file_size, property_id")
+      .select("id, created_at, name, type:category, file_path:file_url, file_size, property_id")
       .eq("workspace_id", session.workspaceId)
       .in("property_id", propertyIds)
       .order("created_at", { ascending: false })
@@ -520,7 +520,7 @@ export async function getLandlordTransactions(
   try {
     const { data, error } = await admin
       .from("money_transactions")
-      .select("id, created_at, amount, currency, direction, description, category, status, property_id")
+      .select("id, created_at, amount, currency, direction, description, category, property_id")
       .eq("workspace_id", session.workspaceId)
       .in("property_id", ids)
       .order("created_at", { ascending: false })
@@ -631,7 +631,7 @@ export async function getSupplierDocuments(
 
     const { data, error } = await admin
       .from("property_documents")
-      .select("id, created_at, name, type, file_path, file_size, property_id")
+      .select("id, created_at, name, type:category, file_path:file_url, file_size, property_id")
       .eq("workspace_id", session.workspaceId)
       .in("property_id", propertyIds)
       .order("created_at", { ascending: false })

@@ -1,22 +1,10 @@
-import { Bot } from "lucide-react"
-import OpsHeader from "@/components/automations-ops/OpsHeader"
-import DefinitionsListFull from "@/components/automations-engine/DefinitionsListFull"
+import MyAutomationsPage from "@/features/automations/pages/MyAutomationsPage"
 
 export const metadata = {
   title: "My automations - Propvora",
-  description: "Workspace automation definitions — list, enable/disable, and view run history.",
+  description: "Manage, monitor and optimise your portfolio automations.",
 }
-export const dynamic = "force-dynamic"
 
-export default function MyAutomationsPage() {
-  return (
-    <div className="space-y-6">
-      <OpsHeader
-        icon={Bot}
-        title="My automations"
-        subtitle="All automation definitions for this workspace. Toggle on/off, edit on the canvas, and drill into run history."
-      />
-      <DefinitionsListFull />
-    </div>
-  )
+export default function MyAutomationsRoute() {
+  return <MyAutomationsPage />
 }

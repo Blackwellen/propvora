@@ -1,22 +1,10 @@
-import { LockKeyhole } from "lucide-react"
-import OpsHeader from "@/components/automations-ops/OpsHeader"
-import { HardCapsPanel, NodeGroupPanel } from "@/components/automations/AutomationRegistryPanels"
+import UsageLimitsPage from "@/features/automations/pages/UsageLimitsPage"
 
 export const metadata = {
   title: "Automation admin controls - Propvora",
-  description: "Kill switches, restricted nodes, global safety controls, and audit surfaces.",
+  description: "Govern automation usage, enforce policies, and maintain operational guardrails.",
 }
 
-export default function AutomationAdminControlsPage() {
-  return (
-    <div className="space-y-6">
-      <OpsHeader
-        icon={LockKeyhole}
-        title="Admin Controls"
-        subtitle="Workspace and platform-level controls for restricted nodes, kill switches, abuse protection, and audit."
-      />
-      <NodeGroupPanel groups={["Legal", "Payment", "Integration"]} />
-      <HardCapsPanel />
-    </div>
-  )
+export default function AutomationAdminControlsRoute() {
+  return <UsageLimitsPage initialTab="admin" />
 }

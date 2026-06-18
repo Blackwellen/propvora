@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -27,6 +28,7 @@ const CURRENCIES = ["GBP – British Pound", "USD – US Dollar", "EUR – Euro"
 const SCOPES = ["Portfolio", "Property", "All Portfolios", "Propvora Estates"]
 
 export default function NewAccountPage() {
+  const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
   const [code, setCode] = useState("4000")
   const [name, setName] = useState("Rent Income")
@@ -217,7 +219,7 @@ export default function NewAccountPage() {
     <>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/app/accounting/accounts/overview">Cancel</Link>
+          <Link href={sectionLink("/app/accounting/accounts/overview")}>Cancel</Link>
         </Button>
         <Button variant="outline" size="sm">Save as Draft</Button>
       </div>
@@ -229,7 +231,7 @@ export default function NewAccountPage() {
 
   return (
     <>
-    <MobileTopBar title="New Account" subtitle="Accounting" showBack backHref="/app/accounting/accounts/overview" />
+    <MobileTopBar title="New Account" subtitle="Accounting" showBack backHref={sectionLink("/app/accounting/accounts/overview")} />
     <AccountingWizardShell
       breadcrumbNumber="08"
       breadcrumbLabel="New Account"

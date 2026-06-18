@@ -135,7 +135,8 @@ export async function requestAffiliatePayout(workspaceId: string): Promise<Payou
     meta: { amount_pence: cleared, period },
   })
 
-  revalidatePath("/affiliate/earnings")
+  revalidatePath("/property-manager/affiliates/earnings")
+  revalidatePath("/user/affiliate/earnings")
   return { ok: true, id: row.id as string }
 }
 
@@ -277,6 +278,7 @@ export async function markAffiliatePayoutPaid(payoutId: string, reference?: stri
     meta: { amount_pence: amount, reference: reference ?? null },
   })
   revalidatePath("/admin/affiliates")
-  revalidatePath("/affiliate/earnings")
+  revalidatePath("/property-manager/affiliates/earnings")
+  revalidatePath("/user/affiliate/earnings")
   return { ok: true, id: payoutId }
 }

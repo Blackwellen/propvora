@@ -10,6 +10,7 @@ import { CalendarTabNav } from "@/components/calendar"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { MobileTopBar, MobilePageHeader, MobileFilterSheet, ResponsiveTable, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarItems,
   bucketItems,
@@ -65,6 +66,7 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
 
 export default function EventsPage() {
   const router = useRouter()
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { items, isLoading } = useCalendarItems(workspace?.id)
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("All")
@@ -99,7 +101,7 @@ export default function EventsPage() {
       <MobileTopBar
         title="Events"
         subtitle="Dated records"
-        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
       />
       <div className="md:hidden -mx-4">
         <CalendarTabNav />
@@ -133,7 +135,7 @@ export default function EventsPage() {
             <p className="text-sm text-slate-500 mt-0.5">Every dated record across your portfolio — click any row to open its source</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Link href="/app/calendar/events/new" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm">
+            <Link href={sectionLink("/app/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm">
               <Plus className="w-4 h-4" />
               New Event
             </Link>
@@ -182,7 +184,7 @@ export default function EventsPage() {
               <div className="px-4 py-16 text-center">
                 <CalendarDays className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                 <p className="text-sm font-medium text-slate-500">No events match your filters</p>
-                <Link href="/app/calendar/events/new" className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white">
+                <Link href={sectionLink("/app/calendar/events/new")} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white">
                   <Plus className="w-4 h-4" />New Event
                 </Link>
               </div>
@@ -244,7 +246,7 @@ export default function EventsPage() {
                     <CalendarDays className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-500">No events match your filters</p>
                     <p className="text-xs text-slate-400 mt-1 mb-4">{items.length === 0 ? "Create an event or add dates to tasks, jobs, tenancies and compliance items." : "Try clearing a filter."}</p>
-                    <Link href="/app/calendar/events/new" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
+                    <Link href={sectionLink("/app/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
                       <Plus className="w-4 h-4" />New Event
                     </Link>
                   </td></tr>

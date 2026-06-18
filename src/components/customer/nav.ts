@@ -9,6 +9,7 @@ import {
   UserCircle,
   Compass,
   Hotel,
+  Star,
   type LucideIcon,
 } from "lucide-react"
 
@@ -46,9 +47,9 @@ export const CUSTOMER_NAV: CustomerNavItem[] = [
   { label: "Home", href: "/user", icon: LayoutDashboard, short: "Home" },
   { label: "Explore", href: "/stay/search", icon: Compass, short: "Explore" },
   { label: "Stays", href: "/user/stays", icon: Hotel, short: "Stays" },
-  { label: "My Trips", href: "/user/bookings", icon: CalendarCheck, short: "Trips" },
+  { label: "Bookings", href: "/user/bookings", icon: CalendarCheck, short: "Bookings" },
   { label: "Messages", href: "/user/messages", icon: MessageSquare, short: "Inbox" },
-  { label: "Saved", href: "/user/saved", icon: Heart, short: "Saved" },
+  { label: "Favourites", href: "/user/saved", icon: Heart, short: "Saved" },
 ]
 
 /** Full list including account-area destinations (used by mobile "More" sheet). */
@@ -56,6 +57,7 @@ export const CUSTOMER_ALL: CustomerNavItem[] = [
   ...CUSTOMER_NAV,
   { label: "Notifications", href: "/user/notifications", icon: Bell, short: "Alerts" },
   { label: "Payments", href: "/user/payments", icon: CreditCard, short: "Pay" },
+  { label: "Reviews", href: "/user/reviews", icon: Star, short: "Reviews" },
   { label: "Orders", href: "/user/orders", icon: ShoppingBag, short: "Orders" },
   { label: "Profile", href: "/user/profile", icon: UserCircle, short: "Profile" },
 ]

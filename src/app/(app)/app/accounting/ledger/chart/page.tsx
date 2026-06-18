@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import { ChevronDown, ChevronRight, Download, Plus, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -30,7 +30,8 @@ const TYPE_STYLES: Record<LedgerAccountType, { border: string; bg: string; text:
 }
 
 export default function ChartOfAccountsPage() {
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { data: accounts, loading, refetch } = useLedgerAccounts()
   const { data: tb } = useTrialBalance()
@@ -163,7 +164,8 @@ function AccountTypeSection({
   accounts: ReturnType<typeof useLedgerAccounts>["data"]
   balanceByAccount: Map<string, number>
 }) {
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const [open, setOpen] = useState(true)
   const s = TYPE_STYLES[type]
   const total = accounts.reduce((sum, a) => sum + (balanceByAccount.get(a.id) ?? 0), 0)
@@ -214,7 +216,7 @@ function AccountTypeSection({
                 <tr key={a.id} className={cn("border-b border-[#E2E8F0] hover:bg-slate-50/60 transition-colors", idx === accounts.length - 1 && "border-0")}>
                   <td className="px-5 py-3"><span className="font-mono text-[13px] font-semibold text-slate-700">{a.code}</span></td>
                   <td className="px-4 py-3">
-                    <Link href={`/app/accounting/ledger/accounts/${a.id}`} className="text-[13px] font-medium text-slate-900 hover:text-[#2563EB]">
+                    <Link href={sectionLink(`/app/accounting/ledger/accounts/${a.id}`)} className="text-[13px] font-medium text-slate-900 hover:text-[#2563EB]">
                       {a.name}
                     </Link>
                     {a.is_system && <span className="ml-2 text-[10px] text-slate-500">system</span>}

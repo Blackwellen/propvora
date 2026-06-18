@@ -1,10 +1,10 @@
 import React from "react"
-import SupplierWorkspaceShell from "@/components/shells/SupplierWorkspaceShell"
+import SupplierAppShell from "@/components/shells/SupplierAppShell"
 
 export default function SupplierWorkspaceLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <SupplierWorkspaceShell>{children}</SupplierWorkspaceShell>
+  return <SupplierAppShell>{children}</SupplierAppShell>
 }

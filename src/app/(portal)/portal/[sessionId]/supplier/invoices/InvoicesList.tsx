@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo, useState, useCallback } from "react"
+import Link from "next/link"
 import { Search, FileText } from "lucide-react"
 import { Card } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
@@ -164,8 +165,10 @@ export default function InvoicesList({
                 const meta = invoiceStatusMeta(inv.status)
                 return (
                   <tr key={inv.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-700 font-medium">
-                      {inv.invoice_number || inv.id.slice(0, 8).toUpperCase()}
+                    <td className="px-4 py-3 font-mono text-xs font-medium">
+                      <Link href={`/portal/${session.id}/supplier/invoices/${inv.id}`} className="text-[#2563EB] hover:underline">
+                        {inv.invoice_number || inv.id.slice(0, 8).toUpperCase()}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-900">
                       {formatMoney(inv.amount, inv.currency ?? "GBP")}

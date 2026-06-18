@@ -18,10 +18,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   let aiCopilotEnabled = false
   let brandColor: string | null = null
   let brandColours: Partial<BrandColours> | null = null
-  let wsLocale = "en-GB"
-  let wsCurrency = "GBP"
-  let wsTimezone = "Europe/London"
-  let wsDateFormat = "DD/MM/YYYY"
+  const wsLocale = "en-GB"
+  const wsCurrency = "GBP"
+  const wsTimezone = "Europe/London"
+  const wsDateFormat = "DD/MM/YYYY"
 
   const supabase = await createClient()
   const {
@@ -92,19 +92,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       }
     }
 
-    // Load workspace locale settings (42P01-safe).
-    const { data: settings } = await supabase
-      .from("workspace_settings")
-      .select("default_locale, default_currency, default_timezone, default_date_format")
-      .eq("workspace_id", workspaceId)
-      .maybeSingle()
-
-    if (settings) {
-      wsLocale = (settings.default_locale as string | null) ?? wsLocale
-      wsCurrency = (settings.default_currency as string | null) ?? wsCurrency
-      wsTimezone = (settings.default_timezone as string | null) ?? wsTimezone
-      wsDateFormat = (settings.default_date_format as string | null) ?? wsDateFormat
-    }
+    // Workspace locale/currency defaults are NOT columns on workspace_settings in
+    // the live schema (it carries feature-config jsonb blobs instead), so we use
+    // the app defaults declared above. Per-user locale lives on `profiles`.
   } catch {
     // Non-fatal — default to restricted access + default branding.
   }

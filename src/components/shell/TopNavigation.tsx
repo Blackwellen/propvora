@@ -48,9 +48,11 @@ function normaliseType(raw: unknown): WorkspaceType {
 interface TopNavigationProps {
   workspaceName?: string
   workspaceId?: string
+  /** Base path for workspace-relative shortcuts (e.g. calendar). */
+  base?: string
 }
 
-function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
+export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   const router = useRouter()
   const { workspace, switchWorkspace } = useWorkspace()
   // Active workspace comes from live context first, props as fallback.
@@ -109,12 +111,16 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
         .eq("user_id", user.id)
         .limit(50)
       if (data) {
-        const list: Workspace[] = data
+        const list: Workspace[] = (data
           .map((row: { workspace_id: string; workspaces: unknown }) => {
             const ws = row.workspaces as { id: string; name: string; slug: string; type?: string } | null
             return ws ? { id: ws.id, name: ws.name, slug: ws.slug, type: normaliseType(ws.type) } : null
           })
-          .filter(Boolean) as Workspace[]
+          .filter(Boolean) as Workspace[])
+          // Customer is a buyer/guest identity, not a workspace you "switch" into
+          // from an operator/supplier context — it has its own entry point (the
+          // login persona switch) and is deliberately omitted here.
+          .filter((ws) => ws.type !== "customer")
         setWorkspaces(list)
       }
     } catch {
@@ -252,7 +258,7 @@ function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
   )
 }
 
-export default function TopNavigation({ workspaceName, workspaceId }: TopNavigationProps) {
+export default function TopNavigation({ workspaceName, workspaceId, base = "/property-manager" }: TopNavigationProps) {
   const router = useRouter()
   return (
     <header
@@ -287,7 +293,7 @@ export default function TopNavigation({ workspaceName, workspaceId }: TopNavigat
 
         {/* Calendar shortcut — hidden on phones to save width */}
         <button
-          onClick={() => router.push("/property-manager/calendar")}
+          onClick={() => router.push(`${base}/calendar`)}
           aria-label="Open calendar"
           className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
         >

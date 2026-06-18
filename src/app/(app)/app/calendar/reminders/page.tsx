@@ -20,6 +20,7 @@ import { MobileTopBar } from "@/components/mobile"
 import { Button } from "@/components/ui/Button"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarReminders,
   useSnoozeReminder,
@@ -54,6 +55,7 @@ function statusStyle(status: string): { chip: string; dot: string; label: string
 }
 
 export default function RemindersPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const wsId = workspace?.id ?? ""
   const remindersQuery = useCalendarReminders(wsId)
@@ -111,9 +113,9 @@ export default function RemindersPage() {
       <MobileTopBar
         title="Reminders"
         subtitle="Scheduled alerts"
-        primaryAction={{ label: "New reminder", icon: Plus, href: "/app/calendar/reminders/new" }}
+        primaryAction={{ label: "New reminder", icon: Plus, href: sectionLink("/app/calendar/reminders/new") }}
         overflowActions={[
-          { label: "Settings", icon: Settings, href: "/app/calendar/settings" },
+          { label: "Settings", icon: Settings, href: sectionLink("/app/calendar/settings") },
         ]}
       />
       <div className="md:hidden -mx-4">
@@ -131,10 +133,10 @@ export default function RemindersPage() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button variant="outline" size="sm" leftIcon={<Settings className="w-4 h-4" />} asChild>
-              <Link href="/app/calendar/settings">Settings</Link>
+              <Link href={sectionLink("/app/calendar/settings")}>Settings</Link>
             </Button>
             <Button variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />} asChild>
-              <Link href="/app/calendar/reminders/new">New Reminder</Link>
+              <Link href={sectionLink("/app/calendar/reminders/new")}>New Reminder</Link>
             </Button>
           </div>
         </div>
@@ -226,7 +228,7 @@ export default function RemindersPage() {
                         <BellOff className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                         <p className="text-sm font-medium text-slate-500">No reminders {activeTab !== "All" ? `(${activeTab.toLowerCase()})` : "yet"}</p>
                         <p className="text-xs text-slate-400 mt-1 mb-4">Create a reminder to get alerted before key dates.</p>
-                        <Link href="/app/calendar/reminders/new" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
+                        <Link href={sectionLink("/app/calendar/reminders/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
                           <Plus className="w-4 h-4" />New Reminder
                         </Link>
                       </td></tr>
@@ -254,7 +256,7 @@ export default function RemindersPage() {
                           <td className="px-4 py-3 text-right">
                             <ActionMenu
                               items={[
-                                ...(r.event_id ? [{ label: "Open Event", icon: Eye, onClick: () => { window.location.href = `/app/calendar/events/${r.event_id}` } }] : []),
+                                ...(r.event_id ? [{ label: "Open Event", icon: Eye, onClick: () => { window.location.href = sectionLink(`/app/calendar/events/${r.event_id}`) } }] : []),
                                 { label: "Snooze", icon: Clock, disabled: r.status !== "pending", onClick: () => openSnooze(r) },
                                 { label: "Cancel", icon: X, variant: "danger" as const, disabled: r.status === "cancelled", onClick: () => { void cancelReminder(r) } },
                               ]}

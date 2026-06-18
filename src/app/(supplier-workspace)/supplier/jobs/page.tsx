@@ -1,8 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { Wrench, ChevronRight, Table2, LayoutGrid, Columns3, CalendarDays, ArrowUpRight } from "lucide-react"
+import { useSupplierPlan } from "@/components/supplier-workspace/useSupplierPlan"
+import { TeamDispatchBoard } from "@/features/supplier/team/jobs/TeamDispatchBoard"
+import { TeamEvidenceBoard } from "@/features/supplier/team/jobs/TeamEvidenceBoard"
 import { cn } from "@/lib/utils"
 import { MobileTopBar, ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import {
@@ -53,7 +57,58 @@ const STATUS_DOT: Record<string, string> = {
   completed: "bg-emerald-500", cancelled: "bg-red-500",
 }
 
+/* Route-aware wrapper: team/enterprise plans get the Dispatch (image 8) and
+   Evidence (image 10) boards via ?tab=; everything else (and Solo) is the list. */
 export default function SupplierJobsPage() {
+  return (
+    <Suspense fallback={<SupplierCard className="p-5"><SupplierLoadingState rows={5} /></SupplierCard>}>
+      <JobsRouter />
+    </Suspense>
+  )
+}
+
+function JobsRouter() {
+  const { isTeam } = useSupplierPlan()
+  const tab = useSearchParams().get("tab")
+  if (isTeam && tab === "dispatch") {
+    return (
+      <div className="space-y-5">
+        <MobileTopBar title="Dispatch board" subtitle="Team jobs" />
+        <div className="hidden md:block"><h1 className="text-xl font-semibold text-slate-900">Team Jobs: Dispatch Board</h1></div>
+        <TeamDispatchBoard />
+      </div>
+    )
+  }
+  if (isTeam && tab === "evidence") {
+    return (
+      <div className="space-y-5">
+        <MobileTopBar title="Evidence" subtitle="Team jobs" />
+        <div className="hidden md:block"><h1 className="text-xl font-semibold text-slate-900">Team Jobs: Evidence &amp; Sign-off</h1></div>
+        <TeamEvidenceBoard />
+      </div>
+    )
+  }
+  return (
+    <>
+      {isTeam && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <JobStat label="Active jobs" value="32" tone="blue" />
+          <JobStat label="Awaiting assignment" value="8" tone="amber" />
+          <JobStat label="SLA risk" value="3" tone="red" />
+          <JobStat label="Awaiting sign-off" value="4" tone="slate" />
+        </div>
+      )}
+      <JobsList />
+    </>
+  )
+}
+
+function JobStat({ label, value, tone }: { label: string; value: string; tone: "blue" | "amber" | "red" | "slate" }) {
+  const c = tone === "blue" ? "text-[#2563EB]" : tone === "amber" ? "text-amber-600" : tone === "red" ? "text-red-600" : "text-slate-900"
+  return <SupplierCard className={cn("p-3.5")}><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
+}
+
+function JobsList() {
   const jobs = useSupplierApi<SupplierAssignmentRow[]>(
     useSupplierApiUrl("/api/supplier/jobs", { side: "supplier" }),
     { select: (j) => (j as { items?: SupplierAssignmentRow[] }).items ?? (Array.isArray(j) ? (j as SupplierAssignmentRow[]) : []) }

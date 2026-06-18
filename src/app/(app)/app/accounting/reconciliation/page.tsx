@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
@@ -40,6 +41,7 @@ const TABS = [
 ] as const
 
 export default function ReconciliationPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [lines, setLines] = useState<StatementLine[]>([])
   const [loading, setLoading] = useState(true)
@@ -128,9 +130,9 @@ export default function ReconciliationPage() {
       <MobileTopBar
         title="Reconciliation"
         subtitle="Accounting"
-        primaryAction={{ label: "Create manual transaction", icon: Plus, href: "/app/accounting/reconciliation/manual-transaction/new" }}
+        primaryAction={{ label: "Create manual transaction", icon: Plus, href: sectionLink("/app/accounting/reconciliation/manual-transaction/new") }}
         overflowActions={[
-          { label: "Import statement", icon: Upload, href: "/app/accounting/reconciliation/manual-transaction/new" },
+          { label: "Import statement", icon: Upload, href: sectionLink("/app/accounting/reconciliation/manual-transaction/new") },
           { label: "Refresh", icon: RefreshCw, onClick: load },
           { label: "Export statement lines", icon: Download, onClick: exportCsv },
         ]}
@@ -159,10 +161,10 @@ export default function ReconciliationPage() {
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           <Button variant="outline" size="sm" leftIcon={<Upload className="w-3.5 h-3.5" />} asChild>
-            <Link href="/app/accounting/reconciliation/manual-transaction/new">Import Statement</Link>
+            <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
           </Button>
           <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-            <Link href="/app/accounting/reconciliation/manual-transaction/new">Create Manual Transaction</Link>
+            <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Create Manual Transaction</Link>
           </Button>
           <Button variant="outline" size="sm" leftIcon={<RefreshCw className="w-3.5 h-3.5" />} onClick={load}>Refresh</Button>
           <ActionMenu
@@ -224,7 +226,7 @@ export default function ReconciliationPage() {
                 against posted journal entries — nothing is fabricated.
               </p>
               <Button variant="primary" size="sm" leftIcon={<Upload className="w-3.5 h-3.5" />} asChild>
-                <Link href="/app/accounting/reconciliation/manual-transaction/new">Import Statement</Link>
+                <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
               </Button>
             </div>
           ) : filtered.length === 0 ? (

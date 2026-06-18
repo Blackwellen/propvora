@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -56,6 +57,7 @@ function ImpactChart() {
 }
 
 export default function AddForecastScenarioPage() {
+  const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
   const [scenarioName, setScenarioName] = useState("Upside Case – Strong Leasing")
   const [description, setDescription] = useState("Assumes stronger leasing velocity, rental growth above market and controlled operating expenses.")
@@ -76,12 +78,12 @@ export default function AddForecastScenarioPage() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-6">
-      <MobileTopBar title="Add Forecast Scenario" subtitle="Forecast" showBack backHref="/app/accounting/forecast" />
+      <MobileTopBar title="Add Forecast Scenario" subtitle="Forecast" showBack backHref={sectionLink("/app/accounting/forecast")} />
 
       {/* Header */}
       <div className="hidden md:flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <Link href="/app/accounting" className="hover:text-slate-600">Accounting</Link>
+          <Link href={sectionLink("/app/accounting")} className="hover:text-slate-600">Accounting</Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-500 font-medium">10 · Add Forecast Scenario</span>
         </div>
@@ -316,7 +318,7 @@ export default function AddForecastScenarioPage() {
       {/* Footer */}
       <div className="flex items-center justify-between pt-6 border-t border-[#E2E8F0]">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/app/accounting/forecast">Cancel</Link>
+          <Link href={sectionLink("/app/accounting/forecast")}>Cancel</Link>
         </Button>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">Save Draft</Button>

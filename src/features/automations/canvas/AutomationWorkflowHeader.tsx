@@ -10,6 +10,7 @@ import {
   ArrowLeft, Undo2, Redo2, ZoomIn, ZoomOut, Maximize2, Minimize2,
   Save, SendHorizonal, Pencil, Check, ChevronDown,
 } from "lucide-react"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import type { ViewMode } from "./types"
 import type { FlowMeta } from "../hooks/useAutomationFlow"
 
@@ -114,12 +115,13 @@ export function AutomationWorkflowHeader({
   onPublish,
 }: Props) {
   const statusConfig = STATUS_PILL[meta.status] ?? STATUS_PILL.draft
+  const sectionLink = useSectionLink()
 
   return (
     <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
       {/* Back */}
       <Link
-        href="/property-manager/automations"
+        href={sectionLink("/property-manager/automations")}
         className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
         title="Back to automations"
       >

@@ -1,9 +1,10 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { humaniseStatus as _humaniseStatus } from "./format"
-import { X } from "lucide-react"
+import { X, ArrowRight, Lock, Sparkles } from "lucide-react"
 
 // ─── Re-exports ───────────────────────────────────────────────────────────────
 
@@ -11,7 +12,18 @@ export { humaniseStatus } from "./format"
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 
-export type StatusTone = "emerald" | "amber" | "sky" | "slate" | "red"
+export type StatusTone = "emerald" | "amber" | "sky" | "slate" | "red" | "blue" | "violet"
+
+// Renders an icon prop that may be either a Lucide component (passed as
+// `icon={MapPin}`) or an already-instantiated element (`icon={<MapPin />}`).
+function renderIcon(icon: React.ReactNode | React.ElementType, className?: string): React.ReactNode {
+  if (!icon) return null
+  if (typeof icon === "function" || (typeof icon === "object" && icon !== null && "render" in (icon as object))) {
+    const Icon = icon as React.ElementType
+    return <Icon className={className ?? "w-6 h-6"} />
+  }
+  return icon as React.ReactNode
+}
 
 export function toneForStatus(status: string): StatusTone {
   switch (status) {
@@ -49,11 +61,8 @@ interface SupplierPageHeaderProps {
   title: string
   subtitle?: string
   actions?: React.ReactNode
-  tabs?: {
-    items: Tab[]
-    active: string
-    onChange: (v: string) => void
-  }
+  /** A rendered tab strip (e.g. <SupplierTabs />). */
+  tabs?: React.ReactNode
 }
 
 export function SupplierPageHeader({ title, subtitle, actions, tabs }: SupplierPageHeaderProps) {
@@ -66,24 +75,7 @@ export function SupplierPageHeader({ title, subtitle, actions, tabs }: SupplierP
         </div>
         {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
       </div>
-      {tabs && (
-        <div className="flex gap-1 border-b border-slate-200">
-          {tabs.items.map((t) => (
-            <button
-              key={t.value}
-              onClick={() => tabs.onChange(t.value)}
-              className={cn(
-                "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
-                tabs.active === t.value
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-slate-500 hover:text-slate-700"
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {tabs}
     </div>
   )
 }
@@ -129,7 +121,11 @@ export interface SupplierKpi {
   label: string
   value: string | number
   sub?: string
-  icon?: React.ReactNode
+  icon?: React.ElementType
+  iconBg?: string
+  iconColor?: string
+  subColor?: string
+  href?: string
 }
 
 export function SupplierKpiCard({ kpi }: { kpi: SupplierKpi }) {
@@ -137,7 +133,7 @@ export function SupplierKpiCard({ kpi }: { kpi: SupplierKpi }) {
     <SupplierCard className="p-5 flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">{kpi.label}</span>
-        {kpi.icon && <span className="text-slate-400">{kpi.icon}</span>}
+        {kpi.icon && <span className="text-slate-400">{renderIcon(kpi.icon, "w-4 h-4")}</span>}
       </div>
       <span className="text-2xl font-bold text-slate-900">{kpi.value}</span>
       {kpi.sub && <span className="text-xs text-slate-400">{kpi.sub}</span>}
@@ -158,7 +154,7 @@ export function SupplierKpiStrip({ kpis }: { kpis: SupplierKpi[] }) {
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 interface SupplierEmptyStateProps {
-  icon?: React.ReactNode
+  icon?: React.ReactNode | React.ElementType
   title: string
   description?: string
   action?: React.ReactNode
@@ -167,10 +163,89 @@ interface SupplierEmptyStateProps {
 export function SupplierEmptyState({ icon, title, description, action }: SupplierEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      {icon && <div className="mb-4 text-slate-300">{icon}</div>}
+      {icon && <div className="mb-4 text-slate-300">{renderIcon(icon, "w-10 h-10")}</div>}
       <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
       {description && <p className="text-sm text-slate-400 max-w-sm mb-4">{description}</p>}
       {action && <div>{action}</div>}
+    </div>
+  )
+}
+
+// "Not ready" / coming-soon state — a softer variant of the empty state used
+// for features that are gated until a dependency (e.g. payments) is connected.
+interface SupplierNotReadyProps {
+  icon?: React.ReactNode | React.ElementType
+  title: string
+  description?: string
+  action?: React.ReactNode
+}
+
+export function SupplierNotReady({ icon, title, description, action }: SupplierNotReadyProps) {
+  return (
+    <SupplierCard className="p-10 flex flex-col items-center justify-center text-center">
+      {icon && (
+        <div className="mb-4 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+          {renderIcon(icon, "w-6 h-6")}
+        </div>
+      )}
+      <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
+      {description && <p className="text-sm text-slate-400 max-w-sm mb-4">{description}</p>}
+      {action && <div>{action}</div>}
+    </SupplierCard>
+  )
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+
+export interface SupplierTabItem {
+  key: string
+  label: string
+  count?: number
+  icon?: React.ElementType
+}
+
+/** Alias kept for pages that type their tab arrays as `SupplierTab[]`. */
+export type SupplierTab = SupplierTabItem
+
+interface SupplierTabsProps {
+  active: string
+  onChange: (key: string) => void
+  tabs: SupplierTabItem[]
+  className?: string
+}
+
+export function SupplierTabs({ active, onChange, tabs, className }: SupplierTabsProps) {
+  return (
+    <div className={cn("flex items-center gap-1 border-b border-slate-200", className)}>
+      {tabs.map((t) => {
+        const isActive = t.key === active
+        return (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => onChange(t.key)}
+            className={cn(
+              "relative inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2",
+              isActive
+                ? "text-blue-600 border-blue-600"
+                : "text-slate-500 border-transparent hover:text-slate-700"
+            )}
+          >
+            {t.icon && renderIcon(t.icon, "w-4 h-4")}
+            {t.label}
+            {typeof t.count === "number" && (
+              <span
+                className={cn(
+                  "ml-1.5 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
+                  isActive ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500"
+                )}
+              >
+                {t.count}
+              </span>
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -195,18 +270,28 @@ const toneClasses: Record<StatusTone, string> = {
   sky:     "bg-sky-50 text-sky-700 border-sky-200",
   slate:   "bg-slate-100 text-slate-600 border-slate-200",
   red:     "bg-red-50 text-red-700 border-red-200",
+  blue:    "bg-blue-50 text-blue-700 border-blue-200",
+  violet:  "bg-violet-50 text-violet-700 border-violet-200",
 }
 
-export function SupplierStatusBadge({ status }: { status: string }) {
-  const tone = toneForStatus(status)
+interface SupplierStatusBadgeProps {
+  /** Pass a raw status string to auto-derive tone + humanised label. */
+  status?: string
+  /** Or pass an explicit tone with custom children. */
+  tone?: StatusTone
+  children?: React.ReactNode
+}
+
+export function SupplierStatusBadge({ status, tone, children }: SupplierStatusBadgeProps) {
+  const resolvedTone: StatusTone = tone ?? (status ? toneForStatus(status) : "slate")
   return (
     <span
       className={cn(
         "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
-        toneClasses[tone]
+        toneClasses[resolvedTone]
       )}
     >
-      {_humaniseStatus(status)}
+      {children ?? (status ? _humaniseStatus(status) : null)}
     </span>
   )
 }
@@ -216,7 +301,7 @@ export function SupplierStatusBadge({ status }: { status: string }) {
 interface SupplierButtonProps {
   children: React.ReactNode
   onClick?: () => void
-  variant?: "primary" | "outline"
+  variant?: "primary" | "outline" | "secondary" | "ghost"
   size?: "sm" | "md"
   disabled?: boolean
   loading?: boolean
@@ -237,8 +322,10 @@ export function SupplierButton({
   const base = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
   const sizes = { sm: "px-3 py-1.5 text-sm gap-1.5", md: "px-4 py-2 text-sm gap-2" }
   const variants = {
-    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8]",
-    outline: "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50",
+    primary:   "bg-[#2563EB] text-white hover:bg-[#1d4ed8]",
+    outline:   "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50",
+    secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200",
+    ghost:     "bg-transparent text-slate-600 hover:bg-slate-100",
   }
   return (
     <button
@@ -265,9 +352,10 @@ interface SupplierDrawerProps {
   onClose: () => void
   title: string
   children: React.ReactNode
+  footer?: React.ReactNode
 }
 
-export function SupplierDrawer({ open, onClose, title, children }: SupplierDrawerProps) {
+export function SupplierDrawer({ open, onClose, title, children, footer }: SupplierDrawerProps) {
   if (!open) return null
   return (
     <>
@@ -292,7 +380,12 @@ export function SupplierDrawer({ open, onClose, title, children }: SupplierDrawe
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">{children}</div>
+        {footer && (
+          <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-slate-200 shrink-0">
+            {footer}
+          </div>
+        )}
       </aside>
     </>
   )
@@ -304,13 +397,19 @@ interface SupplierFieldProps {
   label: string
   children: React.ReactNode
   error?: string
+  hint?: string
+  required?: boolean
 }
 
-export function SupplierField({ label, children, error }: SupplierFieldProps) {
+export function SupplierField({ label, children, error, hint, required }: SupplierFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <label className="text-sm font-medium text-slate-700">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
       {children}
+      {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
@@ -319,19 +418,180 @@ export function SupplierField({ label, children, error }: SupplierFieldProps) {
 // ─── Banner ───────────────────────────────────────────────────────────────────
 
 interface SupplierBannerProps {
-  tone: "emerald" | "red"
-  msg: string
+  tone: StatusTone
+  /** Either pass `msg` or render `children`. */
+  msg?: string
+  children?: React.ReactNode
+  onDismiss?: () => void
 }
 
-const bannerClasses: Record<"emerald" | "red", string> = {
+const bannerClasses: Record<StatusTone, string> = {
   emerald: "bg-emerald-50 border border-emerald-200 text-emerald-800",
   red:     "bg-red-50 border border-red-200 text-red-800",
+  amber:   "bg-amber-50 border border-amber-200 text-amber-800",
+  sky:     "bg-sky-50 border border-sky-200 text-sky-800",
+  blue:    "bg-blue-50 border border-blue-200 text-blue-800",
+  violet:  "bg-violet-50 border border-violet-200 text-violet-800",
+  slate:   "bg-slate-50 border border-slate-200 text-slate-700",
 }
 
-export function SupplierBanner({ tone, msg }: SupplierBannerProps) {
+export function SupplierBanner({ tone, msg, children, onDismiss }: SupplierBannerProps) {
   return (
-    <div className={cn("px-4 py-3 rounded-xl text-sm font-medium", bannerClasses[tone])}>
-      {msg}
+    <div className={cn("flex items-start justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium", bannerClasses[tone])}>
+      <div className="flex-1">{children ?? msg}</div>
+      {onDismiss && (
+        <button
+          onClick={onDismiss}
+          aria-label="Dismiss"
+          className="shrink-0 p-0.5 rounded-md text-current/60 hover:text-current hover:bg-black/5 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
     </div>
+  )
+}
+
+// ─── Plan gate / upgrade lock ──────────────────────────────────────────────────
+
+interface SupplierUpgradeCardProps {
+  title: string
+  description?: string
+  /** Bullet list of what the Team plan unlocks here. */
+  features?: string[]
+  /** Where the upgrade CTA points (defaults to billing/account). */
+  href?: string
+  ctaLabel?: string
+}
+
+/**
+ * Premium "Upgrade to Team" lock card shown in place of a Team-only surface for
+ * Solo suppliers — never a blank or broken route.
+ */
+export function SupplierUpgradeCard({
+  title,
+  description,
+  features,
+  href = "/supplier/account",
+  ctaLabel = "Upgrade to Team",
+}: SupplierUpgradeCardProps) {
+  return (
+    <SupplierCard className="p-8 flex flex-col items-center text-center max-w-xl mx-auto">
+      <div className="mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white shadow-sm">
+        <Sparkles className="w-6 h-6" />
+      </div>
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold border border-violet-200 mb-3">
+        <Lock className="w-3 h-3" /> Team plan
+      </span>
+      <h3 className="text-lg font-semibold text-slate-900 mb-1">{title}</h3>
+      {description && <p className="text-sm text-slate-500 max-w-md mb-4">{description}</p>}
+      {features && features.length > 0 && (
+        <ul className="text-left space-y-1.5 mb-5 max-w-sm">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
+              <Sparkles className="w-3.5 h-3.5 text-violet-500 mt-0.5 shrink-0" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Link
+        href={href}
+        className="inline-flex items-center gap-2 bg-gradient-to-br from-violet-600 to-blue-600 hover:opacity-90 text-white rounded-lg px-5 py-2.5 text-sm font-semibold transition-opacity"
+      >
+        <Sparkles className="w-4 h-4" /> {ctaLabel}
+      </Link>
+    </SupplierCard>
+  )
+}
+
+// ─── Permission denied state ────────────────────────────────────────────────────
+
+export function SupplierPermissionDenied({
+  title = "You don't have access",
+  description = "Your role in this workspace doesn't include this area. Ask an owner or admin to grant access.",
+}: {
+  title?: string
+  description?: string
+}) {
+  return (
+    <SupplierCard className="p-10 flex flex-col items-center text-center">
+      <div className="mb-4 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+        <Lock className="w-6 h-6" />
+      </div>
+      <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
+      <p className="text-sm text-slate-400 max-w-sm">{description}</p>
+    </SupplierCard>
+  )
+}
+
+// ─── Error state with retry ──────────────────────────────────────────────────────
+
+export function SupplierErrorState({
+  title = "Something went wrong",
+  description = "We couldn't load this data. Please try again.",
+  onRetry,
+}: {
+  title?: string
+  description?: string
+  onRetry?: () => void
+}) {
+  return (
+    <SupplierCard className="p-10 flex flex-col items-center text-center">
+      <div className="mb-4 w-12 h-12 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center text-red-500">
+        <X className="w-6 h-6" />
+      </div>
+      <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
+      <p className="text-sm text-slate-400 max-w-sm mb-4">{description}</p>
+      {onRetry && (
+        <SupplierButton variant="outline" onClick={onRetry}>
+          Try again
+        </SupplierButton>
+      )}
+    </SupplierCard>
+  )
+}
+
+// ─── Action bar (detail pages) ───────────────────────────────────────────────────
+
+interface SupplierActionBarProps {
+  children: React.ReactNode
+  className?: string
+}
+
+/** Sticky bottom action bar for route-backed detail pages. */
+export function SupplierActionBar({ children, className }: SupplierActionBarProps) {
+  return (
+    <div
+      className={cn(
+        "sticky bottom-0 z-20 -mx-4 md:-mx-6 lg:-mx-8 mt-6 px-4 md:px-6 lg:px-8 py-3 bg-white/90 backdrop-blur border-t border-slate-200 flex items-center justify-end gap-2",
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+// ─── View link ────────────────────────────────────────────────────────────────
+
+interface SupplierViewLinkProps {
+  href: string
+  label: string
+  className?: string
+}
+
+export function SupplierViewLink({ href, label, className }: SupplierViewLinkProps) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "inline-flex items-center gap-1 text-[12px] font-medium text-blue-600 hover:text-blue-700 transition-colors",
+        className
+      )}
+    >
+      {label}
+      <ArrowRight className="w-3 h-3" />
+    </Link>
   )
 }

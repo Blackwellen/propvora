@@ -1,0 +1,347 @@
+// Premium seed data for the Billing section. Money is INTEGER PENCE.
+// Used as fallback whenever the additive billing tables are missing (42P01)
+// or a workspace-scoped read returns nothing.
+
+import type {
+  AddonCatalogItem,
+  BillingHistoryRow,
+  BillingPlan,
+  BillingProfile,
+  CancellationRequest,
+  PaymentMethod,
+  RenewalEvent,
+  Subscription,
+  SubscriptionAddon,
+  SubscriptionEvent,
+} from "./types"
+
+function daysFromNow(days: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  return d.toISOString()
+}
+function daysAgo(days: number): string {
+  return daysFromNow(-days)
+}
+
+export const SEED_PLANS: BillingPlan[] = [
+  {
+    id: "plan-starter",
+    code: "starter",
+    name: "Starter",
+    monthlyPence: 2900,
+    annualPence: 2900 * 12 * 0.8, // 20% off annual
+    currency: "GBP",
+    isPopular: false,
+    sortOrder: 1,
+    features: [
+      "Up to 10 properties",
+      "1 team seat",
+      "Core portfolio & tenancy tools",
+      "Email support",
+      "Standard reporting",
+    ],
+  },
+  {
+    id: "plan-professional",
+    code: "professional",
+    name: "Professional",
+    monthlyPence: 7900,
+    annualPence: 7900 * 12 * 0.8,
+    currency: "GBP",
+    isPopular: true,
+    sortOrder: 2,
+    features: [
+      "Up to 50 properties",
+      "5 team seats",
+      "Automations & AI copilot",
+      "Marketplace access",
+      "Priority email support",
+      "Advanced reporting",
+    ],
+  },
+  {
+    id: "plan-business",
+    code: "business",
+    name: "Business",
+    monthlyPence: 14900,
+    annualPence: 14900 * 12 * 0.8,
+    currency: "GBP",
+    isPopular: false,
+    sortOrder: 3,
+    features: [
+      "Up to 200 properties",
+      "15 team seats",
+      "Full automation suite",
+      "Accounting & MTD",
+      "Premium support",
+      "Custom roles & audit log",
+    ],
+  },
+  {
+    id: "plan-enterprise",
+    code: "enterprise",
+    name: "Enterprise",
+    monthlyPence: 29900,
+    annualPence: 29900 * 12 * 0.8,
+    currency: "GBP",
+    isPopular: false,
+    sortOrder: 4,
+    features: [
+      "Unlimited properties",
+      "Unlimited team seats",
+      "White-label & SSO",
+      "Dedicated success manager",
+      "99.9% uptime SLA",
+      "Custom integrations",
+    ],
+  },
+]
+
+export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
+  {
+    code: "extra_listings",
+    name: "Extra listings",
+    description: "Additional properties beyond your plan allowance.",
+    unitPricePence: 40,
+    unit: "per_property",
+    defaultQty: 10,
+    hasQuantity: true,
+    available: true,
+  },
+  {
+    code: "premium_support",
+    name: "Premium support",
+    description: "Priority queue, phone support and a 4-hour SLA.",
+    unitPricePence: 2900,
+    unit: "flat",
+    defaultQty: 1,
+    hasQuantity: false,
+    available: true,
+  },
+  {
+    code: "ai_pack",
+    name: "AI usage pack",
+    description: "Top up AI copilot credits for the month.",
+    unitPricePence: 1900,
+    unit: "credit_pack",
+    defaultQty: 1,
+    hasQuantity: true,
+    available: true,
+    creditPacks: [
+      { label: "1,000 credits", credits: 1000, pricePence: 1900 },
+      { label: "5,000 credits", credits: 5000, pricePence: 7900 },
+      { label: "20,000 credits", credits: 20000, pricePence: 24900 },
+    ],
+  },
+  {
+    code: "automation_pack",
+    name: "Automation pack",
+    description: "Higher automation run limits and advanced nodes.",
+    unitPricePence: 3900,
+    unit: "flat",
+    defaultQty: 1,
+    hasQuantity: false,
+    available: true,
+  },
+  {
+    code: "marketplace_boost",
+    name: "Marketplace boost",
+    description: "Featured placement and faster supplier quotes.",
+    unitPricePence: 4900,
+    unit: "flat",
+    defaultQty: 1,
+    hasQuantity: false,
+    available: true,
+  },
+  {
+    code: "white_label",
+    name: "White-label",
+    description: "Your brand on portals and tenant communications.",
+    unitPricePence: 9900,
+    unit: "flat",
+    defaultQty: 1,
+    hasQuantity: false,
+    available: true,
+  },
+  {
+    code: "extra_storage",
+    name: "Extra storage",
+    description: "Additional document & media storage, per 100 GB.",
+    unitPricePence: 1500,
+    unit: "per_gb",
+    defaultQty: 1,
+    hasQuantity: true,
+    available: true,
+  },
+  {
+    code: "extra_seats",
+    name: "Extra team seats",
+    description: "Add seats beyond your plan allowance, per seat.",
+    unitPricePence: 1200,
+    unit: "per_seat",
+    defaultQty: 1,
+    hasQuantity: true,
+    available: true,
+  },
+]
+
+export const SEED_SUBSCRIPTION: Subscription = {
+  id: "sub-seed-0001",
+  planCode: "professional",
+  billingCycle: "monthly",
+  status: "active",
+  autoRenew: true,
+  currentPeriodStart: daysAgo(12),
+  currentPeriodEnd: daysFromNow(18),
+  cancelAtPeriodEnd: false,
+  cancelledAt: null,
+  basePricePence: 7900,
+  currency: "GBP",
+}
+
+export const SEED_ACTIVE_ADDONS: SubscriptionAddon[] = [
+  { code: "premium_support", enabled: true, quantity: 1 },
+  { code: "extra_listings", enabled: true, quantity: 15 },
+]
+
+export const SEED_BILLING_PROFILE: BillingProfile = {
+  billingName: "Blackwellen Ltd",
+  billingEmail: "billing@propvora.com",
+  vatNumber: "GB123456789",
+  addressLine1: "1 Tech Park",
+  addressLine2: "",
+  city: "London",
+  postcode: "EC1A 1BB",
+  country: "United Kingdom",
+  taxRateBps: 2000,
+}
+
+export const SEED_PAYMENT_METHOD: PaymentMethod = {
+  id: "pm-seed-0001",
+  brand: "Visa",
+  last4: "4242",
+  expMonth: 11,
+  expYear: 2028,
+  isDefault: true,
+  health: "healthy",
+}
+
+export const SEED_BILLING_HISTORY: BillingHistoryRow[] = [
+  {
+    id: "bh-1",
+    docType: "invoice",
+    reference: "INV-2026-0007",
+    description: "Professional plan — monthly",
+    amountPence: 7900,
+    taxPence: 1580,
+    currency: "GBP",
+    status: "paid",
+    periodLabel: "Jun 2026",
+    issuedAt: daysAgo(12),
+    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/INV-2026-0007.pdf",
+  },
+  {
+    id: "bh-2",
+    docType: "receipt",
+    reference: "RCPT-2026-0007",
+    description: "Payment received — Visa ending 4242",
+    amountPence: 9480,
+    taxPence: 0,
+    currency: "GBP",
+    status: "paid",
+    periodLabel: "Jun 2026",
+    issuedAt: daysAgo(12),
+    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/RCPT-2026-0007.pdf",
+  },
+  {
+    id: "bh-3",
+    docType: "invoice",
+    reference: "INV-2026-0006",
+    description: "Professional plan — monthly",
+    amountPence: 7900,
+    taxPence: 1580,
+    currency: "GBP",
+    status: "paid",
+    periodLabel: "May 2026",
+    issuedAt: daysAgo(42),
+    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/INV-2026-0006.pdf",
+  },
+  {
+    id: "bh-4",
+    docType: "payment_attempt",
+    reference: "ATT-2026-0006",
+    description: "Card retry succeeded after expiry warning",
+    amountPence: 9480,
+    taxPence: 0,
+    currency: "GBP",
+    status: "paid",
+    periodLabel: "May 2026",
+    issuedAt: daysAgo(41),
+    documentPath: null,
+  },
+  {
+    id: "bh-5",
+    docType: "credit",
+    reference: "CR-2026-0001",
+    description: "Service credit — onboarding goodwill",
+    amountPence: -2000,
+    taxPence: 0,
+    currency: "GBP",
+    status: "credited",
+    periodLabel: "Apr 2026",
+    issuedAt: daysAgo(70),
+    documentPath: null,
+  },
+  {
+    id: "bh-6",
+    docType: "refund",
+    reference: "RF-2026-0001",
+    description: "Refund — duplicate add-on charge",
+    amountPence: -3900,
+    taxPence: 0,
+    currency: "GBP",
+    status: "refunded",
+    periodLabel: "Apr 2026",
+    issuedAt: daysAgo(72),
+    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/RF-2026-0001.pdf",
+  },
+  {
+    id: "bh-7",
+    docType: "tax_invoice",
+    reference: "VAT-2026-0005",
+    description: "VAT invoice — Professional plan",
+    amountPence: 7900,
+    taxPence: 1580,
+    currency: "GBP",
+    status: "paid",
+    periodLabel: "Apr 2026",
+    issuedAt: daysAgo(73),
+    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/VAT-2026-0005.pdf",
+  },
+]
+
+export const SEED_SUBSCRIPTION_EVENTS: SubscriptionEvent[] = [
+  { id: "se-1", eventType: "payment", summary: "Payment of £94.80 collected for June", actor: "System", occurredAt: daysAgo(12) },
+  { id: "se-2", eventType: "addon_change", summary: "Extra listings increased to 15 properties", actor: "Jamahl Thomas", occurredAt: daysAgo(20) },
+  { id: "se-3", eventType: "plan_change", summary: "Upgraded from Starter to Professional", actor: "Jamahl Thomas", occurredAt: daysAgo(95) },
+  { id: "se-4", eventType: "renewal", summary: "Subscription renewed for a further term", actor: "System", occurredAt: daysAgo(42) },
+]
+
+export const SEED_RENEWAL_EVENTS: RenewalEvent[] = [
+  { id: "re-1", kind: "estimate", title: "Upcoming invoice estimate", detail: "Professional + add-ons incl. VAT", amountPence: 11856, dueAt: daysFromNow(18), status: "upcoming" },
+  { id: "re-2", kind: "reminder", title: "Renewal reminder", detail: "We'll email 7 days before renewal", amountPence: null, dueAt: daysFromNow(11), status: "upcoming" },
+  { id: "re-3", kind: "renewal", title: "Next renewal", detail: "Auto-renew is on", amountPence: 11856, dueAt: daysFromNow(18), status: "upcoming" },
+  { id: "re-4", kind: "renewal", title: "Previous renewal", detail: "Collected successfully", amountPence: 9480, dueAt: daysAgo(12), status: "completed" },
+]
+
+export const SEED_CANCELLATION: CancellationRequest | null = null
+
+export const SEED_CANCELLATION_REASONS: string[] = [
+  "Too expensive",
+  "Missing features I need",
+  "Switching to another product",
+  "No longer managing properties",
+  "Temporary pause — I'll be back",
+  "Other",
+]

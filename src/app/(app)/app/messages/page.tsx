@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useConversations, type ConversationWithContact } from "@/hooks/useMessages"
 import { MobileTopBar } from "@/components/mobile"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 /* ── Avatar helpers ─────────────────────────────────────────────────────── */
 const AVATAR_BG = [
@@ -65,11 +66,12 @@ function KpiCard({ label, value, icon, bg, alert }: {
 
 /* ── Conversation row ────────────────────────────────────────────────────── */
 function ConvRow({ conv }: { conv: ConversationWithContact }) {
+  const sectionLink = useSectionLink()
   const name = conv.contact?.full_name ?? conv.subject ?? "Conversation"
   const type = conv.contact?.contact_type ?? "other"
   return (
     <Link
-      href={`/app/messages/conversations/${conv.id}`}
+      href={sectionLink(`/app/messages/conversations/${conv.id}`)}
       className="flex items-start gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 group"
     >
       <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(name))}>

@@ -26,6 +26,7 @@ import {
   ChevronsRight,
   HandCoins,
   MessageSquareMore,
+  CreditCard,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import ShellLogo from "./ShellLogo"
@@ -34,11 +35,34 @@ import NavSection from "./NavSection"
 
 const MANAGER_BASE = "/property-manager"
 
+/** A workspace-agnostic nav config so the same chrome serves operator, supplier,
+ *  etc. When omitted, SideNavigation falls back to the Property Manager config. */
+export interface ShellNavItem {
+  label: string
+  href: string
+  icon: React.ElementType
+}
+export interface ShellNavGroup {
+  label: string
+  items: ShellNavItem[]
+}
+export interface ShellNavConfig {
+  /** Home/root href — active-detected by exact match (not prefix). */
+  base: string
+  groups: ShellNavGroup[]
+  /** Bottom workspace card destination. */
+  workspaceHref: string
+  /** Bottom account card destination. */
+  accountHref: string
+}
+
 interface SideNavigationProps {
   collapsed: boolean
   onToggle: () => void
   /** Called when a nav link is followed — used to close the mobile drawer. */
   onNavigate?: () => void
+  /** Optional workspace nav config; defaults to the Property Manager menu. */
+  navConfig?: ShellNavConfig
 }
 
 const NAV_GROUPS = [
@@ -53,7 +77,7 @@ const NAV_GROUPS = [
       { label: "Work",       href: `${MANAGER_BASE}/work`,        icon: Briefcase },
       { label: "Bookings",   href: `${MANAGER_BASE}/bookings`,    icon: Calendar },
       { label: "Listings",   href: `${MANAGER_BASE}/listings`,   icon: ListChecks },
-      { label: "Suppliers",  href: `${MANAGER_BASE}/suppliers`,  icon: Store },
+      { label: "Suppliers",  href: `${MANAGER_BASE}/marketplace/suppliers-hub`,  icon: Store },
       { label: "Planning",   href: `${MANAGER_BASE}/planning`,   icon: Map },
       { label: "Contacts",   href: `${MANAGER_BASE}/contacts`,    icon: Users },
       { label: "Portals",    href: `${MANAGER_BASE}/portals`,     icon: MessageSquareMore },
@@ -65,7 +89,7 @@ const NAV_GROUPS = [
     items: [
       { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
       { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator },
-      { label: "Affiliates", href: `${MANAGER_BASE}/money/affiliate`, icon: HandCoins },
+      { label: "Affiliate", href: `${MANAGER_BASE}/affiliates`, icon: HandCoins },
     ],
   },
   {
@@ -81,6 +105,7 @@ const NAV_GROUPS = [
     label: "SYSTEM",
     items: [
       { label: "Workspace", href: `${MANAGER_BASE}/workspace-settings`, icon: Settings },
+      { label: "Billing", href: `${MANAGER_BASE}/workspace/billing`, icon: CreditCard },
     ],
   },
 ]
@@ -103,9 +128,16 @@ export default function SideNavigation({
   collapsed,
   onToggle,
   onNavigate,
+  navConfig,
 }: SideNavigationProps) {
   const pathname = usePathname()
   const { workspace } = useWorkspace()
+
+  // Resolve the active workspace config (defaults to Property Manager).
+  const base = navConfig?.base ?? MANAGER_BASE
+  const groups: ShellNavGroup[] = navConfig?.groups ?? NAV_GROUPS
+  const workspaceHref = navConfig?.workspaceHref ?? `${MANAGER_BASE}/workspace-settings`
+  const accountHref = navConfig?.accountHref ?? `${MANAGER_BASE}/account`
   const [user, setUser] = useState<{ name: string; email: string | null }>({ name: "Your account", email: null })
 
   // Live signed-in user for the account card (no fake placeholder data).
@@ -156,7 +188,7 @@ export default function SideNavigation({
 
       {/* Nav scroll area */}
       <nav aria-label="Primary" className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">
-        {NAV_GROUPS.map((group) => (
+        {groups.map((group) => (
           <NavSection
             key={group.label}
             label={group.label}
@@ -164,8 +196,8 @@ export default function SideNavigation({
           >
             {group.items.map((item) => {
               const active =
-                item.href === MANAGER_BASE
-                  ? pathname === MANAGER_BASE
+                item.href === base
+                  ? pathname === base
                   : pathname.startsWith(item.href)
               return (
                 <NavItem
@@ -188,7 +220,7 @@ export default function SideNavigation({
         {/* Workspace card — live workspace, links to workspace settings */}
         {!collapsed && (
           <Link
-            href={`${MANAGER_BASE}/workspace-settings`}
+            href={workspaceHref}
             onClick={onNavigate}
             className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2 hover:bg-white/[0.09] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60"
             title="Workspace settings"
@@ -206,7 +238,7 @@ export default function SideNavigation({
 
         {/* Account card — live user, links to account settings */}
         <Link
-          href={`${MANAGER_BASE}/account`}
+          href={accountHref}
           onClick={onNavigate}
           title="Account settings"
           className={cn(

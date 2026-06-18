@@ -1,12 +1,13 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { Suspense, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import {
   ChevronLeft, LayoutGrid, ClipboardList, CalendarClock, MessagesSquare, Images,
   FileText, Banknote, GitBranch, KeyRound, AlertTriangle, History, ShieldCheck,
   Play, CheckCircle2, ArrowRight, Upload, Trash2, Building2, Calendar, Activity, XCircle,
+  KeySquare, ChevronRight,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
+import { useSupplierPlan } from "@/components/supplier-workspace/useSupplierPlan"
 import { shortDate, timeAgo, moneyPence } from "@/components/supplier-workspace/format"
 import type {
   SupplierAssignmentRow, SupplierJobEvent, SupplierEvidenceRow, SupplierDisputeRow,
@@ -49,9 +51,16 @@ const TABS: SupplierTab[] = [
 ]
 
 export default function SupplierJobDetailPage() {
+  return <Suspense fallback={null}><JobDetailInner /></Suspense>
+}
+
+function JobDetailInner() {
   const params = useParams<{ id: string }>()
   const id = params?.id
+  const search = useSearchParams()
+  const isMobile = search.get("view") === "mobile"
   const { workspaceId } = useSupplierWorkspace()
+  const { isTeam } = useSupplierPlan()
   const [tab, setTab] = useState("overview")
   const [transitioning, setTransitioning] = useState(false)
   const [banner, setBanner] = useState<string | null>(null)
@@ -95,6 +104,78 @@ export default function SupplierJobDetailPage() {
     if (!id) return
     if (!window.confirm("Cancel this job? This cannot be undone.")) return
     await advance("cancelled")
+  }
+
+  // ── On-site field view (manifest image 45) — ?view=mobile ─────────────────
+  if (isMobile) {
+    const evCount = (evidence.data ?? []).length
+    const payoutBlocked = j?.status === "completed" && evCount === 0
+    return (
+      <div className="mx-auto w-full max-w-md py-2">
+        <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
+          {/* Field header */}
+          <div className="bg-[#0D1B2A] text-white px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/supplier/jobs" className="p-1.5 -ml-1.5 rounded-lg text-white/70 hover:bg-white/10"><ChevronLeft className="w-5 h-5" /></Link>
+              {j && <SupplierStatusBadge tone={toneForStatus(j.status)}>{humaniseStatus(j.status)}</SupplierStatusBadge>}
+            </div>
+            <p className="text-[11px] uppercase tracking-widest text-white/50 mt-2">On-site · Job {id?.slice(0, 8)}</p>
+            <p className="text-base font-semibold mt-0.5">{j?.scheduled_for ? `Scheduled ${shortDate(j.scheduled_for)}` : "Awaiting schedule"}</p>
+          </div>
+
+          {job.loading || !j ? (
+            <div className="p-5"><SupplierLoadingState rows={4} /></div>
+          ) : (
+            <div className="p-4 space-y-3">
+              {/* Quick actions */}
+              <div className="grid grid-cols-2 gap-2">
+                <Link href="/supplier/messages" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 text-blue-700 py-2.5 text-sm font-semibold hover:bg-blue-100"><MessagesSquare className="w-4 h-4" /> Message PM</Link>
+                <Link href={`/supplier/inbox`} className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 text-slate-700 py-2.5 text-sm font-semibold hover:bg-slate-200"><KeySquare className="w-4 h-4" /> Access details</Link>
+              </div>
+
+              {/* Access note — codes are shared via Messages, never stored */}
+              <div className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 flex items-start gap-2">
+                <KeyRound className="w-4 h-4 shrink-0 mt-0.5" />
+                Access codes are shared securely via Messages for each visit — never stored on the job.
+              </div>
+
+              {/* Evidence checklist */}
+              <div className="rounded-xl border border-slate-200 p-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><Images className="w-4 h-4 text-slate-400" /> Evidence</p>
+                  <span className={`text-xs font-semibold ${evCount > 0 ? "text-emerald-600" : "text-slate-400"}`}>{evCount} photo{evCount === 1 ? "" : "s"}</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-2">Capture before / during / after photos to document the work.</p>
+                <Link href={`/supplier/jobs/${id}`} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 w-full justify-center">
+                  <Upload className="w-4 h-4" /> Add photos
+                </Link>
+              </div>
+
+              {/* Payout-blocker warning */}
+              {payoutBlocked && (
+                <div className="rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs text-red-700 flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                  Payout is blocked until you upload completion evidence for this job.
+                </div>
+              )}
+
+              {/* Primary field action */}
+              {next ? (
+                <SupplierButton onClick={() => advance(next.status)} loading={transitioning} className="w-full justify-center">
+                  <next.icon className="w-4 h-4" /> {next.label}
+                </SupplierButton>
+              ) : j.status === "completed" ? (
+                <div className="rounded-xl bg-emerald-50 text-emerald-700 px-3 py-2.5 text-sm font-medium text-center flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Work complete</div>
+              ) : null}
+
+              <Link href={`/supplier/jobs/${id}`} className="flex items-center justify-center gap-1 text-xs text-slate-400 hover:text-slate-600 pt-1">
+                Open full job view <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -213,6 +294,22 @@ export default function SupplierJobDetailPage() {
                   <Fact label="Last update" value={timeAgo(j.updated_at ?? j.created_at)} />
                 </dl>
               </SupplierCard>
+
+              {isTeam && (
+                <SupplierCard className="p-5">
+                  <h2 className="text-base font-semibold text-slate-900 mb-3">Team</h2>
+                  <dl className="space-y-3">
+                    <Fact label="Assigned worker" value="Jake Foster" />
+                    <Fact label="Dispatcher" value="Alex Morgan" />
+                    <Fact label="Cost variance" value="+£0.00" />
+                    <Fact label="Profit estimate" value="42%" />
+                  </dl>
+                  <div className="mt-3 flex gap-2">
+                    <SupplierButton size="sm" variant="outline" onClick={() => setBanner("Reassigning worker…")}>Reassign</SupplierButton>
+                    <Link href="/supplier/jobs?tab=dispatch"><SupplierButton size="sm" variant="ghost">Dispatch board</SupplierButton></Link>
+                  </div>
+                </SupplierCard>
+              )}
             </div>
           </div>
         </>

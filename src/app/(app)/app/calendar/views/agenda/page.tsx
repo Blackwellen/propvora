@@ -12,6 +12,7 @@ import { MobileTopBar } from '@/components/mobile'
 import { Plus, Calendar, Eye, Copy, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWorkspace } from '@/providers/AuthProvider'
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useCalendarItems,
   startOfDay,
@@ -65,6 +66,7 @@ function EventRow({ item }: { item: CalendarItem }) {
 }
 
 export default function CalendarAgendaPage() {
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const { items, isLoading } = useCalendarItems(workspace?.id)
   const [active, setActive] = useState<Set<CalendarSource>>(new Set(FILTER_SOURCES))
@@ -109,7 +111,7 @@ export default function CalendarAgendaPage() {
       <MobileTopBar
         title="Agenda"
         subtitle="Upcoming records"
-        primaryAction={{ label: "New event", icon: Plus, href: "/app/calendar/events/new" }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
       />
       <div className="md:hidden">
         <CalendarTabNav />
@@ -126,7 +128,7 @@ export default function CalendarAgendaPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/app/calendar/events/new" className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <Link href={sectionLink("/app/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
             <Plus className="w-3.5 h-3.5" />
             New Event
           </Link>

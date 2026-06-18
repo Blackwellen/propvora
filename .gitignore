@@ -48,3 +48,8 @@ e2e/.qa-fixture.json
 e2e/.ids.json
 e2e/.report
 supabase/.temp/
+
+# local agent worktrees (not part of the app)
+.claude/worktrees/
+# scratch concatenated SQL (real migrations live in supabase/migrations/)
+/apply_new_sections_2026-06-17.sql

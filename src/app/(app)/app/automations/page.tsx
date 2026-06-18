@@ -1,10 +1,5 @@
-import AutomationsClient from "./AutomationsClient"
+import { redirect } from "next/navigation"
 
-export const metadata = {
-  title: "Automations - Propvora",
-  description: "Safe workflow automation for portfolio, bookings, suppliers, marketplace, money, compliance, and legal operations.",
-}
-
-export default function AutomationsPage() {
-  return <AutomationsClient />
+export default function AutomationsIndexPage() {
+  redirect("/property-manager/automations/home")
 }

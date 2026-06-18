@@ -1,18 +1,10 @@
-import { ShieldCheck } from "lucide-react"
-import OpsHeader from "@/components/automations-ops/OpsHeader"
-import ApprovalsClient from "@/components/automations-engine/ApprovalsClient"
+import ApprovalsPage from "@/features/automations/pages/ApprovalsPage"
 
 export const metadata = {
   title: "Automation approvals - Propvora",
-  description: "Human review gates for payment, legal, AI, and external-message automation steps.",
+  description: "Review and approve automation decisions before they're executed.",
 }
-export const dynamic = "force-dynamic"
 
-export default function AutomationApprovalsPage() {
-  return (
-    <div className="space-y-6">
-      <OpsHeader icon={ShieldCheck} title="Approvals" subtitle="High-risk automation steps pause here for a human decision." />
-      <ApprovalsClient />
-    </div>
-  )
+export default function AutomationApprovalsRoute() {
+  return <ApprovalsPage />
 }

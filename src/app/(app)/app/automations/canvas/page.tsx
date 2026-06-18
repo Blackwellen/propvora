@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { gateAutomation, gateCanvasLite } from "@/lib/billing/gates"
 import { UpgradePrompt } from "@/components/automations-builder/shared"
+import AutomationsTabs from "@/features/automations/components/AutomationsTabs"
 import CanvasClient from "./CanvasClient"
 
 export const metadata = {
@@ -44,5 +45,10 @@ export default async function AutomationCanvasPage() {
     }
   }
 
-  return <CanvasClient workspaceId={workspaceId ?? undefined} />
+  return (
+    <div className="mx-auto max-w-[1500px] space-y-4 px-6 pb-12">
+      <AutomationsTabs />
+      <CanvasClient workspaceId={workspaceId ?? undefined} />
+    </div>
+  )
 }

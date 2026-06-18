@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           "/app/",
           "/admin/",
           "/supplier-portal/",
-          "/affiliate/",
+          "/user/affiliate/",
           "/login",
           "/register",
           "/onboarding",

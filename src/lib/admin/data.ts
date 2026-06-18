@@ -1316,8 +1316,9 @@ export async function listPendingVerifications(limit = 10): Promise<PendingVerif
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("supplier_workspace_profiles")
-      .select("workspace_id, verification_status, created_at, contact_email, business_name")
-      .eq("verification_status", "pending")
+      // live schema: status / display_name (aliased to the row shape the map reads). No contact_email column.
+      .select("workspace_id, verification_status:status, created_at, business_name:display_name")
+      .eq("status", "pending")
       .order("created_at", { ascending: true })
       .limit(limit)
     if (error || !data) return []
@@ -1336,7 +1337,7 @@ export async function listPendingVerifications(limit = 10): Promise<PendingVerif
       workspaceName: names[r.workspace_id as string] ?? null,
       submittedAt: (r.created_at as string) ?? null,
       verificationStatus: (r.verification_status as string) ?? "pending",
-      contactEmail: (r.contact_email as string) ?? null,
+      contactEmail: null, // no contact_email column on supplier_workspace_profiles (live schema)
       businessName: (r.business_name as string) ?? null,
       verificationId: null, // resolved per individual supplier_verification record if needed
     }))

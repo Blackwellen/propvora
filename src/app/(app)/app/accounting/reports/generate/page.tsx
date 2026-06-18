@@ -1,4 +1,5 @@
 "use client"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -27,6 +28,7 @@ const ALL_REPORTS = [
 ]
 
 export default function ReportGeneratePage() {
+  const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
   const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set(["pl", "bs"]))
   const [period, setPeriod] = useState("Q1 2026 (Apr – Jun)")
@@ -273,7 +275,7 @@ export default function ReportGeneratePage() {
           <Button variant="outline" size="sm" onClick={() => setStep(step - 1)}>← Back</Button>
         )}
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/app/accounting/reports">Cancel</Link>
+          <Link href={sectionLink("/app/accounting/reports")}>Cancel</Link>
         </Button>
       </div>
       {step < 4 && (
@@ -286,7 +288,7 @@ export default function ReportGeneratePage() {
 
   return (
     <>
-    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref="/app/accounting/reports" />
+    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref={sectionLink("/app/accounting/reports")} />
     <AccountingWizardShell
       breadcrumbNumber="12"
       breadcrumbLabel="Generate Report Pack"

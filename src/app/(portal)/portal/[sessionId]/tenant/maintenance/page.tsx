@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge"
 import { requirePortalSession } from "../../_guard"
 import { getTenantMaintenance } from "@/lib/portal/data"
 import { formatDate } from "@/lib/portal/format"
+import ReportRepairForm from "./ReportRepairForm"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -45,6 +46,8 @@ export default async function TenantMaintenancePage({
           {jobs.length} request{jobs.length === 1 ? "" : "s"} on your tenancy
         </p>
       </div>
+
+      <ReportRepairForm sessionId={session.id} />
 
       {jobs.length === 0 ? (
         <Card className="rounded-2xl border-slate-200">

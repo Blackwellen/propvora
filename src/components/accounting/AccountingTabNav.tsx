@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useSectionBasePath, resolveSectionHref } from "@/components/sections/SectionBasePath"
 import {
   BookOpen,
   BookText,
@@ -106,7 +107,14 @@ function isTabActive(tab: typeof ACCOUNTING_TABS[number], pathname: string): boo
 }
 
 export function AccountingTabNav({ actions }: { actions?: React.ReactNode }) {
-  const pathname = usePathname()
+  const rawPathname = usePathname()
+  const ctx = useSectionBasePath()
+  // Rebase the live path onto /app/accounting so active-detection is identical
+  // whether mounted under /app or e.g. /supplier/accounting.
+  const pathname =
+    ctx && rawPathname.startsWith(ctx.base)
+      ? "/app/accounting" + rawPathname.slice(ctx.base.length)
+      : rawPathname
 
   return (
     <div className="border-b border-slate-200 bg-white">
@@ -118,7 +126,7 @@ export function AccountingTabNav({ actions }: { actions?: React.ReactNode }) {
             return (
               <Link
                 key={tab.key}
-                href={tab.href}
+                href={resolveSectionHref(tab.href, ctx)}
                 className={cn(
                   "flex items-center gap-2 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                   active

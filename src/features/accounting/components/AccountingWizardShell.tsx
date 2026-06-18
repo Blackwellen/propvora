@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { AccountingStepper } from "./AccountingStepper"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 interface WizardStep {
   number: number
@@ -40,12 +41,13 @@ export function AccountingWizardShell({
   accountingHref = "/app/accounting/accounts/overview",
   className,
 }: AccountingWizardShellProps) {
+  const sectionLink = useSectionLink()
   return (
     <div className={cn("w-full max-w-[1400px] mx-auto", className)}>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
-          <Link href="/app/accounting" className="hover:text-slate-600 transition-colors">Accounting</Link>
+          <Link href={sectionLink("/app/accounting")} className="hover:text-slate-600 transition-colors">Accounting</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-500 font-medium">{breadcrumbNumber} · {breadcrumbLabel}</span>
         </div>

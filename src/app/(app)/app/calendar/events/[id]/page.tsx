@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   CalendarDays,
   Clock,
@@ -574,13 +575,14 @@ function TabAudit() {
 /* Right rail                                                           */
 /* ------------------------------------------------------------------ */
 function RightRail({ event, onDelete, onMarkDone, busy }: { event: CalendarEventRow; onDelete: () => void; onMarkDone: () => void; busy: boolean }) {
+  const sectionLink = useSectionLink()
   return (
     <div className="space-y-4">
       {/* Quick actions */}
       <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
         <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3">Quick Actions</p>
         <Button variant="outline" size="sm" className="w-full justify-start" leftIcon={<Pencil className="w-3.5 h-3.5" />} asChild>
-          <a href={`/app/calendar/events/${event.id}/edit`}>Edit Event</a>
+          <a href={sectionLink(`/app/calendar/events/${event.id}/edit`)}>Edit Event</a>
         </Button>
         <Button variant="success" size="sm" className="w-full justify-start" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={onMarkDone} disabled={busy || event.status === "completed"}>
           {event.status === "completed" ? "Completed" : "Mark Done"}
@@ -636,7 +638,8 @@ function RightRail({ event, onDelete, onMarkDone, busy }: { event: CalendarEvent
 /* ------------------------------------------------------------------ */
 export default function EventDetailPage() {
   const params = useParams()
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const id = params.id as string
   const workspaceId = useWorkspaceId()
   const propertyOptions = usePropertyOptions(workspaceId)
@@ -736,7 +739,7 @@ export default function EventDetailPage() {
           <AlertCircle className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-700">Event not found</p>
           <p className="text-xs text-slate-400 mt-1">This event may have been deleted or the calendar table is not yet set up.</p>
-          <a href="/app/calendar" className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Calendar</a>
+          <a href={sectionLink("/app/calendar")} className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Calendar</a>
         </div>
       </div>
     )
@@ -753,8 +756,8 @@ export default function EventDetailPage() {
         title={event.title}
         subtitle="Event"
         showBack
-        backHref="/app/calendar/events"
-        primaryAction={{ label: "Edit event", icon: Pencil, href: `/app/calendar/events/${event.id}/edit` }}
+        backHref={sectionLink("/app/calendar/events")}
+        primaryAction={{ label: "Edit event", icon: Pencil, href: sectionLink(`/app/calendar/events/${event.id}/edit`) }}
         overflowActions={[
           { label: event.status === "completed" ? "Completed" : "Mark done", icon: CheckCircle2, onClick: () => { if (event.status !== "completed") handleMarkDone() } },
           { label: "Delete event", icon: X, destructive: true, onClick: handleDelete },
@@ -767,7 +770,7 @@ export default function EventDetailPage() {
       {/* Breadcrumb */}
       <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-          <a href="/app/calendar" className="hover:text-[#2563EB]">Calendar</a>
+          <a href={sectionLink("/app/calendar")} className="hover:text-[#2563EB]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-900 font-medium">{event.title}</span>
         </nav>
@@ -799,7 +802,7 @@ export default function EventDetailPage() {
             {/* Action buttons */}
             <div className="hidden md:flex items-center gap-2 flex-wrap lg:shrink-0">
               <Button variant="outline" size="sm" leftIcon={<Pencil className="w-3.5 h-3.5" />} asChild>
-                <a href={`/app/calendar/events/${event.id}/edit`}>Edit Event</a>
+                <a href={sectionLink(`/app/calendar/events/${event.id}/edit`)}>Edit Event</a>
               </Button>
               <Button variant="success" size="sm" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={handleMarkDone} disabled={deleting || event.status === "completed"}>
                 {event.status === "completed" ? "Completed" : "Mark Done"}

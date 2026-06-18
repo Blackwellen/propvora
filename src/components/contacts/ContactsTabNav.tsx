@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   Users,
+  BedDouble,
   Building2,
   Columns3,
   Clock,
@@ -18,6 +19,7 @@ import {
 const CONTACTS_TABS = [
   { key: "overview",      label: "Overview",       href: "/app/contacts",               icon: LayoutDashboard },
   { key: "people",        label: "People",          href: "/app/contacts/people",         icon: Users },
+  { key: "guests",        label: "Guests",          href: "/app/contacts/guests",         icon: BedDouble },
   { key: "organisations", label: "Organisations",   href: "/app/contacts/organisations",  icon: Building2 },
   { key: "board",         label: "Board",           href: "/app/contacts/board",          icon: Columns3 },
   { key: "timeline",      label: "Timeline",        href: "/app/contacts/timeline",       icon: Clock },

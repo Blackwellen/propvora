@@ -9,10 +9,11 @@ import { MobileSheet } from "@/components/mobile"
 import {
   SUPPLIER_PRIMARY,
   SUPPLIER_MORE,
-  SUPPLIER_MORE_GROUPS,
+  supplierMoreGroupsForPlan,
   isSupplierNavActive,
   type SupplierNavItem,
 } from "./nav"
+import { useSupplierPlan } from "./useSupplierPlan"
 
 void SUPPLIER_MORE // retained export; grouped variant used below
 
@@ -57,8 +58,10 @@ function BottomTab({ dest, active }: { dest: SupplierNavItem; active: boolean })
 
 export default function SupplierMobileBottomNav() {
   const pathname = usePathname()
+  const { planType } = useSupplierPlan()
+  const moreGroups = supplierMoreGroupsForPlan(planType)
   const [moreOpen, setMoreOpen] = useState(false)
-  const moreActive = SUPPLIER_MORE.some((i) => isSupplierNavActive(pathname, i.href))
+  const moreActive = moreGroups.some((g) => g.items.some((i) => isSupplierNavActive(pathname, i.href)))
 
   return (
     <>
@@ -102,7 +105,7 @@ export default function SupplierMobileBottomNav() {
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Manage your supplier workspace">
         <div className="pb-2 space-y-4">
-          {SUPPLIER_MORE_GROUPS.map((group) => (
+          {moreGroups.map((group) => (
             <div key={group.label}>
               <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">{group.label}</p>
               <div className="grid grid-cols-3 gap-1.5">
@@ -134,7 +137,7 @@ export default function SupplierMobileBottomNav() {
           <div>
             <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">Support</p>
             <Link
-              href="/help"
+              href="/supplier/help"
               onClick={() => setMoreOpen(false)}
               className="flex items-center gap-3 px-3 min-h-[56px] rounded-2xl border border-[#E8EEF8] bg-white text-slate-600 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
             >

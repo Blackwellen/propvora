@@ -10,6 +10,7 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { cn } from "@/lib/utils"
 import { MobileTopBar } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   useConversations,
   useConversationMessages,
@@ -69,6 +70,7 @@ function Bubble({ message }: { message: Message }) {
 
 export default function ConversationPage() {
   const params = useParams()
+  const sectionLink = useSectionLink()
   const conversationId = params.conversationId as string
   const { workspace } = useWorkspace()
 
@@ -108,7 +110,7 @@ export default function ConversationPage() {
         title={name}
         subtitle={conv?.subject ?? (type.charAt(0).toUpperCase() + type.slice(1))}
         showBack
-        backHref="/app/messages"
+        backHref={sectionLink("/app/messages")}
         overflowActions={
           conv?.contact?.id
             ? [{ label: "View Profile", icon: Eye, href: `/app/contacts/${conv.contact.id}` }]
@@ -118,7 +120,7 @@ export default function ConversationPage() {
 
       <div className="space-y-0">
         {/* Back — desktop only (MobileTopBar owns mobile back) */}
-        <Link href="/app/messages" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        <Link href={sectionLink("/app/messages")} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to Messages
         </Link>
 

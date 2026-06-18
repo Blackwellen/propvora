@@ -1,7 +1,7 @@
 "use client"
 
 import { use, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
 import { ArrowLeft, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -30,7 +30,8 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default function AccountDetailPage({ params }: { params: Promise<{ accountId: string }> }) {
   const { accountId } = use(params)
-  const router = useRouter()
+  const router = useSectionRouter()
+  const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [account, setAccount] = useState<LedgerAccount | null>(null)
   const [rows, setRows] = useState<LedgerRow[]>([])
@@ -112,7 +113,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
         title={account ? account.name : "Account"}
         subtitle={account ? account.code : undefined}
         showBack
-        backHref="/app/accounting/ledger/chart"
+        backHref={sectionLink("/app/accounting/ledger/chart")}
         overflowActions={rows.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
       />
 

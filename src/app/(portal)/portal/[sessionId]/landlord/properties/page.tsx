@@ -52,7 +52,8 @@ export default async function LandlordPropertiesPage({
           {properties.map((p) => {
             const meta = propertyStatusMeta(p.status)
             return (
-              <Card key={p.id} className="p-4 rounded-2xl border-slate-200">
+              <Link key={p.id} href={`${base}/properties/${p.id}`}>
+              <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-900 truncate">{propertyLabel(p)}</p>
@@ -68,6 +69,7 @@ export default async function LandlordPropertiesPage({
                   </p>
                 )}
               </Card>
+              </Link>
             )
           })}
         </div>
