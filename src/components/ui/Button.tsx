@@ -20,14 +20,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          // Driven by the workspace brand colour (var(--brand), injected by
-          // BrandingStyle). Fallbacks ensure the button is always readable on
-          // pages where BrandingStyle is not mounted (public/auth routes).
-          "text-[color:var(--on-brand,#fff)] bg-[var(--brand,#2563EB)] bg-gradient-to-b from-white/15 to-black/5",
+          "text-white bg-blue-600",
           "shadow-[0_2px_10px_rgba(37,99,235,0.32)]",
-          "hover:bg-[var(--brand-hover,#1d4ed8)] hover:shadow-[0_5px_18px_rgba(37,99,235,0.45)]",
-          "active:bg-[var(--brand-strong,#1e40af)]",
-          "focus-visible:ring-[color:var(--brand,#2563EB)]",
+          "hover:bg-blue-700 hover:shadow-[0_5px_18px_rgba(37,99,235,0.45)]",
+          "active:bg-blue-800",
+          "focus-visible:ring-blue-600",
         ],
         secondary: [
           "text-white bg-gradient-to-b from-[#1E3A5F] to-[#0D1B2A]",

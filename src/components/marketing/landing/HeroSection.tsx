@@ -4,10 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
-  Zap,
   ArrowRight,
   CheckCircle2,
-  CalendarDays,
   Brain,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -51,14 +49,6 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left */}
           <div>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1.5 mb-8">
-              <Zap className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[13px] font-semibold text-blue-700">
-                All-in-One Property Management Platform
-              </span>
-            </div>
-
             <h1 className="text-[34px] sm:text-[48px] lg:text-[56px] font-bold text-[#06122F] leading-tight tracking-tight mb-3">
               Run your property
               <br />
@@ -109,11 +99,11 @@ export default function HeroSection() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/contact"
+                href="/features"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-slate-700 border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all"
               >
-                Book a demo
-                <CalendarDays className="w-4 h-4 text-slate-400" />
+                See how it works
+                <ArrowRight className="w-4 h-4 text-slate-400" />
               </Link>
             </div>
 
