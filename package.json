@@ -18,7 +18,8 @@
     "test:copilot": "node --experimental-strip-types scripts/test/copilot-functions.mjs",
     "test:e2e": "playwright test",
     "audit:schema": "node scripts/audit-queries.mjs",
-    "audit:rls": "node scripts/audit-rls.mjs"
+    "audit:rls": "node scripts/audit-rls.mjs",
+    "release": "tsc --noEmit && next build && node scripts/audit-queries.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1066.0",
