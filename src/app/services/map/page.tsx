@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Search, MapPin, Calendar, List, Map, Star, Check, Heart, Clock, Shield } from 'lucide-react'
 import { useState } from 'react'
-import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import ServicesMap from '@/components/public-marketplace/maps/ServicesMap'
 import { SEED_SERVICE_OFFERS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
@@ -48,7 +48,8 @@ export default function ServicesMapPage() {
   })
 
   return (
-    <PublicPageShell mapMode marketplaceNav className="flex-1 flex flex-col overflow-hidden">
+    <div className="h-dvh bg-white flex flex-col overflow-hidden">
+      <PublicMarketplaceNav />
       {/* TOP SEARCH BAR */}
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-6 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
@@ -172,6 +173,6 @@ export default function ServicesMapPage() {
           </div>
         </div>
       </div>
-    </PublicPageShell>
+    </div>
   )
 }

@@ -6,7 +6,7 @@ import { ServerCog, Lock, Activity, ShieldCheck, Plus, X, Save } from "lucide-re
 import { AdminCard, AdminConfirmDialog, AdminStatusChip } from "@/components/admin/ui"
 import { cn } from "@/lib/utils"
 import { saveMaintenance } from "./actions"
-import type { MaintenanceConfig } from "@/lib/admin/pages/batch4"
+import type { MaintenanceConfig } from "@/lib/admin/pages/batch4.types"
 
 const TYPE_CARDS: { mode: MaintenanceConfig["mode"]; label: string; desc: string; icon: typeof Lock }[] = [
   { mode: "full", label: "Full maintenance", desc: "Entire platform offline. Only the allowlist + admins can sign in.", icon: Lock },

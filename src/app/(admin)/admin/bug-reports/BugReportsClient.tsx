@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Bug, Building2, X, ListFilter } from "lucide-react"
 import { AdminCard, AdminStatusChip, AdminTable, AdminEmptyState, type AdminTone } from "@/components/admin/ui"
 import { cn } from "@/lib/utils"
-import type { AdminBugRow } from "@/lib/admin/pages/batch4"
+import type { AdminBugRow } from "@/lib/admin/pages/batch4.types"
 
 const SEV_TONE: Record<string, AdminTone> = { critical: "red", high: "amber", medium: "blue", low: "slate" }
 const STATUS_TONE: Record<string, AdminTone> = { new: "sky", triaged: "amber", resolved: "emerald", ignored: "slate" }

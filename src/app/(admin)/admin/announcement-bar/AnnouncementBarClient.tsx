@@ -6,7 +6,7 @@ import { Info, CheckCircle2, AlertTriangle, AlertOctagon, X, Send } from "lucide
 import { AdminCard, AdminStatusChip } from "@/components/admin/ui"
 import { cn } from "@/lib/utils"
 import { saveAnnouncementBar } from "./actions"
-import type { AnnouncementBarConfig } from "@/lib/admin/pages/batch4"
+import type { AnnouncementBarConfig } from "@/lib/admin/pages/batch4.types"
 
 const SEVERITIES: { key: AnnouncementBarConfig["severity"]; label: string; icon: typeof Info; bar: string; chip: "blue" | "emerald" | "amber" | "red" }[] = [
   { key: "info", label: "Info", icon: Info, bar: "bg-[#2563EB] text-white", chip: "blue" },
