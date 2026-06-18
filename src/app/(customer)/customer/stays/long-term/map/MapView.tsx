@@ -1,11 +1,18 @@
-import CustomerLongTermMapView from './MapView'
-import { getPublicLongTermRentals } from '@/lib/public-marketplace/queries'
+'use client'
 
-export const dynamic = 'force-dynamic'
+import dynamic from 'next/dynamic'
+import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
+import LongTermRentalCompactCard from '@/components/marketplace/stays/LongTermRentalCompactCard'
+import { MapPin } from 'lucide-react'
+import type { PublicLongTermRental } from '@/lib/public-marketplace/types'
 
-export default async function CustomerLongTermRentalsMapPage() {
-  const rentals = await getPublicLongTermRentals()
-  return <CustomerLongTermMapView rentals={rentals} />
+const LongTermRentalMap = dynamic(
+  () => import('@/components/marketplace/maps/LongTermRentalMap'),
+  { ssr: false },
+)
+
+export default function CustomerLongTermMapView({ rentals }: { rentals: PublicLongTermRental[] }) {
+  const [featured, ...rest] = rentals
 
   return (
     <div className="flex-1 flex flex-col">

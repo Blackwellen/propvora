@@ -4,36 +4,25 @@
    /supplier/inbox/threads/[threadId] — message thread detail.
 
    Manifest image 38 (desktop): 3 columns — thread list · conversation · right
-   linked-record + SLA panel.
+   SLA + contact panel.
    Manifest image 39 (?view=mobile): single-column field view — chat-first with
    quick-action chips and a "Mark update complete" affordance.
-
-   Sending is a typed stub (optimistic append + toast + audit TODO) until
-   supplier_messages writes are wired. Reuses the supplier-workspace UI kit and
-   the existing /supplier shell (no new chrome).
 ─────────────────────────────────────────────────────────────────────────── */
 
-import { Suspense, useMemo, useRef, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import {
-  ChevronLeft, Search, Send, Paperclip, Phone, MapPin, Clock, AlertTriangle,
-  Briefcase, FileText, Inbox as InboxIcon, CheckCircle2, ChevronRight, Star,
+  ChevronLeft, Search, Send, Paperclip, Clock, AlertTriangle,
+  Inbox as InboxIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { SupplierButton, SupplierStatusBadge } from "@/components/supplier-workspace/ui"
-import { moneyPence, timeAgo, shortDate } from "@/components/supplier-workspace/format"
-import {
-  SEED_THREADS, getSeedThreadDetail,
-  type InboxMessage, type ThreadChannel,
-} from "@/features/supplier/inbox/data/threads"
-
-const CHANNEL_META: Record<ThreadChannel, { icon: typeof Briefcase; label: string }> = {
-  job: { icon: Briefcase, label: "Job" },
-  quote: { icon: FileText, label: "Quote" },
-  request: { icon: InboxIcon, label: "Request" },
-  general: { icon: InboxIcon, label: "General" },
-}
+import { SupplierButton, SupplierCard, SupplierLoadingState, SupplierNotReady } from "@/components/supplier-workspace/ui"
+import { timeAgo } from "@/components/supplier-workspace/format"
+import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
+import type { SupplierMessageThread, SupplierMessage } from "@/lib/supplier/messaging"
+import type { InboxMessage } from "@/features/supplier/inbox/data/threads"
 
 function slaState(slaDueAt: string | null): { tone: "red" | "amber" | "emerald" | "slate"; label: string } {
   if (!slaDueAt) return { tone: "slate", label: "No SLA" }
@@ -52,30 +41,104 @@ function ThreadDetailInner() {
   const { threadId } = useParams<{ threadId: string }>()
   const params = useSearchParams()
   const isMobile = params.get("view") === "mobile"
+  const { workspaceId } = useSupplierWorkspace()
 
-  const detail = useMemo(() => getSeedThreadDetail(threadId), [threadId])
-  const [messages, setMessages] = useState<InboxMessage[]>(detail.messages)
+  const threadDetailUrl = useSupplierApiUrl(`/api/supplier/messages/${threadId}`)
+  const threadListUrl = useSupplierApiUrl("/api/supplier/messages")
+
+  const detailApi = useSupplierApi<{ thread: SupplierMessageThread; messages: SupplierMessage[] }>(threadDetailUrl)
+  const threadsApi = useSupplierApi<{ items: SupplierMessageThread[]; unreadCount: number }>(
+    threadListUrl,
+    { select: (j) => j as { items: SupplierMessageThread[]; unreadCount: number } }
+  )
+
+  const thread = detailApi.data?.thread ?? null
+  const counterpartyName = thread?.counterparty_name ?? "—"
+  const threads = threadsApi.data?.items ?? []
+
+  const [messages, setMessages] = useState<InboxMessage[]>([])
   const [draft, setDraft] = useState("")
   const [filter, setFilter] = useState("")
   const endRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    const apiMessages = detailApi.data?.messages
+    if (!apiMessages) return
+    const cName = detailApi.data?.thread.counterparty_name ?? "Unknown"
+    setMessages(
+      apiMessages.map((m) => ({
+        id: m.id,
+        author: m.author_side as InboxMessage["author"],
+        authorName: m.author_side === "supplier" ? "You" : (m.author_name ?? cName),
+        body: m.body,
+        createdAt: m.created_at,
+      }))
+    )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailApi.data])
+
   function send(body: string) {
     const text = body.trim()
     if (!text) return
-    // STUB: optimistic append. TODO(supplier-messages): POST to
-    // /api/supplier/messages then reconcile; write audit event `message.sent`.
-    setMessages((m) => [
-      ...m,
-      { id: `local-${Date.now()}`, author: "supplier", authorName: "You", body: text, createdAt: new Date().toISOString() },
-    ])
+    const optimistic: InboxMessage = {
+      id: `local-${Date.now()}`,
+      author: "supplier",
+      authorName: "You",
+      body: text,
+      createdAt: new Date().toISOString(),
+    }
+    setMessages((m) => [...m, optimistic])
     setDraft("")
     requestAnimationFrame(() => endRef.current?.scrollIntoView({ behavior: "smooth" }))
+    if (workspaceId) {
+      fetch(`/api/supplier/messages/${threadId}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ workspaceId, body: text }),
+      })
+        .then(async (res) => {
+          if (!res.ok) return
+          const { message } = (await res.json()) as { message: SupplierMessage }
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === optimistic.id
+                ? { id: message.id, author: "supplier", authorName: "You", body: message.body, createdAt: message.created_at }
+                : m
+            )
+          )
+        })
+        .catch(() => { /* keep optimistic message on network error */ })
+    }
   }
 
-  const sla = slaState(detail.slaDueAt)
-  const threads = SEED_THREADS
+  const sla = slaState(null)
+
+  if (detailApi.loading) {
+    return (
+      <div className="space-y-4">
+        <Link href="/supplier/inbox" className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-700">
+          <ChevronLeft className="w-4 h-4" /> Back to inbox
+        </Link>
+        <SupplierCard className="p-5"><SupplierLoadingState rows={5} /></SupplierCard>
+      </div>
+    )
+  }
+
+  if (detailApi.notReady && !thread) {
+    return (
+      <div className="space-y-4">
+        <Link href="/supplier/inbox" className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-700">
+          <ChevronLeft className="w-4 h-4" /> Back to inbox
+        </Link>
+        <SupplierCard className="p-5">
+          <SupplierNotReady icon={InboxIcon} title="Thread not found" description="This thread may have been removed or you may not have access." />
+        </SupplierCard>
+      </div>
+    )
+  }
 
   // ── Conversation column (shared between desktop + mobile) ─────────────────
+  const initials = counterpartyName.split(" ").map((w: string) => w[0]).filter(Boolean).slice(0, 2).join("")
   const conversation = (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 shrink-0">
@@ -85,39 +148,23 @@ function ThreadDetailInner() {
           </Link>
         )}
         <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-sm shrink-0">
-          {detail.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+          {initials || "?"}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-semibold text-slate-900 truncate">{detail.name}</p>
-            {detail.customer.returning && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
-          </div>
-          <p className="text-xs text-slate-400 truncate">{detail.subject}</p>
+          <p className="text-sm font-semibold text-slate-900 truncate">{counterpartyName}</p>
+          <p className="text-xs text-slate-400 truncate">{thread?.subject ?? ""}</p>
         </div>
-        {detail.customer.phone && (
-          <a href={`tel:${detail.customer.phone}`} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100" aria-label="Call">
-            <Phone className="w-4 h-4" />
-          </a>
-        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-slate-50/50">
+        {detailApi.loading && messages.length === 0 && (
+          <p className="text-center text-sm text-slate-400 py-8">Loading messages…</p>
+        )}
         {messages.map((m) => <MessageBubble key={m.id} m={m} />)}
         <div ref={endRef} />
       </div>
 
       <div className="shrink-0 border-t border-slate-100 bg-white">
-        <div className="flex gap-1.5 px-3 pt-2.5 pb-1 overflow-x-auto">
-          {detail.quickReplies.map((q) => (
-            <button
-              key={q}
-              onClick={() => send(q)}
-              className="shrink-0 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 whitespace-nowrap"
-            >
-              {q}
-            </button>
-          ))}
-        </div>
         <div className="flex items-end gap-2 px-3 py-2.5">
           <button className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 shrink-0" aria-label="Attach" title="Attach (upload-only)">
             <Paperclip className="w-4 h-4" />
@@ -143,37 +190,7 @@ function ThreadDetailInner() {
     return (
       <div className="mx-auto w-full max-w-md">
         <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden h-[80vh] flex flex-col">
-          {detail.linked && (
-            <div className="shrink-0 bg-blue-600 text-white px-4 py-3">
-              <p className="text-[11px] uppercase tracking-wide text-blue-100">{CHANNEL_META[detail.channel].label} · {detail.linked.ref}</p>
-              <p className="text-sm font-semibold truncate">{detail.linked.title}</p>
-              {detail.linked.address && (
-                <p className="text-xs text-blue-100 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{detail.linked.address}</p>
-              )}
-              <div className="flex gap-2 mt-2.5">
-                {detail.customer.phone && (
-                  <a href={`tel:${detail.customer.phone}`} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-white/15 hover:bg-white/25 py-1.5 text-xs font-semibold">
-                    <Phone className="w-3.5 h-3.5" /> Call
-                  </a>
-                )}
-                {detail.linked.address && (
-                  <a href={`https://maps.google.com/?q=${encodeURIComponent(detail.linked.address)}`} target="_blank" rel="noreferrer" className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-white/15 hover:bg-white/25 py-1.5 text-xs font-semibold">
-                    <MapPin className="w-3.5 h-3.5" /> Maps
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
           {conversation}
-          {detail.linked?.kind === "job" && (
-            <div className="shrink-0 border-t border-slate-100 p-3">
-              <Link href={`${detail.linked.href}?view=mobile`} className="flex">
-                <SupplierButton className="w-full justify-center">
-                  <CheckCircle2 className="w-4 h-4" /> Mark update complete
-                </SupplierButton>
-              </Link>
-            </div>
-          )}
         </div>
         <p className="text-center text-xs text-slate-400 mt-3">Field view · <Link href={`/supplier/inbox/threads/${threadId}`} className="text-blue-600">open full view</Link></p>
       </div>
@@ -182,7 +199,7 @@ function ThreadDetailInner() {
 
   // ── Desktop 3-column (image 38) ───────────────────────────────────────────
   const filteredThreads = threads.filter(
-    (t) => !filter || `${t.name} ${t.subject} ${t.preview}`.toLowerCase().includes(filter.toLowerCase())
+    (t) => !filter || `${t.counterparty_name ?? ""} ${t.subject}`.toLowerCase().includes(filter.toLowerCase())
   )
 
   return (
@@ -207,7 +224,6 @@ function ThreadDetailInner() {
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
             {filteredThreads.map((t) => {
-              const Icon = CHANNEL_META[t.channel].icon
               const active = t.id === threadId
               return (
                 <Link
@@ -216,16 +232,16 @@ function ThreadDetailInner() {
                   className={cn("flex gap-2.5 px-3 py-3 hover:bg-slate-50 transition-colors", active && "bg-blue-50/60")}
                 >
                   <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
-                    <Icon className="w-4 h-4" />
+                    <InboxIcon className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[13px] font-semibold text-slate-900 truncate">{t.name}</p>
-                      <span className="text-[11px] text-slate-400 shrink-0">{timeAgo(t.lastAt)}</span>
+                      <p className="text-[13px] font-semibold text-slate-900 truncate">{t.counterparty_name ?? "Unknown"}</p>
+                      <span className="text-[11px] text-slate-400 shrink-0">{timeAgo(t.last_message_at)}</span>
                     </div>
-                    <p className="text-xs text-slate-400 truncate">{t.preview}</p>
+                    <p className="text-xs text-slate-400 truncate">{t.subject}</p>
                   </div>
-                  {t.unread > 0 && <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center shrink-0 self-center">{t.unread}</span>}
+                  {t.supplier_unread_count > 0 && <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center shrink-0 self-center">{t.supplier_unread_count}</span>}
                 </Link>
               )
             })}
@@ -237,7 +253,7 @@ function ThreadDetailInner() {
           {conversation}
         </div>
 
-        {/* Linked record + SLA */}
+        {/* SLA + Contact */}
         <div className="hidden lg:flex flex-col gap-4 overflow-y-auto">
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Reply SLA</p>
@@ -250,44 +266,15 @@ function ThreadDetailInner() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-slate-900">{sla.label}</p>
-                <p className="text-xs text-slate-400">{detail.slaDueAt ? `Target ${shortDate(detail.slaDueAt)}` : "No response deadline"}</p>
+                <p className="text-xs text-slate-400">No response deadline</p>
               </div>
             </div>
           </div>
 
-          {detail.linked && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Linked {CHANNEL_META[detail.channel].label.toLowerCase()}</p>
-                <SupplierStatusBadge status={detail.linked.status} />
-              </div>
-              <p className="text-sm font-semibold text-slate-900">{detail.linked.title}</p>
-              <p className="text-xs text-slate-400">{detail.linked.ref}</p>
-              <dl className="mt-3 space-y-2 text-sm">
-                {detail.linked.valuePence != null && (
-                  <div className="flex justify-between"><dt className="text-slate-500">Value</dt><dd className="font-semibold text-slate-800">{moneyPence(detail.linked.valuePence)}</dd></div>
-                )}
-                {detail.linked.scheduledAt && (
-                  <div className="flex justify-between"><dt className="text-slate-500">Scheduled</dt><dd className="font-semibold text-slate-800">{shortDate(detail.linked.scheduledAt)}</dd></div>
-                )}
-                {detail.linked.address && (
-                  <div className="flex justify-between gap-3"><dt className="text-slate-500 shrink-0">Address</dt><dd className="font-medium text-slate-700 text-right">{detail.linked.address}</dd></div>
-                )}
-              </dl>
-              <Link href={detail.linked.href} className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
-                Open {CHANNEL_META[detail.channel].label.toLowerCase()} <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          )}
-
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Customer</p>
-            <p className="text-sm font-semibold text-slate-900">{detail.customer.name}</p>
-            {detail.company && <p className="text-xs text-slate-400">{detail.company}</p>}
-            <div className="mt-2 space-y-1.5 text-sm">
-              {detail.customer.phone && <p className="flex items-center gap-2 text-slate-600"><Phone className="w-3.5 h-3.5 text-slate-400" />{detail.customer.phone}</p>}
-              {detail.customer.email && <p className="flex items-center gap-2 text-slate-600 truncate"><FileText className="w-3.5 h-3.5 text-slate-400" />{detail.customer.email}</p>}
-            </div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Contact</p>
+            <p className="text-sm font-semibold text-slate-900">{counterpartyName}</p>
+            {thread?.counterparty_kind && <p className="text-xs text-slate-400 capitalize">{thread.counterparty_kind}</p>}
           </div>
 
           <Link href={`/supplier/inbox/threads/${threadId}?view=mobile`} className="text-center text-xs text-slate-400 hover:text-slate-600">

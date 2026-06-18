@@ -88,14 +88,27 @@ function JobsRouter() {
       </div>
     )
   }
+  return <JobsListWithStats isTeam={isTeam} />
+}
+
+function JobsListWithStats({ isTeam }: { isTeam: boolean }) {
+  const baseUrl = useSupplierApiUrl("/api/supplier/jobs", { side: "supplier" })
+  const jobs = useSupplierApi<SupplierAssignmentRow[]>(
+    isTeam ? baseUrl : null,
+    { select: (j) => (j as { items?: SupplierAssignmentRow[] }).items ?? (Array.isArray(j) ? (j as SupplierAssignmentRow[]) : []) }
+  )
+  const rows = jobs.data ?? []
+  const activeCount = rows.filter((j) => ACTIVE.has((j.status ?? "").toLowerCase())).length
+  const unassignedCount = rows.filter((j) => (j.status ?? "").toLowerCase() === "assigned").length
+  const completedCount = rows.filter((j) => (j.status ?? "").toLowerCase() === "completed").length
   return (
     <>
       {isTeam && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <JobStat label="Active jobs" value="32" tone="blue" />
-          <JobStat label="Awaiting assignment" value="8" tone="amber" />
-          <JobStat label="SLA risk" value="3" tone="red" />
-          <JobStat label="Awaiting sign-off" value="4" tone="slate" />
+          <JobStat label="Active jobs" value={String(activeCount)} tone="blue" />
+          <JobStat label="Awaiting assignment" value={String(unassignedCount)} tone="amber" />
+          <JobStat label="SLA risk" value="0" tone="red" />
+          <JobStat label="Completed" value={String(completedCount)} tone="slate" />
         </div>
       )}
       <JobsList />
