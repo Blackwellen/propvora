@@ -302,16 +302,16 @@ export async function getSupplierDetail(workspaceId: string): Promise<SupplierDe
     try {
       const { data: svc } = await admin
         .from("supplier_services")
-        .select("id, name, category, pricing_model, active")
+        .select("id, name, service_name, price_from, price_to, price_unit")
         .eq("workspace_id", workspaceId)
         .limit(100)
       for (const s of svc ?? []) {
         services.push({
           id: s.id as string,
-          name: (s.name as string) ?? "Service",
-          category: (s.category as string) ?? null,
-          pricingModel: (s.pricing_model as string) ?? "quote_required",
-          active: Boolean(s.active),
+          name: (s.name as string) ?? (s.service_name as string) ?? "Service",
+          category: null,
+          pricingModel: "quote_required",
+          active: true,
         })
       }
     } catch { /* ignore */ }

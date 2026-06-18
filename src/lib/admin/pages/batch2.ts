@@ -348,8 +348,8 @@ export async function getDocumentsData(opts: { category?: string; q?: string; li
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("documents")
-      // Deliberately NOT selecting file_path / file_url — metadata only.
-      .select("id, workspace_id, name, category, mime_type, file_size, file_path, is_demo, created_at")
+      // Metadata only — file_url excluded (presign on demand; never bulk-expose).
+      .select("id, workspace_id, name, category, mime_type, size_bytes, r2_key, demo, created_at")
       .order("created_at", { ascending: false })
       .limit(opts.limit ?? 500)
     if (error) {
@@ -367,9 +367,9 @@ export async function getDocumentsData(opts: { category?: string; q?: string; li
       name: (r.name as string) ?? "Untitled document",
       category: (r.category as string) ?? null,
       mimeType: (r.mime_type as string) ?? null,
-      sizeBytes: typeof r.file_size === "number" ? (r.file_size as number) : null,
-      isDemo: Boolean(r.is_demo),
-      hasFile: Boolean(r.file_path),
+      sizeBytes: typeof r.size_bytes === "number" ? (r.size_bytes as number) : null,
+      isDemo: Boolean(r.demo),
+      hasFile: Boolean(r.r2_key),
       createdAt: (r.created_at as string) ?? null,
     }))
 

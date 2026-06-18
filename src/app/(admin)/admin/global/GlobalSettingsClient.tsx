@@ -6,7 +6,7 @@ import { Globe2, Palette, Bell, ShieldCheck, ScrollText, Plug, Save, RotateCcw }
 import { AdminCard, AdminStatusChip } from "@/components/admin/ui"
 import { cn } from "@/lib/utils"
 import { saveGlobalSettings } from "./actions"
-import { DEFAULT_GLOBAL, type GlobalSettings } from "@/lib/admin/pages/batch4"
+import { DEFAULT_GLOBAL, type GlobalSettings } from "@/lib/admin/global-settings.types"
 
 type TabKey = "locale" | "branding" | "notifications" | "security" | "compliance" | "integrations"
 const TABS: { key: TabKey; label: string; icon: typeof Globe2 }[] = [

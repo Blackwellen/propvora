@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAdmin } from "@/lib/admin/guard"
 import { writeAudit } from "@/lib/admin/audit"
-import type { GlobalSettings } from "@/lib/admin/pages/batch4"
+import type { GlobalSettings } from "@/lib/admin/global-settings.types"
 
 export interface ActionResult {
   ok: boolean

@@ -110,16 +110,16 @@ export default function BillEditPage() {
         const [suppliersRes, propertiesRes, jobsRes] = await Promise.all([
           supabase
             .from("contacts")
-            .select("id, name")
+            .select("id, display_name")
             .eq("workspace_id", workspace!.id)
             .eq("type", "supplier")
-            .order("name")
+            .order("display_name")
             .limit(50),
           supabase
             .from("properties")
-            .select("id, address")
+            .select("id, address_line1")
             .eq("workspace_id", workspace!.id)
-            .order("address")
+            .order("address_line1")
             .limit(50),
           supabase
             .from("jobs")
@@ -130,10 +130,10 @@ export default function BillEditPage() {
             .limit(50),
         ])
         if (!suppliersRes.error && suppliersRes.data) {
-          setDbSuppliers(suppliersRes.data.map((r: { name: string }) => r.name).filter(Boolean))
+          setDbSuppliers(suppliersRes.data.map((r: { display_name: string }) => r.display_name).filter(Boolean))
         }
         if (!propertiesRes.error && propertiesRes.data) {
-          setDbProperties(propertiesRes.data as { id: string; address: string }[])
+          setDbProperties((propertiesRes.data as { id: string; address_line1: string | null }[]).map(r => ({ id: r.id, address: r.address_line1 ?? "" })))
         }
         if (!jobsRes.error && jobsRes.data) {
           setDbJobs(jobsRes.data as { id: string; title: string }[])

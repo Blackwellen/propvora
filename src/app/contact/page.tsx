@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import ContactClient from "./ContactClient"
+import PublicFooter from "@/components/marketing/PublicFooter"
 
 export const metadata: Metadata = {
   title: "Contact Us | Propvora",
@@ -18,5 +19,10 @@ export const metadata: Metadata = {
 }
 
 export default function ContactPage() {
-  return <ContactClient />
+  return (
+    <>
+      <ContactClient />
+      <PublicFooter />
+    </>
+  )
 }

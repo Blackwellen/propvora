@@ -7,7 +7,7 @@ import {
   List, Map, Star, Zap, Check, Heart, BedDouble, Bath,
 } from 'lucide-react'
 import { useState } from 'react'
-import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import StaysMap from '@/components/public-marketplace/maps/StaysMap'
 import { SEED_STAYS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
@@ -37,7 +37,9 @@ export default function StaysMapPage() {
   })
 
   return (
-    <PublicPageShell mapMode marketplaceNav className="flex-1 flex flex-col overflow-hidden">
+    <div className="h-dvh bg-white flex flex-col overflow-hidden">
+      <PublicMarketplaceNav />
+      <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
       {/* TOP SEARCH BAR */}
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-6 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
@@ -242,6 +244,7 @@ export default function StaysMapPage() {
           </div>
         </div>
       </div>
-    </PublicPageShell>
+      </main>
+    </div>
   )
 }

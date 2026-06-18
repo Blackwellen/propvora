@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { Mail, MessageSquare, CheckCircle2, ArrowRight, Loader2 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
-import PublicFooter from "@/components/marketing/PublicFooter"
 import { submitContactRequest } from "@/lib/actions/public-forms"
 
 export default function ContactClient() {
@@ -217,7 +216,6 @@ export default function ContactClient() {
       </section>
       </main>
 
-      <PublicFooter />
     </div>
   )
 }

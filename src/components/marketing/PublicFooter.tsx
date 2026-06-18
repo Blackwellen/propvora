@@ -3,7 +3,6 @@ import Image from "next/image"
 import { Mail, MapPin } from "lucide-react"
 import CookiePreferencesLink from "@/components/consent/CookiePreferencesLink"
 import NewsletterSignup from "@/components/marketing/NewsletterSignup"
-import { getGlobalFlag } from "@/lib/flags/public"
 
 const footerLinks = {
   product: [
@@ -34,10 +33,8 @@ const footerLinks = {
   ],
 }
 
-export default async function PublicFooter() {
-  // Marketplace footer links are only shown when the marketplace is enabled.
-  const marketplaceOn = await getGlobalFlag("marketplaceEnabled")
-  const productLinks = footerLinks.product.filter((l) => !l.mk || marketplaceOn)
+export default function PublicFooter() {
+  const productLinks = footerLinks.product
   return (
     <footer className="bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">

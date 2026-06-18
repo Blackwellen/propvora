@@ -302,20 +302,20 @@ export default function EditInvoicePage() {
         const [invoiceRes, contactsRes] = await Promise.all([
           supabase
             .from("invoices")
-            .select("id, invoice_type, status, amount, issue_date, due_date, description")
+            .select("id, invoice_type, status, total, issue_date, due_date, notes")
             .eq("workspace_id", workspace!.id)
             .eq("id", id)
             .maybeSingle(),
           supabase
             .from("contacts")
-            .select("id, name")
+            .select("id, display_name")
             .eq("workspace_id", workspace!.id)
-            .order("name")
+            .order("display_name")
             .limit(50),
         ])
 
         if (!contactsRes.error && contactsRes.data) {
-          setDbContacts((contactsRes.data as { id: string; name: string }[]).map(c => c.name).filter(Boolean))
+          setDbContacts((contactsRes.data as { id: string; display_name: string }[]).map(c => c.display_name).filter(Boolean))
         }
 
         if (invoiceRes.error || !invoiceRes.data) {
@@ -328,10 +328,10 @@ export default function EditInvoicePage() {
           id: string
           invoice_type: string | null
           status: string | null
-          amount: number | null
+          total: number | null
           issue_date: string | null
           due_date: string | null
-          description: string | null
+          notes: string | null
         }
         const typeLabel = (inv.invoice_type ?? "other")
           .replace(/_/g, " ")
@@ -341,7 +341,7 @@ export default function EditInvoicePage() {
         setStatus(inv.status ?? "draft")
         setIssueDate(inv.issue_date ?? "")
         setDueDate(inv.due_date ?? "")
-        setLineItems([{ id: "li-1", description: inv.description ?? typeLabel, quantity: 1, unit_price: inv.amount ?? 0, tax_rate: 0 }])
+        setLineItems([{ id: "li-1", description: inv.notes ?? typeLabel, quantity: 1, unit_price: inv.total ?? 0, tax_rate: 0 }])
       } catch {
         // 42P01-safe
       } finally {

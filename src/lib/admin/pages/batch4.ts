@@ -249,7 +249,7 @@ export async function getDataRequestsData(limit = 200): Promise<DataRequestsData
   try {
     const { data, error } = await admin
       .from("data_export_requests")
-      .select("id, user_id, workspace_id, status, requested_at, ready_at, expires_at, completed_at")
+      .select("id, user_id, workspace_id, status, requested_at, ready_at, expires_at")
       .order("requested_at", { ascending: false })
       .limit(limit)
     if (!error) {
@@ -267,7 +267,7 @@ export async function getDataRequestsData(limit = 200): Promise<DataRequestsData
           scheduledFor: null,
           readyAt: (r.ready_at as string) ?? null,
           expiresAt: (r.expires_at as string) ?? null,
-          completedAt: (r.completed_at as string) ?? null,
+          completedAt: null,
         })
       }
     } else if (!isGap(error.code)) {
@@ -348,7 +348,7 @@ export async function getBugReportsData(limit = 200): Promise<BugReportsData> {
     const admin = createAdminClient()
     const { data, error } = await admin
       .from("bug_reports")
-      .select("id, kind, status, severity, route, message, digest, workspace_id, created_at")
+      .select("id, kind, status, route, message, digest, workspace_id, created_at")
       .order("created_at", { ascending: false })
       .limit(limit)
     if (error) {
@@ -434,7 +434,7 @@ export async function getStripeEventsData(limit = 200): Promise<StripeEventsData
     // NEVER select `payload`.
     const { data, error, count } = await admin
       .from("stripe_webhook_events")
-      .select("id, stripe_event_id, type, status, processed_at, error", { count: "exact" })
+      .select("id, stripe_event_id, type, processed_at, payload", { count: "exact" })
       .order("processed_at", { ascending: false })
       .limit(limit)
     if (error) {
@@ -443,15 +443,16 @@ export async function getStripeEventsData(limit = 200): Promise<StripeEventsData
     }
 
     const rows: StripeEventRow[] = (data ?? []).map((r) => {
-      const status = (r.status as string) ?? (r.error ? "failed" : "processed")
-      const failed = status === "failed" || status === "dead_letter" || !!r.error
+      // stripe_webhook_events only has processed_at (no status/error columns in live schema).
+      // All rows in this table are already processed (idempotency log).
+      const status = "processed"
       return {
         id: r.id as string,
         stripeEventId: (r.stripe_event_id as string) ?? null,
         type: (r.type as string) ?? "—",
         status,
         processedAt: (r.processed_at as string) ?? null,
-        failed,
+        failed: false,
       }
     })
 
@@ -672,56 +673,9 @@ export async function getAnnouncementBarData(): Promise<AnnouncementBarData> {
 }
 
 // ── img-40 · Global settings ─────────────────────────────────────────────────
-
-export interface GlobalSettings {
-  // locale
-  defaultTimezone: string
-  defaultLocale: string
-  defaultCurrency: string
-  weekStart: string
-  // branding
-  productName: string
-  supportEmail: string
-  supportUrl: string
-  // notifications
-  systemFromEmail: string
-  digestEnabled: boolean
-  // security
-  enforceMfaAdmins: boolean
-  sessionTimeoutMins: number
-  // compliance
-  dataRegion: string
-  retentionDays: number
-  // integrations (presence flags only — never expose keys)
-  stripeConfigured: boolean
-  resendConfigured: boolean
-  supabaseConfigured: boolean
-}
-
-export interface GlobalSettingsData {
-  notConfigured: boolean
-  settings: GlobalSettings
-  updatedAt: string | null
-}
-
-const DEFAULT_GLOBAL: GlobalSettings = {
-  defaultTimezone: "Europe/London",
-  defaultLocale: "en-GB",
-  defaultCurrency: "GBP",
-  weekStart: "monday",
-  productName: "Propvora",
-  supportEmail: "support@propvora.com",
-  supportUrl: "https://propvora.com/help",
-  systemFromEmail: "noreply@propvora.com",
-  digestEnabled: true,
-  enforceMfaAdmins: true,
-  sessionTimeoutMins: 120,
-  dataRegion: "uk",
-  retentionDays: 365,
-  stripeConfigured: false,
-  resendConfigured: false,
-  supabaseConfigured: false,
-}
+export type { GlobalSettings, GlobalSettingsData } from "@/lib/admin/global-settings.types"
+import { DEFAULT_GLOBAL } from "@/lib/admin/global-settings.types"
+import type { GlobalSettings, GlobalSettingsData } from "@/lib/admin/global-settings.types"
 
 export async function getGlobalSettingsData(): Promise<GlobalSettingsData> {
   const setting = await readPlatformSetting("global_defaults")

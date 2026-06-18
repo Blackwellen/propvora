@@ -24,7 +24,7 @@ export async function replayStripeEvent(eventId: string): Promise<ActionResult> 
 
     const { data: before, error: readErr } = await admin
       .from("stripe_webhook_events")
-      .select("id, status, type")
+      .select("id, type")
       .eq("id", eventId)
       .maybeSingle()
     if (readErr) {
@@ -34,26 +34,23 @@ export async function replayStripeEvent(eventId: string): Promise<ActionResult> 
     }
     if (!before) return { ok: false, error: "Event not found." }
 
+    // Remove the idempotency record so a re-delivery from the Stripe dashboard
+    // can be re-processed (the webhook handler skips events whose IDs are already
+    // in this table). The actual re-delivery must be triggered from the Stripe
+    // dashboard → Developers → Webhooks → Resend.
     const { error } = await admin
       .from("stripe_webhook_events")
-      .update({ status: "pending", error: null, replayed_at: new Date().toISOString() })
+      .delete()
       .eq("id", eventId)
-    if (error) {
-      // `replayed_at` may not exist — retry without it.
-      const { error: retryErr } = await admin
-        .from("stripe_webhook_events")
-        .update({ status: "pending" })
-        .eq("id", eventId)
-      if (retryErr) return { ok: false, error: retryErr.message }
-    }
+    if (error) return { ok: false, error: error.message }
 
     await writeAudit({
       actorId: identity.userId,
       action: "stripe_event.replayed",
       resourceType: "stripe_webhook_event",
       resourceId: eventId,
-      before: { status: (before.status as string) ?? null, type: (before.type as string) ?? null },
-      after: { status: "pending" },
+      before: { type: (before.type as string) ?? null },
+      after: { action: "idempotency_cleared" },
     })
     revalidatePath("/admin/stripe-events")
     return { ok: true }

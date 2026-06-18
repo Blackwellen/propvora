@@ -213,19 +213,19 @@ export default function NewInvoicePage() {
         const [contactsRes, propertiesRes, tenanciesRes, jobsRes] = await Promise.all([
           supabase
             .from("contacts")
-            .select("id, name, email")
+            .select("id, display_name, email")
             .eq("workspace_id", workspace!.id)
-            .order("name")
+            .order("display_name")
             .limit(50),
           supabase
             .from("properties")
-            .select("id, address")
+            .select("id, address_line1")
             .eq("workspace_id", workspace!.id)
-            .order("address")
+            .order("address_line1")
             .limit(50),
           supabase
             .from("tenancies")
-            .select("id, reference")
+            .select("id, start_date, end_date")
             .eq("workspace_id", workspace!.id)
             .order("created_at", { ascending: false })
             .limit(50),
@@ -237,13 +237,13 @@ export default function NewInvoicePage() {
             .limit(50),
         ])
         if (!contactsRes.error && contactsRes.data) {
-          setDbContacts(contactsRes.data as { id: string; name: string; email: string | null }[])
+          setDbContacts((contactsRes.data as { id: string; display_name: string; email: string | null }[]).map(c => ({ id: c.id, name: c.display_name, email: c.email })))
         }
         if (!propertiesRes.error && propertiesRes.data) {
-          setDbProperties(propertiesRes.data as { id: string; address: string }[])
+          setDbProperties((propertiesRes.data as { id: string; address_line1: string | null }[]).map(r => ({ id: r.id, address: r.address_line1 ?? "" })))
         }
         if (!tenanciesRes.error && tenanciesRes.data) {
-          setDbTenancies(tenanciesRes.data as { id: string; reference: string | null }[])
+          setDbTenancies((tenanciesRes.data as { id: string; start_date: string | null; end_date: string | null }[]).map(r => ({ id: r.id, reference: r.start_date ? `Tenancy from ${r.start_date}` : r.id.slice(0, 8) })))
         }
         if (!jobsRes.error && jobsRes.data) {
           setDbJobs(jobsRes.data as { id: string; title: string }[])
