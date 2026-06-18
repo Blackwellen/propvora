@@ -5,6 +5,7 @@ import {
 } from "lucide-react"
 import { requirePortalSession } from "../_guard"
 import { getLandlordProperties, getLandlordOverdueAlerts, getLandlordTransactions } from "@/lib/portal/data"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { formatMoney, propertyStatusMeta } from "@/lib/portal/format"
 import {
   PortalCard, PortalSectionCard, PortalKpiStrip, StatusChip, PortalAlertBanner,
@@ -33,6 +34,21 @@ export default async function LandlordPortalHome({ params }: { params: Promise<{
   const collected = txns.filter((t) => t.direction === "in").reduce((s, t) => s + (t.amount ?? 0), 0)
   const arrears = overdueAlerts.length * (rentRoll / Math.max(total, 1))
 
+  const propIds = properties.map((p) => p.id)
+  let openMaintenanceCount = 0
+  if (propIds.length) {
+    try {
+      const admin = createAdminClient()
+      const { count } = await admin
+        .from("jobs")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", session.workspaceId)
+        .in("property_id", propIds)
+        .not("status", "in", "(complete,invoiced,closed)")
+      openMaintenanceCount = count ?? 0
+    } catch { /* 42P01-safe — tolerate missing table */ }
+  }
+
   const kpis: PortalKpi[] = [
     { label: "Total properties", value: String(total), icon: Building2, tone: "blue", href: `${base}/properties` },
     { label: "Occupied units", value: String(occupied), icon: Home, tone: "emerald", href: `${base}/properties` },
@@ -40,7 +56,7 @@ export default async function LandlordPortalHome({ params }: { params: Promise<{
     { label: "Monthly target rent", value: formatMoney(rentRoll), icon: PoundSterling, tone: "blue", href: `${base}/financials` },
     { label: "Collected this month", value: formatMoney(collected), icon: CheckCircle2, tone: "emerald", href: `${base}/payments` },
     { label: "Arrears balance", value: formatMoney(arrears), icon: AlertTriangle, tone: arrears ? "red" : "emerald", href: `${base}/payments` },
-    { label: "Open maintenance", value: "0", icon: Wrench, tone: "amber", href: `${base}/maintenance` },
+    { label: "Open maintenance", value: String(openMaintenanceCount), icon: Wrench, tone: openMaintenanceCount ? "amber" : "emerald", href: `${base}/maintenance` },
     { label: "Unread messages", value: "0", icon: MessageSquare, tone: "slate", href: `${base}/messages` },
   ]
 

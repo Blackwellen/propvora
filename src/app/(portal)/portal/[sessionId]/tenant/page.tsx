@@ -4,7 +4,7 @@ import {
   Download, ChevronRight, AlertTriangle, Wrench, Phone, ShieldCheck, Bell, ArrowRight,
 } from "lucide-react"
 import { requirePortalSession } from "../_guard"
-import { getTenantTenancies, getTenantMaintenance } from "@/lib/portal/data"
+import { getTenantTenancies, getTenantMaintenance, getTenantPayments } from "@/lib/portal/data"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { formatMoney, formatDate, tenancyStatusMeta } from "@/lib/portal/format"
 import {
@@ -50,8 +50,15 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
 
   const tenancies = await getTenantTenancies(session)
   const current = tenancies.find((t) => t.status === "active") ?? tenancies[0] ?? null
-  const maintenance = await getTenantMaintenance(session).catch(() => [])
+  const [maintenance, payments] = await Promise.all([
+    getTenantMaintenance(session).catch(() => []),
+    getTenantPayments(session).catch(() => []),
+  ])
   const openMaint = maintenance.filter((m) => !["complete", "invoiced", "closed"].includes(m.status))
+  const yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString()
+  const paidThisYear = payments
+    .filter((p) => p.direction === "in" && p.created_at >= yearStart)
+    .reduce((s, p) => s + (p.amount ?? 0), 0)
 
   // Property details (scoped to workspace)
   let prop: { label: string; address: string; image: string | null } = { label: "Your home", address: "", image: null }
@@ -85,7 +92,7 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
   const dueIn = daysUntil(nextDue)
   const kpis: PortalKpi[] = [
     { label: "Next payment due", value: formatMoney(current.rent_amount), sub: nextDue ? formatDate(nextDue) : "—", icon: CreditCard, tone: "blue", href: `${base}/payments` },
-    { label: "Total paid this year", value: formatMoney((current.rent_amount ?? 0) * 6), sub: "Rent to date", icon: PoundSterling, tone: "emerald", href: `${base}/payments` },
+    { label: "Total paid this year", value: formatMoney(paidThisYear || (current.rent_amount ?? 0)), sub: paidThisYear ? "Actual payments" : "Rent amount", icon: PoundSterling, tone: "emerald", href: `${base}/payments` },
     { label: "Open maintenance", value: String(openMaint.length), sub: openMaint.length ? "In progress" : "All clear", icon: Wrench, tone: openMaint.length ? "amber" : "emerald", href: `${base}/maintenance` },
     { label: "Unread messages", value: "0", sub: "From your manager", icon: MessageSquare, tone: "slate", href: `${base}/messages` },
     { label: "Documents available", value: "—", sub: "Agreement & certs", icon: FileText, tone: "violet", href: `${base}/documents` },
