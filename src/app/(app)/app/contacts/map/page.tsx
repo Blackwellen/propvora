@@ -1,16 +1,26 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Link from "next/link"
+import dynamic from "next/dynamic"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { MobileTopBar } from "@/components/mobile"
 import {
-  Map as MapIcon, Search, Settings, List, MapPin, Info, Users,
+  Search, MapPin, Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts } from "@/hooks/useContacts"
+import type { ContactCityEntry } from "@/components/contacts/ContactMapInner"
+
+const ContactMapInner = dynamic(() => import("@/components/contacts/ContactMapInner"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full bg-slate-50 animate-pulse flex items-center justify-center rounded-r-xl">
+      <div className="text-slate-300 text-sm font-medium">Loading map…</div>
+    </div>
+  ),
+})
 
 const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 function avatarBg(name: string): string { let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h); return AVATAR_BG[Math.abs(h)%AVATAR_BG.length] }
@@ -47,8 +57,6 @@ export default function ContactMapPage() {
   const [search, setSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
   const [selected, setSelected] = useState<string | null>(null)
-  const [showMapTip, setShowMapTip] = useState(false)
-
   // Map live contacts → entries with a usable city label (city, else postcode).
   const entries = useMemo(() => {
     return liveContacts.map((c) => ({
@@ -68,19 +76,18 @@ export default function ContactMapPage() {
     })
   }, [entries, typeFilter, search])
 
-  // City breakdown for the summary panel — derived from live data only.
-  const cityData = useMemo(() => {
-    const map = new Map<string, string[]>()
+  // City breakdown for the map + summary panel — derived from live data only.
+  const cityData = useMemo((): ContactCityEntry[] => {
+    const map = new Map<string, { id: string; name: string; type: string }[]>()
     for (const c of entries) {
       if (c.city === "Unknown") continue
-      map.set(c.city, [...(map.get(c.city) ?? []), c.name])
+      map.set(c.city, [...(map.get(c.city) ?? []), { id: c.id, name: c.name, type: c.type }])
     }
     return Array.from(map.entries())
-      .map(([city, names]) => ({ city, contacts: names }))
+      .map(([city, contacts]) => ({ city, contacts }))
       .sort((a, b) => b.contacts.length - a.contacts.length)
   }, [entries])
 
-  const maxCityCount = Math.max(1, ...cityData.map((c) => c.contacts.length))
   const citiesCount = cityData.length
 
   return (
@@ -94,28 +101,7 @@ export default function ContactMapPage() {
         <div className="hidden md:flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Contact Map</h1>
-            <p className="text-sm text-slate-500 mt-1">Contacts by location and coverage area</p>
-          </div>
-          <div className="relative shrink-0">
-            <button
-              onMouseEnter={() => setShowMapTip(true)}
-              onMouseLeave={() => setShowMapTip(false)}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors"
-            >
-              <Settings className="w-4 h-4" />
-              Configure Map
-            </button>
-            {showMapTip && (
-              <div className="absolute right-0 top-full mt-2 z-20 w-72 rounded-xl bg-slate-800 text-white text-xs p-3 shadow-xl">
-                <p className="font-semibold mb-1 flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5" />
-                  Map Provider Setup
-                </p>
-                <p className="text-slate-300 leading-relaxed">
-                  Connect Mapbox or Google Maps in Settings &rarr; Integrations to enable interactive contact mapping with pins, coverage areas, and proximity search.
-                </p>
-              </div>
-            )}
+            <p className="text-sm text-slate-500 mt-1">Contacts by location — hover a circle to see details</p>
           </div>
         </div>
 
@@ -204,91 +190,48 @@ export default function ContactMapPage() {
           </div>
 
           {/* Map Area */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50/50">
-            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 sm:p-8 text-center shadow-sm mb-6">
-              <div className="flex justify-center mb-4 text-slate-400">
-                <MapIcon className="w-12 h-12" />
-              </div>
-              <h3 className="text-base font-semibold text-slate-700 mb-2">Map view requires configuration</h3>
-              <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
-                Connect a map provider (Mapbox or Google Maps) in Settings to enable interactive contact mapping.
-              </p>
-              <div className="flex items-center justify-center gap-3 flex-wrap">
-                <Link href="/app/settings" className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium px-4 py-2.5 hover:bg-blue-700 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  Configure Map Provider
-                </Link>
-                <Link href="/app/contacts/people" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors">
-                  <List className="w-4 h-4" />
-                  View as List
-                </Link>
-              </div>
-            </div>
-
-            {/* Contact Location Summary — live */}
-            <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
-              <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#2563EB]" />
-                Contact Location Summary
-              </h4>
-              {cityData.length === 0 ? (
-                <p className="text-xs text-slate-400 py-2">No location data yet. Add a city or postcode to your contacts to see them here.</p>
-              ) : (
-                <div className="space-y-4">
-                  {cityData.slice(0, 8).map(cityRow => {
-                    const visibleAvatars = cityRow.contacts.slice(0, 3)
-                    const overflow = cityRow.contacts.length - 3
-                    const barWidth = Math.round((cityRow.contacts.length / maxCityCount) * 100)
-                    return (
-                      <div key={cityRow.city}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-sm font-medium text-slate-700 truncate">{cityRow.city}</span>
-                            <span className="text-xs text-slate-400 shrink-0">{cityRow.contacts.length} contact{cityRow.contacts.length !== 1 ? "s" : ""}</span>
-                          </div>
-                          <div className="flex items-center shrink-0">
-                            <div className="flex -space-x-1.5">
-                              {visibleAvatars.map(name => (
-                                <div key={name} className={cn("w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-semibold shrink-0", avatarBg(name))} title={name}>
-                                  {initials(name)}
-                                </div>
-                              ))}
-                            </div>
-                            {overflow > 0 && (
-                              <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-slate-600 text-[10px] font-semibold -ml-1.5">
-                                +{overflow}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#2563EB] transition-all" style={{ width:`${barWidth}%` }} />
-                        </div>
-                      </div>
-                    )
-                  })}
+          <div className="flex-1 relative min-h-[380px] lg:min-h-0">
+            {cityData.length === 0 && !isLoading ? (
+              <div className="h-full flex items-center justify-center bg-slate-50/50 rounded-r-xl">
+                <div className="text-center p-8">
+                  <Users className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                  <p className="text-sm font-medium text-slate-500">No contacts with location data yet</p>
+                  <p className="text-xs text-slate-400 mt-1">Add a city or postcode to your contacts to plot them here</p>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <ContactMapInner
+                cityData={cityData}
+                selectedId={selected}
+                onSelectCity={(city) => {
+                  const first = cityData.find(c => c.city === city)?.contacts[0]
+                  if (first) setSelected(first.id)
+                }}
+              />
+            )}
+
+            {/* Legend overlay */}
+            {cityData.length > 0 && (
+              <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm px-3 py-2.5 text-[11px] text-slate-600 pointer-events-none">
+                <p className="font-semibold text-slate-800 mb-1.5">Contact types</p>
+                {[
+                  { label: 'Landlord', color: '#2563EB' },
+                  { label: 'Tenant', color: '#7C3AED' },
+                  { label: 'Supplier', color: '#D97706' },
+                  { label: 'Applicant', color: '#0EA5E9' },
+                  { label: 'Professional', color: '#4F46E5' },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-1.5 mb-0.5">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                    {label}
+                  </div>
+                ))}
+                <p className="text-slate-400 mt-1.5">Circle size = contact count</p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Enable Map View Callout */}
-        <div className="rounded-xl border-l-4 border-l-violet-500 border border-violet-200 bg-violet-50 p-5 flex items-start gap-4 flex-wrap sm:flex-nowrap">
-          <div className="shrink-0 mt-0.5 text-violet-600">
-            <MapIcon className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-violet-900 mb-1">Unlock interactive map features</p>
-            <p className="text-sm text-violet-700">
-              Pin contacts by address, visualise supplier coverage areas, find nearby contacts for a property, and see landlord portfolios by location.
-            </p>
-          </div>
-          <Link href="/app/settings" className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-violet-600 text-white text-sm font-medium px-4 py-2.5 hover:bg-violet-700 transition-colors">
-            <Settings className="w-4 h-4" />
-            Configure Map
-          </Link>
-        </div>
       </div>
     </DashboardContainer>
   )

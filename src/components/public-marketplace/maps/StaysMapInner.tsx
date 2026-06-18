@@ -15,8 +15,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const TILE_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+const TILE_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
 
 const MANCHESTER_POLYGON: [number, number][] = [
   [53.5200, -2.3200],
@@ -28,11 +28,17 @@ const MANCHESTER_POLYGON: [number, number][] = [
   [53.5200, -2.3200],
 ]
 
-function createPricePin(price: number) {
+function createPricePin(price: number, selected = false) {
+  const bg = selected ? '#1d4ed8' : '#fff'
+  const color = selected ? '#fff' : '#0f172a'
+  const border = selected ? '2px solid #1d4ed8' : '2px solid #e2e8f0'
+  const shadow = selected
+    ? '0 4px 16px rgba(37,99,235,0.45),0 1px 4px rgba(0,0,0,0.12)'
+    : '0 2px 8px rgba(0,0,0,0.14),0 1px 3px rgba(0,0,0,0.08)'
   return L.divIcon({
-    html: `<div style="background:#2563eb;color:white;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer">£${price}</div>`,
+    html: `<div style="background:${bg};color:${color};padding:5px 11px;border-radius:20px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:${shadow};border:${border};cursor:pointer;letter-spacing:-0.01em">£${price}</div>`,
     className: '',
-    iconAnchor: [30, 12],
+    iconAnchor: [32, 14],
   })
 }
 
@@ -48,7 +54,7 @@ export default function StaysMapInner({ stays }: StaysMapInnerProps) {
       style={{ height: '100%', width: '100%' }}
       zoomControl={true}
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
+      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={19} />
 
       {/* Manchester area polygon */}
       <Polygon

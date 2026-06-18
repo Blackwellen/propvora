@@ -13,16 +13,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
 const TILE_ATTRIBUTION =
-  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
 
 function createRentPin(monthlyPence: number) {
   const label = `£${Math.round(monthlyPence / 100).toLocaleString('en-GB')}/mo`
   return L.divIcon({
-    html: `<div style="background:#2563eb;color:white;padding:4px 10px;border-radius:20px;font-weight:700;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer">${label}</div>`,
+    html: `<div style="background:#fff;color:#0f172a;padding:5px 11px;border-radius:20px;font-weight:700;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.14),0 1px 3px rgba(0,0,0,0.08);border:2px solid #e2e8f0;cursor:pointer;letter-spacing:-0.01em">${label}</div>`,
     className: '',
-    iconAnchor: [40, 12],
+    iconAnchor: [42, 14],
   })
 }
 
@@ -46,7 +46,7 @@ export default function LongTermRentalMapInner({
       style={{ height: '100%', width: '100%' }}
       zoomControl
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
+      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={19} />
 
       {rentals.map((rental) => (
         <Marker
