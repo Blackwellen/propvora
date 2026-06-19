@@ -185,6 +185,13 @@ async function maybeApplyRouteContextGuard(
   pathname: string
 ): Promise<NextResponse | null> {
   try {
+    // Route-context constraints are an Ops-stage rollout. Keep every V1/V1.5
+    // route inert until the global context-engine flag is explicitly enabled.
+    // The accessor is tolerant and resolves false on schema/RLS failures.
+    const { isFeatureEnabled } = await import("@/lib/flags")
+    const contextEngineOn = await isFeatureEnabled("contextEngine", { supabase })
+    if (!contextEngineOn) return null
+
     const { matchRouteContext } = await import("@/lib/flags/route-registry")
     const routeContext = matchRouteContext(pathname)
     if (!routeContext) return null // self-gates: only routes that DECLARE a context are guarded.

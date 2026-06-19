@@ -25,7 +25,7 @@ import { createClient } from "@/lib/supabase/client"
 // authenticate without a full Supabase user account inside the workspace.
 // ============================================================
 
-export const OWNER_CONTACT_TYPES = ["landlord", "owner", "investor"] as const
+export const OWNER_CONTACT_TYPES = ["owner"] as const
 
 export interface LandlordContext {
   contactId: string
@@ -46,35 +46,8 @@ export async function resolveLandlordContext(): Promise<LandlordContext | null> 
   const user = auth.user
   if (!user) return null
 
-  // 1. contact_portal_access (intended production link — unified grants table)
-  try {
-    const { data: access, error } = await supabase
-      .from("contact_portal_access")
-      .select("contact_id, workspace_id, access_type")
-      .eq("user_id", user.id)
-      .in("access_type", OWNER_CONTACT_TYPES as unknown as string[])
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle()
-
-    if (error && code(error) !== "42P01") {
-      // non-fatal — fall through to email match
-    }
-    if (access?.contact_id) {
-      const c = await loadContact(access.contact_id as string)
-      return {
-        contactId: access.contact_id as string,
-        workspaceId: (access.workspace_id as string) ?? c?.workspace_id ?? null,
-        displayName: c?.displayName ?? "Landlord",
-        email: c?.email ?? user.email ?? null,
-        source: "portal_access",
-      }
-    }
-  } catch {
-    /* tolerate */
-  }
-
-  // 2. Email-match fallback against live owner-type contacts
+  // Email-match fallback against the live owner contact enum. The unified
+  // contact_portal_access table does not yet expose user_id in the live schema.
   if (user.email) {
     try {
       const { data: contact, error } = await supabase
@@ -103,27 +76,6 @@ export async function resolveLandlordContext(): Promise<LandlordContext | null> 
   }
 
   return null
-}
-
-async function loadContact(
-  contactId: string
-): Promise<{ workspace_id: string | null; displayName: string; email: string | null } | null> {
-  const supabase = createClient()
-  try {
-    const { data, error } = await supabase
-      .from("contacts")
-      .select("workspace_id, display_name, email")
-      .eq("id", contactId)
-      .maybeSingle()
-    if (error) return null
-    return {
-      workspace_id: (data?.workspace_id as string) ?? null,
-      displayName: (data?.display_name as string) ?? "Landlord",
-      email: (data?.email as string) ?? null,
-    }
-  } catch {
-    return null
-  }
 }
 
 // ============================================================

@@ -78,13 +78,10 @@ export default function PublicNav() {
     <SkipLink />
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
-          : "bg-white/80 backdrop-blur-sm border-b border-slate-100"
+        "fixed top-3 left-0 right-0 z-50 bg-transparent transition-all duration-300 sm:top-4"
       )}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className={cn("mx-auto max-w-7xl rounded-2xl border px-4 transition-all sm:px-6 lg:px-7", scrolled ? "border-slate-200 bg-white/95 shadow-xl shadow-slate-900/10 backdrop-blur-xl" : "border-white/70 bg-white/85 shadow-lg shadow-slate-900/5 backdrop-blur-xl")}>
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">

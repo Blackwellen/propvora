@@ -1,170 +1,75 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  Building2,
-  ShieldCheck,
-  LineChart,
-  Target,
-  Compass,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react"
+import { ArrowRight, Compass, Layers3, ShieldCheck, Sparkles } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
 
 export const metadata: Metadata = {
   title: "About Propvora",
-  description:
-    "Propvora is the property operations, compliance and profit-control platform for serious property operators. Learn what we build and why.",
-  openGraph: {
-    title: "About Propvora",
-    description:
-      "Propvora is the property operations, compliance and profit-control platform for serious property operators.",
-    type: "website",
-  },
+  description: "Why Propvora exists and the principles behind its connected property operations platform.",
 }
 
 const principles = [
-  {
-    icon: Compass,
-    title: "Operations first",
-    body: "Propvora is built for the day-to-day reality of running property: tenancies, work orders, suppliers, compliance and money — not portfolio vanity metrics.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Compliance you can trust",
-    body: "Certificates, inspections and renewals are tracked with clear expiry states, so nothing important slips past a deadline.",
-  },
-  {
-    icon: LineChart,
-    title: "Profit control",
-    body: "Income, expenses, invoices and planning models sit alongside your operations, so you always know where margin is made or lost.",
-  },
-  {
-    icon: Target,
-    title: "Grounded, not hyped",
-    body: "We describe what the product actually does today. No fabricated stats, no invented testimonials — just tools that do the work.",
-  },
+  { icon: Layers3, title: "Operations before optics", copy: "Propvora is designed around the records, deadlines, decisions and hand-offs involved in running property." },
+  { icon: Compass, title: "Context over fragmentation", copy: "Property, tenancy, work, compliance and financial context should reinforce each other instead of living in separate tools." },
+  { icon: ShieldCheck, title: "Control by design", copy: "Permissions, evidence, auditability and human approval belong inside the workflow, not as an afterthought." },
+  { icon: Sparkles, title: "Useful AI, clearly bounded", copy: "AI can summarise and prepare work. People remain responsible for reviewing decisions and approving actions." },
 ]
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       <PublicNav />
-
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
-      {/* Hero */}
-      <section className="pt-32 pb-16 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-medium mb-5 border border-blue-200">
-            <Building2 className="h-3.5 w-3.5" />
-            About Propvora
+        <section className="relative overflow-hidden bg-[#07152d] px-4 pb-28 pt-40 text-white sm:px-6 lg:pb-36 lg:pt-48">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_8%,rgba(37,99,235,0.38),transparent_34%),radial-gradient(circle_at_82%_25%,rgba(14,165,233,0.18),transparent_28%)]" />
+          <div className="relative mx-auto max-w-7xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-sky-300">About Propvora</p>
+            <h1 className="mt-5 max-w-5xl text-5xl font-black leading-[1.02] tracking-[-0.055em] sm:text-6xl lg:text-7xl">Property deserves an operational system, not another spreadsheet.</h1>
+            <p className="mt-7 max-w-3xl text-xl leading-9 text-slate-300">Propvora is being built to connect the practical work of running property: the portfolio, people, deadlines, maintenance, compliance, communication and money behind every decision.</p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-5 leading-tight tracking-tight">
-            The operating system for property operators
-          </h1>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Propvora replaces scattered spreadsheets and disconnected tools with one
-            connected workspace for property operations, compliance and profit control —
-            built for landlords, managers and operators who run real portfolios.
-          </p>
-        </div>
-      </section>
+        </section>
 
-      {/* What we are */}
-      <section className="py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900">What Propvora is</h2>
-          <p className="text-slate-600 leading-relaxed">
-            Propvora is a property operations, compliance and profit-control platform. It
-            brings your properties, units, tenancies, contacts, work, suppliers, calendar,
-            documents and money into a single, premium workspace — with a planning engine
-            that models deals across every operation profile and an AI Copilot that helps
-            you move faster while keeping a human in control.
-          </p>
-          <p className="text-slate-600 leading-relaxed">
-            We are deliberately not a property investment marketplace or a place to buy and
-            sell deals. Propvora is the tooling you use to <span className="font-semibold text-slate-800">run</span>{" "}
-            the property you already operate, profitably and compliantly.
-          </p>
-        </div>
-      </section>
-
-      {/* Principles */}
-      <section className="py-16 bg-slate-50 border-y border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-10 text-center">
-            What we believe
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {principles.map((p) => (
-              <div
-                key={p.title}
-                className="rounded-2xl border border-slate-200 bg-white p-6"
-              >
-                <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4">
-                  <p.icon className="h-5 w-5 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1.5">{p.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{p.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Who it's for */}
-      <section className="py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Who it&apos;s for</h2>
-          <ul className="space-y-3">
-            {[
-              "Landlords running long-term lets who want compliance and cashflow in one place",
-              "HMO and co-living operators managing rooms, licensing and bills",
-              "Rent-to-rent and serviced-accommodation operators tracking margin per unit",
-              "Property managers handling work orders, suppliers and multiple owners",
-              "Mixed portfolios that span several operation models at once",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span className="text-slate-700">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="pb-24">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-[#0D1B2A] px-8 py-12 text-center">
-            <h2 className="text-2xl font-bold text-white mb-3">
-              See Propvora with your own operations
-            </h2>
-            <p className="text-slate-300 mb-8 max-w-lg mx-auto">
-              Start a free trial, or take the guided walkthrough to see how it fits your
-              portfolio before you commit.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-              >
-                Start free trial
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/walkthrough"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition-colors border border-white/15"
-              >
-                Take the walkthrough
-              </Link>
+        <section className="px-4 py-24 sm:px-6 lg:py-32">
+          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.75fr_1.25fr]">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-600">Why we build</p>
+              <h2 className="mt-4 text-4xl font-black tracking-[-0.045em] text-[#06122f] sm:text-5xl">The work is connected. The software should be too.</h2>
+            </div>
+            <div className="space-y-6 text-lg leading-8 text-slate-600">
+              <p>Property operations are often split across spreadsheets, inboxes, calendars, accounting tools, document folders and supplier messages. Each tool holds a fragment; the operator carries the context.</p>
+              <p>Propvora brings that context into one workspace. A compliance deadline can relate to a property, trigger work, involve a supplier, create a cost and remain visible in the operational calendar. That connection is the product.</p>
+              <p>We avoid invented customer stories, adoption figures and outcome guarantees. The public product story should be grounded in implemented capabilities and clearly identified illustrative demo data.</p>
             </div>
           </div>
-        </div>
-      </section>
-      </main>
+        </section>
 
+        <section className="border-y border-slate-200 bg-[#f7faff] px-4 py-24 sm:px-6 lg:py-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-600">Product principles</p>
+              <h2 className="mt-4 text-4xl font-black tracking-[-0.045em] text-[#06122f] sm:text-5xl">A serious operating layer for serious work.</h2>
+            </div>
+            <div className="mt-12 grid gap-5 md:grid-cols-2">
+              {principles.map(({ icon: Icon, title, copy }) => (
+                <article key={title} className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-blue-700"><Icon className="h-5 w-5" /></div>
+                  <h3 className="mt-6 text-xl font-bold text-slate-950">{title}</h3>
+                  <p className="mt-3 leading-7 text-slate-600">{copy}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-24 sm:px-6 lg:py-32">
+          <div className="mx-auto max-w-5xl rounded-[36px] bg-gradient-to-br from-[#07152d] to-[#12356f] px-8 py-16 text-center text-white sm:px-14 lg:py-20">
+            <h2 className="text-4xl font-black tracking-[-0.045em] sm:text-5xl">See the product, not a promise.</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">Explore the implemented platform surfaces and decide how they fit your operation.</p>
+            <Link href="/features" className="mt-8 inline-flex h-13 items-center gap-2 rounded-xl bg-white px-7 font-bold text-[#07152d] hover:bg-blue-50">Explore features <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+        </section>
+      </main>
       <PublicFooter />
     </div>
   )
