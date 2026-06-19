@@ -3,10 +3,10 @@
 import React, { useState } from "react"
 import { Puzzle, CheckCircle2 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
-import { useActiveAddons, useBillingRole } from "../data/hooks"
+import { useActiveAddons, useAddonFeatureFlags, useBillingRole, useSubscription } from "../data/hooks"
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { addonMonthlyPence } from "../data/calc"
-import type { SubscriptionAddon } from "../data/types"
+import { addonAvailableForPlan, type SubscriptionAddon } from "../data/types"
 import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, PermissionNotice } from "./ui"
 
 const UNIT_SUFFIX: Record<string, string> = {
@@ -20,6 +20,8 @@ const UNIT_SUFFIX: Record<string, string> = {
 export function AddOnsTab() {
   const { data: active } = useActiveAddons()
   const { canManageBilling } = useBillingRole()
+  const { data: subscription } = useSubscription()
+  const addonFlags = useAddonFeatureFlags()
 
   const [addons, setAddons] = useState<SubscriptionAddon[]>(
     SEED_ADDON_CATALOG.map((c) => {
@@ -38,7 +40,8 @@ export function AddOnsTab() {
     setConfirmedCode(null)
   }
 
-  const available = SEED_ADDON_CATALOG.filter((c) => c.available)
+  const available = SEED_ADDON_CATALOG.filter((c) => addonAvailableForPlan(c, subscription.planCode, "V1.5", addonFlags))
+  const gated = SEED_ADDON_CATALOG.filter((c) => !addonAvailableForPlan(c, subscription.planCode, "V1.5", addonFlags))
 
   return (
     <div className="space-y-6">
@@ -108,13 +111,13 @@ export function AddOnsTab() {
         })}
       </div>
 
-      {SEED_ADDON_CATALOG.some((c) => !c.available) && (
-        <BillingCard title="Coming soon">
+      {gated.length > 0 && (
+        <BillingCard title="Plan or release gated">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SEED_ADDON_CATALOG.filter((c) => !c.available).map((c) => (
+            {gated.map((c) => (
               <div key={c.code} className="rounded-xl border border-dashed border-slate-200 px-3.5 py-3 opacity-70">
                 <p className="text-[13px] font-semibold text-slate-700">{c.name}</p>
-                <p className="text-[11.5px] text-slate-400">Requires configuration — coming soon.</p>
+                <p className="text-[11.5px] text-slate-400">Requires {c.minPlan} or above · {c.releaseStage} release.</p>
               </div>
             ))}
           </div>

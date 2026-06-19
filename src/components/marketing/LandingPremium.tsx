@@ -39,8 +39,18 @@ export default function LandingPremium() {
           <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-600">
             {["14-day trial", "No credit card required", "Cancel anytime"].map((item) => <span key={item} className="inline-flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" />{item}</span>)}
           </div>
-          <div className="mx-auto mt-14 max-w-[1220px] lg:mt-20">
-            <PremiumProductImage src="/images/marketing/product/enriched/01-home.png" alt="Propvora property operations home dashboard using illustrative demo data" priority />
+          <div className="relative mx-auto mt-14 max-w-[1220px] lg:mt-20">
+            <div className="absolute -left-5 top-[18%] z-10 hidden w-56 rounded-2xl border border-blue-100 bg-white/95 p-4 text-left shadow-[0_20px_55px_rgba(37,99,235,0.16)] backdrop-blur lg:block">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">Compliance watch</p>
+              <p className="mt-1 text-sm font-bold text-slate-900">Renewals surfaced early</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Evidence, owners and due dates stay connected.</p>
+            </div>
+            <div className="absolute -right-5 bottom-[14%] z-10 hidden w-60 rounded-2xl border border-violet-100 bg-white/95 p-4 text-left shadow-[0_20px_55px_rgba(76,29,149,0.14)] backdrop-blur lg:block">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-600">Review-first Copilot</p>
+              <p className="mt-1 text-sm font-bold text-slate-900">Drafted. Never sent blindly.</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">You approve every material action.</p>
+            </div>
+            <PremiumProductImage label="Operations overview" src="/images/marketing/product/enriched/01-home.png" alt="Propvora property operations home dashboard using illustrative demo data" priority />
           </div>
         </div>
       </section>

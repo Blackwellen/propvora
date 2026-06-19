@@ -34,6 +34,7 @@ import type {
   SubscriptionAddon,
   SubscriptionEvent,
 } from "./types"
+import { isFeatureEnabled } from "@/lib/flags"
 
 function useSeedFallback<T>(
   seed: T,
@@ -124,6 +125,25 @@ export function useBillingRole() {
   // owner so the section is demoable; real enforcement is server-side via RLS.
   const canManageBilling = role == null ? true : role === "owner" || role === "admin"
   return { role, canManageBilling, loading }
+}
+
+export function useAddonFeatureFlags() {
+  const { workspace } = useWorkspace()
+  const [flags, setFlags] = useState({ canvasLite: false, marketplaceEnabled: false })
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      if (!workspace?.id) return
+      const supabase = createClient()
+      const [canvasLite, marketplaceEnabled] = await Promise.all([
+        isFeatureEnabled("canvasLite", { supabase, workspaceId: workspace.id }),
+        isFeatureEnabled("marketplaceEnabled", { supabase, workspaceId: workspace.id }),
+      ])
+      if (active) setFlags({ canvasLite, marketplaceEnabled })
+    })()
+    return () => { active = false }
+  }, [workspace?.id])
+  return flags
 }
 
 export function usePlans(): HookState<BillingPlan[]> {

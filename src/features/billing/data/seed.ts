@@ -108,6 +108,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 10,
     hasQuantity: true,
     available: true,
+    minPlan: "starter",
+    releaseStage: "V1",
   },
   {
     code: "premium_support",
@@ -118,6 +120,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
+    minPlan: "professional",
+    releaseStage: "V1",
   },
   {
     code: "ai_pack",
@@ -128,6 +132,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: true,
     available: true,
+    minPlan: "business",
+    releaseStage: "V1",
     creditPacks: [
       { label: "1,000 credits", credits: 1000, pricePence: 1900 },
       { label: "5,000 credits", credits: 5000, pricePence: 7900 },
@@ -143,6 +149,9 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
+    minPlan: "business",
+    releaseStage: "V1.5",
+    requiredFlag: "canvasLite",
   },
   {
     code: "marketplace_boost",
@@ -153,6 +162,9 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
+    minPlan: "business",
+    releaseStage: "V2",
+    requiredFlag: "marketplaceEnabled",
   },
   {
     code: "white_label",
@@ -163,6 +175,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
+    minPlan: "business",
+    releaseStage: "V1",
   },
   {
     code: "extra_storage",
@@ -173,6 +187,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: true,
     available: true,
+    minPlan: "starter",
+    releaseStage: "V1",
   },
   {
     code: "extra_seats",
@@ -183,6 +199,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: true,
     available: true,
+    minPlan: "starter",
+    releaseStage: "V1",
   },
 ]
 

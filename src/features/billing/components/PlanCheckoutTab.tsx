@@ -4,10 +4,10 @@ import React, { useMemo, useState } from "react"
 import { Check, CreditCard, MapPin, Sparkles, ShoppingCart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
-import { usePlans, useActiveAddons, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
+import { usePlans, useActiveAddons, useAddonFeatureFlags, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { computeTotals, planCyclePence, planAnnualPence, taxRatePercent } from "../data/calc"
-import type { BillingCycle, PlanCode, SubscriptionAddon } from "../data/types"
+import { addonAvailableForPlan, type BillingCycle, type PlanCode, type SubscriptionAddon } from "../data/types"
 import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, SeedNotice, PermissionNotice } from "./ui"
 
 export function PlanCheckoutTab() {
@@ -16,6 +16,7 @@ export function PlanCheckoutTab() {
   const { data: profile } = useBillingProfile()
   const { data: card } = usePaymentMethod()
   const { canManageBilling } = useBillingRole()
+  const addonFlags = useAddonFeatureFlags()
 
   const [cycle, setCycle] = useState<BillingCycle>("monthly")
   const [selected, setSelected] = useState<PlanCode>("professional")
@@ -29,7 +30,7 @@ export function PlanCheckoutTab() {
   const [editingAddress, setEditingAddress] = useState(false)
 
   const checkoutAddons = SEED_ADDON_CATALOG.filter((c) =>
-    ["extra_listings", "premium_support", "ai_pack", "automation_pack", "marketplace_boost"].includes(c.code),
+    ["extra_listings", "premium_support", "ai_pack", "automation_pack", "marketplace_boost"].includes(c.code) && addonAvailableForPlan(c, selected, "V1.5", addonFlags),
   )
 
   const plan = useMemo(() => plans.find((p) => p.code === selected) ?? plans[0], [plans, selected])

@@ -50,6 +50,17 @@ export interface AddonCatalogItem {
   creditPacks?: Array<{ label: string; credits: number; pricePence: number }>
   /** Set false to render as "requires configuration" and disable. */
   available: boolean
+  minPlan: PlanCode
+  releaseStage: "V1" | "V1.5" | "V2"
+  requiredFlag?: "canvasLite" | "marketplaceEnabled"
+}
+
+const PLAN_RANK: Record<PlanCode, number> = { starter: 1, professional: 2, business: 3, enterprise: 4 }
+const RELEASE_RANK = { V1: 1, "V1.5": 2, V2: 3 } as const
+
+export function addonAvailableForPlan(item: AddonCatalogItem, plan: PlanCode, release: "V1" | "V1.5" | "V2" = "V1.5", flags?: Partial<Record<"canvasLite" | "marketplaceEnabled", boolean>>) {
+  const flagAllowed = !item.requiredFlag || flags?.[item.requiredFlag] === true
+  return item.available && flagAllowed && PLAN_RANK[plan] >= PLAN_RANK[item.minPlan] && RELEASE_RANK[item.releaseStage] <= RELEASE_RANK[release]
 }
 
 export interface SubscriptionAddon {

@@ -129,6 +129,7 @@ export function getPriceId(tier: PlanTier, interval: BillingInterval): string | 
 
 /** Which side of the platform an add-on is sold to. */
 export type AddonAudience = "operator" | "supplier"
+export type AddonReleaseStage = "V1" | "V1.5" | "V2"
 
 export interface AddonDef {
   key: string
@@ -140,6 +141,8 @@ export interface AddonDef {
   audience: AddonAudience
   /** Plain-text eligibility note (e.g. "Operator+"). Display-only. */
   eligibility?: string
+  releaseStage: AddonReleaseStage
+  requiredFlag?: string
 }
 
 /**
@@ -149,7 +152,7 @@ export interface AddonDef {
  */
 const ADDON_DISPLAY: Record<
   string,
-  { name: string; description: string; audience: AddonAudience; eligibility?: string }
+  { name: string; description: string; audience: AddonAudience; eligibility?: string; releaseStage?: AddonReleaseStage; requiredFlag?: string }
 > = {
   // ── Existing operator add-ons (V1 — unchanged) ──────────────────────────
   extra_seat: { name: "Extra team seat", description: "One additional team member.", audience: "operator", eligibility: "All plans" },
@@ -164,10 +167,10 @@ const ADDON_DISPLAY: Record<
   esignature: { name: "eSignature", description: "Send documents for legally-binding e-signature (envelopes extra).", audience: "operator", eligibility: "Operator+" },
   accounting_sync: { name: "Xero / QuickBooks sync", description: "Two-way accounting sync with Xero or QuickBooks.", audience: "operator", eligibility: "Scale+" },
   mtd_itsa: { name: "MTD ITSA pack", description: "Making Tax Digital for Income Tax Self Assessment submission pack.", audience: "operator", eligibility: "Operator+" },
-  booking_pages: { name: "Booking pages", description: "Public direct-booking pages (included on Scale+).", audience: "operator", eligibility: "Operator (included Scale+)" },
-  automation_pack: { name: "Automation pack", description: "More recipes, runs and nodes beyond your plan cap.", audience: "operator", eligibility: "Operator+" },
+  booking_pages: { name: "Booking pages", description: "Public direct-booking pages (included on Scale+).", audience: "operator", eligibility: "Operator (included Scale+)", releaseStage: "V1.5", requiredFlag: "directBookingPages" },
+  automation_pack: { name: "Automation pack", description: "More recipes, runs and nodes beyond your plan cap.", audience: "operator", eligibility: "Scale+", releaseStage: "V1.5", requiredFlag: "canvasLite" },
   api_access: { name: "API access", description: "REST API access with full read/write endpoints.", audience: "operator", eligibility: "Pro / Agency+" },
-  country_pack_beta: { name: "Country pack (beta)", description: "Legal/tax/compliance depth for an additional country (beta).", audience: "operator", eligibility: "Scale+" },
+  country_pack_beta: { name: "Country pack (beta)", description: "Legal/tax/compliance depth for an additional country (beta).", audience: "operator", eligibility: "Scale+", releaseStage: "V2", requiredFlag: "countryPacks" },
 
   // ── Supplier-workspace add-ons (Layer 2) ────────────────────────────────
   supplier_pro_profile: { name: "Supplier Pro Profile", description: "Richer media, case studies, service packages and profile analytics.", audience: "supplier", eligibility: "Supplier" },
@@ -192,6 +195,8 @@ export function getAddons(): AddonDef[] {
       priceId: a.priceId,
       audience: d?.audience ?? "operator",
       eligibility: d?.eligibility,
+      releaseStage: d?.releaseStage ?? "V1",
+      requiredFlag: d?.requiredFlag,
     }
   })
 }
@@ -199,6 +204,12 @@ export function getAddons(): AddonDef[] {
 /** Operator-facing add-ons only (for the public pricing page). */
 export function getOperatorAddons(): AddonDef[] {
   return getAddons().filter((a) => a.audience === "operator")
+}
+
+const ADDON_STAGE_RANK: Record<AddonReleaseStage, number> = { V1: 1, "V1.5": 2, V2: 3 }
+
+export function getReleasedOperatorAddons(stage: AddonReleaseStage = "V1.5"): AddonDef[] {
+  return getOperatorAddons().filter((addon) => ADDON_STAGE_RANK[addon.releaseStage] <= ADDON_STAGE_RANK[stage])
 }
 
 /** Supplier-workspace add-ons only. */

@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
+import PremiumProductImage from "@/components/marketing/PremiumProductImage"
 import { AFFILIATE_LEVELS, formatPence } from "@/lib/affiliate/levels"
 
 export const metadata: Metadata = {
@@ -98,6 +99,20 @@ export default function AffiliateProgrammePage() {
           <p className="mt-4 text-xs text-slate-400">
             No fake income claims. Commission is earned only on valid, approved, paying customers.
           </p>
+        </section>
+
+        <section className="mx-auto w-full max-w-7xl px-6 py-12">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.72fr_1.28fr]">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Partner workspace</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#0D1B2A]">Track links, valid referrals and cleared earnings.</h2>
+              <p className="mt-4 leading-7 text-slate-600">The affiliate dashboard separates clicks, conversions, pending commission and cleared payouts so programme performance is transparent.</p>
+              <ul className="mt-6 space-y-3 text-sm font-semibold text-slate-700">
+                {["Referral links and attribution", "Referral status and commission trail", "Payout eligibility and history"].map(item => <li key={item} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" />{item}</li>)}
+              </ul>
+            </div>
+            <PremiumProductImage label="Affiliate overview" src="/images/marketing/product/enriched/19-affiliate.png" alt="Propvora affiliate dashboard using illustrative demo data" />
+          </div>
         </section>
 
         {/* Who it's for */}

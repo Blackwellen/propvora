@@ -10,11 +10,11 @@ import PlanCards from "@/components/marketing/pricing/PlanCards"
 import FeatureComparisonTable from "@/components/marketing/pricing/FeatureComparisonTable"
 import PricingFAQ from "@/components/marketing/pricing/PricingFAQ"
 import type { BillingCycle } from "@/components/marketing/pricing/PricingToggle"
-import { getAddons, gbp } from "@/lib/billing/plans"
+import { getReleasedOperatorAddons, gbp } from "@/lib/billing/plans"
 
 // Operator add-ons, sourced from the canonical catalog (names/prices all from
 // src/lib/billing). No prices are duplicated/invented here.
-const operatorAddons = getAddons()
+const operatorAddons = getReleasedOperatorAddons("V1.5")
 
 export default function PricingClient() {
   const [billing, setBilling] = useState<BillingCycle>("monthly")
@@ -53,6 +53,10 @@ export default function PricingClient() {
                     </span>
                   </div>
                   <p className="text-slate-500 text-xs leading-relaxed">{addon.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {addon.eligibility && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-600">{addon.eligibility}</span>}
+                    {addon.releaseStage !== "V1" && <span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-700">{addon.releaseStage}</span>}
+                  </div>
                 </div>
               ))}
             </div>

@@ -111,11 +111,26 @@ async function settle() {
   await page.waitForTimeout(300)
 }
 
+async function applyDemoIdentity() {
+  await page.evaluate(() => {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+    const nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+    for (const node of nodes) {
+      if (!node.textContent) continue
+      node.textContent = node.textContent
+        .replace(/jamahlthomas1996@gmail\.com/gi, "demo@propvora.com")
+        .replace(/jamahl thomas/gi, "Demo Operator")
+    }
+  })
+}
+
 async function capture(name, route, prepare) {
   if (captureOnly && captureOnly !== name) return
   await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded", timeout: 120_000 })
   await settle()
   if (prepare) await prepare()
+  await applyDemoIdentity()
   await page.screenshot({ path: `${output}/${name}.png`, fullPage: false })
   const title = await page.title()
   const body = await page.locator("body").innerText().catch(() => "")
@@ -172,6 +187,8 @@ try {
     await page.getByText("Active automations", { exact: true }).waitFor({ state: "visible", timeout: 20_000 }).catch(() => {})
     await waitForHydratedContent()
   })
+  await capture("18-legal", "/property-manager/legal", waitForHydratedContent)
+  await capture("19-affiliate", "/property-manager/affiliates", waitForHydratedContent)
   await capture("15-landlord-portal", "/landlord-portal", dismissPortalTour)
   await capture("16-tenant-portal", "/tenant-portal", dismissPortalTour)
   if (!captureOnly || captureOnly === "17-supplier-portal") {
@@ -188,5 +205,5 @@ try {
   }
 }
 
-console.log(JSON.stringify({ screenshots: 17, failures, consoleErrors: consoleErrors.slice(0, 20) }, null, 2))
+console.log(JSON.stringify({ screenshots: 19, failures, consoleErrors: consoleErrors.slice(0, 20) }, null, 2))
 if (failures.length) process.exit(1)
