@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import DOMPurify from "isomorphic-dompurify"
 import { Info, AlertTriangle, AlertOctagon, CheckCircle2, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -137,8 +138,7 @@ export default function AnnouncementBanner() {
               {a.body_html && (
                 <div
                   className="text-sm text-slate-600 mt-0.5 [&_a]:underline [&_a]:font-medium"
-                  // body_html is sanitised server-side before storage.
-                  dangerouslySetInnerHTML={{ __html: a.body_html }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(a.body_html) }}
                 />
               )}
             </div>

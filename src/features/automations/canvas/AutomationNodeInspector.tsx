@@ -191,7 +191,7 @@ function InputsTab({ node }: { node: Node<CanvasFlowNodeData> }) {
                   <span className="text-slate-400">No</span>
                 )}
               </td>
-              <td className="px-3 py-2 font-mono text-slate-600 truncate max-w-[80px]">
+              <td className="px-3 py-2 font-mono text-slate-600 truncate max-w-[120px]" title={String(node.data.config?.[f.key] ?? f.default ?? "")}>
                 {String(node.data.config?.[f.key] ?? f.default ?? "—")}
               </td>
             </tr>

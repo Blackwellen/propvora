@@ -184,8 +184,8 @@ export default function AuditLogClient({
               <td className="px-4 py-2.5 whitespace-nowrap text-[11px] text-slate-500 tabular-nums">{fmt(e.createdAt)}</td>
               <td className="px-4 py-2.5"><AdminStatusChip tone={actionTone(e.action)} dot><span className="font-mono text-[11px]">{e.action}</span></AdminStatusChip></td>
               <td className="px-4 py-2.5">
-                <p className="text-[12.5px] font-medium text-[#0B1B3F] truncate max-w-[160px]">{e.actorName ?? "System"}</p>
-                {e.actorEmail && <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{e.actorEmail}</p>}
+                <p className="text-[12.5px] font-medium text-[#0B1B3F] truncate max-w-[160px]" title={e.actorName ?? undefined}>{e.actorName ?? "System"}</p>
+                {e.actorEmail && <p className="text-[11px] text-slate-400 truncate max-w-[160px]" title={e.actorEmail}>{e.actorEmail}</p>}
               </td>
               <td className="px-4 py-2.5 text-[12px] text-slate-600">
                 {e.resourceType ? <span>{e.resourceType}</span> : <span className="text-slate-300">—</span>}

@@ -5,8 +5,10 @@ import { createClient } from '@/lib/supabase/client'
 import type { Workspace, WorkspaceMember } from '@/types/database'
 
 /**
- * Fetches the first workspace the current user belongs to.
- * For multi-workspace support, swap this with a workspace selector.
+ * Fetches the user's active workspace, respecting profiles.current_workspace_id.
+ * Falls back to oldest membership if no preference is stored.
+ * AuthProvider.switchWorkspace() calls queryClient.clear() after persisting the
+ * choice, so this query automatically re-fetches with the updated profile value.
  */
 export function useWorkspace() {
   const supabase = createClient()
@@ -17,18 +19,40 @@ export function useWorkspace() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return null
 
-      const { data, error } = await supabase
-        .from('workspace_members')
-        .select('workspace_id, workspaces(*)')
-        .eq('user_id', user.id)
-        .order('joined_at', { ascending: true })
-        .limit(1)
-        .single()
+      // 1. Prefer profiles.current_workspace_id (set by switchWorkspace action)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('current_workspace_id')
+        .eq('id', user.id)
+        .maybeSingle()
 
-      if (error || !data) return null
-      return (data as unknown as { workspaces: Workspace }).workspaces
+      let workspaceId: string | null = profile?.current_workspace_id ?? null
+
+      // 2. Fall back to oldest membership
+      if (!workspaceId) {
+        const { data: membership } = await supabase
+          .from('workspace_members')
+          .select('workspace_id')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+
+        workspaceId = membership?.workspace_id ?? null
+      }
+
+      if (!workspaceId) return null
+
+      const { data: ws, error } = await supabase
+        .from('workspaces')
+        .select('*')
+        .eq('id', workspaceId)
+        .maybeSingle()
+
+      if (error || !ws) return null
+      return ws as Workspace
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

@@ -78,11 +78,11 @@ export default function TransactionsTable({ rows }: { rows: AdminTransactionRow[
                 <td className="px-4 py-2.5 font-mono text-[11px] text-slate-500">{shortId(t.id)}</td>
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-1.5 text-xs">
-                    <span className="font-medium text-slate-800 truncate max-w-[140px]">
+                    <span className="font-medium text-slate-800 truncate max-w-[140px]" title={t.buyerWorkspaceName ?? t.buyerWorkspaceId ?? undefined}>
                       {t.buyerWorkspaceName ?? shortId(t.buyerWorkspaceId)}
                     </span>
                     <ArrowRight className="w-3 h-3 text-slate-300 shrink-0" />
-                    <span className="font-medium text-slate-800 truncate max-w-[140px]">
+                    <span className="font-medium text-slate-800 truncate max-w-[140px]" title={t.sellerWorkspaceName ?? t.sellerWorkspaceId ?? undefined}>
                       {t.sellerWorkspaceName ?? shortId(t.sellerWorkspaceId)}
                     </span>
                   </div>

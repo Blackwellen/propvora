@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   })
   if (error) {
     console.error('[demo/reset] Reset failed:', error.message)
-    return NextResponse.json({ error: 'Reset failed', detail: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Reset failed. Please try again.' }, { status: 500 })
   }
   return NextResponse.json({ success: true })
 }

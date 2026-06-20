@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, Sparkles } from "lucide-react"
+import DOMPurify from "isomorphic-dompurify"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
 import { listPublishedChangelog } from "@/lib/comms/data"
@@ -135,8 +136,7 @@ export default async function ChangelogPage() {
                         {entry.bodyHtml && (
                           <div
                             className="prose prose-slate prose-sm max-w-none mt-3 text-slate-600"
-                            // body_html is sanitised server-side on write via sanitizeHtml().
-                            dangerouslySetInnerHTML={{ __html: entry.bodyHtml }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(entry.bodyHtml) }}
                           />
                         )}
                       </article>

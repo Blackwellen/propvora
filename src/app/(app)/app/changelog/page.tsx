@@ -1,5 +1,6 @@
 import { Sparkles, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import DOMPurify from "isomorphic-dompurify"
 import { listPublishedChangelog } from "@/lib/comms/data"
 import type { ChangelogEntry } from "@/lib/comms/types"
 
@@ -75,8 +76,7 @@ export default async function AppChangelogPage() {
               {entry.bodyHtml && (
                 <div
                   className="prose prose-slate prose-sm max-w-none mt-2 text-slate-600"
-                  // body_html sanitised server-side on write.
-                  dangerouslySetInnerHTML={{ __html: entry.bodyHtml }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(entry.bodyHtml) }}
                 />
               )}
               {entry.tags.length > 0 && (

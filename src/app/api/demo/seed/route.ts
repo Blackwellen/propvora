@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   })
   if (error) {
     console.error('[demo/seed] Seed failed:', error.message)
-    return NextResponse.json({ error: 'Seed failed', detail: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Seed failed. Please try again.' }, { status: 500 })
   }
   return NextResponse.json({ success: true })
 }

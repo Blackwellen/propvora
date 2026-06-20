@@ -31,7 +31,7 @@ export default function PayoutsTable({ rows }: { rows: AdminPayoutRow[] }) {
               <span className="text-sm font-bold text-slate-900">{fmtPence(p.amountPence, p.currency)}</span>
             </div>
             <div className="mt-2 pt-2 border-t border-[#F1F5F9] flex items-center justify-between text-[11px] text-slate-400">
-              <span className="font-mono truncate max-w-[160px]">{p.stripeTransferId ?? "no transfer ref"}</span>
+              <span className="font-mono truncate max-w-[160px]" title={p.stripeTransferId ?? undefined}>{p.stripeTransferId ?? "no transfer ref"}</span>
               <span>{fmtDate(p.createdAt)}</span>
             </div>
           </li>

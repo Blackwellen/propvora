@@ -82,11 +82,11 @@ export default function DisputesQueue({ rows }: { rows: AdminDisputeRow[] }) {
                   <td className="px-4 py-2.5 font-mono text-[11px] text-slate-500">{shortId(d.id)}</td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1.5 text-xs">
-                      <span className="font-medium text-slate-800 truncate max-w-[130px]">
+                      <span className="font-medium text-slate-800 truncate max-w-[130px]" title={d.raisedByWorkspaceName ?? d.raisedByWorkspaceId ?? undefined}>
                         {d.raisedByWorkspaceName ?? shortId(d.raisedByWorkspaceId)}
                       </span>
                       <ArrowRight className="w-3 h-3 text-slate-300 shrink-0" />
-                      <span className="font-medium text-slate-800 truncate max-w-[130px]">
+                      <span className="font-medium text-slate-800 truncate max-w-[130px]" title={d.againstWorkspaceName ?? d.againstWorkspaceId ?? undefined}>
                         {d.againstWorkspaceName ?? shortId(d.againstWorkspaceId)}
                       </span>
                     </div>
