@@ -145,7 +145,7 @@ export default async function EmergencyDetailPage({ params }: { params: Promise<
             </div>
 
             {/* TABS */}
-            <div className="flex gap-1 border-b border-slate-200 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {TABS.map((tab, i) => (
                 <div
                   key={tab}

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback } from "react"
 import { ImageIcon, Grid2x2, ChevronLeft, ChevronRight, X } from "lucide-react"
@@ -270,7 +270,7 @@ export default function ListingGallery({ images, title }: ListingGalleryProps) {
           {/* Thumbnail strip */}
           {totalPhotos > 1 && (
             <div
-              className="shrink-0 px-4 py-4 flex gap-2 overflow-x-auto scrollbar-hide"
+              className="shrink-0 px-4 py-4 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
               onClick={(e) => e.stopPropagation()}
             >
               {valid.map((url, i) => (

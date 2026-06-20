@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
@@ -95,7 +95,7 @@ export default function ServicesFilterClient({ allOffers, featuredOffers }: Prop
       {/* FILTER CHIPS */}
       <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
               <Filter className="h-3.5 w-3.5" />
               {activeCount > 0 && (
@@ -172,7 +172,7 @@ export default function ServicesFilterClient({ allOffers, featuredOffers }: Prop
                 <p className="text-slate-500 text-sm mt-0.5">Hand-picked top performers with proven track records</p>
               </div>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {shownFeatured.map(offer => (
                 <ServiceOfferCard key={offer.id} offer={offer} featured />
               ))}
@@ -181,7 +181,7 @@ export default function ServicesFilterClient({ allOffers, featuredOffers }: Prop
         )}
 
         {/* CATEGORY TABS */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
+        <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] mb-6 pb-1">
           {CATEGORY_TABS.map(tab => (
             <button
               key={tab.value}

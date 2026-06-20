@@ -736,7 +736,7 @@ export default function ListingDetailPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-0 overflow-x-auto border-b border-slate-200 mb-6 scrollbar-none">
+      <div className="flex gap-0 overflow-x-auto border-b border-slate-200 mb-6 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {TABS.map((tab) => {
           const Icon = tab.icon
           return (

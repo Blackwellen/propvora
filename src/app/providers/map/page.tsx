@@ -87,7 +87,7 @@ export default function ProvidersMapPage() {
       </div>
 
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
-        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
+        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           <button className="relative shrink-0 rounded-xl border border-slate-200 p-2 text-blue-600">
             <SlidersHorizontal className="h-5 w-5" />
             <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">2</span>
@@ -240,7 +240,7 @@ export default function ProvidersMapPage() {
           <ProvidersMap providers={filtered} />
 
           {/* Area chips overlay */}
-          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto scrollbar-hide pointer-events-auto">
+          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] pointer-events-auto">
             {AREA_CHIPS.map(area => (
               <button key={area} onClick={() => setActiveArea(area)} className={["shrink-0 px-4 py-2 rounded-full text-xs font-semibold shadow-md transition-colors whitespace-nowrap", activeArea === area ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'].join(' ')}>
                 {area}

@@ -138,7 +138,7 @@ export default function PropertyDetailPage() {
 
       <div className="px-6 pb-8">
         {/* Tab bar — desktop strip (md+) */}
-        <div className="hidden md:flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6 overflow-x-auto scrollbar-hide">
+        <div className="hidden md:flex items-center gap-0 border-b border-slate-200 mb-5 bg-white -mx-6 px-6 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
               key={tab.id}

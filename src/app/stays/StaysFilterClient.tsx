@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
@@ -84,7 +84,7 @@ export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
       {/* FILTER CHIPS ROW — sticky */}
       <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
               <Filter className="h-3.5 w-3.5" />
               {activeCount > 0 && (

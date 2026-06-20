@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useRouter, usePathname } from "next/navigation"
 import {
@@ -45,7 +45,7 @@ export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 shadow-sm mb-6 overflow-hidden">
       <div
-        className="flex overflow-x-auto scrollbar-hide"
+        className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
         role="tablist"
         aria-label="Profile sections"
       >

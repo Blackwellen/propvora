@@ -153,7 +153,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* TABS */}
-        <div className="mb-5 flex gap-1 overflow-x-auto border-b border-slate-200 scrollbar-hide lg:max-w-[840px]">
+        <div className="mb-5 flex gap-1 overflow-x-auto border-b border-slate-200 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] lg:max-w-[840px]">
           {TABS.map((tab, i) => (
             <div
               key={tab}

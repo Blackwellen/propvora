@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,7 @@ export default function MapAreaChips({ variant = 'stays' }: { variant?: 'stays' 
   const areas = variant === 'stays' ? STAYS_AREAS : variant === 'services' ? SERVICES_AREAS : PROVIDERS_AREAS
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <div className="flex items-center gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
       {areas.map(area => (
         <button
           key={area}

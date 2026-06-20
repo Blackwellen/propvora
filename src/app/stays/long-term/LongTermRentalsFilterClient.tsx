@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { BedDouble, Loader2 } from 'lucide-react'
@@ -85,7 +85,7 @@ export default function LongTermRentalsFilterClient({ rentals }: { rentals: Publ
       <div className="sticky top-20 z-30 bg-white border-b border-slate-100 px-4 py-3">
         <div className="max-w-6xl mx-auto space-y-2">
           {/* City chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {CITY_CHIPS.map(chip => (
               <button
                 key={chip.id}
@@ -115,7 +115,7 @@ export default function LongTermRentalsFilterClient({ rentals }: { rentals: Publ
             </div>
           </div>
           {/* Toggle chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {TOGGLE_CHIPS.map(chip => (
               <button
                 key={chip.id}

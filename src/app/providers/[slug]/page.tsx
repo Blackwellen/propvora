@@ -155,7 +155,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
       {/* TABS */}
       <div className="sticky top-16 z-30 border-b border-slate-200 bg-white">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {TABS.map((tab, i) => (
               <div
                 key={tab}

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Image from "next/image"
@@ -139,7 +139,7 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
 
             {/* Thumbnails */}
             {gallery.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide">
+              <div className="mt-3 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                 {gallery.map((src, i) => (
                   <button
                     key={src}

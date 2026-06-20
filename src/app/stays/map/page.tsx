@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -103,7 +103,7 @@ export default function StaysMapPage() {
 
       {/* FILTER CHIPS ROW */}
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
-        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto scrollbar-hide">
+        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {FILTER_CHIPS.map(chip => (
             <button key={chip.value} className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap">
               {chip.label}
@@ -222,7 +222,7 @@ export default function StaysMapPage() {
           <StaysMap stays={filtered} />
 
           {/* Area chips overlay — top of map */}
-          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto scrollbar-hide pointer-events-auto">
+          <div className="absolute top-5 left-5 right-5 z-[1000] flex items-center gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] pointer-events-auto">
             {AREA_CHIPS.map(area => (
               <button
                 key={area}

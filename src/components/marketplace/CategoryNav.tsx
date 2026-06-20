@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import { LayoutGrid } from "lucide-react"
@@ -28,7 +28,7 @@ export function CategoryNav({ value, onChange, counts, className }: CategoryNavP
   ]
 
   return (
-    <div className={cn("flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 py-0.5", className)}>
+    <div className={cn("flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] -mx-1 px-1 py-0.5", className)}>
       {items.map((item) => {
         const Icon = item.icon
         const active = value === item.key

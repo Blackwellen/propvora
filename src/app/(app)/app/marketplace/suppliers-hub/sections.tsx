@@ -1,4 +1,4 @@
-import PublicSearchBar from "@/components/public-marketplace/PublicSearchBar"
+﻿import PublicSearchBar from "@/components/public-marketplace/PublicSearchBar"
 import PublicFilterChips from "@/components/public-marketplace/PublicFilterChips"
 import PublicResultsToolbar from "@/components/public-marketplace/PublicResultsToolbar"
 import MarketplaceTrustStrip from "@/components/public-marketplace/MarketplaceTrustStrip"
@@ -79,7 +79,7 @@ export async function SuppliersSection() {
               <Star className="h-5 w-5 text-amber-400 fill-amber-400" /> Featured suppliers
             </h2>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {featured.map((p) => (
               <ProviderFeaturedCard key={p.id} provider={p} basePath={HUB} />
             ))}
@@ -182,7 +182,7 @@ export async function ServicesSection() {
       {featured.length > 0 && (
         <section className="pb-6 px-4">
           <h2 className="text-base font-bold text-slate-900 mb-4">Featured service offers</h2>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {featured.map((offer) => (
               <ServiceOfferCard key={offer.id} offer={offer} featured basePath={SERVICES_BASE} />
             ))}
@@ -192,7 +192,7 @@ export async function ServicesSection() {
 
       {/* Category tabs */}
       <div className="px-4 mb-6">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {SERVICE_CATEGORIES.map((cat) => (
             <button
               key={cat.id}

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState, useRef, useEffect } from "react"
 import Image from "next/image"
@@ -613,7 +613,7 @@ export default function PortfolioPage() {
                 {/* Scroll container */}
                 <div
                   ref={segScrollRef}
-                  className="flex gap-3 overflow-x-auto scrollbar-hide px-10"
+                  className="flex gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] px-10"
                 >
                   {ALL_PROFILES.map(profile => {
                     const count = properties.filter(p => p.operationProfile === profile.key).length

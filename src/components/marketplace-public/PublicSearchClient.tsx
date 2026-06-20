@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -223,7 +223,7 @@ function PublicSearchInner({
       )}
 
       {/* Intent tabs */}
-      <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-hide">
+      <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {INTENTS.map((i) => {
           const Icon = i.icon
           const active = i.key === intent.key

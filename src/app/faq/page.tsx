@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+﻿import type { Metadata } from "next"
 import Link from "next/link"
 import {
   HelpCircle,
@@ -79,7 +79,7 @@ export default function FaqPage() {
       {/* Sticky quick-navigation */}
       <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="flex items-center gap-1.5 py-3 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 py-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {navSections.map(({ id, label, icon: Icon, colour }) => (
               <Link
                 key={id}

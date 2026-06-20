@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Image from "next/image"
@@ -105,7 +105,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
         <div className="lg:col-span-2 flex flex-col gap-4">
           {/* Tab nav */}
           <div className="sticky top-[60px] z-10 -mx-1 px-1">
-            <div className="flex gap-1 overflow-x-auto scrollbar-hide rounded-xl border border-slate-200 bg-white/95 backdrop-blur p-1 shadow-sm">
+            <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none] rounded-xl border border-slate-200 bg-white/95 backdrop-blur p-1 shadow-sm">
               {visible.map((sec) => {
                 const SecIcon = sec.icon
                 return (

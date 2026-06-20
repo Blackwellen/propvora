@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Image from "next/image"
@@ -88,7 +88,7 @@ export default function PublicListingDetail({ listing, session }: Props) {
               )}
             </div>
             {gallery.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide">
+              <div className="mt-3 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                 {gallery.map((src, i) => (
                   <button
                     key={src}

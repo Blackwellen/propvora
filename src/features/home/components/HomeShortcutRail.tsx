@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import {
@@ -37,7 +37,7 @@ const SHORTCUTS: ShortcutItem[] = [
 export function HomeShortcutRail() {
   return (
     <div className="bg-white rounded-xl border border-slate-100 shadow-sm px-5 py-3">
-      <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {SHORTCUTS.map((item) => (
           <Link
             key={item.label}

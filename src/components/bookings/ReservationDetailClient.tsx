@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
@@ -236,7 +236,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {TABS.map((t) => {
             const Icon = t.icon
             const active = tab === t.key
