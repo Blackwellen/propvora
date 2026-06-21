@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Heart, MapPin, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatPence } from "@/lib/marketplace/money"
 
 export interface PropertyCardData {
   id: string
@@ -19,7 +20,7 @@ export interface PropertyCardData {
 }
 
 function gbp(pence: number) {
-  return `£${Math.round(pence / 100).toLocaleString("en-GB")}`
+  return formatPence(pence)
 }
 
 /**

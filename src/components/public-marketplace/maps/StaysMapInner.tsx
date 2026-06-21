@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import Link from 'next/link'
 import type { PublicStay } from '@/lib/public-marketplace/types'
+import { formatPence } from '@/lib/marketplace/money'
 
 // Fix Leaflet default icon
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -28,15 +29,16 @@ const MANCHESTER_POLYGON: [number, number][] = [
   [53.5200, -2.3200],
 ]
 
-function createPricePin(price: number, selected = false) {
+function createPricePin(pricePence: number, selected = false) {
   const bg = selected ? '#1d4ed8' : '#fff'
   const color = selected ? '#fff' : '#0f172a'
   const border = selected ? '2px solid #1d4ed8' : '2px solid #e2e8f0'
   const shadow = selected
     ? '0 4px 16px rgba(37,99,235,0.45),0 1px 4px rgba(0,0,0,0.12)'
     : '0 2px 8px rgba(0,0,0,0.14),0 1px 3px rgba(0,0,0,0.08)'
+  const label = formatPence(pricePence)
   return L.divIcon({
-    html: `<div style="background:${bg};color:${color};padding:5px 11px;border-radius:20px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:${shadow};border:${border};cursor:pointer;letter-spacing:-0.01em">£${price}</div>`,
+    html: `<div style="background:${bg};color:${color};padding:5px 11px;border-radius:20px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:${shadow};border:${border};cursor:pointer;letter-spacing:-0.01em">${label}</div>`,
     className: '',
     iconAnchor: [32, 14],
   })
@@ -67,7 +69,7 @@ export default function StaysMapInner({ stays }: StaysMapInnerProps) {
         <Marker
           key={stay.id}
           position={[stay.lat, stay.lng]}
-          icon={createPricePin(stay.pricePerNight / 100)}
+          icon={createPricePin(stay.pricePerNight)}
         >
           <Popup>
             <div className="w-56">
@@ -75,7 +77,7 @@ export default function StaysMapInner({ stays }: StaysMapInnerProps) {
               <div className="p-2">
                 <p className="font-semibold text-slate-900 text-sm line-clamp-1">{stay.title}</p>
                 <p className="text-xs text-slate-500">{stay.location}</p>
-                <p className="font-bold text-blue-600 mt-1">£{(stay.pricePerNight / 100).toFixed(0)}/night</p>
+                <p className="font-bold text-blue-600 mt-1">{formatPence(stay.pricePerNight)}/night</p>
                 <a href={`/stays/${stay.slug}`} className="block mt-2 text-center text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 py-1.5 rounded-lg">View stay</a>
               </div>
             </div>
