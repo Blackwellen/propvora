@@ -578,7 +578,7 @@ export default function Step07Forecast() {
                     }
                   }}
                   className="w-full h-1.5 rounded-full appearance-none bg-slate-200 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#7C3AED]"
-                  style={{ accentColor: "#7C3AED" }}
+                  style={{ accentColor: "var(--accent)" }}
                 />
                 <div className="flex justify-between text-[9.5px] text-slate-400 mt-1">
                   <span>
@@ -645,7 +645,7 @@ export default function Step07Forecast() {
                     value={state[a.key]}
                     onChange={e => update({ [a.key]: Number(e.target.value) })}
                     className="w-full h-1.5 rounded-full appearance-none bg-slate-200 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#7C3AED]"
-                    style={{ accentColor: "#7C3AED" }}
+                    style={{ accentColor: "var(--accent)" }}
                   />
                   <div className="flex justify-between text-[9.5px] text-slate-400 mt-1">
                     <span>{a.min}%</span>

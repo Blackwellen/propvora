@@ -577,7 +577,7 @@ export default function EditInvoicePage() {
           <SectionCard title="Stripe & Payment">
             <div className="space-y-4">
               <div className="p-3 rounded-xl border border-amber-200 bg-amber-50 flex items-start gap-2.5">
-                <div style={{ color: "#D97706" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
+                <div style={{ color: "var(--color-warning)" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
                 <p className="text-xs text-amber-700">
                   Stripe is not connected. Connect at{" "}
                   <Link href="/app/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
@@ -663,7 +663,7 @@ export default function EditInvoicePage() {
               className="w-full flex items-center justify-between px-5 py-4 bg-red-50 hover:bg-red-100 transition-colors text-left"
             >
               <div className="flex items-center gap-2.5">
-                <div style={{ color: "#DC2626" }}><AlertTriangle className="w-4 h-4" /></div>
+                <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-4 h-4" /></div>
                 <span className="text-sm font-semibold text-red-700">Dangerous Actions</span>
                 <span className="text-xs text-red-500">Irreversible or disruptive operations</span>
               </div>

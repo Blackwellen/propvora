@@ -23,7 +23,7 @@ export default function AiCopilotSection() {
     <section
       id="ai-copilot"
       className="py-24 relative overflow-hidden"
-      style={{ background: "#06122F" }}
+      style={{ background: "var(--bg-marketing-dark)" }}
     >
       {/* Subtle grid */}
       <div

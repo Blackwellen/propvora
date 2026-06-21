@@ -54,7 +54,7 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
 
   return (
     <GuidedHelpProvider workspaceId={workspace?.id}>
-    <div className="h-dvh overflow-hidden" style={{ background: "#F6FAFF" }}>
+    <div className="h-dvh overflow-hidden" style={{ background: "var(--bg-app-shell)" }}>
       {/* Skip to main content — first focusable element (WCAG 2.4.1) */}
       <SkipLink />
 

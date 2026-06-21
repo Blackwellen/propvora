@@ -80,7 +80,7 @@ function KpiCard({ label, value, sub, trend }: { label: string; value: string; s
       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide truncate">{label}</p>
       <div className="flex items-center gap-2">
         <p className="text-[22px] font-bold text-slate-900 leading-none">{value}</p>
-        {trend === "up" && <div style={{ color: "#10B981" }}><TrendingUp className="w-4 h-4" /></div>}
+        {trend === "up" && <div style={{ color: "var(--color-success)" }}><TrendingUp className="w-4 h-4" /></div>}
       </div>
       {sub && <p className="text-xs text-slate-400">{sub}</p>}
     </div>

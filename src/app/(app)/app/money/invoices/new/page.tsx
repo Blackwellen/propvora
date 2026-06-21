@@ -596,7 +596,7 @@ export default function NewInvoicePage() {
               <p className="text-sm text-slate-500 mt-0.5">Let tenants pay online via a secure Stripe link.</p>
             </div>
             <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 flex items-start gap-3">
-              <div style={{ color: "#D97706" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
+              <div style={{ color: "var(--color-warning)" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
               <div>
                 <p className="text-sm font-semibold text-amber-800">Stripe not connected</p>
                 <p className="text-xs text-amber-700 mt-0.5">
@@ -977,7 +977,7 @@ export default function NewInvoicePage() {
           {/* AI suggestion card */}
           <div className="bg-violet-50 rounded-2xl border border-violet-200 p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <div style={{ color: "#7C3AED" }}><Sparkles className="w-4 h-4" /></div>
+              <div style={{ color: "var(--accent)" }}><Sparkles className="w-4 h-4" /></div>
               <p className="text-xs font-bold text-violet-700">AI Assistant</p>
             </div>
             <p className="text-xs text-violet-600">Tip: Set a due date within 30 days for faster payment. Invoices with clear descriptions are paid 2× faster.</p>

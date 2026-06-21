@@ -124,6 +124,13 @@
   --bg-sidebar-item: rgba(255,255,255,0.06);
   --bg-sidebar-active: #1E3A5F;
 
+  /* App shell background — the very-light blue-tinted canvas behind the sidebar */
+  --bg-app-shell:    #F6FAFF;
+  /* Marketing dark sections — deep navy hero/CTA blocks */
+  --bg-marketing-dark: #06122F;
+  /* Map placeholder */
+  --bg-map-placeholder: #e8eef4;
+
   --text-primary:    #0F172A;
   --text-secondary:  #334155;
   --text-muted:      #64748B;
@@ -150,6 +157,20 @@
   --accent:       #7C3AED;
   --accent-soft:  #F5F3FF;
   --on-accent:    #FFFFFF;
+
+  /* --- Semantic colour tokens (alias of @theme values for inline style= use) --- */
+  --color-primary:        #2563EB;
+  --color-primary-hover:  #1D4ED8;
+  --color-primary-light:  #EFF6FF;
+  --color-accent:         #7C3AED;
+  --color-accent-hover:   #6D28D9;
+  --color-accent-light:   #F5F3FF;
+  --color-success:        #059669;
+  --color-success-light:  #ECFDF5;
+  --color-warning:        #D97706;
+  --color-warning-light:  #FFFBEB;
+  --color-error:          #DC2626;
+  --color-error-light:    #FEF2F2;
 }
 
 /* ============================================================
@@ -167,6 +188,11 @@
 .bg-accent-brand { background-color: var(--accent); color: var(--on-accent); }
 .text-accent-brand { color: var(--accent); }
 .fill-brand      { fill: var(--brand); }
+
+/* App shell / page canvas — replaces hardcoded #F6FAFF inline style= */
+.bg-app-shell    { background-color: var(--bg-app-shell); }
+/* Marketing dark sections — replaces hardcoded #06122F inline style= */
+.bg-marketing-dark { background-color: var(--bg-marketing-dark); }
 
 
 /* ============================================================

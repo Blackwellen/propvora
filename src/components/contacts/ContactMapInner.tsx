@@ -222,13 +222,13 @@ export default function ContactMapInner({ cityData, selectedId, onSelectCity }: 
               sticky={false}
             >
               <div style={{ fontFamily: 'system-ui,sans-serif', minWidth: 140 }}>
-                <p style={{ fontWeight: 700, fontSize: 13, color: '#0f172a', margin: '0 0 2px' }}>{entry.city}</p>
-                <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 4px' }}>
+                <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)', margin: '0 0 2px' }}>{entry.city}</p>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '0 0 4px' }}>
                   {count} contact{count !== 1 ? 's' : ''}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                   {types.slice(0, 4).map(t => (
-                    <span key={t} style={{ fontSize: 10, fontWeight: 600, background: TYPE_COLORS[t] ?? '#e2e8f0', color: '#fff', padding: '1px 6px', borderRadius: 99, textTransform: 'capitalize' }}>
+                    <span key={t} style={{ fontSize: 10, fontWeight: 600, background: TYPE_COLORS[t] ?? 'var(--color-border)', color: 'var(--text-inverse)', padding: '1px 6px', borderRadius: 99, textTransform: 'capitalize' }}>
                       {t.replace(/_/g, ' ')}
                     </span>
                   ))}

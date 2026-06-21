@@ -382,7 +382,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16
 
   return (
-    <div className="h-dvh overflow-hidden" style={{ background: "#F6FAFF" }}>
+    <div className="h-dvh overflow-hidden" style={{ background: "var(--bg-app-shell)" }}>
       {/* Skip to main content — first focusable element (WCAG 2.4.1) */}
       <SkipLink />
 

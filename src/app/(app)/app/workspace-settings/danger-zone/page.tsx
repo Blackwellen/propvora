@@ -134,7 +134,7 @@ export default function DangerZonePage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div style={{ color: "#DC2626" }}>
+          <div style={{ color: "var(--color-error)" }}>
             <AlertTriangle className="w-5 h-5" />
           </div>
           <h1 className="text-[20px] font-bold text-red-900">Danger Zone</h1>

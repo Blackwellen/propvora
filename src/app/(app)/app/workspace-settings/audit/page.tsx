@@ -161,7 +161,7 @@ export default function AuditPage() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#94A3B8" }}>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-disabled)" }}>
               <Search className="w-4 h-4" />
             </div>
             <input

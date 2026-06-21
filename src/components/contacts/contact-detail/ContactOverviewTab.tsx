@@ -16,7 +16,7 @@ export function TenantOverviewTab({ contact }: { contact: ContactDetail }) {
     <div className="space-y-5">
       {contact.arrears > 0 && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-4 flex items-start gap-3">
-          <div style={{ color: "#dc2626" }}><AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" /></div>
+          <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" /></div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-red-800">Arrears Outstanding</p>
             <p className="text-sm text-red-700">£{contact.arrears.toLocaleString("en-GB")} overdue — action required</p>
@@ -168,7 +168,7 @@ export function ApplicantOverviewTab({ contact }: { contact: ContactDetail }) {
     <div className="space-y-5">
       {contact.next_follow_up && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-3">
-          <div style={{ color: "#d97706" }}><Clock className="w-5 h-5 mt-0.5 shrink-0" /></div>
+          <div style={{ color: "var(--color-warning)" }}><Clock className="w-5 h-5 mt-0.5 shrink-0" /></div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-amber-800">Follow-up due {contact.next_follow_up}</p>
             <p className="text-sm text-amber-700">Book a viewing or send a follow-up message</p>

@@ -276,7 +276,7 @@ export default function PlanningPage() {
                     href={`/app/planning/landlord-offers/${offer.id}`}
                     className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50/50 transition-colors cursor-pointer"
                   >
-                    <div style={{ background: "#7C3AED22", color: "#7C3AED" }} className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0">
+                    <div style={{ background: "var(--accent-soft)", color: "var(--accent)" }} className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0">
                       {initials(offer.property_address)}
                     </div>
                     <div className="flex-1 min-w-0">

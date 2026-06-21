@@ -123,7 +123,7 @@ export default function StripePage() {
           {/* Connection status card */}
           <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-10 text-center">
             <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-              <div style={{ color: "#7C3AED" }}><CreditCard className="w-8 h-8" /></div>
+              <div style={{ color: "var(--accent)" }}><CreditCard className="w-8 h-8" /></div>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-1">Stripe Account Not Connected</h2>
             <p className="text-sm text-slate-500 mb-6 max-w-md mx-auto">
@@ -139,7 +139,7 @@ export default function StripePage() {
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 shadow-lg shadow-blue-500/20"
-                style={{ backgroundColor: "#2563EB" }}
+                style={{ backgroundColor: "var(--brand)" }}
               >
                 <CreditCard className="w-4 h-4" />
                 Connect Stripe Account
@@ -163,7 +163,7 @@ export default function StripePage() {
                 className="flex items-center gap-1 focus:outline-none"
               >
                 {testMode
-                  ? <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
+                  ? <div style={{ color: "var(--brand)" }}><ToggleRight className="w-8 h-8" /></div>
                   : <ToggleLeft className="w-8 h-8 text-slate-400" />}
               </button>
               <span className={cn("text-sm font-medium", testMode ? "text-blue-600" : "text-slate-400")}>
@@ -219,7 +219,7 @@ export default function StripePage() {
               {ENV_VARS.map(v => (
                 <div key={v.key} className="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
                   {v.configured
-                    ? <div style={{ color: "#059669" }}><CheckCircle className="w-4 h-4" /></div>
+                    ? <div style={{ color: "var(--color-success)" }}><CheckCircle className="w-4 h-4" /></div>
                     : <XCircle className="w-4 h-4 text-red-400" />}
                   <code className="text-xs font-mono font-semibold text-slate-700 flex-1">{v.key}</code>
                   <span className="text-[11px] text-slate-500">{v.description}</span>
@@ -267,7 +267,7 @@ export default function StripePage() {
                     <td colSpan={6} className="px-4 py-14 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                          <div style={{ color: "#7C3AED" }}><CreditCard className="w-6 h-6" /></div>
+                          <div style={{ color: "var(--accent)" }}><CreditCard className="w-6 h-6" /></div>
                         </div>
                         <p className="text-sm font-medium text-slate-600">No payment events yet</p>
                         <p className="text-xs text-slate-500 max-w-xs">Connect Stripe to start receiving payment data and automatic status updates.</p>

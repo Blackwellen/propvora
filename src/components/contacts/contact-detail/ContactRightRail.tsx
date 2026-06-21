@@ -62,7 +62,7 @@ export function RightRail({ contact }: { contact: ContactDetail }) {
       {/* Next Best Action */}
       <SectionCard className="p-4 border-l-4 border-l-blue-500">
         <div className="flex items-start gap-2 mb-3">
-          <div style={{ color: "#2563EB" }}><Zap className="w-4 h-4 mt-0.5" /></div>
+          <div style={{ color: "var(--brand)" }}><Zap className="w-4 h-4 mt-0.5" /></div>
           <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Next Best Action</p>
         </div>
         <p className="text-sm text-slate-700 mb-3">{nba.label}</p>

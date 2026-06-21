@@ -231,8 +231,8 @@ export default function NavigationPage() {
 
                       {/* Icon */}
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ background: on ? widget.bg : "#F1F5F9" }}>
-                        <div style={{ color: on ? widget.colour : "#94A3B8" }}>
+                        style={{ background: on ? widget.bg : "var(--color-surface-sunken, #F1F5F9)" }}>
+                        <div style={{ color: on ? widget.colour : "var(--text-disabled)" }}>
                           <Icon className="w-4 h-4" />
                         </div>
                       </div>

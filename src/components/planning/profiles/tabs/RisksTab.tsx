@@ -141,7 +141,7 @@ export default function RisksTab({ profile }: Props) {
         <div className="flex items-center gap-4">
           <span
             className="px-5 py-2.5 rounded-full text-lg font-bold text-white"
-            style={{ backgroundColor: ratingBg[risks.overallRating] ?? '#6366F1' }}
+            style={{ backgroundColor: ratingBg[risks.overallRating] ?? 'var(--color-ai-500, #6366F1)' }}
           >
             {risks.overallRating} Risk
           </span>
@@ -202,7 +202,7 @@ export default function RisksTab({ profile }: Props) {
               <div className="flex items-center gap-3">
                 <span
                   className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                  style={{ backgroundColor: ratingBg[item.level] ?? '#6366F1' }}
+                  style={{ backgroundColor: ratingBg[item.level] ?? 'var(--color-ai-500, #6366F1)' }}
                 >
                   {idx + 1}
                 </span>

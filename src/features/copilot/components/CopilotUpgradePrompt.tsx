@@ -50,7 +50,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
               boxShadow: "0 2px 8px rgba(124,58,237,0.35)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: 16, lineHeight: 1 }}>✦</span>
+            <span className="text-white" style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
           </div>
           <div>
             <p className="text-[14px] font-bold text-slate-900 leading-tight">

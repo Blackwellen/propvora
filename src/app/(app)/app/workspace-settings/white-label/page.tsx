@@ -32,7 +32,7 @@ export default function WhiteLabelPage() {
       {/* Locked state card */}
       <div className="bg-white rounded-2xl border border-violet-200 p-10 text-center max-w-[560px] mx-auto mt-8">
         <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-5">
-          <div style={{ color: "#7C3AED" }}><Globe className="w-7 h-7" /></div>
+          <div style={{ color: "var(--accent)" }}><Globe className="w-7 h-7" /></div>
         </div>
         <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-violet-100 text-violet-700 uppercase tracking-wide">
           Agency Plan or Add-on Required
@@ -45,7 +45,7 @@ export default function WhiteLabelPage() {
           {FEATURES.map(f => (
             <div key={f} className="flex items-center gap-2.5">
               <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
-                <div style={{ color: "#7C3AED" }}><Check className="w-2.5 h-2.5" /></div>
+                <div style={{ color: "var(--accent)" }}><Check className="w-2.5 h-2.5" /></div>
               </div>
               <p className="text-[12.5px] text-slate-700">{f}</p>
             </div>

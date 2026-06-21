@@ -169,7 +169,7 @@ export default function ExpensesPage() {
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-1.5 bg-slate-100 rounded-xl px-3 py-1.5">
-                <div style={{ color: "#94A3B8" }}><Search className="w-3.5 h-3.5" /></div>
+                <div style={{ color: "var(--text-disabled)" }}><Search className="w-3.5 h-3.5" /></div>
                 <input
                   type="text"
                   placeholder="Search expenses..."
@@ -179,7 +179,7 @@ export default function ExpensesPage() {
                 />
               </div>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-500 hover:bg-slate-50 transition-colors">
-                <div style={{ color: "#94A3B8" }}><Filter className="w-3.5 h-3.5" /></div>
+                <div style={{ color: "var(--text-disabled)" }}><Filter className="w-3.5 h-3.5" /></div>
                 Filters
               </button>
             </div>
@@ -219,7 +219,7 @@ export default function ExpensesPage() {
                       <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex items-center justify-center w-6 h-6 rounded-lg flex-shrink-0" style={{ backgroundColor: "#EDE9FE", color: "#7C3AED" }}>
+                            <div className="flex items-center justify-center w-6 h-6 rounded-lg flex-shrink-0" style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent)" }}>
                               <ReceiptText className="w-3.5 h-3.5" />
                             </div>
                             <span className="text-xs font-medium text-slate-800">{r.label ?? r.category ?? `Expense ${i + 1}`}</span>

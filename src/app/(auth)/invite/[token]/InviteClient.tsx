@@ -29,7 +29,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-10"
-      style={{ background: "linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 40%, #EEF2FF 100%)" }}
+      style={{ background: "linear-gradient(135deg, var(--brand-soft) 0%, var(--bg-surface) 40%, var(--accent-soft) 100%)" }}
     >
       <div className="w-full max-w-[440px]">
         <div className="flex justify-center mb-6">

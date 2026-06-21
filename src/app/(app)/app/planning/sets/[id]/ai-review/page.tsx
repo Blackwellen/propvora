@@ -243,7 +243,7 @@ function AiReviewContent({ review: r }: { review: PlanningAiReview }) {
 
         {r.recommendation && (
           <div className="rounded-2xl border border-violet-200 shadow-sm p-5 overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #2563EB 100%)" }}
+            style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--color-ai-700, #6D28D9) 50%, var(--brand) 100%)" }}
           >
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-violet-200" />

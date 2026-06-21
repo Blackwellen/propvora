@@ -256,7 +256,7 @@ export default function LocationMap({
         .pv-pin-halo{position:absolute;left:50%;top:50%;width:${"38px"};height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:radial-gradient(circle, var(--pv-pin) 0%, transparent 70%);opacity:0.45;animation:pvPulse 2s ease-out infinite;pointer-events:none;}
         @keyframes pvPulse{0%{transform:scale(0.6);opacity:0.5;}70%{transform:scale(1.9);opacity:0;}100%{opacity:0;}}
       `}</style>
-      <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" style={{ background: "#e8eef4" }} />
+      <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" style={{ background: "var(--bg-map-placeholder)" }} />
 
       {/* Premium frame: crisp inset ring + soft top/bottom vignette for depth. */}
       <div

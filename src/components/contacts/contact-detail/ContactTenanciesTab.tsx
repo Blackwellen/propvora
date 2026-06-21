@@ -24,7 +24,7 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
     <div className="space-y-5">
       {contact.arrears > 0 ? (
         <div className="rounded-xl bg-red-50 border border-red-200 p-4 flex items-start gap-3">
-          <div style={{ color: "#dc2626" }}><AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" /></div>
+          <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" /></div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-red-800">Arrears Outstanding — £{contact.arrears.toLocaleString("en-GB")}</p>
             <p className="text-sm text-red-700">Payment overdue — send notice or create a follow-up task</p>
@@ -33,7 +33,7 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
         </div>
       ) : (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2">
-          <div style={{ color: "#059669" }}><CheckCircle2 className="w-4 h-4" /></div>
+          <div style={{ color: "var(--color-success)" }}><CheckCircle2 className="w-4 h-4" /></div>
           <p className="text-sm text-emerald-700 font-medium">No arrears — all payments up to date</p>
         </div>
       )}

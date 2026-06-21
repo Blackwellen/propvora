@@ -67,7 +67,7 @@ export default function FirstUseModal() {
         <div className="flex items-start justify-between p-5 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+              style={{ background: "linear-gradient(135deg,var(--brand),var(--accent))" }}>
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>

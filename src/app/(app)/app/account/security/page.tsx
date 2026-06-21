@@ -204,7 +204,7 @@ export default function SecurityPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5" style={{ color: mfaEnabled ? "#059669" : "#D97706" }} />
+            <Shield className="w-5 h-5" style={{ color: mfaEnabled ? "var(--color-success)" : "var(--color-warning)" }} />
             <h3 className="text-[14px] font-bold text-slate-900">Security Status</h3>
           </div>
           <span className={cn(

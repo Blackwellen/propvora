@@ -177,7 +177,7 @@ export default function SecurityPage() {
       {/* Enterprise features */}
       <div className="bg-white rounded-2xl border border-violet-200 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div style={{ color: "#7C3AED" }}>
+          <div style={{ color: "var(--accent)" }}>
             <Lock className="w-5 h-5" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">Enterprise Security Features</h3>
@@ -196,7 +196,7 @@ export default function SecurityPage() {
             key={f}
             className="flex items-center gap-2.5 py-2 border-b border-slate-50 last:border-0 opacity-50"
           >
-            <div style={{ color: "#94A3B8" }}>
+            <div style={{ color: "var(--text-disabled)" }}>
               <Lock className="w-3.5 h-3.5 shrink-0" />
             </div>
             <p className="text-[12.5px] text-slate-700">{f}</p>

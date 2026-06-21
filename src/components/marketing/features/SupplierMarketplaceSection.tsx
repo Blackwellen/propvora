@@ -73,7 +73,7 @@ export default function SupplierMarketplaceSection() {
     <section
       id="supplier-marketplace"
       className="py-24 relative overflow-hidden"
-      style={{ background: "#06122F" }}
+      style={{ background: "var(--bg-marketing-dark)" }}
     >
       {/* Dot overlay */}
       <div

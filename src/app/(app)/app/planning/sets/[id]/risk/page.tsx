@@ -20,9 +20,9 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 function TrendIcon({ trend }: { trend: string }) {
-  if (trend === "improving") return <div style={{ color: "#10B981" }}><TrendingDown className="w-3.5 h-3.5" /></div>
-  if (trend === "worsening") return <div style={{ color: "#EF4444" }}><TrendingUp className="w-3.5 h-3.5" /></div>
-  return <div style={{ color: "#94A3B8" }}><Minus className="w-3.5 h-3.5" /></div>
+  if (trend === "improving") return <div style={{ color: "var(--color-success)" }}><TrendingDown className="w-3.5 h-3.5" /></div>
+  if (trend === "worsening") return <div style={{ color: "var(--color-danger-500, #EF4444)" }}><TrendingUp className="w-3.5 h-3.5" /></div>
+  return <div style={{ color: "var(--text-disabled)" }}><Minus className="w-3.5 h-3.5" /></div>
 }
 
 function startCase(s: string): string {

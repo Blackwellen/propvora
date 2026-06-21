@@ -778,7 +778,7 @@ export default function EventDetailPage() {
 
       <div className="px-6 py-5 space-y-5">
         {/* Hero card */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 border-l-4" style={{ borderLeftColor: "#2563EB" }}>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 border-l-4" style={{ borderLeftColor: "var(--brand)" }}>
           <div className="flex flex-col lg:flex-row lg:items-start gap-5">
             <div className="flex items-start gap-4 flex-1 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">

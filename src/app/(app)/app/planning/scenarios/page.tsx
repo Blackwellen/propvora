@@ -271,7 +271,7 @@ export default function ScenariosPage() {
                       <div className="flex-1 flex items-center">
                         {!isPos && (
                           <div className="flex justify-end" style={{ width: `${pct}%`, minWidth: 40 }}>
-                            <div className="h-8 rounded-l-xl w-full flex items-center justify-end pr-2" style={{ background: "#EF444430" }}>
+                            <div className="h-8 rounded-l-xl w-full flex items-center justify-end pr-2" style={{ background: "rgba(239, 68, 68, 0.19)" }}>
                               <span className="text-[12px] font-bold text-red-600 whitespace-nowrap">{money(d.delta)}/mo</span>
                             </div>
                           </div>
@@ -279,7 +279,7 @@ export default function ScenariosPage() {
                         <div className="w-px h-8 bg-slate-200 shrink-0" />
                         {isPos && (
                           <div style={{ width: `${pct}%`, minWidth: 40 }}>
-                            <div className="h-8 rounded-r-xl flex items-center pl-2" style={{ background: "#10B98130" }}>
+                            <div className="h-8 rounded-r-xl flex items-center pl-2" style={{ background: "rgba(16, 185, 129, 0.19)" }}>
                               <span className="text-[12px] font-bold text-emerald-600 whitespace-nowrap">+{money(d.delta)}/mo</span>
                             </div>
                           </div>

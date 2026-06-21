@@ -289,7 +289,7 @@ export default function RoomsUnitsPage() {
                         <td className="px-3 py-2.5 font-medium text-slate-900">{fmt(r.monthly_rent ?? 0)}</td>
                         <td className="px-3 py-2.5 text-center">
                           {r.bills_included ? (
-                            <div style={{ color: "#10B981" }}><Check className="w-4 h-4 mx-auto" /></div>
+                            <div style={{ color: "var(--color-success)" }}><Check className="w-4 h-4 mx-auto" /></div>
                           ) : (
                             <span className="text-slate-300">—</span>
                           )}

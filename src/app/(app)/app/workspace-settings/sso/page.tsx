@@ -28,7 +28,7 @@ export default function SSOPage() {
       {/* Locked upgrade card */}
       <div className="bg-white rounded-2xl border border-violet-200 p-10 text-center max-w-[560px] mx-auto mt-8 mb-10">
         <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-5">
-          <div style={{ color: "#7C3AED" }}>
+          <div style={{ color: "var(--accent)" }}>
             <Key className="w-7 h-7" />
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function SSOPage() {
           {SSO_FEATURES.map((f) => (
             <div key={f} className="flex items-center gap-2.5 py-2">
               <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
-                <div style={{ color: "#7C3AED" }}>
+                <div style={{ color: "var(--accent)" }}>
                   <Check className="w-2.5 h-2.5" />
                 </div>
               </div>

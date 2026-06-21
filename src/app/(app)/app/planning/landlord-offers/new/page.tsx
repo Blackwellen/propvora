@@ -456,22 +456,22 @@ Kind regards,
                               "flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all w-full",
                               selected ? "shadow-md" : "border-[#E2E8F0] hover:border-slate-300"
                             )}
-                            style={selected ? { borderColor: profile?.colour ?? "#7C3AED" } : {}}
+                            style={selected ? { borderColor: profile?.colour ?? "var(--accent)" } : {}}
                           >
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0" style={{ backgroundColor: profile?.colour ?? "#7C3AED" }}>
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0" style={{ backgroundColor: profile?.colour ?? "var(--accent)" }}>
                               {ps.title.charAt(0)}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-semibold text-slate-900">{ps.title}</p>
-                                {selected && <Check className="w-4 h-4 shrink-0" style={{ color: profile?.colour ?? "#7C3AED" }} />}
+                                {selected && <Check className="w-4 h-4 shrink-0" style={{ color: profile?.colour ?? "var(--accent)" }} />}
                               </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-xs text-slate-400">{profile?.label}</span>
                                 {ps.net_monthly_income > 0 && (
                                   <>
                                     <span className="text-xs text-slate-300">·</span>
-                                    <span className="text-xs font-medium" style={{ color: profile?.colour ?? "#7C3AED" }}>Net: {fmt(ps.net_monthly_income)}/mo</span>
+                                    <span className="text-xs font-medium" style={{ color: profile?.colour ?? "var(--accent)" }}>Net: {fmt(ps.net_monthly_income)}/mo</span>
                                   </>
                                 )}
                               </div>

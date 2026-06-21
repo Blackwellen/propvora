@@ -154,7 +154,7 @@ export function SupplierProfileTab({ contact }: { contact: ContactDetail }) {
             <h4 className="text-sm font-semibold text-slate-900 mb-3">Internal Rating</h4>
             <div className="flex items-center gap-1">
               {[1,2,3,4,5].map(n => (
-                <div key={n} style={{ color: n <= sup.internal_rating ? "#F59E0B" : "#E2E8F0" }}>
+                <div key={n} style={{ color: n <= sup.internal_rating ? "var(--color-warning-500, #F59E0B)" : "var(--color-border, #E2E8F0)" }}>
                   <Star className="w-5 h-5 fill-current" />
                 </div>
               ))}
@@ -297,7 +297,7 @@ export function EnquiryTab({ contact }: { contact: ContactDetail }) {
         </div>
       </SectionCard>
       <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 flex items-center gap-3">
-        <div style={{ color: "#2563EB" }}><Zap className="w-5 h-5 shrink-0" /></div>
+        <div style={{ color: "var(--brand)" }}><Zap className="w-5 h-5 shrink-0" /></div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-blue-900">Ready to convert?</p>
           <p className="text-sm text-blue-700">Convert this applicant to a tenant and create a tenancy record</p>

@@ -136,9 +136,9 @@ export function ToggleSwitch({
         aria-pressed={checked}
       >
         {checked ? (
-          <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
+          <div style={{ color: "var(--brand)" }}><ToggleRight className="w-8 h-8" /></div>
         ) : (
-          <div style={{ color: "#94a3b8" }}><ToggleLeft className="w-8 h-8" /></div>
+          <div style={{ color: "var(--text-disabled)" }}><ToggleLeft className="w-8 h-8" /></div>
         )}
       </button>
       <div>

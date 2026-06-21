@@ -246,7 +246,7 @@ export default function LeafletMap({ properties, selectedId, onSelect }: Leaflet
           color: #2563eb !important;
         }
       `}</style>
-      <div ref={mapRef} className="w-full h-full" style={{ background: "#e8eef4" }} />
+      <div ref={mapRef} className="w-full h-full" style={{ background: "var(--bg-map-placeholder)" }} />
     </>
   )
 }

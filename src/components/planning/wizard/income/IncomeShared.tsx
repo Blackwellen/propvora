@@ -47,7 +47,7 @@ export function IncomeKpiStrip({ items }: { items: KpiItem[] }) {
               {k.label}
               {k.info && <Info className="w-3 h-3 text-slate-300" />}
             </p>
-            <p className="text-[19px] font-bold leading-none" style={{ color: k.tone ?? "#0F172A" }}>
+            <p className="text-[19px] font-bold leading-none" style={{ color: k.tone ?? "var(--text-primary)" }}>
               {k.value}
             </p>
             {k.sub && <p className="text-[10.5px] text-slate-400 mt-1">{k.sub}</p>}
@@ -411,7 +411,7 @@ export function MetricsCard({ title, rows }: { title: string; rows: Array<{ labe
         {rows.map((m) => (
           <div key={m.label} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
             <span className="text-[11.5px] text-slate-500">{m.label}</span>
-            <span className="text-[12px] font-bold" style={{ color: m.tone ?? "#1E293B" }}>
+            <span className="text-[12px] font-bold" style={{ color: m.tone ?? "var(--color-slate-800, #1E293B)" }}>
               {m.value}
             </span>
           </div>

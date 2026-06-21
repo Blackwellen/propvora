@@ -42,7 +42,7 @@ function AiIcon() {
         flexShrink: 0,
       }}
     >
-      <span style={{ color: "#fff", fontSize: 14, lineHeight: 1 }}>✦</span>
+      <span className="text-white" style={{ fontSize: 14, lineHeight: 1 }}>✦</span>
     </div>
   )
 }

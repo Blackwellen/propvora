@@ -198,7 +198,7 @@ export default function BillsPage() {
                       <tr key={b.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0" style={{ backgroundColor: "#EDE9FE", color: "#7C3AED" }}>
+                            <div className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0" style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent)" }}>
                               <Zap className="w-3.5 h-3.5" />
                             </div>
                             <p className="text-xs font-semibold text-slate-800">{b.label}</p>

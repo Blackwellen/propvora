@@ -773,7 +773,7 @@ function RegisterShell() {
   return (
     <div
       className="min-h-screen flex"
-      style={{ background: "linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 40%, #EEF2FF 100%)" }}
+      style={{ background: "linear-gradient(135deg, var(--brand-soft) 0%, var(--bg-surface) 40%, var(--accent-soft) 100%)" }}
     >
       {/* LEFT: form or chooser */}
       <div className="flex-1 flex flex-col min-h-screen">

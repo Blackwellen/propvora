@@ -29,7 +29,7 @@ export function UnitOverviewTab({ unit, tenancy, tenant, onSave }: {
       <div className="lg:col-span-3 space-y-4">
         {/* Photo placeholder — replace with real uploads from Documents tab */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="relative h-[260px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)" }}>
+          <div className="relative h-[260px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)" }}>
             <div className="flex flex-col items-center gap-3 opacity-30">
               <Home size={52} className="text-white" />
             </div>
