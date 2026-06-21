@@ -45,7 +45,8 @@ Coverage for header, breadcrumb, tab, H1/H2 hierarchy, shell width, card, button
 | DESIGN-012 | Admin | /admin | Admin dashboard | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | - | BROWSER_REQUIRED |
 | DESIGN-013 | Marketing | / | Marketing home | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | - | BROWSER_REQUIRED |
 | DESIGN-014 | Marketplace | /marketplace | Marketplace hub | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | [~] | - | BROWSER_REQUIRED |
-| DESIGN-027 | Global | All routes | Dark mode classes | N/A | N/A | N/A | N/A | N/A | N/A | N/A | ✅ | 5 | 5 | NONE | CONFIRMED — zero dark: class usage in src; DESIGN-027 [x] |
+| DESIGN-026 | Global | All .tsx files | Hardcoded hex colours (#2563EB, #7C3AED) | N/A | N/A | N/A | N/A | N/A | N/A | N/A | ⚠️ | 2 | 2 | NOTED | FIX-292: 3,102 occurrences of #2563EB/#7C3AED in .tsx files (mostly admin area). These are consistent brand values (primary blue / primary purple) used as design tokens in JSX style/className props. Not random arbitrary colours — they match the design system. Refactor to CSS vars is V2 work. Document only. |
+| DESIGN-027 | Global | All routes | Dark mode classes | N/A | N/A | N/A | N/A | N/A | N/A | N/A | ✅ | 5 | 5 | NONE | CONFIRMED — zero `dark:` class usage in src (only in comments); DESIGN-027 [x] |
 
 ---
 

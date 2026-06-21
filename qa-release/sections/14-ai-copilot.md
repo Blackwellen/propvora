@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # Section 14 — AI / Copilot
 
-Last updated: 2026-06-21 (FIX-284 — Command audit: pack feature flags, 8 new commands (total 35), prompt quality pass, palette pack grouping)
+Last updated: 2026-06-21 (FIX-292 — /help and /clear client-only fix; merge conflict resolved; SEC-010/023 code-confirmed; FIX-284 — Command audit: pack feature flags, 8 new commands (total 35), prompt quality pass, palette pack grouping)
 
 Coverage for all AI-powered features across PM workspace, Supplier Solo (SSW), Supplier Team (STW), and NVIDIA NIM infrastructure. Each row tests a specific AI surface: trigger, context injection, NIM call, streaming response, usage cap enforcement, security, and audit log entry.
 
@@ -25,8 +24,8 @@ Coverage for all AI-powered features across PM workspace, Supplier Solo (SSW), S
 | AI-PMW-010 | PM | Global AI copilot panel | Freeform chat + streaming | 5 | CODE-PASS | FIX-281: summaryData flows from page event→AppShell state→ChatPanel→CopilotPanelShell→CopilotChatScreen props. API receives workspaceType + pageContext fields. System prompt now includes CURRENT PAGE DATA fence block and CROSS-CONTEXT INTELLIGENCE instructions. |
 | AI-PMW-011 | PM | CopilotChatInput | Slash command palette (35 commands, 9 packs) | 5 | CODE-PASS | FIX-284: COPILOT_COMMANDS registry expanded to 35 commands across 9 feature-flag packs (ai-core, portfolio, compliance, money, work, planning, supplier, bookings, marketplace). All prompts follow "Respond in plain text only. No asterisks, no markdown headers." All have explicit output format instructions. Palette groups commands by pack with visual dividers. getEnabledPacks() filters by workspace type and caps. /api/ai/commands now returns pack field and uses commandsForPacks() instead of commandsForCapabilities(). parseSlashCommand() now case-insensitive. NEXT_PUBLIC_QA_ALL_FLAGS=true shows all 35 commands. |
 | AI-PMW-011b | PM | CopilotMessageBubble | AI response plain-text rendering | 5 | CODE-PASS | FIX-280: AiContentRenderer component added to CopilotMessageBubble. Splits AI content on double newlines into paragraph blocks. Detects numbered lists (1. 2. 3.) and renders as <ol><li>. Detects dashed/bullet lists (- — •) and renders as <ul><li>. Falls back to <p> with whitespace-pre-wrap for prose. User messages still render as plain whitespace-pre-wrap span. No markdown library required. |
-| AI-PMW-012 | PM | CopilotChatInput | /help client-side — no API call | 2 | CODE-ISSUE | BROKEN: Input intercepts /help and calls onSend("/help"). CopilotChatScreen.handleSend has NO clientOnly guard — "/help" is sent to /api/ai/chat with empty prompt. API dispatches command with activeCommand.prompt="" — model receives empty user turn. No command catalogue rendered client-side. See FIX-275 remediation note. |
-| AI-PMW-013 | PM | CopilotChatInput | /clear client-side — resets messages | 2 | CODE-ISSUE | BROKEN: Input intercepts /clear and calls onSend("/clear"). handleSend sends "/clear" to API with empty prompt. Messages are NOT reset. setMessages([WELCOME]) never called. See FIX-275 remediation note. |
+| AI-PMW-012 | PM | CopilotChatInput | /help client-side — no API call | 5 | FIXED (FIX-292) | FIXED: handleSend now checks trimmed === "/help" or "?" BEFORE the API call. Renders a ChatMessage with available commands list. Never sends to API. |
+| AI-PMW-013 | PM | CopilotChatInput | /clear client-side — resets messages | 5 | FIXED (FIX-292) | FIXED: handleSend now checks trimmed === "/clear" BEFORE the API call. Calls setMessages([WELCOME]) and resets threadId. Never sends to API. |
 | AI-PMW-014 | PM | api/ai/chat route | System prompt — Propvora persona + formatting rules | 5 | CODE-PASS | FIX-281: System prompt now includes CURRENT PAGE DATA fence block (pageContext from client) and CROSS-CONTEXT INTELLIGENCE block with 6 explicit rules for citing sources, reasoning across sections, remembering entities, and directing users to the right section when data is missing. FIX-280: FORMATTING RULES block added earlier. |
 | AI-PMW-015 | PM | api/ai/chat route | No-hallucination / no-fabricate rule | 5 | CODE-PASS | "NEVER fabricate property names, tenant names, addresses, financial figures, or any specific data not in context." If not in context: "I don't have that information." Explicit instruction. |
 | AI-PMW-016 | PM | api/ai/chat route | Legal/financial disclaimers | 5 | CODE-PASS | Compliance/legal questions: "consult a qualified solicitor" appended. Financial projections: "estimates only, not professional financial advice" appended. jurisdictionClause injects locale-specific guardrails (GB = full detail; others = generic only). |
@@ -91,28 +90,17 @@ Coverage for all AI-powered features across PM workspace, Supplier Solo (SSW), S
 
 ---
 
-## Key Issues Found (FIX-275 Code Audit)
+## Key Issues Found and Fixed (FIX-275 / FIX-292)
 
-### P2 — /help and /clear clientOnly flag not enforced in CopilotChatScreen
+### FIXED (FIX-292) — /help and /clear now handled client-side in CopilotChatScreen
 
 **Affected:** AI-PMW-012, AI-PMW-013
 
-The commands registry marks `/help` (shortcut: ?) and `/clear` as `clientOnly: true`. `CopilotChatInput.handleSlashSelect` correctly calls `onSend("/help")` or `onSend("/clear")` directly. However `CopilotChatScreen.handleSend` does not check for client-only commands — it sends every string to `/api/ai/chat`. Result:
-- `/help` fires an API call with `activeCommand.prompt = ""` (empty string user turn). The model returns a generic or empty response. No command catalogue is rendered.
-- `/clear` fires an API call with empty prompt. `setMessages([WELCOME])` is never called. Chat does not reset.
+`CopilotChatScreen.handleSend` now intercepts `/help`, `?`, and `/clear` BEFORE any API call:
+- `/help` or `?` → renders a ChatMessage with all available slash commands. No API call.
+- `/clear` → calls `setMessages([WELCOME])` and resets `threadId`. No API call.
 
-**Remediation (for a follow-up fix):** In `CopilotChatScreen.handleSend`, add before the fetch:
-```ts
-if (text.trim() === "/help") {
-  const helpMsg: ChatMessage = { id: `help-${Date.now()}`, role: "ai", content: buildHelpText(), timestamp: now() }
-  setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: "user", content: "/help", timestamp: now() }, helpMsg])
-  return
-}
-if (text.trim() === "/clear") {
-  setMessages([WELCOME])
-  return
-}
-```
+Fix applied in `src/features/copilot/screens/CopilotChatScreen.tsx` lines 94–127.
 
 ### Informational — NIM provider not confirmed active in DB
 
@@ -178,37 +166,3 @@ SupplierAppShell has no ChatPanel mount or OPEN_COPILOT_EVENT listener. The API 
 9. FIX-281: Test on /supplier/requests — confirm breadcrumb reads "Supplier › Requests & Quotes".
 10. FIX-281: Test on /customer/lets — confirm breadcrumb reads "Customer › My Lets".
 11. FIX-281: Test portfolio Ask AI — confirm AI response cites "Based on your current page, you have X properties".
-=======
-# Section 14 — AI Copilot
-
-Last updated: 2026-06-21 (FIX-289)
-
-Scoring: 5=perfect | 4=minor | 3=usable but inconsistent | 2=harms UX | 1=severe | 0=broken/not implemented | N/A=not applicable
-
-## Score Matrix
-
-| Area | Score | Notes |
-|------|-------|-------|
-| Chat panel opens | 5 | Via bubble, MobileBottomNav, OPEN_COPILOT_EVENT, "Use AI" buttons |
-| Streaming response | 5 | ReadableStream → TextDecoder chunk accumulation |
-| Slash command dispatch | 5 | parseSlashCommand() → 31 commands, packs, capabilities |
-| System prompt injection hardening | 5 | fenceUntrusted on all untrusted blocks, 19 INJECTION_PATTERNS, strong SECURITY RULES |
-| Workspace context (live counts) | 5 | 17 metrics including overdueTasks, complianceDue30Days, pendingApprovals |
-| Entity-level context (property/tenancy) | 5 | UUID detection in path, fetchPropertyContext + fetchTenancyContext |
-| Rate limiting | 5 | checkRate() burst limit before AI call |
-| Hard caps | 5 | checkCaps() with quotaExceeded response |
-| Plan gate | 5 | gateAiCopilot() Scale+ check |
-| Audit log | 5 | ai_audit_log insert (best-effort, non-fatal) |
-| Thread persistence | 5 | ai_chat_threads + ai_chat_messages |
-| Jurisdiction clause | 5 | GB full-depth, non-GB generic + disclaimer |
-| Typing indicator | 5 | TypingDots during streaming |
-| Micro-actions (quick-action chips) | 5 | 5 command groups wired in CopilotChatScreen + CopilotMessageBubble |
-| Custom instructions | 5 | copilot_instructions saved in workspace_settings, fenced into system prompt |
-| Response style selector | 5 | concise/standard/detailed → 100/300/600 word limit |
-| Use AI button wiring | 5 | All 8 previously-unconnected buttons now openCopilot() |
-| Upgrade prompt (non-entitled) | 5 | CopilotUpgradePrompt shown when aiCopilotEnabled=false |
-| Keyboard accessibility | 5 | Esc closes, Tab trapped, focus restored |
-| Mobile layout | 5 | Full-screen sheet on mobile, bubble hidden (MobileBottomNav centre button) |
-
-**Section overall score: 5/5**
->>>>>>> worktree-agent-ad8652c37a135b149

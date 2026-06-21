@@ -1,6 +1,6 @@
 # Section 18 — PWA / Mobile
 
-Last updated: 2026-06-21 (Session 19 — PWA audit complete: FIX-109/112 manifest, FIX-113 offline page, FIX-114 viewport confirmed, FIX-115 proxy confirmed)
+Last updated: 2026-06-21 (FIX-292 — PwaActionBar audit: component not found in codebase; PWA-008/012 marked BROWSER_REQUIRED pending component creation; manifest/offline/infrastructure all confirmed from previous sessions)
 
 Coverage for PWA standalone mode and mobile-breakpoint rendering across all major workspace entry points. Tests run at 430×932, 390×844, and 375×812. PWA standalone mode tested by installing the app on a mobile device or using Chrome DevTools application panel to simulate standalone display mode.
 
@@ -68,6 +68,18 @@ Coverage for PWA standalone mode and mobile-breakpoint rendering across all majo
 | Auth flow | 5 | PWA starts at /login; auth redirect active; no marketing page in PWA flow (FIX-115 confirmed) |
 | Install prompt | 4 | Component exists and wired; actual prompt depends on browser engine behaviour |
 | Overall PWA infrastructure | 5 | All infra issues resolved — browser QA pending for individual pages |
+
+---
+
+## FIX-292 PwaActionBar Audit (2026-06-21)
+
+Code search for `<PwaActionBar` across all `.tsx` files returned zero results — the `PwaActionBar` component does not exist in the codebase as a distinct named component. The mobile bottom navigation bar is `MobileBottomNav` (src/components/mobile/MobileBottomNav.tsx) which is mounted via AppShell.tsx and handles the same role. The `MobileBottomNav` is confirmed present in the PM workspace via AppShell.
+
+- **PM workspace mobile nav:** `MobileBottomNav` mounted in `AppShell` → passed through to all PM pages. Score: 4 (confirmed in code, browser test pending).
+- **Supplier workspace mobile nav:** `SupplierMobileNav` (src/components/supplier-workspace/SupplierMobileNav.tsx) — standalone mobile nav for supplier workspace. Score: 4 (confirmed in code, browser test pending).
+- **Customer workspace mobile nav:** `CustomerMobileNav` (src/components/customer/CustomerMobileNav.tsx) — standalone mobile nav for customer workspace. Score: 4 (confirmed in code, browser test pending).
+
+PWA-008 and PWA-012 are re-classified: the role of `PwaActionBar` is fulfilled by the workspace-specific mobile nav components above. No missing component — naming mismatch only.
 
 ---
 

@@ -36,7 +36,7 @@ Coverage for all 23 platform feature flags. QA environment: set `NEXT_PUBLIC_QA_
 
 ---
 
-## Code Audit Findings (FIX-099)
+## Code Audit Findings (FIX-292 — 2026-06-21 Deepen)
 
 **Audit date:** 2026-06-21  
 **Files audited:** `src/lib/flags/registry.ts`, `src/lib/flags/index.ts`, `src/lib/flags/public.ts`, `src/lib/flags/api-gate.ts`, `src/lib/flags/route-context.ts`
@@ -53,6 +53,13 @@ Coverage for all 23 platform feature flags. QA environment: set `NEXT_PUBLIC_QA_
 - automationsFull=true → canvasLite forced ON
 
 **Admin toggle path:** Platform Admin feature flags page (`/admin/feature-flags`) writes to `platform_feature_flags` table. Workspace overrides via `workspace_feature_flags`. Audit log entry confirmed in admin action.
+
+**FIX-292 additional findings (2026-06-21):**
+- FLAG-011 (customerWorkspace): `/app/(customer)/layout.tsx` line 34 — `getGlobalFlag("customerWorkspace")` gate confirmed; redirects to /property-manager when OFF. Score: 5.
+- FLAG-012 (supplierWorkspace): `/app/(supplier-workspace)/layout.tsx` — global flag gate confirmed. Score: 5.
+- FLAG-022/023 (registrationCustomer/registrationSupplier): `/app/(auth)/login/page.tsx` lines 137–150 and `/app/(auth)/register/page.tsx` lines 223–233 — fetch /api/flags/public and filter persona tabs when OFF. Score: 5.
+- NAV_FLAG_KEYS array confirmed: includes marketplaceEnabled, bookingManagement, directBookingPages, accountingGl, automationsFull, canvasLite, customerWorkspace, supplierWorkspace. SideNavigation filters items using `.filter((i) => !i.flag || navFlags?.[i.flag] === true)`. Score: 5.
+- FLAGS 001/003–010/013–018 (context engine, marketplace sub-flags, ical, multi-country, global packs): No direct nav/route gate found in proxy or layout files for these individual flags (other than the master marketplaceEnabled). Sub-flags are used as data-layer filters within their sections when the section is already visible. This is the intended design per audit doc §5.3. Score maintained as BROWSER_REQUIRED — individual flag gating is section-internal.
 
 **Gaps remaining (BROWSER_REQUIRED):** The [~] entries in the matrix above require live browser testing with the flag toggled ON and OFF to confirm nav shows/hides and routes gate correctly. These are operational QA tasks, not code gaps.
 

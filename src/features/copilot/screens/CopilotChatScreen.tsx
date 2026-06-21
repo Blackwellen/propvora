@@ -93,6 +93,48 @@ export default function CopilotChatScreen() {
       if (streaming) return
       setError(null)
 
+      const trimmed = text.trim()
+
+      // ── Client-only commands — never sent to the API ──────────────────────
+      if (trimmed === "/help" || trimmed === "?") {
+        const helpText = [
+          "Available slash commands:",
+          "",
+          "/summarise — Summarise this workspace",
+          "/issues — List open issues",
+          "/cashflow-forecast — Cashflow forecast",
+          "/review-compliance — Compliance review",
+          "/explain-portfolio — Portfolio breakdown",
+          "/create-task — Draft a task",
+          "/chase-arrears — Draft arrears chase",
+          "/void-properties — List void properties",
+          "/tenancy-renewals — Upcoming renewals",
+          "",
+          "Type /clear to reset this chat.",
+          "Type ? or /help to show this again.",
+        ].join("\n")
+        const helpMsg: ChatMessage = {
+          id: `help-${Date.now()}`,
+          role: "ai",
+          content: helpText,
+          timestamp: now(),
+        }
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-${Date.now()}`, role: "user", content: trimmed, timestamp: now() },
+          helpMsg,
+        ])
+        return
+      }
+
+      if (trimmed === "/clear") {
+        setMessages([WELCOME])
+        setThreadId(undefined)
+        setError(null)
+        return
+      }
+      // ─────────────────────────────────────────────────────────────────────
+
       const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: text, timestamp: now() }
       const aiId = `a-${Date.now()}`
       const aiMsg: ChatMessage = { id: aiId, role: "ai", content: "", timestamp: now() }

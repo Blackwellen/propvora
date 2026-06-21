@@ -1,6 +1,6 @@
 # Section 01 — Property Manager Workspace Score Matrix
 
-Last updated: 2026-06-21 (Session 41 — FIX-031–038 Planning wizard honesty; FIX-039–041 Copilot messages live data; FIX-044–050 Money Suspense + honesty; FIX-055–063 Accounting badge labels; FIX-068 PPM overview compliance derived; FIX-072–075 Calendar event detail tabs live; FIX-076–078 Legal/Compliance wording; FIX-079–092 Automations IA + honesty; FIX-097–108 Money/tab nav; FIX-117–120 Compliance/Legal routing; FIX-128/129/138/139 Bookings/Listings honesty; FIX-192–200 tab icons stripped; FIX-201–205 responsive tables; FIX-210–215 Work PPM/Tasks/Gantt/Orders honesty; FIX-229/247/248 Billing honesty; FIX-230/232/246/249 Automations honesty; FIX-252–256 Leasing/Portfolio honesty; FIX-261/262 Customer identity/booking; FIX-265 Integrations honesty; all builds EXIT:0)
+Last updated: 2026-06-21 (FIX-292 — Security/Upload code audit added; Session 41 — FIX-031–038 Planning wizard honesty; FIX-039–041 Copilot messages live data; FIX-044–050 Money Suspense + honesty; FIX-055–063 Accounting badge labels; FIX-068 PPM overview compliance derived; FIX-072–075 Calendar event detail tabs live; FIX-076–078 Legal/Compliance wording; FIX-079–092 Automations IA + honesty; FIX-097–108 Money/tab nav; FIX-117–120 Compliance/Legal routing; FIX-128/129/138/139 Bookings/Listings honesty; FIX-192–200 tab icons stripped; FIX-201–205 responsive tables; FIX-210–215 Work PPM/Tasks/Gantt/Orders honesty; FIX-229/247/248 Billing honesty; FIX-230/232/246/249 Automations honesty; FIX-252–256 Leasing/Portfolio honesty; FIX-261/262 Customer identity/booking; FIX-265 Integrations honesty; all builds EXIT:0)
 
 | Dimension | Score (0–5) | Status | Notes |
 |---|---|---|---|
@@ -289,3 +289,23 @@ The reported "All × 142 vs tab counts 96+18+46+32+14+10=216" and "Listings All 
 
 - tsc `--noEmit`: ✅ 0 errors (exit:0 confirmed)
 - `npm run build`: ✅ Compiled successfully (4.2 min); TypeScript phase in progress when monitored
+
+---
+
+## FIX-292 — Security Audit (2026-06-21)
+
+| ID | Check | Result | Score | Notes |
+|---|---|---|---|---|
+| SEC-010 | AI route injection protection | PASS | 5 | `fenceUntrusted()` applied to workspace context AND pageContext. `SAFETY_CLAUSES` injected into every system prompt. `sanitiseRetrievedContent()` strips 10 injection pattern regexes. `safety.ts` has `import "server-only"`. |
+| SEC-019 | SUPABASE_SERVICE_ROLE_KEY in client components | PASS | 5 | Grep across all `.tsx` files returns zero results. Service role key never referenced in client-side code. |
+| SEC-020 | `createAdminClient` in protected app routes | NOTE | 3 | Two confirmed usages: `/app/money/disputes/[id]/page.tsx` (server component — authorisation check follows immediately after with workspace_member gate) and `/app/money/fee-rules/page.tsx` (server component — admin-only section). Also found in `/customer/bookings/[id]/modify/actions.ts` (server action with workspace scope). All are server-only (no `"use client"` marker). These are intentional for privileged operations with subsequent auth checks. Score 3: not a bug but pattern should be documented/reviewed. |
+| SEC-021 | API routes filter by workspace_id from session | PASS | 5 | `/api/ai/chat`: workspaceId from body is verified against `workspace_members` by session user_id. `/api/upload`: workspaceId from form is verified against `workspace_members`. `/api/documents/signed-url`: workspace_id from authenticated session profile, not URL param. Pattern consistent throughout. |
+| SEC-023 | Rate limiting wired (proxy + API) | PASS | 5 | `proxy.ts`: `/api/auth/` 10 req/60s, `/api/ai/` 30 req/60s, `/api/upload/` 20 req/60s. `api/ai/chat`: `checkRate()` + `checkCaps()` + `checkAiRateLimit()` — triple-layer. `caps.ts` and `metering.ts` confirmed implemented. |
+
+## FIX-292 — Upload Audit (2026-06-21)
+
+| ID | Check | Result | Score | Notes |
+|---|---|---|---|---|
+| UPLOAD-018 | Signed URLs for document access | PASS | 5 | `/api/documents/signed-url/route.ts`: `createSignedUrl()` with 3600s TTL. IDOR check: workspace_id from session, not URL. Falls back to stored URL only if no storage_path (legacy). |
+| UPLOAD-011/012 | MIME type validation in upload handler | PASS | 5 | `/api/upload/route.ts`: `ALLOWED_CONTENT_TYPES` Set allowlist (19 types). `sniffContent()` magic-byte validation (rejects content that doesn't match declared MIME). `sanitizeSvg()` strips SVG active content. |
+| UPLOAD-013 | File size limits | PASS | 5 | `MAX_BYTES = 10_485_760` (10 MB). Returns 413 with clear message. Empty file check returns 400. Plan storage gate (`gateStorage()`) checked after size limit. |
