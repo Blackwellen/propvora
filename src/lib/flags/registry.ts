@@ -39,6 +39,7 @@ export const V2_FLAG_KEYS = [
   "portalSupplier",
   "registrationCustomer",
   "registrationSupplier",
+  "affiliateEnabled",
 ] as const
 
 /** A v2 feature flag identifier (camelCase). */
@@ -236,6 +237,13 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     dbKey: toDbKey("registrationSupplier"),
     label: "Supplier Registration",
     description: "Show the Supplier choice on /register and the Supplier tab on /login. Off in V1 until the supplier workspace is staged on.",
+    defaultEnabled: false,
+  },
+  affiliateEnabled: {
+    key: "affiliateEnabled",
+    dbKey: toDbKey("affiliateEnabled"),
+    label: "Affiliate Programme",
+    description: "Show the Affiliate nav item for workspaces enrolled in the referral programme. Off by default — enabled per workspace on enrolment.",
     defaultEnabled: false,
   },
 }

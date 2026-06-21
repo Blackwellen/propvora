@@ -11,9 +11,11 @@ import {
   Building2,
   Truck,
   BarChart3,
+  Scale,
 } from "lucide-react"
 
-// 8 tabs — operational compliance. Legal (Possession, HMO Licences, EPC, RRA 2026) lives in /app/legal
+// 9 tabs — operational compliance + legal advisory (merged from /legal nav item).
+// Legal tab links to /app/legal (HMO licences, EPC advisory, possession, RRA 2026).
 const COMPLIANCE_TABS = [
   { key: "overview",      label: "Overview",      href: "/app/compliance/overview", root: "/app/compliance", icon: LayoutDashboard },
   { key: "certificates",  label: "Certificates",  href: "/app/compliance/certificates",  icon: FileCheck2 },
@@ -23,6 +25,7 @@ const COMPLIANCE_TABS = [
   { key: "coverage",      label: "Coverage",      href: "/app/compliance/coverage",      icon: Building2 },
   { key: "supplier-docs", label: "Supplier Docs", href: "/app/compliance/supplier-docs", icon: Truck },
   { key: "reports",       label: "Reports",       href: "/app/compliance/reports",       icon: BarChart3 },
+  { key: "legal",         label: "Legal",         href: "/app/legal",                    icon: Scale },
 ] as const
 
 interface ComplianceTabNavProps {
@@ -42,7 +45,9 @@ export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
             const active =
               tab.key === "overview"
                 ? pathname === "/app/compliance" || pathname === "/app/compliance/overview"
-                : pathname.startsWith(tab.href)
+                : tab.key === "legal"
+                  ? pathname === "/app/legal" || pathname.startsWith("/app/legal/")
+                  : pathname.startsWith(tab.href)
             const Icon = tab.icon
             const count = counts?.[tab.key]
             return (

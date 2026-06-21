@@ -150,6 +150,8 @@ function QuickReplies() {
 interface CopilotConversationViewProps {
   onBack: () => void
   isExpanded: boolean
+  /** ID of the conversation to load. Currently unused — shell passes it for future wiring. */
+  conversationId?: string | null
 }
 
 export default function CopilotConversationView({

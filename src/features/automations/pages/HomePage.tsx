@@ -75,7 +75,7 @@ export default function HomePage({
         render: (r) => (
           <span className="inline-flex items-center gap-2">
             <span className="grid h-6 w-6 place-items-center rounded-full bg-violet-100 text-[10px] font-semibold text-violet-700">
-              {r.owner.split(" ").map((p) => p[0]).join("")}
+              {(r.owner ?? "").split(" ").filter(Boolean).map((p) => p[0]).join("")}
             </span>
             <span className="text-slate-600">{r.owner}</span>
           </span>

@@ -2,13 +2,15 @@
 
 import { useRef, useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Plus } from "lucide-react"
 import CopilotContextBar from "../components/CopilotContextBar"
 import CopilotMessageBubble from "../components/CopilotMessageBubble"
 import CopilotChatInput from "../components/CopilotChatInput"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { ChatMessage, QuickAction } from "../types"
+
+const THREAD_STORAGE_KEY = "propvora_copilot_thread_id"
 
 // Quick-action definitions keyed by command slug
 const QUICK_ACTION_MAP: Record<string, QuickAction[]> = {
@@ -68,6 +70,7 @@ export default function CopilotChatScreen() {
   const [streaming, setStreaming] = useState(false)
   const [streamingId, setStreamingId] = useState<string | null>(null)
   const [threadId, setThreadId] = useState<string | undefined>(undefined)
+  const [historyLoading, setHistoryLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [capInfo, setCapInfo] = useState<CapInfo | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -83,6 +86,42 @@ export default function CopilotChatScreen() {
       .catch(() => {/* non-fatal */})
     return () => { active = false }
   }, [])
+
+  // Restore thread from localStorage and load history on mount.
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem(THREAD_STORAGE_KEY) : null
+    if (!stored) return
+    setHistoryLoading(true)
+    fetch(`/api/ai/threads/${stored}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data?.messages?.length) return
+        const restored: ChatMessage[] = data.messages.map((m: { id: string; role: string; content: string; created_at: string }) => ({
+          id: m.id,
+          role: m.role === "user" ? "user" : "ai",
+          content: m.content,
+          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }))
+        setMessages(restored)
+        setThreadId(stored)
+      })
+      .catch(() => {/* non-fatal — stay on welcome screen */})
+      .finally(() => setHistoryLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Persist threadId to localStorage whenever it changes.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (threadId) localStorage.setItem(THREAD_STORAGE_KEY, threadId)
+  }, [threadId])
+
+  function handleNewChat() {
+    if (typeof window !== "undefined") localStorage.removeItem(THREAD_STORAGE_KEY)
+    setMessages([WELCOME])
+    setThreadId(undefined)
+    setError(null)
+  }
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -128,9 +167,7 @@ export default function CopilotChatScreen() {
       }
 
       if (trimmed === "/clear") {
-        setMessages([WELCOME])
-        setThreadId(undefined)
-        setError(null)
+        handleNewChat()
         return
       }
       // ─────────────────────────────────────────────────────────────────────
@@ -251,10 +288,23 @@ export default function CopilotChatScreen() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <CopilotContextBar breadcrumb={context.breadcrumb} onSwitch={() => {}} />
+      <div className="flex items-center justify-between px-4 shrink-0">
+        <CopilotContextBar breadcrumb={context.breadcrumb} onSwitch={() => {}} />
+        <button
+          onClick={handleNewChat}
+          title="Start new chat"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-violet-700 hover:bg-violet-50 transition-all shrink-0"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          New
+        </button>
+      </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 min-h-0">
-        {messages.map((msg) => (
+        {historyLoading && (
+          <div className="flex items-center justify-center py-8 text-[12px] text-slate-400">Loading conversation…</div>
+        )}
+        {!historyLoading && messages.map((msg) => (
           <CopilotMessageBubble
             key={msg.id}
             role={msg.role}

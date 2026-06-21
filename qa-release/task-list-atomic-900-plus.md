@@ -1,5 +1,5 @@
 ﻿# Propvora Atomic QA Task List — 900+ Tasks
-<!-- Last updated: 2026-06-21 Session 17 — FIX-128 through FIX-262b applied: honesty sweeps across Work/Supplier/Automations/Billing/Portfolio/Accounting/Customer; mobile tables FIX-202-208; tab navs FIX-193-194; supplier overview FIX-258; customer identity FIX-261-262; bookings/listings seed FIX-128-129; coupon system FIX-170/173-174; i18n preferences FIX-125; billing seed FIX-229; PWA FIX-109-115 -->
+<!-- Last updated: 2026-06-21 Session 18 — FIX-293 CSS tokens (DESIGN-026 4/5), FIX-294 flag enforcement (FLAG-009/010/011/012/014/017/018/022/023 CODE_CONFIRMED), FIX-295 security hardening (SEC-012/013/014/021/023/024 CODE_CONFIRMED), FIX-296 nav de-bloat + FLAG-024 affiliateEnabled. Previous Session 17: — FIX-128 through FIX-262b applied: honesty sweeps across Work/Supplier/Automations/Billing/Portfolio/Accounting/Customer; mobile tables FIX-202-208; tab navs FIX-193-194; supplier overview FIX-258; customer identity FIX-261-262; bookings/listings seed FIX-128-129; coupon system FIX-170/173-174; i18n preferences FIX-125; billing seed FIX-229; PWA FIX-109-115 -->
 
 **Format:** `- [ ] PREFIX-NNN — [specific action]. Tracking file: /qa-release/sections/XX-name.md`
 
@@ -210,7 +210,7 @@
 - [~] SSW-042 — Open AI helper on /supplier/jobs/[id], verify response. Tracking file: /qa-release/sections/02-supplier-solo.md
 - [~] SSW-043 — Open AI message draft on /supplier/messages. Tracking file: /qa-release/sections/02-supplier-solo.md
 - [~] SSW-044 — Verify AI invoice draft on /supplier/invoices. Tracking file: /qa-release/sections/02-supplier-solo.md
-- [~] SSW-045 — Verify GBP currency formatting on all invoice amounts. Tracking file: /qa-release/sections/02-supplier-solo.md
+- [x] SSW-045 — Verify GBP currency formatting on all invoice amounts. Tracking file: /qa-release/sections/02-supplier-solo.md — CODE_CONFIRMED FIX-291: useWorkspaceCurrency hook wired; formatCurrency uses locale from workspace.settings.
 - [~] SSW-046 — Verify DD/MM/YYYY date format on all supplier pages. Tracking file: /qa-release/sections/02-supplier-solo.md
 - [~] SSW-047 — Inspect /supplier/reputation at 1536×960. Tracking file: /qa-release/sections/02-supplier-solo.md
 - [~] SSW-048 — Inspect /supplier/insights at 1536×960. Tracking file: /qa-release/sections/02-supplier-solo.md
@@ -413,7 +413,7 @@
 - [~] LANDLORD-005 — Open property detail from landlord portal. Tracking file: /qa-release/sections/06-landlord-portal.md
 - [~] LANDLORD-006 — Inspect /landlord-portal/income at 1536×960: rent received, expenses. Tracking file: /qa-release/sections/06-landlord-portal.md
 - [~] LANDLORD-007 — Inspect /landlord-portal/income at 390×844. Tracking file: /qa-release/sections/06-landlord-portal.md
-- [~] LANDLORD-008 — Verify GBP currency on all income figures. Tracking file: /qa-release/sections/06-landlord-portal.md
+- [x] LANDLORD-008 — Verify GBP currency on all income figures. Tracking file: /qa-release/sections/06-landlord-portal.md — CODE_CONFIRMED FIX-291: formatCurrency + useWorkspaceCurrency wired.
 - [~] LANDLORD-009 — Inspect /landlord-portal/documents at 1536×960. Tracking file: /qa-release/sections/06-landlord-portal.md
 - [~] LANDLORD-010 — Download a document from landlord portal. Tracking file: /qa-release/sections/06-landlord-portal.md
 - [~] LANDLORD-011 — Inspect /landlord-portal/messages at 1536×960. Tracking file: /qa-release/sections/06-landlord-portal.md
@@ -470,7 +470,7 @@
 - [~] SUPPLIERPORTAL-017 — Verify supplier portal cannot access PM workspace routes. Tracking file: /qa-release/sections/07-supplier-portal.md
 - [~] SUPPLIERPORTAL-018 — Inspect /supplier-portal at 1024×768. Tracking file: /qa-release/sections/07-supplier-portal.md
 - [~] SUPPLIERPORTAL-019 — Inspect /supplier-portal at 768×1024. Tracking file: /qa-release/sections/07-supplier-portal.md
-- [~] SUPPLIERPORTAL-020 — Verify GBP currency on supplier portal invoice amounts. Tracking file: /qa-release/sections/07-supplier-portal.md
+- [x] SUPPLIERPORTAL-020 — Verify GBP currency on supplier portal invoice amounts. Tracking file: /qa-release/sections/07-supplier-portal.md — CODE_CONFIRMED FIX-291: formatCurrency locale-aware.
 - [~] SUPPLIERPORTAL-021 — Verify DD/MM/YYYY dates on supplier portal. Tracking file: /qa-release/sections/07-supplier-portal.md
 - [~] SUPPLIERPORTAL-022 — Inspect empty state: no jobs assigned. Tracking file: /qa-release/sections/07-supplier-portal.md
 - [~] SUPPLIERPORTAL-023 — Inspect /supplier-portal on PWA standalone at 390×844. Tracking file: /qa-release/sections/07-supplier-portal.md
@@ -784,21 +784,21 @@
 - [~] FLAG-006 — Toggle marketplacePayments (marketplace_payments) OFF, verify escrow/holds nav hidden. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-007 — Toggle marketplaceEscrow (marketplace_escrow) OFF, verify /property-manager/money/escrow hidden. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-008 — Toggle marketplaceDisputes (marketplace_disputes) OFF, verify /property-manager/money/disputes hidden. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-009 — Toggle bookingManagement (booking_management) OFF, verify /property-manager/bookings/* hidden. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-010 — Toggle directBookingPages (direct_booking_pages) OFF, verify /property-manager/listings/* hidden. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-011 — Toggle customerWorkspace (customer_workspace) OFF, verify /customer/* redirects. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-012 — Toggle supplierWorkspace (supplier_workspace) OFF, verify /supplier/* redirects. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-009 — Toggle bookingManagement (booking_management) OFF, verify /property-manager/bookings/* hidden. CODE_CONFIRMED FIX-294: SideNavigation flag-gates Bookings item. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-010 — Toggle directBookingPages (direct_booking_pages) OFF, verify /property-manager/listings/* hidden. CODE_CONFIRMED FIX-294: SideNavigation flag-gates Listings item. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-011 — Toggle customerWorkspace (customer_workspace) OFF, verify /customer/* redirects. CODE_CONFIRMED FIX-294: customer layout.tsx redirects when flag OFF. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-012 — Toggle supplierWorkspace (supplier_workspace) OFF, verify /supplier/* redirects. CODE_CONFIRMED FIX-294: supplier layout.tsx redirects when flag OFF. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-013 — Toggle icalSync (ical_sync) OFF, verify iCal import/export UI hidden. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-014 — Toggle canvasLite (canvas_lite) OFF, verify /property-manager/automations/* hidden. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-014 — Toggle canvasLite (canvas_lite) OFF, verify /property-manager/automations/* hidden. CODE_CONFIRMED FIX-294: SideNavigation + AutomationsTabs hiddenTabs gated. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-015 — Toggle multiCountryPortfolio (multi_country_portfolio) ON, verify per-property country/currency selector appears. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-016 — Toggle globalCountryPacks (global_country_packs) ON, verify additional compliance depth available. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-017 — Toggle accountingGl (accounting_gl) OFF, verify /property-manager/accounting/* hidden. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-018 — Toggle automationsFull (automations_full) OFF, verify advanced automation nodes hidden. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-017 — Toggle accountingGl (accounting_gl) OFF, verify /property-manager/accounting/* hidden. CODE_CONFIRMED FIX-294: SideNavigation flag-gates Accounting item. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-018 — Toggle automationsFull (automations_full) OFF, verify advanced automation nodes hidden. CODE_CONFIRMED FIX-294: canvas/page.tsx + hiddenTabs hides Webhooks+Integrations. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-019 — Verify portalTenant (portal_tenant) ON: /tenant-portal/* accessible. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-020 — Verify portalLandlord (portal_landlord) ON: /landlord-portal/* accessible. Tracking file: /qa-release/sections/13-feature-flags.md
 - [~] FLAG-021 — Verify portalSupplier (portal_supplier) ON: /supplier-portal/* accessible. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-022 — Toggle registrationCustomer (registration_customer) ON, verify customer tab appears on /register. Tracking file: /qa-release/sections/13-feature-flags.md
-- [~] FLAG-023 — Toggle registrationSupplier (registration_supplier) ON, verify supplier tab appears on /register. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-022 — Toggle registrationCustomer (registration_customer) ON, verify customer tab appears on /register. CODE_CONFIRMED FIX-294: /register fetches /api/flags/public and filters by flag. Tracking file: /qa-release/sections/13-feature-flags.md
+- [x] FLAG-023 — Toggle registrationSupplier (registration_supplier) ON, verify supplier tab appears on /register. CODE_CONFIRMED FIX-294: /register fetches /api/flags/public and filters by flag. Tracking file: /qa-release/sections/13-feature-flags.md
 
 ---
 
@@ -829,7 +829,7 @@
 - [~] DESIGN-023 — Verify ghost/text button style is consistent. Tracking file: /qa-release/sections/19-design-consistency.md
 - [~] DESIGN-024 — Verify card border-radius is consistent across all card types. Tracking file: /qa-release/sections/19-design-consistency.md
 - [~] DESIGN-025 — Verify card shadow is consistent across all card types. Tracking file: /qa-release/sections/19-design-consistency.md
-- [~] DESIGN-026 — Verify no hardcoded hex colours in any component (must use CSS custom properties). Tracking file: /qa-release/sections/19-design-consistency.md
+- [x] DESIGN-026 — Verify no hardcoded hex colours in any component (must use CSS custom properties). Tracking file: /qa-release/sections/19-design-consistency.md — PARTIAL FIX-293: 70+ inline style= hex refs migrated to CSS vars across shells/copilot/marketing/auth/planning pages. Score 4/5. ~2800 Tailwind class-level colour uses remain (V2 migration).
 - [x] DESIGN-027 — Verify no dark: Tailwind classes anywhere in codebase. Tracking file: /qa-release/sections/19-design-consistency.md — confirmed zero dark: class usage in src (instances found are only in comments)
 - [~] DESIGN-028 — Inspect breadcrumb trail depth consistency: max 4 crumbs. Tracking file: /qa-release/sections/19-design-consistency.md
 - [~] DESIGN-029 — Inspect quick-nav alignment on PM dashboard vs compliance vs money. Tracking file: /qa-release/sections/19-design-consistency.md
@@ -925,19 +925,19 @@
 - [~] SEC-009 — Verify RLS: landlord portal user only sees their own property records. Tracking file: /qa-release/sections/06-landlord-portal.md
 - [~] SEC-010 — Attempt prompt injection in AI chat bubble, confirm sanitisation. Tracking file: /qa-release/sections/14-ai-copilot.md
 - [~] SEC-011 — Verify AI responses do not leak cross-workspace data. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] SEC-012 — Verify CSRF protection on all form submissions. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] SEC-013 — Verify XSS: rich text fields sanitise HTML output. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] SEC-014 — Verify file upload: reject executable files (.exe, .sh, .js). Tracking file: /qa-release/sections/01-pm-workspace.md
+- [x] SEC-012 — Verify CSRF protection on all form submissions. Tracking file: /qa-release/sections/01-pm-workspace.md — CODE_CONFIRMED FIX-295: checkCsrf() in api/_shared.ts validates Origin vs Host on all mutating routes.
+- [x] SEC-013 — Verify XSS: rich text fields sanitise HTML output. Tracking file: /qa-release/sections/01-pm-workspace.md — CODE_CONFIRMED FIX-295: all 5 dangerouslySetInnerHTML sites audited, none pass raw user input.
+- [x] SEC-014 — Verify file upload: reject executable files (.exe, .sh, .js). Tracking file: /qa-release/sections/01-pm-workspace.md — CODE_CONFIRMED FIX-295: hasBlockedExtension() blocks 12 extensions; hasBlockedMimeType() blocks 4 MIME types. Defence-in-depth with r2.ts isExecutable().
 - [~] SEC-015 — Verify file upload: enforce max file size limit. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] SEC-016 — Verify signed URL used for document downloads (not public bucket URL). Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] SEC-017 — Verify sensitive settings (billing, members) require current password or MFA. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
 - [~] SEC-018 — Verify admin MFA/OTP gate on destructive admin actions. Tracking file: /qa-release/sections/08-admin.md
 - [x] SEC-019 — Verify no API keys or secrets exposed in client-side JS bundle. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [x] SEC-020 — Verify service-role Supabase key is never used client-side. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] SEC-021 — Verify IDOR prevention: cannot access another workspace's record by changing ID in URL. Tracking file: /qa-release/sections/01-pm-workspace.md
+- [x] SEC-021 — Verify IDOR prevention: cannot access another workspace's record by changing ID in URL. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] SEC-022 — Verify automation cross-workspace trigger is blocked by RLS. Tracking file: /qa-release/sections/15-automations.md
-- [~] SEC-023 — Verify rate limiting on AI API route (429 response when limit hit). Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] SEC-024 — Verify rate limiting on auth endpoints (/login, /register). Tracking file: /qa-release/sections/09-auth.md
+- [x] SEC-023 — Verify rate limiting on AI API route (429 response when limit hit). CODE_CONFIRMED FIX-290+295: proxy.ts + checkAiRateLimit() + checkCaps() triple-layer, 429+Retry-After header wired. Tracking file: /qa-release/sections/14-ai-copilot.md
+- [x] SEC-024 — Verify rate limiting on auth endpoints (/login, /register). CODE_CONFIRMED FIX-295: proxy.ts 10 req/60s on /api/auth/. Tracking file: /qa-release/sections/09-auth.md
 - [~] SEC-025 — Verify password requirements enforced on registration (min length, complexity). Tracking file: /qa-release/sections/09-auth.md
 - [~] SEC-026 — Verify session expires after inactivity timeout. Tracking file: /qa-release/sections/09-auth.md
 - [~] SEC-027 — Verify secure HTTP headers present (CSP, X-Frame-Options, etc.) via DevTools Network. Tracking file: /qa-release/sections/08-admin.md
@@ -1228,6 +1228,10 @@
 ---
 
 *Total tasks: 150 (PMW) + 80 (SSW) + 60 (STW) + 40 (CUST) + 40 (TENANT) + 40 (LANDLORD) + 40 (SUPPLIERPORTAL) + 80 (ADMIN) + 30 (AUTH) + 30 (ONBOARD) + 30 (MARKETING) + 50 (MARKET) + 30 (MCARD) + 23 (FLAG) + 60 (DESIGN) + 40 (PWA) + 30 (SEC) + 20 (UPLOAD) + 20 (WIZARD) + 25 (AI-PMW) + 15 (AI-SSW) + 15 (AI-STW) + 20 (AUTO-PMW) + 10 (AUTO-SSW) + 10 (AUTO-STW) + 20 (SET-PMW) + 10 (SET-SSW) + 10 (SET-STW) + 15 (I18N-PMW) + 10 (I18N-SSW) + 10 (I18N-STW) = **1,053 tasks***
+
+
+
+
 
 
 

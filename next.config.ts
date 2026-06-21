@@ -102,11 +102,17 @@ const nextConfig: NextConfig = {
       destination: "/user/:path*",
       permanent: false,
     },
-    // Marketplace section aliases
-    { source: "/marketplace/stays", destination: "/stays", permanent: false },
-    { source: "/marketplace/services", destination: "/services", permanent: false },
-    { source: "/marketplace/providers", destination: "/providers", permanent: false },
-    { source: "/marketplace/suppliers", destination: "/suppliers", permanent: false },
+    // /marketplace does not exist — redirect to the canonical public routes
+    { source: "/marketplace/stays", destination: "/stays", permanent: true },
+    { source: "/marketplace/stays/:path*", destination: "/stays/:path*", permanent: true },
+    { source: "/marketplace/suppliers", destination: "/suppliers", permanent: true },
+    { source: "/marketplace/suppliers/:path*", destination: "/suppliers/:path*", permanent: true },
+    { source: "/marketplace/services", destination: "/services", permanent: true },
+    { source: "/marketplace/services/:path*", destination: "/services/:path*", permanent: true },
+    // Any other /marketplace/* sub-path (emergency, book, checkout, request) → /services
+    { source: "/marketplace", destination: "/services", permanent: true },
+    { source: "/marketplace/:path*", destination: "/services", permanent: true },
+    // Supplier/provider typo aliases
     { source: "/suppleirs", destination: "/suppliers", permanent: false },
     { source: "/suppleirs/:path*", destination: "/suppliers/:path*", permanent: false },
     { source: "/stays/property-map", destination: "/stays/map", permanent: false },

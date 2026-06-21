@@ -82,11 +82,9 @@ const NAV_GROUPS = [
       // Bookings/Listings are V2 direct-booking surfaces — hidden until flagged on.
       { label: "Bookings",   href: `${MANAGER_BASE}/bookings`,    icon: Calendar, flag: "bookingManagement" },
       { label: "Listings",   href: `${MANAGER_BASE}/listings`,    icon: ListChecks, flag: "directBookingPages" },
-      // In V1 supplier coordination lives inside Work (assign trades to jobs) and
-      // Contacts (your own supplier directory + compliance) — there is no standalone
-      // Suppliers item. This entry IS the marketplace suppliers hub; it only appears
-      // when the marketplace is enabled.
-      { label: "Suppliers",  href: `${MANAGER_BASE}/marketplace/suppliers-hub`, icon: Store, flag: "marketplaceEnabled" },
+      // Suppliers hub — PM's own supplier network (directory, compliance, performance).
+      // Marketplace procurement tab is a secondary action inside the hub page itself.
+      { label: "Suppliers",  href: `${MANAGER_BASE}/suppliers`, icon: Store, flag: "marketplaceEnabled" },
       { label: "Planning",   href: `${MANAGER_BASE}/planning`,   icon: Map },
       { label: "Contacts",   href: `${MANAGER_BASE}/contacts`,    icon: Users },
       { label: "Portals",    href: `${MANAGER_BASE}/portals`,     icon: MessageSquareMore },
@@ -99,15 +97,16 @@ const NAV_GROUPS = [
       { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
       // Full double-entry GL — V2; Money basics cover V1. Hidden until flagged on.
       { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator, flag: "accountingGl" },
-      { label: "Affiliate", href: `${MANAGER_BASE}/affiliates`, icon: HandCoins },
+      // Affiliate programme — shown only when the feature is enabled for this workspace.
+      { label: "Affiliate", href: `${MANAGER_BASE}/affiliates`, icon: HandCoins, flag: "affiliateEnabled" },
     ],
   },
   {
     label: "OPERATIONS",
     items: [
       { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
+      // Legal (HMO licences, EPC, possession, RRA 2026) is surfaced as a tab inside Compliance.
       { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
-      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale },
       // Automations-lite (presets) is V1.5 under canvasLite; full canvas is automationsFull.
       { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow, flag: "canvasLite" },
     ],

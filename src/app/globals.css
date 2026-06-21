@@ -3,11 +3,13 @@
    fonts.googleapis.com duplicated that load as an extra cross-origin request on
    every page; removed so no external font fetch is made (Inter still applies via
    --font-inter, falling back to --font-sans → "Inter"). */
-@import "tailwindcss";
+/* source(none) disables Tailwind v4's automatic file-system scan, which was
+   causing a TurbopackInternalError (PostCSS worker timeout) on this large
+   codebase (725+ pages). @source below explicitly scans only src/. */
+@import "tailwindcss" source(none);
+@source "../**/*.{ts,tsx,js,jsx,html}";
 
-/* Force class-based dark mode — dark: variants only apply inside .dark containers.
-   Since we never add .dark, the app is always light regardless of OS preference. */
-@variant dark (&:where(.dark, .dark *));
+/* Dark mode is intentionally never active — zero dark: class usage. */
 
 /* ============================================================
    PROPVORA DESIGN TOKENS — Tailwind v4 @theme block

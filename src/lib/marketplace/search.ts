@@ -121,6 +121,11 @@ interface RpcRow {
   total_count: number | null
 }
 
+function safeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  return url.startsWith("http://") || url.startsWith("https://") ? url : null
+}
+
 function rpcRowToPublic(r: RpcRow): PublicListing {
   return {
     id: r.id,
@@ -146,7 +151,7 @@ function rpcRowToPublic(r: RpcRow): PublicListing {
     publishedAt: r.published_at ?? null,
     createdAt: r.created_at ?? null,
     rank: numOrNull(r.rank),
-    thumbnailUrl: r.thumbnail_url ?? null,
+    thumbnailUrl: safeImageUrl(r.thumbnail_url),
   }
 }
 

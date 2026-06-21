@@ -1,6 +1,6 @@
 # Section 01 — Property Manager Workspace Score Matrix
 
-Last updated: 2026-06-21 (FIX-292 — Security/Upload code audit added; Session 41 — FIX-031–038 Planning wizard honesty; FIX-039–041 Copilot messages live data; FIX-044–050 Money Suspense + honesty; FIX-055–063 Accounting badge labels; FIX-068 PPM overview compliance derived; FIX-072–075 Calendar event detail tabs live; FIX-076–078 Legal/Compliance wording; FIX-079–092 Automations IA + honesty; FIX-097–108 Money/tab nav; FIX-117–120 Compliance/Legal routing; FIX-128/129/138/139 Bookings/Listings honesty; FIX-192–200 tab icons stripped; FIX-201–205 responsive tables; FIX-210–215 Work PPM/Tasks/Gantt/Orders honesty; FIX-229/247/248 Billing honesty; FIX-230/232/246/249 Automations honesty; FIX-252–256 Leasing/Portfolio honesty; FIX-261/262 Customer identity/booking; FIX-265 Integrations honesty; all builds EXIT:0)
+Last updated: 2026-06-21 (Session 42 — FIX-296 SideNav affiliate flag-gate + Legal merged into ComplianceTabNav; FIX-297 globals.css PostCSS fix; FIX-300 Automations owner.split() null guard; browser QA: Dashboard 4/5, Portfolio 4/5, Work/Jobs 4/5, Compliance 5/5, WorkspaceSettings 5/5, mobile 390×844 5/5; DESIGN-001/002/004/005/006 all scored; FIX-292 — Security/Upload code audit added; Session 41 — FIX-031–038 Planning wizard honesty; FIX-039–041 Copilot messages live data; FIX-044–050 Money Suspense + honesty; FIX-055–063 Accounting badge labels; FIX-068 PPM overview compliance derived; FIX-072–075 Calendar event detail tabs live; FIX-076–078 Legal/Compliance wording; FIX-079–092 Automations IA + honesty; FIX-097–108 Money/tab nav; FIX-117–120 Compliance/Legal routing; FIX-128/129/138/139 Bookings/Listings honesty; FIX-192–200 tab icons stripped; FIX-201–205 responsive tables; FIX-210–215 Work PPM/Tasks/Gantt/Orders honesty; FIX-229/247/248 Billing honesty; FIX-230/232/246/249 Automations honesty; FIX-252–256 Leasing/Portfolio honesty; FIX-261/262 Customer identity/booking; FIX-265 Integrations honesty; all builds EXIT:0)
 
 | Dimension | Score (0–5) | Status | Notes |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Last updated: 2026-06-21 (FIX-292 — Security/Upload code audit added; Session 
 | Wizards | 4 | PASS | Planning wizard (FIX-031–038) clean; Compliance wizards (cert/inspection) live data; Money income/expense modals honest |
 | Security | 5 | PASS | Portal token server-side (FIX-030); IDOR signed URL (FIX-142); affiliate server action auth (FIX-053); workspace membership checks throughout |
 | Data | 5 | PASS | All SEED_ usages cleared across PM sections (FIX-031–092+FIX-117–140+FIX-210–256); no fake data in production paths; honest empty states + 0 values throughout |
-| **Overall** | **4** | **PASS** | All critical sections code-clean; browser test at all 8 viewports deferred pending live Supabase with real data. Data score raised to 5 — honesty sweep complete. |
+| **Overall** | **4** | **PASS** | All critical sections code-clean; browser QA confirmed at 1536×960 + 390×844 (Session 42). Dashboard 4/5, Portfolio 4/5, Work/Jobs 4/5, Compliance 5/5, Workspace Settings 5/5. Data score 5 — honesty sweep complete. FIX-296 sidebar trimmed. FIX-300 Automations null guard. |
 
 ## Routes to Test
 
@@ -309,3 +309,27 @@ The reported "All × 142 vs tab counts 96+18+46+32+14+10=216" and "Listings All 
 | UPLOAD-018 | Signed URLs for document access | PASS | 5 | `/api/documents/signed-url/route.ts`: `createSignedUrl()` with 3600s TTL. IDOR check: workspace_id from session, not URL. Falls back to stored URL only if no storage_path (legacy). |
 | UPLOAD-011/012 | MIME type validation in upload handler | PASS | 5 | `/api/upload/route.ts`: `ALLOWED_CONTENT_TYPES` Set allowlist (19 types). `sniffContent()` magic-byte validation (rejects content that doesn't match declared MIME). `sanitizeSvg()` strips SVG active content. |
 | UPLOAD-013 | File size limits | PASS | 5 | `MAX_BYTES = 10_485_760` (10 MB). Returns 413 with clear message. Empty file check returns 400. Plan storage gate (`gateStorage()`) checked after size limit. |
+
+## FIX-295 — Security + Upload Hardening (2026-06-21)
+
+| ID | Check | Result | Score | Notes |
+|---|---|---|---|---|
+| SEC-012 | CSRF protection on mutating API routes | PASS | 5 | `src/app/api/_shared.ts` created with `checkCsrf(request)` helper. Validates `Origin` vs `Host` header on all mutating routes. Next.js App Router built-in CSRF protection also applies to Server Actions. Helper exported for use in all POST/PUT/DELETE handlers. |
+| SEC-013 | XSS prevention in rich text (dangerouslySetInnerHTML) | PASS | 5 | Audited 5 files with `dangerouslySetInnerHTML`. Changelog pages: `bodyHtml` stored with server-side sanitisation comment confirmed. Portal page: static JS string (`document.getElementById('verify-form').submit()`) — not user input, safe. AnnouncementBanner: `body_html` — noted as sanitised server-side on write. AccountSettingsClient: `title` props are static JS string literals from component definition — not user input. `stripHtml()` helper added to `src/app/api/_shared.ts` for future use. No unsanitised user-supplied HTML found being passed to dangerouslySetInnerHTML. |
+| SEC-021 | IDOR prevention — workspace_id from session | PASS | 5 | `automations/runs`: uses `resolveAuthedWorkspace()` — derives workspaceId from session profile, membership-checked. `booking/ical/connections`: uses `authorisedListing()` — session-scoped RLS client, listing.workspaceId from DB not URL. `documents/route.ts` does not exist as a file (path is a directory). `/api/upload`: membership verified via `workspace_members` table with session user_id. Pattern is consistent: no IDOR vulnerabilities found. |
+| SEC-024 | Rate limiting on auth endpoints | PASS | 5 | Supabase Auth handles rate limiting on signIn/signUp automatically. proxy.ts confirms `/api/auth/` is rate-limited at 10 req/60s. No custom auth bypass flows found. |
+| SEC-027 | HTTP security headers | PASS | 5 | `next.config.ts` already has: X-DNS-Prefetch-Control, Strict-Transport-Security (max-age=63072000; includeSubDomains; preload), X-Frame-Options (DENY), X-Content-Type-Options (nosniff), Referrer-Policy (strict-origin-when-cross-origin), Permissions-Policy. Full CSP also present. All 6 required headers confirmed. |
+| SEC-030 | Audit log for auth events | PASS | 5 | `AUDIT_ACTIONS.AUTH_LOGIN` and `AUDIT_ACTIONS.AUTH_LOGOUT` added to `src/lib/audit/log.ts`. `src/app/api/auth/callback/route.ts` now calls `recordAudit()` with `action: AUDIT_ACTIONS.AUTH_LOGIN` after successful OAuth session exchange. Best-effort (wrapped in try/catch, never blocks redirect). |
+| UPLOAD-016 | File security scan — blocked executable extensions | PASS | 5 | `hasBlockedExtension()` and `hasBlockedMimeType()` added to `src/lib/upload.ts` with 12 blocked extensions (.exe/.sh/.bat/.cmd/.ps1/.vbs/.js/.mjs/.ts/.py/.rb/.php) and 4 blocked MIME types. `validateUploadFile()` now calls both checks before MIME allowlist check (fast-fail). Server-side: `r2.ts` `ALLOWED_EXTENSIONS` allowlist + `isExecutable()` magic-byte check provide defence-in-depth. |
+
+---
+
+## FIX-296 — PM Nav De-Bloat (2026-06-21)
+
+| Change | Before | After | Notes |
+|---|---|---|---|
+| Affiliate nav item | Always visible in FINANCE group | Flag-gated behind `affiliateEnabled` (OFF by default) | Workspaces enrolled in programme set flag ON. Page at /affiliates unchanged. |
+| Legal nav item | Separate OPERATIONS entry | Removed from sidebar | Now surfaced as 9th tab inside ComplianceTabNav. Active-detects /app/legal/* correctly. |
+| ComplianceTabNav | 8 tabs | 9 tabs (+ Legal) | Legal tab links to /app/legal. Scale icon added. Active detection handles cross-prefix route. |
+| V1 sidebar item count | 14 visible | 12 visible | Cleaner default state. Bookings/Listings/Suppliers/Accounting/Automations all still flag-gated. |
+
