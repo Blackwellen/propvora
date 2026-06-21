@@ -59,7 +59,7 @@ export default function ShellTabsRail() {
           : "bg-white/90 backdrop-blur-sm"
       )}
     >
-      <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-center gap-1.5 pl-[10px] pr-4 sm:pl-[10px] sm:pr-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
         {widgets.map(widget => {
           const Icon = widget.icon
           const isActive =

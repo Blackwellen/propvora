@@ -49,7 +49,7 @@ export function ListingCardMobile({
 
   return (
     <Link
-      href={`/app/marketplace/${listing.id}`}
+      href={`/property-manager/marketplace/${listing.id}`}
       className={cn(
         "flex items-stretch gap-3 bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-2.5",
         "active:scale-[0.99] transition-transform hover:border-[#BFD8FB]",

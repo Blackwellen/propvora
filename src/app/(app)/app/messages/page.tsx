@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
@@ -71,7 +71,7 @@ function ConvRow({ conv }: { conv: ConversationWithContact }) {
   const type = conv.contact?.contact_type ?? "other"
   return (
     <Link
-      href={sectionLink(`/app/messages/conversations/${conv.id}`)}
+      href={sectionLink(`/property-manager/messages/conversations/${conv.id}`)}
       className="flex items-start gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 group"
     >
       <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(name))}>
@@ -137,7 +137,7 @@ export default function MessagesInboxPage() {
         subtitle={`${conversations.length} conversation${conversations.length === 1 ? "" : "s"}`}
         primaryAction={{ label: "Refresh inbox", icon: RefreshCw, onClick: () => refetch() }}
         overflowActions={[
-          { label: "View Contacts", icon: Users, href: "/app/contacts/people" },
+          { label: "View Contacts", icon: Users, href: "/property-manager/contacts/people" },
         ]}
       />
 
@@ -158,7 +158,7 @@ export default function MessagesInboxPage() {
             </button>
             <ActionMenu
               items={[
-                { label: "View Contacts", icon: Users, onClick: () => router.push("/app/contacts/people") },
+                { label: "View Contacts", icon: Users, onClick: () => router.push("/property-manager/contacts/people") },
                 { label: "Refresh Inbox", icon: RefreshCw, onClick: () => { refetch() } },
               ]}
             />
@@ -242,7 +242,7 @@ export default function MessagesInboxPage() {
                 <p className="text-sm text-slate-400 mt-1">
                   Conversations with your contacts will appear here.
                 </p>
-                <Link href="/app/contacts/people" className="mt-3 inline-flex text-sm text-[#2563EB] hover:underline">
+                <Link href="/property-manager/contacts/people" className="mt-3 inline-flex text-sm text-[#2563EB] hover:underline">
                   Browse contacts →
                 </Link>
               </div>

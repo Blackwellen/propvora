@@ -300,7 +300,7 @@ export default function NavigationPage() {
         <p className="text-[12.5px] text-slate-500 mb-3">Choose which page users land on after logging in.</p>
         <select className="w-full max-w-[320px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all">
           {modules.filter(m => m.visible).map(m => (
-            <option key={m.key} value={`/app/${m.key}`}>{m.label}</option>
+            <option key={m.key} value={`/property-manager/${m.key}`}>{m.label}</option>
           ))}
         </select>
       </div>

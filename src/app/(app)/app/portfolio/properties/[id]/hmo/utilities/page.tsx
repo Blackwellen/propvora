@@ -38,7 +38,7 @@ interface RoomSplit {
 /* ─── Sub-tab strip ─────────────────────────────────────────── */
 function HmoTabStrip({ propertyId }: { propertyId: string }) {
   const pathname = usePathname()
-  const base = `/app/portfolio/properties/${propertyId}/hmo`
+  const base = `/property-manager/portfolio/properties/${propertyId}/hmo`
 
   const tabs = [
     { label: "Overview", href: base },
@@ -70,71 +70,9 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
 }
 
 /* ─── Mock Data ──────────────────────────────────────────────── */
-const UTILITY_BILLS: UtilityBill[] = [
-  {
-    id: "b1",
-    utility: "Electricity",
-    period: "May 2026",
-    total: 284,
-    splitMethod: "Equal",
-    perRoomAvg: 47.33,
-    status: "split_invoiced",
-  },
-  {
-    id: "b2",
-    utility: "Gas",
-    period: "May 2026",
-    total: 187,
-    splitMethod: "Equal",
-    perRoomAvg: 31.17,
-    status: "split_invoiced",
-  },
-  {
-    id: "b3",
-    utility: "Water",
-    period: "May 2026",
-    total: 68,
-    splitMethod: "Equal",
-    perRoomAvg: 11.33,
-    status: "unpaid",
-  },
-  {
-    id: "b4",
-    utility: "Broadband",
-    period: "May 2026",
-    total: 45,
-    splitMethod: "Equal",
-    perRoomAvg: 7.5,
-    status: "split_invoiced",
-  },
-  {
-    id: "b5",
-    utility: "Council Tax",
-    period: "May 2026",
-    total: 180,
-    splitMethod: "Equal",
-    perRoomAvg: 30.0,
-    status: "split_invoiced",
-  },
-  {
-    id: "b6",
-    utility: "Electricity",
-    period: "Apr 2026",
-    total: 312,
-    splitMethod: "Equal",
-    perRoomAvg: 52.0,
-    status: "paid",
-  },
-]
+const UTILITY_BILLS: UtilityBill[] = []
 
-const ELECTRICITY_SPLIT: RoomSplit[] = [
-  { room: "Room 1", tenant: "Sarah Mitchell", amount: 47.33, status: "invoiced" },
-  { room: "Room 2", tenant: "James Chen", amount: 47.33, status: "invoiced" },
-  { room: "Room 3", tenant: "Emma Davies", amount: 47.33, status: "invoiced" },
-  { room: "Room 4", tenant: "Ahmed Hassan", amount: 47.33, status: "invoiced" },
-  { room: "Room 5", tenant: "Lisa Park", amount: 47.33, status: "invoiced" },
-  { room: "Room 6", tenant: null, amount: 0, status: "na" },
-]
+const ELECTRICITY_SPLIT: RoomSplit[] = []
 
 const STATUS_CONFIG: Record<
   UtilityBill["status"],
@@ -381,7 +319,7 @@ export default function HmoUtilitiesPage({
         title="Utility Management"
         subtitle="22 Victoria Road, Manchester"
         showBack
-        backHref={`/app/portfolio/properties/${id}/hmo`}
+        backHref={`/property-manager/portfolio/properties/${id}/hmo`}
         primaryAction={{ label: "Add utility bill", icon: Plus, onClick: () => setShowModal(true) }}
       />
 
@@ -461,6 +399,13 @@ export default function HmoUtilitiesPage({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
+                    {UTILITY_BILLS.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                          No utility bills recorded yet. Add bills to start tracking splits.
+                        </td>
+                      </tr>
+                    )}
                     {UTILITY_BILLS.map((bill) => {
                       const cfg = STATUS_CONFIG[bill.status]
                       return (

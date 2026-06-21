@@ -6,9 +6,9 @@ import { BookOpen, BookText, Scale } from "lucide-react"
 import { useSectionBasePath, resolveSectionHref } from "@/components/sections/SectionBasePath"
 
 const TABS = [
-  { key: "chart", label: "Chart of Accounts", href: "/app/accounting/ledger/chart", icon: BookOpen, prefix: "/app/accounting/ledger/chart" },
-  { key: "journal", label: "Journal", href: "/app/accounting/ledger/journal", icon: BookText, prefix: "/app/accounting/ledger/journal" },
-  { key: "trial-balance", label: "Trial Balance", href: "/app/accounting/ledger/trial-balance", icon: Scale, prefix: "/app/accounting/ledger/trial-balance" },
+  { key: "chart", label: "Chart of Accounts", href: "/property-manager/accounting/ledger/chart", icon: BookOpen, prefix: "/property-manager/accounting/ledger/chart" },
+  { key: "journal", label: "Journal", href: "/property-manager/accounting/ledger/journal", icon: BookText, prefix: "/property-manager/accounting/ledger/journal" },
+  { key: "trial-balance", label: "Trial Balance", href: "/property-manager/accounting/ledger/trial-balance", icon: Scale, prefix: "/property-manager/accounting/ledger/trial-balance" },
 ] as const
 
 export function LedgerSubNav() {
@@ -16,7 +16,7 @@ export function LedgerSubNav() {
   const ctx = useSectionBasePath()
   const pathname =
     ctx && rawPathname.startsWith(ctx.base)
-      ? "/app/accounting" + rawPathname.slice(ctx.base.length)
+      ? "/property-manager/accounting" + rawPathname.slice(ctx.base.length)
       : rawPathname
   return (
     <div className="flex items-center gap-1 border-b border-slate-200 bg-white px-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

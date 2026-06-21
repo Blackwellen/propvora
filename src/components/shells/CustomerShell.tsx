@@ -263,7 +263,7 @@ export default function CustomerShell({
                       type="button"
                       role="menuitem"
                       onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400/50 focus-visible:bg-red-50"
                     >
                       <LogOut className="w-4 h-4 shrink-0" />
                       Sign out

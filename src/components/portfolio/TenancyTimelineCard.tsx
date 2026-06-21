@@ -249,7 +249,7 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
             <Bell className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
             <p className="text-[11px] text-[#1d4ed8] font-medium">{data.reminder_text}</p>
             {data.id && (
-              <Link href={`/app/portfolio/tenancies/${data.id}`}
+              <Link href={`/property-manager/portfolio/tenancies/${data.id}`}
                 className="ml-auto text-[10.5px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5">
                 View <ChevronRight className="w-3 h-3" />
               </Link>

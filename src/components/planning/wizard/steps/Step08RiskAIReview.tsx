@@ -26,9 +26,49 @@ import { useWizard } from "@/components/planning/wizard/WizardContext"
 import type { RiskFactor } from "@/components/planning/wizard/WizardContext"
 import { cn } from "@/lib/utils"
 
+// ── Derive scenario comparison values from wizard state ───────────────────────
+function deriveScenarios(state: ReturnType<typeof useWizard>["state"]) {
+  const grossMonthly =
+    state.profileKey === "hmo" || state.profileKey === "rent_to_rent" || state.profileKey === "student_let"
+      ? state.rooms.reduce((s, r) => s + r.avgRentPcm, 0)
+      : state.profileKey === "serviced_accommodation" || state.profileKey === "holiday_let"
+      ? Math.round((state.adr || 0) * 30.5 * ((state.occupancyPct || 0) / 100))
+      : state.singleMonthlyRent || 0
+
+  const opCosts =
+    state.expenses.reduce((s, e) => s + e.monthlyAmount, 0) +
+    state.bills.reduce((s, b) => s + b.monthlyAmount, 0)
+
+  const totalUpfront = state.upfrontCosts.reduce((s, c) => s + c.amount, 0)
+
+  const debtService =
+    state.forecastLtvPct > 0
+      ? Math.round(totalUpfront * (state.forecastLtvPct / 100) * (state.forecastInterestRatePct / 100) / 12)
+      : 0
+
+  function calcScenario(incomeMultiplier: number, costMultiplier: number) {
+    const income = Math.round(grossMonthly * incomeMultiplier * 12)
+    const costs = Math.round(opCosts * costMultiplier * 12)
+    const noi = income - costs
+    const annualDebt = debtService * 12
+    const dscr = annualDebt > 0 ? noi / annualDebt : 0
+    const cashYield = totalUpfront > 0 ? ((noi - annualDebt) / totalUpfront) * 100 : 0
+    const occ = state.occupancyPct * incomeMultiplier
+    return { noi, dscr, cashYield, occ: Math.min(occ, 100) }
+  }
+
+  return {
+    base: calcScenario(1.0, 1.0),
+    downside: calcScenario(0.85, 1.15),
+    upside: calcScenario(1.1, 0.97),
+    hasData: grossMonthly > 0 || totalUpfront > 0,
+  }
+}
+
 export default function Step08RiskAIReview() {
   const { state } = useWizard()
   const [riskTab, setRiskTab] = useState("Risk Radar")
+  const scenarios = deriveScenarios(state)
 
   const radarData = state.riskFactors.map((rf: RiskFactor) => ({
     subject: rf.label
@@ -301,7 +341,7 @@ export default function Step08RiskAIReview() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    {["Scenario", "NOI", "DSCR", "Cash Yield", "IRR", "Occupancy", "Risk Score"].map(
+                    {["Scenario", "NOI", "DSCR", "Cash Yield", "IRR ¹", "Occupancy", "Risk Score"].map(
                       h => (
                         <th
                           key={h}
@@ -314,41 +354,45 @@ export default function Step08RiskAIReview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
+                  {(scenarios.hasData ? [
                     {
                       label: "Base Case",
-                      sub: "Current",
-                      noi: "£124,800",
-                      dscr: "1.38×",
-                      cashYield: "6.2%",
-                      irr: "12.1%",
-                      occ: "82%",
-                      score: 62,
+                      sub: "Current assumptions",
+                      noi: `£${Math.round(scenarios.base.noi).toLocaleString()}`,
+                      dscr: scenarios.base.dscr > 0 ? `${scenarios.base.dscr.toFixed(2)}×` : "N/A",
+                      cashYield: `${scenarios.base.cashYield.toFixed(1)}%`,
+                      irr: "—",
+                      occ: `${scenarios.base.occ.toFixed(0)}%`,
+                      score: Math.min(100, Math.max(0, Math.round(60 - scenarios.base.cashYield * 2))),
                       colour: "#2563EB",
                     },
                     {
                       label: "Downside Case",
-                      sub: "–15% income",
-                      noi: "£78,300",
-                      dscr: "1.02×",
-                      cashYield: "3.1%",
-                      irr: "7.0%",
-                      occ: "68%",
-                      score: 41,
+                      sub: "–15% income / +15% costs",
+                      noi: `£${Math.round(scenarios.downside.noi).toLocaleString()}`,
+                      dscr: scenarios.downside.dscr > 0 ? `${scenarios.downside.dscr.toFixed(2)}×` : "N/A",
+                      cashYield: `${scenarios.downside.cashYield.toFixed(1)}%`,
+                      irr: "—",
+                      occ: `${scenarios.downside.occ.toFixed(0)}%`,
+                      score: Math.min(100, Math.max(0, Math.round(75 - scenarios.downside.cashYield * 2))),
                       colour: "#EF4444",
                     },
                     {
                       label: "Upside Case",
-                      sub: "+10% income",
-                      noi: "£171,600",
-                      dscr: "1.79×",
-                      cashYield: "8.6%",
-                      irr: "16.3%",
-                      occ: "92%",
-                      score: 78,
+                      sub: "+10% income / –3% costs",
+                      noi: `£${Math.round(scenarios.upside.noi).toLocaleString()}`,
+                      dscr: scenarios.upside.dscr > 0 ? `${scenarios.upside.dscr.toFixed(2)}×` : "N/A",
+                      cashYield: `${scenarios.upside.cashYield.toFixed(1)}%`,
+                      irr: "—",
+                      occ: `${scenarios.upside.occ.toFixed(0)}%`,
+                      score: Math.min(100, Math.max(0, Math.round(45 - scenarios.upside.cashYield * 2))),
                       colour: "#10B981",
                     },
-                  ].map(row => (
+                  ] : [
+                    { label: "Base Case", sub: "Add income/costs in Steps 3–5 to see projections", noi: "—", dscr: "—", cashYield: "—", irr: "—", occ: "—", score: 0, colour: "#94A3B8" },
+                    { label: "Downside Case", sub: "–15% income / +15% costs", noi: "—", dscr: "—", cashYield: "—", irr: "—", occ: "—", score: 0, colour: "#94A3B8" },
+                    { label: "Upside Case", sub: "+10% income / –3% costs", noi: "—", dscr: "—", cashYield: "—", irr: "—", occ: "—", score: 0, colour: "#94A3B8" },
+                  ]).map(row => (
                     <tr
                       key={row.label}
                       className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
@@ -374,8 +418,8 @@ export default function Step08RiskAIReview() {
                       <td className="px-4 py-3 text-[12.5px] font-semibold text-slate-700">
                         {row.cashYield}
                       </td>
-                      <td className="px-4 py-3 text-[12.5px] font-semibold text-slate-700">
-                        {row.irr}
+                      <td className="px-4 py-3 text-[12.5px] font-semibold text-slate-400" title="IRR requires a full DCF engine — available in V2">
+                        N/A
                       </td>
                       <td className="px-4 py-3 text-[12.5px] font-semibold text-slate-700">
                         {row.occ}
@@ -406,6 +450,9 @@ export default function Step08RiskAIReview() {
                 </tbody>
               </table>
             </div>
+            <p className="px-5 py-2.5 text-[10.5px] text-slate-400 border-t border-slate-50">
+              ¹ IRR requires a full DCF cash-flow model. It will be calculated automatically in V2 once multi-year projections are enabled.
+            </p>
           </div>
 
           {/* Unresolved Issues */}

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -73,7 +73,7 @@ export default function SelectTenancyPage() {
         ground: "Ground 8 (rent arrears)",
         status: "gathering_evidence",
       })
-      router.push(`/app/legal/possession/new/select-grounds?case=${created.id}`)
+      router.push(`/property-manager/legal/possession/new/select-grounds?case=${created.id}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create case")
       setCreating(false)
@@ -159,7 +159,7 @@ export default function SelectTenancyPage() {
             <p className="text-[12px] text-slate-400 max-w-xs mb-4">
               Add a tenancy in Portfolio first, then return here to start a possession case.
             </p>
-            <Link href="/app/portfolio/tenancies" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/property-manager/portfolio/tenancies" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
               Go to Tenancies →
             </Link>
           </div>

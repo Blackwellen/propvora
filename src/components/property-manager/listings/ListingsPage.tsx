@@ -1,31 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Filter, Download, ChevronDown, Plus, Search } from 'lucide-react'
-import { SEED_LISTINGS } from '@/lib/property-manager/listings/seed'
 import type { Listing } from '@/lib/property-manager/listings/types'
 import ListingKpiCards from './ListingKpiCards'
 import ListingsTable from './ListingsTable'
 import ListingPreviewPanel from './ListingPreviewPanel'
 import { cn } from '@/lib/utils'
 
-const TABS = [
-  { key: 'all', label: 'All listings', count: 130 },
-  { key: 'live', label: 'Live', count: 112 },
-  { key: 'draft', label: 'Draft', count: 18 },
-  { key: 'needs_attention', label: 'Needs attention', count: 15 },
-  { key: 'short_stay', label: 'Short stays', count: 94 },
-  { key: 'long_term', label: 'Long-term rentals', count: 36 },
-  { key: 'direct', label: 'Direct booking enabled', count: 78 },
-  { key: 'channel_synced', label: 'Channel synced', count: 102 },
+// Primary tabs filter by STATUS dimension only. Type and channel are secondary
+// filter chips below the tab bar — mixing dimensions in the same tab row would
+// produce counts that don't add up (e.g. All=130 but Short stays + Long-term
+// also = 130, not summing to 130 through a different lens simultaneously).
+const STATUS_TABS = [
+  { key: 'all', label: 'All listings' },
+  { key: 'live', label: 'Live' },
+  { key: 'draft', label: 'Draft' },
+  { key: 'needs_attention', label: 'Needs attention' },
+]
+
+// Secondary type filter chips — independent from status tabs
+const TYPE_CHIPS = [
+  { key: 'all_types', label: 'All types' },
+  { key: 'short_stay', label: 'Short stays' },
+  { key: 'long_term', label: 'Long-term rentals' },
+]
+
+// Secondary channel filter chips — independent from status tabs
+const CHANNEL_CHIPS = [
+  { key: 'all_channels', label: 'All channels' },
+  { key: 'direct', label: 'Direct booking' },
+  { key: 'channel_synced', label: 'Channel synced' },
 ]
 
 export default function ListingsPage() {
   const [activeTab, setActiveTab] = useState('all')
-  const [selectedId, setSelectedId] = useState<string | null>('1')
+  const [activeType, setActiveType] = useState('all_types')
+  const [activeChannel, setActiveChannel] = useState('all_channels')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
-  const listings: Listing[] = SEED_LISTINGS
+  // Listings table not yet migrated to live schema. Gated by bookingManagement
+  // feature flag. Replace with live Supabase query when migration is applied:
+  // supabase.from('listings').select('*').eq('workspace_id', workspaceId)
+  const listings: Listing[] = []
+
+  // Derive counts from the SAME dataset so tabs always match table totals.
+  // Status counts use only the status dimension; type/channel counts are
+  // independent and use the full dataset (not filtered by status tab).
+  const statusCounts = useMemo(() => ({
+    all: listings.length,
+    live: listings.filter((l) => l.status === 'live').length,
+    draft: listings.filter((l) => l.status === 'draft').length,
+    needs_attention: listings.filter((l) => l.status === 'needs_attention').length,
+  }), [listings])
+
+  const typeCounts = useMemo(() => ({
+    all_types: listings.length,
+    short_stay: listings.filter((l) => l.listing_type === 'short_stay').length,
+    long_term: listings.filter((l) => l.listing_type === 'long_term').length,
+  }), [listings])
+
+  const channelCounts = useMemo(() => ({
+    all_channels: listings.length,
+    direct: listings.filter((l) => l.channels.some((c) => c.name === 'direct')).length,
+    channel_synced: listings.filter((l) => l.channels.length > 0).length,
+  }), [listings])
 
   const selectedListing = listings.find((l) => l.id === selectedId) ?? null
 
@@ -34,6 +74,20 @@ export default function ListingsPage() {
   }
 
   const filteredListings = listings.filter((l) => {
+    // Status tab filter
+    if (activeTab === 'live' && l.status !== 'live') return false
+    if (activeTab === 'draft' && l.status !== 'draft') return false
+    if (activeTab === 'needs_attention' && l.status !== 'needs_attention') return false
+
+    // Secondary type filter
+    if (activeType === 'short_stay' && l.listing_type !== 'short_stay') return false
+    if (activeType === 'long_term' && l.listing_type !== 'long_term') return false
+
+    // Secondary channel filter
+    if (activeChannel === 'direct' && !l.channels.some((c) => c.name === 'direct')) return false
+    if (activeChannel === 'channel_synced' && l.channels.length === 0) return false
+
+    // Text search
     if (search) {
       const q = search.toLowerCase()
       return (
@@ -42,20 +96,13 @@ export default function ListingsPage() {
         l.property_location.toLowerCase().includes(q)
       )
     }
-    if (activeTab === 'live') return l.status === 'live'
-    if (activeTab === 'draft') return l.status === 'draft'
-    if (activeTab === 'needs_attention') return l.status === 'needs_attention'
-    if (activeTab === 'short_stay') return l.listing_type === 'short_stay'
-    if (activeTab === 'long_term') return l.listing_type === 'long_term'
-    if (activeTab === 'direct') return l.channels.some((c) => c.name === 'direct')
-    if (activeTab === 'channel_synced') return l.channels.length > 0
     return true
   })
 
   return (
     <div className="flex h-full gap-0 overflow-hidden">
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto min-w-0 px-6 py-6">
+      <div className="flex-1 overflow-y-auto min-w-0 py-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
@@ -85,37 +132,89 @@ export default function ListingsPage() {
         </div>
 
         {/* KPI Cards */}
-        <ListingKpiCards />
+        <ListingKpiCards listings={listings} />
 
-        {/* Status tabs */}
+        {/* Status tabs — by status dimension only */}
         <div className="mt-6 border-b border-slate-200">
-          <div className="flex gap-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {TABS.map((tab) => {
-              const isActive = activeTab === tab.key
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
-                    isActive
-                      ? 'border-blue-600 text-blue-600 font-semibold'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'
-                  )}
-                >
-                  {tab.label}
-                  <span
+          <div className="relative">
+            <div className="flex gap-0 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] after:content-[''] after:absolute after:right-0 after:top-0 after:h-full after:w-8 after:bg-gradient-to-l after:from-white after:to-transparent after:pointer-events-none">
+              {STATUS_TABS.map((tab) => {
+                const isActive = activeTab === tab.key
+                const count = statusCounts[tab.key as keyof typeof statusCounts] ?? 0
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
                     className={cn(
-                      'text-xs px-1.5 py-0.5 rounded-full',
-                      isActive ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'
+                      'flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+                      isActive
+                        ? 'border-blue-600 text-blue-600 font-semibold'
+                        : 'border-transparent text-slate-500 hover:text-slate-700'
                     )}
                   >
-                    {tab.count}
-                  </span>
-                </button>
-              )
-            })}
+                    {tab.label}
+                    <span
+                      className={cn(
+                        'text-xs px-1.5 py-0.5 rounded-full',
+                        isActive ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'
+                      )}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
+        </div>
+
+        {/* Secondary filter chips — type and channel (independent dimensions) */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-slate-400 font-medium">Type:</span>
+          {TYPE_CHIPS.map((chip) => {
+            const isActive = activeType === chip.key
+            const count = typeCounts[chip.key as keyof typeof typeCounts] ?? 0
+            return (
+              <button
+                key={chip.key}
+                onClick={() => setActiveType(chip.key)}
+                className={cn(
+                  'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
+                  isActive
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                )}
+              >
+                {chip.label}
+                <span className={cn('text-[10px]', isActive ? 'text-blue-500' : 'text-slate-400')}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+          <span className="text-xs text-slate-300 mx-1">|</span>
+          <span className="text-xs text-slate-400 font-medium">Channel:</span>
+          {CHANNEL_CHIPS.map((chip) => {
+            const isActive = activeChannel === chip.key
+            const count = channelCounts[chip.key as keyof typeof channelCounts] ?? 0
+            return (
+              <button
+                key={chip.key}
+                onClick={() => setActiveChannel(chip.key)}
+                className={cn(
+                  'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
+                  isActive
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                )}
+              >
+                {chip.label}
+                <span className={cn('text-[10px]', isActive ? 'text-blue-500' : 'text-slate-400')}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         {/* Filter row */}
@@ -153,10 +252,10 @@ export default function ListingsPage() {
             <option>Location: All locations</option>
           </select>
           <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 cursor-pointer hover:bg-slate-50 transition-colors">
-            <span>17 Jun 2026 – 17 Jul 2026</span>
+            <span>Date range</span>
           </div>
           <button
-            onClick={() => { setSearch(''); setActiveTab('all') }}
+            onClick={() => { setSearch(''); setActiveTab('all'); setActiveType('all_types'); setActiveChannel('all_channels') }}
             className="text-sm text-blue-600 hover:text-blue-700 transition-colors whitespace-nowrap"
           >
             Clear all

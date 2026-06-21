@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 // Shared wizard shell: header (title/subtitle, stepper, autosave indicator,
 // save draft, close), scrolling step body, a RIGHT live-preview + validation
@@ -74,7 +74,7 @@ export function ListingWizardLayout({ children }: { children: React.ReactNode })
             </span>
             <button
               type="button"
-              onClick={() => router.push("/app/listings")}
+              onClick={() => router.push("/property-manager/listings")}
               aria-label="Close wizard"
               className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100"
             >

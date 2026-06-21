@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -26,10 +26,10 @@ export function ContactsTab({ contacts }: { contacts: import("@/types/database")
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/app/contacts/new" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href="/property-manager/contacts/new" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Contact
           </Link>
-          <Link href="/app/contacts" className="flex items-center gap-1.5 text-[13px] text-slate-600 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50">
+          <Link href="/property-manager/contacts" className="flex items-center gap-1.5 text-[13px] text-slate-600 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50">
             Open Contacts <ArrowUpRight size={13} />
           </Link>
         </div>
@@ -60,7 +60,7 @@ export function ContactsTab({ contacts }: { contacts: import("@/types/database")
                 {filtered.map((c) => (
                   <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
                     <td className="px-4 py-3">
-                      <Link href={`/app/contacts/${c.id}`} className="flex items-center gap-3">
+                      <Link href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0" style={{ backgroundColor: getAvatarColor(c.full_name) }}>
                           {c.full_name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()}
                         </div>
@@ -74,7 +74,7 @@ export function ContactsTab({ contacts }: { contacts: import("@/types/database")
                     <td className="px-4 py-3">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <ActionMenu align="right" items={[
-                          { label: "View contact", icon: Eye, onClick: () => { window.location.href = `/app/contacts/${c.id}` } },
+                          { label: "View contact", icon: Eye, onClick: () => { window.location.href = `/property-manager/contacts/${c.id}` } },
                         ]} />
                       </div>
                     </td>

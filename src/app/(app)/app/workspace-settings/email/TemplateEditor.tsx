@@ -17,16 +17,16 @@ export interface TemplateDef {
 function renderPreview(text: string, tokens: string[]): string {
   let out = text
   const samples: Record<string, string> = {
-    tenant_name: "Sarah Mitchell",
-    contact_name: "Sarah Mitchell",
-    workspace_name: "Johnson Property Portfolio",
-    property_address: "14 Birchwood Road, London E1 7PL",
+    tenant_name: "Your Tenant",
+    contact_name: "Your Contact",
+    workspace_name: "Your Property Portfolio",
+    property_address: "Your Property Address",
     amount: "£1,250.00",
     due_date: "30 Jun 2026",
-    invoice_number: "INV-2026-0042",
+    invoice_number: "INV-2026-XXXX",
     certificate_type: "Gas Safety (CP12)",
     expiry_date: "12 Aug 2026",
-    supplier_name: "Apex Maintenance Ltd",
+    supplier_name: "Your Supplier",
     invite_link: "https://app.propvora.com/register?invite=…",
     sender_name: "Your property manager",
   }

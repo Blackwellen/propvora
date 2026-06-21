@@ -43,7 +43,21 @@ export default function ReviewsClient() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-slate-200">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden border-b border-slate-200 pb-2.5">
+        <select
+          value={tab}
+          onChange={(e) => setTab(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 border-b border-slate-200">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px", t === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t}</button>
         ))}

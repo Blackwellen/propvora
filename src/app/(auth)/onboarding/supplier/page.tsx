@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import {
   Check,
   ChevronRight,
@@ -54,16 +53,51 @@ interface SupplierState {
 const TOTAL_STEPS = 6
 
 const TRADE_CATEGORIES = [
+  // Cleaning & Property Care
   "Cleaning",
+  "End of Tenancy Cleaning",
+  "Window Cleaning",
+  "Waste Removal",
+  // Plumbing & Heating
   "Plumbing",
-  "Electrical",
-  "HVAC",
-  "Landscaping",
-  "Security",
-  "Painting",
-  "Carpentry",
+  "Heating & Boilers",
   "Gas Engineer",
+  "HVAC / Air Con",
+  // Electrical
+  "Electrical",
+  "PAT Testing",
+  "EV Charging",
+  "Smart Home / AV",
+  // Building & Structural
+  "Roofing",
+  "Plastering",
+  "Damp Proofing",
+  "Bricklaying",
+  // Decoration & Interior
+  "Painting & Decorating",
+  "Carpentry & Joinery",
+  "Flooring",
+  "Tiling",
+  "Kitchen Fitting",
+  "Bathroom Fitting",
+  "Glazing & Windows",
+  // Garden & External
+  "Landscaping",
+  "Fencing",
+  "Paving & Driveways",
+  "Pest Control",
+  // Security & Access
   "Locksmith",
+  "CCTV & Alarms",
+  "Door Entry Systems",
+  // Compliance & Inspections
+  "Fire Safety",
+  "EPC Assessments",
+  "Asbestos Surveys",
+  "Legionella Testing",
+  "Inventory / Check-in",
+  // Other
+  "Removals",
   "Other",
 ]
 
@@ -152,7 +186,6 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function SupplierOnboardingPage() {
-  const router = useRouter()
   const [step, setStep] = useState(1)
   const [userName, setUserName] = useState("")
   const [progressIdx, setProgressIdx] = useState(0)
@@ -220,7 +253,13 @@ export default function SupplierOnboardingPage() {
             listOnMarketplace: state.listOnMarketplace,
           },
         })
-        setWorkspaceId(result.workspaceId)
+        if (!result.ok) {
+          const msg = "error" in result ? result.error : "Service temporarily unavailable."
+          setSubmitError(msg)
+          setStep(5)
+          return
+        }
+        setWorkspaceId(result.data?.workspaceId ?? "")
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Failed to create profile."
         setSubmitError(msg)
@@ -760,7 +799,7 @@ export default function SupplierOnboardingPage() {
                 variant="primary"
                 size="lg"
                 className="w-full"
-                onClick={() => router.push("/supplier")}
+                onClick={() => window.location.assign("/supplier")}
               >
                 Start accepting jobs
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -806,7 +845,7 @@ export default function SupplierOnboardingPage() {
           <p className="mt-4 text-center text-xs text-slate-400">
             <button
               type="button"
-              onClick={() => router.push("/supplier")}
+              onClick={() => window.location.assign("/supplier")}
               className="hover:text-slate-600 transition-colors underline underline-offset-2"
             >
               Skip setup and go to dashboard

@@ -34,7 +34,7 @@ export default function ListingPreviewPanel({ listing, onClose }: ListingPreview
 
   if (!listing) {
     return (
-      <div className="w-80 shrink-0 border-l border-slate-200 bg-white overflow-y-auto flex items-center justify-center">
+      <div className="hidden lg:flex w-80 shrink-0 border-l border-slate-200 bg-white overflow-y-auto items-center justify-center">
         <p className="text-slate-400 text-sm text-center px-6">
           Select a listing to view availability, pricing, channels and performance details.
         </p>
@@ -45,7 +45,7 @@ export default function ListingPreviewPanel({ listing, onClose }: ListingPreview
   const score = listing.quality_score ?? 0
 
   return (
-    <div className="w-80 shrink-0 border-l border-slate-200 bg-white overflow-y-auto flex flex-col">
+    <div className="hidden lg:flex w-80 shrink-0 border-l border-slate-200 bg-white overflow-y-auto flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 sticky top-0 bg-white z-10">
         <div className="flex items-center gap-2">

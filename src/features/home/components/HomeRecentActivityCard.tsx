@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import {
@@ -55,7 +55,7 @@ export function HomeRecentActivityCard({ activities }: HomeRecentActivityCardPro
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Recent activity</h3>
-        <Link href="/app/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all →
         </Link>
       </div>
@@ -105,7 +105,7 @@ export function HomeRecentActivityCard({ activities }: HomeRecentActivityCardPro
 
       {activities.length > 0 && (
         <div className="pt-2 border-t border-slate-100">
-          <Link href="/app/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
             See more activity →
           </Link>
         </div>

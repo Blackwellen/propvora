@@ -1,3 +1,30 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   PublicService — unified type for the ServiceCard component (FIX-140).
+   Covers both regular service listings and emergency call-out services so
+   both can render using a single premium hero-image card.
+─────────────────────────────────────────────────────────────────────────── */
+export interface PublicService {
+  id: string
+  slug: string
+  title: string
+  description: string
+  trade: string
+  category?: string
+  heroImage: string
+  providerName: string
+  providerLogo: string
+  rating: number
+  reviewCount: number
+  location: string
+  responseTimeMin: number
+  responseTimeMax: number
+  fromPrice: number // pence
+  isEmergency: boolean
+  phone?: string
+  vetted?: boolean
+  insured?: boolean
+}
+
 export interface PublicStay {
   id: string
   slug: string

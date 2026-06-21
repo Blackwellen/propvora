@@ -12,6 +12,10 @@ const StaysMapInner = dynamic(() => import('./StaysMapInner'), {
   ),
 })
 
-export default function StaysMap({ stays }: { stays: PublicStay[] }) {
-  return <StaysMapInner stays={stays} />
+export default function StaysMap({ stays, height = 'h-full' }: { stays: PublicStay[]; height?: string }) {
+  return (
+    <div className={`w-full ${height}`}>
+      <StaysMapInner stays={stays} />
+    </div>
+  )
 }

@@ -142,8 +142,8 @@ export function GuidedHelpProvider({
     (pathname: string): Tutorial | null => {
       if (!enabled || !ready) return null
       const matches = (pattern: string): boolean => {
-        // Root "/app" only triggers on the dashboard itself, never on sub-routes.
-        if (pattern === "/app") return pathname === "/app" || pathname === "/app/"
+        // Root /property-manager only triggers on the dashboard itself, never on sub-routes.
+        if (pattern === "/property-manager") return pathname === "/property-manager" || pathname === "/property-manager/"
         return pathname.startsWith(pattern)
       }
       // Most specific (longest) matching routePattern wins.

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { Building2 } from "lucide-react"
@@ -38,32 +38,29 @@ function PropertyMiniCard({ property }: { property: HomeProperty }) {
 
   return (
     <Link
-      href={property.href ?? `/app/portfolio/properties/${property.id}`}
+      href={property.href ?? `/property-manager/portfolio/properties/${property.id}`}
       className="flex-1 min-w-0 block rounded-xl overflow-hidden border border-[#E2E8F0] hover:shadow-md transition-shadow group"
     >
-      <div className={`relative h-24 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+      <div className={`relative h-[58px] bg-gradient-to-br ${gradient} flex items-center justify-center`}>
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cover} alt={property.name} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <Building2 className="text-white/70" style={{ width: 28, height: 28 }} />
+          <Building2 className="text-white/70" style={{ width: 20, height: 20 }} />
         )}
-        <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
+        <div className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
           <span className="text-[9px] font-bold text-slate-700">{property.occupancyPct}%</span>
         </div>
       </div>
-      <div className="p-3 bg-white">
-        <p className="text-[12px] font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+      <div className="px-2.5 py-2 bg-white">
+        <p className="text-[11px] font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
           {property.name}
         </p>
-        <p className="text-[11px] text-slate-500 truncate">{property.city}</p>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-[11px] font-semibold text-slate-900">
-            {property.monthlyRent > 0 ? `£${property.monthlyRent.toLocaleString("en-GB")}/mo` : "—"}
+        <div className="flex items-center justify-between mt-0.5">
+          <span className="text-[10px] text-slate-500 truncate mr-1">{property.city}</span>
+          <span className="text-[10px] font-semibold text-slate-700 shrink-0">
+            {`£${property.monthlyRent.toLocaleString("en-GB")}`}
           </span>
-          {property.units > 0 && (
-            <span className="text-[10px] text-slate-400">{property.units} unit{property.units !== 1 ? "s" : ""}</span>
-          )}
         </div>
         <OccupancyBar pct={property.occupancyPct} />
       </div>
@@ -76,7 +73,7 @@ export function HomePortfolioSnapshotCard({ properties }: HomePortfolioSnapshotC
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Portfolio snapshot</h3>
-        <Link href="/app/portfolio/properties" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/properties" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all →
         </Link>
       </div>
@@ -91,7 +88,7 @@ export function HomePortfolioSnapshotCard({ properties }: HomePortfolioSnapshotC
             <p className="text-[12px] text-slate-400 mt-0.5">Add your first property to get started</p>
           </div>
           <Link
-            href="/app/portfolio/properties/new"
+            href="/property-manager/portfolio/properties/new"
             className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
           >
             Add first property →

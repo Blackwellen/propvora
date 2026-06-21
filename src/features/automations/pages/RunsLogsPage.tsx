@@ -10,7 +10,6 @@ import { AutomationsStatusBadge } from "../components/AutomationsBadges"
 import { Btn, Card, CardHeader, useToast } from "../components/primitives"
 import { BarList, MiniArea, MiniBars } from "../components/charts"
 import { useAutomationRunsLogs } from "../data/hooks"
-import { SEED_FAILED_STEPS } from "../data/seed"
 import type { RunRow } from "../data/types"
 
 export default function RunsLogsPage() {
@@ -54,25 +53,34 @@ export default function RunsLogsPage() {
 
   return (
     <AutomationsModuleShell
-      title="Automations"
-      subtitle="Review-first portfolio automation that proposes safe, reversible next steps."
+      title="Runs & Logs"
+      subtitle="Full observability for every automation run — step timings, outputs, approvals and audit trail."
       icon={Activity}
       actions={actions}
     >
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Total runs" value="1,248" trend="18.6%" icon={Activity} tone="blue">
-          <MiniBars data={[18, 22, 20, 26, 24, 30, 28]} />
-        </AutomationsKpiCard>
-        <AutomationsKpiCard label="Success rate" value="98.1%" trend="2.3pp" icon={CheckCircle2} tone="emerald">
-          <MiniArea data={[96, 97, 97, 98, 98, 98]} color="#10b981" />
-        </AutomationsKpiCard>
-        <AutomationsKpiCard label="Failed runs" value={23} trend="8.0%" trendDir="down" icon={XCircle} tone="red">
-          <MiniArea data={[30, 28, 26, 25, 24, 23]} color="#ef4444" />
-        </AutomationsKpiCard>
-        <AutomationsKpiCard label="Average duration" value="1m 42s" trend="12.5%" trendDir="down" icon={Clock} tone="violet">
-          <MiniArea data={[120, 115, 110, 108, 104, 102]} color="#7c3aed" />
-        </AutomationsKpiCard>
-      </div>
+      {/* KPIs derived from seed/live data */}
+      {(() => {
+        const totalRuns = runs.length
+        const successRuns = runs.filter((r) => r.status === "success").length
+        const failedRuns = runs.filter((r) => r.status === "failed").length
+        const successRate = totalRuns > 0 ? Math.round((successRuns / totalRuns) * 1000) / 10 : 0
+        return (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <AutomationsKpiCard label="Runs (loaded)" value={totalRuns} sub="Live backend needed for totals" icon={Activity} tone="blue">
+              <MiniBars data={[18, 22, 20, 26, 24, 30, 28]} />
+            </AutomationsKpiCard>
+            <AutomationsKpiCard label="Success rate" value={`${successRate}%`} icon={CheckCircle2} tone="emerald">
+              <MiniArea data={[96, 97, 97, 98, 98, 98]} color="#10b981" />
+            </AutomationsKpiCard>
+            <AutomationsKpiCard label="Failed runs" value={failedRuns} icon={XCircle} tone="red">
+              <MiniArea data={[30, 28, 26, 25, 24, 23]} color="#ef4444" />
+            </AutomationsKpiCard>
+            <AutomationsKpiCard label="Average duration" value="—" sub="Requires live data" icon={Clock} tone="violet">
+              <MiniArea data={[120, 115, 110, 108, 104, 102]} color="#7c3aed" />
+            </AutomationsKpiCard>
+          </div>
+        )
+      })()}
 
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_320px]">
         <div>
@@ -86,7 +94,7 @@ export default function RunsLogsPage() {
                 rows={runs}
                 page={page}
                 pageSize={10}
-                total={1248}
+                total={runs.length}
                 onPageChange={setPage}
                 onRowClick={(r) => setActive(r)}
                 activeRowId={active?.id}
@@ -107,14 +115,18 @@ export default function RunsLogsPage() {
           <Card>
             <CardHeader title="Queue backlog" action={<button className="text-xs font-medium text-blue-600 hover:underline">View queue</button>} />
             <div className="p-3 space-y-1.5 text-sm">
-              {[["Pending runs", 12], ["Waiting approvals", 18], ["Errored", 5]].map(([l, v]) => (
+              {[
+                ["Skipped runs", runs.filter((r) => r.status === "skipped").length],
+                ["Errored", runs.filter((r) => r.status === "failed").length],
+              ].map(([l, v]) => (
                 <div key={l as string} className="flex justify-between"><span className="text-slate-600">{l}</span><span className="font-medium text-slate-900">{v}</span></div>
               ))}
+              <div className="flex justify-between"><span className="text-slate-600">Waiting approvals</span><span className="text-slate-400 text-xs">Requires live data</span></div>
             </div>
           </Card>
           <Card>
             <CardHeader title="Recent failed steps" />
-            <div className="p-4"><BarList items={SEED_FAILED_STEPS} color="bg-red-400" /></div>
+            <div className="p-4 text-[12.5px] text-slate-400">No failed steps recorded.</div>
           </Card>
         </div>
       </div>

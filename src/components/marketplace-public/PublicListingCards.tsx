@@ -199,45 +199,73 @@ export function SupplierCard({ listing, className }: CardProps) {
   )
 }
 
-/* ── EmergencyCard ── */
+/* ── EmergencyCard — premium hero-image card with red urgent styling ── */
 export function EmergencyCard({ listing, className }: CardProps) {
   const href = publicListingHref({ id: listing.id, transactionType: listing.transactionType })
+  const [imgErr, setImgErr] = useState(false)
+  const showImage = !!listing.thumbnailUrl && !imgErr
   return (
-    <Link href={href} className={cn("block group", className)}>
-      <article className="bg-white rounded-2xl overflow-hidden border border-red-200/70 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(239,68,68,0.16)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full">
-        <div className="px-4 pt-3.5 pb-3.5 flex flex-col flex-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-red-50 text-red-600 shrink-0">
-              <Siren className="w-4.5 h-4.5" />
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-red-600 transition-colors">
-                {listing.title}
-              </h3>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600">
-                <Clock className="w-3 h-3" /> Responds now
-              </span>
+    <article className={cn("bg-white rounded-2xl overflow-hidden border border-red-200/70 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(239,68,68,0.16)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group", className)}>
+      {/* Hero image — 16:9 */}
+      <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+        <Link href={href} tabIndex={-1} aria-hidden="true">
+          {showImage ? (
+            <Image
+              src={listing.thumbnailUrl!}
+              alt={listing.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              onError={() => setImgErr(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
+              <Siren className="w-10 h-10 text-white/30" aria-hidden="true" />
             </div>
-          </div>
-          {listing.description && (
-            <p className="mt-2 text-[12px] text-slate-500 line-clamp-2">{listing.description}</p>
           )}
-          {(listing.location ?? listing.region ?? listing.city) && (
-            <p className="mt-2 flex items-center gap-1 text-[11.5px] text-slate-500 truncate">
-              <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
-              <span className="truncate">{listing.location ?? listing.region ?? listing.city}</span>
-            </p>
-          )}
-          <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-red-100">
-            <div>
-              <span className="block text-[10px] font-medium uppercase tracking-wide text-slate-400">Call-out from</span>
-              <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
-            </div>
-            <span className="text-[11px] font-semibold text-red-600">Request now →</span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent" />
+        </Link>
+        {/* Emergency badge */}
+        <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm pointer-events-none">
+          <Zap className="w-3 h-3" aria-hidden="true" />
+          Emergency
+        </span>
+        {/* Responds now chip */}
+        <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10.5px] font-bold text-red-600 shadow-sm pointer-events-none">
+          <Clock className="w-3 h-3" aria-hidden="true" /> Responds now
+        </span>
+      </div>
+
+      {/* Body */}
+      <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
+        <Link href={href} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 rounded">
+          <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">
+            {listing.title}
+          </h3>
+        </Link>
+        {listing.description && (
+          <p className="mt-1.5 text-[12px] text-slate-500 line-clamp-2">{listing.description}</p>
+        )}
+        {(listing.location ?? listing.region ?? listing.city) && (
+          <p className="mt-1.5 flex items-center gap-1 text-[11.5px] text-slate-500 truncate">
+            <MapPin className="w-3 h-3 shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="truncate">{listing.location ?? listing.region ?? listing.city}</span>
+          </p>
+        )}
+        <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-red-100">
+          <div>
+            <span className="block text-[10px] font-medium uppercase tracking-wide text-slate-400">Call-out from</span>
+            <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
           </div>
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1"
+          >
+            Request now
+          </Link>
         </div>
-      </article>
-    </Link>
+      </div>
+    </article>
   )
 }
 

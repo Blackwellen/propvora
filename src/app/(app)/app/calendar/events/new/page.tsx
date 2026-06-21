@@ -540,11 +540,11 @@ function Step7({ form, onReset, createdId }: { form: FormData; onReset: () => vo
       <div className="flex flex-wrap gap-3 justify-center">
         {createdId && (
           <Button variant="primary" asChild>
-            <a href={sectionLink(`/app/calendar/events/${createdId}`)}>View Event</a>
+            <a href={sectionLink(`/property-manager/calendar/events/${createdId}`)}>View Event</a>
           </Button>
         )}
         <Button variant="outline" asChild>
-          <a href={sectionLink("/app/calendar")}>Back to Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")}>Back to Calendar</a>
         </Button>
         <Button variant="ghost" leftIcon={<RefreshCw className="w-4 h-4" />} onClick={onReset}>Create Another</Button>
       </div>
@@ -758,7 +758,7 @@ export default function NewEventPage() {
 
   return (
     <div className="space-y-0">
-      <MobileTopBar title="New Event" subtitle="Create event" showBack backHref={sectionLink("/app/calendar/events")} />
+      <MobileTopBar title="New Event" subtitle="Create event" showBack backHref={sectionLink("/property-manager/calendar/events")} />
       <div className="hidden md:block">
         <CalendarTabNav />
       </div>

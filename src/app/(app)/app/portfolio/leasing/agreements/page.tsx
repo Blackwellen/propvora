@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState } from "react"
 import {
   Plus,
@@ -36,69 +36,7 @@ interface Agreement {
 }
 
 /* ─── Mock data ───────────────────────────────────────────────── */
-const AGREEMENTS: Agreement[] = [
-  {
-    id: "a1", title: "Room 6 AST — Victoria Rd", tenancy: "Sarah Mitchell",
-    signatories: [
-      { name: "Sarah Mitchell", email: "sarah.m@email.com", role: "Tenant", signed: true, signedAt: "10:23, 1 Jun 2026" },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: true, signedAt: "14:05, 1 Jun 2026" },
-    ],
-    created: "1 Jun 2026", deadline: null, status: "Fully Signed",
-  },
-  {
-    id: "a2", title: "14 Elm Close AST", tenancy: "James Chen",
-    signatories: [
-      { name: "James Chen", email: "james.chen@email.com", role: "Tenant", signed: true, signedAt: "09:11, 6 Jun 2026" },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: false },
-    ],
-    created: "5 Jun 2026", deadline: "12 Jun 2026", status: "Partially Signed",
-  },
-  {
-    id: "a3", title: "Park Lane 3-Bed AST", tenancy: "Emma Davies",
-    signatories: [
-      { name: "Emma Davies", email: "emma.davies@email.com", role: "Tenant", signed: false },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: false },
-    ],
-    created: "6 Jun 2026", deadline: "13 Jun 2026", status: "Sent",
-  },
-  {
-    id: "a4", title: "Victoria Rd Room 4 AST", tenancy: "Ahmed Hassan",
-    signatories: [
-      { name: "Ahmed Hassan", email: "ahmed.hassan@email.com", role: "Tenant", signed: true, signedAt: "11:30, 15 May 2026" },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: true, signedAt: "16:00, 15 May 2026" },
-    ],
-    created: "15 May 2026", deadline: null, status: "Fully Signed",
-  },
-  {
-    id: "a5", title: "Brook Lane AST Draft", tenancy: "—",
-    signatories: [],
-    created: "7 Jun 2026", deadline: null, status: "Draft",
-  },
-  {
-    id: "a6", title: "Birmingham Studio AST", tenancy: "Lisa Park",
-    signatories: [
-      { name: "Lisa Park", email: "lisa.park@email.com", role: "Tenant", signed: false },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: false },
-    ],
-    created: "3 Jun 2026", deadline: "10 Jun 2026", status: "Expired",
-  },
-  {
-    id: "a7", title: "Brighton 3-Bed AST", tenancy: "Ryan Miller",
-    signatories: [
-      { name: "Ryan Miller", email: "ryan.miller@email.com", role: "Tenant", signed: true, signedAt: "10:00, 1 Jun 2026" },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: true, signedAt: "10:45, 1 Jun 2026" },
-    ],
-    created: "1 Jun 2026", deadline: null, status: "Fully Signed",
-  },
-  {
-    id: "a8", title: "Bristol Oak Drive AST", tenancy: "Aisha Patel",
-    signatories: [
-      { name: "Aisha Patel", email: "aisha.patel@email.com", role: "Tenant", signed: false },
-      { name: "James Reid (Landlord)", email: "james.reid@propvora.com", role: "Landlord", signed: false },
-    ],
-    created: "8 Jun 2026", deadline: "15 Jun 2026", status: "Sent",
-  },
-]
+const AGREEMENTS: Agreement[] = []
 
 type StatusFilter = "All" | AgreementStatus
 
@@ -156,7 +94,7 @@ export default function AgreementsPage() {
         title="Tenancy Agreements"
         subtitle={`${AGREEMENTS.length} agreements`}
         showBack
-        backHref="/app/portfolio/leasing"
+        backHref="/property-manager/portfolio/leasing"
         primaryAction={{ label: "Create agreement", icon: Plus, onClick: () => {} }}
       />
 
@@ -209,6 +147,13 @@ export default function AgreementsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                    No agreements yet. Agreements will appear here once you start the leasing process.
+                  </td>
+                </tr>
+              )}
               {filtered.map((agreement, rowIdx) => {
                 const signedCount = agreement.signatories.filter((s) => s.signed).length
                 const totalCount  = agreement.signatories.length
@@ -396,3 +341,4 @@ export default function AgreementsPage() {
     </>
   )
 }
+

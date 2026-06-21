@@ -72,7 +72,7 @@ export interface SupplierCardProps {
   className?: string
 }
 
-const HREF = (id: string) => `/app/marketplace/suppliers/${id}`
+const HREF = (id: string) => `/property-manager/marketplace/suppliers/${id}`
 
 export function SupplierCard({
   supplier: s,

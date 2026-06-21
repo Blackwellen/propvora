@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Store, Wrench, AlertTriangle } from "lucide-react"
 
-const BASE = "/app/marketplace/suppliers-hub"
+const BASE = "/property-manager/marketplace/suppliers-hub"
 
 export type HubTab = "suppliers" | "services" | "emergency"
 

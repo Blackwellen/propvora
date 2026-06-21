@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -42,7 +42,7 @@ interface MonthBar {
 /* ─── Sub-tab strip ─────────────────────────────────────────── */
 function HmoTabStrip({ propertyId }: { propertyId: string }) {
   const pathname = usePathname()
-  const base = `/app/portfolio/properties/${propertyId}/hmo`
+  const base = `/property-manager/portfolio/properties/${propertyId}/hmo`
 
   const tabs = [
     { label: "Overview", href: base },
@@ -74,119 +74,9 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
 }
 
 /* ─── Mock Data ──────────────────────────────────────────────── */
-const ROOM_PERFORMANCE: RoomPerformance[] = [
-  {
-    id: "r1",
-    room: "Room 1",
-    tenant: "Sarah Mitchell",
-    tenantInitials: "SM",
-    avatarBg: "bg-blue-500",
-    monthlyRent: 750,
-    monthlyRentLabel: "£750",
-    annualRent: 9000,
-    annualRentLabel: "£9,000",
-    voidDays: 0,
-    voidCost: 0,
-    yieldDiff: "+2.1% above",
-    yieldDiffColor: "green",
-    recommendation: "Optimised",
-    status: "Optimised",
-  },
-  {
-    id: "r2",
-    room: "Room 2",
-    tenant: "James Chen",
-    tenantInitials: "JC",
-    avatarBg: "bg-amber-500",
-    monthlyRent: 720,
-    monthlyRentLabel: "£720",
-    annualRent: 8640,
-    annualRentLabel: "£8,640",
-    voidDays: 14,
-    voidCost: 336,
-    yieldDiff: "-1.4% below",
-    yieldDiffColor: "amber",
-    recommendation: "Review pricing",
-    status: "Review pricing",
-  },
-  {
-    id: "r3",
-    room: "Room 3",
-    tenant: "Emma Davies",
-    tenantInitials: "ED",
-    avatarBg: "bg-emerald-500",
-    monthlyRent: 700,
-    monthlyRentLabel: "£700",
-    annualRent: 8400,
-    annualRentLabel: "£8,400",
-    voidDays: 0,
-    voidCost: 0,
-    yieldDiff: "-3.2% below",
-    yieldDiffColor: "red",
-    recommendation: "Underpriced",
-    status: "Underpriced",
-  },
-  {
-    id: "r4",
-    room: "Room 4",
-    tenant: "Ahmed Hassan",
-    tenantInitials: "AH",
-    avatarBg: "bg-violet-500",
-    monthlyRent: 780,
-    monthlyRentLabel: "£780",
-    annualRent: 9360,
-    annualRentLabel: "£9,360",
-    voidDays: 7,
-    voidCost: 182,
-    yieldDiff: "+1.8% above",
-    yieldDiffColor: "green",
-    recommendation: "Good",
-    status: "Good",
-  },
-  {
-    id: "r5",
-    room: "Room 5",
-    tenant: "Lisa Park",
-    tenantInitials: "LP",
-    avatarBg: "bg-pink-500",
-    monthlyRent: 900,
-    monthlyRentLabel: "£900",
-    annualRent: 10800,
-    annualRentLabel: "£10,800",
-    voidDays: 0,
-    voidCost: 0,
-    yieldDiff: "+4.1% above",
-    yieldDiffColor: "green",
-    recommendation: "Premium",
-    status: "Premium",
-  },
-  {
-    id: "r6",
-    room: "Room 6",
-    tenant: null,
-    tenantInitials: null,
-    avatarBg: "",
-    monthlyRent: null,
-    monthlyRentLabel: "£750 asking",
-    annualRent: null,
-    annualRentLabel: "—",
-    voidDays: 28,
-    voidCost: 700,
-    yieldDiff: "At market",
-    yieldDiffColor: "slate",
-    recommendation: "Re-let ASAP",
-    status: "Re-let ASAP",
-  },
-]
+const ROOM_PERFORMANCE: RoomPerformance[] = []
 
-const MONTH_BARS: MonthBar[] = [
-  { month: "Jan", received: 3800, voidLoss: 50 },
-  { month: "Feb", received: 3850, voidLoss: 0 },
-  { month: "Mar", received: 3850, voidLoss: 0 },
-  { month: "Apr", received: 3800, voidLoss: 100 },
-  { month: "May", received: 3850, voidLoss: 0 },
-  { month: "Jun", received: 3200, voidLoss: 650 },
-]
+const MONTH_BARS: MonthBar[] = []
 
 const YIELD_BADGE: Record<
   RoomPerformance["yieldDiffColor"],
@@ -208,7 +98,8 @@ function IncomeVoidChart() {
 
   const maxValue = 4500
   const yTicks = [0, 1000, 2000, 3000, 4000]
-  const barWidth = plotWidth / MONTH_BARS.length
+  const barCount = MONTH_BARS.length || 1
+  const barWidth = plotWidth / barCount
   const barPad = 12
 
   function yPos(val: number) {
@@ -309,7 +200,6 @@ export default function HmoAnalyticsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const [appliedRecs, setAppliedRecs] = useState(false)
 
   /* Row → card mapping for the mobile room-performance list. */
   const performanceCardMapping: MobileCardMapping<RoomPerformance> = {
@@ -337,7 +227,7 @@ export default function HmoAnalyticsPage({
         title="HMO Analytics"
         subtitle="22 Victoria Road · Year to date"
         showBack
-        backHref={`/app/portfolio/properties/${id}/hmo`}
+        backHref={`/property-manager/portfolio/properties/${id}/hmo`}
       />
 
       {/* Page Header — hidden on phones */}
@@ -360,31 +250,31 @@ export default function HmoAnalyticsPage({
           {[
             {
               title: "Annual Rent Roll",
-              value: "£46,200",
-              sub: "YTD 2026",
+              value: "—",
+              sub: "Requires live room data",
               Icon: TrendingUp,
               bg: "bg-green-50",
               color: "text-green-600",
             },
             {
               title: "Gross Yield",
-              value: "6.8%",
-              sub: "Based on £680k value",
+              value: "—",
+              sub: "Set property value in settings",
               Icon: BarChart3,
               bg: "bg-blue-50",
               color: "text-blue-600",
             },
             {
               title: "Void-Adjusted Yield",
-              value: "6.2%",
-              sub: "Accounts for voids",
+              value: "—",
+              sub: "Requires tenancy data",
               Icon: BarChart3,
               bg: "bg-amber-50",
               color: "text-amber-600",
             },
             {
               title: "Avg Tenancy Length",
-              value: "14.3 mo",
+              value: "—",
               sub: "Across all rooms",
               Icon: Calendar,
               bg: "bg-slate-100",
@@ -444,6 +334,13 @@ export default function HmoAnalyticsPage({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
+                    {ROOM_PERFORMANCE.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                          Room performance data will appear once rooms and tenancies are configured.
+                        </td>
+                      </tr>
+                    )}
                     {ROOM_PERFORMANCE.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900">
@@ -494,46 +391,8 @@ export default function HmoAnalyticsPage({
                 <h3 className="text-sm font-semibold text-violet-900">AI Pricing Intelligence</h3>
               </div>
               <div className="px-4 py-4 space-y-3">
-                {[
-                  {
-                    room: "Room 3",
-                    text: "£700/mo is £95 below local market median of £795. Raising to £780 adds £960/year.",
-                    accent: "text-red-600",
-                  },
-                  {
-                    room: "Room 2",
-                    text: "£720/mo — slight discount fair given 14-day void last quarter. Hold for now.",
-                    accent: "text-amber-600",
-                  },
-                  {
-                    room: "Room 6",
-                    text: "Current asking price of £750 is at market. Consider £775 if no interest in 7 days.",
-                    accent: "text-blue-600",
-                  },
-                ].map((rec) => (
-                  <div
-                    key={rec.room}
-                    className="bg-white/70 border border-violet-200 rounded-lg p-3 space-y-1"
-                  >
-                    <p className={`text-[11px] font-bold ${rec.accent}`}>{rec.room}</p>
-                    <p className="text-xs text-slate-700 leading-relaxed">{rec.text}</p>
-                  </div>
-                ))}
-
-                {appliedRecs ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2.5 text-xs text-green-700 font-medium text-center">
-                    Recommendations noted — apply at next rent review.
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setAppliedRecs(true)}
-                    className="w-full bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-2 rounded-lg transition-colors"
-                  >
-                    Apply All Recommendations
-                  </button>
-                )}
-                <p className="text-[10px] text-slate-500 text-center leading-relaxed">
-                  Changes won&apos;t take effect until next rent review
+                <p className="text-[12px] text-slate-500 text-center py-4">
+                  AI pricing analysis will appear once rooms and tenancies are configured.
                 </p>
               </div>
             </div>

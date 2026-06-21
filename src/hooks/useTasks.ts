@@ -94,7 +94,30 @@ export function useTasks(
         if (error.code === '42P01') return []
         throw error
       }
-      return (data ?? []).map(fromDb)
+
+      const rows = data ?? []
+
+      // Fetch property names for tasks that have a property_id (no FK in schema
+      // so we can't use PostgREST embedding — do a manual lookup instead).
+      const propIds = [...new Set(rows.map(r => r.property_id).filter(Boolean))]
+      let propNames: Map<string, string> = new Map()
+      if (propIds.length > 0) {
+        const { data: props } = await supabase
+          .from('properties')
+          .select('id, nickname, address_line1')
+          .in('id', propIds)
+        for (const p of props ?? []) {
+          propNames.set(p.id, p.nickname || p.address_line1 || 'Property')
+        }
+      }
+
+      return rows.map(r => {
+        const task = fromDb(r)
+        if (r.property_id && propNames.has(r.property_id)) {
+          ;(task as any).properties = { name: propNames.get(r.property_id) }
+        }
+        return task
+      })
     },
     staleTime: 30 * 1000,
   })

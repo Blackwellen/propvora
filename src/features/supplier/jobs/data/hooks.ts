@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import type { JobsData, SupplierJob, JobStatus, JobTab } from "./types"
-import { SEED_JOBS } from "./seed"
 
 /* ──────────────────────────────────────────────────────────────────────────
    useSupplierJobs — supplier-workspace-scoped read of the job execution data,
@@ -61,7 +60,7 @@ export function useSupplierJobs(): JobsData {
       // No workspace resolved yet → seed so the surface is never blank.
       if (!workspaceId) {
         if (!cancelled) {
-          setData(SEED_JOBS)
+          setData([])
           setSource("seed")
           setLoading(false)
         }
@@ -79,7 +78,7 @@ export function useSupplierJobs(): JobsData {
         if (qErr) {
           // 42P01 (table missing) / permission / anything → tolerant seed.
           if (!cancelled) {
-            setData(SEED_JOBS)
+            setData([])
             setSource("seed")
             setLoading(false)
           }
@@ -90,7 +89,7 @@ export function useSupplierJobs(): JobsData {
         if (liveRows.length === 0) {
           // Populated demo guarantee for V1.
           if (!cancelled) {
-            setData(SEED_JOBS)
+            setData([])
             setSource("seed")
             setLoading(false)
           }
@@ -168,7 +167,7 @@ export function useSupplierJobs(): JobsData {
         }
       } catch {
         if (!cancelled) {
-          setData(SEED_JOBS)
+          setData([])
           setSource("seed")
           setLoading(false)
         }

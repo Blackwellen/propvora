@@ -88,7 +88,7 @@ export default async function SupplierDetailPage({
         <div className="lg:col-span-2">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-            <Link href="/app/marketplace/suppliers-hub" className="hover:text-blue-600">
+            <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-blue-600">
               Suppliers
             </Link>
             <span>›</span>
@@ -324,7 +324,7 @@ export default async function SupplierDetailPage({
               <h2 className="text-xl font-bold text-slate-900 mb-4">You might also like</h2>
               <div className="space-y-3">
                 {related.map((p) => (
-                  <RelatedProviderCard key={p.id} provider={p} basePath="/app/marketplace/suppliers-hub" />
+                  <RelatedProviderCard key={p.id} provider={p} basePath="/property-manager/marketplace/suppliers-hub" />
                 ))}
               </div>
             </div>

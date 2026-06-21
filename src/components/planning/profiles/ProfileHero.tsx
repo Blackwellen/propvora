@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useRouter } from "next/navigation"
 import {
@@ -90,7 +90,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
           <ChevronRight className="w-3 h-3" />
           <span
             className="hover:text-slate-600 cursor-pointer transition-colors"
-            onClick={() => router.push("/app/planning/profiles")}
+            onClick={() => router.push("/property-manager/planning/profiles")}
           >
             Profiles
           </span>
@@ -180,7 +180,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
             className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 active:scale-[0.98]"
             style={{ backgroundColor: profile.accentColor }}
             onClick={() =>
-              router.push(`/app/planning/profiles/${profile.slug}/overview`)
+              router.push(`/property-manager/planning/profiles/${profile.slug}/overview`)
             }
           >
             <Play className="w-4 h-4" />
@@ -190,7 +190,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
           {/* Outline buttons */}
           <button
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
-            onClick={() => router.push("/app/planning/compare")}
+            onClick={() => router.push("/property-manager/planning/compare")}
           >
             <BarChart2 className="w-4 h-4 text-slate-500" />
             Compare Profile
@@ -200,7 +200,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
             onClick={() =>
               router.push(
-                `/app/planning/profiles/${profile.slug}/example-forecast`
+                `/property-manager/planning/profiles/${profile.slug}/example-forecast`
               )
             }
           >
@@ -226,7 +226,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
                       className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors"
                       onClick={() =>
                         router.push(
-                          `/app/planning/profiles/${p.slug}/overview`
+                          `/property-manager/planning/profiles/${p.slug}/overview`
                         )
                       }
                     >
@@ -246,7 +246,7 @@ export default function ProfileHero({ profile }: ProfileHeroProps) {
           {/* Back link */}
           <button
             className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
-            onClick={() => router.push("/app/planning/profiles")}
+            onClick={() => router.push("/property-manager/planning/profiles")}
           >
             ← Back to Profiles
           </button>

@@ -135,7 +135,7 @@ export default function PossessionCaseDetailPage() {
         </div>
         <p className="text-[14px] font-semibold text-slate-700 mb-1">Case not found</p>
         <p className="text-[12px] text-slate-500 mb-4">This possession case may have been deleted.</p>
-        <Link href="/app/legal/possession" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href="/property-manager/legal/possession" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
           ← Back to Possession Cases
         </Link>
       </div>
@@ -156,7 +156,7 @@ export default function PossessionCaseDetailPage() {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
-          <Link href="/app/legal/possession" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
+          <Link href="/property-manager/legal/possession" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
             <ChevronLeft className="w-3.5 h-3.5" />
             Possession Cases
           </Link>
@@ -195,14 +195,14 @@ export default function PossessionCaseDetailPage() {
               onConfirm={async () => {
                 if (workspaceId) {
                   await deleteCase.mutateAsync({ id: caseData.id, workspaceId })
-                  router.push("/app/legal/possession")
+                  router.push("/property-manager/legal/possession")
                 }
               }}
             >
               {(open) => (
                 <ActionMenu
                   items={[
-                    { label: "Open Property", icon: Building2, onClick: () => router.push(caseData.property_id ? `/app/properties/${caseData.property_id}` : "/app/properties") },
+                    { label: "Open Property", icon: Building2, onClick: () => router.push(caseData.property_id ? `/property-manager/portfolio/properties/${caseData.property_id}` : "/property-manager/portfolio/properties") },
                     { label: "Generate Bundle", icon: Download, onClick: () => buildBundle(caseData, evidence) },
                     { label: "Delete Case", icon: Trash2, variant: "danger", onClick: open },
                   ]}
@@ -321,7 +321,7 @@ export default function PossessionCaseDetailPage() {
                     onConfirm={async () => {
                       if (workspaceId) {
                         await deleteCase.mutateAsync({ id: caseData.id, workspaceId })
-                        router.push("/app/legal/possession")
+                        router.push("/property-manager/legal/possession")
                       }
                     }}
                   >

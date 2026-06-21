@@ -16,14 +16,7 @@ interface Invoice {
   pdf: string
 }
 
-const MOCK_INVOICES: Invoice[] = [
-  { id: "inv-001", date: "1 Dec 2026", description: "Pro Plan · December 2026",  amount: "£79.00", status: "paid",    pdf: "#" },
-  { id: "inv-002", date: "1 Nov 2026", description: "Pro Plan · November 2026",  amount: "£79.00", status: "paid",    pdf: "#" },
-  { id: "inv-003", date: "1 Oct 2026", description: "Pro Plan · October 2026",   amount: "£79.00", status: "paid",    pdf: "#" },
-  { id: "inv-004", date: "1 Sep 2026", description: "Pro Plan · September 2026", amount: "£79.00", status: "paid",    pdf: "#" },
-  { id: "inv-005", date: "1 Aug 2026", description: "Pro Plan · August 2026",    amount: "£79.00", status: "paid",    pdf: "#" },
-  { id: "inv-006", date: "1 Jul 2026", description: "Pro Plan · July 2026",      amount: "£79.00", status: "paid",    pdf: "#" },
-]
+const INVOICES: Invoice[] = []
 
 const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
   paid:    { bg: "bg-emerald-50", text: "text-emerald-700", label: "Paid"    },
@@ -34,12 +27,12 @@ const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: st
 export default function InvoicesPage() {
   const [search, setSearch] = useState("")
 
-  const filtered = MOCK_INVOICES.filter(inv =>
+  const filtered = INVOICES.filter(inv =>
     inv.description.toLowerCase().includes(search.toLowerCase()) ||
     inv.id.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalPaid = MOCK_INVOICES
+  const totalPaid = INVOICES
     .filter(i => i.status === "paid")
     .reduce((sum, i) => sum + parseFloat(i.amount.replace("£", "")), 0)
 
@@ -54,9 +47,9 @@ export default function InvoicesPage() {
       {/* Summary row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total invoices", value: `${MOCK_INVOICES.length}`, sub: "All time" },
+          { label: "Total invoices", value: `${INVOICES.length}`, sub: "All time" },
           { label: "Total paid",     value: `£${totalPaid.toFixed(2)}`, sub: "This year" },
-          { label: "Next invoice",   value: "£79.00", sub: "Due 1 Jan 2027" },
+          { label: "Next invoice",   value: "—", sub: "No upcoming invoice" },
         ].map(stat => (
           <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">{stat.label}</p>

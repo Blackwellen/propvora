@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 // Shared premium primitives for the Automation v2 builders. Matches the styling
 // of the existing Smart Rules section (slate/blue/violet, soft shadows, rounded
@@ -50,7 +50,7 @@ export function UpgradePrompt({
         {reason ?? "This feature isn't included on your current plan."}
       </p>
       <Link
-        href="/app/settings/billing"
+        href="/property-manager/settings/billing"
         className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700"
       >
         View plans <ArrowRight className="h-4 w-4" />

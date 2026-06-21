@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
@@ -297,7 +297,7 @@ export default function MarketplacePage() {
       <SupplierKpiStrip kpis={kpis} />
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-slate-200 mb-6 pb-0 scrollbar-none">
+      <div className="flex gap-1 overflow-x-auto border-b border-slate-200 mb-6 pb-0 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.value}

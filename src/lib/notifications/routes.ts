@@ -25,20 +25,20 @@ export function resolveEntityHref(
 ): string | null {
   if (!entityType) return null
   switch (entityType) {
-    case "property":        return entityId ? `/app/portfolio/properties/${entityId}` : "/app/portfolio/properties"
-    case "unit":            return entityId ? `/app/portfolio/units/${entityId}` : "/app/portfolio/units"
-    case "tenancy":         return entityId ? `/app/portfolio/tenancies/${entityId}` : "/app/portfolio/tenancies"
-    case "contact":         return entityId ? `/app/contacts/${entityId}` : "/app/contacts"
-    case "task":            return entityId ? `/app/work/tasks/${entityId}` : "/app/work/tasks"
-    case "job":             return entityId ? `/app/work/jobs/${entityId}` : "/app/work/jobs"
-    case "invoice":         return entityId ? `/app/money/invoices/${entityId}` : "/app/money/invoices"
-    case "bill":            return "/app/money/bills"
+    case "property":        return entityId ? `/property-manager/portfolio/properties/${entityId}` : "/property-manager/portfolio/properties"
+    case "unit":            return entityId ? `/property-manager/portfolio/units/${entityId}` : "/property-manager/portfolio/units"
+    case "tenancy":         return entityId ? `/property-manager/portfolio/tenancies/${entityId}` : "/property-manager/portfolio/tenancies"
+    case "contact":         return entityId ? `/property-manager/contacts/${entityId}` : "/property-manager/contacts"
+    case "task":            return entityId ? `/property-manager/work/tasks/${entityId}` : "/property-manager/work/tasks"
+    case "job":             return entityId ? `/property-manager/work/jobs/${entityId}` : "/property-manager/work/jobs"
+    case "invoice":         return entityId ? `/property-manager/money/invoices/${entityId}` : "/property-manager/money/invoices"
+    case "bill":            return "/property-manager/money/bills"
     case "compliance":
-    case "compliance_item": return "/app/compliance/overview"
-    case "planning_set":    return entityId ? `/app/planning/sets/${entityId}` : "/app/planning/sets"
-    case "calendar_event":  return entityId ? `/app/calendar/events/${entityId}` : "/app/calendar"
+    case "compliance_item": return "/property-manager/compliance/overview"
+    case "planning_set":    return entityId ? `/property-manager/planning/sets/${entityId}` : "/property-manager/planning/sets"
+    case "calendar_event":  return entityId ? `/property-manager/calendar/events/${entityId}` : "/property-manager/calendar"
     case "conversation":
-    case "message":         return entityId ? `/app/messages/conversations/${entityId}` : "/app/messages"
+    case "message":         return entityId ? `/property-manager/messages/conversations/${entityId}` : "/property-manager/messages"
     default:                return null
   }
 }

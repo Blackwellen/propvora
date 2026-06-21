@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -115,27 +115,6 @@ const DEMO_TASKS: DemoTask[] = [
   { id: "T-1049", title: "EICR Electrical Test", category: "Compliance", property: "5 Park Lane", unit: "—", assigneeInitials: "MK", assigneeName: "Mark K.", supplier: "ElecCheck", supplierInitials: "EC", dueDate: "Mar 10, 2024", sla: "+8d", status: "todo", priority: "high", costImpact: "£180", notes: 0, files: 0 },
 ]
 
-// ---------------------------------------------------------------------------
-// KPI data (seeded, used when no real data yet)
-// ---------------------------------------------------------------------------
-const SEED_TASK_HEALTH_DATA = [
-  { name: "Overdue", value: 18, color: "#EF4444" },
-  { name: "Due Today", value: 9, color: "#F59E0B" },
-  { name: "In Progress", value: 31, color: "#3B82F6" },
-  { name: "To Do", value: 61, color: "#94A3B8" },
-  { name: "Waiting Supplier", value: 23, color: "#8B5CF6" },
-]
-
-const WORKLOAD_DATA = [
-  { name: "James T.", tasks: 24, completed: 18 },
-  { name: "Sarah C.", tasks: 19, completed: 14 },
-  { name: "Lisa D.", tasks: 15, completed: 11 },
-  { name: "Mark K.", tasks: 12, completed: 9 },
-]
-
-const SPARKLINE_DATA = [
-  { v: 40 }, { v: 45 }, { v: 42 }, { v: 55 }, { v: 60 }, { v: 58 }, { v: 72 },
-]
 
 // ---------------------------------------------------------------------------
 // FilterDropdown
@@ -194,12 +173,12 @@ function KpiStrip({ tasks }: { tasks: DemoTask[] }) {
   const completionRate = total > 0 ? Math.round((doneCount / total) * 100) : 0
 
   const kpis = [
-    { label: "Open Tasks",       value: String(openCount || "142"),     sub: "Active tasks",          color: "text-[#2563EB]",     bg: "bg-blue-50" },
-    { label: "Overdue",          value: String(overdueCount || "18"),    sub: "Need immediate action", color: "text-red-600",       bg: "bg-red-50" },
-    { label: "Due Today",        value: String(dueTodayCount || "9"),    sub: "Action required today", color: "text-amber-600",     bg: "bg-amber-50" },
-    { label: "Waiting Supplier", value: String(waitingCount || "23"),    sub: "Pending response",      color: "text-violet-600",    bg: "bg-violet-50" },
-    { label: "Blocked",          value: String(blockedCount || "7"),     sub: "Require resolution",    color: "text-red-600",       bg: "bg-red-50" },
-    { label: "Completion Rate",  value: `${completionRate || 72}%`,      sub: "This month",            color: "text-emerald-600",   bg: "bg-emerald-50" },
+    { label: "Open Tasks",       value: String(openCount),       sub: "Active tasks",          color: "text-[#2563EB]",     bg: "bg-blue-50" },
+    { label: "Overdue",          value: String(overdueCount),    sub: "Need immediate action", color: "text-red-600",       bg: "bg-red-50" },
+    { label: "Due Today",        value: String(dueTodayCount),   sub: "Action required today", color: "text-amber-600",     bg: "bg-amber-50" },
+    { label: "Waiting Supplier", value: String(waitingCount),    sub: "Pending response",      color: "text-violet-600",    bg: "bg-violet-50" },
+    { label: "Blocked",          value: String(blockedCount),    sub: "Require resolution",    color: "text-red-600",       bg: "bg-red-50" },
+    { label: "Completion Rate",  value: `${completionRate}%`,    sub: "This month",            color: "text-emerald-600",   bg: "bg-emerald-50" },
   ]
 
   return (
@@ -223,56 +202,67 @@ function KpiStrip({ tasks }: { tasks: DemoTask[] }) {
 // ---------------------------------------------------------------------------
 function TaskHealthPanel({ tasks }: { tasks: DemoTask[] }) {
   const now = new Date()
-  const healthData = tasks.length > 0 ? [
+  const healthData = [
     { name: "Overdue",          value: tasks.filter(t => t.overdue).length,                   color: "#EF4444" },
     { name: "Due Today",        value: tasks.filter(t => t.dueToday).length,                  color: "#F59E0B" },
     { name: "In Progress",      value: tasks.filter(t => t.status === "in_progress").length,  color: "#3B82F6" },
     { name: "To Do",            value: tasks.filter(t => t.status === "todo").length,          color: "#94A3B8" },
     { name: "Waiting Supplier", value: tasks.filter(t => t.status === "waiting").length,      color: "#8B5CF6" },
-  ].filter(d => d.value > 0) : SEED_TASK_HEALTH_DATA
+  ].filter(d => d.value > 0)
 
-  const total = tasks.length || 142
+  const total = tasks.length
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <h3 className="text-sm font-semibold text-slate-900 mb-3">Task Health</h3>
-      <div className="flex justify-center">
-        <div className="relative">
-          <ResponsiveContainer width={140} height={140}>
-            <PieChart>
-              <Pie
-                data={healthData}
-                cx={65}
-                cy={65}
-                innerRadius={45}
-                outerRadius={65}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {healthData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <p className="text-base font-bold text-slate-900">{total}</p>
-            <p className="text-[9px] text-slate-500">Total Tasks</p>
+      {healthData.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <div className="w-[140px] h-[140px] rounded-full border-4 border-dashed border-slate-200 flex items-center justify-center mx-auto mb-3">
+            <p className="text-[10px] text-slate-400">No tasks yet</p>
           </div>
+          <p className="text-[11px] text-slate-400">Add tasks to see health breakdown</p>
         </div>
-      </div>
-      <div className="mt-3 space-y-1.5">
-        {healthData.map(d => (
-          <div key={d.name} className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: d.color }} />
-              <span className="text-[11px] text-slate-600">{d.name}</span>
+      ) : (
+        <>
+          <div className="flex justify-center">
+            <div className="relative">
+              <ResponsiveContainer width={140} height={140}>
+                <PieChart>
+                  <Pie
+                    data={healthData}
+                    cx={65}
+                    cy={65}
+                    innerRadius={45}
+                    outerRadius={65}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {healthData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <p className="text-base font-bold text-slate-900">{total}</p>
+                <p className="text-[9px] text-slate-500">Total Tasks</p>
+              </div>
             </div>
-            <span className="text-[11px] font-semibold text-slate-700">{d.value}</span>
           </div>
-        ))}
-      </div>
-      <Link href="/app/work/tasks" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full breakdown →</Link>
+          <div className="mt-3 space-y-1.5">
+            {healthData.map(d => (
+              <div key={d.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full" style={{ background: d.color }} />
+                  <span className="text-[11px] text-slate-600">{d.name}</span>
+                </div>
+                <span className="text-[11px] font-semibold text-slate-700">{d.value}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <Link href="/property-manager/work/tasks" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full breakdown →</Link>
     </div>
   )
 }
@@ -281,12 +271,12 @@ function TaskHealthPanel({ tasks }: { tasks: DemoTask[] }) {
 // Urgent Items panel
 // ---------------------------------------------------------------------------
 function UrgentItemsPanel({ tasks }: { tasks: DemoTask[] }) {
-  const overdueCount  = tasks.length > 0 ? tasks.filter(t => t.overdue).length : 5
-  const dueTodayCount = tasks.length > 0 ? tasks.filter(t => t.dueToday).length : 3
+  const overdueCount  = tasks.filter(t => t.overdue).length
+  const dueTodayCount = tasks.filter(t => t.dueToday).length
   const items = [
     { icon: AlertTriangle, color: "text-red-500",   bg: "bg-red-50",   count: overdueCount,  label: "Overdue tasks",  desc: "Past due date, action needed" },
     { icon: Clock,         color: "text-amber-500", bg: "bg-amber-50", count: dueTodayCount, label: "Due today",       desc: "Complete before end of day" },
-    { icon: ShieldAlert,   color: "text-red-500",   bg: "bg-red-50",   count: 2,             label: "SLA breaches",   desc: "Contract SLA at risk" },
+    { icon: ShieldAlert,   color: "text-red-500",   bg: "bg-red-50",   count: 0,             label: "SLA breaches",   desc: "Contract SLA at risk" },
   ]
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
@@ -304,7 +294,7 @@ function UrgentItemsPanel({ tasks }: { tasks: DemoTask[] }) {
                 <p className="text-[11px] font-medium text-slate-700">{item.label}</p>
                 <p className="text-[10px] text-slate-400">{item.desc}</p>
               </div>
-              <Link href="/app/work/tasks" className="text-[10px] text-[#2563EB] hover:underline shrink-0 mt-1">View all →</Link>
+              <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] hover:underline shrink-0 mt-1">View all →</Link>
             </div>
           )
         })}
@@ -324,27 +314,19 @@ function ProductivityInsightsPanel() {
         <div>
           <div className="flex items-center justify-between mb-1">
             <p className="text-[11px] text-slate-600">Tasks completed</p>
-            <span className="text-[11px] font-semibold text-emerald-600">+18%</span>
+            <span className="text-[11px] font-semibold text-slate-400">—</span>
           </div>
-          <ResponsiveContainer width="100%" height={32}>
-            <LineChart data={SPARKLINE_DATA}>
-              <Line type="monotone" dataKey="v" stroke="#10B981" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <p className="text-[10px] text-slate-400">Complete more tasks to see trends</p>
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
             <p className="text-[11px] text-slate-600">On-time completion</p>
-            <span className="text-[11px] font-semibold text-[#2563EB]">78%</span>
+            <span className="text-[11px] font-semibold text-slate-400">—</span>
           </div>
-          <ResponsiveContainer width="100%" height={32}>
-            <LineChart data={[{ v: 60 }, { v: 65 }, { v: 70 }, { v: 68 }, { v: 72 }, { v: 75 }, { v: 78 }]}>
-              <Line type="monotone" dataKey="v" stroke="#2563EB" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <p className="text-[10px] text-slate-400">Trends appear after 7+ completed tasks</p>
         </div>
       </div>
-      <Link href="/app/work/tasks" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full insights →</Link>
+      <Link href="/property-manager/work/reports" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full insights →</Link>
     </div>
   )
 }
@@ -352,17 +334,10 @@ function ProductivityInsightsPanel() {
 // ---------------------------------------------------------------------------
 // Bottom: Upcoming Deadlines
 // ---------------------------------------------------------------------------
-const SEED_UPCOMING_DEADLINES = [
-  { day: "15", month: "Feb", title: "Arrange EPC Assessment", property: "Manor Flat 3B · Flat 3B", chip: "Overdue", chipColor: "bg-red-50 text-red-600" },
-  { day: "20", month: "Feb", title: "Fix leaking tap Room 3", property: "Brunswick HMO · Room 3", chip: "Due today", chipColor: "bg-amber-50 text-amber-600" },
-  { day: "25", month: "Feb", title: "Fire door inspection", property: "Manor Flat 2A · Flat 2A", chip: "In 1 day", chipColor: "bg-blue-50 text-blue-600" },
-  { day: "28", month: "Feb", title: "Annual boiler inspection", property: "14 Grove St", chip: "In 2 days", chipColor: "bg-slate-100 text-slate-600" },
-]
-
 function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
   const items = useMemo(() => {
     const withDue = tasks.filter(t => t.dueDate && t.dueDate !== "—" && !["done", "cancelled"].includes(t.status))
-    if (withDue.length === 0) return SEED_UPCOMING_DEADLINES
+    if (withDue.length === 0) return []
     const now = new Date()
     return withDue
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
@@ -391,10 +366,12 @@ function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Upcoming Deadlines</h3>
-        <Link href="/app/work/ppm" className="text-[11px] text-[#2563EB] hover:underline">View calendar →</Link>
+        <Link href="/property-manager/work/ppm" className="text-[11px] text-[#2563EB] hover:underline">View calendar →</Link>
       </div>
       <div className="space-y-3">
-        {items.map(item => (
+        {items.length === 0 ? (
+          <p className="text-[11px] text-slate-400 py-4 text-center">No upcoming deadlines — tasks with due dates will appear here.</p>
+        ) : items.map(item => (
           <div key={item.title} className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex flex-col items-center justify-center shrink-0">
               <span className="text-base font-bold text-[#2563EB] leading-none">{item.day}</span>
@@ -416,11 +393,6 @@ function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
 // Bottom: AI Suggestions
 // ---------------------------------------------------------------------------
 function AiSuggestionsPanel() {
-  const suggestions = [
-    { text: "3 similar overdue tasks — Consider assigning to available contractors", btn: "Review" },
-    { text: "SLA at risk — 8 tasks may breach SLA in next 3 days", btn: "View" },
-    { text: "Cost saving opportunity — Group 4 maintenance tasks to reduce costs", btn: "Review" },
-  ]
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
@@ -430,15 +402,11 @@ function AiSuggestionsPanel() {
           </span>
           <h3 className="text-sm font-semibold text-slate-900">AI Suggestions</h3>
         </div>
-        <Link href="/app/work/tasks" className="text-[11px] text-[#2563EB] hover:underline">View all →</Link>
       </div>
-      <div className="space-y-3">
-        {suggestions.map((s, i) => (
-          <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-violet-50/40 border border-violet-100">
-            <p className="flex-1 text-[12px] text-slate-700">{s.text}</p>
-            <button className="shrink-0 text-[11px] font-semibold text-violet-700 hover:underline">{s.btn}</button>
-          </div>
-        ))}
+      <div className="flex flex-col items-center justify-center py-6 text-center">
+        <Sparkles className="w-7 h-7 text-violet-300 mb-2" />
+        <p className="text-sm font-medium text-slate-700">AI insights coming soon</p>
+        <p className="text-[11px] text-slate-400 mt-1">Suggestions appear as your task data grows</p>
       </div>
     </div>
   )
@@ -449,7 +417,7 @@ function AiSuggestionsPanel() {
 // ---------------------------------------------------------------------------
 function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
   const workloadData = useMemo(() => {
-    if (tasks.length === 0) return WORKLOAD_DATA
+    if (tasks.length === 0) return []
     const map: Record<string, { total: number; completed: number }> = {}
     tasks.forEach(t => {
       const name = t.assigneeName && t.assigneeName !== "Unassigned" ? t.assigneeName.split(" ").map((p: string) => p[0]).join("").slice(0, 2) + " " + t.assigneeName.split(" ").slice(-1)[0].slice(0, 1) + "." : "Unassigned"
@@ -467,20 +435,24 @@ function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Workload by Assignee</h3>
-        <Link href="/app/work/tasks" className="text-[11px] text-[#2563EB] hover:underline">View team workload →</Link>
+        <Link href="/property-manager/work/tasks" className="text-[11px] text-[#2563EB] hover:underline">View team workload →</Link>
       </div>
-      <ResponsiveContainer width="100%" height={120}>
-        <BarChart data={workloadData} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
-          <XAxis type="number" hide />
-          <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "#64748B" }} width={56} />
-          <Tooltip
-            contentStyle={{ fontSize: 11, border: "1px solid #e2e8f0", borderRadius: 8 }}
-            cursor={{ fill: "#f8fafc" }}
-          />
-          <Bar dataKey="tasks" fill="#DBEAFE" radius={4} name="Total" />
-          <Bar dataKey="completed" fill="#2563EB" radius={4} name="Done" />
-        </BarChart>
-      </ResponsiveContainer>
+      {workloadData.length === 0 ? (
+        <p className="text-[11px] text-slate-400 py-6 text-center">Assign tasks to team members to see workload here.</p>
+      ) : (
+        <ResponsiveContainer width="100%" height={120}>
+          <BarChart data={workloadData} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
+            <XAxis type="number" hide />
+            <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "#64748B" }} width={56} />
+            <Tooltip
+              contentStyle={{ fontSize: 11, border: "1px solid #e2e8f0", borderRadius: 8 }}
+              cursor={{ fill: "#f8fafc" }}
+            />
+            <Bar dataKey="tasks" fill="#DBEAFE" radius={4} name="Total" />
+            <Bar dataKey="completed" fill="#2563EB" radius={4} name="Done" />
+          </BarChart>
+        </ResponsiveContainer>
+      )}
     </div>
   )
 }
@@ -491,7 +463,7 @@ function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
 function TaskCard({ task, compact = false }: { task: DemoTask; compact?: boolean }) {
   return (
     <Link
-      href={`/app/work/tasks/${task.id}`}
+      href={`/property-manager/work/tasks/${task.id}`}
       className="block bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm hover:border-slate-300 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -563,7 +535,7 @@ export default function TasksPage() {
         id: t.id,
         title: t.title,
         category: t.category ?? "General",
-        property: t.property_id ?? "—",
+        property: (() => { const tt = t as any; return tt.properties?.name ?? tt.properties?.address_line1 ?? (t.property_id ? "Property" : "—") })(),
         unit: "—",
         assigneeInitials: (t.assigned_to ?? "?").slice(0, 2).toUpperCase(),
         assigneeName: t.assigned_to ?? "Unassigned",
@@ -731,7 +703,7 @@ export default function TasksPage() {
       <MobileTopBar
         title="Tasks"
         subtitle="Work management"
-        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
         overflowActions={[
           { label: "Select all", icon: CheckSquare, onClick: () => setSelectedIds(displayTasks.map((t) => t.id)) },
           { label: "Export", icon: Download, onClick: exportSelected },
@@ -787,7 +759,7 @@ export default function TasksPage() {
             </button>
           )}
           <Link
-            href="/app/work/tasks/new"
+            href="/property-manager/work/tasks/new"
             className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Create Task
@@ -965,7 +937,7 @@ export default function TasksPage() {
                   title="No tasks found"
                   description={hasFilters ? "No tasks match your current filters." : "Create your first task to get started."}
                   ctaLabel={hasFilters ? undefined : "+ Create Task"}
-                  ctaHref={hasFilters ? undefined : "/app/work/tasks/new"}
+                  ctaHref={hasFilters ? undefined : "/property-manager/work/tasks/new"}
                 />
               ) : (
                 <ResponsiveTable
@@ -976,7 +948,7 @@ export default function TasksPage() {
                     subtitle: (t) => `#${t.id}`,
                     leading: (t) => <WorkPriorityBadge priority={t.priority} showLabel={false} />,
                     badge: (t) => <WorkStatusBadge status={t.status} />,
-                    onRowClick: (t) => router.push(`/app/work/tasks/${t.id}`),
+                    onRowClick: (t) => router.push(`/property-manager/work/tasks/${t.id}`),
                     fields: [
                       { label: "Category", render: (t) => t.category },
                       { label: "Property", render: (t) => t.property, hideWhenEmpty: true },
@@ -1048,7 +1020,7 @@ export default function TasksPage() {
                           )}
                         </td>
                         <td className="px-4 py-3.5">
-                          <Link href={`/app/work/tasks/${task.id}`} className="block hover:underline">
+                          <Link href={`/property-manager/work/tasks/${task.id}`} className="block hover:underline">
                             <p className="text-sm font-semibold text-slate-900 truncate max-w-[200px]">{task.title}</p>
                             <p className="text-[11px] text-slate-400">#{task.id}</p>
                           </Link>
@@ -1124,8 +1096,8 @@ export default function TasksPage() {
                         <td className="px-4 py-3.5 text-right" onClick={e => e.stopPropagation()}>
                           <ActionMenu
                             items={[
-                              { label: "View task", icon: Eye, onClick: () => router.push(`/app/work/tasks/${task.id}`) },
-                              { label: "Edit", icon: Edit2, onClick: () => router.push(`/app/work/tasks/${task.id}`) },
+                              { label: "View task", icon: Eye, onClick: () => router.push(`/property-manager/work/tasks/${task.id}`) },
+                              { label: "Edit", icon: Edit2, onClick: () => router.push(`/property-manager/work/tasks/${task.id}`) },
                               ...(task.status !== "done"
                                 ? [{ label: "Mark complete", icon: CheckCircle2, onClick: () => workspaceId && completeTask.mutate({ id: task.id, workspaceId }) }]
                                 : []),
@@ -1180,7 +1152,7 @@ export default function TasksPage() {
                 title="No tasks found"
                 description={hasFilters ? "No tasks match your current filters." : "Create your first task to get started."}
                 ctaLabel={hasFilters ? undefined : "+ Create Task"}
-                ctaHref={hasFilters ? undefined : "/app/work/tasks/new"}
+                ctaHref={hasFilters ? undefined : "/property-manager/work/tasks/new"}
               />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">

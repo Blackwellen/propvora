@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -30,9 +30,9 @@ export function SupplierCompare({ suppliers }: Props) {
   if (suppliers.length === 0) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Compare" showBack backHref="/app/marketplace/suppliers" />
+        <MobileTopBar title="Compare" showBack backHref="/property-manager/marketplace/suppliers" />
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <MarketplaceEmptyState variant="no-results" title="Nothing to compare yet" description="Select suppliers from the directory to compare them side by side on rating, price, coverage and verification." action={{ label: "Browse suppliers", href: "/app/marketplace/suppliers", icon: GitCompare }} />
+          <MarketplaceEmptyState variant="no-results" title="Nothing to compare yet" description="Select suppliers from the directory to compare them side by side on rating, price, coverage and verification." action={{ label: "Browse suppliers", href: "/property-manager/marketplace/suppliers", icon: GitCompare }} />
         </div>
       </DashboardContainer>
     )
@@ -55,9 +55,9 @@ export function SupplierCompare({ suppliers }: Props) {
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Compare suppliers" showBack backHref="/app/marketplace/suppliers" />
+      <MobileTopBar title="Compare suppliers" showBack backHref="/property-manager/marketplace/suppliers" />
       <div className="hidden md:flex items-center gap-2 mb-4">
-        <Link href="/app/marketplace/suppliers" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700"><ChevronLeft className="w-4 h-4" /> Back to suppliers</Link>
+        <Link href="/property-manager/marketplace/suppliers" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700"><ChevronLeft className="w-4 h-4" /> Back to suppliers</Link>
       </div>
       <h1 className="text-[20px] font-bold text-[#0B1B3F] mb-4">Comparing {suppliers.length} suppliers</h1>
 
@@ -68,7 +68,7 @@ export function SupplierCompare({ suppliers }: Props) {
               <th className="sticky left-0 z-10 bg-white w-[200px] p-3 text-left border-b border-slate-200" />
               {suppliers.map((s) => (
                 <th key={s.id} className="p-3 text-left align-top border-b border-l border-slate-100 min-w-[200px]">
-                  <Link href={`/app/marketplace/suppliers/${s.id}`} className="group block">
+                  <Link href={`/property-manager/marketplace/suppliers/${s.id}`} className="group block">
                     <div className="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#1D4ED8] to-[#2563EB] mb-2">
                       {s.thumbnailUrl && <Image src={s.thumbnailUrl} alt={s.title} fill className="object-cover" sizes="200px" />}
                       <div className="absolute top-1.5 left-1.5 flex gap-1">
@@ -94,7 +94,7 @@ export function SupplierCompare({ suppliers }: Props) {
               <td className="sticky left-0 z-10 bg-white w-[200px] p-3" />
               {suppliers.map((s) => (
                 <td key={s.id} className="p-3 border-l border-slate-100">
-                  <Link href={`/app/marketplace/suppliers/${s.id}`} className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><MessageSquare className="w-3.5 h-3.5" /> Request quote</Link>
+                  <Link href={`/property-manager/marketplace/suppliers/${s.id}`} className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><MessageSquare className="w-3.5 h-3.5" /> Request quote</Link>
                 </td>
               ))}
             </tr>

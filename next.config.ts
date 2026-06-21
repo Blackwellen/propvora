@@ -33,6 +33,14 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // isomorphic-dompurify bundles jsdom which reads default-stylesheet.css from
+  // disk. When webpack bundles jsdom for SSR the file path resolution breaks.
+  // Marking these packages as server-external loads them natively at runtime
+  // (they are pure Node.js) and avoids the ENOENT crash.
+  serverExternalPackages: ["isomorphic-dompurify", "jsdom", "dompurify", "@sentry/nextjs"],
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     remotePatterns: [
       // Supabase storage

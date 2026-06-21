@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -79,7 +79,7 @@ function StepProperty({ data, onChange, properties }: {
             <Building2 className="w-8 h-8 text-slate-200" />
             <p className="text-sm text-slate-500">No properties yet</p>
             <Button variant="soft" size="sm" asChild>
-              <Link href="/app/portfolio/properties/new">Add a property first</Link>
+              <Link href="/property-manager/portfolio/properties/new">Add a property first</Link>
             </Button>
           </div>
         ) : (
@@ -296,7 +296,7 @@ export default function NewUnitPage() {
         target_rent: data.target_rent || undefined,
         status: data.status,
       })
-      router.push(`/app/portfolio/units/${unit.id}`)
+      router.push(`/property-manager/portfolio/units/${unit.id}`)
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to create unit")
       setSaving(false)
@@ -310,11 +310,11 @@ export default function NewUnitPage() {
         title="Add Unit / Room"
         subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
         showBack
-        backHref="/app/portfolio/units"
+        backHref="/property-manager/portfolio/units"
       />
 
       <div className="hidden md:block mb-6">
-        <Link href="/app/portfolio/units" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        <Link href="/property-manager/portfolio/units" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ChevronLeft className="w-4 h-4" />Back to Units
         </Link>
         <h1 className="text-2xl font-bold text-slate-900">Add Unit / Room</h1>

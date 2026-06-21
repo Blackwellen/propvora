@@ -24,7 +24,7 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
   const reminders = renewals.filter((r) => r.kind === "reminder")
   const timeline = renewals.filter((r) => r.kind === "renewal").sort((a, b) => (a.dueAt ?? "").localeCompare(b.dueAt ?? ""))
 
-  const cardHealthy = card.health === "healthy"
+  const cardHealthy = card?.health === "healthy"
 
   return (
     <div className="space-y-6">
@@ -92,16 +92,22 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
         </BillingCard>
 
         <BillingCard title="Payment method health" icon={CreditCard}>
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 px-3.5 py-3">
-            <span className="text-[13px] text-slate-700">{card.brand} ending {card.last4} · exp {String(card.expMonth).padStart(2, "0")}/{card.expYear}</span>
-            {cardHealthy ? (
-              <StatusBadge tone="emerald"><CheckCircle2 className="w-3 h-3" /> Healthy</StatusBadge>
-            ) : (
-              <StatusBadge tone="amber"><AlertTriangle className="w-3 h-3" /> {card.health}</StatusBadge>
-            )}
-          </div>
-          {!cardHealthy && (
-            <BillingButton variant="secondary" className="mt-3" disabled={!canManageBilling} onClick={() => alert("Update your card in the secure Stripe portal.")}>Update card</BillingButton>
+          {card ? (
+            <>
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 px-3.5 py-3">
+                <span className="text-[13px] text-slate-700">{card.brand} ending {card.last4} · exp {String(card.expMonth).padStart(2, "0")}/{card.expYear}</span>
+                {cardHealthy ? (
+                  <StatusBadge tone="emerald"><CheckCircle2 className="w-3 h-3" /> Healthy</StatusBadge>
+                ) : (
+                  <StatusBadge tone="amber"><AlertTriangle className="w-3 h-3" /> {card.health}</StatusBadge>
+                )}
+              </div>
+              {!cardHealthy && (
+                <BillingButton variant="secondary" className="mt-3" disabled={!canManageBilling} onClick={() => alert("Update your card in the secure Stripe portal.")}>Update card</BillingButton>
+              )}
+            </>
+          ) : (
+            <p className="text-[13px] text-slate-400 px-1">No payment method on file. Add a card to enable automatic renewals.</p>
           )}
         </BillingCard>
       </div>

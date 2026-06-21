@@ -103,7 +103,7 @@ export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookin
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Message thread</p><button className="text-[12px] font-semibold text-blue-600 inline-flex items-center gap-1">View full conversation <ChevronRight className="w-3.5 h-3.5" /></button></div>
             <div className="space-y-3">
-              <ThreadMsg who="Sarah Johnson (You)" when={`${d.raised}, 10:24`} text="The property was not as described and was not clean on arrival. There were maintenance issues, mould in the bathroom, and broken furniture." />
+              <ThreadMsg who="You" when={`${d.raised}, 10:24`} text="The property was not as described and was not clean on arrival. There were maintenance issues, mould in the bathroom, and broken furniture." />
               <ThreadMsg who="Propvora Support" when={`${d.raised}, 10:35`} support text="Thanks for raising this dispute. We've sent the details to your host and they have until 12 Jun 2025 to respond. We'll be in touch." />
               <div className="flex items-center gap-2 text-[11.5px] text-slate-400 pl-1"><Info className="w-3.5 h-3.5" /> Host notified · {d.raised}, 10:40</div>
             </div>

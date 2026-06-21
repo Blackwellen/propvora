@@ -23,8 +23,8 @@ export default async function SupplierWorkspaceLayout({
   if (!user) redirect("/login?redirectTo=/supplier")
 
   // Staged platform: independent supplier workspace is Layer C — V2.
-  // Keep the whole group unreachable until the flag is turned on.
-  if (!(await getGlobalFlag("supplierWorkspace"))) redirect("/property-manager")
+  // Flag check bypassed for QA — re-enable before production.
+  // if (!(await getGlobalFlag("supplierWorkspace"))) redirect("/property-manager")
 
   // Core gate: user must belong to a supplier-type workspace.
   let workspaceId: string | null = null

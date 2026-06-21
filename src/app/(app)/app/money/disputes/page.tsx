@@ -73,7 +73,7 @@ export default async function DisputesPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link href={`/app/money/disputes/${d.id}`} className="text-xs font-semibold text-[#2563EB] hover:underline">
+                    <Link href={`/property-manager/money/disputes/${d.id}`} className="text-xs font-semibold text-[#2563EB] hover:underline">
                       Open
                     </Link>
                   </td>

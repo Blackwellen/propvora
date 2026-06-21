@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
@@ -276,13 +276,13 @@ export default function NewBillPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <Button variant="primary" className="w-full" onClick={() => { if (createdId) router.push(`/app/money/bills/${createdId}`) }}>
+            <Button variant="primary" className="w-full" onClick={() => { if (createdId) router.push(`/property-manager/money/bills/${createdId}`) }}>
               View Bill
             </Button>
             <Button variant="outline" className="w-full" onClick={() => { setDone(false); setCreatedId(null); setStep(1); setForm({ bill_type: "", bill_number: genBillNumber(), issue_date: new Date().toISOString().split("T")[0], due_date: "", supplier: "", supplier_reference: "", property: "", unit: "", job: "", line_items: [newLineItem()], invoice_file: null, approval_required: true, approval_notes: "", payment_method: "Bank Transfer (BACS)" }) }}>
               Add Another Bill
             </Button>
-            <Link href="/app/money/bills">
+            <Link href="/property-manager/money/bills">
               <Button variant="ghost" className="w-full">
                 Back to Bills
               </Button>
@@ -618,10 +618,10 @@ export default function NewBillPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <MobileTopBar title="Create Bill" subtitle={`Step ${step} of ${STEPS.length}`} showBack backHref="/app/money/bills" />
+      <MobileTopBar title="Create Bill" subtitle={`Step ${step} of ${STEPS.length}`} showBack backHref="/property-manager/money/bills" />
       {/* Top bar */}
       <div className="hidden md:flex bg-white border-b border-slate-200 px-5 md:px-7 py-4 items-center gap-3">
-        <Link href="/app/money/bills" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/property-manager/money/bills" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
           <ArrowLeft className="w-4 h-4" />
           Bills
         </Link>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
@@ -548,7 +548,7 @@ export function AvailabilityPanel({ listingId }: { listingId: string }) {
             {pending ? "Opening…" : "Open next 180 days"}
           </button>
           <Link
-            href={`/app/bookings/calendar?listing=${listingId}`}
+            href={`/property-manager/bookings/calendar?listing=${listingId}`}
             className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors"
           >
             Open calendar
@@ -816,7 +816,7 @@ export function CompliancePanel({ listing }: { listing: BookingListing }) {
         Safety certificates, EPC rating, gas/electric certs and licensing are managed in the Compliance section.
       </p>
       <Link
-        href="/app/compliance"
+        href="/property-manager/compliance"
         className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors"
       >
         Go to Compliance
@@ -837,7 +837,7 @@ export function ChannelsPanel({ listingId, listingTitle }: { listingId: string; 
         </p>
       </div>
       <Link
-        href={`/app/bookings/listings/${listingId}/channels`}
+        href={`/property-manager/bookings/listings/${listingId}/channels`}
         className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
       >
         Open channel sync
@@ -882,7 +882,7 @@ export function BookingsPanel({
             {upcoming.map((b) => (
               <Link
                 key={b.id}
-                href={`/app/bookings/${b.id}`}
+                href={`/property-manager/bookings/${b.id}`}
                 className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors"
               >
                 <div>
@@ -904,7 +904,7 @@ export function BookingsPanel({
             {past.map((b) => (
               <Link
                 key={b.id}
-                href={`/app/bookings/${b.id}`}
+                href={`/property-manager/bookings/${b.id}`}
                 className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors opacity-70"
               >
                 <div>
@@ -933,7 +933,7 @@ export function MessagesPanel({ listingId }: { listingId: string }) {
         <p className="text-[12px] text-slate-400 mt-1">Messages are sent from the Reservations section.</p>
       </div>
       <Link
-        href="/app/bookings/reservations"
+        href="/property-manager/bookings/reservations"
         className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors"
       >
         Go to Reservations
@@ -993,7 +993,7 @@ export function AIOptimiserPanel({ listingId, listing }: { listingId: string; li
         </p>
       </div>
       <Link
-        href={`/app/copilot?context=listing&listingId=${listingId}`}
+        href={`/property-manager/copilot?context=listing&listingId=${listingId}`}
         className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
       >
         Open AI Copilot

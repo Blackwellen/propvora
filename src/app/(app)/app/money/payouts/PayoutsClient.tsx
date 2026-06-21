@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Wallet, ShieldCheck, Banknote, ArrowUpRight, Lock, Info, Download } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
@@ -107,7 +107,7 @@ export default function PayoutsClient({
               ))}
             </ul>
             <a
-              href="/app/workspace-settings/billing"
+              href="/property-manager/workspace-settings/billing"
               className="mt-6 inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold hover:bg-[#1A45BE] transition-colors"
             >
               View upgrade options <ArrowUpRight className="w-4 h-4" />

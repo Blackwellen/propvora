@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import {
   CalendarCheck,
   ShoppingBag,
@@ -97,7 +97,7 @@ export default async function CustomerHomePage() {
         subtitle="Your stays, orders and saved listings at a glance"
         actions={
           <Link
-            href="/app/marketplace"
+            href="/property-manager/marketplace"
             className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
           >
             <Sparkles className="w-4 h-4" /> Browse marketplace

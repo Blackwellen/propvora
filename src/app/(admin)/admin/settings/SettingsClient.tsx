@@ -68,7 +68,7 @@ export default function SettingsClient({ flagsAvailable, flags, settingsAvailabl
   // General settings
   const [name, setName] = useState(general.platform_name ?? "Propvora")
   const [supportEmail, setSupportEmail] = useState(general.support_email ?? "")
-  const [trialDays, setTrialDays] = useState(String(general.trial_length_days ?? 14))
+  const [trialDays, setTrialDays] = useState(String(general.trial_length_days ?? 7))
   const [savingGeneral, setSavingGeneral] = useState(false)
   const [generalMsg, setGeneralMsg] = useState<{ kind: "ok" | "err"; msg: string } | null>(null)
 
@@ -78,7 +78,7 @@ export default function SettingsClient({ flagsAvailable, flags, settingsAvailabl
     const res = await savePlatformSetting("general", {
       platform_name: name,
       support_email: supportEmail,
-      trial_length_days: Number(trialDays) || 14,
+      trial_length_days: Number(trialDays) || 7,
     })
     setSavingGeneral(false)
     setGeneralMsg(res.ok ? { kind: "ok", msg: "Platform settings saved." } : { kind: "err", msg: res.error ?? "Failed to save" })

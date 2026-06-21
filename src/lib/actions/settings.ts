@@ -219,7 +219,7 @@ export async function saveWorkspaceSettings(
     bucket,
     keys: Object.keys(patch),
   })
-  revalidatePath("/app/workspace-settings")
+  revalidatePath("/property-manager/workspace-settings")
   return { ok: true, unavailable: false }
 }
 
@@ -338,7 +338,7 @@ export async function changeMemberRole(
   if (error) return { ok: false, error: error.message }
 
   await writeAudit(ctx.workspaceId, ctx.userId, "team.role_changed", { memberId, newRole })
-  revalidatePath("/app/workspace-settings/team")
+  revalidatePath("/property-manager/workspace-settings/team")
   return { ok: true }
 }
 
@@ -374,7 +374,7 @@ export async function removeMember(memberId: string): Promise<TeamMutationResult
   if (error) return { ok: false, error: error.message }
 
   await writeAudit(ctx.workspaceId, ctx.userId, "team.member_removed", { memberId })
-  revalidatePath("/app/workspace-settings/team")
+  revalidatePath("/property-manager/workspace-settings/team")
   return { ok: true }
 }
 
@@ -481,8 +481,8 @@ export async function leaveWorkspace(): Promise<DangerResult> {
     .eq("id", ctx.userId)
 
   await writeAudit(ctx.workspaceId, ctx.userId, "workspace.left", {})
-  revalidatePath("/app")
-  return { ok: true, redirect: next?.workspace_id ? "/app" : "/onboarding" }
+  revalidatePath("/property-manager")
+  return { ok: true, redirect: next?.workspace_id ? "/property-manager" : "/onboarding" }
 }
 
 /** Transfer ownership to another member, demoting self to admin. */
@@ -519,7 +519,7 @@ export async function transferOwnership(targetUserId: string): Promise<DangerRes
     .eq("id", ctx.workspaceId)
 
   await writeAudit(ctx.workspaceId, ctx.userId, "workspace.ownership_transferred", { targetUserId })
-  revalidatePath("/app/workspace-settings")
+  revalidatePath("/property-manager/workspace-settings")
   return { ok: true }
 }
 
@@ -549,8 +549,8 @@ export async function archiveWorkspace(): Promise<DangerResult> {
   }
 
   await writeAudit(ctx.workspaceId, ctx.userId, "workspace.archived", {})
-  revalidatePath("/app")
-  return { ok: true, redirect: "/app" }
+  revalidatePath("/property-manager")
+  return { ok: true, redirect: "/property-manager" }
 }
 
 /** Soft-delete the workspace (owner-only, name confirmation checked client-side). */
@@ -589,6 +589,6 @@ export async function deleteWorkspace(confirmName: string): Promise<DangerResult
   }
 
   await writeAudit(ctx.workspaceId, ctx.userId, "workspace.deleted", { name: confirmName })
-  revalidatePath("/app")
+  revalidatePath("/property-manager")
   return { ok: true, redirect: "/onboarding" }
 }

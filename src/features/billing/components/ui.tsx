@@ -203,7 +203,7 @@ export function SeedNotice({ source }: { source: "live" | "seed" }) {
   if (source === "live") return null
   return (
     <p className="text-[11px] text-slate-400">
-      Showing example billing data. Live figures appear once your subscription is provisioned.
+      Billing data not yet available. Live figures appear once your subscription is provisioned.
     </p>
   )
 }

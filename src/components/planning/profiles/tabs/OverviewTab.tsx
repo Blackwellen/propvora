@@ -165,7 +165,7 @@ export default function OverviewTab({ profile }: Props) {
             </div>
             <p className="text-sm text-slate-600 mb-6">Profile comparison is available when you start a Planning Set. You can compare up to 3 profiles side-by-side.</p>
             <Link
-              href={`/app/planning/wizard?profile=${profile.slug}`}
+              href={`/property-manager/planning/wizard?profile=${profile.slug}`}
               className="block w-full text-center py-2.5 px-4 rounded-xl text-white text-sm font-medium"
               style={{ backgroundColor: profile.accentColor }}
               onClick={() => setCompareOpen(false)}
@@ -270,7 +270,7 @@ export default function OverviewTab({ profile }: Props) {
                     <RotateCcw className="w-4 h-4" /> Reset
                   </button>
                   <Link
-                    href={`/app/planning/wizard?profile=${profile.slug}`}
+                    href={`/property-manager/planning/wizard?profile=${profile.slug}`}
                     onClick={() => setScenarioOpen(false)}
                     className="flex-1 text-center py-2.5 px-4 rounded-xl text-white text-sm font-semibold"
                     style={{ backgroundColor: profile.accentColor }}
@@ -286,7 +286,7 @@ export default function OverviewTab({ profile }: Props) {
                   This profile doesn&apos;t have example figures to model against yet. Start a full Planning Set to build a detailed scenario from your own numbers.
                 </p>
                 <Link
-                  href={`/app/planning/wizard?profile=${profile.slug}`}
+                  href={`/property-manager/planning/wizard?profile=${profile.slug}`}
                   onClick={() => setScenarioOpen(false)}
                   className="block w-full text-center py-2.5 px-4 rounded-xl text-white text-sm font-semibold"
                   style={{ backgroundColor: profile.accentColor }}
@@ -520,7 +520,7 @@ export default function OverviewTab({ profile }: Props) {
               return (
                 <Link
                   key={qa.action}
-                  href={`/app/planning/wizard?profile=${profile.slug}`}
+                  href={`/property-manager/planning/wizard?profile=${profile.slug}`}
                   className="flex flex-col items-center text-center gap-2 p-4 rounded-xl border-2 transition-all hover:shadow-md"
                   style={{ borderColor: profile.accentColor, backgroundColor: `${profile.accentColor}08` }}
                 >

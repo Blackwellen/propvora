@@ -1,95 +1,109 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Clock, Heart, MapPin, ShieldCheck, Siren, Tag, Timer } from 'lucide-react'
+import { Clock, Heart, MapPin, Phone, ShieldCheck, Siren, Tag, Timer } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
 import type { PublicEmergencyService } from '@/lib/public-marketplace/types'
 
 const FEATURES = [
   { icon: Clock, label: '24/7', sub: 'Available' },
-  { icon: Timer, label: '30 min', sub: 'Average arrival' },
+  { icon: Timer, label: '30 min', sub: 'Avg. arrival' },
   { icon: Tag, label: 'Fixed price', sub: 'No call-out fees' },
-  { icon: ShieldCheck, label: 'Police vetted', sub: 'DBS checked' },
+  { icon: ShieldCheck, label: 'DBS vetted', sub: 'Police checked' },
 ]
 
 export default function EmergencyServiceCard({ service, basePath = '/emergency' }: { service: PublicEmergencyService; basePath?: string }) {
+  const [saved, setSaved] = useState(false)
   const description =
     service.description ||
     'Lockouts, broken locks and post-break-in board-ups. Non-destructive entry where possible.'
 
   return (
-    <div className="relative aspect-[702/428] w-full [container-type:inline-size] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.01] active:translate-y-0 active:scale-[0.995]">
-    <article className="absolute left-0 top-0 flex h-[428px] w-[702px] origin-top-left overflow-hidden rounded-[22px] border-2 border-red-500 bg-white font-sans shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-shadow duration-200 hover:shadow-[0_24px_58px_rgba(15,23,42,0.18)]" style={{ transform: 'scale(calc(100cqw / 702px))' }}>
-      <div className="flex h-full w-full flex-col">
-        <div className="relative flex h-[56%] min-h-[240px] gap-[26px] px-[16px] pt-[16px]">
-          <div className="relative h-[218px] w-[41%] overflow-hidden rounded-xl">
-            <Image
-              src={service.heroImage}
-              alt={service.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 286px"
-            />
-            <span className="absolute left-0 top-0 inline-flex h-10 min-w-[190px] items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 text-[14px] font-[700] leading-5 text-red-600 shadow-sm">
-              <Siren className="h-4 w-4" />
-              Emergency service
+    <article className="overflow-hidden rounded-2xl border-2 border-red-200 bg-red-50 font-sans transition-shadow duration-200 hover:shadow-md">
+      {/* Header strip — "Available Now" prominent */}
+      <div className="flex items-center justify-between gap-3 bg-red-600 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <Siren className="h-4 w-4 text-white" />
+          <span className="text-[13px] font-bold text-white">Emergency Service</span>
+          <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-red-600">Available Now</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setSaved((s) => !s)}
+          aria-label={saved ? 'Remove from saved' : 'Save service'}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30"
+        >
+          <Heart className={`h-4 w-4 transition-colors ${saved ? 'fill-white' : ''}`} />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex gap-4 p-4">
+        {/* Image */}
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-200">
+          <Image
+            src={service.heroImage}
+            alt={service.title}
+            fill
+            className="object-cover"
+            sizes="112px"
+          />
+        </div>
+        {/* Details */}
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[16px] font-bold text-slate-900">{service.title}</h3>
+          {/* Response time — very prominent */}
+          <p className="mt-1 flex items-center gap-1.5 text-[15px] font-bold text-red-600">
+            <Clock className="h-4 w-4" />
+            {service.responseTimeMin}–{service.responseTimeMax} min response
+          </p>
+          <p className="mt-2 line-clamp-2 text-[13px] text-slate-600">{description}</p>
+          <p className="mt-2 flex items-center gap-1 text-[12px] text-slate-500">
+            <MapPin className="h-3.5 w-3.5" />
+            {service.location}
+          </p>
+        </div>
+      </div>
+
+      {/* Feature strip */}
+      <div className="grid grid-cols-4 border-y border-red-200 bg-white px-2 py-3">
+        {FEATURES.map(({ icon: Icon, label, sub }) => (
+          <div key={label} className="flex flex-col items-center gap-1 text-center">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <Icon className="h-4 w-4" />
             </span>
+            <span className="text-[11px] font-bold text-slate-900">{label}</span>
+            <span className="text-[10px] text-slate-500">{sub}</span>
           </div>
+        ))}
+      </div>
 
-          <div className="relative min-w-0 flex-1 pr-[48px] pt-[5px]">
-            <button
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-              }}
-              aria-label="Save service"
-              className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.10)] transition-colors hover:bg-slate-50"
+      {/* Footer */}
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Call-out from</p>
+          <p className="text-[22px] font-bold text-slate-900">{formatPence(service.baseCalloutPrice)}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {service.phone && (
+            <a
+              href={`tel:${service.phone}`}
+              className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-50"
             >
-              <Heart className="h-5 w-5" />
-            </button>
-            <h3 className="truncate text-[20px] font-[760] leading-7 text-slate-950">{service.title}</h3>
-            <p className="mt-[10px] flex items-center gap-2 text-[14px] font-[700] leading-5 text-red-600">
-              <Clock className="h-4 w-4" />
-              Responds in {service.responseTimeMin}-{service.responseTimeMax} mins
-            </p>
-            <p className="mt-[12px] line-clamp-3 text-[15px] font-[500] leading-[23px] text-slate-600">{description}</p>
-            <p className="mt-[11px] flex items-center gap-2 truncate text-[15px] font-[500] leading-[22px] text-slate-500">
-              <MapPin className="h-4 w-4 text-slate-500" />
-              {service.location}
-            </p>
-          </div>
-        </div>
-
-        <div className="mx-[18px] grid h-[19%] min-h-[82px] grid-cols-4 border-y border-slate-200 py-[17px]">
-          {FEATURES.map(({ icon: Icon, label, sub }) => (
-            <div key={label} className="flex items-start gap-3 px-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[12.5px] font-[750] leading-4 text-slate-950">{label}</span>
-                <span className="mt-1 block truncate text-[12px] font-[500] leading-4 text-slate-500">{sub}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex h-[20%] min-h-[86px] items-center justify-between px-[18px] py-[18px]">
-          <div>
-            <p className="text-[12px] font-[700] uppercase leading-4 text-slate-500">Call-out from</p>
-            <span className="mt-1 block text-[25px] font-[800] leading-8 text-slate-950">{formatPence(service.baseCalloutPrice)}</span>
-          </div>
+              <Phone className="h-4 w-4" />
+              Call
+            </a>
+          )}
           <Link
             href={`${basePath}/${service.slug}`}
-            className="inline-flex h-11 min-w-[160px] items-center justify-center gap-3 rounded-lg bg-red-500 px-5 text-[14.5px] font-[750] leading-[18px] text-white transition-colors hover:bg-red-600"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-red-700"
           >
             Request now
-            <span aria-hidden>{'->'}</span>
           </Link>
         </div>
       </div>
     </article>
-    </div>
   )
 }

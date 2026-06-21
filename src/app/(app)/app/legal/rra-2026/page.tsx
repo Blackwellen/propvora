@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
 import {
@@ -295,7 +295,7 @@ export default function Rra2026Page() {
                   <Row label="Active" value={ten.active} cls="bg-blue-100 text-blue-700" />
                 </div>
               )}
-              <Link href="/app/portfolio/tenancies" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/portfolio/tenancies" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
                 Review Tenancies <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -313,7 +313,7 @@ export default function Rra2026Page() {
                 <Row label="Active cases" value={activeCases} />
                 <Row label="Notices served" value={noticesServed} />
               </div>
-              <Link href="/app/legal/possession" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/legal/possession" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
                 View Cases <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -329,7 +329,7 @@ export default function Rra2026Page() {
                 <Row label="Properties" value={properties.length} />
                 <Row label="With EPC on record" value={epcCoveredPropertyIds.size} cls={epcCoverageOk ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"} />
               </div>
-              <Link href="/app/legal/epc-advisory" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/legal/epc-advisory" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
                 Open EPC Advisory <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

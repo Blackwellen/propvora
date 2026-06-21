@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -26,6 +26,8 @@ export interface PropertyCardData {
   occupied?: number
   tenants: number
   monthlyRent: number
+  /** When false, target_rent_pcm was null in DB — show "Not set" instead of £0 */
+  hasTargetRent?: boolean
   operationProfile?: string
   coverImageUrl?: string
   bedrooms?: number
@@ -91,10 +93,47 @@ function fmt(n: number) {
 /* ------------------------------------------------------------------ */
 /* PropertyCard — compact (40-50% shorter than before)                */
 /* ------------------------------------------------------------------ */
+const LS_FAV_KEY = "propvora:pm:favourites"
+
+function readFavSet(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LS_FAV_KEY)
+    return raw ? new Set<string>(JSON.parse(raw)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+function writeFavSet(s: Set<string>) {
+  try {
+    localStorage.setItem(LS_FAV_KEY, JSON.stringify([...s]))
+  } catch {
+    // storage unavailable — silent
+  }
+}
+
 export function PropertyCard({ property }: { property: PropertyCardData }) {
   const router = useRouter()
   const [fav, setFav] = useState(property.isFavourited ?? false)
   const [imgError, setImgError] = useState(false)
+
+  // Initialise from localStorage on mount
+  useEffect(() => {
+    const favs = readFavSet()
+    setFav(favs.has(property.id))
+  }, [property.id])
+
+  const toggleFav = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setFav((prev) => {
+      const next = !prev
+      const favs = readFavSet()
+      if (next) favs.add(property.id)
+      else favs.delete(property.id)
+      writeFavSet(favs)
+      return next
+    })
+  }, [property.id])
 
   const badge = (property.operationProfile ? PROFILE_BADGE[property.operationProfile] : null) ?? TYPE_BADGE[property.type] ?? TYPE_BADGE.Other
   const status = STATUS_CFG[property.status] ?? STATUS_CFG.Active
@@ -110,7 +149,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
     : null
 
   return (
-    <Link href={`/app/portfolio/properties/${property.id}`} className="block group">
+    <Link href={`/property-manager/portfolio/properties/${property.id}`} className="block group">
       <article className={cn(
         "relative bg-white rounded-2xl overflow-hidden",
         "border border-slate-200/80",
@@ -148,7 +187,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           {/* Actions */}
           <div className="absolute top-2 right-2 flex items-center gap-1" onClick={(e) => e.preventDefault()}>
             <button
-              onClick={(e) => { e.preventDefault(); setFav(v => !v) }}
+              onClick={toggleFav}
               className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center shadow-sm backdrop-blur-sm transition-all",
                 fav ? "bg-red-500/90 text-white" : "bg-white/85 text-slate-500 hover:text-red-500"
@@ -160,9 +199,9 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
             <div onClick={(e) => e.preventDefault()}>
               <ActionMenu
                 items={[
-                  { label: "View property", icon: Eye, onClick: () => router.push(`/app/portfolio/properties/${property.id}`) },
-                  { label: "Add unit", icon: Plus, onClick: () => router.push(`/app/portfolio/units/new?propertyId=${property.id}`) },
-                  { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?propertyId=${property.id}`) },
+                  { label: "View property", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/properties/${property.id}`) },
+                  { label: "Add unit", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/units/new?propertyId=${property.id}`) },
+                  { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?propertyId=${property.id}`) },
                   { label: "Archive", icon: Archive, onClick: () => {} },
                 ]}
               />
@@ -212,7 +251,9 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           <div className="flex items-center gap-3 mt-1.5 pt-1.5 border-t border-slate-100">
             <div className="flex-1">
               <p className="text-[15px] font-black text-slate-900 leading-none">
-                {property.monthlyRent > 0 ? fmt(property.monthlyRent) : <span className="text-slate-300 text-sm">—</span>}
+                {property.hasTargetRent === false
+                  ? <span className="text-[12px] font-medium text-slate-400">Not set</span>
+                  : fmt(property.monthlyRent)}
               </p>
               <p className="text-[9.5px] text-slate-500 mt-0.5 uppercase tracking-wide font-medium">Monthly</p>
             </div>

@@ -196,7 +196,7 @@ export default function Step05UpfrontCompliance() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-[12.5px] text-slate-400">All amounts in</span>
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
                 <option>£ GBP</option>
                 <option>$ USD</option>
                 <option>€ EUR</option>
@@ -466,13 +466,13 @@ export default function Step05UpfrontCompliance() {
               <p className="text-[10.5px] text-slate-400">Total estimated cost</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
                 <option>All Categories</option>
                 <option>Mandatory</option>
                 <option>Recommended</option>
                 <option>Important</option>
               </select>
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
                 <option>All Status</option>
                 <option>Completed</option>
                 <option>In Progress</option>

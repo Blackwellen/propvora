@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -32,13 +32,7 @@ interface GanttTenancy {
   rentAmount: number
 }
 
-const DEMO: GanttTenancy[] = [
-  { id: "t1", tenantName: "Lerato Mokoena", propertyName: "Oceanview Apartments", unitName: "Unit 101", startDate: "2024-05-01", endDate: "2025-04-30", status: "active", rentAmount: 8500 },
-  { id: "t2", tenantName: "Sipho Ndlovu",   propertyName: "Riverside House",     unitName: "Unit 202", startDate: "2024-11-15", endDate: "2025-11-14", status: "active", rentAmount: 9000 },
-  { id: "t3", tenantName: "Thandi Dlamini", propertyName: "Campus Living JHB",   unitName: "Room 5",   startDate: "2024-03-01", endDate: "2025-02-28", status: "notice", rentAmount: 7800 },
-  { id: "t4", tenantName: "Mpho Petersen",  propertyName: "Brunswick Road",      unitName: "Room 2",   startDate: "2025-09-01", endDate: "2026-08-31", status: "upcoming", rentAmount: 5500 },
-  { id: "t5", tenantName: "James Wilson",   propertyName: "Brooklyn Studios",    unitName: "Room 4",   startDate: "2024-10-24", endDate: "2025-10-23", status: "pending", rentAmount: 4800 },
-]
+const DEMO: GanttTenancy[] = []
 
 /* ------------------------------------------------------------------ */
 /* Status config                                                        */
@@ -193,8 +187,8 @@ export default function PortfolioTimelinePage() {
         title="Tenancy Gantt"
         subtitle="Timeline view of tenancies"
         showBack
-        backHref="/app/portfolio"
-        primaryAction={{ label: "New tenancy", icon: Plus, href: "/app/portfolio/tenancies/new" }}
+        backHref="/property-manager/portfolio"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: "/property-manager/portfolio/tenancies/new" }}
         overflowActions={[
           { label: "Export CSV", icon: Download, onClick: handleExport },
         ]}
@@ -207,9 +201,9 @@ export default function PortfolioTimelinePage() {
         description="Timeline view of all tenancies and occupancy periods"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="md" asChild><Link href="/app/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link></Button>
+            <Button variant="outline" size="md" asChild><Link href="/property-manager/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link></Button>
             <Button variant="outline" size="md" onClick={handleExport} disabled={filtered.length === 0}><Download className="w-4 h-4" />Export</Button>
-            <Button variant="primary" size="md" asChild><Link href="/app/portfolio/tenancies/new"><Plus className="w-4 h-4" />New tenancy</Link></Button>
+            <Button variant="primary" size="md" asChild><Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />New tenancy</Link></Button>
           </div>
         }
       />
@@ -300,7 +294,7 @@ export default function PortfolioTimelinePage() {
             </p>
             {rows.length === 0 && (
               <Button variant="primary" size="sm" asChild>
-                <Link href="/app/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
+                <Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
               </Button>
             )}
           </div>

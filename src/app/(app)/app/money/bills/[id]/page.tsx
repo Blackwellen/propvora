@@ -55,38 +55,6 @@ interface BillDetail {
   has_invoice_pdf: boolean
 }
 
-// ── Mock Data ─────────────────────────────────────────────────────────────────
-
-const MOCK_BILLS: Record<string, BillDetail> = {
-  "bill-001": {
-    id: "bill-001", bill_number: "BILL-001", supplier: "Kevin Walsh Plumbing", supplier_email: "kevin@kwplumbing.co.uk", supplier_phone: "07712 345678",
-    type: "maintenance_bill", property: "14 Birchwood Rd", unit: "Ground Floor", job: "JOB-2026-034", job_title: "Boiler replacement",
-    job_estimated_cost: 350, amount: 320, subtotal: 266.67, tax: 53.33, paid: 0, due_date: "2026-06-15", issue_date: "2026-06-01",
-    status: "awaiting_review", payment_method: "Bank Transfer (BACS)", approval_required: true,
-    notes: "Boiler replaced on 2026-05-30. Bill includes parts and labour. VAT invoice attached.",
-    line_items: [
-      { id: "li-1", description: "Boiler replacement — parts", qty: 1, unit_price: 180, tax_rate: 20 },
-      { id: "li-2", description: "Labour (4 hrs @ £21.67)", qty: 4, unit_price: 21.67, tax_rate: 20 },
-    ],
-    created_by: "Alex Johnson", created_at: "2026-06-01T09:00:00Z", updated_at: "2026-06-01T09:00:00Z", has_invoice_pdf: true,
-  },
-}
-
-function getOrCreateBill(id: string): BillDetail {
-  if (MOCK_BILLS[id]) return MOCK_BILLS[id]
-  return {
-    id, bill_number: `BILL-${id.slice(-3).toUpperCase()}`, supplier: "Example Supplier Ltd",
-    supplier_email: "accounts@example.co.uk", supplier_phone: "07700 000000",
-    type: "maintenance_bill", property: "14 Birchwood Rd", unit: "Flat 1", job: "JOB-2026-099", job_title: "General maintenance",
-    job_estimated_cost: 400, amount: 360, subtotal: 300, tax: 60, paid: 0, due_date: "2026-06-30", issue_date: "2026-06-05",
-    status: "awaiting_review", payment_method: "Bank Transfer (BACS)", approval_required: true, notes: "",
-    line_items: [
-      { id: "li-a", description: "Labour", qty: 3, unit_price: 80, tax_rate: 20 },
-      { id: "li-b", description: "Materials", qty: 1, unit_price: 60, tax_rate: 20 },
-    ],
-    created_by: "Alex Johnson", created_at: "2026-06-05T10:00:00Z", updated_at: "2026-06-05T10:00:00Z", has_invoice_pdf: false,
-  }
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -210,10 +178,11 @@ export default function BillDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { workspace } = useWorkspace()
-  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "bill-001"
+  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : ""
 
-  const [bill, setBill] = useState<BillDetail>(() => getOrCreateBill(id))
-  // Live = a real row was found in money_bills; only then is inline editing persisted
+  const [bill, setBill] = useState<BillDetail | null>(null)
+  const [billLoading, setBillLoading] = useState(true)
+  // Live = a real row was found in bills; only then is inline editing persisted
   const [isLive, setIsLive] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
@@ -222,25 +191,25 @@ export default function BillDetailPage() {
     setTimeout(() => setToastMsg(null), 3500)
   }
 
-  // Map a live money_bills row onto the BillDetail shape used by the UI
+  // Load the live bill from Supabase
   useEffect(() => {
     if (!id || !workspace?.id) return
+    setBillLoading(true)
     const supabase = createClient();
     (async () => {
       try {
         const { data, error } = await supabase
           .from("bills")
-          .select("*")
+          .select("*, contacts!supplier_contact_id(display_name), properties(address_line1)")
           .eq("id", id)
           .eq("workspace_id", workspace.id)
           .maybeSingle()
         if (error) {
-          // 42P01 (table missing) or other — fall back to mock, editing disabled
+          // 42P01 (table missing) or other — no bill shown
           return
         }
         if (data) {
           const r = data as Record<string, unknown>
-          // live `bills.status` is a single column; map it onto the BillStatus UI type.
           const liveStatus = (r.status as string) ?? "awaiting_review"
           const status: BillStatus =
             liveStatus === "paid" || liveStatus === "part_paid" || liveStatus === "reconciled" ? "paid"
@@ -249,20 +218,42 @@ export default function BillDetailPage() {
             : liveStatus === "disputed" ? "disputed"
             : liveStatus === "approved" ? "approved"
             : "awaiting_review"
-          const total = (r.total as number | null) ?? undefined
-          setBill((prev) => ({
-            ...prev,
+          const total = (r.total as number | null) ?? 0
+          const supplierContact = r.contacts as { display_name?: string } | null
+          const propertyData = r.properties as { address_line1?: string } | null
+          setBill({
             id: r.id as string,
-            amount: total ?? prev.amount,
-            due_date: (r.due_date as string) ?? prev.due_date,
+            bill_number: (r.bill_number as string | null) ?? `BILL-${id.slice(-6).toUpperCase()}`,
+            supplier: supplierContact?.display_name ?? (r.supplier_name as string | null) ?? "Unknown Supplier",
+            supplier_email: (r.supplier_email as string | null) ?? "",
+            supplier_phone: (r.supplier_phone as string | null) ?? "",
+            type: (r.type as BillType | null) ?? "maintenance_bill",
+            property: propertyData?.address_line1 ?? (r.property_address as string | null) ?? "",
+            unit: (r.unit as string | null) ?? "",
+            job: (r.job_ref as string | null) ?? null,
+            job_title: (r.job_title as string | null) ?? null,
+            job_estimated_cost: (r.job_estimated_cost as number | null) ?? null,
+            amount: total,
+            subtotal: (r.subtotal as number | null) ?? total,
+            tax: (r.tax as number | null) ?? 0,
+            paid: status === "paid" ? total : 0,
+            due_date: (r.due_date as string | null) ?? "",
+            issue_date: (r.issue_date as string | null) ?? (r.created_at as string | null) ?? "",
             status,
-            notes: (r.notes as string | null) ?? prev.notes,
-            bill_number: (r.bill_number as string | null) ?? prev.bill_number,
-            paid: liveStatus === "paid" ? (total ?? prev.amount) : 0,
-          }))
+            payment_method: (r.payment_method as string | null) ?? "Bank Transfer (BACS)",
+            approval_required: (r.approval_required as boolean | null) ?? true,
+            notes: (r.notes as string | null) ?? "",
+            line_items: [],
+            created_by: (r.created_by as string | null) ?? "",
+            created_at: (r.created_at as string) ?? "",
+            updated_at: (r.updated_at as string) ?? "",
+            has_invoice_pdf: false,
+          })
           setIsLive(true)
         }
-      } catch { /* table may not exist — keep mock */ }
+      } catch { /* table may not exist */ } finally {
+        setBillLoading(false)
+      }
     })()
   }, [id, workspace?.id])
 
@@ -281,7 +272,7 @@ export default function BillDetailPage() {
     const { error } = await supabase
       .from("bills")
       .update(patch)
-      .eq("id", bill.id)
+      .eq("id", bill?.id ?? "")
       .eq("workspace_id", workspace?.id ?? "")
     if (error) {
       if (error.code === "42P01") { showToast("Bills table not provisioned yet"); return }
@@ -290,7 +281,7 @@ export default function BillDetailPage() {
   }
 
   async function setBillStatus(patch: Record<string, unknown>, label: string) {
-    if (!isLive) { showToast("Demo bill — actions persist once the bill is saved"); return }
+    if (!isLive || !bill) { showToast("Bill not available"); return }
     const supabase = createClient()
     try {
       const { error } = await supabase
@@ -300,7 +291,7 @@ export default function BillDetailPage() {
         .eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       if (error?.code === "42P01") { showToast("Bills table not provisioned yet"); return }
-      setBill((prev) => ({ ...prev, ...mapStatusPatch(patch) }))
+      setBill((prev) => prev ? { ...prev, ...mapStatusPatch(patch) } : prev)
       showToast(label)
     } catch {
       showToast("Could not update bill")
@@ -308,12 +299,12 @@ export default function BillDetailPage() {
   }
 
   async function deleteBill() {
-    if (!isLive) { router.push("/app/money/bills"); return }
+    if (!isLive || !bill) { router.push("/property-manager/money/bills"); return }
     const supabase = createClient()
     try {
       const { error } = await supabase.from("bills").delete().eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
-      router.push("/app/money/bills")
+      router.push("/property-manager/money/bills")
     } catch {
       showToast("Could not delete bill")
     }
@@ -321,6 +312,18 @@ export default function BillDetailPage() {
 
   const [activeTab, setActiveTab] = useState("Overview")
   const [showPayModal, setShowPayModal] = useState(false)
+
+  if (billLoading || !workspace?.id) return (
+    <div className="px-5 py-20 text-center text-sm text-slate-400">Loading bill…</div>
+  )
+  if (!bill) return (
+    <div className="px-5 py-20 text-center">
+      <Receipt className="w-8 h-8 text-slate-200 mx-auto mb-3" />
+      <p className="text-sm font-medium text-slate-600 mb-1">Bill not found</p>
+      <p className="text-[12.5px] text-slate-400 mb-4">This bill may have been removed or the link may be incorrect.</p>
+      <Link href="/property-manager/money/bills" className="text-[12.5px] text-[#2563EB] hover:underline">← Back to bills</Link>
+    </div>
+  )
 
   const outstanding = bill.amount - bill.paid
   const paidPct = bill.amount > 0 ? Math.round((bill.paid / bill.amount) * 100) : 0
@@ -342,7 +345,7 @@ export default function BillDetailPage() {
         title={bill.bill_number}
         subtitle={bill.supplier}
         showBack
-        backHref="/app/money/bills"
+        backHref="/property-manager/money/bills"
         overflowActions={[
           ...(bill.status === "awaiting_review"
             ? [{ label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved") }]
@@ -370,7 +373,7 @@ export default function BillDetailPage() {
       <div className="px-5 md:px-7 lg:px-8 py-6 lg:py-7 max-w-[1600px] mx-auto space-y-6">
         {/* Breadcrumb */}
         <div className="hidden md:flex items-center gap-1.5 text-sm text-slate-500">
-          <Link href="/app/money/bills" className="hover:text-slate-700 flex items-center gap-1">
+          <Link href="/property-manager/money/bills" className="hover:text-slate-700 flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Bills
           </Link>
           <ChevronRight className="w-3 h-3 text-slate-300" />
@@ -427,7 +430,7 @@ export default function BillDetailPage() {
                         readOnly={bill.status === "paid"}
                         readOnlyReason="Paid bill — amount is locked."
                         displayClassName="text-3xl font-bold text-slate-900"
-                        onSave={async (v) => { await saveField("amount", Number(v)); setBill((p) => ({ ...p, amount: Number(v) })) }}
+                        onSave={async (v) => { await saveField("amount", Number(v)); setBill((p) => p ? { ...p, amount: Number(v) } : p) }}
                       />
                     </div>
                   ) : (
@@ -460,7 +463,7 @@ export default function BillDetailPage() {
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
                 {bill.job && (
-                  <Link href={`/app/jobs/${bill.job}`}>
+                  <Link href={`/property-manager/jobs/${bill.job}`}>
                     <Button variant="outline" size="sm">
                       <ExternalLink className="w-4 h-4" /> Open Linked Job
                     </Button>
@@ -541,7 +544,7 @@ export default function BillDetailPage() {
                     paidPct={paidPct}
                     outstanding={outstanding}
                     isLive={isLive}
-                    onSaveNotes={async (v) => { await saveField("notes", v); setBill((p) => ({ ...p, notes: v })) }}
+                    onSaveNotes={async (v) => { await saveField("notes", v); setBill((p) => p ? { ...p, notes: v } : p) }}
                   />
                 )}
                 {activeTab === "Line Items" && <LineItemsTab bill={bill} />}
@@ -608,7 +611,7 @@ export default function BillDetailPage() {
                       const supabase = createClient()
                       const { error } = await supabase.from("bills").update(patch).eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
                       if (error && error.code !== "42P01") throw error
-                      setBill((p) => ({ ...p, status: v as BillStatus }))
+                      setBill((p) => p ? { ...p, status: v as BillStatus } : p)
                     }}
                   />
                 </div>
@@ -619,7 +622,7 @@ export default function BillDetailPage() {
                     type="date"
                     disabled={!isLive}
                     displayClassName="text-xs font-medium text-slate-700"
-                    onSave={async (v) => { await saveField("due_date", v); setBill((p) => ({ ...p, due_date: v })) }}
+                    onSave={async (v) => { await saveField("due_date", v); setBill((p) => p ? { ...p, due_date: v } : p) }}
                   />
                 </div>
                 <RailRow label="Payment Method" value={bill.payment_method} />
@@ -630,14 +633,14 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Related</h3>
               <div className="space-y-2">
-                <Link href={`/app/contacts`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                <Link href={`/property-manager/contacts`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                   <User className="w-3.5 h-3.5" /> {bill.supplier}
                 </Link>
-                <Link href={`/app/properties`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                <Link href={`/property-manager/properties`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                   <Building2 className="w-3.5 h-3.5" /> {bill.property}
                 </Link>
                 {bill.job && (
-                  <Link href={`/app/jobs/${bill.job}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                  <Link href={`/property-manager/jobs/${bill.job}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                     <Briefcase className="w-3.5 h-3.5" /> {bill.job}
                   </Link>
                 )}
@@ -648,7 +651,7 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Supplier History</p>
               <p className="text-xs text-slate-500">3 previous bills from {bill.supplier.split(" ")[0]}</p>
-              <Link href="/app/money/bills" className="text-xs text-[#2563EB] hover:underline mt-1 block">
+              <Link href="/property-manager/money/bills" className="text-xs text-[#2563EB] hover:underline mt-1 block">
                 View all supplier bills →
               </Link>
             </div>
@@ -908,7 +911,7 @@ function LinkedJobTab({ bill }: { bill: BillDetail }) {
             <p className="font-medium text-slate-900">£{bill.amount.toLocaleString()}</p>
           </div>
         </div>
-        <Link href={`/app/jobs/${bill.job}`}>
+        <Link href={`/property-manager/jobs/${bill.job}`}>
           <Button variant="outline" size="sm">
             <ExternalLink className="w-4 h-4" /> Open Job Detail
           </Button>

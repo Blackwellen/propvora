@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -24,13 +24,16 @@ import {
   BadgeCheck,
   MapPin,
 } from "lucide-react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { MobileTopBar } from "@/components/mobile"
 import { SuppliersHubTabNav } from "@/components/suppliers/SuppliersHubTabNav"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useSuppliers } from "@/features/suppliers/useSuppliers"
+import { SupplierKpiStrip } from "@/features/pm-suppliers/components/SupplierKpiStrip"
+import { ComplianceDonutCard } from "@/features/pm-suppliers/components/ComplianceDonutCard"
+import { PerformanceMetricsCard } from "@/features/pm-suppliers/components/PerformanceMetricsCard"
+import { SupplierAlertsCard } from "@/features/pm-suppliers/components/SupplierAlertsCard"
 
 // ─── Static seed data ─────────────────────────────────────────────────────────
 
@@ -48,14 +51,14 @@ const COMPLIANCE_DATA = [
 ]
 
 const QUICK_ACTIONS = [
-  { icon: UserPlus,     label: "Add Supplier",   href: "/app/contacts/new?type=supplier" },
-  { icon: FilePlus,     label: "Create Job",     href: "/app/work/jobs/new"              },
-  { icon: MessageSquare,label: "Create Task",    href: "/app/work/tasks/new"             },
-  { icon: BookUser,     label: "Directory",      href: "/app/suppliers/directory"        },
-  { icon: Shield,       label: "Compliance",     href: "/app/suppliers/compliance"       },
-  { icon: TrendingUp,   label: "Performance",    href: "/app/suppliers/performance"      },
-  { icon: ExternalLink, label: "All Contacts",   href: "/app/contacts"                   },
-  { icon: Store,        label: "Marketplace",    href: "/app/marketplace/suppliers"      },
+  { icon: UserPlus,     label: "Add Supplier",   href: "/property-manager/contacts/new?type=supplier" },
+  { icon: FilePlus,     label: "Create Job",     href: "/property-manager/work/jobs/new"              },
+  { icon: MessageSquare,label: "Create Task",    href: "/property-manager/work/tasks/new"             },
+  { icon: BookUser,     label: "Directory",      href: "/property-manager/suppliers/directory"        },
+  { icon: Shield,       label: "Compliance",     href: "/property-manager/suppliers/compliance"       },
+  { icon: TrendingUp,   label: "Performance",    href: "/property-manager/suppliers/performance"      },
+  { icon: ExternalLink, label: "All Contacts",   href: "/property-manager/contacts"                   },
+  { icon: Store,        label: "Marketplace",    href: "/property-manager/marketplace/suppliers"      },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -118,10 +121,10 @@ export default function SuppliersHubPage() {
       <MobileTopBar
         title="Suppliers"
         subtitle="Supplier hub"
-        primaryAction={{ label: "Add supplier", icon: UserPlus, href: "/app/contacts/new?type=supplier" }}
+        primaryAction={{ label: "Add supplier", icon: UserPlus, href: "/property-manager/contacts/new?type=supplier" }}
         overflowActions={[
-          { label: "Create job",     icon: FilePlus,  href: "/app/work/jobs/new"              },
-          { label: "Marketplace",    icon: Store,     href: "/app/marketplace/suppliers"      },
+          { label: "Create job",     icon: FilePlus,  href: "/property-manager/work/jobs/new"              },
+          { label: "Marketplace",    icon: Store,     href: "/property-manager/marketplace/suppliers"      },
           { label: "Export",         icon: Download,  onClick: exportCsv                      },
         ]}
       />
@@ -134,14 +137,14 @@ export default function SuppliersHubPage() {
           actions={
             <>
               <Link
-                href="/app/contacts/new?type=supplier"
+                href="/property-manager/contacts/new?type=supplier"
                 className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Add Supplier
               </Link>
               <Link
-                href="/app/marketplace/suppliers"
+                href="/property-manager/marketplace/suppliers"
                 className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 text-slate-700 rounded-lg text-[13px] font-semibold hover:bg-slate-50 transition-colors"
               >
                 <Store className="w-3.5 h-3.5" />
@@ -160,23 +163,7 @@ export default function SuppliersHubPage() {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {KPIS.map((kpi) => {
-          const Icon = kpi.icon
-          return (
-            <div key={kpi.label} className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2.5">
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide leading-tight">{kpi.label}</p>
-                <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", kpi.bg)}>
-                  <Icon className={cn("w-3.5 h-3.5", kpi.color)} />
-                </div>
-              </div>
-              <p className="text-xl font-bold text-slate-900 leading-none mb-1">{kpi.value}</p>
-              <p className="text-[11px] text-slate-500">{kpi.sub}</p>
-            </div>
-          )
-        })}
-      </div>
+      <SupplierKpiStrip items={KPIS} columns="6" />
 
       {/* Tab nav */}
       <SuppliersHubTabNav />
@@ -206,7 +193,7 @@ export default function SuppliersHubPage() {
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-slate-800">Your Suppliers</h2>
-            <Link href="/app/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium">
+            <Link href="/property-manager/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium">
               View all <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -233,7 +220,7 @@ export default function SuppliersHubPage() {
                 return (
                   <Link
                     key={s.id}
-                    href={`/app/work/suppliers/${s.id}`}
+                    href={`/property-manager/work/suppliers/${s.id}`}
                     className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-2xl hover:shadow-sm transition-all"
                   >
                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0", s.avatarBg)}>
@@ -266,7 +253,7 @@ export default function SuppliersHubPage() {
                 <p className="text-[14px] font-semibold text-slate-700 mb-1">No suppliers yet</p>
                 <p className="text-[12.5px] text-slate-500 mb-4">Add your first supplier to start tracking your network.</p>
                 <Link
-                  href="/app/contacts/new?type=supplier"
+                  href="/property-manager/contacts/new?type=supplier"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
@@ -278,7 +265,7 @@ export default function SuppliersHubPage() {
 
           {suppliers.length > 5 && (
             <Link
-              href="/app/suppliers/directory"
+              href="/property-manager/suppliers/directory"
               className="flex items-center justify-center gap-2 w-full py-3 border border-slate-200 rounded-xl text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               View full directory <ChevronRight className="w-4 h-4" />
@@ -288,75 +275,15 @@ export default function SuppliersHubPage() {
 
         {/* Right rail */}
         <div className="space-y-4">
-          {/* Compliance donut */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[13px] font-semibold text-slate-800">Compliance Status</h3>
-              <Link href="/app/suppliers/compliance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
-            </div>
-            <div className="h-36">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={COMPLIANCE_DATA} cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value" strokeWidth={0}>
-                    {COMPLIANCE_DATA.map((d, i) => (
-                      <Cell key={i} fill={d.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(val: any) => [`${val} suppliers`]}
-                    contentStyle={{ borderRadius: 10, fontSize: 12, border: "1px solid #e2e8f0" }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-1.5 mt-2">
-              {COMPLIANCE_DATA.map((d) => (
-                <div key={d.name} className="flex items-center justify-between text-[12px]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.fill }} />
-                    <span className="text-slate-600">{d.name}</span>
-                  </div>
-                  <span className="font-semibold text-slate-800">{d.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Performance snapshot */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-semibold text-slate-800">Performance</h3>
-              <Link href="/app/suppliers/performance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
-            </div>
-            <div className="space-y-3">
-              {PERF_METRICS.map((m) => (
-                <PerformanceBar key={m.label} label={m.label} value={m.value} color={m.color} />
-              ))}
-            </div>
-          </div>
-
-          {/* Alerts */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span className="text-[12.5px] font-semibold text-amber-800">Attention needed</span>
-            </div>
-            <div className="text-[12px] text-amber-700 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span>4 docs expiring soon</span>
-                <Link href="/app/suppliers/compliance" className="font-medium hover:underline">Review</Link>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>3 non-compliant suppliers</span>
-                <Link href="/app/suppliers/compliance" className="font-medium hover:underline">Review</Link>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>18 pending quote requests</span>
-                <Link href="/app/suppliers/directory" className="font-medium hover:underline">View</Link>
-              </div>
-            </div>
-          </div>
+          <ComplianceDonutCard data={COMPLIANCE_DATA} />
+          <PerformanceMetricsCard metrics={PERF_METRICS} />
+          <SupplierAlertsCard
+            alerts={[
+              { label: "4 docs expiring soon",      href: "/property-manager/suppliers/compliance" },
+              { label: "3 non-compliant suppliers",  href: "/property-manager/suppliers/compliance" },
+              { label: "18 pending quote requests",  href: "/property-manager/suppliers/directory", actionLabel: "View" },
+            ]}
+          />
         </div>
       </div>
     </div>

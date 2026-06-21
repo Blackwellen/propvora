@@ -157,7 +157,7 @@ function EventRow({ event, isLast }: { event: TimelineEvent; isLast: boolean }) 
                 {initials(event.contactName)}
               </div>
               <Link
-                href={`/app/contacts/${event.contactId}`}
+                href={`/property-manager/contacts/${event.contactId}`}
                 className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors"
               >
                 {event.contactName}
@@ -321,7 +321,7 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
         <h3 className="text-sm font-bold text-slate-900 mb-3">Top Contacts</h3>
         <div className="space-y-2.5">
           {topContacts.map((c) => (
-            <Link key={c.id} href={`/app/contacts/${c.id}`} className="flex items-center gap-2.5 group">
+            <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-2.5 group">
               <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(c.name))}>
                 {initials(c.name)}
               </div>

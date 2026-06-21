@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
@@ -64,12 +64,12 @@ export function ActivityFeedClient({ canView, data }: Props) {
 
   const header = (
     <SectionHeader
-      breadcrumb={[{ label: "Network", href: "/app/network" }, { label: "Activity" }]}
+      breadcrumb={[{ label: "Network", href: "/property-manager/network" }, { label: "Activity" }]}
       title="Activity feed"
       subtitle="Every recorded event your workspace is a party to — across marketplace, bookings, suppliers, payments, identity, disputes and risk — in one timeline."
       actions={
         <Link
-          href="/app/network"
+          href="/property-manager/network"
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         >
           <Network className="h-4 w-4" />

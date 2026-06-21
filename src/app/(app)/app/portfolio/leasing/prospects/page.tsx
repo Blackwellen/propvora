@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState } from "react"
 import {
   Plus,
@@ -36,18 +36,7 @@ interface Prospect {
 }
 
 /* ─── Mock data ───────────────────────────────────────────────── */
-const PROSPECTS: Prospect[] = [
-  { id: "p1",  initials: "AT", name: "Alex Turner",     email: "alex.turner@email.com",     phone: "07700 900001", property: "14 Elm Close, Manchester",      source: "Rightmove", status: "New",               moveInDate: "1 Jul 2026",  budget: "£1,000/mo", daysInPipeline: 1,  timeInStage: "2h" },
-  { id: "p2",  initials: "MJ", name: "Marcus Jones",    email: "marcus.jones@email.com",     phone: "07700 900002", property: "22 Brook Lane, Liverpool",      source: "Zoopla",    status: "New",               moveInDate: "15 Jul 2026", budget: "£700/mo",   daysInPipeline: 1,  timeInStage: "3h" },
-  { id: "p3",  initials: "PS", name: "Priya Sharma",    email: "priya.sharma@email.com",     phone: "07700 900003", property: "Victoria Rd HMO Room 3",       source: "Direct",    status: "Contacted",         moveInDate: "1 Jul 2026",  budget: "£800/mo",   daysInPipeline: 3,  timeInStage: "1d" },
-  { id: "p4",  initials: "SW", name: "Sophie Williams", email: "sophie.williams@email.com",  phone: "07700 900004", property: "45 High Street, Birmingham",    source: "Direct",    status: "Contacted",         moveInDate: "Now",         budget: "£600/mo",   daysInPipeline: 2,  timeInStage: "2d" },
-  { id: "p5",  initials: "DK", name: "David Kim",       email: "david.kim@email.com",        phone: "07700 900005", property: "45 High Street, Birmingham",    source: "Referral",  status: "Viewing Scheduled", moveInDate: "1 Jul 2026",  budget: "£600/mo",   daysInPipeline: 5,  timeInStage: "2d" },
-  { id: "p6",  initials: "EW", name: "Emma White",      email: "emma.white@email.com",       phone: "07700 900006", property: "3 Oak Drive, Bristol",          source: "Rightmove", status: "Viewing Scheduled", moveInDate: "1 Aug 2026",  budget: "£950/mo",   daysInPipeline: 4,  timeInStage: "1d" },
-  { id: "p7",  initials: "JB", name: "James Brown",     email: "james.brown@email.com",      phone: "07700 900007", property: "67 Beach Rd, Brighton",         source: "Zoopla",    status: "Viewing Done",      moveInDate: "1 Jul 2026",  budget: "£1,800/mo", daysInPipeline: 8,  timeInStage: "3d" },
-  { id: "p8",  initials: "LW", name: "Lisa Wong",       email: "lisa.wong@email.com",        phone: "07700 900008", property: "Victoria Rd HMO Room 6",       source: "Direct",    status: "Referencing",       moveInDate: "Now",         budget: "£750/mo",   daysInPipeline: 12, timeInStage: "4d" },
-  { id: "p9",  initials: "RM", name: "Ryan Miller",     email: "ryan.miller@email.com",      phone: "07700 900009", property: "8 Park Lane, Leeds",            source: "OTM",       status: "Offered",           moveInDate: "1 Jul 2026",  budget: "£1,400/mo", daysInPipeline: 18, timeInStage: "2d" },
-  { id: "p10", initials: "AP", name: "Aisha Patel",     email: "aisha.patel@email.com",      phone: "07700 900010", property: "14 Elm Close, Manchester",      source: "Direct",    status: "Accepted",          moveInDate: "1 Jun 2026",  budget: "£1,000/mo", daysInPipeline: 24, timeInStage: "1d" },
-]
+const PROSPECTS: Prospect[] = []
 
 const PIPELINE_COLUMNS: { status: ProspectStatus; color: string }[] = [
   { status: "New",               color: "slate"  },
@@ -129,7 +118,7 @@ export default function ProspectsPage() {
         title="Prospects"
         subtitle={`${PROSPECTS.length} in pipeline`}
         showBack
-        backHref="/app/portfolio/leasing"
+        backHref="/property-manager/portfolio/leasing"
         primaryAction={{ label: "Add prospect", icon: Plus, onClick: () => {} }}
         overflowActions={[
           { label: view === "kanban" ? "Table view" : "Kanban view", icon: view === "kanban" ? List : LayoutGrid, onClick: () => setView(view === "kanban" ? "table" : "kanban") },
@@ -282,6 +271,13 @@ export default function ProspectsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                      No prospects yet. Add a vacancy to start tracking enquiries.
+                    </td>
+                  </tr>
+                )}
                 {filtered.map((p, idx) => (
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-4 py-3">
@@ -327,3 +323,4 @@ export default function ProspectsPage() {
     </>
   )
 }
+

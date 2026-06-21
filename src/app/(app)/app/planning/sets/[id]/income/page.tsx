@@ -278,7 +278,7 @@ export default function IncomePage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <p className="text-sm font-bold text-slate-900">Room-by-Room Revenue</p>
-          <a href={`/app/planning/sets/${id}/rooms-units`} className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+          <a href={`/property-manager/planning/sets/${id}/rooms-units`} className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
             View all rooms <ArrowRight className="w-3 h-3" />
           </a>
         </div>

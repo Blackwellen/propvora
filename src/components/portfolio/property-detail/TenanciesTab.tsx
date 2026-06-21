@@ -55,7 +55,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-[13px] text-slate-500">No tenancies yet for this property.</p>
-          <Link href={`/app/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> New Tenancy
           </Link>
         </div>
@@ -87,7 +87,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
           <SlidersHorizontal size={13} /> More filters
         </button>
         <div className="ml-auto flex items-center gap-2">
-          <Link href={`/app/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> New Tenancy
           </Link>
           <ActionMenu
@@ -100,7 +100,37 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
         </div>
       </div>
 
-      <Card className="overflow-hidden">
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-2.5">
+        {filtered.length === 0 ? (
+          <p className="text-[13px] text-slate-500 text-center py-8">No tenancies match your search.</p>
+        ) : filtered.map((t) => (
+          <Link
+            key={t.id}
+            href={`/property-manager/portfolio/tenancies/${t.id}`}
+            className="flex items-start gap-3 bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm"
+          >
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <Building2 size={16} className="text-slate-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <p className="font-semibold text-blue-600 text-[13px]">{t.reference ?? t.id.slice(0, 8)}</p>
+                <StatusPill status={t.status} />
+              </div>
+              <p className="text-[11px] text-slate-600">{unitMap[t.unit_id ?? ""] ?? "—"}</p>
+              <p className="text-[11px] text-slate-400">{t.start_date ?? "—"} → {t.end_date ?? "Periodic"}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="font-bold text-slate-900 text-[13px]">{t.rent_amount != null ? fmt(t.rent_amount) : "—"}</p>
+              <p className="text-[10px] text-slate-400">per month</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Table — desktop */}
+      <Card className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead>
@@ -114,7 +144,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
               {filtered.map((t) => (
                 <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group cursor-pointer">
                   <td className="px-4 py-3">
-                    <Link href={`/app/portfolio/tenancies/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                    <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="font-medium text-blue-600 hover:underline">
                       {t.reference ?? t.id.slice(0, 8)}
                     </Link>
                   </td>
@@ -171,9 +201,9 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ActionMenu
                         items={[
-                          { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${t.id}`) },
-                          { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${t.property_id}`) },
-                          { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/app/portfolio/tenancies/${t.id}?tab=details`) },
+                          { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}`) },
+                          { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${t.property_id}`) },
+                          { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}?tab=details`) },
                           { label: "End tenancy", icon: XCircle, variant: "danger", onClick: () => {
                             if (workspace?.id && confirm("End this tenancy?")) {
                               updateTenancy.mutate({ id: t.id, workspaceId: workspace.id, payload: { status: "ended" } })

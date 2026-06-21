@@ -186,34 +186,44 @@ function OverviewTabContent({
             <span className="text-[12.5px] text-slate-700">{supplier.location}</span>
           </div>
           <Link
-            href={`/app/contacts/${supplier.id}`}
+            href={`/property-manager/contacts/${supplier.id}`}
             className="block w-full mt-3 py-2 border border-slate-200 rounded-xl text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition-colors text-center"
           >
             View Contact Record
           </Link>
         </div>
 
-        {/* Location — real OpenStreetMap, geocoded from the supplier's base */}
+        {/* Location */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-900 mb-3">Location</h3>
-          <div className="overflow-hidden rounded-xl mb-3">
-            <LocationMap
-              height={176}
-              zoom={12}
-              markers={[
-                {
-                  id: supplier.id,
-                  address: supplier.location && supplier.location !== "—" ? `${supplier.location}, UK` : null,
-                  label: supplier.name,
-                  sublabel: supplier.location !== "—" ? supplier.location : undefined,
-                },
-              ]}
-            />
-          </div>
-          <div className="flex items-center gap-2 text-[12px] text-slate-600">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="truncate">{supplier.location !== "—" ? supplier.location : "No base location set"}</span>
-          </div>
+          {supplier.location && supplier.location !== "—" ? (
+            <>
+              <div className="overflow-hidden rounded-xl mb-3">
+                <LocationMap
+                  height={176}
+                  zoom={12}
+                  markers={[
+                    {
+                      id: supplier.id,
+                      address: `${supplier.location}, UK`,
+                      label: supplier.name,
+                      sublabel: supplier.location,
+                    },
+                  ]}
+                />
+              </div>
+              <div className="flex items-center gap-2 text-[12px] text-slate-600">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="truncate">{supplier.location}</span>
+              </div>
+            </>
+          ) : (
+            <div className="h-44 rounded-xl bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center gap-2">
+              <MapPin className="w-6 h-6 text-slate-300" />
+              <p className="text-[12px] font-medium text-slate-400">No base location set</p>
+              <p className="text-[11px] text-slate-400">Add a city and postcode to the Company Profile</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -248,7 +258,7 @@ function JobsTabContent({ supplier, jobs, compact }: { supplier: SupplierView; j
           Job History <span className="text-slate-400 font-normal ml-1">({jobs.length})</span>
         </h3>
         <Link
-          href={`/app/work/jobs/new?supplierId=${supplier.id}`}
+          href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
           className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline"
         >
           <Plus className="w-3 h-3" /> New Job
@@ -262,7 +272,7 @@ function JobsTabContent({ supplier, jobs, compact }: { supplier: SupplierView; j
           <p className="text-sm font-semibold text-slate-900 mb-1">No jobs assigned yet</p>
           <p className="text-[12.5px] text-slate-500 mb-4">Assign this supplier to a job to start tracking work.</p>
           <Link
-            href={`/app/work/jobs/new?supplierId=${supplier.id}`}
+            href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
             className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
           >
             Assign to Job
@@ -286,7 +296,7 @@ function JobsTabContent({ supplier, jobs, compact }: { supplier: SupplierView; j
                   className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <Link href={`/app/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                    <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
                       {j.title}
                     </Link>
                     {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
@@ -390,7 +400,7 @@ function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierView; job
                 return (
                   <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
-                      <Link href={`/app/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">{j.title}</Link>
+                      <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">{j.title}</Link>
                       {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
@@ -656,28 +666,28 @@ function QuickActionsCard({ supplierId }: { supplierId: string }) {
       <h3 className="text-sm font-semibold text-slate-900 mb-3">Quick Actions</h3>
       <div className="grid grid-cols-2 gap-2">
         <button
-          onClick={() => router.push(`/app/work/jobs/new?supplierId=${supplierId}`)}
+          onClick={() => router.push(`/property-manager/work/jobs/new?supplierId=${supplierId}`)}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           <Send className="w-3.5 h-3.5 text-slate-500" />
           <span className="text-[12px] font-medium text-slate-700">New Job</span>
         </button>
         <button
-          onClick={() => router.push(`/app/work/tasks/new?supplierId=${supplierId}`)}
+          onClick={() => router.push(`/property-manager/work/tasks/new?supplierId=${supplierId}`)}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           <FileText className="w-3.5 h-3.5 text-slate-500" />
           <span className="text-[12px] font-medium text-slate-700">New Task</span>
         </button>
         <button
-          onClick={() => router.push(`/app/work/jobs?supplierId=${supplierId}`)}
+          onClick={() => router.push(`/property-manager/work/jobs?supplierId=${supplierId}`)}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           <LayoutGrid className="w-3.5 h-3.5 text-slate-500" />
           <span className="text-[12px] font-medium text-slate-700">View Jobs</span>
         </button>
         <Link
-          href={`/app/contacts/${supplierId}`}
+          href={`/property-manager/contacts/${supplierId}`}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           <Star className="w-3.5 h-3.5 text-slate-500" />
@@ -689,32 +699,14 @@ function QuickActionsCard({ supplierId }: { supplierId: string }) {
 }
 
 function ComplianceCertificatesCard() {
-  const docs = [
-    { name: "Public Liability Insurance", expiry: "Valid until 12 Dec 2026", warn: false },
-    { name: "Employers Liability Insurance", expiry: "Valid until 12 Dec 2026", warn: false },
-    { name: "Gas Safe Registration", expiry: "Valid until 01 Aug 2026", warn: false },
-    { name: "Electrical Safety Certificate", expiry: "Valid until 15 Nov 2026", warn: true },
-  ]
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Compliance Certificates</h3>
-        <Link href="/app/work/suppliers/compliance" className="text-[12px] text-[#2563EB] hover:underline">View all</Link>
+        <Link href="/property-manager/work/suppliers/compliance" className="text-[12px] text-[#2563EB] hover:underline">View all</Link>
       </div>
-      {docs.map((doc, i) => (
-        <div key={i} className="flex items-start gap-2.5 mb-2.5">
-          {doc.warn ? (
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-          ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-medium text-slate-800 truncate">{doc.name}</p>
-            <p className={cn("text-[11px] font-semibold", doc.warn ? "text-amber-500" : "text-emerald-500")}>{doc.expiry}</p>
-          </div>
-        </div>
-      ))}
-      <button className="w-full mt-2 py-2 border border-dashed border-slate-200 rounded-xl text-[12px] font-medium text-slate-500 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5">
+      <p className="text-[12px] text-slate-400 mb-3">No certificates uploaded yet. Upload insurance, registrations and safety docs to track compliance.</p>
+      <button className="w-full py-2 border border-dashed border-slate-200 rounded-xl text-[12px] font-medium text-slate-500 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5">
         <Upload className="w-3.5 h-3.5" /> Upload New Certificate
       </button>
     </div>
@@ -782,7 +774,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
   if (!supplier) {
     return (
       <div className="space-y-5">
-        <Link href="/app/work/suppliers/preferred" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/property-manager/work/suppliers/preferred" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
           <ChevronLeft className="w-4 h-4" />Back to Suppliers
         </Link>
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col items-center justify-center py-20 text-center">
@@ -809,17 +801,17 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
         title={supplier.name}
         subtitle={supplier.trade}
         showBack
-        backHref="/app/work/suppliers/preferred"
-        primaryAction={{ label: "New job", icon: Plus, onClick: () => router.push(`/app/work/jobs/new?supplierId=${id}`) }}
+        backHref="/property-manager/work/suppliers/preferred"
+        primaryAction={{ label: "New job", icon: Plus, onClick: () => router.push(`/property-manager/work/jobs/new?supplierId=${id}`) }}
         overflowActions={[
-          { label: "View contact", icon: Pencil, href: `/app/contacts/${id}` },
-          { label: "New task", icon: Send, onClick: () => router.push(`/app/work/tasks/new?supplierId=${id}`) },
+          { label: "View contact", icon: Pencil, href: `/property-manager/contacts/${id}` },
+          { label: "New task", icon: Send, onClick: () => router.push(`/property-manager/work/tasks/new?supplierId=${id}`) },
           { label: supplier.preferred ? "Remove from Preferred" : "Mark Preferred", icon: Star, onClick: togglePreferred },
-          { label: "View all jobs", icon: LayoutGrid, onClick: () => router.push(`/app/work/jobs?supplierId=${id}`) },
+          { label: "View all jobs", icon: LayoutGrid, onClick: () => router.push(`/property-manager/work/jobs?supplierId=${id}`) },
         ]}
       />
 
-      <Link href="/app/work/suppliers/preferred" className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/property-manager/work/suppliers/preferred" className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" />Back to Suppliers
       </Link>
 
@@ -830,19 +822,19 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
         actions={
           <>
             <Link
-              href={`/app/contacts/${id}`}
+              href={`/property-manager/contacts/${id}`}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <Pencil className="w-4 h-4" />View Contact
             </Link>
             <button
-              onClick={() => router.push(`/app/work/tasks/new?supplierId=${id}`)}
+              onClick={() => router.push(`/property-manager/work/tasks/new?supplierId=${id}`)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <Send className="w-4 h-4" />New Task
             </button>
             <button
-              onClick={() => router.push(`/app/work/jobs/new?supplierId=${id}`)}
+              onClick={() => router.push(`/property-manager/work/jobs/new?supplierId=${id}`)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors"
             >
               <Plus className="w-4 h-4" />New Job
@@ -850,8 +842,8 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
             <ActionMenu
               items={[
                 { label: supplier.preferred ? "Remove from Preferred" : "Mark Preferred", icon: Star, onClick: togglePreferred, disabled: supplier.isSeed },
-                { label: "View Contact Record", icon: ExternalLink, onClick: () => router.push(`/app/contacts/${id}`) },
-                { label: "View All Jobs", icon: LayoutGrid, onClick: () => router.push(`/app/work/jobs?supplierId=${id}`) },
+                { label: "View Contact Record", icon: ExternalLink, onClick: () => router.push(`/property-manager/contacts/${id}`) },
+                { label: "View All Jobs", icon: LayoutGrid, onClick: () => router.push(`/property-manager/work/jobs?supplierId=${id}`) },
               ]}
             />
           </>

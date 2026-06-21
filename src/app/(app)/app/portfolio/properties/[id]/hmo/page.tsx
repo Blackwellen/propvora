@@ -17,70 +17,10 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty } from "@/hooks/useProperties"
 import { useUnits, type Unit } from "@/hooks/useUnits"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
-
-/* ─── Sub-tab strip ─────────────────────────────────────────── */
-function HmoTabStrip({ propertyId }: { propertyId: string }) {
-  const pathname = usePathname()
-  const base = `/app/portfolio/properties/${propertyId}/hmo`
-
-  const tabs = [
-    { label: "Overview", href: base },
-    { label: "Rooms", href: `${base}/rooms` },
-    { label: "Utilities", href: `${base}/utilities` },
-    { label: "Analytics", href: `${base}/analytics` },
-  ]
-
-  return (
-    <div className="flex gap-1 px-4 md:px-6 border-b border-slate-200 bg-white overflow-x-auto">
-      {tabs.map((tab) => {
-        const isActive = pathname === tab.href
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
-              isActive
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        )
-      })}
-    </div>
-  )
-}
-
-/* ─── KPI Card ───────────────────────────────────────────────── */
-function KpiCard({
-  title,
-  value,
-  sub,
-  icon: Icon,
-  iconBg,
-  iconColor,
-}: {
-  title: string
-  value: string
-  sub?: string
-  icon: React.ElementType
-  iconBg: string
-  iconColor: string
-}) {
-  return (
-    <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden p-4 flex items-start gap-3">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-        <Icon className={`w-4 h-4 ${iconColor}`} />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">{title}</p>
-        <p className="text-xl font-bold text-slate-900 leading-tight">{value}</p>
-        {sub && <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>}
-      </div>
-    </div>
-  )
-}
+import { HmoTabStrip } from "@/features/properties/components/hmo/HmoTabStrip"
+import { HmoKpiCard as KpiCard } from "@/features/properties/components/hmo/HmoKpiCard"
+import { HmoLicencePanel } from "@/features/properties/components/hmo/HmoLicencePanel"
+import { HmoQuickActionsPanel } from "@/features/properties/components/hmo/HmoQuickActionsPanel"
 
 const STATUS_BADGE: Record<Unit["status"], { label: string; classes: string }> = {
   occupied: { label: "Occupied", classes: "bg-green-50 text-green-700 border border-green-200" },
@@ -144,14 +84,14 @@ function RoomCard({ room, propertyId }: { room: Unit; propertyId: string }) {
       <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
         {room.status === "vacant" ? (
           <Link
-            href={`/app/portfolio/properties/${propertyId}/hmo/rooms`}
+            href={`/property-manager/portfolio/properties/${propertyId}/hmo/rooms`}
             className="flex-1 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg text-center transition-colors"
           >
             Find Tenant
           </Link>
         ) : (
           <Link
-            href={`/app/portfolio/properties/${propertyId}/hmo/rooms`}
+            href={`/property-manager/portfolio/properties/${propertyId}/hmo/rooms`}
             className="flex-1 flex items-center justify-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             <Eye className="w-3 h-3" />
@@ -226,9 +166,9 @@ export default function HmoDashboardPage({
         title="HMO Dashboard"
         subtitle={`${propertyName} · ${total} room${total !== 1 ? "s" : ""} · ${occupancyPct}%`}
         showBack
-        backHref={`/app/portfolio/properties/${id}`}
+        backHref={`/property-manager/portfolio/properties/${id}`}
         overflowActions={[
-          { label: "View Analytics", icon: Eye, href: `/app/portfolio/properties/${id}/hmo/analytics` },
+          { label: "View Analytics", icon: Eye, href: `/property-manager/portfolio/properties/${id}/hmo/analytics` },
         ]}
       />
 
@@ -244,7 +184,7 @@ export default function HmoDashboardPage({
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={`/app/portfolio/properties/${id}/hmo/analytics`}
+            href={`/property-manager/portfolio/properties/${id}/hmo/analytics`}
             className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             View Analytics
@@ -297,7 +237,7 @@ export default function HmoDashboardPage({
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-slate-900">Room Overview</h2>
               <Link
-                href={`/app/portfolio/properties/${id}/hmo/rooms`}
+                href={`/property-manager/portfolio/properties/${id}/hmo/rooms`}
                 className="text-xs text-blue-600 hover:underline font-medium"
               >
                 Manage Rooms →
@@ -309,7 +249,7 @@ export default function HmoDashboardPage({
                 <Home className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-500">No rooms found for this HMO.</p>
                 <Link
-                  href={`/app/portfolio/units/new?propertyId=${id}`}
+                  href={`/property-manager/portfolio/units/new?propertyId=${id}`}
                   className="mt-3 inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
                 >
                   Add Room
@@ -358,13 +298,13 @@ export default function HmoDashboardPage({
               </div>
               <div className="px-4 py-4 flex flex-col gap-2">
                 <Link
-                  href={`/app/portfolio/properties/${id}/hmo/rooms`}
+                  href={`/property-manager/portfolio/properties/${id}/hmo/rooms`}
                   className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-center"
                 >
                   Onboard New Tenant
                 </Link>
                 <Link
-                  href={`/app/portfolio/properties/${id}/hmo/utilities`}
+                  href={`/property-manager/portfolio/properties/${id}/hmo/utilities`}
                   className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-center"
                 >
                   Add Utility Bill
@@ -376,7 +316,7 @@ export default function HmoDashboardPage({
                   Generate HMO Report
                 </button>
                 <Link
-                  href={`/app/portfolio/properties/${id}/hmo/analytics`}
+                  href={`/property-manager/portfolio/properties/${id}/hmo/analytics`}
                   className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-center"
                 >
                   View Analytics

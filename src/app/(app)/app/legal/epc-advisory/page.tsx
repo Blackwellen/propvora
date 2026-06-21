@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useMemo } from "react"
 import Link from "next/link"
 import {
@@ -118,7 +118,7 @@ export default function EpcAdvisoryPage() {
       { label: "Days", render: (r) => (r.days == null ? "—" : r.days < 0 ? `${Math.abs(r.days)}d ago` : `${r.days}d`) },
     ],
     actions: (r) => (
-      <Link href={`/app/properties/${r.p.id}`} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+      <Link href={`/property-manager/portfolio/properties/${r.p.id}`} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
         <Building2 className="w-3.5 h-3.5" /> Open
       </Link>
     ),
@@ -166,7 +166,7 @@ export default function EpcAdvisoryPage() {
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? "—" : value}</p>
+              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? <span className="text-slate-300">…</span> : value}</p>
               <p className="text-[12px] font-medium text-slate-700 mt-0.5">{label}</p>
               <p className="text-[11px] text-slate-500">{sub}</p>
             </div>
@@ -189,7 +189,7 @@ export default function EpcAdvisoryPage() {
               <EmptyState
                 title="No properties yet"
                 body="Add properties in Portfolio to see EPC readiness."
-                href="/app/properties"
+                href="/property-manager/portfolio/properties"
                 cta="Go to Properties"
               />
             ) : attentionRows.length === 0 ? (
@@ -224,7 +224,7 @@ export default function EpcAdvisoryPage() {
                         <td className="px-4 py-3 text-[11px] text-slate-500">{cert ? formatDate(cert.expiry_date) : "—"}</td>
                         <td className="px-4 py-3 text-[11px] text-slate-500">{days == null ? "—" : days < 0 ? `${Math.abs(days)}d ago` : `${days}d`}</td>
                         <td className="px-4 py-3">
-                          <Link href={`/app/properties/${p.id}`} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                          <Link href={`/property-manager/portfolio/properties/${p.id}`} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
                             <Building2 className="w-3 h-3" /> Open
                           </Link>
                         </td>
@@ -278,7 +278,7 @@ export default function EpcAdvisoryPage() {
               <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
                 Improve readiness by capturing EPC certificates and renewing before expiry in Compliance.
               </p>
-              <Link href="/app/compliance" className="mt-2 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+              <Link href="/property-manager/compliance" className="mt-2 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
                 Open Compliance →
               </Link>
             </div>
@@ -294,7 +294,7 @@ export default function EpcAdvisoryPage() {
                 Capture EPC improvement plans on each property record (e.g. insulation, heating upgrades) so they feed
                 your readiness over time.
               </p>
-              <Link href="/app/properties" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+              <Link href="/property-manager/portfolio/properties" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
                 Open property improvement plans →
               </Link>
             </div>

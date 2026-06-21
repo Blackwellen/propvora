@@ -15,31 +15,31 @@ const VIEW_TABS = [
   {
     key:   "month",
     label: "Month",
-    href:  "/app/calendar/views/month",
+    href:  "/property-manager/calendar/views/month",
     icon:  CalendarRange,
   },
   {
     key:   "week",
     label: "Week",
-    href:  "/app/calendar/views/week",
+    href:  "/property-manager/calendar/views/week",
     icon:  CalendarDays,
   },
   {
     key:   "day",
     label: "Day",
-    href:  "/app/calendar/views/day",
+    href:  "/property-manager/calendar/views/day",
     icon:  Calendar,
   },
   {
     key:   "agenda",
     label: "Agenda",
-    href:  "/app/calendar/views/agenda",
+    href:  "/property-manager/calendar/views/agenda",
     icon:  List,
   },
   {
     key:   "gantt",
     label: "Gantt",
-    href:  "/app/calendar/views/gantt",
+    href:  "/property-manager/calendar/views/gantt",
     icon:  GanttChart,
   },
 ] as const

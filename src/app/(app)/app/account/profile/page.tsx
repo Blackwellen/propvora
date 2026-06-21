@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useId } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -202,7 +202,7 @@ export default function ProfilePage() {
           />
           <p className="text-[11px] text-slate-400 mt-1">
             Changing your email requires verification. Update it on the{" "}
-            <a href="/app/account/security" className="text-[#2563EB] font-medium hover:underline">Security</a> page.
+            <a href="/property-manager/account/security" className="text-[#2563EB] font-medium hover:underline">Security</a> page.
           </p>
         </div>
         <InputField

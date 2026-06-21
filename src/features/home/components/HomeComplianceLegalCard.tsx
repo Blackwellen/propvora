@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { ShieldCheck, FileText, AlertTriangle, Clock, CheckCircle2 } from "lucide-react"
@@ -76,14 +76,14 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
         <h3 className="text-[13px] font-semibold text-slate-900">Compliance &amp; legal</h3>
         <div className="flex items-center gap-2">
           <Link
-            href="/app/compliance"
+            href="/property-manager/compliance"
             className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
           >
             Compliance
           </Link>
           <span className="text-slate-200">·</span>
           <Link
-            href="/app/legal"
+            href="/property-manager/legal"
             className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
           >
             Legal
@@ -103,7 +103,7 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
           displayed.map((item) => (
             <Link
               key={item.id}
-              href={item.section === "compliance" ? "/app/compliance" : "/app/legal"}
+              href={item.section === "compliance" ? "/property-manager/compliance" : "/property-manager/legal"}
               className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-slate-50 transition-colors group"
             >
               <StatusIcon status={item.status} />
@@ -132,10 +132,10 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
       </div>
 
       <div className="pt-2 border-t border-slate-100 flex items-center gap-3">
-        <Link href="/app/compliance" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/compliance" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View compliance →
         </Link>
-        <Link href="/app/legal" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/legal" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View legal →
         </Link>
       </div>

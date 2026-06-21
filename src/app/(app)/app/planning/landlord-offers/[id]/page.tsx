@@ -167,7 +167,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
     try {
       const { error } = await supabase.from("planning_landlord_offers").delete().eq("id", offer.id).eq("workspace_id", workspace.id)
       if (error && error.code !== "42P01") throw error
-      router.push("/app/planning/landlord-offers")
+      router.push("/property-manager/planning/landlord-offers")
     } catch { showToast("Could not delete offer") }
   }
 
@@ -201,7 +201,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
       showToast(error?.code === "42P01" ? "Offers table not provisioned yet" : (error?.message ?? "Could not duplicate offer"))
       return
     }
-    router.push(`/app/planning/landlord-offers/${data.id}`)
+    router.push(`/property-manager/planning/landlord-offers/${data.id}`)
   }
 
   async function convertToProperty() {
@@ -222,7 +222,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
       await supabase.from("planning_landlord_offers")
         .update({ status: "accepted", responded_at: new Date().toISOString(), notes: `${offer.notes ?? ""}\nConverted to property ${created.id}`.trim() })
         .eq("id", offer.id).eq("workspace_id", workspace.id)
-      router.push(`/app/portfolio/properties/${created.id}`)
+      router.push(`/property-manager/portfolio/properties/${created.id}`)
     } catch {
       showToast("Could not convert offer to property")
       setConverting(false)
@@ -236,7 +236,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
   if (notFound || !offer) {
     return (
       <div className="p-8">
-        <Link href="/app/planning/landlord-offers" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-6">
+        <Link href="/property-manager/planning/landlord-offers" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-6">
           <ChevronLeft className="w-4 h-4" />Back to Landlord Offers
         </Link>
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
@@ -262,7 +262,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
 
       {/* Back + breadcrumb */}
       <div className="flex items-center gap-2 mb-5 text-sm text-slate-500">
-        <Link href="/app/planning/landlord-offers" className="flex items-center gap-1.5 hover:text-slate-700 transition-colors">
+        <Link href="/property-manager/planning/landlord-offers" className="flex items-center gap-1.5 hover:text-slate-700 transition-colors">
           <ChevronLeft className="w-4 h-4" />Back to Landlord Offers
         </Link>
         <span className="text-slate-300">/</span>
@@ -404,7 +404,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               {offer.planning_set_id && (
-                <Link href={`/app/planning/sets/${offer.planning_set_id}/overview`} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 hover:border-slate-300 transition-colors block">
+                <Link href={`/property-manager/planning/sets/${offer.planning_set_id}/overview`} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 hover:border-slate-300 transition-colors block">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Linked Planning Set</p>
                   <p className="text-sm font-semibold text-[#7C3AED]">View planning set →</p>
                 </Link>

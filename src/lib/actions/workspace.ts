@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { randomUUID } from "node:crypto"
 import { DEFAULT_DURATION_MONTHS } from "@/lib/affiliate/levels"
+import { type ActionResult, ok, fail, fromSupabaseError } from "@/lib/actions/utils/actionResult"
 
 export interface CreateWorkspaceInput {
   name: string
@@ -45,7 +46,7 @@ export interface CreateWorkspaceResult {
  */
 export async function createWorkspace(
   data: CreateWorkspaceInput
-): Promise<CreateWorkspaceResult> {
+): Promise<ActionResult<CreateWorkspaceResult>> {
   const supabase = await createClient()
 
   const {
@@ -54,7 +55,7 @@ export async function createWorkspace(
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    throw new Error("Not authenticated. Please sign in and try again.")
+    return fail("Not authenticated. Please sign in and try again.", "UNAUTHENTICATED")
   }
 
   // Build a URL-safe slug from the workspace name
@@ -83,7 +84,7 @@ export async function createWorkspace(
       plan_status: "trialing",
       onboarding_completed: true,
       trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-      ...(data.supplierMeta ? { metadata: data.supplierMeta } : {}),
+      // supplierMeta stored separately (no metadata column in live schema)
     })
     .select("id, slug")
     .single()
@@ -91,9 +92,9 @@ export async function createWorkspace(
   if (wsError) {
     // Handle unique constraint violation on slug
     if (wsError.code === "23505") {
-      throw new Error("A workspace with this name already exists. Please choose a different name.")
+      return fail("A workspace with this name already exists. Please choose a different name.", "23505")
     }
-    throw new Error("Failed to create workspace. Please try again.")
+    return fromSupabaseError(wsError)
   }
 
   // 2. Add the creator as the workspace owner.
@@ -258,18 +259,18 @@ export async function createWorkspace(
     }
   }
 
-  revalidatePath("/app")
+  revalidatePath("/property-manager")
 
-  return {
+  return ok({
     workspaceId: workspace.id as string,
     slug: workspace.slug as string,
-  }
+  })
 }
 
 /**
  * Updates the current user's active workspace.
  */
-export async function switchWorkspace(workspaceId: string): Promise<void> {
+export async function switchWorkspace(workspaceId: string): Promise<ActionResult> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -277,7 +278,7 @@ export async function switchWorkspace(workspaceId: string): Promise<void> {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    throw new Error("Not authenticated.")
+    return fail("Not authenticated.", "UNAUTHENTICATED")
   }
 
   // Verify user is a member of this workspace
@@ -289,7 +290,7 @@ export async function switchWorkspace(workspaceId: string): Promise<void> {
     .maybeSingle()
 
   if (memberError || !member) {
-    throw new Error("You do not have access to this workspace.")
+    return fail("You do not have access to this workspace.", "FORBIDDEN")
   }
 
   const { error } = await supabase
@@ -298,10 +299,11 @@ export async function switchWorkspace(workspaceId: string): Promise<void> {
     .eq("id", user.id)
 
   if (error) {
-    throw new Error("Failed to switch workspace.")
+    return fromSupabaseError(error)
   }
 
-  revalidatePath("/app")
+  revalidatePath("/property-manager")
+  return ok()
 }
 
 /** Home route (and shell route-group) for each persona/workspace type. */
@@ -387,14 +389,14 @@ export async function getPersonaMemberships(): Promise<{
  *
  * Safe to call multiple times: if the user already has a workspace it's a no-op.
  */
-export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: string }> {
+export async function bootstrapCustomerWorkspace(): Promise<ActionResult<{ workspaceId: string }>> {
   const supabase = await createClient()
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser()
 
-  if (userError || !user) throw new Error("Not authenticated.")
+  if (userError || !user) return fail("Not authenticated.", "UNAUTHENTICATED")
 
   // ── Persona-aware no-op ────────────────────────────────────────────────────
   // A single account can be operator AND/OR supplier AND/OR customer (same
@@ -414,7 +416,7 @@ export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: strin
     // Make sure the dedicated membership row the (customer) layout gates on
     // exists, then we're done — idempotent.
     await ensureCustomerMembershipRow(supabase, existingCustomer.workspace_id, user.id)
-    return { workspaceId: existingCustomer.workspace_id }
+    return ok({ workspaceId: existingCustomer.workspace_id })
   }
 
   const displayName =
@@ -446,7 +448,7 @@ export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: strin
     .select("id")
     .single()
 
-  if (wsError) throw new Error("Failed to create account.")
+  if (wsError) return fromSupabaseError(wsError)
 
   // Owner row in workspace_members (idempotent — a bootstrap trigger may also
   // add it). This grants is_workspace_member(), which the customer RLS admits.
@@ -483,7 +485,7 @@ export async function bootstrapCustomerWorkspace(): Promise<{ workspaceId: strin
 
   revalidatePath("/customer")
 
-  return { workspaceId: workspace.id }
+  return ok({ workspaceId: workspace.id })
 }
 
 /** Idempotently ensure the customer_workspace_members row the (customer) layout

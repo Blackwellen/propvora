@@ -109,7 +109,7 @@ export default function CalendarMonthPage() {
       <MobileTopBar
         title="Calendar"
         subtitle={monthLabel}
-        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/property-manager/calendar/events/new") }}
       />
       <div className="md:hidden -mx-4">
         <CalendarTabNav />
@@ -121,7 +121,7 @@ export default function CalendarMonthPage() {
           description="Full month view — events, jobs, tenancies, compliance and planning dates."
           actions={
             <Link
-              href={sectionLink("/app/calendar/events/new")}
+              href={sectionLink("/property-manager/calendar/events/new")}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
@@ -246,7 +246,7 @@ export default function CalendarMonthPage() {
                             </Link>
                           ))}
                           {dayItems.length > 3 && (
-                            <Link href={sectionLink("/app/calendar/views/agenda")} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium text-left px-1 mt-0.5">
+                            <Link href={sectionLink("/property-manager/calendar/views/agenda")} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium text-left px-1 mt-0.5">
                               + {dayItems.length - 3} more
                             </Link>
                           )}

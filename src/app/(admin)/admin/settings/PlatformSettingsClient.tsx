@@ -90,7 +90,7 @@ export default function PlatformSettingsClient({
   // General/platform config (persisted under platform_settings key="general").
   const [name, setName] = useState(general.platform_name ?? "Propvora")
   const [supportEmail, setSupportEmail] = useState(general.support_email ?? "")
-  const [trialDays, setTrialDays] = useState(String(general.trial_length_days ?? 14))
+  const [trialDays, setTrialDays] = useState(String(general.trial_length_days ?? 7))
 
   // Maintenance banner (persisted under platform_settings key="maintenance").
   const [maintEnabled, setMaintEnabled] = useState(!!maintenance.enabled)
@@ -125,7 +125,7 @@ export default function PlatformSettingsClient({
       const g = await savePlatformSetting("general", {
         platform_name: name,
         support_email: supportEmail,
-        trial_length_days: Number(trialDays) || 14,
+        trial_length_days: Number(trialDays) || 7,
       })
       const m = await saveMaintenanceMode({ enabled: maintEnabled, message: maintMsg, allowAdmins: maintAllowAdmins })
       if (!g.ok || !m.ok) {
@@ -141,7 +141,7 @@ export default function PlatformSettingsClient({
 
   // Build an export snapshot of the editable config.
   const snapshot = useMemo(() => ({
-    general: { platform_name: name, support_email: supportEmail, trial_length_days: Number(trialDays) || 14 },
+    general: { platform_name: name, support_email: supportEmail, trial_length_days: Number(trialDays) || 7 },
     maintenance: { enabled: maintEnabled, message: maintMsg, allow_admins: maintAllowAdmins },
     feature_flags: flagState.map((f) => ({ key: f.key, enabled: f.enabled })),
   }), [name, supportEmail, trialDays, maintEnabled, maintMsg, maintAllowAdmins, flagState])

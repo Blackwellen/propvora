@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { AlertCircle, ArrowLeft, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils"
 const OTP_LENGTH = 6
 
 function Verify2FAInner() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   // Only honour same-origin relative paths to avoid open-redirects.
   const rawRedirect = searchParams.get("redirectTo") ?? "/property-manager"
@@ -115,8 +114,7 @@ function Verify2FAInner() {
       return
     }
 
-    router.push(redirectTo)
-    router.refresh()
+    window.location.assign(redirectTo)
   }
 
   const handleResend = async () => {

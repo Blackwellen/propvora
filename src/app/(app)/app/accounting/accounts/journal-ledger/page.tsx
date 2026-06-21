@@ -452,7 +452,7 @@ export default function JournalLedgerPage() {
             <span>Journal Ledger</span>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="outline" size="md">02 · Journal Ledger</Badge>
+            <Badge variant="outline" size="md">Journal Ledger</Badge>
             <h1 className="text-2xl font-bold text-slate-900">Journal Ledger</h1>
           </div>
           <p className="text-sm text-slate-500">
@@ -617,7 +617,7 @@ export default function JournalLedgerPage() {
         {filtered.length > 0 && (
           <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
             <span className="text-xs text-slate-500">Showing {filtered.length} of {rows.length} ledger lines</span>
-            <Link href={sectionLink("/app/accounting/reports")} className="text-xs font-medium text-[#2563EB] hover:underline">
+            <Link href={sectionLink("/property-manager/accounting/reports")} className="text-xs font-medium text-[#2563EB] hover:underline">
               View Trial Balance & Reports →
             </Link>
           </div>

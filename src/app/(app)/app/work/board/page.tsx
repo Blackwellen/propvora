@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
@@ -44,6 +44,7 @@ import { MobileTopBar } from "@/components/mobile"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTasks } from "@/hooks/useTasks"
+import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Task, TaskStatus } from "@/types/database"
@@ -182,9 +183,10 @@ function resolveTargetStatus(
 interface TaskCardProps {
   task: Task
   isDragging?: boolean
+  propertyName?: string
 }
 
-function TaskCard({ task, isDragging = false }: TaskCardProps) {
+function TaskCard({ task, isDragging = false, propertyName }: TaskCardProps) {
   const isOverdue = task.due_date
     ? new Date(task.due_date) < new Date() && task.status !== "done"
     : false
@@ -218,7 +220,7 @@ function TaskCard({ task, isDragging = false }: TaskCardProps) {
             {task.title}
           </p>
           <p className="text-[11px] text-slate-500 mt-0.5 truncate">
-            {task.property_id ?? "—"}
+            {propertyName ?? "—"}
           </p>
         </div>
       </div>
@@ -257,7 +259,7 @@ function TaskCard({ task, isDragging = false }: TaskCardProps) {
       {/* Detail link — only rendered when not in overlay (no pointer events while dragging anyway) */}
       {!isDragging && (
         <Link
-          href={`/app/work/tasks/${task.id}`}
+          href={`/property-manager/work/tasks/${task.id}`}
           onClick={(e) => e.stopPropagation()}
           className="block text-[11px] text-[#2563EB] hover:underline pl-5 truncate"
         >
@@ -270,7 +272,7 @@ function TaskCard({ task, isDragging = false }: TaskCardProps) {
 
 // ─── SortableTaskCard ──────────────────────────────────────────────────────────
 
-function SortableTaskCard({ task }: { task: Task }) {
+function SortableTaskCard({ task, propertyName }: { task: Task; propertyName?: string }) {
   const {
     attributes,
     listeners,
@@ -289,7 +291,7 @@ function SortableTaskCard({ task }: { task: Task }) {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard task={task} isDragging={false} />
+      <TaskCard task={task} isDragging={false} propertyName={propertyName} />
     </div>
   )
 }
@@ -322,9 +324,11 @@ function DroppableColumn({
 function KanbanColumn({
   col,
   tasks,
+  propertyNameById,
 }: {
   col: ColumnDef
   tasks: Task[]
+  propertyNameById: Map<string, string>
 }) {
   const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks])
 
@@ -353,12 +357,12 @@ function KanbanColumn({
       <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
         <DroppableColumn columnKey={col.key}>
           {tasks.map((task) => (
-            <SortableTaskCard key={task.id} task={task} />
+            <SortableTaskCard key={task.id} task={task} propertyName={task.property_id ? (propertyNameById.get(task.property_id) ?? "Property") : undefined} />
           ))}
 
           {/* Add task button always visible at bottom */}
           <Link
-            href="/app/work/tasks/new"
+            href="/property-manager/work/tasks/new"
             className="flex items-center gap-2 w-full px-3 py-2 rounded-xl border border-dashed border-slate-200 text-[12.5px] text-slate-400 hover:border-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-all"
           >
             <Plus className="w-4 h-4" /> Add Task
@@ -395,6 +399,13 @@ export default function WorkBoardPage() {
   const supabase = createClient()
 
   const { data: tasks = [], isLoading, error, refetch } = useTasks(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
+
+  const propertyNameById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const p of properties) map.set(p.id, p.name)
+    return map
+  }, [properties])
 
   const [priorityFilter, setPriorityFilter] = useState("all")
 
@@ -533,9 +544,9 @@ export default function WorkBoardPage() {
       <MobileTopBar
         title="Board"
         subtitle="Kanban — swipe columns"
-        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
         overflowActions={[
-          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" },
           { label: "Refresh", icon: ClipboardList, onClick: () => refetch() },
         ]}
       />
@@ -551,14 +562,14 @@ export default function WorkBoardPage() {
         actions={
           <>
             <Link
-              href="/app/work/tasks/new"
+              href="/property-manager/work/tasks/new"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Create Task
             </Link>
             <Link
-              href="/app/work/jobs/new"
+              href="/property-manager/work/jobs/new"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
@@ -686,6 +697,7 @@ export default function WorkBoardPage() {
                   key={col.key}
                   col={col}
                   tasks={columnTasks[col.key] ?? []}
+                  propertyNameById={propertyNameById}
                 />
               ))}
             </div>
@@ -719,9 +731,9 @@ export default function WorkBoardPage() {
                   <h3 className="text-sm font-semibold text-slate-900">AI Recommendations</h3>
                 </div>
                 {[
-                  { icon: TrendingDown, text: "Review any blocked tasks",          action: "Review",   color: "text-red-500",    href: "/app/work/tasks" },
-                  { icon: Clock,        text: "Check waiting-on-supplier items",   action: "Schedule", color: "text-amber-500",  href: "/app/work/ppm" },
-                  { icon: FileText,     text: "Review supplier quotes",            action: "Review",   color: "text-violet-500", href: "/app/work/suppliers" },
+                  { icon: TrendingDown, text: "Review any blocked tasks",          action: "Review",   color: "text-red-500",    href: "/property-manager/work/tasks" },
+                  { icon: Clock,        text: "Check waiting-on-supplier items",   action: "Schedule", color: "text-amber-500",  href: "/property-manager/work/ppm" },
+                  { icon: FileText,     text: "Review supplier quotes",            action: "Review",   color: "text-violet-500", href: "/property-manager/work/suppliers" },
                 ].map((item, i) => {
                   const Icon = item.icon
                   return (
@@ -734,7 +746,7 @@ export default function WorkBoardPage() {
                     </div>
                   )
                 })}
-                <Link href="/app/work" className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block">
+                <Link href="/property-manager/work" className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block">
                   Ask AI for more insights →
                 </Link>
               </div>
@@ -743,7 +755,7 @@ export default function WorkBoardPage() {
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-slate-900">Recently Updated</h3>
-                  <Link href="/app/work" className="text-[12px] text-[#2563EB] hover:underline">View all</Link>
+                  <Link href="/property-manager/work" className="text-[12px] text-[#2563EB] hover:underline">View all</Link>
                 </div>
                 {displayTasks.slice(0, 4).map((t) => (
                   <div key={t.id} className="flex items-start gap-2 mb-3">

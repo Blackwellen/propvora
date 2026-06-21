@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: "Is there a free trial?",
-    a: "Yes. Every plan comes with a 14-day free trial, and no credit card is required to start. You'll have full access to all features on your chosen plan during the trial period.",
+    a: "Yes. Every plan comes with a 7-day free trial, and no credit card is required to start. You'll have full access to all features on your chosen plan during the trial period.",
   },
   {
     q: "Do you charge per property or per user?",
@@ -31,7 +31,7 @@ const faqs = [
   },
   {
     q: "Do you offer refunds?",
-    a: "Yes. If you're not satisfied within the first 14 days of a paid subscription, contact us and we'll issue a full refund. After 14 days, we don't offer refunds for the current billing period, but you can cancel to prevent future charges. Annual plans may be refunded on a pro-rata basis as set out in our Terms.",
+    a: "Yes. If you're not satisfied within the first 7 days of a paid subscription, contact us and we'll issue a full refund. After 7 days, we don't offer refunds for the current billing period, but you can cancel to prevent future charges. Annual plans may be refunded on a pro-rata basis as set out in our Terms.",
   },
   {
     q: "Is my property data secure?",

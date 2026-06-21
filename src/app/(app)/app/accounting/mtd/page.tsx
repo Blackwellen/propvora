@@ -154,7 +154,7 @@ export default function MtdPage() {
             <span>Making Tax Digital</span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Badge variant="outline" size="md">05 · Making Tax Digital</Badge>
+            <Badge variant="outline" size="md">Making Tax Digital</Badge>
             <h1 className="text-2xl font-bold text-slate-900">Making Tax Digital</h1>
           </div>
           <p className="text-sm text-slate-500">
@@ -481,7 +481,7 @@ export default function MtdPage() {
               <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
               <p className="text-xs text-blue-700">
                 Need a full breakdown before filing? Use the live{" "}
-                <a href={sectionLink("/app/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
+                <a href={sectionLink("/property-manager/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
                 (P&amp;L computed from your ledger).
               </p>
             </div>
@@ -495,7 +495,7 @@ export default function MtdPage() {
           <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
           <p className="text-xs text-blue-700">
             Need a full breakdown before filing? Use the live{" "}
-            <a href={sectionLink("/app/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
+            <a href={sectionLink("/property-manager/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
             (P&amp;L computed from your ledger).
           </p>
         </div>

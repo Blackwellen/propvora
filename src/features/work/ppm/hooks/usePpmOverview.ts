@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -32,33 +32,10 @@ export interface PpmOverdueItem {
   estCost: number | null
 }
 
-// Hardcoded seed data used as fallback when table does not yet exist
-const SEED_KPIS: PpmKpis = {
-  activeSchedules: 34,
-  dueThisMonth: 8,
-  overdue: 2,
-  dueNext30Days: 14,
-  completedThisYear: 67,
-}
-
-const SEED_UPCOMING: PpmUpcomingItem[] = [
-  { id: "1", serviceType: "Boiler Annual Service",       property: "7 Oak Ave",      dueDate: "12 Jun 2026", supplier: "HeatPro Ltd",           estCost: 850, status: "scheduled" },
-  { id: "2", serviceType: "EICR Inspection",             property: "22 Mill Lane",   dueDate: "14 Jun 2026", supplier: "ElecSure Ltd",           estCost: 620, status: "scheduled" },
-  { id: "3", serviceType: "Gas Safety Certificate",      property: "14 Park Rd",     dueDate: "18 Jun 2026", supplier: "British Gas Homecare",   estCost: 120, status: "scheduled" },
-  { id: "4", serviceType: "Legionella Risk Assessment",  property: "3 River View",   dueDate: "24 Jun 2026", supplier: "AquaSafe Ltd",           estCost: 300, status: "scheduled" },
-  { id: "5", serviceType: "Fire Alarm Test",             property: "Beech House",    dueDate: "26 Jun 2026", supplier: "FireSafe Services",      estCost: 180, status: "scheduled" },
-  { id: "6", serviceType: "HVAC Maintenance",            property: "41 Station Rd",  dueDate: "29 Jun 2026", supplier: "ClimaCare Ltd",          estCost: 250, status: "scheduled" },
-]
-
-const SEED_OVERDUE: PpmOverdueItem[] = [
-  { id: "1", serviceType: "Boiler Annual Service", property: "Beech House", ref: "FIRE-0021", dueDate: "02 Jun 2026", daysOverdue: 8, supplier: "FireSafe Services", estCost: 850 },
-  { id: "2", serviceType: "EICR Inspection",       property: "Elm Court",   ref: "ELEC-0153", dueDate: "05 Jun 2026", daysOverdue: 5, supplier: "ElecSure Ltd",     estCost: 620 },
-]
-
 export function usePpmOverview() {
-  const [kpis, setKpis] = useState<PpmKpis>(SEED_KPIS)
-  const [upcoming, setUpcoming] = useState<PpmUpcomingItem[]>(SEED_UPCOMING)
-  const [overdue, setOverdue] = useState<PpmOverdueItem[]>(SEED_OVERDUE)
+  const [kpis, setKpis] = useState<PpmKpis>({ activeSchedules: 0, dueThisMonth: 0, overdue: 0, dueNext30Days: 0, completedThisYear: 0 })
+  const [upcoming, setUpcoming] = useState<PpmUpcomingItem[]>([])
+  const [overdue, setOverdue] = useState<PpmOverdueItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -107,11 +84,11 @@ export function usePpmOverview() {
             dueThisMonth: dueMonth,
             overdue: overdueCount,
             dueNext30Days: dueNext,
-            completedThisYear: SEED_KPIS.completedThisYear,
+            completedThisYear: 0,
           })
         }
       } catch {
-        if (!cancelled) setError("Failed to load PPM data — showing demo data")
+        if (!cancelled) setError("Failed to load PPM data")
       } finally {
         if (!cancelled) setLoading(false)
       }

@@ -130,7 +130,7 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                         <Building2 size={14} className="text-white opacity-60" />
                       </div>
                       <div className="min-w-0">
-                        <Link href={`/app/portfolio/properties/${p.id}`}
+                        <Link href={`/property-manager/portfolio/properties/${p.id}`}
                           className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block">
                           {p.name}
                         </Link>
@@ -193,20 +193,20 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                   {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link href={`/app/portfolio/properties/${p.id}`}
+                      <Link href={`/property-manager/portfolio/properties/${p.id}`}
                         className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
-                      <Link href={`/app/portfolio/properties/${p.id}/edit`}
+                      <Link href={`/property-manager/portfolio/properties/${p.id}/edit`}
                         className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-all">
                         <Edit2 className="w-3.5 h-3.5" />
                       </Link>
                       <ActionMenu
                         align="right"
                         items={[
-                          { label: "View property", icon: Eye, onClick: () => router.push(`/app/portfolio/properties/${p.id}`) },
-                          { label: "Add unit", icon: Plus, onClick: () => router.push(`/app/portfolio/units/new?propertyId=${p.id}`) },
-                          { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?propertyId=${p.id}`) },
+                          { label: "View property", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/properties/${p.id}`) },
+                          { label: "Add unit", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/units/new?propertyId=${p.id}`) },
+                          { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?propertyId=${p.id}`) },
                           { label: "Archive", icon: Archive, onClick: () => {} },
                         ]}
                       />

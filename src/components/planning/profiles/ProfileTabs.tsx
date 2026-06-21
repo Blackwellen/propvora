@@ -39,7 +39,7 @@ export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
   const pathname = usePathname()
 
   const handleTabClick = (tabSlug: string) => {
-    router.push(`/app/planning/profiles/${profile.slug}/${tabSlug}`)
+    router.push(`/property-manager/planning/profiles/${profile.slug}/${tabSlug}`)
   }
 
   return (

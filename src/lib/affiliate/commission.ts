@@ -73,6 +73,8 @@ export async function accrueCommissionForInvoice(
 
   const referral = await findEligibleReferral(db, referredWs)
   if (!referral) return
+  // Self-referral guard: affiliate workspace cannot earn from its own subscription.
+  if (referral.affiliate_workspace_id === referredWs) return
   if ((referral.recurring_months_remaining ?? 0) <= 0 && referral.first_invoice_at) return
 
   // Affiliate must be enrolled + approved (approved=false acts as suspension).

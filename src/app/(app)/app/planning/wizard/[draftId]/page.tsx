@@ -75,7 +75,7 @@ function WizardInner() {
       }
       livePanel={<WizardLiveSummary />}
       planName={state.setName || "Resume Planning Set"}
-      onClose={() => router.push("/app/planning")}
+      onClose={() => router.push("/property-manager/planning")}
       onPrev={handlePrev}
       onNext={handleNext}
       onSave={() => { void saveDraft() }}

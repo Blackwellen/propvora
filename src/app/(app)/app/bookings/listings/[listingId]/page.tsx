@@ -67,7 +67,7 @@ export default async function ListingDetailPage({
   if (!access.canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Listing" subtitle="Booking management" showBack backHref="/app/bookings/listings" />
+        <MobileTopBar title="Listing" subtitle="Booking management" showBack backHref="/property-manager/bookings/listings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={access.planName} reason={access.upgradeReason} />
         </div>
@@ -85,7 +85,7 @@ export default async function ListingDetailPage({
   if (!detail.listing) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Listing" subtitle={listingId.slice(0, 8)} showBack backHref="/app/bookings/listings" />
+        <MobileTopBar title="Listing" subtitle={listingId.slice(0, 8)} showBack backHref="/property-manager/bookings/listings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingNotReady
             title="Listing not found"

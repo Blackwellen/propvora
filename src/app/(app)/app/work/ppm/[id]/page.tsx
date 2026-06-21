@@ -242,11 +242,11 @@ export default function PpmDetailPage() {
 
   async function handleDelete() {
     if (!isLive || !workspaceId || !planData) {
-      router.push("/app/work/ppm/overview")
+      router.push("/property-manager/work/ppm/overview")
       return
     }
     await deletePlan.mutateAsync({ id: planData.id, workspaceId })
-    router.push("/app/work/ppm/overview")
+    router.push("/property-manager/work/ppm/overview")
   }
 
   async function handleGenerateJob() {
@@ -255,7 +255,7 @@ export default function PpmDetailPage() {
     try {
       const res = await generateJob.mutateAsync({ plan })
       if (res.ok && res.jobId) {
-        router.push(`/app/work/jobs/${res.jobId}`)
+        router.push(`/property-manager/work/jobs/${res.jobId}`)
       }
     } finally {
       setGenerating(false)
@@ -277,26 +277,26 @@ export default function PpmDetailPage() {
         title={plan.name}
         subtitle="PPM Plan"
         showBack
-        backHref="/app/work/ppm/overview"
+        backHref="/property-manager/work/ppm/overview"
         primaryAction={{ label: "Generate job", icon: Wrench, onClick: () => { if (!generating) handleGenerateJob() } }}
         overflowActions={[
-          { label: "New plan", icon: Plus, href: "/app/work/ppm/schedules/new" },
+          { label: "New plan", icon: Plus, href: "/property-manager/work/ppm/schedules/new" },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
 
       {/* Breadcrumb */}
       <div className="hidden md:flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/app/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
+        <Link href="/property-manager/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link href="/app/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
+        <Link href="/property-manager/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-slate-900 font-semibold truncate max-w-[200px]">{plan.name}</span>
       </div>
 
       {/* Back button */}
       <Link
-        href="/app/work/ppm/overview"
+        href="/property-manager/work/ppm/overview"
         className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
       >
         <ChevronLeft className="w-4 h-4" /> Back to PPM
@@ -323,7 +323,7 @@ export default function PpmDetailPage() {
             <Wrench className="w-3.5 h-3.5" /> {generating ? "Generating…" : "Generate Job"}
           </button>
           <Link
-            href="/app/work/ppm/schedules/new"
+            href="/property-manager/work/ppm/schedules/new"
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             <Plus className="w-3.5 h-3.5" /> New Plan
@@ -346,7 +346,7 @@ export default function PpmDetailPage() {
           <ActionMenu
             items={[
               { label: "Generate Job", icon: Wrench, onClick: handleGenerateJob },
-              { label: "View Schedules", icon: CalendarClock, onClick: () => router.push("/app/work/ppm/schedules") },
+              { label: "View Schedules", icon: CalendarClock, onClick: () => router.push("/property-manager/work/ppm/schedules") },
               {
                 label: "Delete",
                 icon: Trash2,
@@ -390,7 +390,7 @@ export default function PpmDetailPage() {
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 {plan.property_id ? (
-                  <Link href="/app/portfolio" className="text-[#2563EB] hover:underline">View Property</Link>
+                  <Link href="/property-manager/portfolio" className="text-[#2563EB] hover:underline">View Property</Link>
                 ) : (
                   <span>No property linked</span>
                 )}
@@ -419,7 +419,7 @@ export default function PpmDetailPage() {
           <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-xs text-amber-700">
             Showing sample data. This plan isn&apos;t in your live PPM records yet — create one from the
-            <Link href="/app/work/ppm/schedules/new" className="font-semibold underline ml-1">New PPM Schedule</Link> wizard to enable editing.
+            <Link href="/property-manager/work/ppm/schedules/new" className="font-semibold underline ml-1">New PPM Schedule</Link> wizard to enable editing.
           </p>
         </div>
       )}
@@ -683,7 +683,7 @@ export default function PpmDetailPage() {
               ) : (
                 <p className="text-sm text-slate-400">No supplier assigned to this plan.</p>
               )}
-              <Link href="/app/work/suppliers" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">Browse Suppliers →</Link>
+              <Link href="/property-manager/work/suppliers" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">Browse Suppliers →</Link>
             </div>
           )}
 

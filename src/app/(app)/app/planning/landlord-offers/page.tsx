@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -118,7 +118,7 @@ export default function LandlordOffersPage() {
 
   const actions = (
     <Link
-      href="/app/planning/landlord-offers/new"
+      href="/property-manager/planning/landlord-offers/new"
       className="h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[12.5px] font-semibold hover:bg-violet-700 flex items-center gap-1.5 transition-colors"
     >
       <Plus className="w-4 h-4" />
@@ -137,8 +137,8 @@ export default function LandlordOffersPage() {
         {(open) => (
           <ActionMenu
             items={[
-              { label: "View Offer", icon: Eye, onClick: () => router.push(`/app/planning/landlord-offers/${offer.id}`) },
-              { label: "Edit", icon: Pencil, onClick: () => router.push(`/app/planning/landlord-offers/${offer.id}`) },
+              { label: "View Offer", icon: Eye, onClick: () => router.push(`/property-manager/planning/landlord-offers/${offer.id}`) },
+              { label: "Edit", icon: Pencil, onClick: () => router.push(`/property-manager/planning/landlord-offers/${offer.id}`) },
               { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
             ]}
           />
@@ -184,7 +184,8 @@ export default function LandlordOffersPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 focus:outline-none"
+          aria-label="Filter by status"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
         >
           <option value="all">All statuses</option>
           {STAGES.map((s) => (
@@ -219,7 +220,7 @@ export default function LandlordOffersPage() {
           <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">
             Create an offer to propose guaranteed rent or management terms to a landlord, linked to one of your planning sets.
           </p>
-          <Link href="/app/planning/landlord-offers/new" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">
+          <Link href="/property-manager/planning/landlord-offers/new" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">
             <Plus className="w-4 h-4" /> New Offer
           </Link>
         </div>
@@ -240,7 +241,7 @@ export default function LandlordOffersPage() {
                     {cards.map((offer) => (
                       <div
                         key={offer.id}
-                        onClick={() => router.push(`/app/planning/landlord-offers/${offer.id}`)}
+                        onClick={() => router.push(`/property-manager/planning/landlord-offers/${offer.id}`)}
                         className="bg-white rounded-2xl border border-slate-200 p-4 cursor-pointer transition-all hover:shadow-md hover:border-slate-300"
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -285,7 +286,7 @@ export default function LandlordOffersPage() {
                   <tr
                     key={offer.id}
                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 cursor-pointer transition-colors"
-                    onClick={() => router.push(`/app/planning/landlord-offers/${offer.id}`)}
+                    onClick={() => router.push(`/property-manager/planning/landlord-offers/${offer.id}`)}
                   >
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2.5">

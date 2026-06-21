@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/app/",
+          "/property-manager/",
           "/admin/",
           "/supplier-portal/",
           "/user/affiliate/",

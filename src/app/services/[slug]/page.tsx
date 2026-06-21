@@ -6,11 +6,8 @@ import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Heart, Share2 }
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import ServicePackageSelector from '@/components/public-marketplace/profiles/ServicePackageSelector'
 import { getPublicServiceOfferBySlug } from '@/lib/public-marketplace/queries'
-import { SEED_SERVICE_OFFERS } from '@/lib/public-marketplace/seed-fallback'
 
-export async function generateStaticParams() {
-  return SEED_SERVICE_OFFERS.map(s => ({ slug: s.slug }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

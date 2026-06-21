@@ -43,7 +43,7 @@ export default function ApplicationsTab() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5 items-start">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Applications</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none w-36" /></div></div>
+          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Applications</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" /></div></div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead><tr className="text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100"><th className="py-2 pr-2 font-semibold">Property</th><th className="py-2 px-2 font-semibold">Rent</th><th className="py-2 px-2 font-semibold">Status</th><th className="py-2 px-2 font-semibold">Progress</th><th className="py-2 px-2 font-semibold">Submitted</th><th className="py-2 px-2 w-8"></th></tr></thead>
@@ -75,7 +75,7 @@ export default function ApplicationsTab() {
 
           <div className="mt-3 pt-3 border-t border-slate-100">
             <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Primary applicant</p>
-            <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">Sarah Johnson</p><p className="text-[10.5px] text-slate-400">Verified · 1 adult household</p></div></div>
+            <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">You</p><p className="text-[10.5px] text-slate-400">Verified · details from your profile</p></div></div>
           </div>
 
           <div className="mt-3 pt-3 border-t border-slate-100">

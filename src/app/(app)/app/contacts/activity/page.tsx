@@ -122,7 +122,7 @@ function ActivityRow({ event }: { event: ActivityEvent }) {
   const Icon = cfg.icon
   const router = useRouter()
   const contactHref = event.resourceType === "contact" && event.resourceId
-    ? `/app/contacts/${event.resourceId}`
+    ? `/property-manager/contacts/${event.resourceId}`
     : null
 
   return (

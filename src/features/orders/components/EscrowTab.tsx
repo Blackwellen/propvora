@@ -9,7 +9,6 @@ import {
   Banknote, Ban, Flag, FileQuestion, ExternalLink, CheckCircle2,
 } from "lucide-react"
 import { useOrderEscrows, useOrderEscrowKpis } from "../data/hooks"
-import { SEED_PAYOUT_SPLITS, SEED_RELEASE_CONDITIONS } from "../data/seed"
 import { KpiCard, StatusBadge, toneForEvidence, toneForEscrowState, humanise, ConfirmModal, PagerFooter, SourcePill } from "./ui"
 import type { EscrowRow } from "../data/types"
 
@@ -152,24 +151,13 @@ function EscrowExpanded({ row, blocked, onAction }: { row: EscrowRow; blocked: b
       {/* Payout split */}
       <div>
         <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-2">Payout split</p>
-        <div className="space-y-1.5">
-          {SEED_PAYOUT_SPLITS.map(s => (
-            <div key={s.id} className="flex items-center justify-between text-xs"><span className="text-slate-600">{s.label}</span><span className="font-semibold text-slate-800">{formatPence(s.amountPence)}</span></div>
-          ))}
-        </div>
+        <p className="text-[11px] text-slate-400">Payout breakdown is generated on release. Confirm milestones and evidence to unlock.</p>
       </div>
 
       {/* Release conditions */}
       <div>
         <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-2">Release conditions</p>
-        <div className="space-y-1.5">
-          {SEED_RELEASE_CONDITIONS.map(c => (
-            <div key={c.id} className="flex items-center gap-2 text-xs">
-              {c.met ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
-              <span className={cn(c.met ? "text-slate-600" : "text-slate-500")}>{c.label}</span>
-            </div>
-          ))}
-        </div>
+        <p className="text-[11px] text-slate-400">Release conditions are set per escrow agreement and appear once the order is accepted by the supplier.</p>
       </div>
 
       {/* Actions */}
@@ -184,7 +172,7 @@ function EscrowExpanded({ row, blocked, onAction }: { row: EscrowRow; blocked: b
           <button onClick={() => onAction("hold")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><Ban className="w-3.5 h-3.5" /> Reject / hold</button>
           <button onClick={() => onAction("issue")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><Flag className="w-3.5 h-3.5" /> Raise issue</button>
           <button onClick={() => onAction("evidence")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><FileQuestion className="w-3.5 h-3.5" /> Request evidence</button>
-          <Link href={`/app/work/orders/escrow/${row.escrowId}`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> View all evidence</Link>
+          <Link href={`/property-manager/work/orders/escrow/${row.escrowId}`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> View all evidence</Link>
         </div>
       </div>
     </div>

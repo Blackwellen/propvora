@@ -1,19 +1,18 @@
 "use client"
 
-import { Suspense, useMemo, useRef, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import {
-  ChevronLeft, LayoutGrid, ClipboardList, CalendarClock, MessagesSquare, Images,
-  FileText, Banknote, GitBranch, KeyRound, AlertTriangle, History, ShieldCheck,
-  Play, CheckCircle2, ArrowRight, Upload, Trash2, Building2, Calendar, Activity, XCircle,
-  KeySquare, ChevronRight,
+  LayoutGrid, ClipboardList, CalendarClock, MessagesSquare, Images,
+  FileText, Banknote, GitBranch, KeyRound, AlertTriangle, History,
+  Play, CheckCircle2, ArrowRight, Upload, XCircle, KeySquare, ChevronRight, ChevronLeft,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
   SupplierCard, SupplierLoadingState, SupplierNotReady, SupplierStatusBadge,
-  SupplierTabs, SupplierButton, SupplierBanner, SupplierField, SupplierDrawer,
-  supplierInputClass, supplierTextareaClass, toneForStatus, humaniseStatus,
+  SupplierTabs, SupplierButton, SupplierBanner,
+  toneForStatus, humaniseStatus,
   type SupplierTab,
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
@@ -24,6 +23,21 @@ import type {
   SupplierAssignmentRow, SupplierJobEvent, SupplierEvidenceRow, SupplierDisputeRow,
 } from "@/components/supplier-workspace/types"
 
+// Extracted tab components
+import { JobOverviewTab } from "@/features/supplier/jobs/components/detail-tabs/JobOverviewTab"
+import { JobScopeTab } from "@/features/supplier/jobs/components/detail-tabs/JobScopeTab"
+import { JobScheduleTab } from "@/features/supplier/jobs/components/detail-tabs/JobScheduleTab"
+import { JobMessagesTab } from "@/features/supplier/jobs/components/detail-tabs/JobMessagesTab"
+import { JobEvidenceTab } from "@/features/supplier/jobs/components/detail-tabs/JobEvidenceTab"
+import { JobQuoteTab } from "@/features/supplier/jobs/components/detail-tabs/JobQuoteTab"
+import { JobPaymentsTab } from "@/features/supplier/jobs/components/detail-tabs/JobPaymentsTab"
+import { JobVariationsTab } from "@/features/supplier/jobs/components/detail-tabs/JobVariationsTab"
+import { JobAccessTab } from "@/features/supplier/jobs/components/detail-tabs/JobAccessTab"
+import { JobDisputeTab } from "@/features/supplier/jobs/components/detail-tabs/JobDisputeTab"
+import { JobAuditTab } from "@/features/supplier/jobs/components/detail-tabs/JobAuditTab"
+import { JobLifecycleStepper, STAGES } from "@/features/supplier/jobs/components/JobLifecycleStepper"
+import { JobTeamRail } from "@/features/supplier/jobs/components/JobTeamRail"
+
 /* Forward-only, status-guarded transitions mirroring src/lib/supplier/jobs.ts:
    assigned → accepted → in_progress → completed. The supplier only ever sees the
    single next safe step; "Mark complete" is the only path to 'completed' and is
@@ -33,8 +47,6 @@ const NEXT_STEP: Record<string, { status: string; label: string; icon: typeof Ar
   accepted: { status: "in_progress", label: "Start work", icon: Play },
   in_progress: { status: "completed", label: "Mark work complete", icon: CheckCircle2 },
 }
-
-const STAGES = ["assigned", "accepted", "in_progress", "completed"] as const
 
 const TABS: SupplierTab[] = [
   { key: "overview", label: "Overview", icon: LayoutGrid },
@@ -116,11 +128,15 @@ function JobDetailInner() {
           {/* Field header */}
           <div className="bg-[#0D1B2A] text-white px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link href="/supplier/jobs" className="p-1.5 -ml-1.5 rounded-lg text-white/70 hover:bg-white/10"><ChevronLeft className="w-5 h-5" /></Link>
+              <Link href="/supplier/jobs" className="p-1.5 -ml-1.5 rounded-lg text-white/70 hover:bg-white/10">
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
               {j && <SupplierStatusBadge tone={toneForStatus(j.status)}>{humaniseStatus(j.status)}</SupplierStatusBadge>}
             </div>
             <p className="text-[11px] uppercase tracking-widest text-white/50 mt-2">On-site · Job {id?.slice(0, 8)}</p>
-            <p className="text-base font-semibold mt-0.5">{j?.scheduled_for ? `Scheduled ${shortDate(j.scheduled_for)}` : "Awaiting schedule"}</p>
+            <p className="text-base font-semibold mt-0.5">
+              {j?.scheduled_for ? `Scheduled ${shortDate(j.scheduled_for)}` : "Awaiting schedule"}
+            </p>
           </div>
 
           {job.loading || !j ? (
@@ -129,11 +145,15 @@ function JobDetailInner() {
             <div className="p-4 space-y-3">
               {/* Quick actions */}
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/supplier/messages" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 text-blue-700 py-2.5 text-sm font-semibold hover:bg-blue-100"><MessagesSquare className="w-4 h-4" /> Message PM</Link>
-                <Link href={`/supplier/inbox`} className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 text-slate-700 py-2.5 text-sm font-semibold hover:bg-slate-200"><KeySquare className="w-4 h-4" /> Access details</Link>
+                <Link href="/supplier/messages" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 text-blue-700 py-2.5 text-sm font-semibold hover:bg-blue-100">
+                  <MessagesSquare className="w-4 h-4" /> Message PM
+                </Link>
+                <Link href="/supplier/inbox" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 text-slate-700 py-2.5 text-sm font-semibold hover:bg-slate-200">
+                  <KeySquare className="w-4 h-4" /> Access details
+                </Link>
               </div>
 
-              {/* Access note — codes are shared via Messages, never stored */}
+              {/* Access note */}
               <div className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 flex items-start gap-2">
                 <KeyRound className="w-4 h-4 shrink-0 mt-0.5" />
                 Access codes are shared securely via Messages for each visit — never stored on the job.
@@ -142,8 +162,12 @@ function JobDetailInner() {
               {/* Evidence checklist */}
               <div className="rounded-xl border border-slate-200 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><Images className="w-4 h-4 text-slate-400" /> Evidence</p>
-                  <span className={`text-xs font-semibold ${evCount > 0 ? "text-emerald-600" : "text-slate-400"}`}>{evCount} photo{evCount === 1 ? "" : "s"}</span>
+                  <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
+                    <Images className="w-4 h-4 text-slate-400" /> Evidence
+                  </p>
+                  <span className={`text-xs font-semibold ${evCount > 0 ? "text-emerald-600" : "text-slate-400"}`}>
+                    {evCount} photo{evCount === 1 ? "" : "s"}
+                  </span>
                 </div>
                 <p className="text-xs text-slate-500 mb-2">Capture before / during / after photos to document the work.</p>
                 <Link href={`/supplier/jobs/${id}`} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 w-full justify-center">
@@ -165,7 +189,9 @@ function JobDetailInner() {
                   <next.icon className="w-4 h-4" /> {next.label}
                 </SupplierButton>
               ) : j.status === "completed" ? (
-                <div className="rounded-xl bg-emerald-50 text-emerald-700 px-3 py-2.5 text-sm font-medium text-center flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Work complete</div>
+                <div className="rounded-xl bg-emerald-50 text-emerald-700 px-3 py-2.5 text-sm font-medium text-center flex items-center justify-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> Work complete
+                </div>
               ) : null}
 
               <Link href={`/supplier/jobs/${id}`} className="flex items-center justify-center gap-1 text-xs text-slate-400 hover:text-slate-600 pt-1">
@@ -199,41 +225,26 @@ function JobDetailInner() {
         <SupplierCard className="p-5"><SupplierLoadingState rows={5} /></SupplierCard>
       ) : job.notReady || !j ? (
         <SupplierCard className="p-5">
-          <SupplierNotReady icon={Activity} title="Job unavailable" description="This job will load once the supplier jobs service is connected to your workspace." />
+          <SupplierNotReady
+            icon={AlertTriangle}
+            title="Job unavailable"
+            description="This job will load once the supplier jobs service is connected to your workspace."
+          />
         </SupplierCard>
       ) : (
         <>
-          {/* Lifecycle stepper */}
-          <SupplierCard className="p-4">
-            <div className="flex items-center gap-1 overflow-x-auto">
-              {STAGES.map((stage, i) => {
-                const reached = stageIndex >= i && stageIndex !== -1
-                const current = stageIndex === i
-                return (
-                  <div key={stage} className="flex items-center gap-1 shrink-0">
-                    <div className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg ${current ? "bg-[#0D1B2A] text-white" : reached ? "text-emerald-600" : "text-slate-400"}`}>
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${current ? "bg-white text-[#0D1B2A]" : reached ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>
-                        {reached && !current ? "✓" : i + 1}
-                      </span>
-                      <span className="text-[12px] font-semibold whitespace-nowrap">{humaniseStatus(stage)}</span>
-                    </div>
-                    {i < STAGES.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-slate-300" />}
-                  </div>
-                )
-              })}
-            </div>
-          </SupplierCard>
+          <JobLifecycleStepper stageIndex={stageIndex} />
 
           <SupplierTabs tabs={TABS} active={tab} onChange={setTab} />
 
           <div className="grid grid-cols-1 lg:grid-cols-[1.7fr_1fr] gap-4">
             <div className="space-y-4 min-w-0">
-              {tab === "overview" && <OverviewTab job={j} />}
-              {tab === "scope" && <ScopeTab job={j} />}
-              {tab === "schedule" && <ScheduleTab job={j} />}
-              {tab === "messages" && <MessagesTab />}
+              {tab === "overview" && <JobOverviewTab job={j} />}
+              {tab === "scope" && <JobScopeTab job={j} />}
+              {tab === "schedule" && <JobScheduleTab job={j} />}
+              {tab === "messages" && <JobMessagesTab />}
               {tab === "evidence" && (
-                <EvidenceTab
+                <JobEvidenceTab
                   assignmentId={id!}
                   workspaceId={workspaceId}
                   rows={evidence.data ?? []}
@@ -242,12 +253,12 @@ function JobDetailInner() {
                   canEdit={j.status === "in_progress" || j.status === "accepted"}
                 />
               )}
-              {tab === "quote" && <QuoteTab job={j} />}
-              {tab === "payments" && <PaymentsTab />}
-              {tab === "variations" && <VariationsTab />}
-              {tab === "access" && <AccessTab />}
+              {tab === "quote" && <JobQuoteTab job={j} />}
+              {tab === "payments" && <JobPaymentsTab />}
+              {tab === "variations" && <JobVariationsTab />}
+              {tab === "access" && <JobAccessTab />}
               {tab === "dispute" && (
-                <DisputeTab
+                <JobDisputeTab
                   assignmentId={id!}
                   workspaceId={workspaceId}
                   rows={disputes.data ?? []}
@@ -255,7 +266,7 @@ function JobDetailInner() {
                   refresh={() => { disputes.refresh(); events.refresh() }}
                 />
               )}
-              {tab === "audit" && <AuditTab events={events.data ?? []} loading={events.loading} />}
+              {tab === "audit" && <JobAuditTab events={events.data ?? []} loading={events.loading} />}
             </div>
 
             {/* Right rail: next action + facts */}
@@ -295,372 +306,11 @@ function JobDetailInner() {
                 </dl>
               </SupplierCard>
 
-              {isTeam && (
-                <SupplierCard className="p-5">
-                  <h2 className="text-base font-semibold text-slate-900 mb-3">Team</h2>
-                  <dl className="space-y-3">
-                    <Fact label="Assigned worker" value="Jake Foster" />
-                    <Fact label="Dispatcher" value="Alex Morgan" />
-                    <Fact label="Cost variance" value="+£0.00" />
-                    <Fact label="Profit estimate" value="42%" />
-                  </dl>
-                  <div className="mt-3 flex gap-2">
-                    <SupplierButton size="sm" variant="outline" onClick={() => setBanner("Reassigning worker…")}>Reassign</SupplierButton>
-                    <Link href="/supplier/jobs?tab=dispatch"><SupplierButton size="sm" variant="ghost">Dispatch board</SupplierButton></Link>
-                  </div>
-                </SupplierCard>
-              )}
+              {isTeam && <JobTeamRail onReassign={() => setBanner("Reassigning worker…")} />}
             </div>
           </div>
         </>
       )}
-    </div>
-  )
-}
-
-/* ── Tabs ─────────────────────────────────────────────────────────────────── */
-
-function OverviewTab({ job }: { job: SupplierAssignmentRow }) {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-4">Overview</h2>
-      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-        <Detail icon={Building2} label="Operator workspace" value={job.operator_workspace_id.slice(0, 8)} />
-        <Detail icon={Calendar} label="Scheduled" value={shortDate(job.scheduled_for)} />
-        <Detail icon={Activity} label="Status" value={humaniseStatus(job.status)} />
-        <Detail icon={FileText} label="Linked job" value={job.job_id ? job.job_id.slice(0, 8) : "—"} />
-      </dl>
-    </SupplierCard>
-  )
-}
-
-function ScopeTab({ job }: { job: SupplierAssignmentRow }) {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Scope of work</h2>
-      <p className="text-sm text-slate-500">
-        {job.quote_id
-          ? "This job was created from a quote you submitted. The agreed scope is the description and price of that accepted quote — see the Quote tab."
-          : "This job was assigned directly. Confirm the scope with the property manager via Messages before starting work."}
-      </p>
-    </SupplierCard>
-  )
-}
-
-function ScheduleTab({ job }: { job: SupplierAssignmentRow }) {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-3">Schedule</h2>
-      {job.scheduled_for ? (
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center"><CalendarClock className="w-5 h-5 text-blue-600" /></div>
-          <div>
-            <p className="text-sm font-semibold text-slate-800">{shortDate(job.scheduled_for)}</p>
-            <p className="text-xs text-slate-500">Agreed appointment</p>
-          </div>
-        </div>
-      ) : (
-        <p className="text-sm text-slate-500">No appointment scheduled yet. The property manager sets the date when the job is assigned; coordinate via Messages if it needs to change.</p>
-      )}
-    </SupplierCard>
-  )
-}
-
-function MessagesTab() {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Messages</h2>
-      <p className="text-sm text-slate-500">
-        Job messaging with the property manager runs through your workspace inbox. Open <Link href="/supplier/messages" className="font-semibold text-[#2563EB]">Messages</Link> to see the full thread.
-      </p>
-    </SupplierCard>
-  )
-}
-
-function EvidenceTab({
-  assignmentId, workspaceId, rows, loading, refresh, canEdit,
-}: {
-  assignmentId: string; workspaceId: string | null; rows: SupplierEvidenceRow[]
-  loading: boolean; refresh: () => void; canEdit: boolean
-}) {
-  const [phase, setPhase] = useState<"before" | "during" | "after">("during")
-  const [uploading, setUploading] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  async function onFile(file: File) {
-    if (!workspaceId) return
-    setUploading(true); setErr(null)
-    try {
-      const form = new FormData()
-      form.append("file", file)
-      form.append("workspaceId", workspaceId)
-      form.append("folder", `supplier-jobs/${assignmentId}/${phase}`)
-      const up = await fetch("/api/upload", { method: "POST", body: form })
-      if (!up.ok) { setErr("Upload failed."); return }
-      const meta = await up.json()
-      const rec = await fetch(`/api/supplier/jobs/${assignmentId}/evidence`, {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ phase, r2Key: meta.key, fileName: meta.name, contentType: meta.type, sizeBytes: meta.size }),
-      })
-      if (!rec.ok) { setErr("Couldn't record evidence."); return }
-      refresh()
-    } catch { setErr("Network error during upload.") }
-    finally { setUploading(false); if (inputRef.current) inputRef.current.value = "" }
-  }
-
-  async function remove(evidenceId: string) {
-    const res = await fetch(`/api/supplier/jobs/${assignmentId}/evidence?evidenceId=${evidenceId}`, { method: "DELETE" })
-    if (res.ok) refresh()
-  }
-
-  const byPhase = (p: string) => rows.filter((r) => r.phase === p)
-
-  return (
-    <SupplierCard className="p-5">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-slate-900">Evidence</h2>
-        {canEdit && (
-          <div className="flex items-center gap-2">
-            <select value={phase} onChange={(e) => setPhase(e.target.value as typeof phase)} className="h-8 rounded-lg border border-slate-200 text-[13px] px-2">
-              <option value="before">Before</option>
-              <option value="during">During</option>
-              <option value="after">After</option>
-            </select>
-            <input ref={inputRef} type="file" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f) }} accept="image/*,application/pdf" />
-            <SupplierButton size="sm" onClick={() => inputRef.current?.click()} loading={uploading}>
-              <Upload className="w-3.5 h-3.5" /> Upload
-            </SupplierButton>
-          </div>
-        )}
-      </div>
-      {err && <SupplierBanner tone="red" onDismiss={() => setErr(null)}>{err}</SupplierBanner>}
-      {loading ? (
-        <SupplierLoadingState rows={2} />
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-slate-400 py-4">No evidence yet. {canEdit ? "Capture before/during/after photos to document the work." : "Evidence can be added while the job is accepted or in progress."}</p>
-      ) : (
-        <div className="space-y-4 mt-2">
-          {(["before", "during", "after"] as const).map((p) => {
-            const list = byPhase(p)
-            if (list.length === 0) return null
-            return (
-              <div key={p}>
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 mb-2">{p} ({list.length})</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {list.map((ev) => (
-                    <div key={ev.id} className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
-                      {ev.content_type?.startsWith("image/") && ev.url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={ev.url} alt={ev.file_name ?? "Evidence"} className="w-full h-24 object-cover" />
-                      ) : (
-                        <div className="w-full h-24 flex items-center justify-center"><FileText className="w-6 h-6 text-slate-400" /></div>
-                      )}
-                      <div className="px-2 py-1.5">
-                        <p className="text-[11px] font-medium text-slate-600 truncate">{ev.file_name ?? "File"}</p>
-                        <p className="text-[10px] text-slate-400">{timeAgo(ev.created_at)}</p>
-                      </div>
-                      {canEdit && (
-                        <button onClick={() => remove(ev.id)} className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/90 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </SupplierCard>
-  )
-}
-
-function QuoteTab({ job }: { job: SupplierAssignmentRow }) {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Quote</h2>
-      {job.quote_id ? (
-        <p className="text-sm text-slate-500">
-          This job originated from quote <span className="font-mono text-slate-700">{job.quote_id.slice(0, 8)}</span>. The agreed amount and terms live on the quote record. See <Link href="/supplier/quotes" className="font-semibold text-[#2563EB]">Quotes</Link>.
-        </p>
-      ) : (
-        <p className="text-sm text-slate-500">This job was assigned directly without a marketplace quote.</p>
-      )}
-    </SupplierCard>
-  )
-}
-
-function PaymentsTab() {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Payments</h2>
-      <p className="text-sm text-slate-500">
-        You raise invoices and track payouts at the workspace level. Open <Link href="/supplier/invoices" className="font-semibold text-[#2563EB]">Invoices</Link> to bill for this job, and <Link href="/supplier/payouts" className="font-semibold text-[#2563EB]">Payouts</Link> to see settled funds. Payment release is controlled by the property manager.
-      </p>
-    </SupplierCard>
-  )
-}
-
-function VariationsTab() {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Variations</h2>
-      <p className="text-sm text-slate-500">
-        Extra work beyond the agreed scope should be quoted separately so it is approved and paid correctly. Raise a new quote from <Link href="/supplier/quotes" className="font-semibold text-[#2563EB]">Quotes</Link> and reference this job.
-      </p>
-    </SupplierCard>
-  )
-}
-
-function AccessTab() {
-  return (
-    <SupplierCard className="p-5">
-      <h2 className="text-base font-semibold text-slate-900 mb-2">Property access</h2>
-      <p className="text-sm text-slate-500">
-        Access details (key collection, alarm codes, tenant contact, parking) are shared by the property manager via Messages for security. Never store sensitive access codes in evidence or notes.
-      </p>
-    </SupplierCard>
-  )
-}
-
-function DisputeTab({
-  assignmentId, workspaceId, rows, loading, refresh,
-}: {
-  assignmentId: string; workspaceId: string | null; rows: SupplierDisputeRow[]; loading: boolean; refresh: () => void
-}) {
-  const [open, setOpen] = useState(false)
-  const [subject, setSubject] = useState("")
-  const [category, setCategory] = useState("payment")
-  const [detail, setDetail] = useState("")
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-
-  async function raise() {
-    if (!workspaceId || !subject.trim()) { setErr("A subject is required."); return }
-    setBusy(true); setErr(null)
-    try {
-      const res = await fetch("/api/supplier/disputes", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ workspaceId, assignmentId, subject: subject.trim(), category, detail: detail || undefined }),
-      })
-      if (!res.ok) { setErr("Couldn't raise the dispute."); return }
-      setOpen(false); setSubject(""); setDetail(""); refresh()
-    } catch { setErr("Network error.") }
-    finally { setBusy(false) }
-  }
-
-  async function withdraw(disputeId: string) {
-    if (!workspaceId) return
-    const res = await fetch("/api/supplier/disputes", {
-      method: "PATCH", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ workspaceId, disputeId, action: "withdraw" }),
-    })
-    if (res.ok) refresh()
-  }
-
-  return (
-    <SupplierCard className="p-5">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-slate-900">Disputes</h2>
-        <SupplierButton size="sm" variant="secondary" onClick={() => setOpen(true)}>
-          <AlertTriangle className="w-3.5 h-3.5" /> Raise dispute
-        </SupplierButton>
-      </div>
-      {loading ? (
-        <SupplierLoadingState rows={2} />
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-slate-400 py-3">No disputes on this job. Raise one if there is a problem with payment, scope, quality or access that you can&apos;t resolve directly.</p>
-      ) : (
-        <ul className="space-y-3">
-          {rows.map((d) => (
-            <li key={d.id} className="rounded-xl border border-slate-200 p-3.5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm font-semibold text-slate-900">{d.subject}</p>
-                <SupplierStatusBadge tone={toneForStatus(d.status)}>{humaniseStatus(d.status)}</SupplierStatusBadge>
-                <SupplierStatusBadge tone="slate">{humaniseStatus(d.category)}</SupplierStatusBadge>
-              </div>
-              {d.detail && <p className="text-xs text-slate-500 mt-1">{d.detail}</p>}
-              {d.resolution && <p className="text-xs text-emerald-700 mt-1">Resolution: {d.resolution}</p>}
-              <p className="text-[11px] text-slate-400 mt-1">Raised {timeAgo(d.created_at)} by {d.raised_by_side}</p>
-              {(d.status === "open" || d.status === "under_review") && d.raised_by_side === "supplier" && (
-                <button onClick={() => withdraw(d.id)} className="mt-2 text-[12px] font-semibold text-slate-500 hover:text-slate-700">Withdraw</button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-      <SupplierDrawer
-        open={open} onClose={() => setOpen(false)} title="Raise a dispute"
-        footer={<>
-          <SupplierButton variant="secondary" onClick={() => setOpen(false)}>Cancel</SupplierButton>
-          <SupplierButton onClick={raise} loading={busy}>Submit</SupplierButton>
-        </>}
-      >
-        {err && <SupplierBanner tone="red" onDismiss={() => setErr(null)}>{err}</SupplierBanner>}
-        <SupplierField label="Subject" required>
-          <input className={supplierInputClass} value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Payment not released after completion" />
-        </SupplierField>
-        <SupplierField label="Category">
-          <select className={supplierInputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="payment">Payment</option>
-            <option value="scope">Scope</option>
-            <option value="quality">Quality</option>
-            <option value="access">Access</option>
-            <option value="other">Other</option>
-          </select>
-        </SupplierField>
-        <SupplierField label="Detail" hint="What happened, and what outcome you're seeking.">
-          <textarea className={supplierTextareaClass} value={detail} onChange={(e) => setDetail(e.target.value)} />
-        </SupplierField>
-      </SupplierDrawer>
-    </SupplierCard>
-  )
-}
-
-function AuditTab({ events, loading }: { events: SupplierJobEvent[]; loading: boolean }) {
-  return (
-    <SupplierCard className="p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <ShieldCheck className="w-4 h-4 text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-900">Audit trail</h2>
-      </div>
-      {loading ? (
-        <SupplierLoadingState rows={3} />
-      ) : events.length === 0 ? (
-        <p className="text-sm text-slate-400 py-3">No activity recorded yet.</p>
-      ) : (
-        <ol className="space-y-4">
-          {events.map((e, i) => (
-            <li key={e.id ?? i} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] mt-1.5" />
-                {i < events.length - 1 && <span className="flex-1 w-px bg-slate-200 my-1" />}
-              </div>
-              <div className="flex-1 min-w-0 pb-1">
-                <p className="text-sm font-semibold text-slate-800">{e.status ? humaniseStatus(e.status) : "Update"}</p>
-                {e.note && <p className="text-xs text-slate-500 mt-0.5">{e.note}</p>}
-                <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(e.created_at)}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      )}
-    </SupplierCard>
-  )
-}
-
-/* ── Small helpers ──────────────────────────────────────────────────────── */
-
-function Detail({ icon: Icon, label, value }: { icon: typeof Building2; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2.5">
-      <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><Icon className="w-4 h-4 text-slate-500" /></div>
-      <div className="min-w-0">
-        <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
-        <dd className="text-sm font-medium text-slate-800 mt-0.5 truncate">{value}</dd>
-      </div>
     </div>
   )
 }

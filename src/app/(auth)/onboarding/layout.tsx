@@ -1,8 +1,19 @@
-/**
- * Onboarding uses a full-page layout (handled by the parent (auth)/layout.tsx
- * which checks x-pathname header set by middleware). This layout is a
- * pass-through so we don't double-wrap.
- */
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Set up your workspace | Propvora",
+  description: "Get your Propvora property management workspace ready in a few steps.",
+  robots: { index: false, follow: false },
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon-32.png",
+  },
+}
+
 export default function OnboardingLayout({
   children,
 }: {

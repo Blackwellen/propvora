@@ -12,6 +12,15 @@ const ServicesMapInner = dynamic(() => import('./ServicesMapInner'), {
   ),
 })
 
-export default function ServicesMap({ offers }: { offers: PublicServiceOffer[] }) {
-  return <ServicesMapInner offers={offers} />
+interface ServicesMapProps {
+  offers: PublicServiceOffer[]
+  basePath?: string
+}
+
+export default function ServicesMap({ offers, basePath, height = 'h-full' }: ServicesMapProps & { height?: string }) {
+  return (
+    <div className={`w-full ${height}`}>
+      <ServicesMapInner offers={offers} basePath={basePath} />
+    </div>
+  )
 }

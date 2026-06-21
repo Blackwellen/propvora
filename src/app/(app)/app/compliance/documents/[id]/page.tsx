@@ -175,11 +175,21 @@ export default function DocumentDetailPage() {
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-documents"] })
-    router.push("/app/compliance/documents")
+    router.push("/property-manager/compliance/documents")
   }
 
-  function downloadDoc() {
+  async function downloadDoc() {
     if (row.file_url) {
+      // Attempt to get a server-side signed URL for time-limited access.
+      // Falls back to the raw URL if the signed-URL endpoint is unavailable
+      // (e.g., table doesn't exist yet or storage not configured).
+      try {
+        const res = await fetch(`/api/documents/signed-url?id=${encodeURIComponent(id)}`)
+        if (res.ok) {
+          const { url } = await res.json() as { url: string }
+          if (url) { window.open(url, "_blank"); return }
+        }
+      } catch { /* fall through to raw URL */ }
       window.open(row.file_url, "_blank")
       return
     }
@@ -231,7 +241,7 @@ export default function DocumentDetailPage() {
             {verified ? <RotateCcw className="w-4 h-4 text-slate-400" /> : <CheckCircle className="w-4 h-4 text-slate-400" />}
             {verified ? "Unverify" : "Mark Verified"}
           </button>
-          <Link href="/app/tasks/new" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left">
+          <Link href="/property-manager/work/tasks/new" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left">
             <Calendar className="w-4 h-4 text-slate-400" />Create Renewal Task
           </Link>
         </div>
@@ -239,7 +249,7 @@ export default function DocumentDetailPage() {
         {row.linked_certificate_id && (
           <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Linked Certificate</h3>
-            <Link href={`/app/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
               Open Certificate <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -326,9 +336,9 @@ export default function DocumentDetailPage() {
 
   function LinksTab() {
     const items = [
-      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-blue-600", bg: "bg-blue-50", href: `/app/properties/${row.property_id}`, link: "Open Property" },
-      row.linked_certificate_id && { title: "Certificate Record", subtitle: "Linked certificate", icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", href: `/app/compliance/certificates/${row.linked_certificate_id}`, link: "Open Certificate" },
-      row.linked_inspection_id && { title: "Inspection", subtitle: "Linked inspection", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50", href: `/app/compliance/inspections/${row.linked_inspection_id}`, link: "Open Inspection" },
+      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-blue-600", bg: "bg-blue-50", href: `/property-manager/portfolio/properties/${row.property_id}`, link: "Open Property" },
+      row.linked_certificate_id && { title: "Certificate Record", subtitle: "Linked certificate", icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", href: `/property-manager/compliance/certificates/${row.linked_certificate_id}`, link: "Open Certificate" },
+      row.linked_inspection_id && { title: "Inspection", subtitle: "Linked inspection", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50", href: `/property-manager/compliance/inspections/${row.linked_inspection_id}`, link: "Open Inspection" },
     ].filter(Boolean) as any[]
 
     if (!items.length) {
@@ -373,7 +383,7 @@ export default function DocumentDetailPage() {
             </div>
           </div>
         </div>
-        <Link href="/app/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+        <Link href="/property-manager/work/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
           <Calendar className="w-4 h-4" />Schedule Renewal Task
         </Link>
       </div>
@@ -381,40 +391,82 @@ export default function DocumentDetailPage() {
   }
 
   function ActivityTab() {
-    const items = [
-      { action: verified ? "Document verified" : "Document pending verification", by: "You", date: fmtDate(row.created_at), icon: verified ? CheckCircle : Clock, color: verified ? "text-emerald-500" : "text-amber-500" },
-      { action: "Document uploaded", by: "You", date: fmtDate(row.created_at), icon: FileText, color: "text-blue-500" },
-    ]
+    const { data: auditEntries = [], isLoading: auditLoading } = useQuery({
+      queryKey: ["doc-activity", id],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("action, detail, actor_email, created_at")
+          .eq("resource_type", "document")
+          .eq("resource_id", id)
+          .order("created_at", { ascending: false })
+          .limit(50)
+        if (error) {
+          if (error.code === "42P01") return []
+          throw new Error(error.message)
+        }
+        return (data ?? []) as { action: string; detail: unknown; actor_email: string | null; created_at: string }[]
+      },
+    })
+
+    if (auditLoading) {
+      return <div className="p-6 text-sm text-slate-400 text-center">Loading activity…</div>
+    }
+    if (!auditEntries.length) {
+      return (
+        <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+          <Clock className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm text-slate-500">No activity recorded yet.</p>
+          <p className="text-xs text-slate-400 mt-1">Activity will appear here once actions are performed on this document.</p>
+        </div>
+      )
+    }
     return (
       <div className="space-y-0">
-        {items.map((item, i) => {
-          const Icon = item.icon
-          return (
-            <div key={i} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center ${item.color}`}>
-                  <Icon className="w-3.5 h-3.5" />
-                </div>
-                {i < items.length - 1 && <div className="w-px flex-1 bg-slate-200 my-1" />}
+        {auditEntries.map((entry, i) => (
+          <div key={i} className="flex gap-4">
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-blue-500">
+                <FileText className="w-3.5 h-3.5" />
               </div>
-              <div className="pb-5 min-w-0">
-                <p className="text-sm font-medium text-slate-800">{item.action}</p>
-                <p className="text-xs text-slate-400">{item.by} · {item.date}</p>
-              </div>
+              {i < auditEntries.length - 1 && <div className="w-px flex-1 bg-slate-200 my-1" />}
             </div>
-          )
-        })}
+            <div className="pb-5 min-w-0">
+              <p className="text-sm font-medium text-slate-800">{entry.action.replace(/_/g, " ")}</p>
+              <p className="text-xs text-slate-400">{entry.actor_email ?? "System"} · {fmtDate(entry.created_at)}</p>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
 
   function AuditTab() {
-    const rows = [
-      { event: "document_uploaded", detail: `${label} uploaded`, actor: "You", date: fmtDate(row.created_at) },
-      { event: "status_set", detail: `Status: ${row.verification_status}`, actor: "You", date: fmtDate(row.created_at) },
-    ]
+    const { data: auditRows = [], isLoading: auditLoading } = useQuery({
+      queryKey: ["doc-audit", id],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("action, detail, actor_email, created_at")
+          .eq("resource_type", "document")
+          .eq("resource_id", id)
+          .order("created_at", { ascending: false })
+          .limit(100)
+        if (error) {
+          if (error.code === "42P01") return []
+          throw new Error(error.message)
+        }
+        return (data ?? []) as { action: string; detail: unknown; actor_email: string | null; created_at: string }[]
+      },
+    })
+
     return (
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        {auditLoading ? (
+          <div className="px-5 py-10 text-center text-sm text-slate-400">Loading audit log…</div>
+        ) : auditRows.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-slate-400">No audit entries recorded yet.</div>
+        ) : (
         <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-[560px]">
           <thead>
@@ -425,17 +477,18 @@ export default function DocumentDetailPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {rows.map((r, i) => (
+            {auditRows.map((r, i) => (
               <tr key={i} className="hover:bg-slate-50">
-                <td className="px-5 py-3"><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600 font-mono">{r.event}</span></td>
-                <td className="px-5 py-3 text-slate-600">{r.detail}</td>
-                <td className="px-5 py-3 text-slate-600">{r.actor}</td>
-                <td className="px-5 py-3 text-slate-400">{r.date}</td>
+                <td className="px-5 py-3"><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600 font-mono">{r.action}</span></td>
+                <td className="px-5 py-3 text-slate-600">{typeof r.detail === "object" ? JSON.stringify(r.detail) : String(r.detail ?? "")}</td>
+                <td className="px-5 py-3 text-slate-600">{r.actor_email ?? "—"}</td>
+                <td className="px-5 py-3 text-slate-400">{fmtDate(r.created_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         </div>
+        )}
       </div>
     )
   }
@@ -457,7 +510,7 @@ export default function DocumentDetailPage() {
           </div>
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Document not found</h2>
           <p className="text-sm text-slate-500 mb-5">This document may have been archived or removed.</p>
-          <Link href="/app/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Link href="/property-manager/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
             Back to Documents
           </Link>
         </div>
@@ -511,7 +564,7 @@ export default function DocumentDetailPage() {
                   { label: "Mark Pending", icon: Clock, onClick: () => setStatus("pending"), disabled: isSeed },
                   { label: "Mark Rejected", icon: RotateCcw, onClick: () => setStatus("rejected"), disabled: isSeed },
                   { label: "Download", icon: Download, onClick: downloadDoc },
-                  { label: "Create Renewal Task", icon: Calendar, onClick: () => router.push("/app/tasks/new") },
+                  { label: "Create Renewal Task", icon: Calendar, onClick: () => router.push("/property-manager/work/tasks/new") },
                 ]}
               />
               <ConfirmDialog
@@ -533,7 +586,21 @@ export default function DocumentDetailPage() {
         {/* Tabs + Right Rail */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="flex-1 min-w-0 w-full space-y-4">
-            <div className="flex gap-0.5 border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {/* Mobile dropdown — shown only below md breakpoint */}
+            <div className="md:hidden border-b border-slate-200 px-4 py-2.5">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Navigate section"
+              >
+                {TABS.map((tab) => (
+                  <option key={tab.key} value={tab.key}>{tab.label}</option>
+                ))}
+              </select>
+            </div>
+            {/* Desktop tab strip — hidden below md */}
+            <div className="hidden md:flex gap-0.5 border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}

@@ -130,9 +130,9 @@ export default function ReconciliationPage() {
       <MobileTopBar
         title="Reconciliation"
         subtitle="Accounting"
-        primaryAction={{ label: "Create manual transaction", icon: Plus, href: sectionLink("/app/accounting/reconciliation/manual-transaction/new") }}
+        primaryAction={{ label: "Create manual transaction", icon: Plus, href: sectionLink("/property-manager/accounting/reconciliation/manual-transaction/new") }}
         overflowActions={[
-          { label: "Import statement", icon: Upload, href: sectionLink("/app/accounting/reconciliation/manual-transaction/new") },
+          { label: "Import statement", icon: Upload, href: sectionLink("/property-manager/accounting/reconciliation/manual-transaction/new") },
           { label: "Refresh", icon: RefreshCw, onClick: load },
           { label: "Export statement lines", icon: Download, onClick: exportCsv },
         ]}
@@ -154,17 +154,17 @@ export default function ReconciliationPage() {
             <span>Reconciliation</span>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="outline" size="md">03 · Reconciliation</Badge>
+            <Badge variant="outline" size="md">Reconciliation</Badge>
             <h1 className="text-2xl font-bold text-slate-900">Reconciliation</h1>
           </div>
           <p className="text-sm text-slate-500">Match imported bank statement lines against your books to keep records accurate.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           <Button variant="outline" size="sm" leftIcon={<Upload className="w-3.5 h-3.5" />} asChild>
-            <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
+            <Link href={sectionLink("/property-manager/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
           </Button>
           <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-            <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Create Manual Transaction</Link>
+            <Link href={sectionLink("/property-manager/accounting/reconciliation/manual-transaction/new")}>Create Manual Transaction</Link>
           </Button>
           <Button variant="outline" size="sm" leftIcon={<RefreshCw className="w-3.5 h-3.5" />} onClick={load}>Refresh</Button>
           <ActionMenu
@@ -226,7 +226,7 @@ export default function ReconciliationPage() {
                 against posted journal entries — nothing is fabricated.
               </p>
               <Button variant="primary" size="sm" leftIcon={<Upload className="w-3.5 h-3.5" />} asChild>
-                <Link href={sectionLink("/app/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
+                <Link href={sectionLink("/property-manager/accounting/reconciliation/manual-transaction/new")}>Import Statement</Link>
               </Button>
             </div>
           ) : filtered.length === 0 ? (

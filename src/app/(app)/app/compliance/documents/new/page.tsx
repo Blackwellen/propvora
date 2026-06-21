@@ -163,6 +163,7 @@ function Step1({
               setState({ ...state, fileName: "", fileSize: "", fileKey: "" })
               onFileSelected(null)
             }}
+            aria-label="Remove selected file"
             className="text-emerald-400 hover:text-emerald-600"
           >
             <X className="w-4 h-4" />
@@ -700,7 +701,7 @@ export default function UploadDocumentPage() {
               Upload Another
             </button>
             <button
-              onClick={() => router.push(newId ? `/app/compliance/documents/${newId}` : "/app/compliance/documents")}
+              onClick={() => router.push(newId ? `/property-manager/compliance/documents/${newId}` : "/property-manager/compliance/documents")}
               className="px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
             >
               {newId ? "View Document" : "View Documents"}

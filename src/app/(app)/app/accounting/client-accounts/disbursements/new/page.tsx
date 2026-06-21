@@ -15,12 +15,12 @@ const WIZARD_STEPS = [
 export default function NewDisbursementPage() {
   const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
-  const [client, setClient] = useState("Maple Avenue Ltd (CLI-001)")
-  const [payee, setPayee] = useState("Wickes Building Supplies Ltd")
-  const [amount, setAmount] = useState("3240.00")
-  const [reason, setReason] = useState("Repairs & Maintenance")
-  const [date, setDate] = useState("2026-05-02")
-  const [note, setNote] = useState("External painting works – Block A")
+  const [client, setClient] = useState("")
+  const [payee, setPayee] = useState("")
+  const [amount, setAmount] = useState("")
+  const [reason, setReason] = useState("")
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [note, setNote] = useState("")
 
   const leftContent = (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-6">
@@ -35,10 +35,7 @@ export default function NewDisbursementPage() {
             onChange={(e) => setClient(e.target.value)}
             className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
           >
-            <option>Maple Avenue Ltd (CLI-001)</option>
-            <option>Oakwood House LLP (CLI-002)</option>
-            <option>Riverside Court Ltd (CLI-003)</option>
-            <option>Springfield Villas Ltd (CLI-004)</option>
+            <option value="">— Select client —</option>
           </select>
         </div>
 
@@ -46,7 +43,8 @@ export default function NewDisbursementPage() {
           <label className="text-sm font-medium text-slate-700">Property (Optional)</label>
           <input
             type="text"
-            defaultValue="Maple Avenue, London SW1A 2AA"
+            defaultValue=""
+            placeholder="Enter property address"
             className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
           />
         </div>
@@ -103,7 +101,7 @@ export default function NewDisbursementPage() {
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-slate-700">Bank Destination</label>
           <div className="h-9 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 flex items-center text-sm text-slate-600">
-            Propvora Client Account **** 4321 · Sort: 20-45-45 · Acc: 00987654
+            Client Account (configure in Workspace Settings)
           </div>
         </div>
 
@@ -158,7 +156,7 @@ export default function NewDisbursementPage() {
   const footer = (
     <>
       <Button variant="ghost" size="sm" asChild>
-        <Link href={sectionLink("/app/accounting/client-accounts")}>Cancel</Link>
+        <Link href={sectionLink("/property-manager/accounting/client-accounts")}>Cancel</Link>
       </Button>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm">Save as Draft</Button>
@@ -171,7 +169,7 @@ export default function NewDisbursementPage() {
 
   return (
     <>
-    <MobileTopBar title="New Disbursement" subtitle="Client Accounts" showBack backHref={sectionLink("/app/accounting/client-accounts")} />
+    <MobileTopBar title="New Disbursement" subtitle="Client Accounts" showBack backHref={sectionLink("/property-manager/accounting/client-accounts")} />
     <AccountingWizardShell
       breadcrumbNumber="11"
       breadcrumbLabel="New Disbursement"

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -146,7 +146,7 @@ export default function ScenariosPage() {
           <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">
             Create a planning set with income and cost figures to stress-test scenarios against it.
           </p>
-          <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
+          <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
         </div>
       ) : (
         <>

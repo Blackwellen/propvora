@@ -12,12 +12,12 @@ import type {
   ComplianceData,
 } from "./types"
 import {
-  seedToday,
-  seedRequests,
-  seedJobs,
-  seedEarnings,
-  seedCompliance,
-} from "./seed"
+  emptyToday,
+  emptyRequests,
+  emptyJobs,
+  emptyEarnings,
+  emptyCompliance,
+} from "./empty"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Supplier Overview data hooks.
@@ -131,47 +131,45 @@ function useOverviewResource<T>(
   return { data, loading, error, source, reload }
 }
 
-/* ── Per-tab hooks. Build functions are intentionally conservative: until the
-   live aggregate endpoints land they keep the seed shape (so the UI is always
-   complete) while flipping `source` to "live" when the workspace has records.
-   This is the clean extension point — replace each builder with a real mapper. */
+/* ── Per-tab hooks. Fallback is honest empty state (zeros, empty arrays).
+   Replace the builder with a real mapper when live aggregate endpoints land. */
 
 export function useTodayData(): OverviewState<TodayData> {
   return useOverviewResource<TodayData>(
     ["supplier_schedule_events", "supplier_requests"],
-    seedToday,
-    () => seedToday
+    emptyToday,
+    () => emptyToday
   )
 }
 
 export function useRequestsData(): OverviewState<RequestsData> {
   return useOverviewResource<RequestsData>(
     ["supplier_requests"],
-    seedRequests,
-    () => seedRequests
+    emptyRequests,
+    () => emptyRequests
   )
 }
 
 export function useJobsData(): OverviewState<JobsData> {
   return useOverviewResource<JobsData>(
     ["supplier_job_assignments", "supplier_invoices"],
-    seedJobs,
-    () => seedJobs
+    emptyJobs,
+    () => emptyJobs
   )
 }
 
 export function useEarningsData(): OverviewState<EarningsData> {
   return useOverviewResource<EarningsData>(
     ["supplier_invoices", "supplier_payouts", "supplier_escrow_items", "supplier_finance_summaries"],
-    seedEarnings,
-    () => seedEarnings
+    emptyEarnings,
+    () => emptyEarnings
   )
 }
 
 export function useComplianceData(): OverviewState<ComplianceData> {
   return useOverviewResource<ComplianceData>(
     ["supplier_compliance_documents"],
-    seedCompliance,
-    () => seedCompliance
+    emptyCompliance,
+    () => emptyCompliance
   )
 }

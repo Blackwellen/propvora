@@ -259,34 +259,27 @@ function TabOverview({ event, onSave, editable, propertyOptions }: { event: Cale
 /* ------------------------------------------------------------------ */
 /* Tab content — Linked Record                                          */
 /* ------------------------------------------------------------------ */
-function TabLinked() {
+function TabLinked({ event }: { event: CalendarEventRow }) {
+  // Native calendar events (source_module = 'manual') do not have a
+  // structured FK to another record. Cross-section records (tasks, jobs,
+  // compliance items, …) are surfaced via the Calendar aggregation layer
+  // and link directly to their owning section; they do not open through
+  // the calendar_events detail page. Deep linking from event → owning
+  // record (e.g. job_id FK on calendar_events) is a V2 schema addition.
+  const meta = (event.metadata ?? {}) as Record<string, unknown>
+  const sourceModule = (meta.source_module as string | null) ?? event.source_module ?? null
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-800">Linked Work Job</h3>
-          <Button variant="soft" size="sm" rightIcon={<ChevronRight className="w-3.5 h-3.5" />} asChild>
-            <Link href="/app/work/jobs/job-001">Open Full Record</Link>
-          </Button>
-        </div>
-        <dl className="grid grid-cols-2 gap-4">
-          {[
-            { label: "Job ID",       value: "JOB-2045"          },
-            { label: "Type",         value: "Maintenance"        },
-            { label: "Status",       value: "Confirmed"          },
-            { label: "Property",     value: "14 Westbourne Gardens" },
-            { label: "Supplier",     value: "Elite Gas Services" },
-            { label: "Scheduled",    value: "4 Jun 2026 · 09:00" },
-            { label: "Est. Cost",    value: "£320"               },
-            { label: "Priority",     value: "Normal"             },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <dt className="text-xs text-slate-500 mb-0.5">{label}</dt>
-              <dd className="text-sm text-slate-800 font-medium">{value}</dd>
-            </div>
-          ))}
-        </dl>
+    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+        <ExternalLink className="w-5 h-5 text-slate-400" />
       </div>
+      <p className="text-sm font-semibold text-slate-700">No linked record</p>
+      <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        {sourceModule && sourceModule !== "manual"
+          ? `This event was created from the ${sourceModule} module. Deep record linking (event → source record) is coming in V2.`
+          : "This is a manually created calendar event — it is not linked to a specific work job, compliance item or other record."}
+      </p>
     </div>
   )
 }
@@ -294,35 +287,55 @@ function TabLinked() {
 /* ------------------------------------------------------------------ */
 /* Tab content — Schedule                                               */
 /* ------------------------------------------------------------------ */
-function TabSchedule() {
+function TabSchedule({ event }: { event: CalendarEventRow }) {
+  // Scheduling history is surfaced via audit_logs (resource_type=calendar_event).
+  // The "Propose Reschedule" workflow (sending a reschedule request to a supplier
+  // or tenant) requires a dedicated reschedule_proposals table — deferred to V2.
+  const fmtDate = (iso: string) => new Date(iso).toLocaleString("en-GB", {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+  })
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-slate-800 mb-4">Scheduling History</h3>
-        <div className="space-y-4">
-          {[
-            { date: "28 May 2026 · 14:32", action: "Event created",   actor: "Jamie Clarke",  colour: "#2563EB" },
-            { date: "1 Jun 2026 · 10:15",  action: "Event scheduled", actor: "Jamie Clarke",  colour: "#10B981" },
-            { date: "3 Jun 2026 · 09:12",  action: "Confirmed",       actor: "System",        colour: "#10B981" },
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: item.colour }} />
+        <h3 className="text-sm font-semibold text-slate-800 mb-4">Event Dates</h3>
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 bg-blue-500" />
+            <div>
+              <p className="text-sm font-medium text-slate-800">Starts</p>
+              <p className="text-xs text-slate-500">{event.start_at ? fmtDate(event.start_at) : "—"}</p>
+            </div>
+          </div>
+          {event.end_at && (
+            <div className="flex items-start gap-3">
+              <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 bg-slate-400" />
               <div>
-                <p className="text-sm font-medium text-slate-800">{item.action}</p>
-                <p className="text-xs text-slate-500">{item.date} · {item.actor}</p>
+                <p className="text-sm font-medium text-slate-800">Ends</p>
+                <p className="text-xs text-slate-500">{fmtDate(event.end_at)}</p>
               </div>
             </div>
-          ))}
+          )}
+          {event.created_at && (
+            <div className="flex items-start gap-3">
+              <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 bg-emerald-400" />
+              <div>
+                <p className="text-sm font-medium text-slate-800">Created</p>
+                <p className="text-xs text-slate-500">{fmtDate(event.created_at)}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <AlertCircle className="w-4 h-4 text-amber-600" />
-          <p className="text-sm font-semibold text-amber-800">Propose Reschedule</p>
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <RefreshCw className="w-4 h-4 text-slate-400" />
+          <p className="text-sm font-semibold text-slate-600">Reschedule</p>
         </div>
-        <p className="text-xs text-amber-700 mb-3">No reschedule proposals pending.</p>
-        <Button variant="warning" size="sm" leftIcon={<RefreshCw className="w-3.5 h-3.5" />}>Propose New Time</Button>
+        <p className="text-xs text-slate-500">
+          Reschedule proposals (for supplier or tenant coordination) are coming in V2.
+          To change the date now, use the Edit Event button above.
+        </p>
       </div>
     </div>
   )
@@ -331,50 +344,34 @@ function TabSchedule() {
 /* ------------------------------------------------------------------ */
 /* Tab content — Reminders                                              */
 /* ------------------------------------------------------------------ */
-function TabReminders() {
-  const [adding, setAdding] = useState(false)
+function TabReminders({ event }: { event: CalendarEventRow }) {
+  const sectionLink = useSectionLink()
+  // calendar_reminders rows are managed via the Reminders section.
+  // Create reminders from /property-manager/calendar/reminders/new and
+  // link them to this event's id. The table may not exist yet (42P01 guard
+  // in the Reminders page already handles this). We surface a live-honest
+  // empty state here — no mock rows.
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-800">Reminders</p>
-        <Button variant="soft" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setAdding(true)}>Add Reminder</Button>
+        <Button variant="soft" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} asChild>
+          <a href={sectionLink(`/property-manager/calendar/reminders/new`)}>Add Reminder</a>
+        </Button>
       </div>
-
-      {/* Mock reminder */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-          <Bell className="w-4 h-4 text-[#2563EB]" />
+      <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+          <Bell className="w-5 h-5 text-slate-400" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-800">1 hour before — In-app</p>
-          <p className="text-xs text-slate-500 mt-0.5">4 Jun 2026 · 08:00 · <span className="text-amber-600 font-medium">Pending</span></p>
-        </div>
-        <Button variant="ghost" size="icon-xs"><X className="w-3.5 h-3.5" /></Button>
+        <p className="text-sm font-semibold text-slate-700">No reminders for this event</p>
+        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          Create a reminder in the Reminders section and link it to event ID{" "}
+          <span className="font-mono text-slate-600">{event.id.slice(0, 8)}…</span>
+        </p>
+        <Button variant="outline" size="sm" className="mt-4" asChild>
+          <a href={sectionLink("/property-manager/calendar/reminders")}>View Reminders</a>
+        </Button>
       </div>
-
-      {adding && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
-          <p className="text-sm font-semibold text-slate-800">New Reminder</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Type</label>
-              <select className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
-                <option>In-app</option><option>Email</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Timing</label>
-              <select className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
-                <option>At time of event</option><option>15 minutes before</option><option>1 hour before</option><option>1 day before</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="primary" size="sm" onClick={() => setAdding(false)}>Save Reminder</Button>
-            <Button variant="ghost" size="sm" onClick={() => setAdding(false)}>Cancel</Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -396,7 +393,7 @@ function TabMessages({ event }: { event: CalendarEventRow }) {
         Conversations are kept against contacts. Open the contacts messaging hub to message anyone linked to this event.
       </p>
       <Button variant="outline" size="sm" className="mt-4" asChild>
-        <Link href={event.property_id ? `/app/contacts/messages?property=${event.property_id}` : "/app/contacts/messages"}>
+        <Link href={event.property_id ? `/property-manager/messages?property_id=${event.property_id}` : "/property-manager/messages"}>
           Open Messaging
         </Link>
       </Button>
@@ -536,14 +533,52 @@ function TabActivity({ event }: { event: CalendarEventRow }) {
 
 /* ------------------------------------------------------------------ */
 /* Tab content — Audit                                                  */
+/* Live audit log rows from audit_logs (resource_type=calendar_event). */
+/* 42P01 / RLS tolerant: missing table → honest empty state.           */
 /* ------------------------------------------------------------------ */
-function TabAudit() {
-  const rows = [
-    { date: "28 May 2026 · 14:32", action: "Created",         actor: "Jamie Clarke", details: "Event created from Work module" },
-    { date: "1 Jun 2026 · 10:15",  action: "Updated",         actor: "Jamie Clarke", details: "startAt set to 2026-06-04T09:00:00" },
-    { date: "1 Jun 2026 · 10:18",  action: "Reminder added",  actor: "Jamie Clarke", details: "In-app, 1 hour before" },
-    { date: "3 Jun 2026 · 09:12",  action: "Status changed",  actor: "System",       details: "scheduled → confirmed" },
-  ]
+function TabAudit({ event }: { event: CalendarEventRow }) {
+  const [rows, setRows] = useState<Array<{ id: string; action: string; created_at: string; user_id: string | null; details: string | null }>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    ;(async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("id, action, created_at, user_id, details")
+        .eq("workspace_id", event.workspace_id)
+        .eq("resource_type", "calendar_event")
+        .eq("resource_id", event.id)
+        .order("created_at", { ascending: false })
+        .limit(100)
+      if (!active) return
+      // 42P01 (table missing) or RLS denial → honest empty state.
+      setRows(error ? [] : ((data ?? []) as typeof rows))
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [event.id, event.workspace_id])
+
+  const fmtDate = (iso: string) => new Date(iso).toLocaleString("en-GB", {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+  })
+
+  if (loading) {
+    return <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-400">Loading audit log…</div>
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+          <Shield className="w-5 h-5 text-slate-400" />
+        </div>
+        <p className="text-sm font-semibold text-slate-700">No audit entries</p>
+        <p className="text-xs text-slate-500 mt-1">Changes to this event are logged here once the audit_logs table is populated.</p>
+      </div>
+    )
+  }
   return (
     <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
       <div className="overflow-x-auto">
@@ -556,12 +591,12 @@ function TabAudit() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => (
-              <tr key={i} className="border-b border-slate-100 hover:bg-slate-50">
-                <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{row.date}</td>
+            {rows.map((row) => (
+              <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50">
+                <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(row.created_at)}</td>
                 <td className="px-4 py-3 text-xs font-medium text-slate-800">{row.action}</td>
-                <td className="px-4 py-3 text-xs text-slate-600">{row.actor}</td>
-                <td className="px-4 py-3 text-xs text-slate-500">{row.details}</td>
+                <td className="px-4 py-3 text-xs text-slate-600">{row.user_id ? "Team member" : "System"}</td>
+                <td className="px-4 py-3 text-xs text-slate-500">{row.details ?? "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -582,7 +617,7 @@ function RightRail({ event, onDelete, onMarkDone, busy }: { event: CalendarEvent
       <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
         <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3">Quick Actions</p>
         <Button variant="outline" size="sm" className="w-full justify-start" leftIcon={<Pencil className="w-3.5 h-3.5" />} asChild>
-          <a href={sectionLink(`/app/calendar/events/${event.id}/edit`)}>Edit Event</a>
+          <a href={sectionLink(`/property-manager/calendar/events/${event.id}/edit`)}>Edit Event</a>
         </Button>
         <Button variant="success" size="sm" className="w-full justify-start" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={onMarkDone} disabled={busy || event.status === "completed"}>
           {event.status === "completed" ? "Completed" : "Mark Done"}
@@ -716,7 +751,7 @@ export default function EventDetailPage() {
       setDeleting(false)
       return
     }
-    router.push("/app/calendar")
+    router.push("/property-manager/calendar")
   }
 
   if (loading) {
@@ -739,7 +774,7 @@ export default function EventDetailPage() {
           <AlertCircle className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-700">Event not found</p>
           <p className="text-xs text-slate-400 mt-1">This event may have been deleted or the calendar table is not yet set up.</p>
-          <a href={sectionLink("/app/calendar")} className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")} className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Calendar</a>
         </div>
       </div>
     )
@@ -756,8 +791,8 @@ export default function EventDetailPage() {
         title={event.title}
         subtitle="Event"
         showBack
-        backHref={sectionLink("/app/calendar/events")}
-        primaryAction={{ label: "Edit event", icon: Pencil, href: sectionLink(`/app/calendar/events/${event.id}/edit`) }}
+        backHref={sectionLink("/property-manager/calendar/events")}
+        primaryAction={{ label: "Edit event", icon: Pencil, href: sectionLink(`/property-manager/calendar/events/${event.id}/edit`) }}
         overflowActions={[
           { label: event.status === "completed" ? "Completed" : "Mark done", icon: CheckCircle2, onClick: () => { if (event.status !== "completed") handleMarkDone() } },
           { label: "Delete event", icon: X, destructive: true, onClick: handleDelete },
@@ -770,7 +805,7 @@ export default function EventDetailPage() {
       {/* Breadcrumb */}
       <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-          <a href={sectionLink("/app/calendar")} className="hover:text-[#2563EB]">Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")} className="hover:text-[#2563EB]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-900 font-medium">{event.title}</span>
         </nav>
@@ -802,7 +837,7 @@ export default function EventDetailPage() {
             {/* Action buttons */}
             <div className="hidden md:flex items-center gap-2 flex-wrap lg:shrink-0">
               <Button variant="outline" size="sm" leftIcon={<Pencil className="w-3.5 h-3.5" />} asChild>
-                <a href={sectionLink(`/app/calendar/events/${event.id}/edit`)}>Edit Event</a>
+                <a href={sectionLink(`/property-manager/calendar/events/${event.id}/edit`)}>Edit Event</a>
               </Button>
               <Button variant="success" size="sm" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={handleMarkDone} disabled={deleting || event.status === "completed"}>
                 {event.status === "completed" ? "Completed" : "Mark Done"}
@@ -816,7 +851,7 @@ export default function EventDetailPage() {
                 {(openDelete) => (
                   <ActionMenu
                     items={[
-                      { label: "Edit Event", icon: Pencil, onClick: () => router.push(`/app/calendar/events/${event.id}/edit`) },
+                      { label: "Edit Event", icon: Pencil, onClick: () => router.push(`/property-manager/calendar/events/${event.id}/edit`) },
                       { label: "Mark Confirmed", icon: CheckCircle2, disabled: !editable || event.status === "confirmed", onClick: () => { saveField("status", "confirmed").catch((e) => alert("Failed: " + (e as Error).message)) } },
                       { label: "Mark Completed", icon: CheckCircle2, disabled: !editable || event.status === "completed", onClick: handleMarkDone },
                       { label: "Cancel Event", icon: X, disabled: !editable || event.status === "cancelled", onClick: () => { saveField("status", "cancelled").catch((e) => alert("Failed: " + (e as Error).message)) } },
@@ -869,13 +904,13 @@ export default function EventDetailPage() {
             {/* Tab panel */}
             <div className="rounded-xl md:rounded-b-xl md:rounded-t-none border md:border-t-0 border-slate-200 bg-white p-4 md:p-6">
               {activeTab === "overview"  && <TabOverview event={event} onSave={saveField} editable={editable} propertyOptions={propertyOptions} />}
-              {activeTab === "linked"    && <TabLinked />}
-              {activeTab === "schedule"  && <TabSchedule />}
-              {activeTab === "reminders" && <TabReminders />}
+              {activeTab === "linked"    && <TabLinked event={event} />}
+              {activeTab === "schedule"  && <TabSchedule event={event} />}
+              {activeTab === "reminders" && <TabReminders event={event} />}
               {activeTab === "messages"  && <TabMessages event={event} />}
               {activeTab === "documents" && <TabDocuments event={event} />}
               {activeTab === "activity"  && <TabActivity event={event} />}
-              {activeTab === "audit"     && <TabAudit />}
+              {activeTab === "audit"     && <TabAudit event={event} />}
             </div>
           </div>
 

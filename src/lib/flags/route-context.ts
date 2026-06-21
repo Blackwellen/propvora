@@ -102,7 +102,7 @@ export function evaluateRouteContext(
       return {
         ok: false,
         reason: `Workspace type "${wt}" is not permitted on this route`,
-        redirectTo: "/app",
+        redirectTo: "/property-manager",
       }
     }
   }
@@ -114,7 +114,7 @@ export function evaluateRouteContext(
       return {
         ok: false,
         reason: `Actor context "${ac}" is not supported on this route`,
-        redirectTo: "/app",
+        redirectTo: "/property-manager",
       }
     }
   }
@@ -125,10 +125,10 @@ export function evaluateRouteContext(
     if (status === "blocked" || status === "unsupported") {
       const behaviour = route.blockedCountryBehaviour ?? "deny"
       if (behaviour === "deny") {
-        return { ok: false, reason: "Country is not supported", redirectTo: "/app" }
+        return { ok: false, reason: "Country is not supported", redirectTo: "/property-manager" }
       }
       if (behaviour === "research_only" && !route.allowResearchOnlyCountry) {
-        return { ok: false, reason: "Country is research-only", redirectTo: "/app" }
+        return { ok: false, reason: "Country is research-only", redirectTo: "/property-manager" }
       }
       // 'warn' / 'allow' / allowed research-only → pass (banner handled in UI).
     }
@@ -138,7 +138,7 @@ export function evaluateRouteContext(
   if (route.legalPackRequired) {
     const enabled = ctx.legal?.templatesEnabled
     if (enabled === false) {
-      return { ok: false, reason: "Legal pack is not available for this context", redirectTo: "/app" }
+      return { ok: false, reason: "Legal pack is not available for this context", redirectTo: "/property-manager" }
     }
   }
 

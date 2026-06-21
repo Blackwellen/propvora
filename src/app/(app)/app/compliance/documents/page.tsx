@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -115,7 +115,7 @@ export default function ComplianceDocumentsPage() {
           <p className="text-sm text-slate-500 mt-1">Store and verify compliance documents across your portfolio.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push("/app/compliance/documents/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => router.push("/property-manager/compliance/documents/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Upload className="w-4 h-4" />
             Upload document
           </button>
@@ -126,8 +126,8 @@ export default function ComplianceDocumentsPage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-              { label: "Open Evidence", icon: CheckCircle, onClick: () => router.push("/app/compliance/evidence") },
-              { label: "Open Certificates", icon: CheckCircle, onClick: () => router.push("/app/compliance/certificates") },
+              { label: "Open Evidence", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/evidence") },
+              { label: "Open Certificates", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/certificates") },
             ]}
           />
         </div>
@@ -160,13 +160,14 @@ export default function ComplianceDocumentsPage() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
+            aria-label="Search documents"
             placeholder="Search documents..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-56"
           />
         </div>
-        <select value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none">
+        <select aria-label="Filter by verification status" value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
           {VERIFY_FILTERS.map((s) => (
             <option key={s} value={s}>{s ? humaniseType(s) : "All verification"}</option>
           ))}
@@ -188,7 +189,7 @@ export default function ComplianceDocumentsPage() {
               <p className="text-sm font-medium text-slate-700">{docs.length === 0 ? "No documents yet" : "No documents match your filters"}</p>
               <p className="text-xs text-slate-400 mt-1 mb-4">{docs.length === 0 ? "Upload your first compliance document." : "Try adjusting your search or filters."}</p>
               {docs.length === 0 && (
-                <button onClick={() => router.push("/app/compliance/documents/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                <button onClick={() => router.push("/property-manager/compliance/documents/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
                   <Plus className="w-3.5 h-3.5" /> Upload document
                 </button>
               )}
@@ -201,7 +202,7 @@ export default function ComplianceDocumentsPage() {
                 title: (d) => d.document_name,
                 subtitle: (d) => humaniseType(d.document_type),
                 badge: (d) => <ComplianceStatusBadge status={d.verification_status} />,
-                onRowClick: (d) => router.push(`/app/compliance/documents/${d.id}`),
+                onRowClick: (d) => router.push(`/property-manager/compliance/documents/${d.id}`),
                 fields: [
                   { label: "Property", render: (d) => d.property_name ?? "—" },
                   { label: "Issued", render: (d) => fmtDate(d.issue_date) },
@@ -230,7 +231,7 @@ export default function ComplianceDocumentsPage() {
                     return (
                       <tr
                         key={doc.id}
-                        onClick={() => router.push(`/app/compliance/documents/${doc.id}`)}
+                        onClick={() => router.push(`/property-manager/compliance/documents/${doc.id}`)}
                         className="hover:bg-slate-50 transition-colors cursor-pointer"
                       >
                         <td className="px-3 py-3">
@@ -266,7 +267,7 @@ export default function ComplianceDocumentsPage() {
                           <div className="inline-flex items-center gap-1">
                             <ActionMenu
                               items={[
-                                { label: "View", icon: Eye, onClick: () => router.push(`/app/compliance/documents/${doc.id}`) },
+                                { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/compliance/documents/${doc.id}`) },
                                 { label: "Open File", icon: Download, onClick: () => doc.file_url && window.open(doc.file_url, "_blank"), disabled: !doc.file_url },
                               ]}
                             />
@@ -277,7 +278,7 @@ export default function ComplianceDocumentsPage() {
                               onConfirm={() => archiveDoc(doc.id)}
                             >
                               {(open) => (
-                                <button onClick={open} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Archive">
+                                <button onClick={open} aria-label="Archive document" className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Archive">
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               )}

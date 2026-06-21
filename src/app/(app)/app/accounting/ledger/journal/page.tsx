@@ -74,7 +74,7 @@ export default function JournalPage() {
       <MobileTopBar
         title="Journal Entries"
         subtitle="General Ledger"
-        primaryAction={canPost ? { label: "New journal entry", icon: Plus, href: sectionLink("/app/accounting/ledger/journal/new") } : undefined}
+        primaryAction={canPost ? { label: "New journal entry", icon: Plus, href: sectionLink("/property-manager/accounting/ledger/journal/new") } : undefined}
       />
 
       {toast && (
@@ -91,7 +91,7 @@ export default function JournalPage() {
         </div>
         {canPost ? (
           <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-            <Link href={sectionLink("/app/accounting/ledger/journal/new")}>New Journal Entry</Link>
+            <Link href={sectionLink("/property-manager/accounting/ledger/journal/new")}>New Journal Entry</Link>
           </Button>
         ) : (
           <span className="text-xs text-slate-500 flex items-center gap-1"><Lock className="w-3 h-3" /> Read-only access</span>
@@ -110,7 +110,7 @@ export default function JournalPage() {
             <p className="text-xs text-slate-500 max-w-sm">Post your first balanced entry to start the ledger.</p>
             {canPost && (
               <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-                <Link href={sectionLink("/app/accounting/ledger/journal/new")}>New Journal Entry</Link>
+                <Link href={sectionLink("/property-manager/accounting/ledger/journal/new")}>New Journal Entry</Link>
               </Button>
             )}
           </div>

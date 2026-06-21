@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -38,20 +38,41 @@ const DEFAULT_FILTERS: PpmScheduleFilters = {
   status: "",
 }
 
-// Seed data — displayed when Supabase table is not yet available
-const SEED_SCHEDULES: PpmScheduleRow[] = [
-  { id: "s1", property: "14 Park Road", address: "London SW1A 1AA", taskType: "Gas Safety Certificate", category: "Gas", frequency: "Annual", lastCompleted: "10 Jun 2025", lastCompletedBy: "British Gas", nextDue: "8 Jun 2026", nextDueDays: "In 345 days", supplier: "British Gas Homecare", supplierInitials: "BG", estCost: "£120.00", status: "due-soon" },
-  { id: "s2", property: "7 Oak Avenue", address: "Manchester M2 3AA", taskType: "Boiler Annual Service", category: "Gas", frequency: "Annual", lastCompleted: "12 Jun 2025", lastCompletedBy: "HeatPro Ltd", nextDue: "12 Jun 2026", nextDueDays: "In 349 days", supplier: "HeatPro Ltd", supplierInitials: "HP", estCost: "£145.00", status: "scheduled" },
-  { id: "s3", property: "22 Mill Lane", address: "Birmingham B1 1AA", taskType: "EICR Electrical Inspection", category: "Electrical", frequency: "Annual", lastCompleted: "14 Mar 2021", lastCompletedBy: "ElecSure Ltd", nextDue: "15 Jun 2026", nextDueDays: "In 352 days", supplier: "ElecSure Ltd", supplierInitials: "ES", estCost: "£320.00", status: "overdue" },
-  { id: "s4", property: "Beech House", address: "Leeds LS1 2QG", taskType: "Fire Alarm Test", category: "Fire", frequency: "Quarterly", lastCompleted: "19 Mar 2026", lastCompletedBy: "FireSafe Services", nextDue: "19 Jun 2026", nextDueDays: "In 356 days", supplier: "FireSafe Services", supplierInitials: "FS", estCost: "£85.00", status: "scheduled" },
-  { id: "s5", property: "3 River View", address: "Bristol BS1 6AA", taskType: "Legionella Risk Assessment", category: "Water", frequency: "Annual", lastCompleted: "24 Jun 2025", lastCompletedBy: "AquaSafe Ltd", nextDue: "24 Jun 2026", nextDueDays: "In 361 days", supplier: "AquaSafe Ltd", supplierInitials: "AS", estCost: "£210.00", status: "scheduled" },
-]
+function mapRow(row: Record<string, unknown>): PpmScheduleRow {
+  const prop = row.properties as Record<string, unknown> | null
+  const sup = row.suppliers as Record<string, unknown> | null
+  const nextDate = row.next_due_date ? new Date(row.next_due_date as string) : null
+  const daysUntil = nextDate ? Math.round((nextDate.getTime() - Date.now()) / 86_400_000) : null
+  const supName = (sup?.name as string) ?? "Unassigned"
+
+  return {
+    id: row.id as string,
+    property: (prop?.address_line1 as string) ?? "Unknown property",
+    address: [(prop?.city as string), (prop?.postcode as string)].filter(Boolean).join(", "),
+    taskType: (row.service_type as string) ?? "",
+    category: (row.compliance_category as string) ?? "",
+    frequency: (row.frequency as string) ?? "",
+    lastCompleted: row.last_completed_at
+      ? new Date(row.last_completed_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+      : "Never",
+    lastCompletedBy: "",
+    nextDue: nextDate
+      ? nextDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+      : "Not set",
+    nextDueDays: daysUntil === null ? "" : daysUntil < 0 ? `${Math.abs(daysUntil)} days overdue` : `In ${daysUntil} days`,
+    supplier: supName,
+    supplierInitials: supName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase(),
+    estCost: row.estimated_cost ? `£${Number(row.estimated_cost).toFixed(2)}` : "TBC",
+    status: (row.status as PpmScheduleRow["status"]) ?? "scheduled",
+  }
+}
 
 export function usePpmSchedules() {
-  const [schedules, setSchedules] = useState<PpmScheduleRow[]>(SEED_SCHEDULES)
-  const [total, setTotal] = useState(342)
-  const [loading, setLoading] = useState(false)
+  const [schedules, setSchedules] = useState<PpmScheduleRow[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [usingDemoData, setUsingDemoData] = useState(false)
   const [filters, setFilters] = useState<PpmScheduleFilters>(DEFAULT_FILTERS)
 
   const fetchSchedules = useCallback(async () => {
@@ -60,24 +81,35 @@ export function usePpmSchedules() {
       const supabase = createClient()
       let query = supabase
         .from("ppm_schedules")
-        .select("*", { count: "exact" })
-        .limit(10)
+        .select("*, properties(address_line1, city, postcode), suppliers(name)", { count: "exact" })
+        .limit(50)
 
       if (filters.status) query = query.eq("status", filters.status)
       if (filters.serviceType) query = query.ilike("service_type", `%${filters.serviceType}%`)
+      if (filters.property) query = query.eq("property_id", filters.property)
 
       const { data, count, error: fetchError } = await query
 
       if (fetchError) {
-        if (fetchError.code === "42P01") return // Table not yet created
+        if (fetchError.code === "42P01") {
+          // Table not yet created — show honest empty state
+          setSchedules([])
+          setTotal(0)
+          setUsingDemoData(false)
+          return
+        }
         throw fetchError
       }
 
-      if (data) {
-        setTotal(count ?? data.length)
-      }
+      const rows = (data ?? []).map((r) => mapRow(r as Record<string, unknown>))
+      setSchedules(rows)
+      setTotal(count ?? rows.length)
+      setUsingDemoData(false)
     } catch {
-      setError("Failed to load schedules — showing demo data")
+      setError("Failed to load schedules")
+      setSchedules([])
+      setTotal(0)
+      setUsingDemoData(false)
     } finally {
       setLoading(false)
     }
@@ -85,5 +117,5 @@ export function usePpmSchedules() {
 
   useEffect(() => { fetchSchedules() }, [fetchSchedules])
 
-  return { schedules, total, loading, error, filters, setFilters }
+  return { schedules, total, loading, error, usingDemoData, filters, setFilters }
 }

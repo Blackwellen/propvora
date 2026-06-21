@@ -7,8 +7,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
-import { createClient } from "@/lib/supabase/client"
 import { useAffiliate } from "@/components/affiliate/useAffiliate"
+import { updateAffiliateProfile } from "@/lib/actions/affiliate"
 
 const NOTIF_KEY = "propvora.affiliate.notifications"
 
@@ -44,18 +44,17 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
     if (!workspaceId) return
     setSaving(true); setSaved(false); setError(null)
     try {
-      const supabase = createClient()
-      const { error: e } = await supabase
-        .from("affiliates")
-        .update({ public_handle: handle.trim() || null, payout_email: payoutEmail.trim() || null, updated_at: new Date().toISOString() })
-        .eq("workspace_id", workspaceId)
-      if (e) throw e
+      const res = await updateAffiliateProfile(workspaceId, {
+        publicHandle: handle.trim() || null,
+        payoutEmail: payoutEmail.trim() || null,
+      })
+      if (!res.ok) throw new Error(res.error ?? "Could not save changes.")
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
       await reload()
     } catch (e) {
       console.error(e)
-      setError("Could not save changes.")
+      setError(e instanceof Error ? e.message : "Could not save changes.")
     } finally {
       setSaving(false)
     }

@@ -155,15 +155,14 @@ export default function BillEditPage() {
     bill_type: "maintenance_bill",
     bill_number: `BILL-${id.slice(-3).toUpperCase()}`,
     status: "awaiting_review",
-    issue_date: "2026-06-01",
-    due_date: "2026-06-15",
+    issue_date: "",
+    due_date: "",
     notes: "",
-    supplier: "Kevin Walsh Plumbing",
-    property: "14 Birchwood Rd",
-    job: "JOB-2026-034",
+    supplier: "",
+    property: "",
+    job: "",
     line_items: [
-      { id: "li-1", description: "Boiler replacement — parts", qty: 1, unit_price: 180, tax_rate: 20 },
-      { id: "li-2", description: "Labour (4 hrs @ £21.67)", qty: 4, unit_price: 21.67, tax_rate: 20 },
+      newLineItem(),
     ],
     approval_status: "pending",
     payment_method: "Bank Transfer (BACS)",
@@ -213,13 +212,13 @@ export default function BillEditPage() {
         title="Edit Bill"
         subtitle={form.bill_number}
         showBack
-        backHref={`/app/money/bills/${id}`}
+        backHref={`/property-manager/money/bills/${id}`}
         primaryAction={{ label: "Save Changes", icon: Save, onClick: handleSave }}
       />
       {/* Top bar */}
       <div className="hidden md:flex bg-white border-b border-slate-200 px-5 md:px-7 py-4 items-center gap-3 sticky top-0 z-30">
         <Link
-          href={`/app/money/bills/${id}`}
+          href={`/property-manager/money/bills/${id}`}
           className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -450,7 +449,7 @@ export default function BillEditPage() {
 
       {/* Sticky save bar */}
       <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 px-5 md:px-7 py-4 flex items-center justify-between">
-        <Link href={`/app/money/bills/${id}`} className="text-sm text-slate-500 hover:text-slate-700">
+        <Link href={`/property-manager/money/bills/${id}`} className="text-sm text-slate-500 hover:text-slate-700">
           Discard changes
         </Link>
         <Button variant="primary" loading={saving} onClick={handleSave}>

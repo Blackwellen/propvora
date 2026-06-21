@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -22,7 +22,6 @@ const navLinks: { label: string; href: string; marketplace?: boolean }[] = [
   { label: "Stays", href: "/stays", marketplace: true },
   { label: "Suppliers", href: "/suppliers", marketplace: true },
   { label: "Services", href: "/services", marketplace: true },
-  { label: "Emergency", href: "/emergency", marketplace: true },
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
   { label: "Roadmap", href: "/roadmap" },
@@ -81,7 +80,7 @@ export default function PublicNav() {
         "fixed top-3 left-0 right-0 z-50 bg-transparent transition-all duration-300 sm:top-4"
       )}
     >
-      <nav className={cn("mx-auto max-w-7xl rounded-2xl border px-4 transition-all sm:px-6 lg:px-7", scrolled ? "border-slate-200 bg-white/95 shadow-xl shadow-slate-900/10 backdrop-blur-xl" : "border-white/70 bg-white/85 shadow-lg shadow-slate-900/5 backdrop-blur-xl")}>
+      <nav aria-label="Main navigation" className={cn("mx-auto max-w-7xl rounded-2xl border px-4 transition-all sm:px-6 lg:px-7", scrolled ? "border-slate-200 bg-white/95 shadow-xl shadow-slate-900/10 backdrop-blur-xl" : "border-white/70 bg-white/85 shadow-lg shadow-slate-900/5 backdrop-blur-xl")}>
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -114,9 +113,12 @@ export default function PublicNav() {
             <div className="relative">
               <button
                 onClick={() => setLegalOpen(!legalOpen)}
+                aria-expanded={legalOpen}
+                aria-haspopup="true"
                 className={cn(
                   "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                  "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                  "text-slate-700 hover:text-slate-900 hover:bg-slate-100",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 )}
               >
                 Legal
@@ -149,7 +151,7 @@ export default function PublicNav() {
           <div className="hidden md:flex items-center gap-3">
             {authed ? (
               <Link
-                href="/app"
+                href="/property-manager"
                 className="inline-flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
               >
                 Open app
@@ -205,7 +207,9 @@ export default function PublicNav() {
             <div>
               <button
                 onClick={() => setLegalOpen(!legalOpen)}
-                className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                aria-expanded={legalOpen}
+                aria-haspopup="true"
+                className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
               >
                 Legal
                 <ChevronDown className={cn("h-4 w-4 transition-transform", legalOpen && "rotate-180")} />
@@ -229,7 +233,7 @@ export default function PublicNav() {
             <div className="pt-3 border-t border-slate-100 space-y-2">
               {authed ? (
                 <Link
-                  href="/app"
+                  href="/property-manager"
                   onClick={() => setMobileOpen(false)}
                   className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                 >

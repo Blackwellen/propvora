@@ -6,5 +6,5 @@ export default async function PlanningSetIndexPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  redirect(`/app/planning/sets/${id}/overview`)
+  redirect(`/property-manager/planning/sets/${id}/overview`)
 }

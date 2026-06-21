@@ -181,11 +181,17 @@ export function PlanCheckoutTab() {
           <div>
             <p className="text-[12px] font-semibold text-slate-700 mb-2">Payment method</p>
             <div className="flex items-center justify-between rounded-xl border border-slate-200 px-3.5 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-6 rounded bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center">{card.brand.toUpperCase()}</div>
-                <span className="text-[13px] text-slate-700">{card.brand} ending {card.last4}</span>
-              </div>
-              <BillingButton variant="ghost" className="text-[12px] px-3 py-1.5" onClick={() => alert("Card changes are made in the secure Stripe portal.")}>Change card</BillingButton>
+              {card ? (
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-6 rounded bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center">{card.brand.toUpperCase()}</div>
+                  <span className="text-[13px] text-slate-700">{card.brand} ending {card.last4}</span>
+                </div>
+              ) : (
+                <span className="text-[13px] text-slate-400">No payment method on file</span>
+              )}
+              <BillingButton variant="ghost" className="text-[12px] px-3 py-1.5" onClick={() => alert("Card changes are made in the secure Stripe portal.")}>
+                {card ? "Change card" : "Add card"}
+              </BillingButton>
             </div>
 
             <p className="text-[12px] font-semibold text-slate-700 mb-2 mt-4 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Invoice address</p>

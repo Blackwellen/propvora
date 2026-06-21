@@ -1,41 +1,61 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, BookUser, ShieldCheck, TrendingUp } from "lucide-react"
 
 const TABS = [
-  { key: "overview",     label: "Overview",     href: "/app/suppliers",              icon: BarChart3   },
-  { key: "directory",    label: "Directory",    href: "/app/suppliers/directory",    icon: BookUser    },
-  { key: "compliance",   label: "Compliance",   href: "/app/suppliers/compliance",   icon: ShieldCheck },
-  { key: "performance",  label: "Performance",  href: "/app/suppliers/performance",  icon: TrendingUp  },
+  { key: "overview",     label: "Overview",     href: "/property-manager/suppliers" },
+  { key: "directory",    label: "Directory",    href: "/property-manager/suppliers/directory" },
+  { key: "compliance",   label: "Compliance",   href: "/property-manager/suppliers/compliance" },
+  { key: "performance",  label: "Performance",  href: "/property-manager/suppliers/performance" },
 ]
 
 export function SuppliersHubTabNav() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const activeHref = TABS.find((tab) =>
+    tab.key === "overview"
+      ? pathname === tab.href || pathname === "/property-manager/suppliers"
+      : pathname.startsWith(tab.href)
+  )?.href ?? TABS[0].href
+
   return (
     <div className="border-b border-slate-200 bg-white">
-      <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden px-4 py-2.5">
+        <select
+          value={activeHref}
+          onChange={(e) => router.push(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((tab) => (
+            <option key={tab.key} value={tab.href}>{tab.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {TABS.map((tab) => {
           // Overview tab: exact match. Others: startsWith.
           const active =
             tab.key === "overview"
               ? pathname === tab.href || pathname === "/property-manager/suppliers"
               : pathname.startsWith(tab.href)
-          const Icon = tab.icon
           return (
             <Link
               key={tab.key}
               href={tab.href}
               className={cn(
-                "flex items-center gap-2 px-5 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
+                "px-5 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                 active
                   ? "border-[#2563EB] text-[#2563EB]"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               )}
             >
-              <Icon className="w-4 h-4 shrink-0" />
               {tab.label}
             </Link>
           )

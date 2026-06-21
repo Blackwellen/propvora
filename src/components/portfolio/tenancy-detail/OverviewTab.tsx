@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -38,7 +38,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
                     items={[
                       ...(t.tenantEmail ? [{ label: "Send email", icon: Mail, onClick: () => { window.location.href = `mailto:${t.tenantEmail}` } }] : []),
                       ...(t.tenantPhone ? [{ label: "Call tenant", icon: Phone, onClick: () => { window.location.href = `tel:${t.tenantPhone}` } }] : []),
-                      ...(t.propertyId ? [{ label: "View property", icon: Home, onClick: () => { window.location.href = `/app/portfolio/properties/${t.propertyId}` } }] : []),
+                      ...(t.propertyId ? [{ label: "View property", icon: Home, onClick: () => { window.location.href = `/property-manager/portfolio/properties/${t.propertyId}` } }] : []),
                     ]}
                   />
                 </div>
@@ -60,14 +60,14 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
               )}
               <div className="flex items-center gap-4 mt-1.5">
                 {t.propertyId ? (
-                  <Link href={`/app/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
                     <Home className="w-3.5 h-3.5" />{t.property}
                   </Link>
                 ) : (
                   <span className="flex items-center gap-1.5 text-xs text-slate-500"><Home className="w-3.5 h-3.5" />{t.property}</span>
                 )}
                 {t.unitId ? (
-                  <Link href={`/app/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
                     <Building2 className="w-3.5 h-3.5" />{t.unit} ({t.unitSize})
                   </Link>
                 ) : (
@@ -213,7 +213,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
         <SectionCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-800">Financial Summary</span>
-            <Link href="/app/money" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link href="/property-manager/money" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
               Open Money <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>

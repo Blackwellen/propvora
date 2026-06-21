@@ -93,7 +93,7 @@ function relativeTime(dateStr: string): string {
 /* ------------------------------------------------------------------ */
 function DashboardSkeleton() {
   return (
-    <div className="px-4 py-4 sm:px-6 flex flex-col gap-5">
+    <div className="py-4 flex flex-col gap-5">
       <div className="h-20 bg-white rounded-xl border border-[#E2E8F0] animate-pulse" />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {Array.from({ length: 7 }).map((_, i) => (
@@ -135,12 +135,12 @@ function QuickActionsMenu() {
   }, [open])
 
   const actions = [
-    { label: "Add Property", icon: Building2, href: "/app/portfolio/properties/new" },
-    { label: "Create Task", icon: ClipboardList, href: "/app/work/tasks/new" },
-    { label: "Log Job", icon: Wrench, href: "/app/work/jobs/new" },
-    { label: "Add Contact", icon: UserPlus, href: "/app/contacts/new" },
-    { label: "Upload Document", icon: FileUp, href: "/app/compliance/documents/new" },
-    { label: "Create Invoice", icon: Receipt, href: "/app/money/invoices/new" },
+    { label: "Add Property", icon: Building2, href: "/property-manager/portfolio/properties/new" },
+    { label: "Create Task", icon: ClipboardList, href: "/property-manager/work/tasks/new" },
+    { label: "Log Job", icon: Wrench, href: "/property-manager/work/jobs/new" },
+    { label: "Add Contact", icon: UserPlus, href: "/property-manager/contacts/new" },
+    { label: "Upload Document", icon: FileUp, href: "/property-manager/compliance/documents/new" },
+    { label: "Create Invoice", icon: Receipt, href: "/property-manager/money/invoices/new" },
   ]
 
   return (
@@ -457,7 +457,7 @@ export function HomeDashboardPage() {
             occupancyPct: propUnits.length > 0 ? Math.round((propOccupied / propUnits.length) * 100) : 0,
             gradient: gradients[i % gradients.length],
             coverImageUrl: p.cover_file_id ? coverMap.get(p.cover_file_id) : undefined,
-            href: `/app/portfolio/properties/${p.id}`,
+            href: `/property-manager/portfolio/properties/${p.id}`,
           }
         })
         setProperties(snapProperties)
@@ -497,7 +497,7 @@ export function HomeDashboardPage() {
               endDate: t.end_date ?? "",
               depositStatus: "Protected" as const,
               actionText: "Active",
-              href: `/app/portfolio/tenancies/${t.id}`,
+              href: `/property-manager/portfolio/tenancies/${t.id}`,
             }
           }
         )
@@ -523,7 +523,7 @@ export function HomeDashboardPage() {
           dueLabel: j.priority === "critical" || j.priority === "high" ? "Urgent" : j.priority === "medium" ? "Medium" : "Open",
           dueVariant: priorityMap[j.priority ?? "normal"] ?? "slate",
           iconColor: priorityMap[j.priority ?? "normal"] ?? "slate",
-          href: `/app/work/tasks/${j.id}`,
+          href: `/property-manager/work/tasks/${j.id}`,
         }))
         setWorkItems(workList)
       } else {
@@ -554,7 +554,7 @@ export function HomeDashboardPage() {
               subtitle: ev.event_type ?? "",
               timeOrAmount: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
               eventType: ev.event_type,
-              href: `/app/calendar/events/${ev.id}`,
+              href: `/property-manager/calendar/events/${ev.id}`,
             }
           })
           setEvents(mapped)
@@ -567,10 +567,10 @@ export function HomeDashboardPage() {
          Prefer a real audit table; if it is missing (42P01) or empty, derive a
          feed from the most-recently-updated rows across live entities. */
       const ENTITY_HREF: Partial<Record<string, (id: string) => string>> = {
-        task: (id) => `/app/work/tasks/${id}`,
-        job: (id) => `/app/work/jobs/${id}`,
-        property: (id) => `/app/portfolio/properties/${id}`,
-        tenancy: (id) => `/app/portfolio/tenancies/${id}`,
+        task: (id) => `/property-manager/work/tasks/${id}`,
+        job: (id) => `/property-manager/work/jobs/${id}`,
+        property: (id) => `/property-manager/portfolio/properties/${id}`,
+        tenancy: (id) => `/property-manager/portfolio/tenancies/${id}`,
       }
 
       if (activityLog !== null && activityLog.length > 0) {
@@ -594,16 +594,16 @@ export function HomeDashboardPage() {
         type Derived = { id: string; type: string; label: string; ts: string; href?: string }
         const derived: Derived[] = []
         ;(tasks ?? []).forEach((t: { id: string; title?: string; updated_at?: string }) => {
-          if (t.updated_at) derived.push({ id: `task-${t.id}`, type: "task", label: `Task updated — ${t.title ?? "Untitled"}`, ts: t.updated_at, href: `/app/work/tasks/${t.id}` })
+          if (t.updated_at) derived.push({ id: `task-${t.id}`, type: "task", label: `Task updated — ${t.title ?? "Untitled"}`, ts: t.updated_at, href: `/property-manager/work/tasks/${t.id}` })
         })
         jobsRows.forEach((j) => {
-          if (j.updated_at) derived.push({ id: `job-${j.id}`, type: "job", label: `Job updated — ${j.title ?? "Untitled"}`, ts: j.updated_at, href: `/app/work/jobs/${j.id}` })
+          if (j.updated_at) derived.push({ id: `job-${j.id}`, type: "job", label: `Job updated — ${j.title ?? "Untitled"}`, ts: j.updated_at, href: `/property-manager/work/jobs/${j.id}` })
         })
         ;(tenancies ?? []).forEach((t: { id: string; updated_at?: string; property_id?: string }) => {
-          if (t.updated_at) derived.push({ id: `ten-${t.id}`, type: "tenancy", label: `Tenancy updated${t.property_id && propNameMap[t.property_id] ? ` — ${propNameMap[t.property_id]}` : ""}`, ts: t.updated_at, href: `/app/portfolio/tenancies/${t.id}` })
+          if (t.updated_at) derived.push({ id: `ten-${t.id}`, type: "tenancy", label: `Tenancy updated${t.property_id && propNameMap[t.property_id] ? ` — ${propNameMap[t.property_id]}` : ""}`, ts: t.updated_at, href: `/property-manager/portfolio/tenancies/${t.id}` })
         })
         props.forEach((p: { id: string; name: string; updated_at?: string }) => {
-          if (p.updated_at) derived.push({ id: `prop-${p.id}`, type: "property", label: `Property updated — ${p.name}`, ts: p.updated_at, href: `/app/portfolio/properties/${p.id}` })
+          if (p.updated_at) derived.push({ id: `prop-${p.id}`, type: "property", label: `Property updated — ${p.name}`, ts: p.updated_at, href: `/property-manager/portfolio/properties/${p.id}` })
         })
         derived.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
         const mapped: HomeActivity[] = derived.slice(0, 6).map((d) => ({
@@ -672,7 +672,7 @@ export function HomeDashboardPage() {
             subtitle: dueDate ? `Due ${dueDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : "Open task",
             dueLabel,
             urgency,
-            href: `/app/work/tasks/${t.id}`,
+            href: `/property-manager/work/tasks/${t.id}`,
           })
         }
       }
@@ -688,7 +688,7 @@ export function HomeDashboardPage() {
             subtitle: days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? "Due today" : `Due in ${days}d`,
             dueLabel: days < 0 ? "Overdue" : "Due soon",
             urgency: days < 0 ? "red" : "amber",
-            href: "/app/compliance",
+            href: "/property-manager/compliance",
           })
         }
       }
@@ -711,7 +711,7 @@ export function HomeDashboardPage() {
           title: `${invoices.length} outstanding invoice${invoices.length !== 1 ? "s" : ""}`,
           subtitle: `£${outstandingInvoicesTotal.toLocaleString("en-GB")} to collect`,
           action: "Chase",
-          href: "/app/money/invoices",
+          href: "/property-manager/money/invoices",
         })
       }
       if (complianceDueCount > 0) {
@@ -721,7 +721,7 @@ export function HomeDashboardPage() {
           title: `${complianceDueCount} compliance deadline${complianceDueCount !== 1 ? "s" : ""}`,
           subtitle: "Due soon or overdue",
           action: "Review",
-          href: "/app/compliance",
+          href: "/property-manager/compliance",
         })
       }
       if (overdueTasks > 0) {
@@ -731,7 +731,7 @@ export function HomeDashboardPage() {
           title: `${overdueTasks} overdue task${overdueTasks !== 1 ? "s" : ""}`,
           subtitle: "Past their due date",
           action: "Resolve",
-          href: "/app/work/tasks",
+          href: "/property-manager/work/tasks",
         })
       }
       if (openJobsCount > 0) {
@@ -741,7 +741,7 @@ export function HomeDashboardPage() {
           title: `${openJobsCount} open job${openJobsCount !== 1 ? "s" : ""}`,
           subtitle: "Awaiting completion",
           action: "Open",
-          href: "/app/work/jobs",
+          href: "/property-manager/work/jobs",
         })
       }
       setSmartPriorities(sp.slice(0, 4))
@@ -755,7 +755,7 @@ export function HomeDashboardPage() {
   if (loading) return <DashboardSkeleton />
 
   return (
-    <div className="px-4 py-4 sm:px-6 flex flex-col gap-5 min-h-0">
+    <div className="py-4 flex flex-col gap-5 min-h-0">
       {/* 1. Command Header */}
       <CommandHeader workspaceName={workspace?.name ?? "Your Workspace"} />
 
@@ -820,10 +820,10 @@ export function HomeDashboardPage() {
           </div>
           <div className="flex flex-col gap-2 mt-3">
             {[
-              { label: "Add your first property", href: "/app/portfolio/properties/new", done: kpi.properties > 0 },
-              { label: "Add a tenant or tenancy", href: "/app/portfolio/tenancies/new", done: kpi.activeTenancies > 0 },
-              { label: "Configure compliance items", href: "/app/compliance/certificates/new", done: kpi.complianceDue > 0 },
-              { label: "Connect payment collection", href: "/app/settings/payments-stripe", done: false },
+              { label: "Add your first property", href: "/property-manager/portfolio/properties/new", done: kpi.properties > 0 },
+              { label: "Add a tenant or tenancy", href: "/property-manager/portfolio/tenancies/new", done: kpi.activeTenancies > 0 },
+              { label: "Configure compliance items", href: "/property-manager/compliance/certificates/new", done: kpi.complianceDue > 0 },
+              { label: "Connect payment collection", href: "/property-manager/settings/payments-stripe", done: false },
             ].map((step) => (
               <Link
                 key={step.label}

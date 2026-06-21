@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -288,10 +288,10 @@ export default function NewLandlordOfferPage() {
         .single()
       if (error) throw error
       if (inserted?.id) {
-        router.push(`/app/planning/landlord-offers/${inserted.id}`)
+        router.push(`/property-manager/planning/landlord-offers/${inserted.id}`)
         return
       }
-      router.push("/app/planning/landlord-offers")
+      router.push("/property-manager/planning/landlord-offers")
     } catch (e) {
       setCreateError(e instanceof Error ? e.message : "Could not create offer")
       setCreating(false)
@@ -351,7 +351,7 @@ Kind regards,
         <div className="px-5 md:px-7 lg:px-8 max-w-[1600px] mx-auto h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/app/planning/landlord-offers"
+              href="/property-manager/planning/landlord-offers"
               className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />Back
@@ -438,7 +438,7 @@ Kind regards,
                       <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-center">
                         <p className="text-sm font-semibold text-slate-600">No planning sets yet</p>
                         <p className="text-xs text-slate-400 mt-1">You can still create an offer below by entering the property manually, or create a planning set first.</p>
-                        <Link href="/app/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-[#7C3AED] hover:text-violet-700">
+                        <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-[#7C3AED] hover:text-violet-700">
                           Create a planning set →
                         </Link>
                       </div>

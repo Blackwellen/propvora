@@ -98,8 +98,8 @@ export default function CustomerMobileBottomNav() {
       </nav>
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Manage your account">
-        <div className="pb-2 space-y-4">
-          <div className="grid grid-cols-3 gap-1.5">
+        <div className="pb-2">
+          <div className="grid grid-cols-4 gap-2">
             {CUSTOMER_MORE.map((item) => {
               const active = isCustomerNavActive(pathname, item.href)
               const Icon = item.icon
@@ -110,30 +110,36 @@ export default function CustomerMobileBottomNav() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => setMoreOpen(false)}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1.5 min-h-[76px] rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                    "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
                     active
                       ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
-                      : "bg-white border-[#E8EEF8] text-slate-600 hover:bg-slate-50"
+                      : "bg-white border-[#E8EEF8] text-slate-600 active:bg-slate-50"
                   )}
                 >
-                  <Icon className="w-[20px] h-[20px]" />
-                  <span className="text-[11.5px] font-semibold text-center px-1 leading-tight">{item.label}</span>
+                  <span className={cn(
+                    "w-9 h-9 rounded-xl flex items-center justify-center",
+                    active ? "bg-[#DBEAFE]" : "bg-slate-50"
+                  )}>
+                    <Icon className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[10.5px] font-semibold text-center leading-tight px-0.5">{item.label}</span>
                 </Link>
               )
             })}
-          </div>
-
-          <div>
-            <p className="px-2 pb-1.5 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">Support</p>
             <Link
               href="/help"
               onClick={() => setMoreOpen(false)}
-              className="flex items-center gap-3 px-3 min-h-[56px] rounded-2xl border border-[#E8EEF8] bg-white text-slate-600 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              className={cn(
+                "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                isCustomerNavActive(pathname, "/help")
+                  ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
+                  : "bg-white border-[#E8EEF8] text-slate-600 active:bg-slate-50"
+              )}
             >
-              <span className="w-9 h-9 rounded-xl bg-[#F5F3FF] flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-xl bg-[#F5F3FF] flex items-center justify-center">
                 <LifeBuoy className="w-[18px] h-[18px] text-[#7C3AED]" />
               </span>
-              <span className="text-[13.5px] font-semibold">Help &amp; Guides</span>
+              <span className="text-[10.5px] font-semibold text-center leading-tight px-0.5">Help</span>
             </Link>
           </div>
         </div>

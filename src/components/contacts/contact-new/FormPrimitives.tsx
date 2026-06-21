@@ -132,8 +132,9 @@ export function ToggleSwitch({
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className="mt-0.5 flex-shrink-0"
+        className="mt-0.5 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
         aria-pressed={checked}
+        aria-label={label}
       >
         {checked ? (
           <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
@@ -170,8 +171,10 @@ export function ChipGrid({
             key={opt}
             type="button"
             onClick={() => toggle(opt)}
+            aria-pressed={active}
             className={[
               "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
               active
                 ? "bg-blue-600 border-blue-600 text-white"
                 : "bg-white border-slate-200 text-slate-600 hover:border-blue-300",
@@ -210,8 +213,10 @@ export function GroupedChipGrid({
                   key={opt}
                   type="button"
                   onClick={() => toggle(opt)}
+                  aria-pressed={active}
                   className={[
                     "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
                     active
                       ? "bg-blue-600 border-blue-600 text-white"
                       : "bg-white border-slate-200 text-slate-600 hover:border-blue-300",

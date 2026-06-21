@@ -40,6 +40,7 @@ export const PROPERTY_TYPE_GROUPS: PropertyTypeGroup[] = [
     options: [
       { value: "detached_house", label: "Detached house", template: "standard_rental" },
       { value: "semi_detached_house", label: "Semi-detached house", template: "standard_rental" },
+      { value: "terraced_house", label: "Terraced house", template: "standard_rental" },
       { value: "end_of_terrace_house", label: "End-of-terrace house", template: "standard_rental" },
       { value: "mid_terrace_house", label: "Mid-terrace house", template: "standard_rental" },
       { value: "townhouse", label: "Townhouse", template: "standard_rental" },

@@ -45,7 +45,7 @@ export default function PricingTeaser() {
           <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-200 rounded-full px-4 py-1.5 mb-5">
             <Zap className="w-3.5 h-3.5 text-blue-600" />
             <span className="text-[13px] font-semibold text-blue-700">
-              14-day free trial · No credit card required
+              7-day free trial · No credit card required
             </span>
           </div>
           <h2 className="text-[40px] sm:text-[48px] font-bold text-[#06122F] leading-tight mb-4">
@@ -112,7 +112,7 @@ export default function PricingTeaser() {
         </div>
 
         <p className="text-center text-[13.5px] text-slate-400 mb-10">
-          All plans include a 14-day free trial &middot; No credit card required &middot; Cancel anytime
+          All plans include a 7-day free trial &middot; No credit card required &middot; Cancel anytime
         </p>
 
         <div className="flex justify-center">

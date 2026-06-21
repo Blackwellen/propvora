@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -112,7 +112,7 @@ export default function Step09ReviewCreate() {
     () =>
       state.rooms.reduce((s, r) => s + Math.round(r.avgRentPcm * (1 - r.voidPct / 100)), 0) ||
       state.singleMonthlyRent ||
-      7250,
+      0,
     [state.rooms, state.singleMonthlyRent],
   )
 
@@ -132,13 +132,13 @@ export default function Step09ReviewCreate() {
         ? Math.round(
             totalUpfront * 0.7 * (state.forecastInterestRatePct / 100) / 12,
           )
-        : 800,
+        : 0,
     [totalUpfront, state.forecastInterestRatePct],
   )
 
   const netMonthly = Math.round(grossMonthly - expenseTotal - billTotal - debtService)
   const annualNet = netMonthly * 12
-  const netYield = totalUpfront > 0 ? (netMonthly * 12) / totalUpfront * 100 : 6.4
+  const netYield = totalUpfront > 0 ? (netMonthly * 12) / totalUpfront * 100 : 0
 
   const riskScore =
     state.riskFactors.reduce((s, r) => s + r.score, 0) /
@@ -239,7 +239,7 @@ export default function Step09ReviewCreate() {
       setShowConvertConfirm(false)
       setCreated(true)
       // Redirect straight to the new set's detail
-      router.push(`/app/planning/sets/${inserted.id}/overview`)
+      router.push(`/property-manager/planning/sets/${inserted.id}/overview`)
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not create planning set"
       setCreateError(msg)
@@ -273,9 +273,9 @@ export default function Step09ReviewCreate() {
           <button
             onClick={() => {
               if (createdSetId) {
-                router.push(`/app/planning/sets/${createdSetId}/overview`)
+                router.push(`/property-manager/planning/sets/${createdSetId}/overview`)
               } else {
-                router.push("/app/planning/sets")
+                router.push("/property-manager/planning/sets")
               }
             }}
             className="h-10 px-6 rounded-xl text-white text-[13px] font-bold hover:opacity-90 transition-all"
@@ -403,13 +403,14 @@ export default function Step09ReviewCreate() {
               onEdit={() => setStep(2)}
             >
               <p className="text-[13px] font-semibold text-slate-800">
-                {state.city || "Birmingham"}, United Kingdom
+                {state.city ? `${state.city}, United Kingdom` : "Location not set"}
               </p>
               <p className="text-[12px] text-slate-400 mb-2">
-                {state.postcode || "B15 1XX"} · High-Demand Area
+                {state.postcode || "—"}
               </p>
-              <ReviewRow label="Population Growth" value="+1.2%" />
-              <ReviewRow label="Rental Demand" value="High" />
+              {state.address && (
+                <p className="text-[12px] text-slate-500 truncate">{state.address}</p>
+              )}
             </ReviewCard>
 
             {/* 3: Core Economics */}
@@ -422,7 +423,7 @@ export default function Step09ReviewCreate() {
             >
               <ReviewRow
                 label="Target Net / Mo"
-                value={`£${Math.max(state.targetMonthlyCashflow || 7250, 7250).toLocaleString()}`}
+                value={state.targetMonthlyCashflow > 0 ? `£${state.targetMonthlyCashflow.toLocaleString()}` : "Not set"}
               />
               <ReviewRow label="Expected Net / Mo" value={`£${netMonthly.toLocaleString()}`} />
               <ReviewRow
@@ -499,8 +500,8 @@ export default function Step09ReviewCreate() {
                     : "—"
                 }
               />
-              <ReviewRow label="Utilities Included" value="Yes" />
-              <ReviewRow label="Council Tax / Insurance" value="Included" />
+              <ReviewRow label="Bill items" value={state.bills.length > 0 ? `${state.bills.length} items` : "None added"} />
+              <ReviewRow label="Bills total" value={billTotal > 0 ? `£${billTotal.toLocaleString()}/mo` : "—"} />
             </ReviewCard>
 
             {/* 7: Upfront Capital */}
@@ -520,7 +521,7 @@ export default function Step09ReviewCreate() {
                 value={
                   totalUpfront > 0 && state.propertyValue > 0
                     ? `${((totalUpfront / state.propertyValue) * 100).toFixed(1)}%`
-                    : "24.1%"
+                    : "—"
                 }
               />
               <ReviewRow
@@ -528,14 +529,16 @@ export default function Step09ReviewCreate() {
                 value={
                   state.propertyValue > 0
                     ? `£${state.propertyValue.toLocaleString()}`
-                    : "£420,000"
+                    : "Not set"
                 }
               />
               <ReviewRow
                 label="Refurb & Setup"
-                value={`£${(
-                  state.upfrontCosts.find(c => c.category === "Refurb")?.amount ?? 72500
-                ).toLocaleString()}`}
+                value={
+                  state.upfrontCosts.find(c => c.category === "Refurb")?.amount
+                    ? `£${state.upfrontCosts.find(c => c.category === "Refurb")!.amount.toLocaleString()}`
+                    : "—"
+                }
               />
             </ReviewCard>
 
@@ -557,7 +560,7 @@ export default function Step09ReviewCreate() {
                     : "In Progress"
                 }
               />
-              <ReviewRow label="HMO Standards" value="Compliant" />
+              <ReviewRow label="Mandatory items" value={`${state.complianceItems.filter(c => c.priority === "Mandatory").length} total`} />
               <ReviewRow
                 label="Documents Ready"
                 value={`${completedCompliance} / ${state.complianceItems.length}`}
@@ -636,11 +639,11 @@ export default function Step09ReviewCreate() {
             >
               <ReviewRow
                 label="Overall Risk Level"
-                value={riskScore > 65 ? "Low" : riskScore > 45 ? "Medium" : "High"}
+                value={state.riskFactors.length === 0 ? "Not assessed" : riskScore < 35 ? "Low" : riskScore < 65 ? "Medium" : "High"}
               />
               <ReviewRow label="Risk Score" value={`${riskScore.toFixed(0)} / 100`} />
-              <ReviewRow label="Top Risk" value="Void Risk" />
-              <ReviewRow label="Mitigations" value="3 Active" />
+              <ReviewRow label="Risk factors" value={state.riskFactors.length > 0 ? `${state.riskFactors.length} assessed` : "Not assessed"} />
+              <ReviewRow label="High alerts" value={`${state.riskFactors.filter(r => r.alertLevel === "High").length}`} />
             </ReviewCard>
 
             {/* 12: AI Review Summary */}
@@ -702,7 +705,7 @@ export default function Step09ReviewCreate() {
                   [
                     {
                       label: "Target Net / Mo",
-                      value: `£${Math.max(state.targetMonthlyCashflow || 7250, 7250).toLocaleString()}`,
+                      value: state.targetMonthlyCashflow > 0 ? `£${state.targetMonthlyCashflow.toLocaleString()}` : "Not set",
                       colour: "#7C3AED",
                     },
                     {
@@ -722,7 +725,7 @@ export default function Step09ReviewCreate() {
                       label: "Risk Score",
                       value: `${riskScore.toFixed(0)} / 100`,
                       colour:
-                        riskScore > 65 ? "#10B981" : riskScore > 45 ? "#F59E0B" : "#EF4444",
+                        state.riskFactors.length === 0 ? "#94A3B8" : riskScore < 35 ? "#10B981" : riskScore < 65 ? "#F59E0B" : "#EF4444",
                     },
                     {
                       label: "Cash-on-Cash Yr 1",

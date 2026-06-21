@@ -77,8 +77,7 @@ export function WonTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
         />
       </div>
 
-      <SupplierKpiStrip kpis={kpis.slice(0, 4)} />
-      <div className="-mt-2"><SupplierKpiStrip kpis={kpis.slice(4)} /></div>
+      <SupplierKpiStrip kpis={kpis} />
 
       <TabStateGate
         env={env}
@@ -131,6 +130,7 @@ export function WonTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
               </div>
             ) : (
               <SupplierCard className="overflow-hidden">
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50/60">
@@ -152,6 +152,7 @@ export function WonTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
                     ))}
                   </tbody>
                 </table>
+                </div>
               </SupplierCard>
             )}
             {(view === "table" || view === "cards") && (

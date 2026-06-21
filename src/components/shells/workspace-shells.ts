@@ -32,7 +32,7 @@ export interface WorkspaceShellDescriptor {
 export const WORKSPACE_SHELLS: Record<WorkspaceType, WorkspaceShellDescriptor> = {
   operator: {
     shellModule: "@/components/shells/AppShell",
-    routeBase: "/app",
+    routeBase: "/property-manager",
     requiredFlag: null, // V1 default — always available.
   },
   supplier: {

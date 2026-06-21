@@ -5,12 +5,9 @@ import Image from 'next/image'
 import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, MessageCircle } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import { getPublicProviderBySlug, getPublicProviders } from '@/lib/public-marketplace/queries'
-import { SEED_PROVIDERS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
 
-export async function generateStaticParams() {
-  return SEED_PROVIDERS.map(p => ({ slug: p.slug }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

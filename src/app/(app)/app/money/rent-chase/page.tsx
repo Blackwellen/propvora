@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import {
@@ -152,7 +152,7 @@ function ChaseCaseRow({
         <td className="px-4 py-4 text-[12px] text-slate-600">{c.lastAction}</td>
         <td className="px-4 py-4">
           <div className="flex items-center gap-1.5">
-            <Link href="/app/money/arrears" className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2 py-1 rounded-lg transition-colors">
+            <Link href="/property-manager/money/arrears" className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2 py-1 rounded-lg transition-colors">
               <Eye className="w-3 h-3" />
               View
             </Link>
@@ -283,8 +283,8 @@ export default function RentChasePage() {
       <MobileTopBar
         title="Rent Chase"
         subtitle={`${chaseCases.length} chasing`}
-        primaryAction={{ label: "New Case", icon: Plus, href: "/app/money/arrears" }}
-        overflowActions={[{ label: "Manage Arrears", icon: Settings, href: "/app/money/arrears" }]}
+        primaryAction={{ label: "New Case", icon: Plus, href: "/property-manager/money/arrears" }}
+        overflowActions={[{ label: "Manage Arrears", icon: Settings, href: "/property-manager/money/arrears" }]}
       />
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
@@ -294,7 +294,7 @@ export default function RentChasePage() {
       )}
       <MoneyTabNav />
 
-      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+      <DashboardContainer className="py-6 flex flex-col gap-6">
         <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Rent Chase"
@@ -302,11 +302,11 @@ export default function RentChasePage() {
           subtitle="Automated rent arrears chasing and legal escalation."
           actions={
             <>
-              <Link href="/app/money/arrears" className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+              <Link href="/property-manager/money/arrears" className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 <Settings className="w-3.5 h-3.5" />
                 Manage Arrears
               </Link>
-              <Link href="/app/money/arrears" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+              <Link href="/property-manager/money/arrears" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 <Plus className="w-3.5 h-3.5" />
                 New Case
               </Link>

@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Filter, Download, Plus, Search } from 'lucide-react'
-import { SEED_BOOKINGS } from '@/lib/property-manager/bookings/seed'
 import type { Booking } from '@/lib/property-manager/bookings/types'
 import BookingKpiCards from './BookingKpiCards'
 import BookingStatusTabs from './BookingStatusTabs'
@@ -10,16 +9,53 @@ import BookingsTable from './BookingsTable'
 import BookingPreviewPanel from './BookingPreviewPanel'
 import DisputesView from '@/features/bookings/disputes/components/DisputesView'
 
+// Bookings table is not yet migrated to the live schema.
+// This section is gated by the bookingManagement feature flag.
+// When the migration is applied and the flag is enabled, replace the empty
+// array below with a live Supabase query: supabase.from('bookings').select('*')
+//   .eq('workspace_id', workspaceId).order('check_in_date', { ascending: false })
+// The 42P01 guard should catch missing table errors until migration lands.
+
+// "Arrivals" = confirmed bookings whose check-in date is today or within the next 7 days
+function isArrivalSoon(b: Booking): boolean {
+  if (b.status !== 'confirmed') return false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const checkIn = new Date(b.check_in_date)
+  checkIn.setHours(0, 0, 0, 0)
+  const diffDays = (checkIn.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  return diffDays >= 0 && diffDays <= 7
+}
+
 export default function BookingsPage({ initialTab = 'all' }: { initialTab?: string }) {
   const [activeTab, setActiveTab] = useState(initialTab)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  // Live bookings array — empty until bookings table migration is applied and
+  // bookingManagement feature flag is enabled. No seed/mock data shown to users.
+  const bookings: Booking[] = []
+
+  // Derive counts from the same dataset so tabs always match table totals
+  const counts = useMemo(() => ({
+    all: bookings.length,
+    confirmed: bookings.filter((b) => b.status === 'confirmed').length,
+    arrivals: bookings.filter(isArrivalSoon).length,
+    checked_in: bookings.filter((b) => b.status === 'checked_in').length,
+    checked_out: bookings.filter((b) => b.status === 'checked_out').length,
+    pending: bookings.filter((b) => b.status === 'pending').length,
+    cancelled: bookings.filter((b) => b.status === 'cancelled').length,
+    long_term: bookings.filter((b) => b.booking_type === 'long_term').length,
+    disputes: 0,
+  }), [bookings])
 
   // Disputes is reachable via ?tab=disputes on the bookings page; render the
   // dedicated disputes workspace inline so the tab stays in context.
   if (activeTab === 'disputes') {
     return (
       <div className="flex flex-col h-full overflow-hidden">
-        <div className="px-6 pt-6">
-          <BookingStatusTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="pt-6">
+          <BookingStatusTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} />
         </div>
         <div className="flex-1 min-h-0">
           <DisputesView />
@@ -27,11 +63,6 @@ export default function BookingsPage({ initialTab = 'all' }: { initialTab?: stri
       </div>
     )
   }
-
-  const [selectedId, setSelectedId] = useState<string | null>('1')
-  const [search, setSearch] = useState('')
-
-  const bookings: Booking[] = SEED_BOOKINGS
 
   const selectedBooking = bookings.find((b) => b.id === selectedId) ?? null
 
@@ -49,7 +80,7 @@ export default function BookingsPage({ initialTab = 'all' }: { initialTab?: stri
       )
     }
     if (activeTab === 'confirmed') return b.status === 'confirmed'
-    if (activeTab === 'arrivals') return b.status === 'confirmed'
+    if (activeTab === 'arrivals') return isArrivalSoon(b)
     if (activeTab === 'checked_in') return b.status === 'checked_in'
     if (activeTab === 'checked_out') return b.status === 'checked_out'
     if (activeTab === 'pending') return b.status === 'pending'
@@ -61,7 +92,7 @@ export default function BookingsPage({ initialTab = 'all' }: { initialTab?: stri
   return (
     <div className="flex h-full gap-0 overflow-hidden">
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto min-w-0 px-6 py-6">
+      <div className="flex-1 overflow-y-auto min-w-0 py-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
@@ -71,26 +102,26 @@ export default function BookingsPage({ initialTab = 'all' }: { initialTab?: stri
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button className="flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+            <button className="hidden lg:flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
               <Filter className="w-4 h-4" />
               Filters
             </button>
-            <button className="flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+            <button className="hidden lg:flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
               <Download className="w-4 h-4" />
               Export
             </button>
-            <button className="flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700 transition-colors">
+            <button className="flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3 py-2 text-sm font-medium hover:bg-blue-700 transition-colors">
               <Plus className="w-4 h-4" />
-              Create booking
+              <span className="hidden sm:inline">Create booking</span>
             </button>
           </div>
         </div>
 
         {/* KPI Cards */}
-        <BookingKpiCards />
+        <BookingKpiCards bookings={bookings} />
 
         {/* Status Tabs */}
-        <BookingStatusTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <BookingStatusTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} />
 
         {/* Filter row */}
         <div className="mt-4 flex gap-2 items-center flex-wrap">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import SuppliersHubNav from "@/components/marketplace/SuppliersHubNav"
 import PublicSearchBar from "@/components/public-marketplace/PublicSearchBar"
 import PublicFilterChips from "@/components/public-marketplace/PublicFilterChips"
@@ -17,9 +18,8 @@ export const metadata: Metadata = {
 }
 
 const FILTER_CHIPS = [
-  { id: "vetted",        label: "Vetted",          dropdown: true },
+  { id: "vetted",        label: "Vetted" },
   { id: "insured",       label: "Fully insured" },
-  { id: "certified",     label: "Certified" },
   { id: "commercial",    label: "Commercial" },
   { id: "residential",   label: "Residential" },
   { id: "fast-response", label: "Fast response" },
@@ -27,7 +27,14 @@ const FILTER_CHIPS = [
   { id: "top-rated",     label: "Top rated" },
 ]
 
-export default async function SuppliersHubMapPage() {
+const HUB = "/property-manager/marketplace/suppliers-hub"
+
+export default async function SuppliersHubMapPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams ?? {}
   const providers = await getPublicProviders()
 
   return (
@@ -35,50 +42,71 @@ export default async function SuppliersHubMapPage() {
       <SuppliersHubNav />
 
       <div className="px-4 pb-3 bg-white border-b border-slate-100">
-        <PublicSearchBar variant="providers" />
+        <Suspense>
+          <PublicSearchBar variant="providers" />
+        </Suspense>
         <div className="mt-3">
-          <PublicFilterChips chips={FILTER_CHIPS} />
+          <Suspense>
+            <PublicFilterChips chips={FILTER_CHIPS} />
+          </Suspense>
         </div>
       </div>
 
       <div className="px-4 py-3 bg-white border-b border-slate-100">
-        <PublicResultsToolbar
-          count={248}
-          location="Manchester, within 15 miles"
-          mapHref="/app/marketplace/suppliers-hub/map"
-          listHref="/app/marketplace/suppliers-hub"
-          viewMode="map"
-          showSaveSearch
-        />
+        <Suspense>
+          <PublicResultsToolbar
+            count={providers.length}
+            location="Your area"
+            mapHref={`${HUB}/map`}
+            listHref={HUB}
+            viewMode="map"
+            showSaveSearch
+          />
+        </Suspense>
       </div>
 
       <div className="px-4 py-2 bg-white border-b border-slate-100">
         <div className="flex items-center justify-between gap-4">
-          <MapAreaChips variant="providers" />
-          <MapSearchToggle />
+          <Suspense>
+            <MapAreaChips variant="providers" />
+          </Suspense>
+          <Suspense>
+            <MapSearchToggle />
+          </Suspense>
         </div>
       </div>
 
       <div className="flex overflow-hidden" style={{ height: "calc(100vh - 320px)" }}>
+        {/* Left rail — scrollable card list */}
         <div className="w-96 shrink-0 overflow-y-auto border-r border-slate-200 p-3 space-y-3">
           {providers.map((p) => (
-            <ProviderCard key={p.id} provider={p} basePath="/app/marketplace/suppliers-hub" />
+            <ProviderCard key={p.id} provider={p} basePath={HUB} />
           ))}
         </div>
+
+        {/* Map */}
         <div className="flex-1 relative">
-          <ProvidersMap providers={providers} />
-          <div className="absolute bottom-4 left-4 bg-white rounded-xl shadow-lg px-4 py-2 text-sm text-slate-700 border border-slate-200">
-            Search area · Manchester, 15 miles · <strong>{providers.length}</strong> suppliers
+          <ProvidersMap providers={providers} basePath={HUB} />
+
+          {/* Result count overlay */}
+          <div className="absolute bottom-4 left-4 bg-white rounded-xl shadow-lg px-4 py-2 text-sm text-slate-700 border border-slate-200 pointer-events-none">
+            <strong>{providers.length}</strong> suppliers in this area
           </div>
-          <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-lg p-3 text-xs text-slate-600 space-y-1.5 border border-slate-200">
-            <p className="font-semibold text-slate-900 mb-1">Coverage key</p>
+
+          {/* Coverage legend */}
+          <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-lg p-3 text-xs text-slate-600 space-y-1.5 border border-slate-200 pointer-events-none">
+            <p className="font-semibold text-slate-900 mb-1">Map key</p>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-blue-600" />
-              Exact location
+              <div className="w-4 h-0.5 bg-blue-600 rounded" />
+              <span>Supplier location</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 border-b border-dashed border-blue-400" />
-              Service coverage
+              <span>Coverage radius</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full border-2 border-emerald-500 opacity-70" />
+              <span>Vetted supplier</span>
             </div>
           </div>
         </div>

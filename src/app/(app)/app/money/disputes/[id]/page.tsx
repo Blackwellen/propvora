@@ -35,7 +35,7 @@ export default async function DisputeDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 px-6 py-6 gap-4">
-      <Link href="/app/money/disputes" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
+      <Link href="/property-manager/money/disputes" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
         <ArrowLeft className="w-4 h-4" /> Back to disputes
       </Link>
       <DisputeDetailClient dispute={dispute} actions={actions} />

@@ -23,7 +23,7 @@ export default function PreferencesPage() {
     theme: "light",
     density: "comfortable",
     calView: "month",
-    landingPage: "/app/portfolio",
+    landingPage: "/property-manager/portfolio",
     reducedMotion: false,
   })
   const [isDirty, setIsDirty] = useState(false)
@@ -196,11 +196,11 @@ export default function PreferencesPage() {
             onChange={e => update("landingPage", e.target.value)}
             className="w-full max-w-xs px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
           >
-            <option value="/app/portfolio">Portfolio (default)</option>
-            <option value="/app/work">Work</option>
-            <option value="/app/contacts">Contacts</option>
-            <option value="/app/money">Money</option>
-            <option value="/app/calendar">Calendar</option>
+            <option value="/property-manager/portfolio">Portfolio (default)</option>
+            <option value="/property-manager/work">Work</option>
+            <option value="/property-manager/contacts">Contacts</option>
+            <option value="/property-manager/money">Money</option>
+            <option value="/property-manager/calendar">Calendar</option>
           </select>
         </div>
       </div>

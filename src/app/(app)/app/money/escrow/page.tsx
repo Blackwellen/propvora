@@ -19,7 +19,6 @@ import {
 import {
   useManagedEscrows, useManagedEscrowKpis, useEscrowCashflow, useEscrowProjection,
 } from "@/features/escrow/data/hooks"
-import { SEED_E_TIMELINE } from "@/features/escrow/data/seed"
 import {
   KpiCard, StatusBadge, toneForEscrowState, toneForEvidence, toneForRisk, humanise,
   ConfirmModal, PagerFooter, SourcePill, Select,
@@ -60,7 +59,7 @@ export default function MoneyEscrowPage() {
 
       <MobileTopBar title="Escrow" subtitle="Funds held & releases" />
 
-      <DashboardContainer className="px-4 md:px-6 py-6 flex flex-col gap-6">
+      <DashboardContainer className="px-4 md:py-6 flex flex-col gap-6">
         <div className="hidden md:block">
           <SectionHeader
             title="Escrow Management"
@@ -69,6 +68,11 @@ export default function MoneyEscrowPage() {
           />
         </div>
         <div className="md:hidden -mx-4"><MoneyTabNav /></div>
+
+        {/* Internal tracking notice */}
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <strong>Internal tracking only.</strong> Escrow is not yet connected to a live payment provider. Data shown reflects internal records only — no real funds are held or released through this interface.
+        </div>
 
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -166,7 +170,7 @@ export default function MoneyEscrowPage() {
                           <td className="px-4 py-3 text-xs text-slate-500">{e.releaseRule}</td>
                           <td className="px-4 py-3"><StatusBadge tone={toneForRisk(e.risk)}>{humanise(e.risk)}</StatusBadge></td>
                           <td className="px-4 py-3 text-right">
-                            <Link href={`/app/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
+                            <Link href={`/property-manager/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
                           </td>
                         </tr>
                       )
@@ -192,13 +196,9 @@ export default function MoneyEscrowPage() {
             {/* Activity feed */}
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
               <h3 className="text-sm font-semibold text-slate-900 mb-3">Escrow activity</h3>
-              <div className="flex flex-col divide-y divide-slate-100">
-                {SEED_E_TIMELINE.map(t => (
-                  <div key={t.id} className="py-2.5 flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" />
-                    <div><p className="text-xs text-slate-700">{t.fromState ? `${humanise(t.fromState)} → ` : ""}{humanise(t.toState)}</p><p className="text-[11px] text-slate-400">{t.actor} · {t.at}</p></div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+                <ShieldCheck className="w-8 h-8 text-slate-200" />
+                <p className="text-xs text-slate-500">Activity events will appear here as escrow actions are taken.</p>
               </div>
             </div>
           </div>
@@ -265,7 +265,7 @@ function EscrowPanel({ row, onAction }: { row: ManagedEscrowRow; onAction: (k: s
           <ActBtn icon={Ban} label="Hold" onClick={() => onAction("hold")} />
           <ActBtn icon={FileQuestion} label="Evidence" onClick={() => onAction("evidence")} />
           <ActBtn icon={Flag} label="Dispute" onClick={() => onAction("dispute")} tone="red" />
-          <Link href={`/app/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
+          <Link href={`/property-manager/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
         </div>
       </div>
     </div>

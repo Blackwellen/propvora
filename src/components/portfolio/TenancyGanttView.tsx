@@ -219,7 +219,7 @@ function GanttRow({ t, viewStart, totalDays, pct, nowPct, selected, onSelect, we
             style={{ background: avatarColor }}>{avatarInitials}</div>
         )}
         <div className="min-w-0">
-          <Link href={`/app/portfolio/tenancies/${t.id}`}
+          <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
             className="text-[12px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block leading-tight">
             {t.tenant_name ?? "Unknown"}
           </Link>

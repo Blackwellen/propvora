@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { Wrench, Zap, Droplets, ShieldCheck, ClipboardList } from "lucide-react"
@@ -38,7 +38,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Work queue</h3>
-        <Link href="/app/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all →
         </Link>
       </div>
@@ -53,7 +53,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
               <p className="text-[13px] font-medium text-slate-600">No open work orders</p>
               <p className="text-[12px] text-slate-400 mt-0.5">New jobs will appear here</p>
             </div>
-            <Link href="/app/work" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/property-manager/work" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
               Go to work queue →
             </Link>
           </div>
@@ -64,7 +64,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
             return (
               <Link
                 key={item.id}
-                href={item.href ?? "/app/work/tasks"}
+                href={item.href ?? "/property-manager/work/tasks"}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors group"
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconStyle}`}>
@@ -88,7 +88,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
       </div>
 
       <div className="pt-2 border-t border-slate-100">
-        <Link href="/app/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all work orders →
         </Link>
       </div>

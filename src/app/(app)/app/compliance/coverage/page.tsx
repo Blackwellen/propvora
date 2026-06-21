@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -181,8 +181,8 @@ export default function CoveragePage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => router.refresh() },
-              { label: "Open Certificates", icon: CheckCircle, onClick: () => router.push("/app/compliance/certificates") },
-              { label: "Open Reports", icon: Download, onClick: () => router.push("/app/compliance/reports") },
+              { label: "Open Certificates", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/certificates") },
+              { label: "Open Reports", icon: Download, onClick: () => router.push("/property-manager/compliance/reports") },
             ]}
           />
         </div>
@@ -198,7 +198,7 @@ export default function CoveragePage() {
             <p className="text-sm text-slate-500 max-w-sm leading-relaxed mb-6">
               Add your first property to compute compliance coverage across your portfolio.
             </p>
-            <button onClick={() => router.push("/app/portfolio/properties/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+            <button onClick={() => router.push("/property-manager/portfolio/properties/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
               <Plus className="w-4 h-4" /> Add your first property
             </button>
           </div>
@@ -248,7 +248,7 @@ export default function CoveragePage() {
                     <CheckCircle className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-700">No compliance requirements tracked yet</p>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Add compliance items to your properties to populate the coverage matrix.</p>
-                    <button onClick={() => router.push("/app/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                    <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
                       <Plus className="w-3.5 h-3.5" /> Add certificate
                     </button>
                   </div>
@@ -271,7 +271,7 @@ export default function CoveragePage() {
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {rows.map((row) => (
-                          <tr key={row.id} className="hover:bg-slate-50/40 transition-colors cursor-pointer" onClick={() => router.push(`/app/portfolio/properties/${row.id}`)}>
+                          <tr key={row.id} className="hover:bg-slate-50/40 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/portfolio/properties/${row.id}`)}>
                             <td className="px-4 py-3 sticky left-0 bg-white z-10">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 bg-blue-600">{row.initials}</div>

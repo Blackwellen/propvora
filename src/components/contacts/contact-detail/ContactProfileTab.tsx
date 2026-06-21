@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -193,7 +193,7 @@ export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
               <span className="text-xs text-slate-400">1 tenant</span>
-              <Link href="/app/portfolio/properties/p1" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link href="/property-manager/portfolio/properties/p1" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 View <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
@@ -232,7 +232,7 @@ export function PlanningSetTab({ contact }: { contact: ContactDetail }) {
                   <td className="px-4 py-3"><StatusChip status={s.status} /></td>
                   <td className="px-4 py-3 text-slate-500 text-xs">{s.created}</td>
                   <td className="px-4 py-3 text-right">
-                    <Link href="/app/planning" className="text-xs text-blue-600 hover:underline">Open</Link>
+                    <Link href="/property-manager/planning" className="text-xs text-blue-600 hover:underline">Open</Link>
                   </td>
                 </tr>
               ))}
@@ -459,7 +459,7 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-900">Recent Messages</h3>
-        <Link href="/app/messages">
+        <Link href="/property-manager/messages">
           <Button variant="primary" size="sm" leftIcon={<MessageSquare className="w-3.5 h-3.5" />}>Open in Messages</Button>
         </Link>
       </div>
@@ -474,7 +474,7 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
             <MessageCircle className="w-5 h-5 text-blue-500" />
           </div>
           <p className="text-sm text-slate-500 mb-3">No messages with this contact yet.</p>
-          <Link href="/app/messages">
+          <Link href="/property-manager/messages">
             <Button variant="outline" size="sm" leftIcon={<ExternalLink className="w-3.5 h-3.5" />}>Go to Messages</Button>
           </Link>
         </div>
@@ -499,7 +499,7 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
               </div>
             )
           })}
-          <Link href="/app/messages" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline pt-1">
+          <Link href="/property-manager/messages" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline pt-1">
             View full conversation in Messages <ExternalLink className="w-3 h-3" />
           </Link>
         </div>

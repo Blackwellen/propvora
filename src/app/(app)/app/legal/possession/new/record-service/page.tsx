@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { User, Mail, Briefcase, CheckCircle, Target, AlertTriangle } from "lucide-react"
@@ -55,7 +55,7 @@ function RecordServiceInner() {
 
   async function complete() {
     if (!workspaceId || !caseId) {
-      router.push("/app/legal/possession")
+      router.push("/property-manager/legal/possession")
       return
     }
     setSaving(true)
@@ -89,7 +89,7 @@ function RecordServiceInner() {
       } catch {
         /* non-blocking */
       }
-      router.push(`/app/legal/possession/${caseId}`)
+      router.push(`/property-manager/legal/possession/${caseId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not record service")
       setSaving(false)
@@ -146,7 +146,7 @@ function RecordServiceInner() {
       rightRail={rightRail}
       backLabel="Back"
       showSaveDraft={false}
-      onBack={() => router.push(`/app/legal/possession/new/notice-preview?case=${caseId}`)}
+      onBack={() => router.push(`/property-manager/legal/possession/new/notice-preview?case=${caseId}`)}
       customFooter={footer}
     >
       <div>

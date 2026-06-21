@@ -55,7 +55,7 @@ export default async function EmergencyDetailPage({
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/app/marketplace/suppliers-hub/emergency" className="hover:text-blue-600">
+        <Link href="/property-manager/marketplace/suppliers-hub/emergency" className="hover:text-blue-600">
           Emergency
         </Link>
         <span>›</span>

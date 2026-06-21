@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -121,7 +121,7 @@ export default function InspectionsPage() {
           <p className="text-sm text-slate-500 mt-1">Schedule, track and manage property inspections.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push("/app/compliance/inspections/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <CalendarDays className="w-4 h-4" />
             Schedule inspection
           </button>
@@ -132,8 +132,8 @@ export default function InspectionsPage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-              { label: "Open Overview", icon: CheckCircle, onClick: () => router.push("/app/compliance/overview") },
-              { label: "Open Coverage", icon: CheckCircle, onClick: () => router.push("/app/compliance/coverage") },
+              { label: "Open Overview", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/overview") },
+              { label: "Open Coverage", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/coverage") },
             ]}
           />
         </div>
@@ -173,7 +173,7 @@ export default function InspectionsPage() {
             className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-56"
           />
         </div>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none">
+        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
           {STATUS_FILTERS.map((s) => (
             <option key={s} value={s}>{s ? humaniseType(s) : "All statuses"}</option>
           ))}
@@ -195,7 +195,7 @@ export default function InspectionsPage() {
               <p className="text-sm font-medium text-slate-700">{inspections.length === 0 ? "No inspections scheduled" : "No inspections match your filters"}</p>
               <p className="text-xs text-slate-400 mt-1 mb-4">{inspections.length === 0 ? "Schedule your first inspection to start tracking." : "Try adjusting your search or filters."}</p>
               {inspections.length === 0 && (
-                <button onClick={() => router.push("/app/compliance/inspections/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
                   <Plus className="w-3.5 h-3.5" /> Schedule inspection
                 </button>
               )}
@@ -208,7 +208,7 @@ export default function InspectionsPage() {
                 title: (r) => r.property_name ?? "Unassigned property",
                 subtitle: (r) => humaniseType(r.inspection_type),
                 badge: (r) => <ComplianceStatusBadge status={r.status} />,
-                onRowClick: (r) => router.push(`/app/compliance/inspections/${r.id}`),
+                onRowClick: (r) => router.push(`/property-manager/compliance/inspections/${r.id}`),
                 fields: [
                   { label: "Scheduled", render: (r) => fmtDate(r.scheduled_date) },
                   { label: "Inspector", render: (r) => r.inspector_name ?? "—" },
@@ -230,7 +230,7 @@ export default function InspectionsPage() {
                   {filtered.map((row: ComplianceInspection) => (
                     <tr
                       key={row.id}
-                      onClick={() => router.push(`/app/compliance/inspections/${row.id}`)}
+                      onClick={() => router.push(`/property-manager/compliance/inspections/${row.id}`)}
                       className="hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       <td className="px-3 py-3">
@@ -251,9 +251,9 @@ export default function InspectionsPage() {
                         <div className="inline-flex items-center gap-1">
                           <ActionMenu
                             items={[
-                              { label: "View", icon: Eye, onClick: () => router.push(`/app/compliance/inspections/${row.id}`) },
-                              { label: "Edit", icon: Pencil, onClick: () => router.push(`/app/compliance/inspections/${row.id}/edit`) },
-                              { label: "Reschedule", icon: RefreshCw, onClick: () => router.push(`/app/compliance/inspections/${row.id}/edit`) },
+                              { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/compliance/inspections/${row.id}`) },
+                              { label: "Edit", icon: Pencil, onClick: () => router.push(`/property-manager/compliance/inspections/${row.id}/edit`) },
+                              { label: "Reschedule", icon: RefreshCw, onClick: () => router.push(`/property-manager/compliance/inspections/${row.id}/edit`) },
                             ]}
                           />
                           <ConfirmDialog

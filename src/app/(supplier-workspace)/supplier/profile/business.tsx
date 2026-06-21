@@ -2,21 +2,20 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import type { LucideIcon } from "lucide-react"
 import {
-  UserCircle,
-  Wrench,
-  MapPin,
-  Clock,
   Plus,
   Tag,
   Building2,
   Store,
-  Eye,
   Star,
   ShieldCheck,
   BadgeCheck,
   Award,
+  Eye,
+  Wrench,
+  MapPin,
+  Clock,
+  type LucideIcon,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import { InlineEditField } from "@/components/editing"
@@ -71,30 +70,45 @@ export default function SupplierBusinessProfile() {
   const p = profile.data
 
   const TABS = [
-    { id: "preview" as const, label: "Public preview", icon: Eye },
-    { id: "details" as const, label: "Details", icon: UserCircle },
-    { id: "services" as const, label: "Services", icon: Wrench },
-    { id: "coverage" as const, label: "Coverage", icon: MapPin },
-    { id: "availability" as const, label: "Availability", icon: Clock },
+    { id: "preview" as const, label: "Public preview" },
+    { id: "details" as const, label: "Details" },
+    { id: "services" as const, label: "Services" },
+    { id: "coverage" as const, label: "Coverage" },
+    { id: "availability" as const, label: "Availability" },
   ]
 
   const tabRail = (
-    <div className="flex gap-1 overflow-x-auto -mx-1 px-1 border-b border-slate-200">
-      {TABS.map((t) => {
-        const Icon = t.icon
-        const active = tab === t.id
-        return (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 -mb-px transition-colors ${
-              active ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <Icon className="w-4 h-4" /> {t.label}
-          </button>
-        )
-      })}
+    <div>
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden border-b border-slate-200 pb-2.5">
+        <select
+          value={tab}
+          onChange={(e) => setTab(e.target.value as typeof tab)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((t) => (
+            <option key={t.id} value={t.id}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex gap-1 overflow-x-auto -mx-1 px-1 border-b border-slate-200">
+        {TABS.map((t) => {
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`inline-flex items-center px-3.5 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 -mb-px transition-colors ${
+                active ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {t.label}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 

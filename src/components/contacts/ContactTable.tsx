@@ -92,7 +92,7 @@ export function ContactTable({ contacts, onEdit, onMessage, onDelete }: ContactT
           const colour = getAvatarColour(c.full_name)
           const initials = getInitials(c.full_name)
           return (
-            <Link href={`/app/contacts/${c.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0", colour)}>
                 {initials}
               </div>

@@ -208,7 +208,7 @@ export default function ContactClient() {
                 href="/register"
                 className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
               >
-                Start your free 14-day trial
+                Start your free 7-day trial
               </Link>
             </div>
           </div>

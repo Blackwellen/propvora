@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -141,7 +141,7 @@ export default function HmoLicencesPage() {
         },
       },
     ],
-    onRowClick: (l) => router.push(`/app/legal/hmo-licences/${l.id}`),
+    onRowClick: (l) => router.push(`/property-manager/legal/hmo-licences/${l.id}`),
   }
 
   return (
@@ -186,7 +186,7 @@ export default function HmoLicencesPage() {
               <Icon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? "—" : value}</p>
+              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? <span className="text-slate-300">…</span> : value}</p>
               <p className="text-[12px] font-medium text-slate-700 mt-0.5">{label}</p>
               <p className="text-[11px] text-slate-500">{sub}</p>
             </div>
@@ -250,7 +250,7 @@ export default function HmoLicencesPage() {
                       return (
                         <tr
                           key={lic.id}
-                          onClick={() => router.push(`/app/legal/hmo-licences/${lic.id}`)}
+                          onClick={() => router.push(`/property-manager/legal/hmo-licences/${lic.id}`)}
                           className={`border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${i === filtered.length - 1 ? "border-b-0" : ""}`}
                         >
                           <td className="px-4 py-3 font-medium text-slate-800 text-[12px] max-w-[160px]">
@@ -279,7 +279,7 @@ export default function HmoLicencesPage() {
                           <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-1">
                               <Link
-                                href={`/app/legal/hmo-licences/${lic.id}`}
+                                href={`/property-manager/legal/hmo-licences/${lic.id}`}
                                 className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors"
                               >
                                 <Eye className="w-3 h-3" />
@@ -296,8 +296,8 @@ export default function HmoLicencesPage() {
                                 {(open) => (
                                   <ActionMenu
                                     items={[
-                                      { label: "View", icon: Eye, onClick: () => router.push(`/app/legal/hmo-licences/${lic.id}`) },
-                                      { label: "Open Property", icon: Building2, onClick: () => router.push(lic.property_id ? `/app/properties/${lic.property_id}` : "/app/properties") },
+                                      { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/legal/hmo-licences/${lic.id}`) },
+                                      { label: "Open Property", icon: Building2, onClick: () => router.push(lic.property_id ? `/property-manager/portfolio/properties/${lic.property_id}` : "/property-manager/portfolio/properties") },
                                       { label: "Delete Licence", icon: Trash2, variant: "danger", onClick: open },
                                     ]}
                                   />
@@ -332,7 +332,7 @@ export default function HmoLicencesPage() {
                 expiringSoon.map((l) => {
                   const days = daysUntil(l.expiry_date) ?? 0
                   return (
-                    <Link key={l.id} href={`/app/legal/hmo-licences/${l.id}`} className="flex items-start justify-between gap-2 hover:bg-slate-50 -mx-1 px-1 py-1 rounded-lg transition-colors">
+                    <Link key={l.id} href={`/property-manager/legal/hmo-licences/${l.id}`} className="flex items-start justify-between gap-2 hover:bg-slate-50 -mx-1 px-1 py-1 rounded-lg transition-colors">
                       <div>
                         <p className="text-[12px] font-medium text-slate-800">{l.property?.nickname ?? "—"}</p>
                         <p className="text-[11px] text-slate-500">{l.licence_number ?? "—"}</p>
@@ -355,7 +355,7 @@ export default function HmoLicencesPage() {
             </div>
             <div className="p-4">
               <p className="text-[12px] text-slate-500 mb-2">Each licence expiry date is surfaced as a key date you can act on.</p>
-              <Link href="/app/calendar" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/calendar" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
                 Open Calendar <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -372,7 +372,7 @@ export default function HmoLicencesPage() {
             if (!workspaceId) return
             const created = await createLicence.mutateAsync({ workspace_id: workspaceId, ...payload })
             setShowCreate(false)
-            router.push(`/app/legal/hmo-licences/${created.id}`)
+            router.push(`/property-manager/legal/hmo-licences/${created.id}`)
           }}
         />
       )}

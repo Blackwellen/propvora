@@ -334,7 +334,7 @@ export default function AiQuestionsTab({ profile }: Props) {
             </p>
           </div>
           <Link
-            href={`/app/planning/wizard?profile=${profile.slug}`}
+            href={`/property-manager/planning/wizard?profile=${profile.slug}`}
             className="shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-semibold rounded-xl transition-all hover:bg-white/90"
             style={{ color: profile.accentColor }}
           >

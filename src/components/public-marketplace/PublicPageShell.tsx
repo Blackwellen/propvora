@@ -22,7 +22,7 @@ export default function PublicPageShell({ children, className, style, mapMode, h
     return (
       <div className={mapMode ? 'h-dvh bg-white flex flex-col overflow-hidden' : 'min-h-screen bg-white flex flex-col'}>
         <PublicMarketplaceNav />
-        <main id="main-content" className={className ?? 'flex-1'} style={style}>
+        <main id="main-content" tabIndex={-1} className={`focus:outline-none ${className ?? 'flex-1'}`} style={style}>
           {children}
         </main>
         {!mapMode && !hideFooter && <PublicFooter />}

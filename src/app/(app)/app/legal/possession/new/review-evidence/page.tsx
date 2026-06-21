@@ -71,8 +71,8 @@ function ReviewEvidenceInner() {
       showSaveDraft={false}
       backLabel="Back: Select Grounds"
       nextLabel="Next: Notice Preview"
-      onBack={() => router.push(`/app/legal/possession/new/select-grounds?case=${caseId}`)}
-      onNext={() => router.push(`/app/legal/possession/new/notice-preview?case=${caseId}`)}
+      onBack={() => router.push(`/property-manager/legal/possession/new/select-grounds?case=${caseId}`)}
+      onNext={() => router.push(`/property-manager/legal/possession/new/notice-preview?case=${caseId}`)}
     >
       <div>
         <h2 className="text-[15px] font-semibold text-slate-900 mb-0.5">Review Evidence Chain</h2>

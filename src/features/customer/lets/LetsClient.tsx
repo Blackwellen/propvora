@@ -43,7 +43,22 @@ export default function LetsClient({ initialTab = "overview" }: { initialTab?: s
         </div>
       </div>
 
-      <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden border-b border-slate-200 pb-2.5">
+        <select
+          value={tab}
+          onChange={(e) => changeTab(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((t) => (
+            <option key={t.id} value={t.id}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
         {TABS.map((t) => <button key={t.id} onClick={() => changeTab(t.id)} className={cn("px-4 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap", t.id === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t.label}</button>)}
       </div>
 

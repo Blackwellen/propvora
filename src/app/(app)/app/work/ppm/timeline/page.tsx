@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -502,7 +502,7 @@ export default function PpmTimelinePage() {
               </table>
             </div>
             <Link
-              href="/app/work/suppliers/preferred"
+              href="/property-manager/work/suppliers/preferred"
               className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
             >
               <Users className="w-3.5 h-3.5" /> View Workload →

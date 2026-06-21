@@ -343,7 +343,7 @@ export default function Step01Profile() {
         <select
           value={strategyFilter}
           onChange={(e) => setStrategyFilter(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
         >
           <option value="">All Strategies</option>
           {strategies.map((s) => (
@@ -357,7 +357,7 @@ export default function Step01Profile() {
         <select
           value={riskFilter}
           onChange={(e) => setRiskFilter(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
         >
           <option value="">All Risk Levels</option>
           {["Low", "Medium", "High"].map((r) => (
@@ -371,7 +371,7 @@ export default function Step01Profile() {
         <select
           value={intensityFilter}
           onChange={(e) => setIntensityFilter(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
         >
           <option value="">All Intensities</option>
           {["Low", "Medium", "High"].map((i) => (
@@ -382,7 +382,7 @@ export default function Step01Profile() {
         </select>
 
         {/* Yield placeholder — no distinct values on profile */}
-        <select className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none">
+        <select className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
           <option>All Yields</option>
         </select>
 

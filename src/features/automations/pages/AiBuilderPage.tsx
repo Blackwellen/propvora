@@ -37,7 +37,7 @@ export default function AiBuilderPage() {
   const toast = useToast()
   const { data: builds } = useAutomationAiBuilder()
   const [prompt, setPrompt] = useState("")
-  const [generated, setGenerated] = useState(true)
+  const [generated, setGenerated] = useState(false)
 
   const actions = (
     <>
@@ -65,7 +65,7 @@ export default function AiBuilderPage() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="When a new lease expires in 60 days, notify the tenant, create a maintenance inspection, and escalate if there is no response in 7 days."
-              className="mt-3 h-28 w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-violet-400 focus:outline-none"
+              className="mt-3 h-28 w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30"
             />
             <div className="mt-3 flex items-center justify-between">
               <div className="flex flex-wrap gap-1.5">
@@ -144,7 +144,7 @@ export default function AiBuilderPage() {
               </div>
             </Card>
             <Card>
-              <CardHeader title="Prompt history" />
+              <CardHeader title="Example prompts" />
               <div className="p-2 text-sm text-slate-600">
                 {SEED_AI_EXAMPLES.slice(0, 4).map((p) => (
                   <button key={p} onClick={() => setPrompt(p)} className="block w-full truncate rounded-lg px-2.5 py-2 text-left hover:bg-slate-50">{p}</button>

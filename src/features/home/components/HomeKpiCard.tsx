@@ -40,7 +40,7 @@ export function HomeKpiCard({
   const inner = (
     <div className={`bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4 flex flex-col gap-2 h-full transition-shadow ${href ? "hover:shadow-md cursor-pointer" : ""}`}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wide leading-tight">
+        <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wide leading-tight truncate min-w-0 max-w-[calc(100%-44px)]" title={label}>
           {label}
         </span>
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>

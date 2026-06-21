@@ -8,7 +8,7 @@ const items = [
   },
   {
     q: "Do I need a credit card to sign up?",
-    a: "No credit card is required to start your free trial. You get 14 days of full access to all features on the Pro plan. You'll only be asked for payment details when you decide to continue after your trial period ends. If you don't add a card, your workspace simply moves to read-only mode at the end of the trial.",
+    a: "No credit card is required to start your free trial. You get 7 days of full access to all features on the Pro plan. You'll only be asked for payment details when you decide to continue after your trial period ends. If you don't add a card, your workspace simply moves to read-only mode at the end of the trial.",
   },
   {
     q: "Can I sign up with Google or another social account?",
@@ -24,7 +24,7 @@ const items = [
   },
   {
     q: "What happens after my trial ends?",
-    a: "When your 14-day trial expires, your workspace moves to read-only mode. You can still log in, view all your data, and export it — but you won't be able to add new records or make changes. To restore full access, upgrade to a paid plan in Settings → Billing. Your data is retained for 90 days in read-only mode before any deletion.",
+    a: "When your 7-day trial expires, your workspace moves to read-only mode. You can still log in, view all your data, and export it — but you won't be able to add new records or make changes. To restore full access, upgrade to a paid plan in Settings → Billing. Your data is retained for 90 days in read-only mode before any deletion.",
   },
   {
     q: "How do I change my account email or password?",

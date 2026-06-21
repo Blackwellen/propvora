@@ -21,6 +21,8 @@ const chatSchema = z.object({
   threadId: z.string().uuid().optional(),
   contextRoute: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(100).optional(),
+  /** Inbox: when set, the last 10 messages in this thread are injected as context. */
+  inboxThreadId: z.string().uuid().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
-    const { message, threadId, contextRoute, workspaceId } = parsed.data
+    const { message, threadId, contextRoute, workspaceId, inboxThreadId } = parsed.data
 
     // 3. Verify workspace membership (only when a real workspace is provided)
     if (workspaceId && workspaceId !== "demo-workspace") {
@@ -145,6 +147,41 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 7b. Inbox thread context: when the user asks AI to help with a specific
+    // message conversation, pull the last 10 messages from that thread (scoped to
+    // the workspace so RLS guarantees cross-workspace isolation). The content is
+    // fenced as untrusted so injection is sanitised. We cap at 1200 chars total
+    // to stay within the token budget.
+    let inboxContextBlock = ""
+    if (inboxThreadId && workspaceId) {
+      try {
+        const { data: inboxMsgs } = await supabase
+          .from("messages")
+          .select("content, sender_id, created_at")
+          .eq("workspace_id", workspaceId)
+          .eq("thread_id", inboxThreadId)
+          .order("created_at", { ascending: false })
+          .limit(10)
+        if (inboxMsgs && inboxMsgs.length > 0) {
+          const { data: authRow } = await supabase.auth.getUser()
+          const meId = authRow.user?.id
+          const lines = (inboxMsgs as Array<Record<string, unknown>>)
+            .slice()
+            .reverse()
+            .map((m) => {
+              const role = meId && m.sender_id === meId ? "Agent" : "Contact"
+              const ts = new Date(m.created_at as string).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+              const body = String(m.content ?? "").slice(0, 200).replace(/[<>"'`]/g, " ")
+              return `[${ts}] ${role}: ${body}`
+            })
+          const raw = lines.join("\n").slice(0, 1200)
+          inboxContextBlock = fenceUntrusted("CONVERSATION THREAD (last 10 messages)", raw)
+        }
+      } catch {
+        /* non-fatal — inbox context is best-effort */
+      }
+    }
+
     // 8. System prompt with REAL, TYPE-AWARE workspace context. The live context
     // block is untrusted-ish (may contain user-entered text) so it's fenced +
     // injection sanitised; the safety clauses override anything inside it.
@@ -175,7 +212,7 @@ Across the platform Propvora covers: portfolio (properties, units, tenancies), w
 Current page context: ${contextRoute ?? "Main dashboard"}
 
 ${fencedContext}
-
+${inboxContextBlock ? `\n${inboxContextBlock}\n` : ""}
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
@@ -184,7 +221,9 @@ Guidelines:
 - Use the live workspace counts above when relevant; if a figure isn't shown, say you don't have it rather than inventing one.
 - Tailor advice to the workspace TYPE and AVAILABLE MODULES above. Do not suggest actions for modules this workspace doesn't have.
 - Follow the JURISDICTION rules above: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
-- Be concise (under 300 words unless asked for detail). Use clear structure for lists.${commandClause}`
+- Be concise (under 300 words unless asked for detail). Use clear structure for lists.
+- When a CONVERSATION THREAD is provided above, base your answer on those real messages — do not invent messages, names or events that are not in the thread.
+- If the user asks to draft a reply, produce the draft text only; state clearly it is a draft and the user must review it before sending.${commandClause}`
 
     // The actual user turn: for a command, send its instruction + any trailing
     // args the user typed; otherwise the raw message.

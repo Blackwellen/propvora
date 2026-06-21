@@ -83,7 +83,7 @@ export function QuotesTab() {
                   <h3 className="text-base font-semibold text-slate-900">{active.title}</h3>
                   <p className="text-xs text-slate-500 mt-0.5">{active.rfqRef} · {active.propertyLabel} · {active.orderType}</p>
                 </div>
-                <Link href={`/app/work/orders/quotes/${active.rfqRef}`} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">
+                <Link href={`/property-manager/work/orders/quotes/${active.rfqRef}`} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">
                   Full comparison <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>

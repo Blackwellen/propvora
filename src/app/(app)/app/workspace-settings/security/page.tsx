@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
-import { Lock } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { Lock, Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface SecurityPolicy {
   requireMfaAdmins: boolean
@@ -27,6 +28,40 @@ export default function SecurityPage() {
     roleChangeApproval: false,
   })
   const [isDirty, setIsDirty] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [unavailable, setUnavailable] = useState(false)
+
+  // Hydrate from workspace_settings on mount
+  useEffect(() => {
+    getWorkspaceSettings().then(({ settings: s, unavailable: u }) => {
+      if (u) { setUnavailable(true); return }
+      if (s) {
+        const sp = s.security_policy as Partial<SecurityPolicy> | undefined
+        if (sp && typeof sp === "object") setPolicy(prev => ({ ...prev, ...sp }))
+      }
+    })
+  }, [])
+
+  async function handleSave() {
+    setSaving(true)
+    setSaveError(null)
+    const res = await saveWorkspaceSettings({ security_policy: policy }, "team")
+    setSaving(false)
+    if (res.unavailable) {
+      setUnavailable(true)
+      setSaveError("Settings storage is not configured yet.")
+      return
+    }
+    if (!res.ok) {
+      setSaveError(res.error ?? "Failed to save security policy.")
+      return
+    }
+    setSaved(true)
+    setIsDirty(false)
+    setTimeout(() => setSaved(false), 3000)
+  }
 
   function updatePolicy<K extends keyof SecurityPolicy>(key: K, value: SecurityPolicy[K]) {
     setPolicy((prev) => ({ ...prev, [key]: value }))
@@ -51,6 +86,9 @@ export default function SecurityPage() {
         </div>
         <button
           onClick={() => updatePolicy(field, !value)}
+          role="switch"
+          aria-checked={value}
+          aria-label={label}
           className={cn(
             "w-10 h-6 rounded-full transition-colors shrink-0 mt-0.5",
             value ? "bg-[#2563EB]" : "bg-slate-200"
@@ -208,21 +246,26 @@ export default function SecurityPage() {
       </div>
 
       {/* Sticky save bar */}
-      {isDirty && (
+      {isDirty && !unavailable && (
         <div className="app-save-bar fixed left-0 right-0 flex items-center justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 bg-white border-t border-slate-200 shadow-lg">
-          <p className="text-[13px] text-slate-600 truncate min-w-0"><span className="hidden sm:inline">You have unsaved security policy changes</span><span className="sm:hidden">Unsaved changes</span></p>
+          <div>
+            <p className="text-[13px] text-slate-600 truncate min-w-0"><span className="hidden sm:inline">You have unsaved security policy changes</span><span className="sm:hidden">Unsaved changes</span></p>
+            {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}
+          </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsDirty(false)}
+              onClick={() => { setIsDirty(false); setSaveError(null) }}
               className="px-4 py-2 rounded-xl border border-slate-200 text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Discard
             </button>
             <button
-              onClick={() => setIsDirty(false)}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
             >
-              Save policy
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
+              {saving ? "Saving…" : saved ? "Saved!" : "Save policy"}
             </button>
           </div>
         </div>

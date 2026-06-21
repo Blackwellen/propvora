@@ -196,7 +196,7 @@ export default function SuppliersCompliancePage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
                           <Link
-                            href={`/app/work/suppliers/${s.id}`}
+                            href={`/property-manager/work/suppliers/${s.id}`}
                             className="text-[13.5px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors"
                           >
                             {s.name}
@@ -210,7 +210,7 @@ export default function SuppliersCompliancePage() {
                         {cfg.label}
                       </div>
                       <Link
-                        href={`/app/work/suppliers/${s.id}`}
+                        href={`/property-manager/work/suppliers/${s.id}`}
                         className="shrink-0 p-2 rounded-lg hover:bg-slate-50 transition-colors"
                       >
                         <ChevronRight className="w-4 h-4 text-slate-400" />

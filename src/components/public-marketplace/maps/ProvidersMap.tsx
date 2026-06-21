@@ -12,6 +12,16 @@ const ProvidersMapInner = dynamic(() => import('./ProvidersMapInner'), {
   ),
 })
 
-export default function ProvidersMap({ providers }: { providers: PublicProvider[] }) {
-  return <ProvidersMapInner providers={providers} />
+interface ProvidersMapProps {
+  providers: PublicProvider[]
+  /** Base path for "View profile" links. Defaults to /property-manager/marketplace/suppliers-hub */
+  basePath?: string
+}
+
+export default function ProvidersMap({ providers, basePath, height = 'h-full' }: ProvidersMapProps & { height?: string }) {
+  return (
+    <div className={`w-full ${height}`}>
+      <ProvidersMapInner providers={providers} basePath={basePath} />
+    </div>
+  )
 }

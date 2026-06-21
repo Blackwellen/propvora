@@ -109,7 +109,7 @@ export default function UnitEditPage() {
         await updateUnit.mutateAsync({ workspaceId: workspace.id, id: unit.id, payload: data })
       }
       setSaved(true)
-      setTimeout(() => router.push(`/app/portfolio/units/${id}`), 1200)
+      setTimeout(() => router.push(`/property-manager/portfolio/units/${id}`), 1200)
     } catch (err) {
       console.error(err)
     } finally {
@@ -128,13 +128,13 @@ export default function UnitEditPage() {
         title="Edit unit"
         subtitle={unit?.unit_name ?? "this unit"}
         showBack
-        backHref={`/app/portfolio/units/${id}`}
+        backHref={`/property-manager/portfolio/units/${id}`}
       />
 
       <nav className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 mb-6">
-        <Link href="/app/portfolio" className="hover:text-slate-600">Portfolio</Link>
+        <Link href="/property-manager/portfolio" className="hover:text-slate-600">Portfolio</Link>
         <span>/</span>
-        <Link href={`/app/portfolio/units/${id}`} className="hover:text-slate-600">{unit?.unit_name ?? "Unit"}</Link>
+        <Link href={`/property-manager/portfolio/units/${id}`} className="hover:text-slate-600">{unit?.unit_name ?? "Unit"}</Link>
         <span>/</span>
         <span className="text-slate-900 font-medium">Edit</span>
       </nav>
@@ -233,7 +233,7 @@ export default function UnitEditPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button type="button" variant="ghost" size="md" onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/app/portfolio/units/${id}`)}>
+            <Button type="button" variant="ghost" size="md" onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/property-manager/portfolio/units/${id}`)}>
               <ArrowLeft className="w-4 h-4" />{step === 1 ? "Cancel" : "Back"}
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={saving || saved}>

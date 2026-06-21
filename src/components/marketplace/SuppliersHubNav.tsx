@@ -3,7 +3,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Store, Wrench, AlertTriangle } from "lucide-react"
 
-const BASE = "/app/marketplace/suppliers-hub"
+const BASE = "/property-manager/marketplace/suppliers-hub"
 
 // The hub is now a single tabbed page (?tab=…). These tabs point back at it so
 // the nested detail/map pages keep a working tab bar. The "active" highlight is

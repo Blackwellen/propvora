@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -138,7 +138,7 @@ export default function EvidencePage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-              { label: "Open Documents", icon: FileText, onClick: () => router.push("/app/compliance/documents") },
+              { label: "Open Documents", icon: FileText, onClick: () => router.push("/property-manager/compliance/documents") },
             ]}
           />
         </div>
@@ -204,7 +204,7 @@ export default function EvidencePage() {
               className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-56"
             />
           </div>
-          <select value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none">
+          <select aria-label="Filter by verification status" value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             {VERIFY_FILTERS.map((s) => (
               <option key={s} value={s}>{s ? humaniseType(s) : "All status"}</option>
             ))}

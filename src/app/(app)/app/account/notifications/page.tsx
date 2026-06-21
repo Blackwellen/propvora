@@ -237,7 +237,7 @@ export default function NotificationsPage() {
               type="time"
               value={quietStart}
               onChange={e => { setQuietStart(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
             />
           </div>
           <div>
@@ -247,7 +247,7 @@ export default function NotificationsPage() {
               type="time"
               value={quietEnd}
               onChange={e => { setQuietEnd(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
             />
           </div>
         </div>

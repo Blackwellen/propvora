@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -40,26 +40,26 @@ function PrimaryActions({ contact, onToast, onArchive, onDelete, editable, onTab
         <MessageSquare className="w-3.5 h-3.5" /> Message
       </button>
       {type === "tenant" && <>
-        <Button variant="outline" size="sm" leftIcon={<Edit className="w-3.5 h-3.5" />} onClick={() => router.push(`/app/portfolio/tenancies/new?contact=${contact.id}`)}>Open Tenancy</Button>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
+        <Button variant="outline" size="sm" leftIcon={<Edit className="w-3.5 h-3.5" />} onClick={() => router.push(`/property-manager/portfolio/tenancies/new?contact=${contact.id}`)}>Open Tenancy</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
         <Button variant="outline" size="sm" onClick={() => onTabChange("documents")}>Upload Document</Button>
       </>}
       {type === "landlord" && <>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/planning/landlord-offers/new?contact=${contact.id}`)}>Create Offer</Button>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/portfolio/properties?link_contact=${contact.id}`)}>Link Property</Button>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/planning/landlord-offers/new?contact=${contact.id}`)}>Create Offer</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/portfolio/properties?link_contact=${contact.id}`)}>Link Property</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
       </>}
       {type === "supplier" && <>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/work/jobs/new?contact=${contact.id}`)}>Create Job</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/work/jobs/new?contact=${contact.id}`)}>Create Job</Button>
         <Button variant="outline" size="sm" onClick={() => onTabChange("documents")}>Request Docs</Button>
         <Button variant="outline" size="sm" onClick={() => onToast("Portal invite requires email configuration")}>Portal Link</Button>
       </>}
       {type === "applicant" && <>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/calendar/events/new?contact=${contact.id}`)}>Book Viewing</Button>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/portfolio/tenancies/new?contact=${contact.id}`)}>Convert to Tenant</Button>
-        <Button variant="outline" size="sm" onClick={() => router.push(`/app/work/tasks/new?contact=${contact.id}`)}>Create Follow-up</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/calendar/events/new?contact=${contact.id}`)}>Book Viewing</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/portfolio/tenancies/new?contact=${contact.id}`)}>Convert to Tenant</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Follow-up</Button>
       </>}
-      <Link href={`/app/contacts/${contact.id}/edit`}>
+      <Link href={`/property-manager/contacts/${contact.id}/edit`}>
         <Button variant="outline" size="sm" leftIcon={<Edit className="w-3.5 h-3.5" />}>Edit</Button>
       </Link>
       <ConfirmDialog
@@ -71,8 +71,8 @@ function PrimaryActions({ contact, onToast, onArchive, onDelete, editable, onTab
         {(openDelete) => (
           <ActionMenu
             items={[
-              { label: "View Profile", icon: Eye, onClick: () => router.push(`/app/contacts/${contact.id}`) },
-              { label: "Edit Contact", icon: Edit, onClick: () => router.push(`/app/contacts/${contact.id}/edit`) },
+              { label: "View Profile", icon: Eye, onClick: () => router.push(`/property-manager/contacts/${contact.id}`) },
+              { label: "Edit Contact", icon: Edit, onClick: () => router.push(`/property-manager/contacts/${contact.id}/edit`) },
               { label: "Send Message", icon: MessageSquare, onClick: () => onTabChange("messages") },
               {
                 label: contact.status === "archived" ? "Restore Contact" : "Archive Contact",
@@ -100,8 +100,8 @@ export function ContactDetailHeader({ contact, editable, onToast, onArchive, onD
         title={contact.full_name}
         subtitle={contact.contact_type}
         showBack
-        backHref="/app/contacts"
-        primaryAction={{ label: "Edit", icon: Edit, href: `/app/contacts/${contact.id}/edit` }}
+        backHref="/property-manager/contacts"
+        primaryAction={{ label: "Edit", icon: Edit, href: `/property-manager/contacts/${contact.id}/edit` }}
         overflowActions={[
           { label: "Message", icon: MessageSquare, onClick: () => onTabChange("messages") },
           { label: "Archive", icon: Package, onClick: onArchive },
@@ -111,11 +111,11 @@ export function ContactDetailHeader({ contact, editable, onToast, onArchive, onD
 
       {/* Back + breadcrumb */}
       <div className="hidden md:block mb-4">
-        <Link href="/app/contacts" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-2">
+        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-2">
           <ArrowLeft className="w-4 h-4" /> Back to Contacts
         </Link>
         <p className="text-xs text-slate-400">
-          <Link href="/app/contacts" className="hover:text-slate-600">Contacts</Link>
+          <Link href="/property-manager/contacts" className="hover:text-slate-600">Contacts</Link>
           <span className="mx-1">/</span>
           <span className="text-slate-600 font-medium">{contact.full_name}</span>
         </p>

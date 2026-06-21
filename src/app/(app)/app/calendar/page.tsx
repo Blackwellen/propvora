@@ -139,7 +139,7 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
           </div>
         </div>
         <Link
-          href={sectionLink("/app/calendar/views/day")}
+          href={sectionLink("/property-manager/calendar/views/day")}
           className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
         >
           Full day view <ChevronRight className="w-3.5 h-3.5" />
@@ -282,7 +282,7 @@ function AttentionQueueCard({ items }: { items: CalendarItem[] }) {
         </div>
       )}
       <div className="px-4 py-3 border-t border-slate-50">
-        <Link href={sectionLink("/app/calendar/schedule")} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/property-manager/calendar/schedule")} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
           View full schedule &gt;
         </Link>
       </div>
@@ -308,7 +308,7 @@ function UpcomingWeekCard({ items }: { items: CalendarItem[] }) {
           <CalendarDays className="w-4 h-4 text-blue-500" />
           <span className="text-[14px] font-semibold text-slate-900">Upcoming This Week</span>
         </div>
-        <Link href={sectionLink("/app/calendar/views/week")} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/property-manager/calendar/views/week")} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
           View all &rarr;
         </Link>
       </div>
@@ -382,10 +382,10 @@ export default function CalendarOverviewPage() {
       <MobileTopBar
         title="Calendar"
         subtitle="Scheduling hub"
-        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/property-manager/calendar/events/new") }}
         overflowActions={[
-          { label: "New reminder", icon: Bell, href: sectionLink("/app/calendar/reminders/new") },
-          { label: "Export / Settings", icon: Download, href: sectionLink("/app/calendar/settings") },
+          { label: "New reminder", icon: Bell, href: sectionLink("/property-manager/calendar/reminders/new") },
+          { label: "Export / Settings", icon: Download, href: sectionLink("/property-manager/calendar/settings") },
         ]}
       />
       <div className="md:hidden -mx-4">
@@ -399,21 +399,21 @@ export default function CalendarOverviewPage() {
           actions={
             <>
               <Link
-                href={sectionLink("/app/calendar/events/new")}
+                href={sectionLink("/property-manager/calendar/events/new")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 New Event
               </Link>
               <Link
-                href={sectionLink("/app/calendar/reminders/new")}
+                href={sectionLink("/property-manager/calendar/reminders/new")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
               >
                 <Bell className="w-4 h-4" />
                 New Reminder
               </Link>
               <Link
-                href={sectionLink("/app/calendar/settings")}
+                href={sectionLink("/property-manager/calendar/settings")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
               >
                 <Download className="w-4 h-4" />

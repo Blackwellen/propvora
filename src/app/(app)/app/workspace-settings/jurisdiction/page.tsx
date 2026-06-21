@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState, useId } from "react"
 import { Check, Loader2, Lock } from "lucide-react"
@@ -244,7 +244,7 @@ export default function JurisdictionSettingsPage() {
           apply and how the AI Copilot frames guidance.
         </p>
         <a
-          href="/app/workspace/global"
+          href="/property-manager/workspace/global"
           className="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-medium text-blue-600 hover:text-blue-700"
         >
           View full Global &amp; internationalisation settings →

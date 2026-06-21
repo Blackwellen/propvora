@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState, useId } from "react"
 import { createPortal } from "react-dom"
@@ -345,7 +345,7 @@ export default function NotificationBell() {
           {/* Footer */}
           <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
             <a
-              href="/app/account/notifications"
+              href="/property-manager/account/notifications"
               className="text-[11.5px] text-blue-600 hover:underline font-medium"
             >
               View all notifications →

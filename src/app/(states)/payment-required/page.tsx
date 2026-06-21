@@ -15,8 +15,8 @@ export default function PaymentRequiredPage() {
       title="Payment required"
       description="This feature needs an active, paid plan. Update your billing details to restore access for your workspace."
       actions={[
-        { label: "Go to billing", href: "/app/workspace-settings/billing" },
-        { label: "Back to dashboard", href: "/app" },
+        { label: "Go to billing", href: "/property-manager/workspace-settings/billing" },
+        { label: "Back to dashboard", href: "/property-manager" },
       ]}
     />
   )

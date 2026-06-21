@@ -55,15 +55,15 @@ export default function ServicesMapPage() {
         <div className="max-w-[1400px] mx-auto flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 flex-1 border-r border-slate-200">
             <Search className="h-4 w-4 text-slate-400 shrink-0" />
-            <input type="text" placeholder="Plumbing and Heating" value={query} onChange={e => setQuery(e.target.value)} className="w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
+            <input type="text" aria-label="Service type or keyword" placeholder="Plumbing and Heating" value={query} onChange={e => setQuery(e.target.value)} className="w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
           </div>
           <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
             <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
-            <input type="text" placeholder="Manchester, M15 4GB" className="w-36 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
+            <input type="text" aria-label="Location" placeholder="Manchester, M15 4GB" className="w-36 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
           </div>
           <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
             <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-            <input type="text" placeholder="Fri, 23 May" className="w-28 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
+            <input type="text" aria-label="Date" placeholder="Fri, 23 May" className="w-28 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
           </div>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 transition-colors shrink-0 font-semibold text-sm">
             <Search className="h-4 w-4" />Search services

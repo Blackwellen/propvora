@@ -219,7 +219,7 @@ export default function NewAccountPage() {
     <>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={sectionLink("/app/accounting/accounts/overview")}>Cancel</Link>
+          <Link href={sectionLink("/property-manager/accounting/accounts/overview")}>Cancel</Link>
         </Button>
         <Button variant="outline" size="sm">Save as Draft</Button>
       </div>
@@ -231,7 +231,7 @@ export default function NewAccountPage() {
 
   return (
     <>
-    <MobileTopBar title="New Account" subtitle="Accounting" showBack backHref={sectionLink("/app/accounting/accounts/overview")} />
+    <MobileTopBar title="New Account" subtitle="Accounting" showBack backHref={sectionLink("/property-manager/accounting/accounts/overview")} />
     <AccountingWizardShell
       breadcrumbNumber="08"
       breadcrumbLabel="New Account"

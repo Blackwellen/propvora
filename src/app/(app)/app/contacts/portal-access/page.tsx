@@ -99,26 +99,25 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
     setSaving(true)
     setError(null)
     try {
-      const supabase = createClient()
-      const expiresAt = new Date(Date.now() + Number(expiry) * 86400_000).toISOString()
-      // token_hash is a placeholder until email delivery is configured; the link
-      // record itself is real and listed/revocable.
-      const token_hash = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `tok_${Date.now()}`
-      const { error: e } = await supabase
-        .from("contact_portal_access")
-        .insert({
-          workspace_id: workspaceId,
-          contact_id: contactId,
-          access_type: purpose,
+      // Use the secure server-side grant API which mints the token with a
+      // CSPRNG, stores only the SHA-256 hash, and writes the audit log.
+      // Never generate tokens client-side — that bypasses hashing and audit.
+      const res = await fetch("/api/portals/grant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          contactId,
+          profile: purpose,
+          accessType: purpose,
           purpose,
-          status: "active",
-          expires_at: expiresAt,
-          token_hash,
-        })
-        .select("id")
-        .single()
-      if (e) {
-        setError((e as { code?: string }).code === "42P01" ? "Portal access table is not provisioned yet." : e.message)
+          expiryDays: Number(expiry),
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data?.id) {
+        const msg = (data?.error as string | undefined) ?? "Could not create portal link"
+        setError(msg === "Portal access table is not provisioned" ? "Portal access table is not provisioned yet." : msg)
         setSaving(false)
         return
       }

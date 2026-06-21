@@ -290,7 +290,7 @@ export default function PlanningSetOverviewPage() {
           <AlertTriangle className="w-6 h-6 text-red-500" />
         </div>
         <div className="text-slate-700 font-semibold">{error}</div>
-        <Link href="/app/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
+        <Link href="/property-manager/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
       </div>
     )
   }
@@ -376,7 +376,7 @@ export default function PlanningSetOverviewPage() {
           value={fmt(totalProjectCost)}
           sub={
             <Link
-              href={`/app/planning/sets/${id}/upfront-costs`}
+              href={`/property-manager/planning/sets/${id}/upfront-costs`}
               className="text-[10px] font-medium text-[#7C3AED] hover:underline flex items-center gap-0.5"
             >
               View cost breakdown
@@ -412,7 +412,7 @@ export default function PlanningSetOverviewPage() {
                   <h3 className="text-sm font-semibold text-slate-900">Plan Summary</h3>
                 </div>
                 <Link
-                  href={`/app/planning/sets/${id}/assumptions`}
+                  href={`/property-manager/planning/sets/${id}/assumptions`}
                   className="text-[11px] text-[#7C3AED] hover:underline font-medium flex items-center gap-0.5"
                 >
                   View full assumptions
@@ -575,7 +575,7 @@ export default function PlanningSetOverviewPage() {
               )}
 
               <Link
-                href={`/app/planning/sets/${id}/ai-review`}
+                href={`/property-manager/planning/sets/${id}/ai-review`}
                 className="mt-3 w-full py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-colors flex items-center justify-center"
               >
                 {aiReview ? "View AI review" : "Run AI review"}
@@ -591,7 +591,7 @@ export default function PlanningSetOverviewPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-slate-900">Key Assumptions</h3>
                 <Link
-                  href={`/app/planning/sets/${id}/assumptions`}
+                  href={`/property-manager/planning/sets/${id}/assumptions`}
                   className="text-[11px] text-[#7C3AED] hover:underline font-medium flex items-center gap-0.5"
                 >
                   View all
@@ -621,7 +621,7 @@ export default function PlanningSetOverviewPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-slate-900">Pinned Notes</h3>
                 <Link
-                  href={`/app/planning/sets/${id}/activity`}
+                  href={`/property-manager/planning/sets/${id}/activity`}
                   className="text-[11px] text-[#7C3AED] hover:underline font-medium flex items-center gap-0.5"
                 >
                   View all
@@ -661,7 +661,7 @@ export default function PlanningSetOverviewPage() {
                 <h3 className="text-sm font-semibold text-slate-900">Recent Activity</h3>
               </div>
               <Link
-                href={`/app/planning/sets/${id}/activity`}
+                href={`/property-manager/planning/sets/${id}/activity`}
                 className="text-[11px] text-[#7C3AED] hover:underline font-medium flex items-center gap-0.5"
               >
                 View all
@@ -700,7 +700,7 @@ export default function PlanningSetOverviewPage() {
                 <h3 className="text-sm font-semibold text-slate-900">Upcoming Tasks</h3>
               </div>
               <Link
-                href={`/app/planning/sets/${id}/tasks`}
+                href={`/property-manager/planning/sets/${id}/tasks`}
                 className="text-[11px] text-[#7C3AED] hover:underline font-medium flex items-center gap-0.5"
               >
                 <Plus className="w-3 h-3" />

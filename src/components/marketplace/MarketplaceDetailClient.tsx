@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
@@ -118,7 +118,7 @@ export function MarketplaceDetailClient({ listingId }: Props) {
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Listing" showBack backHref="/app/marketplace" />
+      <MobileTopBar title="Listing" showBack backHref="/property-manager/marketplace" />
 
       {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -136,7 +136,7 @@ export function MarketplaceDetailClient({ listingId }: Props) {
           variant="no-results"
           title="This listing is unavailable"
           description="It may have been unpublished, archived, or it isn't ready yet. Browse the marketplace to find what you need."
-          action={{ label: "Back to marketplace", href: "/app/marketplace", icon: Store }}
+          action={{ label: "Back to marketplace", href: "/property-manager/marketplace", icon: Store }}
         />
       ) : (
         <ListingDetail listing={listing} media={media} seller={seller} />
@@ -146,7 +146,7 @@ export function MarketplaceDetailClient({ listingId }: Props) {
       {!loading && (notFound || !listing) && (
         <div className="hidden md:flex justify-center mt-4">
           <Button variant="outline" size="md" asChild>
-            <Link href="/app/marketplace">Return to marketplace</Link>
+            <Link href="/property-manager/marketplace">Return to marketplace</Link>
           </Button>
         </div>
       )}

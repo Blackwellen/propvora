@@ -21,7 +21,6 @@ import AutomationsDataTable, { type DataColumn } from "../components/Automations
 import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives"
 import { BarList, Donut, MiniLine } from "../components/charts"
 import { useAutomationUsageLimits } from "../data/hooks"
-import { SEED_USAGE_BY_MODULE } from "../data/seed"
 import type { PlanQuotaRow } from "../data/types"
 
 const ADMIN_CARDS = [
@@ -82,11 +81,11 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
 
       {/* KPI row */}
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">
-        <AutomationsKpiCard label="Total runs this month" value="14,382" trend="18.7%" sub="vs 12,121" icon={Activity} tone="blue"><MiniLine data={[10, 11, 12, 12, 13, 14]} color="#3b82f6" /></AutomationsKpiCard>
-        <AutomationsKpiCard label="AI credits used" value="68,450" sub="/ 100,000" icon={Zap} tone="violet" progress={68.5} />
-        <AutomationsKpiCard label="Webhook volume" value="1.62M" trend="12.5%" icon={Webhook} tone="emerald"><MiniLine data={[1.2, 1.3, 1.4, 1.5, 1.6, 1.62]} color="#10b981" /></AutomationsKpiCard>
-        <AutomationsKpiCard label="Storage / log retention" value="412.6 GB" trend="9.3%" icon={Database} tone="amber" progress={41.3} />
-        <AutomationsKpiCard label="Approval queue capacity" value="312 / 1,000" sub="31.2% utilised" icon={ShieldCheck} tone="slate" progress={31.2} />
+        <AutomationsKpiCard label="Total runs this month" value="—" sub="Requires live data" icon={Activity} tone="blue" />
+        <AutomationsKpiCard label="AI credits used" value="—" sub="Requires live data" icon={Zap} tone="violet" />
+        <AutomationsKpiCard label="Webhook volume" value="—" sub="Requires live data" icon={Webhook} tone="emerald" />
+        <AutomationsKpiCard label="Storage / log retention" value="—" sub="Requires live data" icon={Database} tone="amber" />
+        <AutomationsKpiCard label="Approval queue capacity" value="—" sub="Requires live data" icon={ShieldCheck} tone="slate" />
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_320px]">
@@ -100,7 +99,7 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
             <Card>
               <CardHeader title="Usage by automation type" />
               <div className="flex items-center gap-4 p-4">
-                <Donut size={130} centerLabel="14,382" centerSub="total" slices={[
+                <Donut size={130} centerLabel="—" centerSub="live data needed" slices={[
                   { label: "Workflow", value: 42.6, color: "#3b82f6" },
                   { label: "AI", value: 25.3, color: "#7c3aed" },
                   { label: "Integration", value: 18.7, color: "#10b981" },
@@ -116,7 +115,7 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
             </Card>
             <Card>
               <CardHeader title="Usage by module" />
-              <div className="p-4"><BarList items={SEED_USAGE_BY_MODULE} color="bg-blue-500" /></div>
+              <div className="p-4 text-[12.5px] text-slate-400">Module breakdown requires live automation data.</div>
             </Card>
             <Card>
               <CardHeader title="Compliance posture" action={<button onClick={() => toast("Compliance details")} className="text-xs font-medium text-blue-600 hover:underline">View details</button>} />
@@ -147,7 +146,7 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
           <Card>
             <CardHeader title="Plan limits & workspace quotas" action={<button onClick={() => setModal("quotas")} className="text-xs font-medium text-blue-600 hover:underline">Configure quotas</button>} />
             {loading ? <div className="h-40 animate-pulse bg-slate-100" /> : (
-              <AutomationsDataTable columns={quotaCols} rows={data.quotas} pageSize={3} total={3} />
+              <AutomationsDataTable columns={quotaCols} rows={data.quotas} pageSize={3} total={data.quotas.length} emptyMessage="Quota data will appear here once your workspace usage is tracked." />
             )}
           </Card>
         </div>
@@ -157,12 +156,12 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
           <Card>
             <CardHeader title="Cost forecast" action={<button onClick={() => toast("Billing & usage")} className="text-xs font-medium text-blue-600 hover:underline">View billing</button>} />
             <div className="p-4">
-              <div className="text-2xl font-semibold text-slate-900">$1,842.30 <span className="text-xs font-medium text-emerald-600">+14.6%</span></div>
+              <div className="text-2xl font-semibold text-slate-900">£1,842.30 <span className="text-xs font-medium text-emerald-600">+14.6%</span></div>
               <div className="mt-1 text-xs text-slate-400">Estimated spend this cycle</div>
               <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                <div><div className="font-semibold text-slate-800">$1,210</div><div className="text-slate-400">Actual</div></div>
-                <div><div className="font-semibold text-slate-800">$2,500</div><div className="text-slate-400">Budget</div></div>
-                <div><div className="font-semibold text-slate-800">$658</div><div className="text-slate-400">Remaining</div></div>
+                <div><div className="font-semibold text-slate-800">£1,210</div><div className="text-slate-400">Actual</div></div>
+                <div><div className="font-semibold text-slate-800">£2,500</div><div className="text-slate-400">Budget</div></div>
+                <div><div className="font-semibold text-slate-800">£658</div><div className="text-slate-400">Remaining</div></div>
               </div>
               <div className="mt-3 h-16"><MiniLine data={[400, 700, 950, 1210, 1500, 1842]} color="#7c3aed" /></div>
             </div>
@@ -170,7 +169,9 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
           <Card>
             <CardHeader title="Top usage drivers" />
             <div className="p-3 space-y-1">
-              {data.drivers.map((d) => (
+              {data.drivers.length === 0 ? (
+                <p className="px-2 py-4 text-xs text-slate-400">Usage driver data will appear once automations are running.</p>
+              ) : data.drivers.map((d) => (
                 <div key={d.id} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
                   <span className="text-slate-700">{d.name}</span>
                   <span className="text-xs text-slate-500">{d.runs.toLocaleString()} · {d.share}%</span>

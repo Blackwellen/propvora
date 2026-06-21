@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -409,7 +409,7 @@ const JOB_VIEW_TYPES = [
 function JobCard({ job, compact = false }: { job: DemoJob; compact?: boolean }) {
   return (
     <Link
-      href={`/app/work/jobs/${job.id}`}
+      href={`/property-manager/work/jobs/${job.id}`}
       className="block bg-white border border-slate-200 rounded-xl p-3.5 hover:shadow-sm hover:border-slate-300 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -547,7 +547,7 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
                   </div>
                   <div className="space-y-1">
                     {dayJobs.slice(0, 3).map((j) => (
-                      <Link key={j.id} href={`/app/work/jobs/${j.id}`} title={`${j.title} · ${j.property}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
+                      <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} title={`${j.title} · ${j.property}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
                         <span className="text-[10px] font-medium text-slate-600 truncate">{j.title}</span>
                       </Link>
@@ -630,7 +630,7 @@ function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                   {items.map((j) => (
-                    <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-md px-3 py-2.5 transition-all">
+                    <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-md px-3 py-2.5 transition-all">
                       <span className={cn("w-2.5 h-2.5 rounded-full shrink-0 ring-4 ring-offset-0", STATUS_DOT[j.status] ?? "bg-slate-400", "ring-slate-50")} />
                       <div className="min-w-0 flex-1">
                         <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-[#2563EB] transition-colors">{j.title}</p>
@@ -654,7 +654,7 @@ function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                 {unscheduled.map((j) => (
-                  <Link key={j.id} href={`/app/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 hover:bg-white hover:border-slate-400 px-3 py-2.5 transition-all">
+                  <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 hover:bg-white hover:border-slate-400 px-3 py-2.5 transition-all">
                     <span className={cn("w-2.5 h-2.5 rounded-full shrink-0 ring-4 ring-white", STATUS_DOT[j.status] ?? "bg-slate-400")} />
                     <span className="text-[12.5px] font-medium text-slate-700 truncate flex-1">{j.title}</span>
                   </Link>
@@ -700,7 +700,7 @@ function JobsDataView({ jobs }: { jobs: DemoJob[] }) {
               <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors group">
                 <td className="px-3 py-2.5 font-mono text-[11px] text-slate-400 whitespace-nowrap">{String(j.id).slice(0, 10)}</td>
                 <td className="px-3 py-2.5">
-                  <Link href={`/app/work/jobs/${j.id}`} className="font-semibold text-slate-800 group-hover:text-[#2563EB] whitespace-nowrap transition-colors">{j.title}</Link>
+                  <Link href={`/property-manager/work/jobs/${j.id}`} className="font-semibold text-slate-800 group-hover:text-[#2563EB] whitespace-nowrap transition-colors">{j.title}</Link>
                 </td>
                 <td className="px-3 py-2.5"><JobStatusBadge status={j.status} /></td>
                 <td className="px-3 py-2.5"><WorkPriorityBadge priority={j.priority} /></td>
@@ -760,13 +760,18 @@ export default function JobsPage() {
 
   const liveOrDemo: DemoJob[] = useMemo(() => {
     if (jobsData && jobsData.length > 0) {
-      return jobsData.map(j => ({
+      return jobsData.map(j => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const jj = j as any
+        const propName: string = jj.properties?.name ?? jj.properties?.address_line1 ?? (j.property_id ? "Property" : "—")
+        const supplierName: string = jj.supplier_contact?.display_name ?? "—"
+        return ({
         id: j.id,
         title: j.title,
         priority: j.priority ?? "medium",
-        property: j.property_id ?? "—",
+        property: propName,
         block: "—",
-        supplier: "—",
+        supplier: supplierName,
         engineer: j.assigned_to ?? "Unassigned",
         engineerInitials: (j.assigned_to ?? "?").slice(0, 2).toUpperCase(),
         team: "—",
@@ -783,7 +788,7 @@ export default function JobsPage() {
         attachments: 0,
         notes: 0,
         isLive: true,
-      }))
+      })})
     }
     return []
   }, [jobsData])
@@ -900,7 +905,7 @@ export default function JobsPage() {
       <MobileTopBar
         title="Jobs"
         subtitle="Work orders"
-        primaryAction={{ label: "Create job", icon: Plus, href: "/app/work/jobs/new" }}
+        primaryAction={{ label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" }}
         overflowActions={[
           { label: "Select all", icon: CheckCircle2, onClick: () => setSelectedIds(displayJobs.map((j) => j.id)) },
           { label: "Export", icon: Download, onClick: exportSelected },
@@ -931,19 +936,19 @@ export default function JobsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/app/work/jobs/new"
+            href="/property-manager/work/jobs/new"
             className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Create Job
           </Link>
           <Link
-            href="/app/work/ppm"
+            href="/property-manager/work/ppm"
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             <Calendar className="w-3.5 h-3.5" /> Schedule Visit
           </Link>
           <Link
-            href="/app/work/suppliers"
+            href="/property-manager/work/suppliers"
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             Request Quote
@@ -1104,7 +1109,7 @@ export default function JobsPage() {
               title="No jobs found"
               description="No jobs match your current filters."
               ctaLabel="+ Create Job"
-              ctaHref="/app/work/jobs/new"
+              ctaHref="/property-manager/work/jobs/new"
             />
           ) : (
             <ResponsiveTable
@@ -1115,7 +1120,7 @@ export default function JobsPage() {
                 subtitle: (j) => `#${j.id}`,
                 leading: (j) => <WorkPriorityBadge priority={j.priority} showLabel={false} />,
                 badge: (j) => <JobStatusBadge status={j.status} />,
-                onRowClick: (j) => router.push(`/app/work/jobs/${j.id}`),
+                onRowClick: (j) => router.push(`/property-manager/work/jobs/${j.id}`),
                 fields: [
                   { label: "Property", render: (j) => j.property, hideWhenEmpty: true },
                   { label: "Supplier", render: (j) => j.supplier, hideWhenEmpty: true },
@@ -1163,7 +1168,7 @@ export default function JobsPage() {
                       />
                     </td>
                     <td className="px-4 py-3.5">
-                      <Link href={`/app/work/jobs/${job.id}`} className="block hover:underline">
+                      <Link href={`/property-manager/work/jobs/${job.id}`} className="block hover:underline">
                         <p className="text-sm font-semibold text-slate-900 truncate max-w-[220px]">{job.title}</p>
                         <p className="text-[11px] text-slate-400">#{job.id}</p>
                       </Link>
@@ -1255,8 +1260,8 @@ export default function JobsPage() {
                     <td className="px-4 py-3.5 text-right" onClick={e => e.stopPropagation()}>
                       <ActionMenu
                         items={[
-                          { label: "View job", icon: Eye, onClick: () => router.push(`/app/work/jobs/${job.id}`) },
-                          { label: "Edit", icon: Edit2, onClick: () => router.push(`/app/work/jobs/${job.id}`) },
+                          { label: "View job", icon: Eye, onClick: () => router.push(`/property-manager/work/jobs/${job.id}`) },
+                          { label: "Edit", icon: Edit2, onClick: () => router.push(`/property-manager/work/jobs/${job.id}`) },
                           ...(!["complete", "invoiced", "closed"].includes(job.status)
                             ? [{ label: "Mark complete", icon: CheckCircle2, onClick: () => workspaceId && updateJob.mutate({ id: job.id, workspaceId, payload: { status: "complete", completed_date: new Date().toISOString() } }) }]
                             : []),

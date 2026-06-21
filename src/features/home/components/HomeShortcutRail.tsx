@@ -23,15 +23,15 @@ interface ShortcutItem {
 }
 
 const SHORTCUTS: ShortcutItem[] = [
-  { label: "Properties", icon: Building2, iconBg: "bg-blue-100", iconColor: "text-blue-600", href: "/app/portfolio/properties" },
-  { label: "Units", icon: LayoutGrid, iconBg: "bg-indigo-100", iconColor: "text-indigo-600", href: "/app/portfolio/units" },
-  { label: "Tenancies", icon: Users, iconBg: "bg-green-100", iconColor: "text-green-600", href: "/app/portfolio/tenancies" },
-  { label: "Tasks", icon: CheckSquare, iconBg: "bg-amber-100", iconColor: "text-amber-600", href: "/app/work/tasks" },
-  { label: "Jobs", icon: Briefcase, iconBg: "bg-orange-100", iconColor: "text-orange-600", href: "/app/work/jobs" },
-  { label: "Suppliers", icon: Truck, iconBg: "bg-purple-100", iconColor: "text-purple-600", href: "/app/work/suppliers" },
-  { label: "People", icon: UserCircle, iconBg: "bg-pink-100", iconColor: "text-pink-600", href: "/app/contacts" },
-  { label: "Documents", icon: FileText, iconBg: "bg-slate-100", iconColor: "text-slate-600", href: "/app/compliance/documents" },
-  { label: "Invoices", icon: Receipt, iconBg: "bg-teal-100", iconColor: "text-teal-600", href: "/app/money/invoices" },
+  { label: "Properties", icon: Building2, iconBg: "bg-blue-100", iconColor: "text-blue-600", href: "/property-manager/portfolio/properties" },
+  { label: "Units", icon: LayoutGrid, iconBg: "bg-indigo-100", iconColor: "text-indigo-600", href: "/property-manager/portfolio/units" },
+  { label: "Tenancies", icon: Users, iconBg: "bg-green-100", iconColor: "text-green-600", href: "/property-manager/portfolio/tenancies" },
+  { label: "Tasks", icon: CheckSquare, iconBg: "bg-amber-100", iconColor: "text-amber-600", href: "/property-manager/work/tasks" },
+  { label: "Jobs", icon: Briefcase, iconBg: "bg-orange-100", iconColor: "text-orange-600", href: "/property-manager/work/jobs" },
+  { label: "Suppliers", icon: Truck, iconBg: "bg-purple-100", iconColor: "text-purple-600", href: "/property-manager/work/suppliers" },
+  { label: "People", icon: UserCircle, iconBg: "bg-pink-100", iconColor: "text-pink-600", href: "/property-manager/contacts" },
+  { label: "Documents", icon: FileText, iconBg: "bg-slate-100", iconColor: "text-slate-600", href: "/property-manager/compliance/documents" },
+  { label: "Invoices", icon: Receipt, iconBg: "bg-teal-100", iconColor: "text-teal-600", href: "/property-manager/money/invoices" },
 ]
 
 export function HomeShortcutRail() {

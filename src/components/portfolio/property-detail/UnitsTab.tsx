@@ -86,7 +86,7 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
           <SlidersHorizontal size={13} /> More filters
         </button>
         <div className="ml-auto flex items-center gap-2">
-          <Link href={`/app/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Unit
           </Link>
           <ActionMenu
@@ -99,16 +99,42 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
         </div>
       </div>
 
-      {/* Table */}
-      <Card className="overflow-hidden">
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-2.5">
+        {filtered.length === 0 ? (
+          <p className="text-[13px] text-slate-500 text-center py-8">No units match your search.</p>
+        ) : filtered.map((unit) => (
+          <Link
+            key={unit.id}
+            href={`/property-manager/portfolio/units/${unit.id}`}
+            className="flex items-center gap-3 bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm"
+          >
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <Home size={16} className="text-slate-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-semibold text-slate-800 text-[13px]">{unit.unit_name}</p>
+                <StatusPill status={unit.status} />
+              </div>
+              <p className="text-[11px] text-slate-400">Floor {unit.floor} · {unit.unit_type ?? "—"} · {unit.bedrooms ?? "—"} bed</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="font-bold text-slate-900 text-[13px]">{unit.target_rent != null ? fmt(unit.target_rent) : "—"}</p>
+              <p className="text-[10px] text-slate-400">per month</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Table — desktop */}
+      <Card className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/60">
                 {["Unit", "Status", "Occupancy", "Monthly Rent", "Deposit", "Area", "Type", "Rooms", ""].map((h) => (
-                  <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">
-                    {h}
-                  </th>
+                  <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -119,7 +145,7 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
                   className="border-b border-slate-100 hover:bg-slate-50 transition-colors group cursor-pointer"
                 >
                   <td className="px-4 py-3">
-                    <Link href={`/app/portfolio/units/${unit.id}`} className="flex items-center gap-3">
+                    <Link href={`/property-manager/portfolio/units/${unit.id}`} className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                         <Home size={15} className="text-slate-400" />
                       </div>
@@ -187,9 +213,9 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ActionMenu
                         items={[
-                          { label: "View unit", icon: Eye, onClick: () => router.push(`/app/portfolio/units/${unit.id}`) },
-                          { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?unitId=${unit.id}`) },
-                          { label: "Add work order", icon: Wrench, onClick: () => router.push(`/app/work/jobs/new?unitId=${unit.id}`) },
+                          { label: "View unit", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/units/${unit.id}`) },
+                          { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?unitId=${unit.id}`) },
+                          { label: "Add work order", icon: Wrench, onClick: () => router.push(`/property-manager/work/jobs/new?unitId=${unit.id}`) },
                           { label: "Delete unit", icon: Trash2, variant: "danger", onClick: () => {
                             if (workspace?.id && confirm("Delete this unit? This cannot be undone.")) {
                               deleteUnit.mutate({ id: unit.id, workspaceId: workspace.id, propertyId: unit.property_id })

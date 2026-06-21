@@ -15,21 +15,23 @@
 -- Safe to re-run. Apply via: node scripts/_apply_migration.mjs <this file>
 -- ============================================================
 
-INSERT INTO platform_feature_flags (flag_key, name, description, enabled, enabled_for_plans) VALUES
-  ('context_engine',          'Context Engine',          'Central routeContext resolver that adapts modules by workspace type, actor and country. Off = V1 single-context behaviour.', false, ARRAY[]::text[]),
-  ('marketplace_enabled',     'Marketplace',             'Master switch for the combined marketplace OS. Off = no marketplace surface at all.', false, ARRAY[]::text[]),
-  ('marketplace_stays',       'Marketplace — Stays',     'Property stay / booking listing type within the marketplace.', false, ARRAY[]::text[]),
-  ('marketplace_suppliers',   'Marketplace — Suppliers', 'Supplier service / package listing type within the marketplace.', false, ARRAY[]::text[]),
-  ('marketplace_emergency',   'Marketplace — Emergency', 'Emergency dispatch listing type and emergency supplier chain.', false, ARRAY[]::text[]),
-  ('marketplace_payments',    'Marketplace — Payments',  'Marketplace payment capture / payout flows and commission tracking.', false, ARRAY[]::text[]),
-  ('marketplace_escrow',      'Marketplace — Escrow',    'Payment authorisation, delayed capture and platform-hold flows.', false, ARRAY[]::text[]),
-  ('marketplace_disputes',    'Marketplace — Disputes',  'Unified dispute lifecycle and resolution workflows.', false, ARRAY[]::text[]),
-  ('booking_management',      'Booking Management',      'Reservation operations section (calendar, availability, check-in/out, turnover).', false, ARRAY[]::text[]),
-  ('direct_booking_pages',    'Direct Booking Pages',    'Public direct-booking pages with reduced/zero platform fee.', false, ARRAY[]::text[]),
-  ('customer_workspace',      'Customer Workspace',      'Lightweight customer / guest workspace route group and landing.', false, ARRAY[]::text[]),
-  ('supplier_workspace',      'Supplier Workspace',      'Full supplier workspace (services, packages, jobs, payouts) beyond the lightweight portal.', false, ARRAY[]::text[]),
-  ('ical_sync',               'iCal Sync',               'Channel iCal import/export for booking availability.', false, ARRAY[]::text[]),
-  ('canvas_lite',             'Canvas Lite',             'Lightweight visual canvas / board surface for planning.', false, ARRAY[]::text[]),
-  ('multi_country_portfolio', 'Multi-Country Portfolio', 'Per-property country, jurisdiction and currency across a single workspace.', false, ARRAY[]::text[]),
-  ('global_country_packs',    'Global Country Packs',    'Country pack legal/tax/compliance depth and support-status gating.', false, ARRAY[]::text[])
-ON CONFLICT (flag_key) DO NOTHING;
+INSERT INTO platform_feature_flags (key, description, enabled) VALUES
+  ('context_engine',          'Central routeContext resolver that adapts modules by workspace type, actor and country. Off = V1 single-context behaviour.', false),
+  ('marketplace_enabled',     'Master switch for the combined marketplace OS. Off = no marketplace surface at all.', false),
+  ('marketplace_stays',       'Property stay / booking listing type within the marketplace.', false),
+  ('marketplace_suppliers',   'Supplier service / package listing type within the marketplace.', false),
+  ('marketplace_emergency',   'Emergency dispatch listing type and emergency supplier chain.', false),
+  ('marketplace_payments',    'Marketplace payment capture / payout flows and commission tracking.', false),
+  ('marketplace_escrow',      'Payment authorisation, delayed capture and platform-hold flows.', false),
+  ('marketplace_disputes',    'Unified dispute lifecycle and resolution workflows.', false),
+  ('booking_management',      'Reservation operations section (calendar, availability, check-in/out, turnover).', false),
+  ('direct_booking_pages',    'Public direct-booking pages with reduced/zero platform fee.', false),
+  ('customer_workspace',      'Lightweight customer / guest workspace route group and landing.', false),
+  ('supplier_workspace',      'Full supplier workspace (services, packages, jobs, payouts) beyond the lightweight portal.', false),
+  ('ical_sync',               'Channel iCal import/export for booking availability.', false),
+  ('canvas_lite',             'Lightweight visual canvas / board surface for planning.', false),
+  ('multi_country_portfolio', 'Per-property country, jurisdiction and currency across a single workspace.', false),
+  ('global_country_packs',    'Country pack legal/tax/compliance depth and support-status gating.', false),
+  ('registrationSupplier',    'Allow new supplier self-registration via the login page.', false),
+  ('registrationCustomer',    'Allow new customer self-registration via the login page.', false)
+ON CONFLICT (key) DO NOTHING;

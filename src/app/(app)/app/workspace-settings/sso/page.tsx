@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import { useRouter } from "next/navigation"
@@ -53,7 +53,7 @@ export default function SSOPage() {
           ))}
         </div>
         <button
-          onClick={() => router.push("/app/workspace-settings/billing")}
+          onClick={() => router.push("/property-manager/workspace-settings/billing")}
           className="mt-6 w-full py-3 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-[#6d28d9] transition-colors"
         >
           Upgrade to Enterprise

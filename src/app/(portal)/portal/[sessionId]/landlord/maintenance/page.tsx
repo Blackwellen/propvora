@@ -51,7 +51,7 @@ export default async function LandlordMaintenancePage({ params }: { params: Prom
     { label: "Awaiting approval", value: String(awaitingApproval.length), icon: AlertTriangle, tone: awaitingApproval.length ? "violet" : "slate" },
     { label: "Scheduled visits", value: String(scheduled.length), icon: CalendarClock, tone: "blue" },
     { label: "Completed (30d)", value: String(completed30.length), icon: CheckCircle2, tone: "emerald" },
-    { label: "Spend YTD", value: "—", icon: PoundSterling, tone: "slate" },
+    { label: "Spend YTD", value: "N/A", icon: PoundSterling, tone: "slate" },
     { label: "Urgent issues", value: String(urgent.length), icon: AlertTriangle, tone: urgent.length ? "red" : "emerald" },
   ]
 

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
@@ -74,7 +74,7 @@ export default function NewJournalEntryPage() {
         createdBy: auth.user?.id ?? null,
         lines: draftLines.filter((l) => l.account_id && (l.debit_pence > 0 || l.credit_pence > 0)),
       })
-      router.push("/app/accounting/ledger/journal")
+      router.push("/property-manager/accounting/ledger/journal")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not post entry")
       setPosting(false)
@@ -87,14 +87,14 @@ export default function NewJournalEntryPage() {
         <Lock className="w-6 h-6 text-slate-400" />
         <p className="text-sm font-semibold text-slate-700">Posting is restricted</p>
         <p className="text-xs text-slate-500 max-w-sm">Only finance-capable roles (owner, admin, manager, accountant) can post journal entries.</p>
-        <Button variant="outline" size="sm" onClick={() => router.push("/app/accounting/ledger/journal")}>Back to Journal</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push("/property-manager/accounting/ledger/journal")}>Back to Journal</Button>
       </div>
     )
   }
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <MobileTopBar title="New Journal Entry" subtitle="General Ledger" showBack backHref={sectionLink("/app/accounting/ledger/journal")} />
+      <MobileTopBar title="New Journal Entry" subtitle="General Ledger" showBack backHref={sectionLink("/property-manager/accounting/ledger/journal")} />
 
       <button onClick={() => router.back()} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ArrowLeft className="w-4 h-4" /> Back
@@ -198,7 +198,7 @@ export default function NewJournalEntryPage() {
       {error && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</div>}
 
       <div className="flex items-center justify-end gap-3">
-        <Button variant="outline" size="sm" onClick={() => router.push("/app/accounting/ledger/journal")}>Cancel</Button>
+        <Button variant="outline" size="sm" onClick={() => router.push("/property-manager/accounting/ledger/journal")}>Cancel</Button>
         <Button variant="primary" size="sm" onClick={post} loading={posting} disabled={!canSave}>
           Post Entry
         </Button>

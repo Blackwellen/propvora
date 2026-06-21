@@ -15,8 +15,6 @@ import type {
   UseDisputesResult,
   UseDisputeResult,
 } from './types'
-import { SEED_DISPUTES, seedById } from './seed'
-
 const PERMISSION_CODES = new Set(['42501', 'PGRST301'])
 const MISSING_TABLE_CODES = new Set(['42P01', 'PGRST205', 'PGRST204'])
 
@@ -32,7 +30,7 @@ interface QueryState<T> {
  */
 export function useDisputes(): UseDisputesResult {
   const [state, setState] = useState<QueryState<Dispute[]>>({
-    data: SEED_DISPUTES,
+    data: [],
     loading: true,
     error: null,
     source: 'seed',
@@ -44,8 +42,7 @@ export function useDisputes(): UseDisputesResult {
       const supabase = createClient()
       const { data: auth } = await supabase.auth.getUser()
       if (!auth?.user) {
-        // Not signed in client-side — show seed, no hard error.
-        setState({ data: SEED_DISPUTES, loading: false, error: null, source: 'seed' })
+        setState({ data: [], loading: false, error: null, source: 'seed' })
         return
       }
       const { data, error } = await supabase
@@ -55,25 +52,19 @@ export function useDisputes(): UseDisputesResult {
 
       if (error) {
         if (PERMISSION_CODES.has(error.code ?? '')) {
-          setState({ data: SEED_DISPUTES, loading: false, error: 'permission-denied', source: 'seed' })
+          setState({ data: [], loading: false, error: 'permission-denied', source: 'seed' })
           return
         }
         if (MISSING_TABLE_CODES.has(error.code ?? '')) {
-          setState({ data: SEED_DISPUTES, loading: false, error: null, source: 'seed' })
+          setState({ data: [], loading: false, error: null, source: 'seed' })
           return
         }
         throw error
       }
 
-      if (!data || data.length === 0) {
-        // Table exists but empty — present seed so the workspace looks alive.
-        setState({ data: SEED_DISPUTES, loading: false, error: null, source: 'seed' })
-        return
-      }
-
-      setState({ data: data as unknown as Dispute[], loading: false, error: null, source: 'live' })
+      setState({ data: (data ?? []) as unknown as Dispute[], loading: false, error: null, source: data && data.length > 0 ? 'live' : 'seed' })
     } catch {
-      setState({ data: SEED_DISPUTES, loading: false, error: null, source: 'seed' })
+      setState({ data: [], loading: false, error: null, source: 'seed' })
     }
   }, [])
 
@@ -88,9 +79,8 @@ export function useDisputes(): UseDisputesResult {
  * Single-dispute hook. Tries `booking_disputes` by id; falls back to seed.
  */
 export function useDispute(disputeId: string | undefined): UseDisputeResult {
-  const seed = disputeId ? seedById(disputeId) : null
   const [state, setState] = useState<QueryState<Dispute | null>>({
-    data: seed,
+    data: null,
     loading: true,
     error: null,
     source: 'seed',
@@ -102,12 +92,11 @@ export function useDispute(disputeId: string | undefined): UseDisputeResult {
       return
     }
     setState((s) => ({ ...s, loading: true, error: null }))
-    const fallback = seedById(disputeId)
     try {
       const supabase = createClient()
       const { data: auth } = await supabase.auth.getUser()
       if (!auth?.user) {
-        setState({ data: fallback, loading: false, error: fallback ? null : 'not-found', source: 'seed' })
+        setState({ data: null, loading: false, error: 'not-found', source: 'seed' })
         return
       }
       const { data, error } = await supabase
@@ -118,24 +107,24 @@ export function useDispute(disputeId: string | undefined): UseDisputeResult {
 
       if (error) {
         if (PERMISSION_CODES.has(error.code ?? '')) {
-          setState({ data: fallback, loading: false, error: fallback ? null : 'permission-denied', source: 'seed' })
+          setState({ data: null, loading: false, error: 'permission-denied', source: 'seed' })
           return
         }
         if (MISSING_TABLE_CODES.has(error.code ?? '')) {
-          setState({ data: fallback, loading: false, error: fallback ? null : 'not-found', source: 'seed' })
+          setState({ data: null, loading: false, error: 'not-found', source: 'seed' })
           return
         }
         throw error
       }
 
       if (!data) {
-        setState({ data: fallback, loading: false, error: fallback ? null : 'not-found', source: 'seed' })
+        setState({ data: null, loading: false, error: 'not-found', source: 'seed' })
         return
       }
 
       setState({ data: data as unknown as Dispute, loading: false, error: null, source: 'live' })
     } catch {
-      setState({ data: fallback, loading: false, error: fallback ? null : 'not-found', source: 'seed' })
+      setState({ data: null, loading: false, error: 'not-found', source: 'seed' })
     }
   }, [disputeId])
 

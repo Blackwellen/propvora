@@ -25,7 +25,6 @@ import AutomationsDataTable, { type DataColumn } from "../components/Automations
 import { AutomationsStatusBadge, AutomationsReviewFirstBadge, AutomationsRiskBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
-import { MiniLine } from "../components/charts"
 import { useAutomationsHome } from "../data/hooks"
 import type { AutomationRow } from "../data/types"
 
@@ -43,6 +42,11 @@ export default function HomePage() {
   )
 
   const rows = automations.data
+
+  // Derive KPI counts from real data (seed fallback keeps these honest)
+  const activeCount = rows.filter((a) => a.status === "live" && a.enabled).length
+  const pendingReviewCount = reviewQueue.length
+  const totalRows = rows.length
 
   const columns: DataColumn<AutomationRow>[] = useMemo(
     () => [
@@ -125,7 +129,7 @@ export default function HomePage() {
 
   const subTabs: { id: SubTab; label: string; badge?: number }[] = [
     { id: "automations", label: "Automations" },
-    { id: "inbox", label: "Review inbox", badge: reviewQueue.length + 15 },
+    { id: "inbox", label: "Review Inbox", badge: reviewQueue.length > 0 ? reviewQueue.length : undefined },
     { id: "activity", label: "Activity" },
     { id: "templates", label: "Templates" },
   ]
@@ -140,14 +144,14 @@ export default function HomePage() {
     >
       {/* KPI row — 2 rows of 4 */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Active automations" value={24} trend="14%" icon={Zap} tone="blue" />
-        <AutomationsKpiCard label="Pending review" value={18} trend="6" sub="Requires your approval" icon={AlertCircle} tone="amber" />
-        <AutomationsKpiCard label="Actions executed" value="1,248" trend="22%" icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Runs (recent)" value={312} sub="Last 200 runs" icon={History} tone="slate" />
-        <AutomationsKpiCard label="Approval SLA (≤24h)" value="92%" trend="8%" sub="Target ≥ 90%" icon={Clock} tone="violet" />
-        <AutomationsKpiCard label="Error rate" value="0.6%" trend="0.2%" trendDir="down" icon={AlertCircle} tone="red" />
-        <AutomationsKpiCard label="Templates used" value={36} sub="76% of library" icon={LayoutTemplate} tone="blue" />
-        <AutomationsKpiCard label="Automations ROI (est.)" value="£18.2k" trend="34%" icon={PoundSterling} tone="emerald" />
+        <AutomationsKpiCard label="Active automations" value={activeCount} icon={Zap} tone="blue" />
+        <AutomationsKpiCard label="Pending review" value={pendingReviewCount} sub="Requires your approval" icon={AlertCircle} tone="amber" />
+        <AutomationsKpiCard label="Total automations" value={totalRows} icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Runs (recent)" value={automations.source === "live" ? totalRows : 0} sub="Last 200 runs" icon={History} tone="slate" />
+        <AutomationsKpiCard label="Approval SLA (≤24h)" value={automations.source === "live" ? "—" : "—"} sub="Requires live data" icon={Clock} tone="violet" />
+        <AutomationsKpiCard label="Error rate" value={automations.source === "live" ? "—" : "—"} sub="Requires live data" icon={AlertCircle} tone="red" />
+        <AutomationsKpiCard label="Templates available" value={0} sub="Browse Recipes tab" icon={LayoutTemplate} tone="blue" />
+        <AutomationsKpiCard label="Automations ROI (est.)" value="—" sub="Requires live data" icon={PoundSterling} tone="emerald" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_340px]">
@@ -172,7 +176,7 @@ export default function HomePage() {
               rows={rows}
               page={page}
               pageSize={5}
-              total={24}
+              total={rows.length}
               onPageChange={setPage}
             />
           )}
@@ -225,7 +229,7 @@ export default function HomePage() {
         {/* Right rail */}
         <AutomationsRightRail>
           <Card>
-            <CardHeader title={`Review queue (${reviewQueue.length + 15})`} />
+            <CardHeader title={`Review queue (${reviewQueue.length})`} />
             <div className="space-y-1 p-2">
               {reviewQueue.map((q) => (
                 <button
@@ -245,21 +249,19 @@ export default function HomePage() {
             <div className="p-4">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <div className="text-lg font-semibold text-slate-900">312</div>
-                  <div className="text-[11px] text-slate-400">Runs</div>
+                  <div className="text-lg font-semibold text-slate-900">{rows.length}</div>
+                  <div className="text-[11px] text-slate-400">Active loaded</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-emerald-600">98.1%</div>
-                  <div className="text-[11px] text-slate-400">Success</div>
+                  <div className="text-lg font-semibold text-slate-400">—</div>
+                  <div className="text-[11px] text-slate-400">Success rate</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-red-500">1.9%</div>
-                  <div className="text-[11px] text-slate-400">Errors</div>
+                  <div className="text-lg font-semibold text-slate-400">—</div>
+                  <div className="text-[11px] text-slate-400">Error rate</div>
                 </div>
               </div>
-              <div className="mt-3 h-12">
-                <MiniLine data={[20, 28, 24, 32, 30, 38, 36, 42]} color="#6366f1" />
-              </div>
+              <div className="mt-2 text-center text-[10px] text-slate-400">Requires live run data</div>
             </div>
           </Card>
 
@@ -267,13 +269,12 @@ export default function HomePage() {
             <CardHeader title="Top templates" action={<button onClick={() => router.push("/property-manager/automations/recipes")} className="text-xs font-medium text-blue-600 hover:underline">View all</button>} />
             <div className="p-2">
               {[
-                ["Rent overdue → draft chase", "Used 124 times"],
-                ["Lease expiry → renewal", "Used 112 times"],
-                ["New maintenance → triage", "Used 98 times"],
-              ].map(([name, sub]) => (
+                "Rent overdue → draft chase",
+                "Lease expiry → renewal",
+                "New maintenance → triage",
+              ].map((name) => (
                 <button key={name} onClick={() => router.push("/property-manager/automations/recipes")} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left hover:bg-slate-50">
                   <span className="text-sm text-slate-700">{name}</span>
-                  <span className="text-xs text-slate-400">{sub}</span>
                 </button>
               ))}
             </div>

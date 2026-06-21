@@ -95,7 +95,7 @@ function SelectGroundsInner() {
         setSaving(false)
       }
     }
-    router.push(`/app/legal/possession/new/review-evidence?case=${caseId}`)
+    router.push(`/property-manager/legal/possession/new/review-evidence?case=${caseId}`)
   }
 
   const rightRail = (
@@ -190,7 +190,7 @@ function SelectGroundsInner() {
       showSaveDraft={false}
       backLabel="Back"
       nextLabel={saving ? "Saving…" : "Next: Review Evidence"}
-      onBack={() => router.push(`/app/legal/possession/new/select-tenancy`)}
+      onBack={() => router.push(`/property-manager/legal/possession/new/select-tenancy`)}
       onNext={handleNext}
     >
       <div>

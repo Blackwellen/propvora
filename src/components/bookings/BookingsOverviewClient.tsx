@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -77,7 +77,7 @@ export function BookingsOverviewClient({
   const [fromDate, setFromDate] = useState("")
   const [toDate, setToDate] = useState("")
 
-  const open = (id: string) => router.push(`/app/bookings/${id}`)
+  const open = (id: string) => router.push(`/property-manager/bookings/${id}`)
 
   // ── KPIs (indicative revenue; occupancy-ish from upcoming nights) ───────────
   const kpis = useMemo<BookingKpi[]>(() => {
@@ -167,7 +167,7 @@ export function BookingsOverviewClient({
       subtitle="Direct booking management — reservations, calendar and bookable listings."
       actions={
         <Link
-          href="/app/bookings/listings"
+          href="/property-manager/bookings/listings"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
         >
           <Settings2 className="w-4 h-4" />
@@ -261,7 +261,7 @@ export function BookingsOverviewClient({
           action={
             bookings.length === 0 ? (
               <Link
-                href="/app/bookings/listings"
+                href="/property-manager/bookings/listings"
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Settings2 className="w-4 h-4" />
@@ -333,7 +333,7 @@ export function BookingsOverviewClient({
       <MobileTopBar
         title="Bookings"
         subtitle="Direct booking management"
-        primaryAction={{ label: "Listings", icon: Settings2, href: "/app/bookings/listings" }}
+        primaryAction={{ label: "Listings", icon: Settings2, href: "/property-manager/bookings/listings" }}
       />
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <div className="hidden md:block">{header}</div>

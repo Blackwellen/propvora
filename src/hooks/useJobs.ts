@@ -29,7 +29,7 @@ export function useJobs(
     queryFn: async () => {
       let query = supabase
         .from('jobs')
-        .select('*')
+        .select('*, properties(name:nickname, address_line1), supplier_contact:contacts!supplier_contact_id(display_name)')
         .eq('workspace_id', workspaceId!)
         .order('created_at', { ascending: false })
 

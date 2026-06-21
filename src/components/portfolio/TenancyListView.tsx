@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import type { TenancyCardData } from "./TenancyCard"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 
 /* ------------------------------------------------------------------ */
 /* Config                                                               */
@@ -101,7 +102,29 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
     )
   }
 
+  const mobileMapping: MobileCardMapping<TenancyCardData> = {
+    getKey: (t) => t.id,
+    title: (t) => t.tenant_name ?? "Unknown",
+    subtitle: (t) => `${t.property_name}${t.unit_name ? ` · ${t.unit_name}` : ""}`,
+    badge: (t) => {
+      const cfg = STATUS_CFG[t.status] ?? STATUS_CFG.ended
+      return (
+        <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full", cfg.bg, cfg.text)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />{cfg.label}
+        </span>
+      )
+    },
+    onRowClick: (t) => router.push(`/property-manager/portfolio/tenancies/${t.id}`),
+    fields: [
+      { label: "Start", render: (t) => fmtDate(t.start_date) },
+      { label: "End", render: (t) => t.end_date ? fmtDate(t.end_date) : "Ongoing" },
+      { label: "Rent", render: (t) => `${fmt(t.rent_amount)}${t.rent_frequency === "weekly" ? "/wk" : "/mo"}` },
+      { label: "Arrears", render: (t) => (t.arrears ?? 0) > 0 ? fmt(t.arrears!) : "Clear" },
+    ],
+  }
+
   return (
+    <ResponsiveTable rows={sorted} mobile={mobileMapping}>
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -153,7 +176,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                         <span className={cn("absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white", cfg.dot)} />
                       </div>
                       <div>
-                        <Link href={`/app/portfolio/tenancies/${t.id}`}
+                        <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
                           className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors block">
                           {t.tenant_name ?? "Unknown"}
                         </Link>
@@ -222,15 +245,15 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                   {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link href={`/app/portfolio/tenancies/${t.id}`}
+                      <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
                         className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
                       <ActionMenu
                         align="right"
                         items={[
-                          { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${t.id}`) },
-                          { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${t.property_id}`) },
+                          { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}`) },
+                          { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${t.property_id}`) },
                           { label: "Renew", icon: RefreshCw, onClick: () => {} },
                           { label: "End tenancy", icon: LogOut, onClick: () => {} },
                           { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
@@ -250,5 +273,6 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
         </table>
       </div>
     </div>
+    </ResponsiveTable>
   )
 }

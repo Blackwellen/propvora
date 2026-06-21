@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Image from "next/image"
@@ -165,10 +165,10 @@ export function OverviewTab({
             <SectionHeader title="Financial & Occupancy" />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "Monthly Rent", value: prop.target_rent != null ? `£${Number(prop.target_rent).toLocaleString()}` : "—", color: "text-slate-900" },
+                { label: "Monthly Rent", value: prop.target_rent != null ? `£${Number(prop.target_rent).toLocaleString()}` : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
                 { label: "Units", value: String(totalUnits), color: "text-slate-900" },
                 { label: "Occupied", value: String(occupied), color: "text-emerald-600" },
-                { label: "Occupancy", value: totalUnits > 0 ? `${Math.round((occupied / totalUnits) * 100)}%` : "—", color: "text-[#2563EB]" },
+                { label: "Occupancy", value: totalUnits > 0 ? `${Math.round((occupied / totalUnits) * 100)}%` : "0%", color: "text-[#2563EB]" },
               ].map((item) => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                   <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>
@@ -201,7 +201,7 @@ export function OverviewTab({
                   { label: "Items", value: String(comp.total), color: "text-slate-900" },
                   { label: "Due Soon", value: String(comp.dueSoon), color: comp.dueSoon > 0 ? "text-amber-600" : "text-slate-400" },
                   { label: "Overdue", value: String(comp.overdue), color: comp.overdue > 0 ? "text-red-600" : "text-slate-400" },
-                  { label: "Compliant", value: comp.pct != null ? `${comp.pct}%` : "—", color: "text-emerald-600" },
+                  { label: "Compliant", value: comp.pct != null ? `${comp.pct}%` : "0%", color: "text-emerald-600" },
                 ].map((item) => (
                   <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                     <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>
@@ -216,9 +216,9 @@ export function OverviewTab({
             <SectionHeader title="Quick Health" />
             <div className="space-y-2.5">
               {[
-                { label: "Occupancy", value: occupancyPct != null ? `${occupancyPct}%` : "—", good: occupancyPct == null || occupancyPct >= 80 },
+                { label: "Occupancy", value: occupancyPct != null ? `${occupancyPct}%` : "0%", good: occupancyPct == null || occupancyPct >= 80 },
                 { label: "Open Work", value: String(openWork), good: openWork === 0 },
-                { label: "Overdue Compliance", value: comp.total === 0 ? "—" : String(comp.overdue), good: comp.overdue === 0 },
+                { label: "Overdue Compliance", value: comp.total === 0 ? "0" : String(comp.overdue), good: comp.overdue === 0 },
                 { label: "Active Tenancies", value: String(tenanciesList.filter((t) => t.status === "active").length), good: true },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between">
@@ -264,13 +264,13 @@ export function OverviewTab({
 
       {/* KPI strip */}
       <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-        <KpiCard icon={Users} iconColor="#2563EB" value={occupancyPct != null ? `${occupancyPct}%` : "—"} label="Occupancy" sub={`${occupied} of ${totalUnits} units`} />
-        <KpiCard icon={PoundSterling} iconColor="#10B981" value={monthlyRent > 0 ? fmt(monthlyRent) : "—"} label="Monthly Rent" sub="From active tenancies" />
+        <KpiCard icon={Users} iconColor="#2563EB" value={occupancyPct != null ? `${occupancyPct}%` : "0%"} label="Occupancy" sub={`${occupied} of ${totalUnits} units`} />
+        <KpiCard icon={PoundSterling} iconColor="#10B981" value={monthlyRent > 0 ? fmt(monthlyRent) : "£0"} label="Monthly Rent" sub="From active tenancies" />
         <KpiCard icon={Home} iconColor="#7C3AED" value={String(totalUnits)} label="Units" sub={`${occupied} occupied`} />
         <KpiCard icon={FileText} iconColor="#F59E0B" value={String(tenanciesList.filter((t) => t.status === "active").length)} label="Tenancies" sub="Active leases" />
         <KpiCard icon={Wrench} iconColor="#EF4444" value={String(openWork)} label="Open Work" sub={`${openJobs} jobs · ${openTasks} tasks`} />
-        <KpiCard icon={Shield} iconColor="#10B981" value={comp.total === 0 ? "—" : (comp.pct != null ? `${comp.pct}%` : "—")} label="Compliant" sub={`${comp.overdue} overdue · ${comp.dueSoon} due soon`} />
-        <KpiCard icon={Calendar} iconColor="#2563EB" value={nextDue ? fmtDate(nextDue.toISOString()) : "—"} label="Next Due" sub="Compliance item" />
+        <KpiCard icon={Shield} iconColor="#10B981" value={comp.total === 0 ? "0%" : (comp.pct != null ? `${comp.pct}%` : "0%")} label="Compliant" sub={`${comp.overdue} overdue · ${comp.dueSoon} due soon`} />
+        <KpiCard icon={Calendar} iconColor="#2563EB" value={nextDue ? fmtDate(nextDue.toISOString()) : "None"} label="Next Due" sub="Compliance item" />
       </div>
 
       {/* Bottom section */}
@@ -437,16 +437,16 @@ export function OverviewTab({
             <SectionHeader
               title="Financial Summary"
               action={
-                <Link href="/app/money" className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+                <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
                   Open Money <ArrowUpRight size={12} />
                 </Link>
               }
             />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "—", color: "text-slate-900" },
-                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "—", color: "text-slate-900" },
-                { label: "Annualised", value: monthlyRent > 0 ? fmt(monthlyRent * 12) : "—", color: "text-emerald-600" },
+                { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "£0", color: "text-slate-900" },
+                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
+                { label: "Annualised", value: monthlyRent > 0 ? fmt(monthlyRent * 12) : "£0", color: "text-emerald-600" },
               ].map((item) => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                   <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>

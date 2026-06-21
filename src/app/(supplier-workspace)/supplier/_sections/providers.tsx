@@ -16,7 +16,7 @@ import { SectionBasePathProvider } from "@/components/sections/SectionBasePath"
 export function SupplierCalendarSection({ children }: { children: ReactNode }) {
   return (
     <SectionBasePathProvider
-      value={{ base: "/supplier/calendar", pmBase: "/app/calendar", pmPublicBase: "/property-manager/calendar" }}
+      value={{ base: "/supplier/calendar", pmBase: "/property-manager/calendar", pmPublicBase: "/property-manager/calendar" }}
     >
       {children}
     </SectionBasePathProvider>
@@ -26,7 +26,7 @@ export function SupplierCalendarSection({ children }: { children: ReactNode }) {
 export function SupplierAccountingSection({ children }: { children: ReactNode }) {
   return (
     <SectionBasePathProvider
-      value={{ base: "/supplier/accounting", pmBase: "/app/accounting", pmPublicBase: "/property-manager/accounting" }}
+      value={{ base: "/supplier/accounting", pmBase: "/property-manager/accounting", pmPublicBase: "/property-manager/accounting" }}
     >
       {children}
     </SectionBasePathProvider>
@@ -36,7 +36,7 @@ export function SupplierAccountingSection({ children }: { children: ReactNode })
 export function SupplierMessagesSection({ children }: { children: ReactNode }) {
   return (
     <SectionBasePathProvider
-      value={{ base: "/supplier/messages", pmBase: "/app/messages", pmPublicBase: "/property-manager/messages" }}
+      value={{ base: "/supplier/messages", pmBase: "/property-manager/messages", pmPublicBase: "/property-manager/messages" }}
     >
       {children}
     </SectionBasePathProvider>
@@ -46,7 +46,7 @@ export function SupplierMessagesSection({ children }: { children: ReactNode }) {
 export function SupplierAutomationsSection({ children }: { children: ReactNode }) {
   return (
     <SectionBasePathProvider
-      value={{ base: "/supplier/automations", pmBase: "/app/automations", pmPublicBase: "/property-manager/automations" }}
+      value={{ base: "/supplier/automations", pmBase: "/property-manager/automations", pmPublicBase: "/property-manager/automations" }}
     >
       {children}
     </SectionBasePathProvider>

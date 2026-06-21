@@ -1,59 +1,69 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-  LayoutDashboard,
-  Layers,
-  FolderOpen,
-  Handshake,
-  TrendingUp,
-  GitBranch,
-  ArrowRightLeft,
-  Activity,
-  BarChart3,
-  Zap,
-} from "lucide-react"
+import { useScrollActiveTabIntoView } from "@/hooks/useScrollActiveTabIntoView"
 
 interface PlanningTab {
   key: string
   label: string
   href: string
-  icon: React.ComponentType<{ className?: string }>
 }
 
 const PLANNING_TABS: PlanningTab[] = [
-  { key: "overview",              label: "Overview",              href: "/app/planning",                        icon: LayoutDashboard },
-  { key: "profiles",             label: "Profiles",              href: "/app/planning/profiles",               icon: Layers },
-  { key: "sets",                 label: "Planning Sets",         href: "/app/planning/sets",                   icon: FolderOpen },
-  { key: "offers",               label: "Offers",                href: "/app/planning/landlord-offers",        icon: Handshake },
-  { key: "forecasts",            label: "Forecasts",             href: "/app/planning/forecasts",              icon: TrendingUp },
-  { key: "yield-intelligence",   label: "Yield Intelligence",    href: "/app/planning/yield-intelligence",     icon: Zap },
-  { key: "portfolio-intelligence", label: "Portfolio Intelligence", href: "/app/planning/portfolio-intelligence", icon: BarChart3 },
-  { key: "scenarios",            label: "Scenarios",             href: "/app/planning/scenarios",              icon: GitBranch },
-  { key: "conversion",           label: "Conversion",            href: "/app/planning/conversions",            icon: ArrowRightLeft },
-  { key: "activity",             label: "Activity",              href: "/app/planning/activity",               icon: Activity },
+  { key: "overview",              label: "Overview",              href: "/property-manager/planning" },
+  { key: "profiles",             label: "Profiles",              href: "/property-manager/planning/profiles" },
+  { key: "sets",                 label: "Planning Sets",         href: "/property-manager/planning/sets" },
+  { key: "offers",               label: "Offers",                href: "/property-manager/planning/landlord-offers" },
+  { key: "forecasts",            label: "Forecasts",             href: "/property-manager/planning/forecasts" },
+  { key: "yield-intelligence",   label: "Yield Intelligence",    href: "/property-manager/planning/yield-intelligence" },
+  { key: "portfolio-intelligence", label: "Portfolio Intelligence", href: "/property-manager/planning/portfolio-intelligence" },
+  { key: "scenarios",            label: "Scenarios",             href: "/property-manager/planning/scenarios" },
+  { key: "conversion",           label: "Conversion",            href: "/property-manager/planning/conversions" },
+  { key: "activity",             label: "Activity",              href: "/property-manager/planning/activity" },
 ]
 
 export function PlanningTabNav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const activeKey = PLANNING_TABS.find(tab =>
+    tab.href === "/property-manager/planning"
+      ? pathname === "/property-manager/planning"
+      : pathname.startsWith(tab.href)
+  )?.key ?? ""
+  const activeHref = PLANNING_TABS.find(t => t.key === activeKey)?.href ?? PLANNING_TABS[0].href
+  const { containerRef, itemRef } = useScrollActiveTabIntoView(activeKey)
 
   return (
     <div className="border-b border-slate-200 bg-white sticky top-0 z-20">
-      <div className="flex items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-2">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden px-4 py-2.5">
+        <select
+          value={activeHref}
+          onChange={(e) => router.push(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {PLANNING_TABS.map((tab) => (
+            <option key={tab.key} value={tab.href}>{tab.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop tab strip — hidden below md */}
+      {/* relative wrapper enables after: fade to indicate scrollable tab row on narrow screens */}
+      <div className="hidden md:block relative">
+      <div ref={containerRef} className="flex items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-2 after:content-[''] after:absolute after:right-0 after:top-0 after:h-full after:w-8 after:bg-gradient-to-l after:from-white after:to-transparent after:pointer-events-none">
         {PLANNING_TABS.map((tab) => {
-          const active =
-            tab.href === "/app/planning"
-              ? pathname === "/app/planning"
-              : pathname.startsWith(tab.href)
-          const Icon = tab.icon
+          const active = tab.key === activeKey
           return (
             <Link
               key={tab.key}
+              ref={itemRef(tab.key)}
               href={tab.href}
               className={cn(
-                "relative flex items-center gap-2 px-4 whitespace-nowrap transition-all duration-150 shrink-0",
+                "relative px-4 whitespace-nowrap transition-all duration-150 shrink-0",
                 "h-12 text-[13px] font-medium",
                 "border-b-2 -mb-px",
                 active
@@ -68,11 +78,11 @@ export function PlanningTabNav() {
                   aria-hidden="true"
                 />
               )}
-              <Icon className="w-4 h-4 shrink-0 relative z-10" />
               <span className="relative z-10">{tab.label}</span>
             </Link>
           )
         })}
+      </div>
       </div>
     </div>
   )

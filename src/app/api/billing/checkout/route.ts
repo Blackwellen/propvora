@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
       success_url: `${appUrl}/app/workspace-settings/billing?checkout=success`,
       cancel_url: `${appUrl}/app/workspace-settings/billing?checkout=cancelled`,
       subscription_data: {
+        trial_period_days: 7,
         metadata: {
           workspace_id: wsId,
         },

@@ -332,7 +332,7 @@ export default function PropertyEditPage() {
         await updateProperty.mutateAsync({ workspaceId: workspace.id, id: property.id, payload: data as import("@/types/database").InsertProperty })
       }
       setSaved(true)
-      setTimeout(() => router.push(`/app/portfolio/properties/${id}`), 1200)
+      setTimeout(() => router.push(`/property-manager/portfolio/properties/${id}`), 1200)
     } catch (err) {
       console.error(err)
     } finally {
@@ -356,14 +356,14 @@ export default function PropertyEditPage() {
         title="Edit property"
         subtitle={property?.name ?? "this property"}
         showBack
-        backHref={`/app/portfolio/properties/${id}`}
+        backHref={`/property-manager/portfolio/properties/${id}`}
       />
 
       {/* Breadcrumb — hidden on phones */}
       <nav className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 mb-6">
-        <Link href="/app/portfolio" className="hover:text-slate-600 transition-colors">Portfolio</Link>
+        <Link href="/property-manager/portfolio" className="hover:text-slate-600 transition-colors">Portfolio</Link>
         <span>/</span>
-        <Link href={`/app/portfolio/properties/${id}`} className="hover:text-slate-600 transition-colors truncate max-w-[140px]">
+        <Link href={`/property-manager/portfolio/properties/${id}`} className="hover:text-slate-600 transition-colors truncate max-w-[140px]">
           {property?.name ?? "Property"}
         </Link>
         <span>/</span>
@@ -432,7 +432,7 @@ export default function PropertyEditPage() {
               type="button"
               variant="ghost"
               size="md"
-              onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/app/portfolio/properties/${id}`)}
+              onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/property-manager/portfolio/properties/${id}`)}
             >
               <ArrowLeft className="w-4 h-4" />
               {step === 1 ? "Cancel" : "Back"}

@@ -52,7 +52,7 @@ export const ALL_QUICK_WIDGETS: QuickBarWidget[] = [
   { key: "suppliers",      label: "Suppliers",     href: `${MANAGER_BASE}/work/suppliers`,            icon: Truck,          colour: "#0E7490", bg: "#ECFEFF", group: "Contacts",   defaultVisible: true  },
   { key: "people",         label: "People",        href: `${MANAGER_BASE}/contacts/people`,           icon: UserCircle,     colour: "#DB2777", bg: "#FDF2F8", group: "Contacts",   defaultVisible: true  },
   { key: "organisations",  label: "Organisations", href: `${MANAGER_BASE}/contacts/organisations`,    icon: Building2,      colour: "#2563EB", bg: "#EFF6FF", group: "Contacts",   defaultVisible: false },
-  { key: "messages",       label: "Messages",      href: `${MANAGER_BASE}/contacts/messages`,         icon: MessageCircle,  colour: "#7C3AED", bg: "#F5F3FF", group: "Contacts",   defaultVisible: false },
+  { key: "messages",       label: "Messages",      href: `${MANAGER_BASE}/messages`,                  icon: MessageCircle,  colour: "#7C3AED", bg: "#F5F3FF", group: "Contacts",   defaultVisible: false },
   { key: "documents",      label: "Documents",     href: `${MANAGER_BASE}/contacts/documents`,        icon: FolderOpen,     colour: "#9333EA", bg: "#FAF5FF", group: "Contacts",   defaultVisible: true  },
   // Money
   { key: "invoices",       label: "Invoices",      href: `${MANAGER_BASE}/money/invoices`,            icon: Receipt,        colour: "#16A34A", bg: "#F0FDF4", group: "Money",      defaultVisible: true  },

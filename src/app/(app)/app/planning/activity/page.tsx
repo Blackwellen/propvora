@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -138,7 +138,7 @@ export default function ActivityPage() {
             {events.length === 0 ? "Activity appears here as you create and update planning sets." : "Try a different search."}
           </p>
           {events.length === 0 && (
-            <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
+            <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
           )}
         </div>
       ) : (
@@ -159,7 +159,7 @@ export default function ActivityPage() {
                     return (
                       <button
                         key={item.id}
-                        onClick={() => router.push(`/app/planning/sets/${item.setId}/overview`)}
+                        onClick={() => router.push(`/property-manager/planning/sets/${item.setId}/overview`)}
                         className="group flex items-center gap-4 bg-white rounded-2xl border border-slate-100 px-5 py-4 hover:border-slate-200 hover:shadow-sm transition-all w-full text-left"
                       >
                         <div style={{ background: colour + "18" }} className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0")}>

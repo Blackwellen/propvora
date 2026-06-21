@@ -19,6 +19,7 @@ import {
   Settings,
   Building,
   FileText,
+  ArrowLeftRight,
 } from "lucide-react"
 import {
   PieChart,
@@ -29,6 +30,112 @@ import {
 import { useWizard } from "@/components/planning/wizard/WizardContext"
 import type { ExpenseLine, BillLine } from "@/components/planning/wizard/WizardContext"
 import { cn } from "@/lib/utils"
+
+// ─── Rent-to-Rent Landlord Outlay Panel ──────────────────────────────────────
+
+function R2RLandlordOutlay() {
+  const { state, update } = useWizard()
+  if (state.profileKey !== "rent_to_rent") return null
+
+  const roomIncome = state.rooms.reduce((s, r) => s + r.avgRentPcm, 0)
+  const operatorMargin = Math.round(roomIncome - state.landlordMonthlyRent)
+  const marginPct = roomIncome > 0 ? ((operatorMargin / roomIncome) * 100).toFixed(1) : "0"
+  const isNegative = operatorMargin < 0
+
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 py-5 border-b border-orange-100 bg-orange-50/40">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
+          <ArrowLeftRight className="w-4 h-4 text-orange-600" />
+        </div>
+        <div>
+          <h2 className="text-[14px] font-bold text-slate-900">Rent-to-Rent: Landlord Outlay</h2>
+          <p className="text-[12.5px] text-slate-500 mt-0.5">
+            Enter what you pay the landlord each month. This is your guaranteed outlay cost before any expenses or bills.
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Rent paid to landlord */}
+        <div>
+          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+            Rent Paid to Landlord (pcm) <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-slate-400 font-medium">£</span>
+            <input
+              type="number"
+              min={0}
+              value={state.landlordMonthlyRent || ""}
+              onChange={(e) => update({ landlordMonthlyRent: Number(e.target.value) })}
+              placeholder="0"
+              className="w-full h-10 pl-7 pr-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-400/50 transition-all bg-white"
+            />
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">The guaranteed monthly rent you commit to the landlord</p>
+        </div>
+
+        {/* Advance/deposit rent */}
+        <div>
+          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+            Deposit / Advance Rent (upfront)
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-slate-400 font-medium">£</span>
+            <input
+              type="number"
+              min={0}
+              value={state.offerDepositAmount || ""}
+              onChange={(e) => update({ offerDepositAmount: Number(e.target.value) })}
+              placeholder="0"
+              className="w-full h-10 pl-7 pr-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-400/50 transition-all bg-white"
+            />
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">Advance rent or security deposit paid at signing</p>
+        </div>
+
+        {/* Contract length */}
+        <div>
+          <label className="block text-[12.5px] font-semibold text-slate-700 mb-1.5">
+            Contract Length (months)
+          </label>
+          <input
+            type="number"
+            min={1}
+            value={state.offerInitialTermYears * 12 || ""}
+            onChange={(e) => update({ offerInitialTermYears: Math.round(Number(e.target.value) / 12) || 1 })}
+            placeholder="36"
+            className="w-full h-10 px-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-400/50 transition-all bg-white"
+          />
+          <p className="text-[11px] text-slate-400 mt-1">Length of your lease agreement with the landlord</p>
+        </div>
+
+        {/* Operator margin live calc */}
+        <div
+          className={cn(
+            "rounded-xl border p-3 flex flex-col justify-between",
+            isNegative ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"
+          )}
+        >
+          <p className={cn("text-[11.5px] font-semibold uppercase tracking-wide", isNegative ? "text-red-600" : "text-emerald-600")}>
+            Operator Margin (before opex)
+          </p>
+          <p className={cn("text-[22px] font-black tabular-nums mt-1", isNegative ? "text-red-700" : "text-emerald-700")}>
+            £{Math.abs(operatorMargin).toLocaleString()}{isNegative ? " loss" : "/mo"}
+          </p>
+          <p className={cn("text-[11px] mt-0.5", isNegative ? "text-red-500" : "text-emerald-500")}>
+            {roomIncome > 0 ? `${marginPct}% of room income` : "Add rooms in Step 3 to see margin"}
+          </p>
+          {isNegative && (
+            <p className="text-[11px] text-red-600 mt-1 font-semibold">
+              Negative margin — landlord rent exceeds room income. Review your numbers.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Category Icon ────────────────────────────────────────────────────────────
 
@@ -428,10 +535,25 @@ export default function Step04ExpensesBills() {
     })
   }
 
-  // ── Benchmark diff ────────────────────────────────────────────────────────
-  const BENCHMARK_MONTHLY = 1213
+  // ── Benchmark diff — profile-aware UK sector averages ────────────────────
+  const PROFILE_BENCHMARKS: Record<string, number> = {
+    hmo: 1800,
+    student_let: 1600,
+    rent_to_rent: 900,
+    co_living: 2200,
+    serviced_accommodation: 2800,
+    holiday_let: 2400,
+    long_term_let: 850,
+    social_housing: 1100,
+    build_to_rent: 3200,
+    commercial: 1500,
+    mixed_use: 1900,
+    refinancing: 700,
+    dev_flip: 4000,
+  }
+  const BENCHMARK_MONTHLY = PROFILE_BENCHMARKS[state.profileKey] ?? 1200
   const benchmarkDiff = expenseTotal - BENCHMARK_MONTHLY
-  const benchmarkPct = Math.abs(Math.round((benchmarkDiff / BENCHMARK_MONTHLY) * 100))
+  const benchmarkPct = BENCHMARK_MONTHLY > 0 ? Math.abs(Math.round((benchmarkDiff / BENCHMARK_MONTHLY) * 100)) : 0
 
   // ── Expense mix donut ─────────────────────────────────────────────────────
   const totalCosts = expenseTotal + billTotal
@@ -505,6 +627,9 @@ export default function Step04ExpensesBills() {
           </button>
         ))}
       </div>
+
+      {/* ── Rent-to-Rent Landlord Outlay (conditional) ───────────────────────── */}
+      <R2RLandlordOutlay />
 
       {/* ── Main 2-col layout ─────────────────────────────────────────────────── */}
       <div className="flex flex-col xl:flex-row flex-1 min-h-0">

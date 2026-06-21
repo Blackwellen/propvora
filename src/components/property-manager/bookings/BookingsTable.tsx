@@ -6,16 +6,42 @@ import type { Booking } from '@/lib/property-manager/bookings/types'
 import { formatPence } from '@/lib/marketplace/money'
 import { cn } from '@/lib/utils'
 import BookingStatusBadge from './BookingStatusBadge'
+import { ResponsiveTable, type MobileCardMapping } from '@/components/mobile'
 
 interface BookingsTableProps {
   bookings: Booking[]
   selectedId: string | null
   onSelect: (id: string) => void
+  totalCount?: number
 }
 
-export default function BookingsTable({ bookings, selectedId, onSelect }: BookingsTableProps) {
+export default function BookingsTable({ bookings, selectedId, onSelect, totalCount }: BookingsTableProps) {
+  const displayTotal = totalCount ?? bookings.length
+
+  const mobileMapping: MobileCardMapping<Booking> = {
+    getKey: (b) => b.id,
+    title: (b) => b.guest_name,
+    subtitle: (b) => b.booking_reference,
+    leading: (b) => (
+      <img
+        src={b.guest_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.guest_name)}&size=36`}
+        alt={b.guest_name}
+        className="w-10 h-10 rounded-full object-cover"
+      />
+    ),
+    badge: (b) => <BookingStatusBadge status={b.status} />,
+    onRowClick: (b) => onSelect(b.id),
+    fields: [
+      { label: "Property", render: (b) => b.property_name },
+      { label: "Dates", render: (b) => `${b.check_in_date} → ${b.check_out_date}` },
+      { label: "Total", render: (b) => formatPence(b.total_amount) },
+      { label: "Source", render: (b) => b.source_channel },
+    ],
+  }
+
   return (
-    <div className="mt-4 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+    <ResponsiveTable rows={bookings} mobile={mobileMapping} className="mt-4">
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -160,24 +186,10 @@ export default function BookingsTable({ bookings, selectedId, onSelect }: Bookin
 
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3.5 border-t border-slate-100">
-        <p className="text-sm text-slate-500">Showing 1 to 8 of 142 bookings</p>
+        <p className="text-sm text-slate-500">Showing 1 to {bookings.length} of {displayTotal} bookings</p>
         <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              className={cn(
-                'w-8 h-8 rounded-lg text-sm font-medium transition-colors',
-                page === 1
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              )}
-            >
-              {page}
-            </button>
-          ))}
-          <span className="text-slate-400 px-1">...</span>
-          <button className="w-8 h-8 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
-            18
+          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-blue-600 text-white">
+            1
           </button>
         </div>
         <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -187,5 +199,6 @@ export default function BookingsTable({ bookings, selectedId, onSelect }: Bookin
         </select>
       </div>
     </div>
+    </ResponsiveTable>
   )
 }

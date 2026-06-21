@@ -7,7 +7,7 @@ import { getGlobalFlag } from "@/lib/flags/public"
 /**
  * Public direct-booking layout — UNAUTHENTICATED (guest checkout).
  *
- * This group is deliberately NOT in any protected prefix (`/app`,
+ * This group is deliberately NOT in any protected prefix (/property-manager,
  * `/supplier-portal`, `/admin`, `/affiliate`) — see `src/proxy.ts`. `/stay/*`
  * must be reachable by anonymous guests, so there is no auth gate here. The
  * only data this group ever touches is the published listing (anon RLS read)

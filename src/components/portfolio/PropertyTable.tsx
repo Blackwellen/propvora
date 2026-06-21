@@ -8,6 +8,7 @@ import {
   ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit2, Archive, ArrowUpDown, Building2, Home,
 } from "lucide-react"
 import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
+import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -129,7 +130,38 @@ export function PropertyTable({
     )
   }
 
+  const mobileMapping: MobileCardMapping<PropertyCardData> = {
+    getKey: (p) => p.id,
+    title: (p) => p.name,
+    subtitle: (p) => p.address,
+    leading: (p) => {
+      const grad = TYPE_GRADIENTS[p.type] ?? TYPE_GRADIENTS.Other
+      return (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: grad }}>
+          <Building2 className="w-5 h-5 text-white opacity-70" />
+        </div>
+      )
+    },
+    badge: (p) => {
+      const sb = STATUS_BADGE[p.status] ?? STATUS_BADGE.Active
+      return (
+        <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full", sb.bg, sb.text)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full", sb.dot)} />
+          {sb.label}
+        </span>
+      )
+    },
+    onRowClick: (p) => onRowClick?.(p.id),
+    fields: [
+      { label: "Type", render: (p) => (TYPE_BADGE[p.type] ?? TYPE_BADGE.Other).label },
+      { label: "Units", render: (p) => String(p.units) },
+      { label: "Rent / mo", render: (p) => p.monthlyRent > 0 ? formatCurrency(p.monthlyRent) : "—" },
+      { label: "Occupancy", render: (p) => p.units > 0 ? `${Math.round(((p.occupied ?? p.tenants) / p.units) * 100)}%` : "—" },
+    ],
+  }
+
   return (
+    <ResponsiveTable rows={sorted} mobile={mobileMapping}>
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -258,8 +290,8 @@ export function PropertyTable({
                           <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(null)} />
                           <div className="absolute right-0 top-full mt-1 z-40 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                             {[
-                              { label: "View",    icon: Eye,     href: `/app/portfolio/properties/${p.id}` },
-                              { label: "Edit",    icon: Edit2,   href: `/app/portfolio/properties/${p.id}/edit` },
+                              { label: "View",    icon: Eye,     href: `/property-manager/portfolio/properties/${p.id}` },
+                              { label: "Edit",    icon: Edit2,   href: `/property-manager/portfolio/properties/${p.id}/edit` },
                               { label: "Archive", icon: Archive, href: undefined },
                             ].map(({ label, icon: Icon, href }) => (
                               href ? (
@@ -297,5 +329,6 @@ export function PropertyTable({
         </table>
       </div>
     </div>
+    </ResponsiveTable>
   )
 }

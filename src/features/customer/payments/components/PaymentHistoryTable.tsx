@@ -27,7 +27,7 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none w-32" />
+            <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-32" />
           </div>
           <button className="inline-flex items-center gap-1.5 border border-slate-200 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold text-slate-600">
             <Filter className="w-3.5 h-3.5" /> Filter

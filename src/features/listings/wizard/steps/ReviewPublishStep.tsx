@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
@@ -119,7 +119,7 @@ export function ReviewPublishStep() {
           &ldquo;{draft.title}&rdquo; is now live and syncing to {activeChannels.length} channel(s).
         </p>
         <div className="mt-5 flex gap-2">
-          <button type="button" onClick={() => router.push("/app/listings")} className="rounded-xl bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white hover:bg-slate-800">
+          <button type="button" onClick={() => router.push("/property-manager/listings")} className="rounded-xl bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white hover:bg-slate-800">
             Back to listings
           </button>
           <button type="button" onClick={() => setPublished(false)} className="rounded-xl border border-slate-200 px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50">

@@ -93,23 +93,35 @@ function defaultPopupHtml(m: MapMarker): string {
     </div>`
 }
 
-/* Tiny in-memory geocode cache so repeated addresses don't re-hit OSM. */
+/* Geocode cache — in-memory + sessionStorage for cross-navigation persistence. */
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>()
+
+function ssGet(key: string) {
+  try { const v = sessionStorage.getItem("pv_geo_" + key); return v ? (JSON.parse(v) as { lat: number; lng: number } | null) : undefined } catch { return undefined }
+}
+function ssSet(key: string, val: { lat: number; lng: number } | null) {
+  try { sessionStorage.setItem("pv_geo_" + key, JSON.stringify(val)) } catch { /* quota */ }
+}
 
 async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
   const key = address.trim().toLowerCase()
   if (!key) return null
   if (geocodeCache.has(key)) return geocodeCache.get(key)!
+  const cached = ssGet(key)
+  if (cached !== undefined) { geocodeCache.set(key, cached); return cached }
   try {
     const url =
       "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=" +
       encodeURIComponent(address)
-    const res = await fetch(url, { headers: { Accept: "application/json" } })
+    const res = await fetch(url, {
+      headers: { Accept: "application/json", "User-Agent": "Propvora/1.0 (propvora.com)" },
+    })
     if (!res.ok) throw new Error(String(res.status))
     const data: Array<{ lat: string; lon: string }> = await res.json()
     const hit = data[0]
     const result = hit ? { lat: parseFloat(hit.lat), lng: parseFloat(hit.lon) } : null
     geocodeCache.set(key, result)
+    ssSet(key, result)
     return result
   } catch {
     geocodeCache.set(key, null)
@@ -277,7 +289,7 @@ export default function LocationMap({
         </div>
       )}
       {!hasAny && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50/80 backdrop-blur-[1px] text-center px-6 pointer-events-none">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50 text-center px-6 pointer-events-none">
           <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />

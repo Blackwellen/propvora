@@ -1,4 +1,4 @@
-/* Shared, breakpoint-aware tab presentation for `/app`.
+/* Shared, breakpoint-aware tab presentation for /property-manager.
 
    ONE consistent tab system: a clean desktop strip + the shared scrollable
    `MobileTabs` below `lg`. Section pages pass the same `value` / `onChange`

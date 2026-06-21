@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   Building2,
@@ -22,40 +22,40 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
       <HomeKpiCard
         label="Properties"
-        value={data.properties === 0 ? "—" : String(data.properties)}
+        value={String(data.properties)}
         trend={data.propertiesTrend !== 0 ? `${data.propertiesTrend > 0 ? "+" : ""}${data.propertiesTrend} vs last month` : undefined}
         trendUp={data.propertiesTrend >= 0}
         icon={Building2}
         iconBg="bg-blue-50"
         iconColor="text-blue-600"
-        href="/app/portfolio/properties"
+        href="/property-manager/portfolio/properties"
         loading={loading}
       />
       <HomeKpiCard
         label="Units"
-        value={data.units === 0 ? "—" : String(data.units)}
+        value={String(data.units)}
         trend={data.unitsTrend !== 0 ? `${data.unitsTrend > 0 ? "+" : ""}${data.unitsTrend} vs last month` : undefined}
         trendUp={data.unitsTrend >= 0}
         icon={LayoutGrid}
         iconBg="bg-indigo-50"
         iconColor="text-indigo-600"
-        href="/app/portfolio/units"
+        href="/property-manager/portfolio/units"
         loading={loading}
       />
       <HomeKpiCard
         label="Active Tenancies"
-        value={data.activeTenancies === 0 ? "—" : String(data.activeTenancies)}
+        value={String(data.activeTenancies)}
         trend={data.tenanciesTrend !== 0 ? `${data.tenanciesTrend > 0 ? "+" : ""}${data.tenanciesTrend} vs last month` : undefined}
         trendUp={data.tenanciesTrend >= 0}
         icon={Users}
         iconBg="bg-green-50"
         iconColor="text-green-600"
-        href="/app/portfolio/tenancies"
+        href="/property-manager/portfolio/tenancies"
         loading={loading}
       />
       <HomeKpiCard
         label="Occupancy"
-        value={data.occupancyPct === 0 ? "—" : `${data.occupancyPct}%`}
+        value={`${data.occupancyPct}%`}
         trend={data.occupancyTrend !== 0 ? `${data.occupancyTrend > 0 ? "+" : ""}${data.occupancyTrend}pp vs last month` : undefined}
         trendUp={data.occupancyTrend >= 0}
         trendNeutral={data.occupancyTrend === 0}
@@ -66,34 +66,34 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
       />
       <HomeKpiCard
         label="Rent Roll"
-        value={data.rentCollected === 0 ? "—" : `£${data.rentCollected.toLocaleString("en-GB")}`}
+        value={data.rentCollected === 0 ? "£0" : `£${data.rentCollected.toLocaleString("en-GB")}`}
         trend={data.rentTrend !== 0 ? `${data.rentTrend > 0 ? "+" : ""}${data.rentTrend}% vs last month` : undefined}
         trendUp={data.rentTrend >= 0}
         icon={PoundSterling}
         iconBg="bg-emerald-50"
         iconColor="text-emerald-600"
-        href="/app/money/income"
+        href="/property-manager/money/income"
         loading={loading}
       />
       <HomeKpiCard
         label="Open Work"
-        value={data.openWork === 0 ? "—" : String(data.openWork)}
+        value={String(data.openWork)}
         trend={data.workTrend !== 0 ? `${data.workTrend > 0 ? "+" : ""}${data.workTrend} vs last month` : undefined}
         trendUp={false}
         icon={Wrench}
         iconBg="bg-orange-50"
         iconColor="text-orange-600"
-        href="/app/work"
+        href="/property-manager/work"
         loading={loading}
       />
       <HomeKpiCard
         label="Compliance Due"
-        value={data.complianceDue === 0 ? "—" : String(data.complianceDue)}
+        value={String(data.complianceDue)}
         trendNeutral
         icon={ShieldAlert}
         iconBg="bg-red-50"
         iconColor="text-red-500"
-        href="/app/compliance"
+        href="/property-manager/compliance"
         loading={loading}
       />
     </div>

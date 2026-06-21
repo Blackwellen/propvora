@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState } from "react"
 import {
   Plus,
@@ -40,15 +40,7 @@ interface ScheduleForm {
 /* ─── Mock data ───────────────────────────────────────────────── */
 // Grid: rows = 30-min slots from 09:00 to 18:00 => 18 rows (0-17)
 // dayIndex: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
-const VIEWINGS: Viewing[] = [
-  { id: "v1", dayIndex: 0, startRow: 0,  duration: 1, prospect: "Alex Turner",     property: "Elm Close, Manchester",   color: "bg-blue-100 text-blue-800 border-blue-200",   status: "Scheduled",  agent: "James Reid",  feedback: "" },
-  { id: "v2", dayIndex: 0, startRow: 11, duration: 1, prospect: "Priya Sharma",    property: "Victoria Rd, Manchester", color: "bg-green-100 text-green-800 border-green-200", status: "Scheduled",  agent: "James Reid",  feedback: "" },
-  { id: "v3", dayIndex: 1, startRow: 4,  duration: 2, prospect: "Marcus Jones",    property: "Park Lane, Leeds",         color: "bg-blue-100 text-blue-800 border-blue-200",   status: "Scheduled",  agent: "Emma Clarke", feedback: "" },
-  { id: "v4", dayIndex: 2, startRow: 2,  duration: 1, prospect: "Sophie Williams", property: "Brook Lane, Liverpool",    color: "bg-amber-100 text-amber-800 border-amber-200", status: "Scheduled", agent: "James Reid",  feedback: "" },
-  { id: "v5", dayIndex: 3, startRow: 12, duration: 1, prospect: "David Kim",       property: "High Street, Birmingham",  color: "bg-blue-100 text-blue-800 border-blue-200",   status: "Scheduled",  agent: "Emma Clarke", feedback: "" },
-  { id: "v6", dayIndex: 4, startRow: 1,  duration: 1, prospect: "Emma White",      property: "Oak Drive, Bristol",       color: "bg-green-100 text-green-800 border-green-200", status: "Scheduled", agent: "James Reid",  feedback: "" },
-  { id: "v7", dayIndex: 5, startRow: 4,  duration: 1, prospect: "James Brown",     property: "Beach Rd, Brighton",       color: "bg-blue-100 text-blue-800 border-blue-200",   status: "Scheduled",  agent: "Emma Clarke", feedback: "" },
-]
+const VIEWINGS: Viewing[] = []
 
 const TIME_SLOTS: string[] = Array.from({ length: 18 }, (_, i) => {
   const hour = 9 + Math.floor(i / 2)
@@ -61,20 +53,22 @@ const DAY_DATES  = ["9 Jun", "10 Jun", "11 Jun", "12 Jun", "13 Jun", "14 Jun", "
 
 const LIST_COLUMNS = ["Date/Time", "Property", "Prospect", "Duration", "Status", "Conducted By", "Feedback", "Actions"]
 
-const VIEWING_LIST = [
-  { id: "v1", datetime: "Mon 9 Jun, 09:00", property: "Elm Close, Manchester",   prospect: "Alex Turner",     duration: "30 min", status: "Scheduled",  agent: "James Reid",  feedback: "—" },
-  { id: "v2", datetime: "Mon 9 Jun, 14:30", property: "Victoria Rd, Manchester", prospect: "Priya Sharma",    duration: "30 min", status: "Scheduled",  agent: "James Reid",  feedback: "—" },
-  { id: "v3", datetime: "Tue 10 Jun, 11:00", property: "Park Lane, Leeds",       prospect: "Marcus Jones",    duration: "45 min", status: "Scheduled",  agent: "Emma Clarke", feedback: "—" },
-  { id: "v4", datetime: "Wed 11 Jun, 10:00", property: "Brook Lane, Liverpool",  prospect: "Sophie Williams", duration: "30 min", status: "Scheduled",  agent: "James Reid",  feedback: "—" },
-  { id: "v5", datetime: "Thu 12 Jun, 15:00", property: "High Street, Birmingham",prospect: "David Kim",       duration: "30 min", status: "Scheduled",  agent: "Emma Clarke", feedback: "—" },
-  { id: "v6", datetime: "Fri 13 Jun, 09:30", property: "Oak Drive, Bristol",     prospect: "Emma White",      duration: "30 min", status: "Scheduled",  agent: "James Reid",  feedback: "—" },
-  { id: "v7", datetime: "Sat 14 Jun, 11:00", property: "Beach Rd, Brighton",     prospect: "James Brown",     duration: "30 min", status: "Scheduled",  agent: "Emma Clarke", feedback: "—" },
-]
+interface ViewingListRow {
+  id: string
+  datetime: string
+  property: string
+  prospect: string
+  duration: string
+  status: string
+  agent: string
+  feedback: string
+}
+const VIEWING_LIST: ViewingListRow[] = []
 
 const TIME_OPTIONS = TIME_SLOTS.filter((_, i) => i < 18)
-const PROSPECT_OPTIONS = ["Alex Turner", "Priya Sharma", "Marcus Jones", "Sophie Williams", "David Kim", "Emma White", "James Brown"]
-const VACANCY_OPTIONS  = ["14 Elm Close, Manchester", "HMO Room 6 — Victoria Rd", "8 Park Lane, Leeds", "22 Brook Lane, Liverpool", "45 High Street, Birmingham", "3 Oak Drive, Bristol", "67 Beach Rd, Brighton"]
-const AGENT_OPTIONS    = ["James Reid", "Emma Clarke", "Sarah Mitchell"]
+const PROSPECT_OPTIONS: string[] = []
+const VACANCY_OPTIONS: string[]  = []
+const AGENT_OPTIONS: string[]    = []
 
 const DEFAULT_FORM: ScheduleForm = { prospect: "", vacancy: "", date: "", time: "09:00", duration: "30", agent: "", notes: "" }
 
@@ -119,7 +113,7 @@ export default function ViewingsPage() {
         title="Viewings"
         subtitle={`Week of 9 – 15 Jun · ${VIEWINGS.length} viewings`}
         showBack
-        backHref="/app/portfolio/leasing"
+        backHref="/property-manager/portfolio/leasing"
         primaryAction={{ label: "Schedule viewing", icon: Plus, onClick: () => setShowModal(true) }}
         overflowActions={[
           { label: calView === "calendar" ? "List view" : "Calendar view", icon: calView === "calendar" ? List : Calendar, onClick: () => setCalView(calView === "calendar" ? "list" : "calendar") },
@@ -240,6 +234,13 @@ export default function ViewingsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
+                {VIEWING_LIST.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                      No viewings scheduled yet. Use &ldquo;Schedule Viewing&rdquo; to add your first appointment.
+                    </td>
+                  </tr>
+                )}
                 {VIEWING_LIST.map((v) => (
                   <tr key={v.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-4 py-3 text-[12px] font-medium text-slate-800 whitespace-nowrap">{v.datetime}</td>
@@ -394,3 +395,4 @@ export default function ViewingsPage() {
     </>
   )
 }
+

@@ -1,4 +1,4 @@
-import { Inbox, Mail, Phone } from "lucide-react"
+﻿import { Inbox, Mail, Phone } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { getMarketplaceAccess } from "@/components/marketplace/server"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
@@ -53,7 +53,7 @@ export default async function MarketplaceRequestsPage() {
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Requests" subtitle="Incoming enquiries" showBack backHref="/app/marketplace" />
+      <MobileTopBar title="Requests" subtitle="Incoming enquiries" showBack backHref="/property-manager/marketplace" />
       <div className="hidden md:block">
         <PageHeader title="Quote requests" description="Buyers who have enquired about your marketplace listings" />
       </div>
@@ -64,7 +64,7 @@ export default async function MarketplaceRequestsPage() {
             variant="no-results"
             title="No requests yet"
             description="When a buyer requests a quote on one of your listings, it appears here so you can respond quickly."
-            action={{ label: "View my listings", href: "/app/marketplace/my-listings", icon: Inbox }}
+            action={{ label: "View my listings", href: "/property-manager/marketplace/my-listings", icon: Inbox }}
           />
         </div>
       ) : (

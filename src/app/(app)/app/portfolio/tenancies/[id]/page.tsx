@@ -251,7 +251,7 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
                     items={[
                       ...(t.tenantEmail ? [{ label: "Send email", icon: Mail, onClick: () => { window.location.href = `mailto:${t.tenantEmail}` } }] : []),
                       ...(t.tenantPhone ? [{ label: "Call tenant", icon: Phone, onClick: () => { window.location.href = `tel:${t.tenantPhone}` } }] : []),
-                      ...(t.propertyId ? [{ label: "View property", icon: Home, onClick: () => { window.location.href = `/app/portfolio/properties/${t.propertyId}` } }] : []),
+                      ...(t.propertyId ? [{ label: "View property", icon: Home, onClick: () => { window.location.href = `/property-manager/portfolio/properties/${t.propertyId}` } }] : []),
                     ]}
                   />
                 </div>
@@ -273,14 +273,14 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
               )}
               <div className="flex items-center gap-4 mt-1.5">
                 {t.propertyId ? (
-                  <Link href={`/app/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
                     <Home className="w-3.5 h-3.5" />{t.property}
                   </Link>
                 ) : (
                   <span className="flex items-center gap-1.5 text-xs text-slate-500"><Home className="w-3.5 h-3.5" />{t.property}</span>
                 )}
                 {t.unitId ? (
-                  <Link href={`/app/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
                     <Building2 className="w-3.5 h-3.5" />{t.unit} ({t.unitSize})
                   </Link>
                 ) : (
@@ -388,9 +388,9 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: "Monthly Rent", value: t.rent != null ? fmtGBP(t.rent) : "—" },
-              { label: "Deposit", value: t.deposit ? fmtGBP(t.deposit) : "—" },
-              { label: "Annualised Rent", value: t.rent != null ? fmtGBP(t.rent * 12) : "—" },
+              { label: "Monthly Rent", value: t.rent != null ? fmtGBP(t.rent) : "£0" },
+              { label: "Deposit", value: t.deposit ? fmtGBP(t.deposit) : "£0" },
+              { label: "Annualised Rent", value: t.rent != null ? fmtGBP(t.rent * 12) : "£0" },
               { label: "Status", value: t.status },
             ].map((m) => (
               <div key={m.label} className="bg-slate-50 rounded-xl p-3 flex flex-col gap-1 border border-slate-100">
@@ -426,15 +426,15 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
         <SectionCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-800">Financial Summary</span>
-            <Link href="/app/money" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link href="/property-manager/money" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
               Open Money <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Monthly Rent", value: t.rent != null ? fmtGBP(t.rent) : "—", color: "text-slate-900" },
-              { label: "Deposit Held", value: t.deposit ? fmtGBP(t.deposit) : "—", color: "text-slate-900" },
-              { label: "Annualised", value: t.rent != null ? fmtGBP(t.rent * 12) : "—", color: "text-emerald-600" },
+              { label: "Monthly Rent", value: t.rent != null ? fmtGBP(t.rent) : "£0", color: "text-slate-900" },
+              { label: "Deposit Held", value: t.deposit ? fmtGBP(t.deposit) : "£0", color: "text-slate-900" },
+              { label: "Annualised", value: t.rent != null ? fmtGBP(t.rent * 12) : "£0", color: "text-emerald-600" },
             ].map((s) => (
               <div key={s.label} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">{s.label}</span>
@@ -479,11 +479,11 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
               <p className="text-[10px] text-blue-700 font-semibold uppercase tracking-wide">Monthly Rent</p>
-              <p className="text-2xl font-bold text-blue-700 tabular-nums mt-1">{t.rent != null ? fmtGBP(t.rent) : "—"}</p>
+              <p className="text-2xl font-bold text-blue-700 tabular-nums mt-1">{t.rent != null ? fmtGBP(t.rent) : "£0"}</p>
             </div>
             <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
               <p className="text-[10px] text-violet-700 font-semibold uppercase tracking-wide">Deposit</p>
-              <p className="text-2xl font-bold text-violet-700 tabular-nums mt-1">{t.deposit ? fmtGBP(t.deposit) : "—"}</p>
+              <p className="text-2xl font-bold text-violet-700 tabular-nums mt-1">{t.deposit ? fmtGBP(t.deposit) : "£0"}</p>
             </div>
             <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
               <p className="text-[10px] text-emerald-700 font-semibold uppercase tracking-wide">Scheme</p>
@@ -508,7 +508,7 @@ function PaymentsTab({ t }: { t: TenancyDisplay }) {
     <div className="mt-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="text-[13px] text-slate-500">Rent terms shown from the tenancy. Recorded payments, arrears and receipts live in Money.</p>
-        <Link href="/app/money" className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors shadow-sm">
+        <Link href="/property-manager/money" className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors shadow-sm">
           Open Money <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -516,9 +516,9 @@ function PaymentsTab({ t }: { t: TenancyDisplay }) {
       {/* KPI Strip — live rent terms */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Monthly Rent", value: rent > 0 ? fmtGBP(rent) : "—", sub: "Per month" },
-          { label: "Annualised", value: rent > 0 ? fmtGBP(rent * 12) : "—", sub: "Rent × 12" },
-          { label: "Deposit Held", value: t.deposit ? fmtGBP(t.deposit) : "—", sub: t.depositScheme },
+          { label: "Monthly Rent", value: rent > 0 ? fmtGBP(rent) : "£0", sub: "Per month" },
+          { label: "Annualised", value: rent > 0 ? fmtGBP(rent * 12) : "£0", sub: "Rent × 12" },
+          { label: "Deposit Held", value: t.deposit ? fmtGBP(t.deposit) : "£0", sub: t.depositScheme },
           { label: "Status", value: t.status, sub: "Tenancy" },
         ].map((k) => (
           <div key={k.label} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
@@ -537,7 +537,7 @@ function PaymentsTab({ t }: { t: TenancyDisplay }) {
           <p className="text-[14px] font-semibold text-slate-600">Payment history is tracked in Money</p>
           <p className="text-[12px] text-slate-500 mt-1">Record rent receipts, charges and arrears against this tenancy in the Money section.</p>
         </div>
-        <Link href="/app/money" className="text-[12px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
+        <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
           Go to Money <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </SectionCard>
@@ -686,7 +686,7 @@ function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, 
       {/* KPI Strip — live */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Deposit Amount", value: t.deposit ? fmtGBP(t.deposit) : "—", sub: "", color: "text-slate-900" },
+          { label: "Deposit Amount", value: t.deposit ? fmtGBP(t.deposit) : "£0", sub: "", color: "text-slate-900" },
           { label: "Scheme", value: t.depositScheme, sub: "", color: "text-slate-900" },
           { label: "Reference", value: t.depositCertNo, sub: "", color: "text-slate-900" },
           { label: "Status", value: protectedStatus, sub: "", color: protectedStatus === "Protected" ? "text-emerald-600" : "text-amber-600" },
@@ -1046,7 +1046,7 @@ export default function TenancyDetailPage() {
             <p className="text-[15px] font-bold text-slate-700">Tenancy not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This tenancy doesn’t exist or you don’t have access to it.</p>
           </div>
-          <Link href="/app/portfolio/tenancies" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/tenancies" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Tenancies
           </Link>
         </div>
@@ -1066,9 +1066,9 @@ export default function TenancyDetailPage() {
     address: [property?.address_line1, property?.city, property?.postcode].filter(Boolean).join(", "),
     property: property?.name ?? "Property",
     propertyId: tenancy.property_id,
-    unit: unit?.unit_name ?? (tenancy.unit_id ? "Unit" : "—"),
+    unit: unit?.unit_name ?? (tenancy.unit_id ? "Unit" : "Whole property"),
     unitId: tenancy.unit_id ?? null,
-    unitSize: unit?.floor_area_sqm != null ? `${unit.floor_area_sqm}m²` : "—",
+    unitSize: unit?.floor_area_sqm != null ? `${unit.floor_area_sqm}m²` : "Not recorded",
     leaseStart: tenancy.start_date,
     leaseEnd: tenancy.end_date ?? "Periodic",
     leaseTerm: tenancy.tenancy_type ?? "AST",
@@ -1100,11 +1100,11 @@ export default function TenancyDetailPage() {
         title={t.tenantName}
         subtitle={`${t.property}, ${t.unit}`}
         showBack
-        backHref="/app/portfolio/tenancies"
-        primaryAction={{ label: "New tenancy", icon: Plus, href: t.propertyId ? `/app/portfolio/tenancies/new?propertyId=${t.propertyId}` : "/app/portfolio/tenancies/new" }}
+        backHref="/property-manager/portfolio/tenancies"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: t.propertyId ? `/property-manager/portfolio/tenancies/new?propertyId=${t.propertyId}` : "/property-manager/portfolio/tenancies/new" }}
         overflowActions={[
-          ...(tenancy?.property_id ? [{ label: "View property", icon: Building2, href: `/app/portfolio/properties/${tenancy.property_id}` }] : []),
-          ...(tenancy?.unit_id ? [{ label: "View unit", icon: Home, href: `/app/portfolio/units/${tenancy.unit_id}` }] : []),
+          ...(tenancy?.property_id ? [{ label: "View property", icon: Building2, href: `/property-manager/portfolio/properties/${tenancy.property_id}` }] : []),
+          ...(tenancy?.unit_id ? [{ label: "View unit", icon: Home, href: `/property-manager/portfolio/units/${tenancy.unit_id}` }] : []),
           { label: "End tenancy", icon: XCircle, destructive: true, onClick: () => save("status", "ended") },
         ]}
       />
@@ -1113,9 +1113,9 @@ export default function TenancyDetailPage() {
 
         {/* Breadcrumb — hidden on phones */}
         <div className="hidden md:flex items-center gap-1.5 text-sm mb-3">
-          <Link href="/app/portfolio" className="text-slate-500 hover:text-slate-700 transition-colors">Portfolio</Link>
+          <Link href="/property-manager/portfolio" className="text-slate-500 hover:text-slate-700 transition-colors">Portfolio</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/app/portfolio/tenancies" className="text-slate-500 hover:text-slate-700 transition-colors">Tenancies</Link>
+          <Link href="/property-manager/portfolio/tenancies" className="text-slate-500 hover:text-slate-700 transition-colors">Tenancies</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <span className="text-slate-900 font-medium">{t.tenantName}</span>
         </div>
@@ -1133,14 +1133,14 @@ export default function TenancyDetailPage() {
               confirmLabel="Delete tenancy"
               onConfirm={async () => {
                 await deleteTenancy.mutateAsync({ id: tenancyId, workspaceId: workspace!.id })
-                router.push("/app/portfolio/tenancies")
+                router.push("/property-manager/portfolio/tenancies")
               }}
             >
               {(openDelete) => (
                 <ActionMenu
                   items={[
-                    { label: "View property", icon: Building2, onClick: () => tenancy?.property_id && router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
-                    { label: "View unit", icon: Home, onClick: () => tenancy?.unit_id && router.push(`/app/portfolio/units/${tenancy.unit_id}`) },
+                    { label: "View property", icon: Building2, onClick: () => tenancy?.property_id && router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
+                    { label: "View unit", icon: Home, onClick: () => tenancy?.unit_id && router.push(`/property-manager/portfolio/units/${tenancy.unit_id}`) },
                     { label: "Renew tenancy", icon: RefreshCw, onClick: () => setActiveTab("overview") },
                     { label: "End tenancy", icon: XCircle, variant: "danger", onClick: () => save("status", "ended") },
                     { label: "Delete tenancy", icon: Trash2, variant: "danger", onClick: openDelete },
@@ -1156,7 +1156,7 @@ export default function TenancyDetailPage() {
 
             {/* New */}
             <Link
-              href={t.propertyId ? `/app/portfolio/tenancies/new?propertyId=${t.propertyId}` : "/app/portfolio/tenancies/new"}
+              href={t.propertyId ? `/property-manager/portfolio/tenancies/new?propertyId=${t.propertyId}` : "/property-manager/portfolio/tenancies/new"}
               className="flex items-center gap-1.5 text-sm font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" /> New Tenancy

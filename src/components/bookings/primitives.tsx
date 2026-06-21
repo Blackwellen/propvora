@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import {
@@ -183,7 +183,7 @@ export function BookingUpgradePrompt({
         </p>
         <div className="mt-6 flex items-center gap-2">
           <Link
-            href="/app/workspace-settings/subscription"
+            href="/property-manager/workspace-settings/subscription"
             className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
             View plans

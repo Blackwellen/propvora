@@ -16,7 +16,7 @@ import "./__stubs__/jsdom-setup"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent } from "@testing-library/react"
 
-let mockPathname = "/app/portfolio"
+let mockPathname = "/property-manager/portfolio"
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
 }))
@@ -36,7 +36,7 @@ vi.mock("next/image", () => ({
 import MobileBottomNav from "@/components/mobile/MobileBottomNav"
 
 beforeEach(() => {
-  mockPathname = "/app/portfolio"
+  mockPathname = "/property-manager/portfolio"
 })
 
 describe("MobileBottomNav centre Copilot button", () => {
@@ -86,13 +86,13 @@ describe("MobileBottomNav route tabs", () => {
     const home = screen.getByRole("link", { name: /home/i })
     const portfolio = screen.getByRole("link", { name: /portfolio/i })
     const work = screen.getByRole("link", { name: /work/i })
-    expect(home.getAttribute("href")).toBe("/app")
-    expect(portfolio.getAttribute("href")).toBe("/app/portfolio")
-    expect(work.getAttribute("href")).toBe("/app/work")
+    expect(home.getAttribute("href")).toBe("/property-manager")
+    expect(portfolio.getAttribute("href")).toBe("/property-manager/portfolio")
+    expect(work.getAttribute("href")).toBe("/property-manager/work")
   })
 
   it("marks the active route tab with aria-current=page", () => {
-    mockPathname = "/app/portfolio"
+    mockPathname = "/property-manager/portfolio"
     render(<MobileBottomNav onOpenChat={vi.fn()} />)
     const portfolio = screen.getByRole("link", { name: /portfolio/i })
     expect(portfolio.getAttribute("aria-current")).toBe("page")

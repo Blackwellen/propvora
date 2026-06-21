@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import {
@@ -28,7 +28,7 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { cn } from "@/lib/utils"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type FilterKey =
   | "all"
@@ -86,7 +86,7 @@ interface AttentionItem {
   count: number
 }
 
-// ─── Static data ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Static data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const FILTER_CHIPS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
@@ -99,261 +99,27 @@ const FILTER_CHIPS: { key: FilterKey; label: string }[] = [
   { key: "system", label: "System" },
 ]
 
-const ACTIVITY_ROWS: ActivityRow[] = [
-  {
-    time: "11:42",
-    dotColor: "bg-emerald-500",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    icon: <CheckCircle className="w-4 h-4" />,
-    avatarInitials: "JO",
-    avatarBg: "bg-blue-100 text-blue-700",
-    contactName: "James Okafor",
-    contactType: "Tenant",
-    contactTypeBg: "bg-blue-100 text-blue-700",
-    eventTitle: "Payment received",
-    description: "£850.00 rent payment for 5 The Oaks",
-    chip: "Completed ✓",
-    chipBg: "bg-emerald-100 text-emerald-700",
-    amount: "+£850.00",
-    amountColor: "text-emerald-600",
-    filter: "payments",
-  },
-  {
-    time: "11:15",
-    dotColor: "bg-blue-500",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    icon: <MessageSquare className="w-4 h-4" />,
-    avatarInitials: "SM",
-    avatarBg: "bg-emerald-100 text-emerald-700",
-    contactName: "Sarah Mitchell",
-    contactType: "Landlord",
-    contactTypeBg: "bg-violet-100 text-violet-700",
-    eventTitle: "Message sent",
-    description: "Re: Service charge adjustment for May 2026",
-    chip: "Email",
-    chipBg: "bg-blue-100 text-blue-700",
-    filter: "messages",
-  },
-  {
-    time: "10:38",
-    dotColor: "bg-violet-500",
-    iconBg: "bg-violet-100",
-    iconColor: "text-violet-600",
-    icon: <FileText className="w-4 h-4" />,
-    avatarInitials: "EP",
-    avatarBg: "bg-violet-100 text-violet-700",
-    contactName: "Emily Patel",
-    contactType: "Applicant",
-    contactTypeBg: "bg-slate-100 text-slate-600",
-    eventTitle: "Document uploaded",
-    description: "Right to Rent check – Passport (exp. 2034)",
-    chip: "Right to Rent",
-    chipBg: "bg-violet-100 text-violet-700",
-    filter: "documents",
-  },
-  {
-    time: "09:55",
-    dotColor: "bg-amber-500",
-    iconBg: "bg-amber-100",
-    iconColor: "text-amber-600",
-    icon: <CheckSquare className="w-4 h-4" />,
-    avatarInitials: "CB",
-    avatarBg: "bg-amber-100 text-amber-700",
-    contactName: "Connor Bradley",
-    contactType: "Applicant",
-    contactTypeBg: "bg-slate-100 text-slate-600",
-    eventTitle: "Task completed",
-    description: "Reference check completed",
-    chip: "Reference",
-    chipBg: "bg-amber-100 text-amber-700",
-    filter: "tasks",
-  },
-  {
-    time: "09:55",
-    dotColor: "bg-teal-500",
-    iconBg: "bg-teal-100",
-    iconColor: "text-teal-600",
-    icon: <Globe className="w-4 h-4" />,
-    avatarInitials: "PS",
-    avatarBg: "bg-teal-100 text-teal-700",
-    contactName: "Priya Shah",
-    contactType: "Tenant",
-    contactTypeBg: "bg-blue-100 text-blue-700",
-    eventTitle: "Portal login",
-    description: "Successful login from Chrome on Windows",
-    chip: "Web",
-    chipBg: "bg-teal-100 text-teal-700",
-    filter: "portal",
-  },
-  {
-    time: "09:12",
-    dotColor: "bg-emerald-500",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    icon: <DollarSign className="w-4 h-4" />,
-    avatarInitials: "KW",
-    avatarBg: "bg-orange-100 text-orange-700",
-    contactName: "Kevin Walsh",
-    contactType: "Supplier",
-    contactTypeBg: "bg-orange-100 text-orange-700",
-    eventTitle: "Invoice paid",
-    description: "INV-0082 payment for £1,245.00 cleared",
-    chip: "Paid ✓",
-    chipBg: "bg-emerald-100 text-emerald-700",
-    amount: "+£1,245.00",
-    amountColor: "text-emerald-600",
-    filter: "payments",
-  },
-  {
-    time: "08:30",
-    dotColor: "bg-red-500",
-    iconBg: "bg-red-100",
-    iconColor: "text-red-600",
-    icon: <AlertTriangle className="w-4 h-4" />,
-    avatarInitials: "JT",
-    avatarBg: "bg-red-100 text-red-700",
-    contactName: "James Taylor",
-    contactType: "Tenant",
-    contactTypeBg: "bg-blue-100 text-blue-700",
-    eventTitle: "Arrears escalated",
-    description: "Case opened: 64 days overdue, high risk",
-    chip: "High Risk",
-    chipBg: "bg-red-100 text-red-700",
-    filter: "alerts",
-  },
-  {
-    time: "07:55",
-    dotColor: "bg-slate-400",
-    iconBg: "bg-slate-100",
-    iconColor: "text-slate-600",
-    icon: <Settings className="w-4 h-4" />,
-    avatarInitials: "⚙",
-    avatarBg: "bg-slate-100 text-slate-600",
-    contactName: "System",
-    contactType: "System",
-    contactTypeBg: "bg-slate-100 text-slate-500",
-    eventTitle: "Reconciliation run",
-    description: "47 transactions matched, 12 remain open",
-    chip: "System",
-    chipBg: "bg-slate-100 text-slate-500",
-    filter: "system",
-  },
-]
+const ACTIVITY_ROWS: ActivityRow[] = []
 
-const MOST_ACTIVE: MostActiveContact[] = [
-  {
-    rank: 1,
-    initials: "JO",
-    initialsColor: "bg-blue-100 text-blue-700",
-    name: "James Okafor",
-    type: "Tenant",
-    typeBg: "bg-blue-100 text-blue-700",
-    count: 26,
-    trendUp: true,
-    trendPct: "↑12%",
-  },
-  {
-    rank: 2,
-    initials: "SM",
-    initialsColor: "bg-emerald-100 text-emerald-700",
-    name: "Sarah Mitchell",
-    type: "Landlord",
-    typeBg: "bg-violet-100 text-violet-700",
-    count: 22,
-    trendUp: true,
-    trendPct: "↑8%",
-  },
-  {
-    rank: 3,
-    initials: "KW",
-    initialsColor: "bg-orange-100 text-orange-700",
-    name: "Kevin Walsh",
-    type: "Supplier",
-    typeBg: "bg-orange-100 text-orange-700",
-    count: 18,
-    trendUp: false,
-    trendPct: "↓3%",
-  },
-  {
-    rank: 4,
-    initials: "EP",
-    initialsColor: "bg-violet-100 text-violet-700",
-    name: "Emily Patel",
-    type: "Applicant",
-    typeBg: "bg-slate-100 text-slate-600",
-    count: 16,
-    trendUp: true,
-    trendPct: "↑21%",
-  },
-  {
-    rank: 5,
-    initials: "CB",
-    initialsColor: "bg-amber-100 text-amber-700",
-    name: "Connor Bradley",
-    type: "Applicant",
-    typeBg: "bg-slate-100 text-slate-600",
-    count: 14,
-    trendUp: true,
-    trendPct: "↑5%",
-  },
-]
+const MOST_ACTIVE: MostActiveContact[] = []
 
-const DONUT_SEGMENTS: DonutSegment[] = [
-  { label: "Payments", pct: 21.8, color: "#2563EB" },
-  { label: "Messages", pct: 33.1, color: "#10B981" },
-  { label: "Documents", pct: 14.5, color: "#7C3AED" },
-  { label: "Tasks", pct: 10.9, color: "#F59E0B" },
-  { label: "Portal", pct: 12.5, color: "#14B8A6" },
-  { label: "Alerts", pct: 4.4, color: "#EF4444" },
-  { label: "System", pct: 2.8, color: "#94A3B8" },
-]
+const DONUT_SEGMENTS: DonutSegment[] = []
 
-const ATTENTION_ITEMS: AttentionItem[] = [
-  {
-    iconBg: "bg-amber-100",
-    iconColor: "text-amber-600",
-    icon: <AlertTriangle className="w-4 h-4" />,
-    label: "Overdue tasks",
-    count: 7,
-  },
-  {
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Unread messages",
-    count: 12,
-  },
-  {
-    iconBg: "bg-red-100",
-    iconColor: "text-red-600",
-    icon: <XCircle className="w-4 h-4" />,
-    label: "Failed payments",
-    count: 3,
-  },
-  {
-    iconBg: "bg-orange-100",
-    iconColor: "text-orange-600",
-    icon: <Clock className="w-4 h-4" />,
-    label: "Expiring documents",
-    count: 5,
-  },
-]
+const ATTENTION_ITEMS: AttentionItem[] = []
 
 // Bar chart day heights for activity summary
 const WEEK_BARS = [
-  { day: "Mon", height: 22 },
-  { day: "Tue", height: 34 },
-  { day: "Wed", height: 28 },
-  { day: "Thu", height: 41 },
-  { day: "Fri", height: 38 },
-  { day: "Sat", height: 44 },
-  { day: "Sun", height: 29 },
+  { day: "Mon", height: 0 },
+  { day: "Tue", height: 0 },
+  { day: "Wed", height: 0 },
+  { day: "Thu", height: 0 },
+  { day: "Fri", height: 0 },
+  { day: "Sat", height: 0 },
+  { day: "Sun", height: 0 },
 ]
-const WEEK_MAX = 44
+const WEEK_MAX = 1
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function DonutChart({
   segments,
@@ -404,7 +170,7 @@ function DonutChart({
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ActivityPage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all")
@@ -458,46 +224,44 @@ export default function ActivityPage() {
         />
         </div>
 
-        {/* Mobile header — search */}
+        {/* Mobile header â€” search */}
         <MobilePageHeader
           title="Financial Activity"
           search={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder="Search activity…"
+          searchPlaceholder="Search activityâ€¦"
         />
 
         {/* KPI Row */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <MoneyKpiCard
             label="Events Today"
-            value="48"
-            trend="↑ +12 vs yesterday"
-            trendUp
+            value="—"
+            subtitle="Requires live data"
             icon={<Activity className="w-5 h-5" />}
             iconBg="bg-blue-50"
             iconColor="text-blue-600"
           />
           <MoneyKpiCard
             label="This Week"
-            value="162"
-            trend="↑ +8.3%"
-            trendUp
+            value="—"
+            subtitle="Requires live data"
             icon={<Calendar className="w-5 h-5" />}
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
           />
           <MoneyKpiCard
             label="System Actions"
-            value="89"
-            subtitle="automated events"
+            value="—"
+            subtitle="Requires live data"
             icon={<Cpu className="w-5 h-5" />}
             iconBg="bg-violet-50"
             iconColor="text-violet-600"
           />
           <MoneyKpiCard
             label="User Actions"
-            value="159"
-            subtitle="8 team members"
+            value="—"
+            subtitle="Requires live data"
             icon={<Users className="w-5 h-5" />}
             iconBg="bg-amber-50"
             iconColor="text-amber-600"
@@ -583,7 +347,7 @@ export default function ActivityPage() {
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex-1 h-px bg-slate-100" />
                 <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
-                  Today — 10 June 2026
+                  Today
                 </span>
                 <div className="flex-1 h-px bg-slate-100" />
               </div>
@@ -676,8 +440,8 @@ export default function ActivityPage() {
                       )}
                       <ActionMenu
                         items={[
-                          { label: "View Details", icon: Eye, onClick: () => showToast(`${row.eventTitle} — ${row.description}`) },
-                          { label: "Copy Description", icon: Copy, onClick: () => { navigator.clipboard?.writeText(`${row.eventTitle} — ${row.description}`); showToast("Copied to clipboard") } },
+                          { label: "View Details", icon: Eye, onClick: () => showToast(`${row.eventTitle} â€” ${row.description}`) },
+                          { label: "Copy Description", icon: Copy, onClick: () => { navigator.clipboard?.writeText(`${row.eventTitle} â€” ${row.description}`); showToast("Copied to clipboard") } },
                         ]}
                       />
                     </div>
@@ -686,7 +450,7 @@ export default function ActivityPage() {
 
                 {filteredRows.length === 0 && (
                   <div className="py-12 text-center text-slate-500 text-sm">
-                    No activity matches your filters.
+                    Financial activity will appear here once transactions are recorded.
                   </div>
                 )}
               </div>
@@ -711,23 +475,19 @@ export default function ActivityPage() {
               <div className="flex flex-col gap-2 mb-5">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">Today</span>
-                  <span className="font-semibold text-slate-900">48 events</span>
+                  <span className="font-semibold text-slate-900">—</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">This week</span>
-                  <span className="font-semibold text-slate-900">
-                    162 events
-                  </span>
+                  <span className="font-semibold text-slate-900">—</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">This month</span>
-                  <span className="font-semibold text-slate-900">
-                    248 events
-                  </span>
+                  <span className="font-semibold text-slate-900">—</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">vs last month</span>
-                  <span className="font-semibold text-emerald-600">↑ 18.3%</span>
+                  <span className="font-semibold text-slate-400">—</span>
                 </div>
               </div>
 
@@ -767,10 +527,11 @@ export default function ActivityPage() {
                   Most Active Contacts
                 </h3>
                 <button className="text-xs text-blue-600 hover:underline">
-                  View all →
+                  View all â†’
                 </button>
               </div>
               <div className="flex flex-col gap-3">
+                {MOST_ACTIVE.length === 0 && <p className="text-xs text-slate-400 py-2">Contact activity data will appear here once transactions are recorded.</p>}
                 {MOST_ACTIVE.map((c) => (
                   <div key={c.rank} className="flex items-center gap-3">
                     <span className="text-xs text-slate-500 w-4 text-center shrink-0">
@@ -823,7 +584,10 @@ export default function ActivityPage() {
                 </h3>
                 <span className="text-xs text-slate-500">This Month</span>
               </div>
-              <DonutChart segments={DONUT_SEGMENTS} center="248" />
+              {DONUT_SEGMENTS.length === 0
+                ? <p className="text-xs text-slate-400 py-4">Event type breakdown requires live activity data.</p>
+                : <DonutChart segments={DONUT_SEGMENTS} center="—" />
+              }
             </div>
 
             {/* D. Attention Indicators */}
@@ -835,6 +599,7 @@ export default function ActivityPage() {
                 <Bell className="w-4 h-4 text-slate-400" />
               </div>
               <div className="flex flex-col gap-3">
+                {ATTENTION_ITEMS.length === 0 && <p className="text-xs text-slate-400 py-2">Attention indicators will appear here once activity data is available.</p>}
                 {ATTENTION_ITEMS.map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div
@@ -857,7 +622,7 @@ export default function ActivityPage() {
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100">
                 <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-                  View all alerts →
+                  View all alerts â†’
                 </button>
               </div>
             </div>
@@ -875,3 +640,9 @@ export default function ActivityPage() {
     </div>
   )
 }
+
+
+
+
+
+

@@ -18,27 +18,15 @@ import { timeAgo } from "@/components/supplier-workspace/format"
 type Tab = "rules" | "templates" | "logs" | "approvals"
 
 interface Rule { id: string; name: string; trigger: string; status: "active" | "paused"; approvalRequired: boolean; customerImpacting: boolean; runs7d: number; errors: number }
-const RULES: Rule[] = [
-  { id: "r1", name: "Auto-assign by trade & area", trigger: "New job assigned", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 142, errors: 0 },
-  { id: "r2", name: "Remind worker to upload evidence", trigger: "Job complete + 2h, no evidence", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 38, errors: 1 },
-  { id: "r3", name: "Notify customer after completion", trigger: "Job marked complete", status: "active", approvalRequired: true, customerImpacting: true, runs7d: 64, errors: 0 },
-  { id: "r4", name: "Flag invoice overdue", trigger: "Invoice unpaid 14d", status: "paused", approvalRequired: false, customerImpacting: false, runs7d: 0, errors: 0 },
-  { id: "r5", name: "Insurance renewal reminder", trigger: "Policy expiry − 30d", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 3, errors: 0 },
-]
+const RULES: Rule[] = []
 const TEMPLATES = [
   { id: "t1", name: "Auto-assign jobs by trade/area", desc: "Route new jobs to the nearest qualified worker.", customerImpacting: false },
   { id: "t2", name: "Notify team on new request", desc: "Ping the team channel when an RFQ lands.", customerImpacting: false },
   { id: "t3", name: "Customer completion message", desc: "Send a thank-you + review request after sign-off.", customerImpacting: true },
   { id: "t4", name: "SLA breach warning", desc: "Internal alert when a job is near its SLA.", customerImpacting: false },
 ]
-const LOGS = [
-  { id: "l1", rule: "Auto-assign by trade & area", at: new Date(Date.now() - 0.2 * 3600000).toISOString(), status: "ok" as const, detail: "JOB-0461 → Jake Foster" },
-  { id: "l2", rule: "Remind worker to upload evidence", at: new Date(Date.now() - 1.5 * 3600000).toISOString(), status: "error" as const, detail: "Worker notification failed (retry queued)" },
-  { id: "l3", rule: "Notify customer after completion", at: new Date(Date.now() - 3 * 3600000).toISOString(), status: "ok" as const, detail: "Sent to Priya Nair" },
-]
-const APPROVALS = [
-  { id: "ap1", name: "Notify customer after completion", reason: "Customer-facing message", requestedBy: "Mike Thompson", at: new Date(Date.now() - 4 * 3600000).toISOString() },
-]
+const LOGS: { id: string; rule: string; at: string; status: "ok" | "error"; detail: string }[] = []
+const APPROVALS: { id: string; name: string; reason: string; requestedBy: string; at: string }[] = []
 
 export function TeamAutomations() {
   const [tab, setTab] = useState<Tab>("rules")
@@ -76,6 +64,9 @@ export function TeamAutomations() {
 
       {tab === "rules" && (
         <div className="space-y-2">
+          {rules.length === 0 && (
+            <SupplierCard className="p-10 text-center"><Workflow className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No automation rules yet</p><p className="text-xs text-slate-400 mt-1">Create your first rule to automate repetitive tasks.</p></SupplierCard>
+          )}
           {rules.map((r) => (
             <SupplierCard key={r.id} className="p-4 flex items-center gap-3">
               <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", r.status === "active" ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}><Workflow className="w-4 h-4" /></span>
@@ -104,19 +95,23 @@ export function TeamAutomations() {
 
       {tab === "logs" && (
         <SupplierCard className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Rule</th><th className="px-4 py-3 font-semibold">Detail</th><th className="px-4 py-3 font-semibold">When</th><th className="px-4 py-3 font-semibold">Status</th></tr></thead>
-            <tbody className="divide-y divide-slate-50">
-              {LOGS.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-50/60">
-                  <td className="px-4 py-3 font-medium text-slate-800">{l.rule}</td>
-                  <td className="px-4 py-3 text-slate-600">{l.detail}</td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">{timeAgo(l.at)}</td>
-                  <td className="px-4 py-3">{l.status === "ok" ? <span className="text-[11px] font-semibold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />OK</span> : <span className="text-[11px] font-semibold text-red-600 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Error</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {LOGS.length === 0 ? (
+            <div className="p-10 text-center"><Activity className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No logs yet</p><p className="text-xs text-slate-400 mt-1">Automation run logs will appear here.</p></div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Rule</th><th className="px-4 py-3 font-semibold">Detail</th><th className="px-4 py-3 font-semibold">When</th><th className="px-4 py-3 font-semibold">Status</th></tr></thead>
+              <tbody className="divide-y divide-slate-50">
+                {LOGS.map((l) => (
+                  <tr key={l.id} className="hover:bg-slate-50/60">
+                    <td className="px-4 py-3 font-medium text-slate-800">{l.rule}</td>
+                    <td className="px-4 py-3 text-slate-600">{l.detail}</td>
+                    <td className="px-4 py-3 text-slate-400 text-xs">{timeAgo(l.at)}</td>
+                    <td className="px-4 py-3">{l.status === "ok" ? <span className="text-[11px] font-semibold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />OK</span> : <span className="text-[11px] font-semibold text-red-600 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Error</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </SupplierCard>
       )}
 

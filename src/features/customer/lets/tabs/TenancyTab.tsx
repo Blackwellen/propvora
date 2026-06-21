@@ -40,7 +40,7 @@ export default function TenancyTab() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5 items-start">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your tenancies</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none w-36" /></div></div>
+          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your tenancies</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" /></div></div>
           <div className="space-y-2">
             {tenancies.map((t) => { const active = t.id === selectedId; return (
               <button key={t.id} onClick={() => setSelectedId(t.id)} className={cn("w-full text-left flex items-center gap-3 p-3 rounded-xl transition-colors", active ? "outline outline-2 -outline-offset-2 outline-blue-500 bg-blue-50/30" : "hover:bg-slate-50")}>

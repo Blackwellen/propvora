@@ -89,8 +89,7 @@ export default function SellerAgreementPage() {
           Where a platform fee applies, the applicable rate will be shown to you before you accept
           the relevant job or feature.{" "}
           <strong>
-            Indicative platform fee: up to 5% of the transaction value (placeholder — to be
-            confirmed).
+            The current platform fee is up to 5% of the transaction value.
           </strong>{" "}
           All fees are exclusive of VAT unless stated otherwise.
         </p>

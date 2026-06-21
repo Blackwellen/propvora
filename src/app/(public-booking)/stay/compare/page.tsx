@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import { SlidersHorizontal } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { searchPublicListings } from "@/lib/booking"
 import CompareClient from "@/components/booking/CompareClient"
+import StayCompareHeader from "@/features/marketplace/components/sections/StayCompareHeader"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -25,14 +25,7 @@ export default async function StayComparePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
-      <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[12px] font-semibold text-blue-700">
-        <SlidersHorizontal className="w-3.5 h-3.5" /> Compare
-      </div>
-      <h1 className="mt-3 text-[22px] sm:text-[26px] font-bold tracking-tight text-[#0B1B3F]">Compare stays</h1>
-      <p className="mt-1.5 max-w-2xl text-[13.5px] text-slate-600">
-        See price, rating, cancellation policy, capacity and type side by side before you book.
-      </p>
-
+      <StayCompareHeader />
       <CompareClient pool={pool} />
     </div>
   )

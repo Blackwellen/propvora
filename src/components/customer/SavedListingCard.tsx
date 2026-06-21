@@ -50,7 +50,7 @@ export default function SavedListingCard({
 
   return (
     <div className="group relative bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md hover:border-slate-300 transition-all">
-      <Link href={l ? `/app/marketplace/${l.id}` : "/app/marketplace"} className="block">
+      <Link href={l ? `/property-manager/marketplace/${l.id}` : "/property-manager/marketplace"} className="block">
         <div className="relative aspect-[16/10] bg-slate-100">
           {cover ? (
             <Image src={cover} alt={title} fill className="object-cover" sizes="(max-width: 640px) 100vw, 33vw" />

@@ -49,7 +49,7 @@ export default function PortalGrantDetailPage() {
     return (
       <DashboardContainer>
         <div className="px-6 pt-6 pb-10">
-          <Link href="/app/portals/access" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-6">
+          <Link href="/property-manager/portals/access" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to grants
           </Link>
           <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
@@ -69,7 +69,7 @@ export default function PortalGrantDetailPage() {
   return (
     <DashboardContainer>
       <div className="px-6 pt-6 pb-10 space-y-6">
-        <Link href="/app/portals/access" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800">
+        <Link href="/property-manager/portals/access" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800">
           <ArrowLeft className="w-4 h-4" /> Back to grants
         </Link>
 
@@ -227,15 +227,17 @@ export default function PortalGrantDetailPage() {
 
           {/* Right rail */}
           <div className="space-y-4">
-            {/* Honesty note */}
-            <div className="bg-amber-50 rounded-2xl border border-amber-200 p-4">
+            {/* Portal status */}
+            <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-4">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-amber-800 mb-1">Recipient portal not yet built</p>
-                  <p className="text-[11px] text-amber-700 leading-relaxed">
-                    Access is provisioned, but the public recipient-facing portal route + edge auth
-                    that consumes this token has not been built yet.
+                  <p className="text-xs font-semibold text-emerald-800 mb-1">Recipient portal active</p>
+                  <p className="text-[11px] text-emerald-700 leading-relaxed">
+                    The secure recipient portal is live at
+                    <span className="font-mono text-[10px] ml-1">/portal?token=…</span>.
+                    Recipients can view documents, invoices and jobs based on their grant scope.
+                    Revoke instantly from the Actions panel.
                   </p>
                 </div>
               </div>
@@ -254,7 +256,7 @@ export default function PortalGrantDetailPage() {
             </div>
 
             <Link
-              href={`/app/contacts/${grant.contact_id}`}
+              href={`/property-manager/contacts/${grant.contact_id}`}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors"
             >
               <ExternalLink className="w-4 h-4" /> View contact

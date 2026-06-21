@@ -7,13 +7,12 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { SEED_PROPERTIES } from "./seed"
 import type { HookState, PropertyOption } from "./types"
 
 export function useProperties(): HookState<PropertyOption[]> {
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
-  const [data, setData] = useState<PropertyOption[]>(SEED_PROPERTIES)
+  const [data, setData] = useState<PropertyOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<"live" | "seed">("seed")
@@ -22,7 +21,7 @@ export function useProperties(): HookState<PropertyOption[]> {
     setLoading(true)
     setError(null)
     if (!workspaceId) {
-      setData(SEED_PROPERTIES)
+      setData([])
       setSource("seed")
       setLoading(false)
       return
@@ -31,7 +30,6 @@ export function useProperties(): HookState<PropertyOption[]> {
       const supabase = createClient()
       const { data: rows, error: err } = await supabase
         .from("properties")
-        // live schema uses nickname / address_line1 — aliased back to the keys the map below reads
         .select("id, name:nickname, address_line_1:address_line1, city, postcode")
         .eq("workspace_id", workspaceId)
         .limit(50)
@@ -52,11 +50,11 @@ export function useProperties(): HookState<PropertyOption[]> {
         )
         setSource("live")
       } else {
-        setData(SEED_PROPERTIES)
+        setData([])
         setSource("seed")
       }
     } catch {
-      setData(SEED_PROPERTIES)
+      setData([])
       setSource("seed")
     } finally {
       setLoading(false)

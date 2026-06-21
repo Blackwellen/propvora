@@ -17,9 +17,9 @@ export default function SubscriptionInactivePage() {
       actions={[
         {
           label: "Manage subscription",
-          href: "/app/workspace-settings/subscription",
+          href: "/property-manager/workspace-settings/subscription",
         },
-        { label: "Back to dashboard", href: "/app" },
+        { label: "Back to dashboard", href: "/property-manager" },
       ]}
     />
   )

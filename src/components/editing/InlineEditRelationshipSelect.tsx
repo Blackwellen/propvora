@@ -163,7 +163,7 @@ export function InlineEditRelationshipSelect({
           <button
             type="button"
             onClick={() => void choose("")}
-            className="w-full text-left px-3 py-2 text-[13px] text-slate-500 italic hover:bg-slate-50 focus-visible:outline-none focus-visible:bg-[#2563EB]/8 rounded-md"
+            className="w-full text-left px-3 py-2 text-[13px] text-slate-500 italic hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 rounded-md"
           >
             Clear selection
           </button>
@@ -181,7 +181,7 @@ export function InlineEditRelationshipSelect({
                 onClick={() => void choose(o.value)}
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md flex items-start justify-between gap-2",
-                  "hover:bg-slate-50 focus-visible:outline-none focus-visible:bg-[#2563EB]/8 transition-colors",
+                  "hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 transition-colors",
                   isMobile && "min-h-[44px]"
                 )}
               >

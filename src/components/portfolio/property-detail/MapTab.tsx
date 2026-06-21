@@ -29,7 +29,7 @@ export function MapTab({ prop }: { prop: Property }) {
               .join(", ") || null,
             label: prop.name,
             sublabel: [prop.city, prop.postcode].filter(Boolean).join(" ") || undefined,
-            href: `/app/portfolio/properties/${prop.id}`,
+            href: `/property-manager/portfolio/properties/${prop.id}`,
           },
         ]}
       />

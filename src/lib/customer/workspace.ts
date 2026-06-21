@@ -47,7 +47,7 @@ export async function requireCustomerContext(): Promise<CustomerContext> {
   } catch {
     workspaceId = null
   }
-  if (!workspaceId) redirect("/app")
+  if (!workspaceId) redirect("/property-manager")
 
   let displayName = "Customer"
   try {

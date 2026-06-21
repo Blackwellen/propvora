@@ -49,7 +49,7 @@ export default function IntegrationsPage() {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30" />
         {["All categories", "All status", "All environments"].map((f) => <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>)}
         <button onClick={() => toast("Filters cleared")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">Clear filters</button>
         <div className="ml-auto flex items-center rounded-lg border border-slate-200 bg-white p-0.5">

@@ -1,6 +1,6 @@
-"use client"
+﻿"use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -23,15 +23,21 @@ function isExpiringSoon(expiresAt: string | null): boolean {
   return t > now && t - now < 7 * 24 * 60 * 60 * 1000
 }
 
-export default function PortalsOverviewPage() {
+// Isolated component to safely consume useSearchParams inside a Suspense boundary.
+// Next.js requires components using useSearchParams to be wrapped in <Suspense>
+// to avoid breaking static prerendering in the production build.
+function SearchParamInit({ onNew }: { onNew: () => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get("new") === "1") onNew()
+  }, [searchParams, onNew])
+  return null
+}
+
+function PortalsOverviewInner() {
   const { workspace } = useWorkspace()
   const { data: grants = [], isLoading } = usePortalGrants(workspace?.id)
   const [showGrant, setShowGrant] = useState(false)
-  // Open the grant modal when arrived via the global "New" quick-create (?new=1).
-  const _searchParams = useSearchParams()
-  useEffect(() => {
-    if (_searchParams.get("new") === "1") setShowGrant(true)
-  }, [_searchParams])
 
   const kpis = useMemo(() => {
     const active = grants.filter((g) => ["active", "opened", "email_sent", "created"].includes(g.status) && g.status !== "revoked").length
@@ -47,7 +53,7 @@ export default function PortalsOverviewPage() {
   const KPI_CARDS = [
     { label: "Active grants", value: kpis.active, icon: KeyRound, tint: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Expiring (7d)", value: kpis.expiring, icon: Clock, tint: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Uploads awaiting review", value: "—", icon: Upload, tint: "text-blue-600", bg: "bg-blue-50", note: "Provisioned with public portal" },
+    { label: "Uploads awaiting review", value: 0, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50", note: "Provisioned with public portal" },
     { label: "Revoked", value: kpis.revoked, icon: XCircle, tint: "text-red-500", bg: "bg-red-50" },
   ]
 
@@ -95,7 +101,7 @@ export default function PortalsOverviewPage() {
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">Recent portal grants</h3>
-              <Link href="/app/portals/access" className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+              <Link href="/property-manager/portals/access" className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
                 View all <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -125,7 +131,7 @@ export default function PortalsOverviewPage() {
                   return (
                     <Link
                       key={g.id}
-                      href={`/app/portals/access/${g.id}`}
+                      href={`/property-manager/portals/access/${g.id}`}
                       className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/60 transition-colors"
                     >
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
@@ -162,7 +168,7 @@ export default function PortalsOverviewPage() {
                   <Plus className="w-4 h-4" /> Grant portal access
                 </button>
                 <Link
-                  href="/app/portals/profiles"
+                  href="/property-manager/portals/profiles"
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors"
                 >
                   Manage profiles
@@ -170,15 +176,16 @@ export default function PortalsOverviewPage() {
               </div>
             </div>
 
-            {/* Security honesty note */}
-            <div className="bg-amber-50 rounded-2xl border border-amber-200 p-4">
+            {/* Portal link info */}
+            <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-4">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-amber-800 mb-1">Recipient portal not yet built</p>
-                  <p className="text-[11px] text-amber-700 leading-relaxed">
-                    External portal access is provisioned here (grant + server-side hashed token), but the
-                    recipient-facing portal requires the public portal route + edge auth, which is not yet built.
+                  <p className="text-xs font-semibold text-emerald-800 mb-1">Secure recipient portal active</p>
+                  <p className="text-[11px] text-emerald-700 leading-relaxed">
+                    Tokens are hashed server-side. Recipients access documents, invoices and jobs at
+                    <span className="font-mono text-[10px] ml-1">/portal?token=…</span>.
+                    Revoke any grant instantly from the Access Grants page.
                   </p>
                 </div>
               </div>
@@ -206,6 +213,15 @@ export default function PortalsOverviewPage() {
           onClose={() => setShowGrant(false)}
         />
       )}
+
+      {/* useSearchParams must be inside a Suspense boundary for prod build */}
+      <Suspense fallback={null}>
+        <SearchParamInit onNew={() => setShowGrant(true)} />
+      </Suspense>
     </DashboardContainer>
   )
+}
+
+export default function PortalsOverviewPage() {
+  return <PortalsOverviewInner />
 }

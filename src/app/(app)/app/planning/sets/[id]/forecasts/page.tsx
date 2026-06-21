@@ -110,7 +110,7 @@ export default function ForecastsPage() {
           <AlertTriangle className="w-6 h-6 text-red-500" />
         </div>
         <div className="text-slate-700 font-semibold">{error}</div>
-        <Link href="/app/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
+        <Link href="/property-manager/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
       </div>
     )
   }
@@ -164,7 +164,7 @@ export default function ForecastsPage() {
             Set your assumptions, then generate a forecast to see projected monthly cashflow, cumulative position and break-even timeline.
           </p>
           <Link
-            href={`/app/planning/sets/${id}/assumptions`}
+            href={`/property-manager/planning/sets/${id}/assumptions`}
             className="mt-1 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors"
           >
             Edit assumptions <ArrowRight className="w-3 h-3" />
@@ -289,7 +289,7 @@ export default function ForecastsPage() {
                     : "Run best case, stress test and custom scenarios to stress-test your plan before committing."}
                 </p>
                 <Link
-                  href={`/app/planning/sets/${id}/scenarios`}
+                  href={`/property-manager/planning/sets/${id}/scenarios`}
                   className="w-full py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   Run scenario analysis <ArrowRight className="w-3 h-3" />
@@ -302,7 +302,7 @@ export default function ForecastsPage() {
                   Update your occupancy, rent or financing inputs to see how forecasts change.
                 </p>
                 <Link
-                  href={`/app/planning/sets/${id}/assumptions`}
+                  href={`/property-manager/planning/sets/${id}/assumptions`}
                   className="w-full py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
                 >
                   Edit assumptions <ArrowRight className="w-3 h-3" />

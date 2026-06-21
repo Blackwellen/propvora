@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -162,18 +162,18 @@ export function UnitOverviewTab({ unit, tenancy, tenant, onSave }: {
 
         {/* Quick Actions — wired to real routes */}
         <div className="flex flex-wrap gap-2">
-          <Link href={`/app/portfolio/tenancies/new?unitId=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
+          <Link href={`/property-manager/portfolio/tenancies/new?unitId=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
             New Tenancy
           </Link>
-          <Link href={`/app/work/jobs/new?unitId=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
+          <Link href={`/property-manager/work/jobs/new?unitId=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
             Raise Job
           </Link>
           {unit.property_id && (
-            <Link href={`/app/portfolio/properties/${unit.property_id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
+            <Link href={`/property-manager/portfolio/properties/${unit.property_id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm">
               View Property
             </Link>
           )}
-          <Link href={`/app/compliance?unit=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-1">
+          <Link href={`/property-manager/compliance?unit=${unit.id}`} className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-[12px] font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-1">
             Compliance <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>
@@ -209,14 +209,14 @@ export function UnitOverviewTab({ unit, tenancy, tenant, onSave }: {
                 {tenant.phone && <a href={`tel:${tenant.phone}`} className="flex items-center gap-2 hover:text-blue-600"><Phone className="w-3.5 h-3.5 text-slate-400" /> {tenant.phone}</a>}
                 {tenant.email && <a href={`mailto:${tenant.email}`} className="flex items-center gap-2 hover:text-blue-600"><Mail className="w-3.5 h-3.5 text-slate-400" /> {tenant.email}</a>}
               </div>
-              <Link href={`/app/portfolio/tenancies/${tenancy.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+              <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
                 View tenancy details <ChevronRight className="w-3 h-3" />
               </Link>
             </>
           ) : tenancy ? (
             <>
               <p className="text-[12px] text-slate-500 mb-3">A tenancy is linked but no tenant contact is recorded.</p>
-              <Link href={`/app/portfolio/tenancies/${tenancy.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+              <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
                 View tenancy details <ChevronRight className="w-3 h-3" />
               </Link>
             </>
@@ -224,7 +224,7 @@ export function UnitOverviewTab({ unit, tenancy, tenant, onSave }: {
             <div className="text-center py-2">
               <Users className="w-6 h-6 text-slate-300 mx-auto mb-1.5" />
               <p className="text-[12px] text-slate-500 mb-2">No active tenancy</p>
-              <Link href={`/app/portfolio/tenancies/new?unitId=${unit.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline inline-flex items-center gap-1">
+              <Link href={`/property-manager/portfolio/tenancies/new?unitId=${unit.id}`} className="text-[12px] font-semibold text-blue-600 hover:underline inline-flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Create tenancy
               </Link>
             </div>
@@ -235,7 +235,7 @@ export function UnitOverviewTab({ unit, tenancy, tenant, onSave }: {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Income Summary</div>
-            <Link href="/app/money" className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+            <Link href="/property-manager/money" className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
               Money <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>

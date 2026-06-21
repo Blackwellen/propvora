@@ -170,7 +170,7 @@ function buildTaskView(task: Task): TaskView {
     propertyAddress: "—",
     checklist: [],
     linkedRecords: task.property_id
-      ? [{ type: "Property", label: "View Property", href: "/app/portfolio" }]
+      ? [{ type: "Property", label: "View Property", href: "/property-manager/portfolio" }]
       : [],
     costEstimate: { labour: 0, materials: 0, total: costTotal },
     dependencies: [],
@@ -295,7 +295,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
           <p className="text-sm font-bold text-slate-900">{task.slaCompliance}%</p>
           <p className="text-[11px] text-slate-500">SLA Compliance</p>
           <p className="text-[10px] text-slate-400">Target {task.slaTarget} · Due {task.slaDue}</p>
-          <Link href="/app/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+          <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
         </div>
       </div>
 
@@ -309,7 +309,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.dueDate}</p>
         <p className="text-[11px] text-slate-400">{task.dueDays}</p>
-        <Link href="/app/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
       </div>
 
       {/* Time Remaining */}
@@ -322,7 +322,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.timeRemaining}</p>
         <p className="text-[11px] text-slate-400">Until due</p>
-        <Link href="/app/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View timeline</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View timeline</Link>
       </div>
 
       {/* Cost Impact */}
@@ -335,7 +335,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.costImpact}</p>
         <p className="text-[11px] text-slate-400">{task.costLabel}</p>
-        <Link href="/app/work/jobs" className="text-[10px] text-[#2563EB] font-medium">View breakdown</Link>
+        <Link href="/property-manager/work/jobs" className="text-[10px] text-[#2563EB] font-medium">View breakdown</Link>
       </div>
 
       {/* Attachments */}
@@ -348,7 +348,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.attachments}</p>
         <p className="text-[11px] text-slate-400">Files attached</p>
-        <Link href="/app/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View all</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View all</Link>
       </div>
 
       {/* Comments */}
@@ -575,7 +575,7 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: 
             <p className="text-sm font-bold text-slate-900">£{task.costEstimate.total.toFixed(2)}</p>
           </div>
         </div>
-        <Link href="/app/work/jobs" className="mt-2 text-[12px] text-[#2563EB] hover:underline">
+        <Link href="/property-manager/work/jobs" className="mt-2 text-[12px] text-[#2563EB] hover:underline">
           View cost breakdown →
         </Link>
       </div>
@@ -973,7 +973,7 @@ function LinkedWorkTab({ task }: { task: TaskView }) {
           </div>
         )}
         <Link
-          href={task.propertyId ? `/app/work/jobs/new?propertyId=${task.propertyId}` : "/app/work/jobs/new"}
+          href={task.propertyId ? `/property-manager/work/jobs/new?propertyId=${task.propertyId}` : "/property-manager/work/jobs/new"}
           className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#2563EB] hover:underline"
         >
           <Plus className="w-3.5 h-3.5" /> Raise a job from this task
@@ -1045,7 +1045,7 @@ function RightColumn({
           />
         </div>
         {task.propertyId && (
-          <Link href="/app/portfolio" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">
+          <Link href="/property-manager/portfolio" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">
             View Property →
           </Link>
         )}
@@ -1132,14 +1132,14 @@ export default function TaskDetailPage() {
   if (error || taskData === null || taskData === undefined) {
     return (
       <div className="space-y-5">
-        <Link href="/app/work/tasks" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/property-manager/work/tasks" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
           <ChevronLeft className="w-4 h-4" /> Back to Tasks
         </Link>
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <AlertTriangle className="w-10 h-10 text-slate-300" />
           <p className="text-base font-semibold text-slate-700">Task not found</p>
           <p className="text-sm text-slate-400">This task may have been deleted or you don&apos;t have access.</p>
-          <Link href="/app/work/tasks" className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1d4ed8]">
+          <Link href="/property-manager/work/tasks" className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1d4ed8]">
             Back to Tasks
           </Link>
         </div>
@@ -1171,7 +1171,7 @@ export default function TaskDetailPage() {
     setCompleting(true)
     try {
       await completeTask.mutateAsync({ id: task.id, workspaceId })
-      router.push("/app/work/tasks")
+      router.push("/property-manager/work/tasks")
     } catch {
       setCompleting(false)
     }
@@ -1189,7 +1189,7 @@ export default function TaskDetailPage() {
   async function handleDelete() {
     if (!workspaceId) return
     await deleteTask.mutateAsync({ id: task.id, workspaceId })
-    router.push("/app/work/tasks")
+    router.push("/property-manager/work/tasks")
   }
 
   return (
@@ -1199,17 +1199,17 @@ export default function TaskDetailPage() {
         title="Task Detail"
         subtitle={task.title}
         showBack
-        backHref="/app/work/tasks"
+        backHref="/property-manager/work/tasks"
         overflowActions={[
           { label: taskData.status === "done" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (taskData.status !== "done") handleMarkComplete() } },
-          { label: "Reassign", icon: Users, onClick: () => router.push(`/app/work/tasks/${task.id}/edit`) },
-          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+          { label: "Reassign", icon: Users, onClick: () => router.push(`/property-manager/work/tasks/${task.id}/edit`) },
+          { label: "Ask AI", icon: Sparkles, href: "/property-manager/work" },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
 
       {/* Back link */}
-      <Link href="/app/work/tasks" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/property-manager/work/tasks" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" /> Back to Tasks
       </Link>
 
@@ -1228,13 +1228,13 @@ export default function TaskDetailPage() {
             <CheckCircle2 className="w-3.5 h-3.5" /> {completing ? "Completing…" : "Complete"}
           </button>
           <button
-            onClick={() => router.push(`/app/work/tasks/${task.id}/edit`)}
+            onClick={() => router.push(`/property-manager/work/tasks/${task.id}/edit`)}
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             <Users className="w-3.5 h-3.5" /> Reassign
           </button>
           <Link
-            href="/app/work"
+            href="/property-manager/work"
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI
@@ -1286,7 +1286,7 @@ export default function TaskDetailPage() {
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 {taskData.property_id ? (
-                  <Link href="/app/portfolio" className="text-[#2563EB] hover:underline">
+                  <Link href="/property-manager/portfolio" className="text-[#2563EB] hover:underline">
                     {task.propertyName}
                   </Link>
                 ) : (

@@ -216,7 +216,7 @@ export default function InvoiceDetailPage() {
         .eq("id", id)
         .eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
-      router.push("/app/money/invoices")
+      router.push("/property-manager/money/invoices")
     } catch {
       showToast("Could not delete invoice")
     }
@@ -371,7 +371,7 @@ export default function InvoiceDetailPage() {
         <FileText className="w-12 h-12 text-slate-300" />
         <p className="text-slate-500 font-medium">Invoice not found</p>
         <Link
-          href="/app/money/invoices"
+          href="/property-manager/money/invoices"
           className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Invoices
@@ -996,8 +996,8 @@ export default function InvoiceDetailPage() {
         title={invoiceNumber}
         subtitle={recipient}
         showBack
-        backHref="/app/money/invoices"
-        primaryAction={{ label: "Edit", icon: Pencil, href: `/app/money/invoices/${inv.id}/edit` }}
+        backHref="/property-manager/money/invoices"
+        primaryAction={{ label: "Edit", icon: Pencil, href: `/property-manager/money/invoices/${inv.id}/edit` }}
         overflowActions={[
           { label: "Generate PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}`, "_blank") },
         ]}
@@ -1011,7 +1011,7 @@ export default function InvoiceDetailPage() {
       )}
       {/* Breadcrumb */}
       <div className="hidden md:flex items-center gap-2 mb-5">
-        <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+        <Link href="/property-manager/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Invoices
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -1052,7 +1052,7 @@ export default function InvoiceDetailPage() {
           {/* Right actions */}
           <div className="flex flex-wrap gap-2 items-start">
             <Link
-              href={`/app/money/invoices/${inv.id}/edit`}
+              href={`/property-manager/money/invoices/${inv.id}/edit`}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" /> Edit
@@ -1151,7 +1151,7 @@ export default function InvoiceDetailPage() {
               {(open) => (
                 <ActionMenu
                   items={[
-                    { label: "View / Edit", icon: Pencil, onClick: () => router.push(`/app/money/invoices/${inv.id}/edit`) },
+                    { label: "View / Edit", icon: Pencil, onClick: () => router.push(`/property-manager/money/invoices/${inv.id}/edit`) },
                     { label: "Generate PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}`, "_blank") },
                     { label: "Delete Invoice", icon: XCircle, onClick: open, variant: "danger" },
                   ]}

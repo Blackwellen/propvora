@@ -1,28 +1,7 @@
-// Premium seed data for the Billing section. Money is INTEGER PENCE.
-// Used as fallback whenever the additive billing tables are missing (42P01)
-// or a workspace-scoped read returns nothing.
-
-import type {
+﻿import type {
   AddonCatalogItem,
-  BillingHistoryRow,
   BillingPlan,
-  BillingProfile,
-  CancellationRequest,
-  PaymentMethod,
-  RenewalEvent,
-  Subscription,
-  SubscriptionAddon,
-  SubscriptionEvent,
 } from "./types"
-
-function daysFromNow(days: number): string {
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return d.toISOString()
-}
-function daysAgo(days: number): string {
-  return daysFromNow(-days)
-}
 
 export const SEED_PLANS: BillingPlan[] = [
   {
@@ -204,162 +183,12 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
   },
 ]
 
-export const SEED_SUBSCRIPTION: Subscription = {
-  id: "sub-seed-0001",
-  planCode: "professional",
-  billingCycle: "monthly",
-  status: "active",
-  autoRenew: true,
-  currentPeriodStart: daysAgo(12),
-  currentPeriodEnd: daysFromNow(18),
-  cancelAtPeriodEnd: false,
-  cancelledAt: null,
-  basePricePence: 7900,
-  currency: "GBP",
-}
-
-export const SEED_ACTIVE_ADDONS: SubscriptionAddon[] = [
-  { code: "premium_support", enabled: true, quantity: 1 },
-  { code: "extra_listings", enabled: true, quantity: 15 },
-]
-
-export const SEED_BILLING_PROFILE: BillingProfile = {
-  billingName: "Blackwellen Ltd",
-  billingEmail: "billing@propvora.com",
-  vatNumber: "GB123456789",
-  addressLine1: "1 Tech Park",
-  addressLine2: "",
-  city: "London",
-  postcode: "EC1A 1BB",
-  country: "United Kingdom",
-  taxRateBps: 2000,
-}
-
-export const SEED_PAYMENT_METHOD: PaymentMethod = {
-  id: "pm-seed-0001",
-  brand: "Visa",
-  last4: "4242",
-  expMonth: 11,
-  expYear: 2028,
-  isDefault: true,
-  health: "healthy",
-}
-
-export const SEED_BILLING_HISTORY: BillingHistoryRow[] = [
-  {
-    id: "bh-1",
-    docType: "invoice",
-    reference: "INV-2026-0007",
-    description: "Professional plan — monthly",
-    amountPence: 7900,
-    taxPence: 1580,
-    currency: "GBP",
-    status: "paid",
-    periodLabel: "Jun 2026",
-    issuedAt: daysAgo(12),
-    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/INV-2026-0007.pdf",
-  },
-  {
-    id: "bh-2",
-    docType: "receipt",
-    reference: "RCPT-2026-0007",
-    description: "Payment received — Visa ending 4242",
-    amountPence: 9480,
-    taxPence: 0,
-    currency: "GBP",
-    status: "paid",
-    periodLabel: "Jun 2026",
-    issuedAt: daysAgo(12),
-    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/RCPT-2026-0007.pdf",
-  },
-  {
-    id: "bh-3",
-    docType: "invoice",
-    reference: "INV-2026-0006",
-    description: "Professional plan — monthly",
-    amountPence: 7900,
-    taxPence: 1580,
-    currency: "GBP",
-    status: "paid",
-    periodLabel: "May 2026",
-    issuedAt: daysAgo(42),
-    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/INV-2026-0006.pdf",
-  },
-  {
-    id: "bh-4",
-    docType: "payment_attempt",
-    reference: "ATT-2026-0006",
-    description: "Card retry succeeded after expiry warning",
-    amountPence: 9480,
-    taxPence: 0,
-    currency: "GBP",
-    status: "paid",
-    periodLabel: "May 2026",
-    issuedAt: daysAgo(41),
-    documentPath: null,
-  },
-  {
-    id: "bh-5",
-    docType: "credit",
-    reference: "CR-2026-0001",
-    description: "Service credit — onboarding goodwill",
-    amountPence: -2000,
-    taxPence: 0,
-    currency: "GBP",
-    status: "credited",
-    periodLabel: "Apr 2026",
-    issuedAt: daysAgo(70),
-    documentPath: null,
-  },
-  {
-    id: "bh-6",
-    docType: "refund",
-    reference: "RF-2026-0001",
-    description: "Refund — duplicate add-on charge",
-    amountPence: -3900,
-    taxPence: 0,
-    currency: "GBP",
-    status: "refunded",
-    periodLabel: "Apr 2026",
-    issuedAt: daysAgo(72),
-    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/RF-2026-0001.pdf",
-  },
-  {
-    id: "bh-7",
-    docType: "tax_invoice",
-    reference: "VAT-2026-0005",
-    description: "VAT invoice — Professional plan",
-    amountPence: 7900,
-    taxPence: 1580,
-    currency: "GBP",
-    status: "paid",
-    periodLabel: "Apr 2026",
-    issuedAt: daysAgo(73),
-    documentPath: "workspaces/seed/billing/sub-seed-0001/documents/VAT-2026-0005.pdf",
-  },
-]
-
-export const SEED_SUBSCRIPTION_EVENTS: SubscriptionEvent[] = [
-  { id: "se-1", eventType: "payment", summary: "Payment of £94.80 collected for June", actor: "System", occurredAt: daysAgo(12) },
-  { id: "se-2", eventType: "addon_change", summary: "Extra listings increased to 15 properties", actor: "Jamahl Thomas", occurredAt: daysAgo(20) },
-  { id: "se-3", eventType: "plan_change", summary: "Upgraded from Starter to Professional", actor: "Jamahl Thomas", occurredAt: daysAgo(95) },
-  { id: "se-4", eventType: "renewal", summary: "Subscription renewed for a further term", actor: "System", occurredAt: daysAgo(42) },
-]
-
-export const SEED_RENEWAL_EVENTS: RenewalEvent[] = [
-  { id: "re-1", kind: "estimate", title: "Upcoming invoice estimate", detail: "Professional + add-ons incl. VAT", amountPence: 11856, dueAt: daysFromNow(18), status: "upcoming" },
-  { id: "re-2", kind: "reminder", title: "Renewal reminder", detail: "We'll email 7 days before renewal", amountPence: null, dueAt: daysFromNow(11), status: "upcoming" },
-  { id: "re-3", kind: "renewal", title: "Next renewal", detail: "Auto-renew is on", amountPence: 11856, dueAt: daysFromNow(18), status: "upcoming" },
-  { id: "re-4", kind: "renewal", title: "Previous renewal", detail: "Collected successfully", amountPence: 9480, dueAt: daysAgo(12), status: "completed" },
-]
-
-export const SEED_CANCELLATION: CancellationRequest | null = null
-
 export const SEED_CANCELLATION_REASONS: string[] = [
   "Too expensive",
   "Missing features I need",
   "Switching to another product",
   "No longer managing properties",
-  "Temporary pause — I'll be back",
+  "Temporary pause â€” I'll be back",
   "Other",
 ]
+

@@ -795,10 +795,24 @@ export default function Step06LLOffer() {
       {/* ── Right intelligence panel (xl+) ──────────────────────────────────── */}
       <div className="hidden xl:flex flex-col w-[260px] shrink-0 border-l border-slate-100 overflow-y-auto p-4 gap-4">
 
-        {/* Likely Acceptance */}
+        {/* Likely Acceptance — derived from offer completeness */}
+        {(() => {
+          const offerFilled = [
+            state.offerRentMonthly > 0,
+            state.offerInitialTermYears > 0,
+            !!state.offerStructure,
+            state.offerDepositAmount > 0,
+            state.offerRentFreeMonths >= 0,
+          ].filter(Boolean).length
+          const acceptancePct = Math.round((offerFilled / 5) * 100)
+          const strokeVal = acceptancePct
+          const acceptLabel = acceptancePct >= 80 ? "High" : acceptancePct >= 50 ? "Medium" : "Low"
+          const strokeColour = acceptancePct >= 80 ? "#10B981" : acceptancePct >= 50 ? "#F59E0B" : "#EF4444"
+          const labelColour = strokeColour
+          return (
         <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
           <p className="text-[13px] font-bold text-slate-900 mb-3">
-            Likely Acceptance
+            Offer Completeness
           </p>
           <div className="relative w-20 h-20 mx-auto mb-2">
             <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
@@ -815,33 +829,43 @@ export default function Step06LLOffer() {
                 cy="18"
                 r="15.9"
                 fill="none"
-                stroke="#10B981"
+                stroke={strokeColour}
                 strokeWidth="3.5"
-                strokeDasharray="78 22"
+                strokeDasharray={`${strokeVal} ${100 - strokeVal}`}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[18px] font-bold text-slate-900">78%</span>
+              <span className="text-[18px] font-bold text-slate-900">{acceptancePct}%</span>
             </div>
           </div>
-          <p className="text-[12px] font-bold text-emerald-600 mb-1">High</p>
+          <p className="text-[12px] font-bold mb-1" style={{ color: labelColour }}>{acceptLabel}</p>
           <p className="text-[11px] text-slate-400">
-            Good alignment with landlord expectations
+            {offerFilled === 5 ? "All key offer fields filled" : `${5 - offerFilled} field${5 - offerFilled === 1 ? "" : "s"} still needed`}
           </p>
         </div>
+          )
+        })()}
 
-        {/* Target Margin After Offer */}
+        {/* Target Margin After Offer — live derived from income vs offer rent */}
+        {(() => {
+          const roomIncome = state.rooms.reduce((s, r) => s + r.avgRentPcm, 0)
+          const singleIncome = state.singleMonthlyRent || 0
+          const grossIncome = roomIncome > 0 ? roomIncome : singleIncome
+          const offerRent = state.offerRentMonthly || 0
+          const marginPct = grossIncome > 0 && offerRent > 0
+            ? (((grossIncome - offerRent) / grossIncome) * 100).toFixed(1)
+            : null
+          return (
         <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
           <p className="text-[12.5px] font-bold text-slate-700 mb-1">
             Target Margin After Offer
           </p>
-          <p className="text-[26px] font-bold text-[#7C3AED]">22.1%</p>
-          <p className="text-[11.5px] text-slate-400">After all costs &amp; fees</p>
-          <span className="inline-block mt-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-            +2.3pp vs Target
-          </span>
+          <p className="text-[26px] font-bold text-[#7C3AED]">{marginPct !== null ? `${marginPct}%` : "—"}</p>
+          <p className="text-[11.5px] text-slate-400">{marginPct !== null ? "Income vs offer rent" : "Enter income (Step 3) and offer rent above"}</p>
         </div>
+          )
+        })()}
 
         {/* Landlord Benefit Highlights */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4">
@@ -865,58 +889,21 @@ export default function Step06LLOffer() {
           ))}
         </div>
 
-        {/* Comparable Rent Benchmarks */}
+        {/* Comparable Rent Benchmarks — shown only when offer rent is entered */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4">
           <p className="text-[13px] font-bold text-slate-900 mb-3">
             Comparable Rent Benchmarks
           </p>
-          <div className="grid grid-cols-3 gap-1 text-[10.5px] font-semibold text-slate-400 uppercase mb-2">
-            <span>Source</span>
-            <span className="text-center">Range (£/mo)</span>
-            <span className="text-center">Position</span>
-          </div>
-          {[
-            {
-              source: "Propvora DB",
-              range: "£8,200 – £9,400",
-              position: "Mid",
-              colour: "#F59E0B",
-            },
-            {
-              source: "Local Agents",
-              range: "£8,100 – £9,200",
-              position: "Mid-High",
-              colour: "#10B981",
-            },
-            {
-              source: "Market Median",
-              range: "£8,400",
-              position: "Above",
-              colour: "#EF4444",
-            },
-          ].map((b) => (
-            <div
-              key={b.source}
-              className="grid grid-cols-3 gap-1 py-1.5 border-b border-slate-100 last:border-0"
-            >
-              <span className="text-[11.5px] text-slate-600">{b.source}</span>
-              <span className="text-center text-[11.5px] text-slate-500">
-                {b.range}
-              </span>
-              <div className="flex items-center justify-center gap-1">
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ background: b.colour }}
-                />
-                <span
-                  className="text-[11px] font-semibold"
-                  style={{ color: b.colour }}
-                >
-                  {b.position}
-                </span>
-              </div>
+          {state.offerRentMonthly > 0 ? (
+            <div className="text-[12px] text-slate-500 space-y-1.5">
+              <p>Your offer: <span className="font-semibold text-slate-800">£{state.offerRentMonthly.toLocaleString()}/mo</span></p>
+              <p className="text-[11px] text-slate-400">Live market benchmarks will be available when your postcode is connected to Propvora's rental data feed (coming in V2). For now, cross-reference with Rightmove, Zoopla, or local agents.</p>
             </div>
-          ))}
+          ) : (
+            <p className="text-[12px] text-slate-400">
+              Enter a monthly rent figure in the Offer Terms section above to benchmark against market rates.
+            </p>
+          )}
         </div>
 
         {/* Suggested Offer Strategy */}

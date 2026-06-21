@@ -9,11 +9,7 @@ import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { propertyImages as IMG } from "../data/mock"
 
-const RECS = [
-  { id: "riverside-cottage", title: "Riverside Cottage", location: "Bakewell, Derbyshire", image: IMG.riverside, rating: 4.8, reviews: 96, price: "£145" },
-  { id: "modern-2-bed", title: "Modern 2 Bed Apartment", location: "Manchester, M1 2EW", image: IMG.cityLoft, rating: 4.9, reviews: 128, price: "£120" },
-  { id: "seaside-cottage", title: "Seaside Cottage", location: "Whitby, YO21", image: IMG.seaside, rating: 4.7, reviews: 73, price: "£110" },
-]
+const RECS: { id: string; title: string; location: string; image: string; rating: number; reviews: number; price: string }[] = []
 
 export default function CompletedPage() {
   const { toast } = useCustomerToast()
@@ -40,22 +36,21 @@ export default function CompletedPage() {
             <div className="flex-1 p-5">
               <div className="flex items-center justify-between">
                 <span className="text-[11.5px] text-slate-400">Booking reference</span>
-                <button onClick={() => toast("Booking reference copied", "success")} className="inline-flex items-center gap-1 text-[12px] font-semibold text-slate-600"><span className="text-slate-800">PV-7F9X2D</span><Copy className="w-3.5 h-3.5" /></button>
+                <button onClick={() => toast("Booking reference copied", "success")} className="inline-flex items-center gap-1 text-[12px] font-semibold text-slate-600"><span className="text-slate-800">—</span><Copy className="w-3.5 h-3.5" /></button>
               </div>
-              <h2 className="text-[19px] font-bold text-slate-900 mt-1">Lakeside Cabin</h2>
-              <p className="text-[13px] text-slate-500">Coniston, Lake District, LA21</p>
-              <p className="text-[12.5px] text-slate-500 mt-1 flex items-center gap-1.5"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> 4.7 (61) · Hosted by Lake District Escapes</p>
+              <h2 className="text-[19px] font-bold text-slate-900 mt-1">Your completed stay</h2>
+              <p className="text-[13px] text-slate-500">Details will appear here from your booking.</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100">
-                <Mini label="Check-in" value="24 May 2025" sub="15:00" />
-                <Mini label="Check-out" value="28 May 2025" sub="10:00" />
-                <Mini label="Guests" value="2 adults" />
-                <Mini label="Total paid" value="£720.00" sub="Paid in full" />
+                <Mini label="Check-in" value="—" />
+                <Mini label="Check-out" value="—" />
+                <Mini label="Guests" value="—" />
+                <Mini label="Total paid" value="—" />
               </div>
             </div>
           </div>
           <div className="bg-emerald-50/60 border-t border-emerald-100 grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
-            <StatusItem title="Stay completed" sub="You checked out on 28 May 2025" />
-            <StatusItem title="Deposit released" sub="£150.00 returned on 29 May 2025" />
+            <StatusItem title="Stay completed" sub="Thank you for staying with us." />
+            <StatusItem title="Deposit" sub="Deposit status will appear here." />
             <div className="flex flex-col"><span className="text-[11px] text-slate-500">Payment status</span><span className="text-[12px] font-semibold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 w-fit mt-0.5">Paid in full</span></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
@@ -69,8 +64,8 @@ export default function CompletedPage() {
         <div>
           <h3 className="text-[15px] font-bold text-slate-900 mb-3">What happens next?</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <NextCard icon={Mail} tone="slate" title="Thanks again, Sarah!" sub="We've emailed your receipt and booking details to sarah.johnson@email.com" />
-            <NextCard icon={CheckCircle2} tone="emerald" title="Deposit released" sub="Your security deposit of £150.00 has been returned to your original payment method." />
+            <NextCard icon={Mail} tone="slate" title="Thanks for staying!" sub="Your receipt and booking details have been sent to your email address." />
+            <NextCard icon={CheckCircle2} tone="emerald" title="Deposit" sub="Your security deposit will be returned to your original payment method if applicable." />
             <NextCard icon={Heart} tone="violet" title="We'd love your feedback" sub="Leave a review to help your host and future guests." />
           </div>
         </div>
@@ -81,7 +76,7 @@ export default function CompletedPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <ShareCard icon={Star} tone="blue" title="Leave a review" sub="Rate your stay and help others" cta="Write a review" href="/customer/reviews" />
             <ShareCard icon={RotateCcw} tone="amber" title="Rebook this stay" sub="Loved it? Book again" cta="Book again" onClick={() => toast("Rebooking…", "info")} />
-            <ShareCard icon={AlertTriangle} tone="red" title="Report an issue" sub="Something not right?" cta="Report issue" href="/customer/bookings/PV-7F9X2D/dispute" />
+            <ShareCard icon={AlertTriangle} tone="red" title="Report an issue" sub="Something not right?" cta="Report issue" href="/customer/bookings" />
           </div>
         </div>
 
@@ -89,9 +84,9 @@ export default function CompletedPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
           <h3 className="text-[15px] font-bold text-slate-900 mb-3">Your trip summary</h3>
           <dl className="space-y-2.5">
-            <SumLine icon={Calendar} l="Stay duration" r="4 nights" />
-            <SumLine icon={Users} l="Travellers" r="2 adults" />
-            <SumLine icon={Calendar} l="Check-in" r="24 May 2025, 15:00" />
+            <SumLine icon={Calendar} l="Stay duration" r="—" />
+            <SumLine icon={Users} l="Travellers" r="—" />
+            <SumLine icon={Calendar} l="Check-in" r="—" />
           </dl>
         </div>
       </div>
@@ -129,12 +124,8 @@ export default function CompletedPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <h3 className="text-[14px] font-bold text-slate-900 mb-2">Your host</h3>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2"><span className="w-9 h-9 rounded-full bg-slate-200" /><div><p className="text-[12.5px] font-semibold text-slate-800">Lake District Escapes</p><p className="text-[11px] text-slate-400">Professional host</p></div></div>
+            <div className="flex items-center gap-2"><span className="w-9 h-9 rounded-full bg-slate-200" /><div><p className="text-[12.5px] font-semibold text-slate-800">Host details</p><p className="text-[11px] text-slate-400">Available from your booking</p></div></div>
             <button onClick={() => toast("Messaging host…", "info")} className="text-[11.5px] font-semibold text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1">Message host</button>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100">
-            <div><p className="text-[10.5px] text-slate-400">Response rate</p><p className="text-[12.5px] font-semibold text-slate-800">98%</p></div>
-            <div><p className="text-[10.5px] text-slate-400">Response time</p><p className="text-[12.5px] font-semibold text-slate-800">Within a few hours</p></div>
           </div>
         </div>
 

@@ -10,23 +10,24 @@ import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
-  SEED_ACTIVITY,
-  SEED_AI_BUILDS,
-  SEED_APPROVALS,
-  SEED_CREDENTIAL_ALERTS,
-  SEED_ERRORS,
   SEED_FEATURED_RECIPES,
-  SEED_HOME_AUTOMATIONS,
-  SEED_INTEGRATIONS,
-  SEED_MY_AUTOMATIONS,
-  SEED_PLAN_QUOTAS,
   SEED_RECIPES,
-  SEED_REVIEW_QUEUE,
-  SEED_RUNS,
-  SEED_USAGE_DRIVERS,
-  SEED_WEBHOOK_DELIVERIES,
-  SEED_WEBHOOK_ENDPOINTS,
 } from "./seed"
+import type {
+  ActivityItem,
+  AiBuild,
+  ApprovalRow,
+  AutomationRow,
+  CredentialAlert,
+  ErrorRow,
+  IntegrationRow,
+  ReviewQueueItem,
+  RunRow,
+  WebhookDelivery,
+  WebhookEndpoint,
+  UsageDriver,
+  PlanQuotaRow,
+} from "./types"
 
 export interface HookState<T> {
   data: T
@@ -90,12 +91,16 @@ function useSeedFallback<T>(
 /* Each hook keeps a workspace-scoped query shape even though it falls back. */
 
 export function useAutomationsHome() {
-  const automations = useSeedFallback(SEED_HOME_AUTOMATIONS, async (sb, wid) => {
+  const automations = useSeedFallback([] as AutomationRow[], async (sb, wid) => {
     const { data, error } = await sb.from("automation_definitions").select("*").eq("workspace_id", wid).limit(25)
     if (error) throw error
-    return data && data.length ? SEED_HOME_AUTOMATIONS : null
+    return data && data.length ? (data as unknown as AutomationRow[]) : null
   })
-  return { automations, reviewQueue: SEED_REVIEW_QUEUE, activity: SEED_ACTIVITY }
+  return {
+    automations,
+    reviewQueue: [] as ReviewQueueItem[],
+    activity: [] as ActivityItem[],
+  }
 }
 
 export function useAutomationRecipes() {
@@ -107,7 +112,7 @@ export function useAutomationRecipes() {
 }
 
 export function useMyAutomations() {
-  return useSeedFallback(SEED_MY_AUTOMATIONS, async (sb, wid) => {
+  return useSeedFallback([] as AutomationRow[], async (sb, wid) => {
     const { error } = await sb.from("automation_definitions").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -115,7 +120,7 @@ export function useMyAutomations() {
 }
 
 export function useAutomationRunsLogs() {
-  return useSeedFallback(SEED_RUNS, async (sb, wid) => {
+  return useSeedFallback([] as RunRow[], async (sb, wid) => {
     const { error } = await sb.from("automation_runs").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -123,7 +128,7 @@ export function useAutomationRunsLogs() {
 }
 
 export function useAutomationApprovals() {
-  return useSeedFallback(SEED_APPROVALS, async (sb, wid) => {
+  return useSeedFallback([] as ApprovalRow[], async (sb, wid) => {
     const { error } = await sb.from("automation_approvals").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -131,7 +136,7 @@ export function useAutomationApprovals() {
 }
 
 export function useAutomationErrors() {
-  return useSeedFallback(SEED_ERRORS, async (sb, wid) => {
+  return useSeedFallback([] as ErrorRow[], async (sb, wid) => {
     const { error } = await sb.from("automation_errors").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -140,7 +145,7 @@ export function useAutomationErrors() {
 
 export function useAutomationIntegrations() {
   return useSeedFallback(
-    { integrations: SEED_INTEGRATIONS, credentialAlerts: SEED_CREDENTIAL_ALERTS },
+    { integrations: [] as IntegrationRow[], credentialAlerts: [] as CredentialAlert[] },
     async (sb, wid) => {
       const { error } = await sb.from("automation_integrations").select("id").eq("workspace_id", wid).limit(1)
       if (error) throw error
@@ -151,7 +156,7 @@ export function useAutomationIntegrations() {
 
 export function useAutomationWebhooks() {
   return useSeedFallback(
-    { endpoints: SEED_WEBHOOK_ENDPOINTS, deliveries: SEED_WEBHOOK_DELIVERIES },
+    { endpoints: [] as WebhookEndpoint[], deliveries: [] as WebhookDelivery[] },
     async (sb, wid) => {
       const { error } = await sb.from("automation_webhook_endpoints").select("id").eq("workspace_id", wid).limit(1)
       if (error) throw error
@@ -161,7 +166,7 @@ export function useAutomationWebhooks() {
 }
 
 export function useAutomationAiBuilder() {
-  return useSeedFallback(SEED_AI_BUILDS, async (sb, wid) => {
+  return useSeedFallback([] as AiBuild[], async (sb, wid) => {
     const { error } = await sb.from("automation_ai_outputs").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -170,7 +175,7 @@ export function useAutomationAiBuilder() {
 
 export function useAutomationUsageLimits() {
   return useSeedFallback(
-    { drivers: SEED_USAGE_DRIVERS, quotas: SEED_PLAN_QUOTAS },
+    { drivers: [] as UsageDriver[], quotas: [] as PlanQuotaRow[] },
     async (sb, wid) => {
       const { error } = await sb.from("automation_usage_daily").select("id").eq("workspace_id", wid).limit(1)
       if (error) throw error

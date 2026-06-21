@@ -9,7 +9,22 @@ export function DetailTabs<T extends string>({ tabs, active, onChange }: {
 }) {
   return (
     <div className="border-b border-slate-200 bg-white">
-      <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden px-4 py-2.5">
+        <select
+          value={active}
+          onChange={(e) => onChange(e.target.value as T)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {tabs.map((t) => (
+            <option key={t.key} value={t.key}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {tabs.map(t => (
           <button
             key={t.key}

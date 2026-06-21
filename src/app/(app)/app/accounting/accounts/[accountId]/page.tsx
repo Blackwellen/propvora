@@ -313,13 +313,13 @@ export default function AccountDetailPage({
   }
 
   async function deleteAccount() {
-    if (!isLive) { router.push("/app/accounting/accounts/overview"); return }
+    if (!isLive) { router.push("/property-manager/accounting/accounts/overview"); return }
     const supabase = createClient()
     try {
       const { error } = await supabase.from("accounting_accounts").delete().eq("id", account.id).eq("workspace_id", workspace?.id ?? "")
       if (error && !isMissingTable(error)) throw error
       if (workspace?.id) await writeAudit(workspace.id, "account", account.id, "deleted", null, { code: account.code })
-      router.push("/app/accounting/accounts/overview")
+      router.push("/property-manager/accounting/accounts/overview")
     } catch { showToast("Could not delete account") }
   }
 
@@ -338,7 +338,7 @@ export default function AccountDetailPage({
     <div className="p-8 text-center">
       <p className="text-sm font-medium text-slate-600">No posted transactions yet</p>
       <p className="text-xs text-slate-500 mt-1">Activity appears here once journal entries touching this account are posted.</p>
-      <Link href={sectionLink("/app/accounting/accounts/journal-ledger")} className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline">
+      <Link href={sectionLink("/property-manager/accounting/accounts/journal-ledger")} className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline">
         Go to Journal Ledger →
       </Link>
     </div>
@@ -350,9 +350,9 @@ export default function AccountDetailPage({
         title={account.name}
         subtitle={account.code}
         showBack
-        backHref={sectionLink("/app/accounting/accounts/overview")}
+        backHref={sectionLink("/property-manager/accounting/accounts/overview")}
         overflowActions={[
-          { label: "View all transactions", icon: ChevronRight, onClick: () => router.push("/app/accounting/accounts/journal-ledger") },
+          { label: "View all transactions", icon: ChevronRight, onClick: () => router.push("/property-manager/accounting/accounts/journal-ledger") },
           { label: "Export statement", icon: Download, onClick: exportStatement },
         ]}
       />
@@ -365,12 +365,12 @@ export default function AccountDetailPage({
       )}
       {/* Breadcrumb */}
       <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href={sectionLink("/app/accounting")} className="hover:text-slate-600 transition-colors">
+        <Link href={sectionLink("/property-manager/accounting")} className="hover:text-slate-600 transition-colors">
           Accounting
         </Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <Link
-          href={sectionLink("/app/accounting/accounts/overview")}
+          href={sectionLink("/property-manager/accounting/accounts/overview")}
           className="hover:text-slate-600 transition-colors"
         >
           Accounts
@@ -382,7 +382,7 @@ export default function AccountDetailPage({
       {/* Page header */}
       <div className="hidden md:flex items-start justify-between gap-4 mb-6">
         <div className="flex items-start gap-3">
-          <Link href={sectionLink("/app/accounting/accounts/overview")}>
+          <Link href={sectionLink("/property-manager/accounting/accounts/overview")}>
             <Button variant="outline" size="icon-sm">
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -425,7 +425,7 @@ export default function AccountDetailPage({
             {(open) => (
               <ActionMenu
                 items={[
-                  { label: "View All Transactions", icon: ChevronRight, onClick: () => router.push("/app/accounting/accounts/journal-ledger") },
+                  { label: "View All Transactions", icon: ChevronRight, onClick: () => router.push("/property-manager/accounting/accounts/journal-ledger") },
                   { label: "Export Statement (CSV)", icon: Download, onClick: exportStatement },
                   { label: account.status === "Active" ? "Deactivate Account" : "Activate Account", icon: History, onClick: () => isLive ? saveField("status", account.status === "Active" ? "Inactive" : "Active").then(() => showToast("Status updated")).catch(() => showToast("Could not update")) : showToast("Sample account — actions persist once saved") },
                   { label: "Delete Account", icon: Trash2, onClick: open, variant: "danger" },
@@ -515,7 +515,7 @@ export default function AccountDetailPage({
                           Activity appears here once journal entries touching this account are posted.
                         </p>
                         <Link
-                          href={sectionLink("/app/accounting/accounts/journal-ledger")}
+                          href={sectionLink("/property-manager/accounting/accounts/journal-ledger")}
                           className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline"
                         >
                           Go to Journal Ledger →
@@ -624,7 +624,7 @@ export default function AccountDetailPage({
                 size="sm"
                 className="w-full justify-start"
                 leftIcon={<ChevronRight className="w-3.5 h-3.5" />}
-                onClick={() => router.push("/app/accounting/accounts/journal-ledger")}
+                onClick={() => router.push("/property-manager/accounting/accounts/journal-ledger")}
               >
                 View All Transactions
               </Button>

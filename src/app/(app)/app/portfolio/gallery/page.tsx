@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -42,24 +42,7 @@ const GALLERY_GRADIENTS = [
   "linear-gradient(135deg, #16A34A 0%, #22C55E 100%)",
 ]
 
-const GALLERY_IMAGES: GalleryImage[] = [
-  { id: "g1",  src: "", alt: "Brunswick Road HMO exterior",   category: "property",  propertyId: "p1", propertyName: "Brunswick Road HMO",  title: "Front elevation",          width: 800, height: 600 },
-  { id: "g2",  src: "", alt: "Brunswick Road - Room 1",       category: "unit",      propertyId: "p1", propertyName: "Brunswick Road HMO",  unitId: "u1", unitName: "Room 1", title: "Room 1 — en-suite",         width: 800, height: 533 },
-  { id: "g3",  src: "", alt: "Maple Street HMO",              category: "property",  propertyId: "p2", propertyName: "Maple Street HMO",    title: "Maple Street exterior",    width: 800, height: 533 },
-  { id: "g4",  src: "", alt: "City Centre SA lounge",         category: "unit",      propertyId: "p5", propertyName: "City Centre SA",      unitId: "u5", unitName: "Studio 1", title: "Studio 1 living area",    width: 800, height: 600 },
-  { id: "g5",  src: "", alt: "Victoria Terrace exterior",     category: "property",  propertyId: "p3", propertyName: "Victoria Terrace",    title: "Victoria Terrace front",   width: 800, height: 533 },
-  { id: "g6",  src: "", alt: "Brunswick kitchen",             category: "unit",      propertyId: "p1", propertyName: "Brunswick Road HMO",  title: "Communal kitchen",         width: 800, height: 533 },
-  { id: "g7",  src: "", alt: "Oak Lane BTL",                  category: "property",  propertyId: "p4", propertyName: "Oak Lane BTL",        title: "Oak Lane exterior",        width: 800, height: 600 },
-  { id: "g8",  src: "", alt: "SA bedroom",                    category: "unit",      propertyId: "p5", propertyName: "City Centre SA",      unitId: "u5", unitName: "Studio 1", title: "Studio 1 bedroom",        width: 800, height: 533 },
-  { id: "g9",  src: "", alt: "Harbour View Flat",             category: "property",  propertyId: "p7", propertyName: "Harbour View Flat",   title: "Harbour View front",       width: 800, height: 533 },
-  { id: "g10", src: "", alt: "Elms Road R2R",                 category: "property",  propertyId: "p6", propertyName: "Elms Road R2R",       title: "Elms Road — under refurb", width: 800, height: 600 },
-  { id: "g11", src: "", alt: "Regent Street Studio exterior", category: "property",  propertyId: "p8", propertyName: "Regent Street Studio", title: "Regent Street facade",    width: 800, height: 533 },
-  { id: "g12", src: "", alt: "HMO kitchen area",              category: "unit",      propertyId: "p2", propertyName: "Maple Street HMO",    title: "Maple St — kitchen",       width: 800, height: 600 },
-  { id: "g13", src: "", alt: "Park Lane Co-Living exterior",  category: "property",  propertyId: "p9", propertyName: "Park Lane Co-Living", title: "Park Lane entrance",       width: 800, height: 533 },
-  { id: "g14", src: "", alt: "Student let exterior",          category: "property",  propertyId: "p10", propertyName: "Meadow Court Student", title: "Meadow Court front",     width: 800, height: 600 },
-  { id: "g15", src: "", alt: "Co-living common area",         category: "unit",      propertyId: "p9", propertyName: "Park Lane Co-Living", title: "Co-living lounge",         width: 800, height: 533 },
-  { id: "g16", src: "", alt: "Student bedroom",               category: "unit",      propertyId: "p10", propertyName: "Meadow Court Student", unitName: "Room 3", title: "Room 3 — student bedroom", width: 800, height: 533 },
-]
+const GALLERY_IMAGES: GalleryImage[] = []
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   property:   { label: "Property",   color: "text-[#2563EB]",  bg: "bg-blue-50",    icon: Building2 },
@@ -251,7 +234,7 @@ export default function PortfolioGalleryPage() {
         title="Portfolio Gallery"
         subtitle={`${filtered.length} images`}
         showBack
-        backHref="/app/portfolio"
+        backHref="/property-manager/portfolio"
         overflowActions={[
           { label: "Upload images", icon: Upload, onClick: () => {} },
         ]}
@@ -284,7 +267,7 @@ export default function PortfolioGalleryPage() {
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="md" asChild>
-              <Link href="/app/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link>
+              <Link href="/property-manager/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link>
             </Button>
             <Button variant="primary" size="md">
               <Upload className="w-4 h-4" />Upload images
@@ -352,8 +335,8 @@ export default function PortfolioGalleryPage() {
             <Images className="w-8 h-8 text-slate-300" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-600">No images found</p>
-            <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filters</p>
+            <p className="text-sm font-semibold text-slate-600">No images yet</p>
+            <p className="text-xs text-slate-500 mt-1">Upload property photos below to build your gallery.</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => { setSearch(""); setFilterCat("all"); setFilterProp("all") }}>
             Clear filters

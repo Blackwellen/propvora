@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
@@ -174,7 +174,7 @@ export function MyListingsClient({ canPublish, planName, defaultCountry }: Props
         title="My listings"
         subtitle={`${listings.length} listing${listings.length === 1 ? "" : "s"}`}
         showBack
-        backHref="/app/marketplace"
+        backHref="/property-manager/marketplace"
         primaryAction={canPublish ? { label: "New listing", icon: Plus, onClick: openCreate } : undefined}
       />
 
@@ -185,7 +185,7 @@ export function MyListingsClient({ canPublish, planName, defaultCountry }: Props
           actions={
             <div className="flex items-center gap-2">
               <Button variant="outline" size="md" asChild>
-                <Link href="/app/marketplace">
+                <Link href="/property-manager/marketplace">
                   <Store className="w-4 h-4" />
                   Browse marketplace
                 </Link>
@@ -224,10 +224,10 @@ export function MyListingsClient({ canPublish, planName, defaultCountry }: Props
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
               <Button variant="primary" size="md" asChild>
-                <Link href="/app/workspace-settings/subscription">View plans</Link>
+                <Link href="/property-manager/workspace-settings/subscription">View plans</Link>
               </Button>
               <Button variant="outline" size="md" asChild>
-                <Link href="/app/marketplace">Browse marketplace</Link>
+                <Link href="/property-manager/marketplace">Browse marketplace</Link>
               </Button>
             </div>
           </div>
@@ -252,7 +252,7 @@ export function MyListingsClient({ canPublish, planName, defaultCountry }: Props
         <MarketplaceEmptyState
           variant="own"
           action={{ label: "Create your first listing", onClick: openCreate, icon: Plus }}
-          secondaryAction={{ label: "Browse marketplace", href: "/app/marketplace" }}
+          secondaryAction={{ label: "Browse marketplace", href: "/property-manager/marketplace" }}
         />
       ) : (
         <>
@@ -351,7 +351,7 @@ function ListingRow({
       <div className="flex items-center gap-1 shrink-0">
         {listing.status === "published" && (
           <Link
-            href={`/app/marketplace/${listing.id}`}
+            href={`/property-manager/marketplace/${listing.id}`}
             className="hidden sm:inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-[12px] font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />

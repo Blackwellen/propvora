@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
@@ -61,7 +61,7 @@ export function PartnerNetworkClient({ canView, data }: Props) {
       subtitle="Operators, suppliers, customers and marketplace counterparties your workspace works with — derived from real recorded activity."
       actions={
         <Link
-          href="/app/network/activity"
+          href="/property-manager/network/activity"
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         >
           <Activity className="h-4 w-4" />
@@ -162,6 +162,7 @@ function GroupBlock({ group, mobile }: { group: PartnerGroup; mobile: boolean })
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-[12px] font-medium text-slate-500">
@@ -197,6 +198,7 @@ function GroupBlock({ group, mobile }: { group: PartnerGroup; mobile: boolean })
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </section>

@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation"
 import { AUTOMATION_NAV_ITEMS } from "@/lib/automation/node-registry"
 
 function isActive(pathname: string, itemMatch: string[]) {
-  const normalized = pathname.replace(/^\/property-manager/, "/app")
+  const normalized = pathname.replace(/^\/property-manager/, "/property-manager")
   return itemMatch.some((match) => {
     const target = `/app${match}`
-    if (target === "/app/automations") return normalized === target
+    if (target === "/property-manager/automations") return normalized === target
     return normalized === target || normalized.startsWith(`${target}/`)
   })
 }

@@ -106,11 +106,14 @@ async function readWorkspaceOverride(
 /**
  * Is a v2 feature enabled? Tolerant, never throws. Resolves per-workspace
  * override → global flag → registry default (OFF).
+ *
+ * When NEXT_PUBLIC_QA_ALL_FLAGS=true all flags return true — QA discovery only.
  */
 export async function isFeatureEnabled(
   flag: V2FlagKey,
   options: IsFeatureEnabledOptions = {}
 ): Promise<boolean> {
+  if (process.env.NEXT_PUBLIC_QA_ALL_FLAGS === "true") return true
   const def = FLAG_REGISTRY[flag]
   const fallback = defaultFor(flag)
   if (!def) return fallback

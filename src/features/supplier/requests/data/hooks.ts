@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { SEED_REQUESTS } from "./seed"
+
 import type {
   PipelineRequest,
   RequestTab,
@@ -109,7 +109,7 @@ function mapRow(row: Record<string, unknown>): PipelineRequest {
 
 export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
   const { workspaceId, ready } = useSupplierWorkspace()
-  const [data, setData] = useState<PipelineRequest[]>(SEED_REQUESTS)
+  const [data, setData] = useState<PipelineRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<"live" | "seed">("seed")
@@ -127,7 +127,7 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
       // No workspace resolved yet → seed, but not an error.
       if (!workspaceId) {
         if (!cancelled) {
-          setData(SEED_REQUESTS)
+          setData([])
           setSource("seed")
           setPermissionDenied(false)
           setLoading(false)
@@ -149,7 +149,7 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
           // 42P01 (relation missing) / 42703 (column missing) / RLS → seed.
           const code = (err as { code?: string }).code
           const denied = code === "42501" || /permission|rls/i.test(err.message ?? "")
-          setData(SEED_REQUESTS)
+          setData([])
           setSource("seed")
           setPermissionDenied(denied)
           setError(null)
@@ -159,7 +159,7 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
 
         if (!rows || rows.length === 0) {
           // Table exists but empty — show seed so the pipeline isn't a blank shell.
-          setData(SEED_REQUESTS)
+          setData([])
           setSource("seed")
           setPermissionDenied(false)
           setLoading(false)
@@ -172,7 +172,7 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
         setLoading(false)
       } catch {
         if (!cancelled) {
-          setData(SEED_REQUESTS)
+          setData([])
           setSource("seed")
           setPermissionDenied(false)
           setError(null)

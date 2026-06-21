@@ -166,7 +166,7 @@ export default function ClientAccountsPage() {
             <span>Client Accounts</span>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="outline" size="md">04 · Client Accounts</Badge>
+            <Badge variant="outline" size="md">Client Accounts</Badge>
             <h1 className="text-2xl font-bold text-slate-900">Client Accounts</h1>
           </div>
           <p className="text-sm text-slate-500">Client money held on behalf of landlords — ringfenced and audited.</p>

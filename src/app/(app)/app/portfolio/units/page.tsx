@@ -1,8 +1,9 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { PortfolioSectionTabs } from "@/components/portfolio/PortfolioSectionTabs"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { UnitCard, type UnitCardData } from "@/components/portfolio/UnitCard"
@@ -123,13 +124,14 @@ export default function UnitsListPage() {
 
   return (
     <DashboardContainer>
+      <PortfolioSectionTabs />
       {/* Mobile top bar */}
       <MobileTopBar
         title="Units & Rooms"
         subtitle={`${filtered.length} total · ${occupiedCount} occupied`}
-        primaryAction={{ label: "Add unit", icon: Plus, href: "/app/portfolio/units/new" }}
+        primaryAction={{ label: "Add unit", icon: Plus, href: "/property-manager/portfolio/units/new" }}
         overflowActions={[
-          { label: "Portfolio", href: "/app/portfolio" },
+          { label: "Portfolio", href: "/property-manager/portfolio" },
           { label: "Export CSV", icon: Download, onClick: handleExport },
         ]}
       />
@@ -160,9 +162,9 @@ export default function UnitsListPage() {
         description={`${filtered.length} total · ${occupiedCount} occupied · ${vacantCount} vacant`}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="md" asChild><Link href="/app/portfolio">← Portfolio</Link></Button>
+            <Button variant="outline" size="md" asChild><Link href="/property-manager/portfolio">← Portfolio</Link></Button>
             <Button variant="outline" size="md" onClick={handleExport} disabled={filtered.length === 0}><Download className="w-4 h-4" />Export</Button>
-            <Button variant="primary" size="md" asChild><Link href="/app/portfolio/units/new"><Plus className="w-4 h-4" />Add unit</Link></Button>
+            <Button variant="primary" size="md" asChild><Link href="/property-manager/portfolio/units/new"><Plus className="w-4 h-4" />Add unit</Link></Button>
           </div>
         }
       />

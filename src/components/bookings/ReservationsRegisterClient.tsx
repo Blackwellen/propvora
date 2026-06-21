@@ -181,7 +181,7 @@ export function ReservationsRegisterClient({
   if (!canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Reservations" subtitle="Booking management" showBack backHref="/app/bookings" />
+        <MobileTopBar title="Reservations" subtitle="Booking management" showBack backHref="/property-manager/bookings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={planName} reason={upgradeReason} />
         </div>
@@ -191,7 +191,7 @@ export function ReservationsRegisterClient({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Reservations" subtitle="Register" showBack backHref="/app/bookings" />
+      <MobileTopBar title="Reservations" subtitle="Register" showBack backHref="/property-manager/bookings" />
 
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         {/* Header */}
@@ -301,7 +301,7 @@ export function ReservationsRegisterClient({
                   {rows.map((b) => (
                     <tr
                       key={b.id}
-                      onClick={() => router.push(`/app/bookings/${b.id}`)}
+                      onClick={() => router.push(`/property-manager/bookings/${b.id}`)}
                       className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 cursor-pointer transition-colors"
                     >
                       <td className="px-5 py-3">
@@ -333,7 +333,7 @@ export function ReservationsRegisterClient({
               {rows.map((b) => (
                 <Link
                   key={b.id}
-                  href={`/app/bookings/${b.id}`}
+                  href={`/property-manager/bookings/${b.id}`}
                   className="block rounded-2xl border border-slate-100 bg-white shadow-sm p-4 active:bg-slate-50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">

@@ -68,7 +68,7 @@ export default function DisputesView() {
 
   return (
     <div className="flex h-full gap-0 overflow-hidden">
-      <div className="flex-1 overflow-y-auto min-w-0 px-6 py-6">
+      <div className="flex-1 overflow-y-auto min-w-0 py-6">
         {/* header */}
         <div className="flex items-start justify-between">
           <div>

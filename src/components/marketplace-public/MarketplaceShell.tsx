@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { ShieldCheck, Store } from "lucide-react"
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -25,8 +25,8 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
           <nav className="flex items-center gap-1.5">
             <Link href="/marketplace/stays" className="hidden md:inline px-3 py-1.5 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">Stays</Link>
             <Link href="/marketplace/suppliers" className="hidden md:inline px-3 py-1.5 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">Suppliers</Link>
-            <Link href="/marketplace/emergency" className="hidden md:inline px-3 py-1.5 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">Emergency</Link>
-            <Link href="/app/marketplace" className="ml-1 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold shadow-[0_2px_10px_rgba(37,99,235,0.30)] hover:bg-[#1d4ed8] transition-colors">
+            <Link href="/services" className="hidden md:inline px-3 py-1.5 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">Services</Link>
+            <Link href="/property-manager/marketplace" className="ml-1 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold shadow-[0_2px_10px_rgba(37,99,235,0.30)] hover:bg-[#1d4ed8] transition-colors">
               Sign in
             </Link>
           </nav>

@@ -30,7 +30,21 @@ export default function AccountSettingsPage() {
       </div>
 
       {/* Tab nav */}
-      <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden border-b border-slate-200 pb-2.5">
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((tab) => (
+            <option key={tab.id} value={tab.id}>{tab.label}</option>
+          ))}
+        </select>
+      </div>
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
         {TABS.map(tab => {
           const Icon = tab.icon
           return (

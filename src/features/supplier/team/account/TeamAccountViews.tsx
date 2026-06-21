@@ -23,13 +23,7 @@ function Mini({ label, value, tone = "slate" }: { label: string; value: string; 
 }
 
 interface Member { id: string; name: string; initials: string; email: string; role: string; status: "active" | "invited"; lastActive: string }
-const MEMBERS: Member[] = [
-  { id: "m1", name: "Alex Morgan", initials: "AM", email: "alex@morganheating.co.uk", role: "Owner", status: "active", lastActive: new Date().toISOString() },
-  { id: "m2", name: "Mike Thompson", initials: "MT", email: "mike@morganheating.co.uk", role: "Dispatcher", status: "active", lastActive: new Date(Date.now() - 3600000).toISOString() },
-  { id: "m3", name: "Emma Collins", initials: "EC", email: "emma@morganheating.co.uk", role: "Estimator", status: "active", lastActive: new Date(Date.now() - 7200000).toISOString() },
-  { id: "m4", name: "Sarah Ahmed", initials: "SA", email: "sarah@morganheating.co.uk", role: "Worker", status: "active", lastActive: new Date(Date.now() - 86400000).toISOString() },
-  { id: "m5", name: "Priya Shah", initials: "PS", email: "priya@morganheating.co.uk", role: "Finance", status: "invited", lastActive: "" },
-]
+const MEMBERS: Member[] = []
 const ROLE_CAPS = [
   { role: "Owner", finance: true, dispatch: true, account: true, jobs: true },
   { role: "Team Admin", finance: true, dispatch: true, account: true, jobs: true },
@@ -48,9 +42,9 @@ export function TeamRolesBilling() {
       {toast && <SupplierBanner tone="emerald" onDismiss={() => setToast(null)}>{toast}</SupplierBanner>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Mini label="Team members" value={String(MEMBERS.length)} tone="blue" />
-        <Mini label="Plan" value="Professional" tone="emerald" />
-        <Mini label="Seats used" value="5 / 8" tone="slate" />
-        <Mini label="Monthly" value="£2,985" tone="slate" />
+        <Mini label="Plan" value="—" tone="emerald" />
+        <Mini label="Seats used" value="—" tone="slate" />
+        <Mini label="Monthly" value="—" tone="slate" />
       </div>
 
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -61,20 +55,28 @@ export function TeamRolesBilling() {
 
       {view === "team" && (
         <SupplierCard className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Member</th><th className="px-4 py-3 font-semibold">Role</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Last active</th><th className="px-4 py-3" /></tr></thead>
-            <tbody className="divide-y divide-slate-50">
-              {MEMBERS.map((m) => (
-                <tr key={m.id} className="hover:bg-slate-50/60">
-                  <td className="px-4 py-3"><span className="inline-flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{m.initials}</span><span><p className="font-semibold text-slate-800">{m.name}</p><p className="text-[11px] text-slate-400">{m.email}</p></span></span></td>
-                  <td className="px-4 py-3"><SupplierStatusBadge tone="slate">{m.role}</SupplierStatusBadge></td>
-                  <td className="px-4 py-3">{m.status === "active" ? <span className="text-[11px] font-semibold text-emerald-600">Active</span> : <span className="text-[11px] font-semibold text-amber-600">Invited</span>}</td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">{m.lastActive ? shortDate(m.lastActive) : "—"}</td>
-                  <td className="px-4 py-3 text-right"><span className="inline-flex gap-1"><button onClick={() => setToast(`Editing ${m.name}'s role…`)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100" aria-label="Edit role"><Shield className="w-4 h-4" /></button>{m.role !== "Owner" && <button onClick={() => setToast(`${m.name} removed.`)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {MEMBERS.length === 0 ? (
+            <div className="px-4 py-10 text-center">
+              <UserPlus className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm font-semibold text-slate-700">No team members yet</p>
+              <p className="text-xs text-slate-400 mt-1">Invite your first team member to get started.</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Member</th><th className="px-4 py-3 font-semibold">Role</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Last active</th><th className="px-4 py-3" /></tr></thead>
+              <tbody className="divide-y divide-slate-50">
+                {MEMBERS.map((m) => (
+                  <tr key={m.id} className="hover:bg-slate-50/60">
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{m.initials}</span><span><p className="font-semibold text-slate-800">{m.name}</p><p className="text-[11px] text-slate-400">{m.email}</p></span></span></td>
+                    <td className="px-4 py-3"><SupplierStatusBadge tone="slate">{m.role}</SupplierStatusBadge></td>
+                    <td className="px-4 py-3">{m.status === "active" ? <span className="text-[11px] font-semibold text-emerald-600">Active</span> : <span className="text-[11px] font-semibold text-amber-600">Invited</span>}</td>
+                    <td className="px-4 py-3 text-slate-400 text-xs">{m.lastActive ? shortDate(m.lastActive) : "—"}</td>
+                    <td className="px-4 py-3 text-right"><span className="inline-flex gap-1"><button onClick={() => setToast(`Editing ${m.name}'s role…`)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100" aria-label="Edit role"><Shield className="w-4 h-4" /></button>{m.role !== "Owner" && <button onClick={() => setToast(`${m.name} removed.`)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </SupplierCard>
       )}
 
@@ -95,17 +97,12 @@ export function TeamRolesBilling() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Subscription</h2>
-            <p className="text-2xl font-bold text-slate-900">Professional</p>
-            <p className="text-sm text-slate-500">£2,985 / month · 8 seats · renews {shortDate(new Date(Date.now() + 20 * 86400000).toISOString())}</p>
-            <div className="mt-3 flex gap-2"><SupplierButton variant="outline" onClick={() => setToast("Plan change started.")}>Upgrade plan</SupplierButton><SupplierButton variant="ghost" onClick={() => setToast("Invoice downloaded.")}><Download className="w-4 h-4" /> Invoices</SupplierButton></div>
+            <p className="text-sm text-slate-500">Your billing details are managed via the billing portal.</p>
+            <div className="mt-3 flex gap-2"><SupplierButton variant="outline" onClick={() => setToast("Plan change started.")}>Upgrade plan</SupplierButton><SupplierButton variant="ghost" onClick={() => setToast("Opening billing portal…")}><Download className="w-4 h-4" /> Billing portal</SupplierButton></div>
           </SupplierCard>
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Recent invoices</h2>
-            <ul className="divide-y divide-slate-50 text-sm">
-              {["May 2025", "Apr 2025", "Mar 2025"].map((p) => (
-                <li key={p} className="flex items-center justify-between py-2"><span className="text-slate-600">{p}</span><span className="flex items-center gap-3"><span className="font-semibold text-slate-800">£2,985.00</span><button onClick={() => setToast("Invoice downloaded.")} className="text-slate-400 hover:text-slate-600"><Download className="w-4 h-4" /></button></span></li>
-              ))}
-            </ul>
+            <p className="text-sm text-slate-400 py-4 text-center">No invoices yet.</p>
           </SupplierCard>
         </div>
       )}
@@ -117,11 +114,7 @@ function Cap({ ok }: { ok: boolean }) { return ok ? <CheckCircle2 className="w-4
 
 /* ── 30. Enterprise security / marketplace / admin ──────────────────────────── */
 
-const AUDIT = [
-  { id: "a1", actor: "Alex Morgan", action: "Updated role: Emma → Estimator", at: new Date(Date.now() - 2 * 3600000).toISOString() },
-  { id: "a2", actor: "System", action: "Insurance certificate approved", at: new Date(Date.now() - 26 * 3600000).toISOString() },
-  { id: "a3", actor: "Mike Thompson", action: "Exported finance report", at: new Date(Date.now() - 50 * 3600000).toISOString() },
-]
+const AUDIT: { id: string; actor: string; action: string; at: string }[] = []
 
 export function EnterpriseSettings() {
   const [toast, setToast] = useState<string | null>(null)
@@ -139,12 +132,12 @@ export function EnterpriseSettings() {
             <div><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><Eye className="w-4 h-4 text-slate-400" /> Marketplace visibility</h2><p className="text-xs text-slate-400 mt-0.5">{visible ? "Your listing is live to customers" : "Hidden from the marketplace"}</p></div>
             <button onClick={() => { setVisible((v) => !v); setToast(visible ? "Listing hidden." : "Listing live.") }} role="switch" aria-checked={visible} className={cn("relative w-12 h-7 rounded-full transition-colors shrink-0", visible ? "bg-emerald-500" : "bg-slate-300")}><span className={cn("absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform", visible && "translate-x-5")} /></button>
           </div>
-          <a href="/marketplace/suppliers/morgan-heating-plumbing" target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600">Preview public listing <ChevronRight className="w-3.5 h-3.5" /></a>
+          <a href="/marketplace/suppliers" target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600">Preview public listing <ChevronRight className="w-3.5 h-3.5" /></a>
         </SupplierCard>
 
         {/* Security overview */}
         <SupplierCard className="p-5">
-          <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5 mb-3"><Shield className="w-4 h-4 text-emerald-500" /> Security overview <SupplierStatusBadge tone="emerald">92%</SupplierStatusBadge></h2>
+          <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5 mb-3"><Shield className="w-4 h-4 text-emerald-500" /> Security overview</h2>
           <ul className="space-y-1.5 text-sm">
             <li className="flex items-center gap-2 text-slate-600"><CheckCircle2 className="w-4 h-4 text-emerald-500" />2FA enforced for admins</li>
             <li className="flex items-center gap-2 text-slate-600"><CheckCircle2 className="w-4 h-4 text-emerald-500" />Role-based access control</li>
@@ -163,13 +156,19 @@ export function EnterpriseSettings() {
       {/* Audit log */}
       <SupplierCard className="p-0 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100"><h2 className="text-sm font-semibold text-slate-900">Audit log</h2><SupplierButton size="sm" variant="ghost" onClick={() => setToast("Audit log exported.")}><Download className="w-3.5 h-3.5" /> Export</SupplierButton></div>
-        <table className="w-full text-sm">
-          <tbody className="divide-y divide-slate-50">
-            {AUDIT.map((a) => (
-              <tr key={a.id} className="hover:bg-slate-50/60"><td className="px-4 py-2.5 font-medium text-slate-700">{a.actor}</td><td className="px-4 py-2.5 text-slate-600">{a.action}</td><td className="px-4 py-2.5 text-slate-400 text-xs text-right">{shortDate(a.at)}</td></tr>
-            ))}
-          </tbody>
-        </table>
+        {AUDIT.length === 0 ? (
+          <div className="px-4 py-8 text-center">
+            <p className="text-xs text-slate-400">No audit events recorded yet.</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-slate-50">
+              {AUDIT.map((a) => (
+                <tr key={a.id} className="hover:bg-slate-50/60"><td className="px-4 py-2.5 font-medium text-slate-700">{a.actor}</td><td className="px-4 py-2.5 text-slate-600">{a.action}</td><td className="px-4 py-2.5 text-slate-400 text-xs text-right">{shortDate(a.at)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </SupplierCard>
 
       {/* Danger zone */}

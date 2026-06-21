@@ -12,12 +12,19 @@ const BASE = "https://propvora.com/"
 
 function CopyRow({ value }: { value: string }) {
   const [copied, setCopied] = useState(false)
+  const hasValue = value && value !== "—"
   return (
     <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
-      <p className="flex-1 text-sm font-mono text-[#2563EB] break-all">{value}</p>
+      <p className={`flex-1 text-sm font-mono break-all ${hasValue ? "text-[#2563EB]" : "text-slate-400"}`}>{value}</p>
       <button
-        onClick={() => navigator.clipboard?.writeText(value).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) }).catch(() => {})}
-        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 shrink-0"
+        disabled={!hasValue}
+        onClick={() => {
+          if (!hasValue) return
+          navigator.clipboard?.writeText(value)
+            .then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) })
+            .catch(() => {})
+        }}
+        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
         {copied ? "Copied" : "Copy"}

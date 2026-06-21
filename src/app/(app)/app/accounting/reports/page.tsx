@@ -133,7 +133,7 @@ export default function ReportsPage() {
             <span>Financial Reports</span>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="outline" size="md">07 · Financial Reports</Badge>
+            <Badge variant="outline" size="md">Reports</Badge>
             <h1 className="text-2xl font-bold text-slate-900">Financial Reports</h1>
           </div>
           <p className="text-sm text-slate-500">Trial Balance, P&amp;L and Balance Sheet — computed live from posted journal lines.</p>

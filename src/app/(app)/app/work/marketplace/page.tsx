@@ -4,5 +4,5 @@ import { redirect } from "next/navigation"
 export const dynamic = "force-dynamic"
 
 export default function MarketplacePage() {
-  redirect("/app/work/suppliers/preferred")
+  redirect("/property-manager/work/suppliers/preferred")
 }

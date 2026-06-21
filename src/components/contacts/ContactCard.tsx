@@ -71,7 +71,7 @@ export function ContactCard({ contact, onMessage, onCall, onEdit }: ContactCardP
     <div className="rounded-2xl shadow-sm border border-slate-200 bg-white p-5 hover:shadow-md transition-all duration-150 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <Link href={`/app/contacts/${contact.id}`} className="shrink-0">
+        <Link href={`/property-manager/contacts/${contact.id}`} className="shrink-0">
           <div
             className={cn(
               "w-11 h-11 rounded-full flex items-center justify-center text-white font-semibold text-sm",
@@ -84,7 +84,7 @@ export function ContactCard({ contact, onMessage, onCall, onEdit }: ContactCardP
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
-              href={`/app/contacts/${contact.id}`}
+              href={`/property-manager/contacts/${contact.id}`}
               className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate"
             >
               {contact.full_name}

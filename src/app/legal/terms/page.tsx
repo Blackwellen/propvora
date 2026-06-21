@@ -82,7 +82,7 @@ export default function TermsPage() {
           All payments are processed securely by Stripe. Propvora does not store your payment card details. Subscriptions renew automatically at the end of each billing period (monthly or annual) unless cancelled before the renewal date.
         </p>
         <p>
-          You may cancel your subscription at any time from your account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial periods, except within the 14-day satisfaction guarantee for new paid subscriptions.
+          You may cancel your subscription at any time from your account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial periods, except within the 7-day satisfaction guarantee for new paid subscriptions.
         </p>
         <p>
           We reserve the right to modify subscription pricing with 30 days&rsquo; notice. Continued use of the Service after a price change constitutes acceptance of the new pricing.
@@ -91,7 +91,7 @@ export default function TermsPage() {
 
       <Section num="6" title="Free Trial">
         <p>
-          New accounts may access a 14-day free trial of the Service. No credit card is required during the trial period. At the end of the trial, continued access requires a paid subscription. We reserve the right to modify or discontinue the free trial offer at any time.
+          New accounts may access a 7-day free trial of the Service. No credit card is required during the trial period. At the end of the trial, continued access requires a paid subscription. We reserve the right to modify or discontinue the free trial offer at any time.
         </p>
       </Section>
 

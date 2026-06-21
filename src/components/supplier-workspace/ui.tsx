@@ -141,9 +141,18 @@ export function SupplierKpiCard({ kpi }: { kpi: SupplierKpi }) {
   )
 }
 
+const KPI_COLS: Record<number, string> = {
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-2 md:grid-cols-4",
+  5: "grid-cols-3 md:grid-cols-5",
+  6: "grid-cols-3 md:grid-cols-6",
+}
+
 export function SupplierKpiStrip({ kpis }: { kpis: SupplierKpi[] }) {
+  const cols = KPI_COLS[kpis.length] ?? "grid-cols-2 md:grid-cols-4"
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div className={`grid ${cols} gap-4 mb-6`}>
       {kpis.map((kpi) => (
         <SupplierKpiCard key={kpi.label} kpi={kpi} />
       ))}
@@ -216,7 +225,7 @@ interface SupplierTabsProps {
 
 export function SupplierTabs({ active, onChange, tabs, className }: SupplierTabsProps) {
   return (
-    <div className={cn("flex items-center gap-1 border-b border-slate-200", className)}>
+    <div className={cn("flex items-center gap-1 border-b border-slate-200 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", className)}>
       {tabs.map((t) => {
         const isActive = t.key === active
         return (
@@ -225,13 +234,12 @@ export function SupplierTabs({ active, onChange, tabs, className }: SupplierTabs
             type="button"
             onClick={() => onChange(t.key)}
             className={cn(
-              "relative inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2",
+              "relative inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2 whitespace-nowrap shrink-0",
               isActive
                 ? "text-blue-600 border-blue-600"
                 : "text-slate-500 border-transparent hover:text-slate-700"
             )}
           >
-            {t.icon && renderIcon(t.icon, "w-4 h-4")}
             {t.label}
             {typeof t.count === "number" && (
               <span

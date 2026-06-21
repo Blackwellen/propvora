@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,7 +27,6 @@ const schema = z
 type FormData = z.infer<typeof schema>
 
 export default function ResetPasswordPage() {
-  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -60,7 +58,7 @@ export default function ResetPasswordPage() {
     }
 
     setSuccess(true)
-    setTimeout(() => router.push("/login"), 3000)
+    setTimeout(() => window.location.assign("/login"), 3000)
   }
 
   if (success) {

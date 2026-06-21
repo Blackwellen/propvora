@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
@@ -237,6 +237,32 @@ export default function OnboardingPage() {
   // localStorage key the GuidedHelpProvider reads ("propvora.help.enabled"),
   // so the choice carries straight into the app shell.
   const [showTour, setShowTour] = useState(true)
+  // Coupon code state
+  const [couponInput, setCouponInput] = useState("")
+  const [couponBusy, setCouponBusy] = useState(false)
+  const [couponResult, setCouponResult] = useState<{
+    valid: boolean; summary?: string; error?: string; code?: string
+  } | null>(null)
+
+  async function applyCoupon() {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCouponBusy(true)
+    setCouponResult(null)
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, planType: state.planId }),
+      })
+      const json = await res.json().catch(() => ({ valid: false, error: "Unknown error" }))
+      setCouponResult(json)
+    } catch {
+      setCouponResult({ valid: false, error: "Could not validate coupon." })
+    } finally {
+      setCouponBusy(false)
+    }
+  }
 
   const [state, setState] = useState<WizardState>({
     workspaceName: "",
@@ -313,7 +339,7 @@ export default function OnboardingPage() {
     const run = async () => {
       try {
         const country = countryFromCode(state.countryCode)
-        await createWorkspace({
+        const result = await createWorkspace({
           name: state.workspaceName || "My Portfolio",
           businessType: state.businessType,
           operationInterests: state.operationInterests,
@@ -325,6 +351,12 @@ export default function OnboardingPage() {
           defaultTimezone: country.timezone,
           defaultDateFormat: country.dateFormat,
         })
+        if (!result.ok) {
+          const msg = "error" in result ? result.error : "Service temporarily unavailable. Please try again."
+          setStep(7)
+          setErrors({ submit: msg })
+          return
+        }
         // Onboarding complete — clear saved progress so it doesn't resume.
         try {
           localStorage.removeItem(STORAGE_KEY)
@@ -333,10 +365,14 @@ export default function OnboardingPage() {
         } catch {
           // Non-fatal.
         }
-        // Let the animation play a bit before redirecting
+        // Let the animation play a bit before redirecting.
+        // Hard navigation (not router.push + refresh): after workspace creation
+        // the session is set; a push would re-request /onboarding which the proxy
+        // redirects to /property-manager for the now-authenticated user — but a
+        // full assign picks up the session cookie immediately and lands them in
+        // their new workspace directly.
         setTimeout(() => {
-          router.push("/app")
-          router.refresh()
+          window.location.assign("/property-manager")
         }, 4000)
       } catch {
         setStep(7)
@@ -774,7 +810,7 @@ export default function OnboardingPage() {
               <div className="text-center">
                 <h2 className="text-xl font-bold text-[#0D1B2A]">Choose your plan</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Start your 14-day free trial — no card required. Cancel any time.
+                  Start your 7-day free trial — no card required. Cancel any time.
                 </p>
               </div>
 
@@ -829,9 +865,44 @@ export default function OnboardingPage() {
                 ))}
               </div>
 
+              {/* Coupon code input */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 space-y-2">
+                <p className="text-xs font-semibold text-slate-600">Have a coupon code?</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. EARLY50"
+                    value={couponInput}
+                    onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponResult(null) }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon() } }}
+                    className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                    aria-label="Coupon code"
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={couponBusy || !couponInput.trim()}
+                    className="shrink-0 px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {couponBusy ? "…" : "Apply"}
+                  </button>
+                </div>
+                {couponResult && (
+                  <div className={cn(
+                    "flex items-center gap-2 text-xs rounded-lg px-3 py-2 border",
+                    couponResult.valid
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                      : "bg-red-50 text-red-600 border-red-100"
+                  )}>
+                    {couponResult.valid ? "✓" : "✗"}
+                    <span>{couponResult.valid ? couponResult.summary : couponResult.error}</span>
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3">
                 <p className="text-xs text-blue-700 leading-relaxed">
-                  You won&apos;t be charged today. Your workspace starts on a 14-day free
+                  You won&apos;t be charged today. Your workspace starts on a 7-day free
                   trial with no card required — you can add billing later from workspace
                   settings when you&apos;re ready.
                 </p>
@@ -917,7 +988,7 @@ export default function OnboardingPage() {
                       PLANS.find((p) => p.id === state.planId)?.name +
                       " — " +
                       PLANS.find((p) => p.id === state.planId)?.price +
-                      "/mo (14-day trial)",
+                      "/mo (7-day trial)",
                     step: 6,
                   },
                 ].map((row) => (
@@ -1070,7 +1141,7 @@ export default function OnboardingPage() {
           <p className="mt-4 text-center text-xs text-slate-400">
             <button
               type="button"
-              onClick={() => router.push("/app")}
+              onClick={() => window.location.assign("/property-manager")}
               className="hover:text-slate-600 transition-colors underline underline-offset-2"
             >
               Skip setup and go to dashboard

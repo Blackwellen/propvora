@@ -109,7 +109,7 @@ export function StatCard({
           </span>
         ) : null}
       </div>
-      <p className={cn("font-black tracking-tight tabular-nums leading-none", valueSize, valueClass ?? (colorValue ? a.value : "text-slate-900"))}>
+      <p className={cn("font-black tracking-tight tabular-nums leading-none whitespace-nowrap", valueSize, valueClass ?? (colorValue ? a.value : "text-slate-900"))}>
         {value}
       </p>
       <p className="text-[12px] font-medium text-slate-500 mt-1 truncate">{label}</p>

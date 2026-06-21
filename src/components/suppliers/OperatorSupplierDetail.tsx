@@ -70,7 +70,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 sm:py-8">
-      <Link href="/app/marketplace/suppliers" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700 transition-colors mb-4">
+      <Link href="/property-manager/marketplace/suppliers" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700 transition-colors mb-4">
         <ChevronLeft className="w-4 h-4" /> Back to suppliers
       </Link>
 
@@ -278,7 +278,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
           {/* Order history (operator-scoped, real link) */}
           <Card id="orders" title="Order history" icon={ClipboardList}>
             <p className="text-[13px] text-slate-600">Your past and active orders with this supplier appear in your marketplace orders.</p>
-            <Button variant="outline" size="sm" className="mt-3" asChild><Link href="/app/marketplace/orders?side=buyer"><ClipboardList className="w-4 h-4" /> View my orders</Link></Button>
+            <Button variant="outline" size="sm" className="mt-3" asChild><Link href="/property-manager/marketplace/orders?side=buyer"><ClipboardList className="w-4 h-4" /> View my orders</Link></Button>
           </Card>
         </div>
 
@@ -309,7 +309,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
               </div>
             </div>
             <Button variant="outline" size="md" className="mt-3.5 w-full" asChild>
-              <Link href={`/app/marketplace/suppliers/compare?ids=${s.id}`}><GitCompare className="w-4 h-4" /> Add to comparison</Link>
+              <Link href={`/property-manager/marketplace/suppliers/compare?ids=${s.id}`}><GitCompare className="w-4 h-4" /> Add to comparison</Link>
             </Button>
           </div>
         </aside>

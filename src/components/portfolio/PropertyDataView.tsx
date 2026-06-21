@@ -136,7 +136,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
               return (
                 <tr key={p.id} className="hover:bg-slate-50/60 transition-colors group">
                   <td className="px-4 py-3">
-                    <Link href={`/app/portfolio/properties/${p.id}`}
+                    <Link href={`/property-manager/portfolio/properties/${p.id}`}
                       className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors block truncate max-w-[200px]">
                       {p.name}
                     </Link>
@@ -192,7 +192,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
                   </td>
                   {/* View */}
                   <td className="px-4 py-3">
-                    <Link href={`/app/portfolio/properties/${p.id}`}
+                    <Link href={`/property-manager/portfolio/properties/${p.id}`}
                       className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                       <Eye className="w-3.5 h-3.5" />
                     </Link>

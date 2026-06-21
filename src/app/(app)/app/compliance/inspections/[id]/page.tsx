@@ -244,7 +244,7 @@ export default function InspectionDetailPage() {
 
   async function handleCancel() {
     await setStatus("cancelled")
-    router.push("/app/compliance/inspections")
+    router.push("/property-manager/compliance/inspections")
   }
 
   if (isLoading) {
@@ -265,7 +265,7 @@ export default function InspectionDetailPage() {
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Inspection not found</h2>
           <p className="text-sm text-slate-500 mb-5">This inspection may have been removed.</p>
           <Button variant="primary" size="sm" asChild>
-            <Link href="/app/compliance/inspections">Back to Inspections</Link>
+            <Link href="/property-manager/compliance/inspections">Back to Inspections</Link>
           </Button>
         </div>
       </div>
@@ -276,9 +276,9 @@ export default function InspectionDetailPage() {
     <div className="space-y-0">
       <div className="px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/app/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">{label} — {row.property_name ?? "Inspection"}</span>
         </nav>
@@ -319,7 +319,7 @@ export default function InspectionDetailPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/app/compliance/inspections/${id}/edit`}><Edit2 className="w-3.5 h-3.5" />Edit</Link>
+                    <Link href={`/property-manager/compliance/inspections/${id}/edit`}><Edit2 className="w-3.5 h-3.5" />Edit</Link>
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setRescheduleOpen(true)} disabled={isSeed}>
                     <RefreshCw className="w-3.5 h-3.5" />Reschedule
@@ -333,7 +333,7 @@ export default function InspectionDetailPage() {
                       { label: "Mark In Progress", icon: Clock, onClick: () => setStatus("in_progress"), disabled: isSeed },
                       { label: "Mark Complete", icon: CheckCircle2, onClick: () => setStatus("completed", { completed_date: new Date().toISOString().slice(0, 10) }), disabled: isSeed },
                       { label: "Reschedule", icon: RefreshCw, onClick: () => setRescheduleOpen(true), disabled: isSeed },
-                      { label: "Create Work Job", icon: Briefcase, onClick: () => router.push("/app/jobs/new") },
+                      { label: "Create Work Job", icon: Briefcase, onClick: () => router.push("/property-manager/jobs/new") },
                     ]}
                   />
                   <ConfirmDialog
@@ -366,7 +366,21 @@ export default function InspectionDetailPage() {
         <div className="flex flex-col lg:flex-row gap-4 items-start">
           <div className="flex-1 min-w-0 w-full">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="border-b border-slate-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {/* Mobile dropdown — shown only below md breakpoint */}
+              <div className="md:hidden border-b border-slate-100 px-4 py-2.5">
+                <select
+                  value={activeTab}
+                  onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Navigate section"
+                >
+                  {DETAIL_TABS.map((tab) => (
+                    <option key={tab.key} value={tab.key}>{tab.label}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Desktop tab strip — hidden below md */}
+              <div className="hidden md:block border-b border-slate-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <div className="flex">
                   {DETAIL_TABS.map((tab) => {
                     const Icon = tab.icon
@@ -419,7 +433,7 @@ export default function InspectionDetailPage() {
                         <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl">
                           <Briefcase className="w-4 h-4 text-slate-500" />
                           <p className="text-sm text-slate-700 font-medium flex-1">Create a work task to track completion</p>
-                          <Button variant="outline" size="sm" asChild><Link href="/app/jobs/new">Create Job</Link></Button>
+                          <Button variant="outline" size="sm" asChild><Link href="/property-manager/jobs/new">Create Job</Link></Button>
                         </div>
                       </div>
                     </div>
@@ -446,7 +460,7 @@ export default function InspectionDetailPage() {
 
                 {activeTab === "evidence" && (
                   <div>
-                    <Link href="/app/compliance/evidence" className="block text-center border-2 border-dashed border-slate-200 rounded-xl py-12 bg-slate-50 mb-4 hover:border-[#2563EB]/40 transition-colors">
+                    <Link href="/property-manager/compliance/evidence" className="block text-center border-2 border-dashed border-slate-200 rounded-xl py-12 bg-slate-50 mb-4 hover:border-[#2563EB]/40 transition-colors">
                       <Upload className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                       <p className="text-sm font-medium text-slate-600">Upload evidence</p>
                       <p className="text-xs text-slate-400 mt-1">Go to the evidence library</p>
@@ -458,7 +472,7 @@ export default function InspectionDetailPage() {
                 {activeTab === "linked" && (
                   <div className="space-y-3">
                     {[
-                      row.property_id && { label: "Property", value: row.property_name, href: `/app/properties/${row.property_id}`, icon: Building2 },
+                      row.property_id && { label: "Property", value: row.property_name, href: `/property-manager/portfolio/properties/${row.property_id}`, icon: Building2 },
                     ].filter(Boolean).map((rec: any) => {
                       const Icon = rec.icon
                       return (
@@ -537,7 +551,7 @@ export default function InspectionDetailPage() {
               <div className="space-y-2">
                 <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setRescheduleOpen(true)} disabled={isSeed}><RefreshCw className="w-4 h-4" />Reschedule</Button>
                 <Button variant="success" size="sm" className="w-full justify-start" onClick={() => setStatus("completed", { completed_date: new Date().toISOString().slice(0, 10) })} disabled={isSeed}><CheckCircle2 className="w-4 h-4" />Mark Complete</Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild><Link href="/app/jobs/new"><Briefcase className="w-4 h-4" />Create Job</Link></Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild><Link href="/property-manager/jobs/new"><Briefcase className="w-4 h-4" />Create Job</Link></Button>
               </div>
             </Card>
 

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -228,8 +228,8 @@ export default function ComplianceReportsPage() {
             <ActionMenu
               items={[
                 { label: "Refresh", icon: RefreshCw, onClick: () => router.refresh() },
-                { label: "Open Coverage", icon: BarChart2, onClick: () => router.push("/app/compliance/coverage") },
-                { label: "Open Activity", icon: FileText, onClick: () => router.push("/app/compliance/activity") },
+                { label: "Open Coverage", icon: BarChart2, onClick: () => router.push("/property-manager/compliance/coverage") },
+                { label: "Open Activity", icon: FileText, onClick: () => router.push("/property-manager/compliance/activity") },
               ]}
             />
           </>

@@ -7,7 +7,6 @@ import {
   MapPin, CheckCircle2, Clock, AlertCircle, Download, X,
   ChevronLeft, CreditCard
 } from 'lucide-react'
-import { SEED_BOOKINGS } from '@/lib/property-manager/bookings/seed'
 import type { Booking } from '@/lib/property-manager/bookings/types'
 import { formatPence } from '@/lib/marketplace/money'
 import BookingStatusBadge from '../BookingStatusBadge'
@@ -85,8 +84,32 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
   const [showMessageModal, setShowMessageModal] = useState(false)
   const [showCheckinModal, setShowCheckinModal] = useState(false)
 
-  const booking: Booking =
-    SEED_BOOKINGS.find((b) => b.id === bookingId) ?? SEED_BOOKINGS[0]
+  // Bookings table not yet migrated — no live data available yet.
+  // When the bookingManagement flag is enabled and migration applied, replace
+  // this placeholder with a live Supabase query scoped to workspaceId.
+  // The booking object below is cast to avoid TS errors on the existing JSX;
+  // the null check above ensures this component is never actually rendered.
+  const _bookingMaybe: Booking | null = null
+
+  if (!_bookingMaybe) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <p className="text-[15px] font-semibold text-slate-700 mb-1">Booking not found</p>
+        <p className="text-[13px] text-slate-400 mb-6">
+          This booking may not exist yet or the bookings table has not been migrated.
+        </p>
+        <Link
+          href="/property-manager/bookings"
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
+          ← Back to Bookings
+        </Link>
+      </div>
+    )
+  }
+
+  // Dead code path — only reached when a live booking is passed in future.
+  const booking = _bookingMaybe as Booking
 
   const PROPERTY_IMAGES = [
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
@@ -95,7 +118,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
   ]
 
   return (
-    <div className="px-6 py-6 max-w-full">
+    <div className="py-6 max-w-full">
       {/* Modals */}
       <SimpleModal open={showEditModal} title="Edit booking" onClose={() => setShowEditModal(false)} />
       <SimpleModal open={showMessageModal} title="Message guest" onClose={() => setShowMessageModal(false)} />

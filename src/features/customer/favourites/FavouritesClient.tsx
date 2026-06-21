@@ -15,25 +15,9 @@ import { propertyImages as IMG } from "../data/mock"
 
 type Tab = "all" | "stays" | "lets" | "collections"
 
-const SAVED: (PropertyCardData & { kind: "stay" | "let"; available: string })[] = [
-  { id: "luxe-city-loft", kind: "stay", title: "Luxe City Loft", location: "Manchester, M1", image: IMG.cityLoft, pricePence: 12000, rating: 4.9, reviews: 128, saved: true, badge: "Available", available: "Available now" },
-  { id: "lakeview-cabin", kind: "stay", title: "Lakeview Cabin", location: "Windermere, LA23", image: IMG.lakeside, pricePence: 14500, rating: 4.8, reviews: 96, saved: true, available: "Available now" },
-  { id: "seaside-cottage", kind: "stay", title: "Seaside Cottage", location: "Whitby, YO21", image: IMG.seaside, pricePence: 11000, rating: 4.7, reviews: 73, saved: true, available: "3 dates left" },
-  { id: "the-edge", kind: "let", title: "The Edge, New Bailey", location: "Salford, M3", image: IMG.greenQuarter, pricePence: 165000, pricePer: "month", rating: 4.9, reviews: 40, saved: true, badge: "Verified landlord", available: "Available 1 Jun" },
-  { id: "riverside-apartment", kind: "let", title: "Riverside Apartment", location: "Manchester, M1", image: IMG.riverside, pricePence: 145000, pricePer: "month", rating: 4.8, reviews: 54, saved: true, available: "Available now" },
-  { id: "urban-penthouse", kind: "stay", title: "Urban Penthouse", location: "Leeds, LS1", image: IMG.urban, pricePence: 16000, rating: 4.6, reviews: 54, saved: true, available: "Available now" },
-]
-const COLLECTIONS = [
-  { id: "lake-district", name: "Lake District escapes", count: 4, image: IMG.lakeside },
-  { id: "city-breaks", name: "City breaks", count: 6, image: IMG.cityLoft },
-  { id: "long-term", name: "Long-term shortlist", count: 3, image: IMG.greenQuarter },
-]
-const RECOMMENDED: PropertyCardData[] = [
-  { id: "riverside-cottage", title: "Riverside Cottage", location: "Bakewell, DE45", image: IMG.riverside, pricePence: 14500, rating: 4.8, reviews: 96 },
-  { id: "meadow-view", title: "Meadow View Cottage", location: "Ambleside, LA22", image: IMG.meadow, pricePence: 13000, rating: 4.7, reviews: 61 },
-  { id: "ocean-view", title: "Ocean View Suite", location: "St Ives, TR26", image: IMG.seaside, pricePence: 21000, rating: 4.9, reviews: 88 },
-  { id: "hilltop", title: "Hilltop Retreat", location: "Keswick, CA12", image: IMG.meadow, pricePence: 16500, rating: 4.6, reviews: 47 },
-]
+const SAVED: (PropertyCardData & { kind: "stay" | "let"; available: string })[] = []
+const COLLECTIONS: { id: string; name: string; count: number; image: string }[] = []
+const RECOMMENDED: PropertyCardData[] = []
 
 export default function FavouritesClient() {
   const { toast } = useCustomerToast()
@@ -71,7 +55,7 @@ export default function FavouritesClient() {
           ))}
         </nav>
         <div className="flex items-center gap-2 mb-1.5">
-          <div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input placeholder="Search saved" className="bg-white border border-slate-200 rounded-xl pl-8 pr-2 py-1.5 text-[12.5px] outline-none w-40" /></div>
+          <div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input placeholder="Search saved" className="bg-white border border-slate-200 rounded-xl pl-8 pr-2 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-40" /></div>
           <button className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400"><SlidersHorizontal className="w-4 h-4" /></button>
           <button className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400"><LayoutGrid className="w-4 h-4" /></button>
         </div>

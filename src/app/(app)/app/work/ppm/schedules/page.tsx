@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -53,20 +53,6 @@ interface ScheduleRow {
   rawStatus: string
 }
 
-// ─── Seeded data ──────────────────────────────────────────────────────────────
-
-const SEED_SCHEDULES: ScheduleRow[] = [
-  { id: null, property: "14 Park Road", address: "London SW1A 1AA", taskType: "Gas Safety Certificate", category: "Gas", frequency: "Annual", lastCompleted: "10 Jun 2025", lastCompletedBy: "British Gas", nextDue: "8 Jun 2026", nextDueDays: "In 345 days", supplier: "British Gas Homecare", supplierInitials: "BG", supplierBg: "bg-blue-600", estCost: "£120.00", status: "due-soon", rawStatus: "due_soon" },
-  { id: null, property: "7 Oak Avenue", address: "Manchester M2 3AA", taskType: "Boiler Annual Service", category: "Gas", frequency: "Annual", lastCompleted: "12 Jun 2025", lastCompletedBy: "HeatPro Ltd", nextDue: "12 Jun 2026", nextDueDays: "In 349 days", supplier: "HeatPro Ltd", supplierInitials: "HP", supplierBg: "bg-orange-500", estCost: "£145.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "22 Mill Lane", address: "Birmingham B1 1AA", taskType: "EICR Electrical Inspection", category: "Electrical", frequency: "Annual", lastCompleted: "14 Mar 2021", lastCompletedBy: "ElecSure Ltd", nextDue: "15 Jun 2026", nextDueDays: "In 352 days", supplier: "ElecSure Ltd", supplierInitials: "ES", supplierBg: "bg-yellow-500", estCost: "£320.00", status: "overdue", rawStatus: "overdue" },
-  { id: null, property: "Beech House", address: "Leeds LS1 2QG", taskType: "Fire Alarm Test", category: "Fire", frequency: "Quarterly", lastCompleted: "19 Mar 2026", lastCompletedBy: "FireSafe Services", nextDue: "19 Jun 2026", nextDueDays: "In 356 days", supplier: "FireSafe Services", supplierInitials: "FS", supplierBg: "bg-red-500", estCost: "£85.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "3 River View", address: "Bristol BS1 6AA", taskType: "Legionella Risk Assessment", category: "Water", frequency: "Annual", lastCompleted: "24 Jun 2025", lastCompletedBy: "AquaSafe Ltd", nextDue: "24 Jun 2026", nextDueDays: "In 361 days", supplier: "AquaSafe Ltd", supplierInitials: "AS", supplierBg: "bg-teal-500", estCost: "£210.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "14 Park Road", address: "London SW1A 1AA", taskType: "PAT Testing", category: "Electrical", frequency: "Annual", lastCompleted: "28 Jun 2025", lastCompletedBy: "ElecSure Ltd", nextDue: "28 Jun 2026", nextDueDays: "In 365 days", supplier: "ElecSure Ltd", supplierInitials: "ES", supplierBg: "bg-yellow-500", estCost: "£95.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "Station House", address: "Glasgow G1 3AA", taskType: "Lift Maintenance", category: "Mechanical", frequency: "Monthly", lastCompleted: "1 Jun 2026", lastCompletedBy: "LiftServe Ltd", nextDue: "1 Jul 2026", nextDueDays: "In 368 days", supplier: "LiftServe Ltd", supplierInitials: "LS", supplierBg: "bg-violet-600", estCost: "£420.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "Maple Court", address: "Liverpool L1 1AA", taskType: "Drainage Inspection", category: "Plumbing", frequency: "Bi-Annual", lastCompleted: "5 May 2026", lastCompletedBy: "DrainTech Ltd", nextDue: "5 Jul 2026", nextDueDays: "In 372 days", supplier: "DrainTech Ltd", supplierInitials: "DT", supplierBg: "bg-blue-500", estCost: "£150.00", status: "due-soon", rawStatus: "due_soon" },
-  { id: null, property: "Harbor Point", address: "Southampton SO14 2AA", taskType: "Roof Inspection", category: "Building", frequency: "Annual", lastCompleted: "3 Apr 2026", lastCompletedBy: "RoofCare Ltd", nextDue: "3 Apr 2027", nextDueDays: "In 644 days", supplier: "RoofCare Ltd", supplierInitials: "RC", supplierBg: "bg-emerald-600", estCost: "£275.00", status: "scheduled", rawStatus: "scheduled" },
-  { id: null, property: "Elm House", address: "Newcastle NE1 4AA", taskType: "Fire Extinguisher Service", category: "Fire", frequency: "Annual", lastCompleted: "18 May 2025", lastCompletedBy: "FireSafe Services", nextDue: "18 May 2027", nextDueDays: "In 689 days", supplier: "FireSafe Services", supplierInitials: "FS", supplierBg: "bg-red-500", estCost: "£65.00", status: "scheduled", rawStatus: "scheduled" },
-]
 
 const FREQ_LABEL: Record<string, string> = {
   weekly: "Weekly",
@@ -152,7 +138,7 @@ export default function PpmSchedulesPage() {
 
   const hasLive = !!livePlans && livePlans.length > 0
   const allRows: ScheduleRow[] = useMemo(
-    () => (hasLive ? livePlans!.map(planToRow) : SEED_SCHEDULES),
+    () => (hasLive ? livePlans!.map(planToRow) : []),
     [hasLive, livePlans]
   )
 
@@ -185,7 +171,7 @@ export default function PpmSchedulesPage() {
   }
 
   function goToRow(row: ScheduleRow) {
-    if (row.id) router.push(`/app/work/ppm/${row.id}`)
+    if (row.id) router.push(`/property-manager/work/ppm/${row.id}`)
   }
 
   async function handleDelete(row: ScheduleRow) {
@@ -199,7 +185,7 @@ export default function PpmSchedulesPage() {
     const plan = livePlans.find((p) => p.id === row.id)
     if (!plan) return
     const res = await generateJob.mutateAsync({ plan })
-    if (res.ok && res.jobId) router.push(`/app/work/jobs/${res.jobId}`)
+    if (res.ok && res.jobId) router.push(`/property-manager/work/jobs/${res.jobId}`)
   }
 
   return (
@@ -215,7 +201,7 @@ export default function PpmSchedulesPage() {
             <Download className="w-4 h-4" /> Export ▾
           </button>
           <Link
-            href="/app/work/ppm/schedules/new"
+            href="/property-manager/work/ppm/schedules/new"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
           >
             <Plus className="w-4 h-4" /> New PPM Schedule
@@ -321,8 +307,22 @@ export default function PpmSchedulesPage() {
                 <tr>
                   <td colSpan={10} className="px-4 py-16 text-center">
                     <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-700">No schedules match your filters</p>
-                    <p className="text-xs text-slate-400 mt-1">Try clearing filters or create a new PPM schedule.</p>
+                    <p className="text-sm font-semibold text-slate-700">
+                      {activeFilters > 0 ? "No schedules match your filters" : "No PPM schedules yet"}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {activeFilters > 0
+                        ? "Try clearing your filters or create a new PPM schedule."
+                        : "Create your first recurring maintenance schedule to track compliance due dates."}
+                    </p>
+                    {activeFilters === 0 && (
+                      <Link
+                        href="/property-manager/work/ppm/schedules/new"
+                        className="inline-flex items-center gap-1.5 mt-4 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
+                      >
+                        <Plus className="w-4 h-4" /> Add PPM Schedule
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ) : (

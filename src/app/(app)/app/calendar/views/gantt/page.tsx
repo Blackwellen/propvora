@@ -67,7 +67,7 @@ export default function CalendarGanttPage() {
       <MobileTopBar
         title="Timeline"
         subtitle={monthLabel}
-        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/property-manager/calendar/events/new") }}
         overflowActions={[
           { label: "Previous month", icon: ChevronLeft, onClick: prevMonth },
           { label: "This month", icon: CalendarDays, onClick: goToday },
@@ -123,7 +123,7 @@ export default function CalendarGanttPage() {
           <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronLeft className="w-4 h-4" /></button>
           <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">This month</button>
           <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronRight className="w-4 h-4" /></button>
-          <Link href={sectionLink("/app/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
             <Plus className="w-3.5 h-3.5" />New Event
           </Link>
         </div>

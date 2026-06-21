@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { SEED_CALENDAR, SEED_AVAILABILITY, SEED_TIME_OFF, weekStart } from "./seed"
+import { weekStart } from "./seed"
 import type {
   CalendarData,
   AvailabilityData,
@@ -17,6 +17,33 @@ import type {
   TimeOffBlock,
   TimeOffReason,
 } from "./types"
+
+const EMPTY_CALENDAR: CalendarData = {
+  events: [],
+  weekStartIso: "",
+  kpis: { jobsThisWeek: 0, freeSlots: 35, conflicts: 0, siteVisits: 0, outOfHoursJobs: 0 },
+}
+
+const EMPTY_AVAILABILITY: AvailabilityData = {
+  bands: [],
+  cells: [],
+  daySummaries: [],
+  rules: { recurringHoursLabel: "—", emergency247: false, responseWindowHours: 0, leadTimeHours: 0, maxJobsPerDay: 0, travelBufferMinutes: 0 },
+  serviceAvailability: [],
+  instantBookEligible: false,
+  weeklyBookableHours: 0,
+  kpis: { availableDays: 0, bookableHours: 0, emergencyEnabled: false, avgResponse: "—", nextUnavailable: "—" },
+}
+
+const EMPTY_TIME_OFF: TimeOffData = {
+  blocks: [],
+  affectedJobs: [],
+  affectedRequests: [],
+  settings: { autoDecline: false, notifyCustomers: false },
+  recurringRules: [],
+  reasonCounts: [],
+  kpis: { timeOffBooked: 0, upcomingBlockedDays: 0, affectedJobs: 0, availableThisMonth: 0 },
+}
 
 export interface ScheduleHookState<T> {
   data: T
@@ -112,7 +139,7 @@ function dayIndex(iso: string, weekStartMs: number): number {
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
 export function useScheduleCalendar(): ScheduleHookState<CalendarData> {
-  return useScheduleResource<CalendarData>(SEED_CALENDAR, async (supabase, workspaceId) => {
+  return useScheduleResource<CalendarData>(EMPTY_CALENDAR, async (supabase, workspaceId) => {
     const ws = weekStart()
     const end = new Date(ws)
     end.setDate(end.getDate() + 7)
@@ -166,22 +193,22 @@ export function useScheduleCalendar(): ScheduleHookState<CalendarData> {
 
 // ── Availability ────────────────────────────────────────────────────────────────
 export function useScheduleAvailability(): ScheduleHookState<AvailabilityData> {
-  return useScheduleResource<AvailabilityData>(SEED_AVAILABILITY, async (supabase, workspaceId) => {
+  return useScheduleResource<AvailabilityData>(EMPTY_AVAILABILITY, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_availability_rules")
       .select("id,day_of_week,start_minute,end_minute,kind")
       .eq("workspace_id", workspaceId)
     if (error) return { data: null, denied: isDenied(error) }
-    // We have rules but compose the full UI shape from seed defaults + live
-    // recurring hours when present. Keep seed as the base when no rows.
     if (!data || data.length === 0) return { data: null }
-    return { data: SEED_AVAILABILITY }
+    // Live rules exist but full UI shape (bands, cells) requires richer mapping —
+    // return null so empty state shows rather than fake seed data.
+    return { data: null }
   })
 }
 
 // ── Time Off ──────────────────────────────────────────────────────────────────
 export function useScheduleTimeOff(): ScheduleHookState<TimeOffData> {
-  return useScheduleResource<TimeOffData>(SEED_TIME_OFF, async (supabase, workspaceId) => {
+  return useScheduleResource<TimeOffData>(EMPTY_TIME_OFF, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_time_off")
       .select("id,reason_code,title,note,starts_at,ends_at,all_day,recurring_rule,auto_decline,notify_customers,affected_jobs")
@@ -206,12 +233,17 @@ export function useScheduleTimeOff(): ScheduleHookState<TimeOffData> {
     }))
     return {
       data: {
-        ...SEED_TIME_OFF,
         blocks,
+        affectedJobs: [],
+        affectedRequests: [],
+        settings: { autoDecline: false, notifyCustomers: false },
+        recurringRules: [],
+        reasonCounts: [],
         kpis: {
-          ...SEED_TIME_OFF.kpis,
+          timeOffBooked: blocks.length,
           upcomingBlockedDays: blocks.filter((b) => new Date(b.starts_at) >= new Date()).length,
           affectedJobs: blocks.reduce((n, b) => n + b.affectedJobs, 0),
+          availableThisMonth: 0,
         },
       },
     }

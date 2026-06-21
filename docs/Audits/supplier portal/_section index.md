@@ -1,8 +1,0 @@
-- [top nav](./top nav/README.md)
-- [jobs](./jobs/README.md)
-- [invoices](./invoices/README.md)
-- [documents](./documents/README.md)
-- [verification](./verification/README.md)
-- [messages](./messages/README.md)
-- [settings](./settings/README.md)
-- [portal login](./portal login/README.md)

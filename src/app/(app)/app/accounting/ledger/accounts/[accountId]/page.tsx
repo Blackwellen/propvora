@@ -113,11 +113,11 @@ export default function AccountDetailPage({ params }: { params: Promise<{ accoun
         title={account ? account.name : "Account"}
         subtitle={account ? account.code : undefined}
         showBack
-        backHref={sectionLink("/app/accounting/ledger/chart")}
+        backHref={sectionLink("/property-manager/accounting/ledger/chart")}
         overflowActions={rows.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
       />
 
-      <button onClick={() => router.push("/app/accounting/ledger/chart")} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <button onClick={() => router.push("/property-manager/accounting/ledger/chart")} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ArrowLeft className="w-4 h-4" /> Back to Chart of Accounts
       </button>
 

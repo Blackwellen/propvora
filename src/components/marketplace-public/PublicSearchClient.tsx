@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import {
   Search, SlidersHorizontal, X, Map as MapIcon, LayoutGrid, ChevronLeft, ChevronRight, Loader2,
-  ChevronDown, Check, Zap, ShieldCheck, Clock, Star,
+  ChevronDown, Check, Zap, ShieldCheck, Clock, Star, Siren,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { COUNTRY_OPTIONS } from "@/components/marketplace/taxonomy"
@@ -70,6 +70,8 @@ function PublicSearchInner({
   const [sortOpen, setSortOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [searchOnMove, setSearchOnMove] = useState(false)
+  // Trade / type category chip filter (suppliers + services + all intents)
+  const [tradeChip, setTradeChip] = useState<string>("All")
 
   const [items, setItems] = useState<PublicListing[]>(initialListings)
   const [total, setTotal] = useState(initialTotal)
@@ -157,7 +159,29 @@ function PublicSearchInner({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   // Client refinements + sort over the page items.
-  const visible = useMemo(() => mpRefineAndSort(items, filters), [items, filters])
+  const visible = useMemo(() => {
+    let base = mpRefineAndSort(items, filters)
+    // Apply trade chip filter — Emergency chip shows only emergency_job listings
+    if (tradeChip === "⚡ Emergency") {
+      base = base.filter((l) => l.transactionType === "emergency_job")
+    } else if (tradeChip !== "All") {
+      // Filter by category or listing title keyword (best-effort client-side)
+      const chip = tradeChip.toLowerCase()
+      base = base.filter(
+        (l) =>
+          l.category?.toLowerCase().includes(chip) ||
+          l.title?.toLowerCase().includes(chip) ||
+          l.listingType?.toLowerCase().includes(chip)
+      )
+    }
+    // Float emergency listings to the top when Emergency chip is active
+    if (tradeChip === "⚡ Emergency") return base
+    return base.sort((a, b) => {
+      if (a.transactionType === "emergency_job" && b.transactionType !== "emergency_job") return -1
+      if (a.transactionType !== "emergency_job" && b.transactionType === "emergency_job") return 1
+      return 0
+    })
+  }, [items, filters, tradeChip])
 
   const onBoundsChange = useCallback(
     (b: [number, number, number, number]) => {
@@ -348,6 +372,43 @@ function PublicSearchInner({
           </QuickChip>
         )}
       </div>
+
+      {/* Trade / type category chips — shown for suppliers, services and all intents */}
+      {(intent.key === "suppliers" || intent.key === "services" || intent.key === "all") && (
+        <div
+          className="mt-3 flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label="Filter by category"
+        >
+          {["All", "⚡ Emergency", "Plumbing", "Electrical", "Locksmith", "Cleaning", "Gas Safe", "Carpentry", "Roofing", "Painting"].map(
+            (cat) => {
+              const isActive = tradeChip === cat
+              const isEmergencyCat = cat === "⚡ Emergency"
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setTradeChip(cat)}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 whitespace-nowrap",
+                    isActive
+                      ? isEmergencyCat
+                        ? "border-red-600 bg-red-600 text-white"
+                        : "border-slate-900 bg-slate-900 text-white"
+                      : isEmergencyCat
+                      ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                  )}
+                >
+                  {isEmergencyCat && <Siren className="h-3 w-3 shrink-0" aria-hidden="true" />}
+                  {cat}
+                </button>
+              )
+            }
+          )}
+        </div>
+      )}
 
       {/* Filter panel (desktop inline) */}
       {showFilters && (

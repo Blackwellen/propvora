@@ -48,9 +48,9 @@ const statCards = [
 ]
 
 const statsStrip = [
-  { icon: Users, value: "1,200+", label: "operators" },
-  { icon: Activity, value: "98%", label: "uptime" },
-  { icon: Clock, value: "14-day", label: "free trial" },
+  { icon: Users, value: "Growing", label: "community" },
+  { icon: Activity, value: "Live", label: "platform" },
+  { icon: Clock, value: "7-day", label: "free trial" },
   { icon: CheckCircle2, value: "Minutes", label: "to set up" },
 ]
 

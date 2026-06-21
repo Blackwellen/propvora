@@ -21,7 +21,7 @@ export default function VerificationPage() {
   return (
     <>
       <MobileTopBar title="Verification" subtitle="Identity & payouts" />
-      <DashboardContainer className="px-4 sm:px-6 py-5 sm:py-6 max-w-[960px]">
+      <DashboardContainer className="px-4 sm: py-5 sm:py-6 max-w-[960px]">
         <div className="hidden md:block">
           <PageHeader
             title="Verification"

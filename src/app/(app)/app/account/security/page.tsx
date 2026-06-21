@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useId } from "react"
 import { Shield, Monitor, Loader2, Check, Info } from "lucide-react"
@@ -378,7 +378,7 @@ export default function SecurityPage() {
         </div>
         <p className="text-[13px] text-slate-500">
           Manage your active session on the{" "}
-          <a href="/app/account/sessions" className="text-[#2563EB] font-medium hover:underline">Sessions &amp; Devices</a> page.
+          <a href="/property-manager/account/sessions" className="text-[#2563EB] font-medium hover:underline">Sessions &amp; Devices</a> page.
         </p>
       </div>
 

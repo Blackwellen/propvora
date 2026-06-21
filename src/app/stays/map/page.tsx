@@ -63,6 +63,7 @@ export default function StaysMapPage() {
               <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Where</div>
               <input
                 type="text"
+                aria-label="Location"
                 placeholder="City, area or postcode"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
@@ -74,14 +75,14 @@ export default function StaysMapPage() {
             <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
             <div>
               <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Check in</div>
-              <input type="text" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
+              <input type="text" aria-label="Check-in date" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
             <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
             <div>
               <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Check out</div>
-              <input type="text" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
+              <input type="text" aria-label="Check-out date" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
@@ -135,7 +136,7 @@ export default function StaysMapPage() {
                 <Map className="h-3.5 w-3.5" />Map
               </button>
             </div>
-            <select className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-1.5 bg-white outline-none">
+            <select aria-label="Sort stays" className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-1.5 bg-white outline-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
               <option>Sort: Recommended ↓</option>
             </select>
           </div>

@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 type ActivityItem = {
   id: string
@@ -12,17 +13,6 @@ type ActivityItem = {
   type: "login" | "profile" | "ai" | "settings" | "security"
   risk: "low" | "medium" | "high"
 }
-
-const MOCK_ACTIVITY: ActivityItem[] = [
-  { id: "a1", event: "Login",                          detail: "Chrome · Windows · London",             time: "Today 09:12",     type: "login",    risk: "low" },
-  { id: "a2", event: "Profile updated",                detail: "Display name changed",                  time: "Yesterday 15:30", type: "profile",  risk: "low" },
-  { id: "a3", event: "AI action",                      detail: "Drafted arrears chase — 5 Tower St",    time: "2 days ago 11:05",type: "ai",       risk: "low" },
-  { id: "a4", event: "Login",                          detail: "Chrome · Windows · London",             time: "3 days ago 18:40",type: "login",    risk: "low" },
-  { id: "a5", event: "Notification preferences saved", detail: "Email digest set to daily",             time: "1 week ago",      type: "settings", risk: "low" },
-  { id: "a6", event: "Login",                          detail: "Safari · iPhone · London",              time: "1 week ago 08:20",type: "login",    risk: "low" },
-  { id: "a7", event: "Password changed",               detail: "Password updated successfully",         time: "2 weeks ago",     type: "security", risk: "low" },
-  { id: "a8", event: "AI action",                      detail: "Summarised lease — Flat 3 Park Road",   time: "2 weeks ago",     type: "ai",       risk: "low" },
-]
 
 const TYPE_COLOURS: Record<ActivityItem["type"], string> = {
   login:    "#2563EB",
@@ -46,8 +36,47 @@ type FilterType = (typeof ALL_TYPES)[number]
 export default function ActivityPage() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<FilterType>("all")
+  const [activity, setActivity] = useState<ActivityItem[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filtered = MOCK_ACTIVITY.filter(item => {
+  useEffect(() => {
+    async function load() {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("id, action, metadata, created_at")
+          .order("created_at", { ascending: false })
+          .limit(100)
+
+        if (error && error.code !== "42P01") throw error
+
+        if (data && data.length > 0) {
+          setActivity(
+            data.map((row) => ({
+              id: row.id as string,
+              event: (row.action as string) ?? "Action",
+              detail: typeof row.metadata === "object" && row.metadata !== null
+                ? ((row.metadata as Record<string, unknown>).detail as string) ?? ""
+                : "",
+              time: new Date(row.created_at as string).toLocaleString("en-GB", {
+                day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+              }),
+              type: "settings" as const,
+              risk: "low" as const,
+            }))
+          )
+        }
+      } catch {
+        // silently show empty state
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const filtered = activity.filter(item => {
     const matchType = filter === "all" || item.type === filter
     const matchSearch =
       !search ||
@@ -98,9 +127,15 @@ export default function ActivityPage() {
 
       {/* Activity list */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        {filtered.length === 0 ? (
+        {loading ? (
           <div className="py-16 text-center">
-            <p className="text-[13px] text-slate-400">No activity matches your filter</p>
+            <p className="text-[13px] text-slate-400">Loading activity…</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-[13px] text-slate-400">
+              {activity.length === 0 ? "No activity recorded yet" : "No activity matches your filter"}
+            </p>
           </div>
         ) : (
           filtered.map((item, i) => (

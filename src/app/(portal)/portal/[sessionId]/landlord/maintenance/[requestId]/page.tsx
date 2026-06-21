@@ -67,7 +67,7 @@ export default async function LandlordMaintenanceDetail({ params }: { params: Pr
           <PortalFact icon={MapPin} label="Property" value="Your property" />
           <PortalFact icon={CalendarClock} label="Reported" value={formatDate(job.created_at)} />
           <PortalFact icon={User} label="Manager" value={session.workspaceName} />
-          <PortalFact icon={PoundSterling} label="Current estimate" value="—" />
+          <PortalFact icon={PoundSterling} label="Current estimate" value="N/A" />
         </div>
       </PortalCard>
 

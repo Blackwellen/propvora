@@ -139,7 +139,7 @@ export default function OverviewTab() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Account summary</h3><Link href="/customer/account-settings" className="text-[12px] font-semibold text-blue-600">View profile →</Link></div>
             <dl className="space-y-2">
-              {[["Full name", "Sarah Johnson"], ["Email address", "sarah.johnson@email.com"], ["Phone number", "+44 7700 900123"], ["Preferred areas", "Manchester, Salford, MediaCity"], ["Move-in date range", "May – July 2025"], ["Budget", "£1,000 – £2,000 / month"], ["Household", "1 adult"]].map(([l, r]) => <div key={l} className="flex items-center justify-between gap-3"><dt className="text-[12px] text-slate-500 shrink-0">{l}</dt><dd className="text-[12px] font-semibold text-slate-800 text-right truncate">{r}</dd></div>)}
+              {[["Full name", "—"], ["Email address", "—"], ["Phone number", "—"], ["Preferred areas", "—"], ["Move-in date range", "—"], ["Budget", "—"], ["Household", "—"]].map(([l, r]) => <div key={l} className="flex items-center justify-between gap-3"><dt className="text-[12px] text-slate-500 shrink-0">{l}</dt><dd className="text-[12px] font-semibold text-slate-800 text-right truncate">{r}</dd></div>)}
             </dl>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex items-center justify-between gap-3">

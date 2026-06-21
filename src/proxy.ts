@@ -1,5 +1,16 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { checkRateLimit } from "@/lib/security/rateLimit"
+
+/** Attach security headers to any response (mutates in-place, returns the response). */
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  response.headers.set("X-Frame-Options", "DENY")
+  response.headers.set("X-Content-Type-Options", "nosniff")
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
+  response.headers.set("X-XSS-Protection", "1; mode=block")
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+  return response
+}
 
 type ProxySupabaseClient = ReturnType<typeof createServerClient>
 
@@ -80,6 +91,55 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // ── Rate limiting ─────────────────────────────────────────────────────────
+  // Applied before any auth check so we can limit unauthenticated callers too.
+  // Identifier: authenticated user id if available, otherwise the originating IP.
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+
+  if (pathname.startsWith("/api/auth/")) {
+    const rl = checkRateLimit(ip, "auth", 10, 60_000)
+    if (!rl.allowed) {
+      return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(Math.ceil((rl.resetAt.getTime() - Date.now()) / 1000)),
+        },
+      })
+    }
+  }
+
+  if (pathname.startsWith("/api/ai/")) {
+    const userId = user?.id ?? ip
+    const rl = checkRateLimit(userId, "ai", 30, 60_000)
+    if (!rl.allowed) {
+      return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(Math.ceil((rl.resetAt.getTime() - Date.now()) / 1000)),
+        },
+      })
+    }
+  }
+
+  if (pathname.startsWith("/api/upload/") || pathname === "/api/upload") {
+    const userId = user?.id ?? ip
+    const rl = checkRateLimit(userId, "upload", 20, 60_000)
+    if (!rl.allowed) {
+      return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(Math.ceil((rl.resetAt.getTime() - Date.now()) / 1000)),
+        },
+      })
+    }
+  }
+
   // ── Maintenance mode ──────────────────────────────────────────────────────
   // Toggled via the server env var MAINTENANCE_MODE=true (NEXT_PUBLIC_ variant
   // also honoured so client bundles can read it if needed). When ON, everyone
@@ -112,7 +172,7 @@ export async function proxy(request: NextRequest) {
         const url = request.nextUrl.clone()
         url.pathname = "/maintenance"
         url.search = ""
-        return NextResponse.redirect(url)
+        return applySecurityHeaders(NextResponse.redirect(url))
       }
     }
   }
@@ -125,7 +185,11 @@ export async function proxy(request: NextRequest) {
   // already-gated /property-manager and /user prefixes, so no separate
   // "/affiliate" case is needed. The PUBLIC marketing pages at
   // "/affiliate-programme*" remain ungated.
-  const protectedPrefixes = ["/app", "/property-manager", "/supplier", "/user", "/admin"]
+  //
+  // /portal/* and /p/* intentionally NOT included here — they use magic-link
+  // token-based session auth (set by /api/portal/verify), not the Supabase
+  // session cookie. Their auth is enforced inside the portal route handlers.
+  const protectedPrefixes = ["/property-manager", "/property-manager", "/supplier", "/customer", "/user", "/admin"]
 
   // Public checkout funnel — the guest `/checkout/*` group must be reachable
   // WITHOUT an auth account (access is scoped by a session token via RLS, not a
@@ -146,13 +210,13 @@ export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = "/login"
     url.searchParams.set("redirectTo", pathname)
-    return NextResponse.redirect(url)
+    return applySecurityHeaders(NextResponse.redirect(url))
   }
 
   // Auth pages — redirect already-authenticated users to app
   const authPaths = ["/login", "/register"]
   if (user && authPaths.includes(pathname)) {
-    return NextResponse.redirect(new URL("/app", request.url))
+    return applySecurityHeaders(NextResponse.redirect(new URL("/property-manager", request.url)))
   }
 
   // ── v2 routeContext guard (ADDITIVE, flag-gated, fail-open) ────────────────
@@ -167,10 +231,10 @@ export async function proxy(request: NextRequest) {
   // the proxy — on any problem we simply fall through to the normal response.
   if (user) {
     const guarded = await maybeApplyRouteContextGuard(supabase, request, pathname)
-    if (guarded) return guarded
+    if (guarded) return applySecurityHeaders(guarded)
   }
 
-  return supabaseResponse
+  return applySecurityHeaders(supabaseResponse)
 }
 
 /**
@@ -224,7 +288,7 @@ async function maybeApplyRouteContextGuard(
     if (outcome.ok) return null
 
     const url = request.nextUrl.clone()
-    url.pathname = outcome.redirectTo ?? "/app"
+    url.pathname = outcome.redirectTo ?? "/property-manager"
     url.search = ""
     return NextResponse.redirect(url)
   } catch {

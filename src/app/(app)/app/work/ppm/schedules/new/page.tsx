@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -233,7 +233,7 @@ export default function NewPpmSchedulePage() {
         estimated_cost: form.estimated_cost ? parseFloat(form.estimated_cost) : null,
         auto_generate_job: form.auto_generate_job,
       })
-      router.push(`/app/work/ppm/${plan.id}`)
+      router.push(`/property-manager/work/ppm/${plan.id}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to create PPM schedule"
       setSubmitError(msg)
@@ -255,9 +255,9 @@ export default function NewPpmSchedulePage() {
     <div className="space-y-5">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/app/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
+        <Link href="/property-manager/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link href="/app/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
+        <Link href="/property-manager/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-slate-900 font-semibold">New PPM Schedule</span>
       </div>
@@ -580,7 +580,7 @@ export default function NewPpmSchedulePage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/app/work/ppm/schedules"
+            href="/property-manager/work/ppm/schedules"
             className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
           >
             Cancel

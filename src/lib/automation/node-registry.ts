@@ -41,14 +41,12 @@ export const AUTOMATION_NAV_ITEMS: AutomationNavItem[] = [
   { label: "Recipes", href: "/property-manager/automations/recipes", match: ["/automations/recipes", "/automations/templates"] },
   { label: "My Automations", href: "/property-manager/automations/my-automations", match: ["/automations/my-automations"] },
   { label: "Canvas Builder", href: "/property-manager/automations/canvas", match: ["/automations/canvas", "/automations/builder"] },
-  { label: "Runs & Logs", href: "/property-manager/automations/runs-logs", match: ["/automations/runs-logs", "/automations/runs"] },
-  { label: "Approvals", href: "/property-manager/automations/approvals", match: ["/automations/approvals"] },
-  { label: "Errors", href: "/property-manager/automations/errors", match: ["/automations/errors"] },
-  { label: "Integrations", href: "/property-manager/automations/integrations", match: ["/automations/integrations"] },
-  { label: "Webhooks", href: "/property-manager/automations/webhooks", match: ["/automations/webhooks"] },
   { label: "AI Builder", href: "/property-manager/automations/ai-builder", match: ["/automations/ai-builder"] },
+  { label: "Runs & Logs", href: "/property-manager/automations/runs-logs", match: ["/automations/runs-logs", "/automations/runs"] },
+  { label: "Review Inbox", href: "/property-manager/automations/approvals", match: ["/automations/approvals"] },
+  { label: "Errors", href: "/property-manager/automations/errors", match: ["/automations/errors"] },
   { label: "Usage & Limits", href: "/property-manager/automations/usage-limits", match: ["/automations/usage-limits", "/automations/usage"] },
-  { label: "Admin Controls", href: "/property-manager/automations/admin-controls", match: ["/automations/admin-controls"] },
+  { label: "Activity", href: "/property-manager/automations/activity", match: ["/automations/activity"] },
 ]
 
 export const AUTOMATION_STATUSES = [

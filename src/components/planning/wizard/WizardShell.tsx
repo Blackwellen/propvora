@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Image from "next/image"
@@ -96,7 +96,7 @@ function WizardTopBar({ planName, onClose }: { planName: string; onClose: () => 
   return (
     <header className="h-14 shrink-0 flex items-center gap-3 sm:gap-4 px-3 sm:px-5 border-b border-slate-100 bg-white">
       {/* Logo */}
-      <Link href="/app" className="flex items-center gap-2 shrink-0">
+      <Link href="/property-manager" className="flex items-center gap-2 shrink-0">
         <div className="relative h-8 w-[120px]">
           <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
         </div>
@@ -305,7 +305,7 @@ export function WizardShell({
 }: WizardShellProps) {
   const router = useRouter()
   const [summaryOpen, setSummaryOpen] = useState(false)
-  const handleClose = onClose ?? (() => router.push("/app/planning"))
+  const handleClose = onClose ?? (() => router.push("/property-manager/planning"))
   const handlePrev  = onPrev  ?? (() => undefined)
   const handleNext  = onNext  ?? (() => undefined)
   const handleSave  = onSave  ?? (() => undefined)

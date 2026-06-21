@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { label: 'Stays', href: '/stays', matches: ['/stays'] },
   { label: 'Services', href: '/services', matches: ['/services'] },
   { label: 'Suppliers', href: '/suppliers', matches: ['/suppliers', '/providers'] },
-  { label: 'Emergency', href: '/emergency', matches: ['/emergency'] },
   { label: 'How it works', href: '/features', matches: ['/features'] },
 ]
 

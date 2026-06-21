@@ -38,7 +38,7 @@ export function AccountingWizardShell({
   leftContent,
   rightRail,
   footer,
-  accountingHref = "/app/accounting/accounts/overview",
+  accountingHref = "/property-manager/accounting/accounts/overview",
   className,
 }: AccountingWizardShellProps) {
   const sectionLink = useSectionLink()
@@ -47,7 +47,7 @@ export function AccountingWizardShell({
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
-          <Link href={sectionLink("/app/accounting")} className="hover:text-slate-600 transition-colors">Accounting</Link>
+          <Link href={sectionLink("/property-manager/accounting")} className="hover:text-slate-600 transition-colors">Accounting</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-500 font-medium">{breadcrumbNumber} · {breadcrumbLabel}</span>
         </div>

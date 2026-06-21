@@ -4,14 +4,17 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  BadgeCheck, UserCheck, CreditCard, RefreshCw, ShieldCheck, Camera, Plus, MapPin, Phone,
-  Fingerprint, Bell, Lock, KeyRound, Download, Trash2, CheckCircle2, Mail, MessageSquare,
-  Smartphone, Wallet, ChevronRight,
+  BadgeCheck, UserCheck, CreditCard, RefreshCw, ShieldCheck, Camera, Plus, MapPin,
+  Fingerprint, KeyRound, Download, CheckCircle2, ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill } from "../components/StatusPill"
 import { customerInputClass } from "@/components/customer/ui"
+import NotificationsSection from "./components/NotificationsSection"
+import FinanceSection from "./components/FinanceSection"
+import SecuritySection from "./components/SecuritySection"
+import PrivacySection from "./components/PrivacySection"
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -40,7 +43,21 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
         <p className="text-[13.5px] text-slate-500 mt-1">Manage your profile, payments, privacy and security in one place.</p>
       </div>
 
-      <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden border-b border-slate-200 pb-2.5">
+        <select
+          value={tab}
+          onChange={(e) => changeTab(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((t) => (
+            <option key={t.id} value={t.id}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+      {/* Desktop tab strip — hidden below md */}
+      <div className="hidden md:flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
         {TABS.map((t) => <button key={t.id} onClick={() => changeTab(t.id)} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap", t.id === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t.label}</button>)}
       </div>
 
@@ -59,66 +76,37 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <>
               <Panel title="Profile information">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white text-[18px] font-bold">SJ
+                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white text-[18px] font-bold">
                     <button onClick={() => toast("Upload avatar (upload-only) — coming soon", "info")} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm"><Camera className="w-3.5 h-3.5" /></button>
                   </span>
-                  <div><p className="text-[14px] font-semibold text-slate-800">Sarah Johnson</p><p className="text-[12px] text-slate-400">Customer · Verified</p></div>
+                  <div><p className="text-[14px] font-semibold text-slate-800">Your Profile</p><p className="text-[12px] text-slate-400">Customer · Verified</p></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="Full name" defaultValue="Sarah Johnson" onChange={() => setDirty(true)} />
-                  <Field label="Email address" defaultValue="sarah.johnson@email.com" onChange={() => setDirty(true)} />
-                  <Field label="Phone number" defaultValue="+44 7700 900123" onChange={() => setDirty(true)} />
-                  <Field label="Date of birth" defaultValue="15 May 1990" onChange={() => setDirty(true)} />
+                  <Field label="Full name" defaultValue="" onChange={() => setDirty(true)} />
+                  <Field label="Email address" defaultValue="" onChange={() => setDirty(true)} />
+                  <Field label="Phone number" defaultValue="" onChange={() => setDirty(true)} />
+                  <Field label="Date of birth" defaultValue="" onChange={() => setDirty(true)} />
                 </div>
               </Panel>
               <Panel title="Saved addresses" action={<AddBtn label="Add address" onClick={() => toast("Add address — coming soon", "info")} />}>
-                <AddrRow label="Home" value="12 Riverside Way, Manchester, M1 2EW" primary />
-                <AddrRow label="Work" value="40 Spinningfields, Manchester, M3 3AP" />
+                <p className="text-[12.5px] text-slate-400 py-2">No saved addresses yet. Add your home or work address for faster checkout.</p>
               </Panel>
               <Panel title="Emergency contact" action={<AddBtn label="Add contact" onClick={() => toast("Add emergency contact — coming soon", "info")} />}>
-                <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-full bg-slate-200" /><div className="flex-1"><p className="text-[12.5px] font-semibold text-slate-800">Michael Johnson</p><p className="text-[11.5px] text-slate-400">Brother · +44 7700 900456</p></div><button onClick={() => toast("Edit — coming soon", "info")} className="text-[11.5px] font-semibold text-blue-600">Edit</button></div>
+                <p className="text-[12.5px] text-slate-400 py-2">No emergency contact added yet.</p>
               </Panel>
               <Panel title="Identity verification">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity verified</p><p className="text-[11.5px] text-slate-400">Passport · verified 12 Mar 2024</p></div></div><StatusPill tone="emerald">Verified</StatusPill></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity not yet verified</p><p className="text-[11.5px] text-slate-400">Complete verification to unlock all features</p></div></div><StatusPill tone="slate">Unverified</StatusPill></div>
               </Panel>
             </>
           )}
 
-          {(tab === "overview" || tab === "notifications") && (
-            <Panel title="Communication preferences">
-              <PrefRow icon={Mail} title="Email notifications" sub="Booking updates, receipts and offers" defaultOn />
-              <PrefRow icon={MessageSquare} title="SMS notifications" sub="Time-sensitive booking alerts" defaultOn />
-              <PrefRow icon={Smartphone} title="Push notifications" sub="On your devices" />
-              <PrefRow icon={Bell} title="Marketing &amp; offers" sub="Curated deals and credits" defaultOn />
-            </Panel>
-          )}
+          {(tab === "overview" || tab === "notifications") && <NotificationsSection />}
 
-          {(tab === "overview" || tab === "finance") && (
-            <Panel title="Finance &amp; payment settings" action={<Link href="/customer/payments" className="text-[12px] font-semibold text-blue-600">Open payments →</Link>}>
-              <FinRow label="Default payment method" value="Visa ····4242" />
-              <FinRow label="Autopay" value="Active · rent on the 1st" />
-              <FinRow label="Refund destination" value="Original payment method" />
-              <FinRow label="Billing currency" value="GBP (£)" />
-            </Panel>
-          )}
+          {(tab === "overview" || tab === "finance") && <FinanceSection />}
 
-          {(tab === "overview" || tab === "security") && (
-            <Panel title="Security">
-              <SecRow icon={KeyRound} title="Password" sub="Last changed 2 months ago" cta="Change password" onClick={() => toast("Change password — coming soon", "info")} />
-              <SecRow icon={Smartphone} title="Two-factor authentication" sub="Authenticator app enabled" cta="Manage" onClick={() => toast("Manage 2FA — coming soon", "info")} />
-              <SecRow icon={Download} title="Download your data" sub="Get a copy of your account data" cta="Request" onClick={() => toast("Data export requested", "success")} />
-            </Panel>
-          )}
+          {(tab === "overview" || tab === "security") && <SecuritySection />}
 
-          {(tab === "overview" || tab === "privacy") && (
-            <Panel title="Privacy">
-              <PrefRow icon={ShieldCheck} title="Profile visibility" sub="Show profile to hosts you book with" defaultOn />
-              <PrefRow icon={Lock} title="Search personalisation" sub="Use my activity to improve results" defaultOn />
-              <div className="pt-2 mt-2 border-t border-slate-100">
-                <button onClick={() => toast("Account deletion — opens secure flow", "warning")} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-rose-600"><Trash2 className="w-4 h-4" /> Delete / export account</button>
-              </div>
-            </Panel>
-          )}
+          {(tab === "overview" || tab === "privacy") && <PrivacySection />}
         </div>
 
         {/* Right rail */}
@@ -185,16 +173,6 @@ function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
 }
 function AddrRow({ label, value, primary }: { label: string; value: string; primary?: boolean }) {
   return <div className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"><span className="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12.5px] font-semibold text-slate-800">{label} {primary && <StatusPill tone="blue">Primary</StatusPill>}</p><p className="text-[11.5px] text-slate-400 truncate">{value}</p></div></div>
-}
-function PrefRow({ icon: Icon, title, sub, defaultOn }: { icon: typeof Mail; title: string; sub: string; defaultOn?: boolean }) {
-  const [on, setOn] = useState(!!defaultOn)
-  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800" dangerouslySetInnerHTML={{ __html: title }} /><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={() => setOn(!on)} className={cn("w-9 h-5 rounded-full p-0.5 transition", on ? "bg-emerald-500" : "bg-slate-200")}><span className={cn("block w-4 h-4 rounded-full bg-white transition-transform", on && "translate-x-4")} /></button></div>
-}
-function FinRow({ label, value }: { label: string; value: string }) {
-  return <div className="flex items-center justify-between py-1.5"><span className="text-[12px] text-slate-500">{label}</span><span className="text-[12px] font-semibold text-slate-800">{value}</span></div>
-}
-function SecRow({ icon: Icon, title, sub, cta, onClick }: { icon: typeof KeyRound; title: string; sub: string; cta: string; onClick: () => void }) {
-  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">{title}</p><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={onClick} className="text-[11.5px] font-semibold text-blue-600">{cta}</button></div>
 }
 function QA({ icon: Icon, label, onClick }: { icon: typeof KeyRound; label: string; onClick: () => void }) {
   return <button onClick={onClick} className="w-full flex items-center gap-2.5 py-2 group"><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span><span className="flex-1 text-left text-[12.5px] font-medium text-slate-700">{label}</span><ChevronRight className="w-4 h-4 text-slate-300" /></button>

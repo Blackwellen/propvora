@@ -480,7 +480,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none bg-white"
+            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 bg-white"
           >
             {ISSUE_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -494,7 +494,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value as "low" | "normal" | "urgent")}
-            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none bg-white"
+            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 bg-white"
           >
             <option value="low">Low</option>
             <option value="normal">Normal</option>
@@ -508,7 +508,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="Brief summary"
-          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8]"
+          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
         />
       </div>
       <div>
@@ -517,7 +517,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
           placeholder="What's happening?"
-          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] resize-y"
+          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 resize-y"
         />
       </div>
       {error && <p className="text-[12.5px] text-red-600">{error}</p>}
@@ -615,7 +615,7 @@ function ReviewTab({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sum up your stay"
-          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8]"
+          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
         />
       </div>
       <div>
@@ -624,7 +624,7 @@ function ReviewTab({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="What was great? What could be better?"
-          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] resize-y"
+          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 resize-y"
         />
       </div>
       {error && <p className="text-[12.5px] text-red-600">{error}</p>}

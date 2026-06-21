@@ -20,8 +20,9 @@ const IMG = {
   harbour: "/property-types/mixed.jpg",
 } as const
 
-export const customerName = "Sarah Johnson"
-export const customerEmail = "sarah.johnson@email.com"
+// TODO: replace with real Supabase auth.getUser() call — see src/app/(customer)/layout.tsx
+export const customerName = ""
+export const customerEmail = ""
 
 export interface HomeStat {
   id: string
@@ -34,11 +35,11 @@ export interface HomeStat {
 }
 
 export const homeStats: HomeStat[] = [
-  { id: "upcoming", label: "Upcoming stays", value: "2", sub: "Next: 24 May 2025", subAccent: "blue", icon: "calendar", accent: "blue" },
-  { id: "active", label: "Active bookings", value: "2", sub: "2 ongoing", subAccent: "amber", icon: "bag", accent: "amber" },
-  { id: "saved", label: "Saved stays", value: "12", sub: "Favourites", subAccent: "red", icon: "heart", accent: "red" },
-  { id: "messages", label: "Messages", value: "3", sub: "3 unread", subAccent: "violet", icon: "chat", accent: "violet" },
-  { id: "offers", label: "Exclusive offers", value: "4", sub: "New for you", subAccent: "emerald", icon: "offer", accent: "emerald" },
+  { id: "upcoming", label: "Upcoming stays", value: "—", sub: "No upcoming stays", subAccent: "slate", icon: "calendar", accent: "blue" },
+  { id: "active", label: "Active bookings", value: "—", sub: "No active bookings", subAccent: "slate", icon: "bag", accent: "amber" },
+  { id: "saved", label: "Saved stays", value: "—", sub: "No favourites yet", subAccent: "slate", icon: "heart", accent: "red" },
+  { id: "messages", label: "Messages", value: "—", sub: "No messages", subAccent: "slate", icon: "chat", accent: "violet" },
+  { id: "offers", label: "Exclusive offers", value: "—", sub: "No offers available", subAccent: "slate", icon: "offer", accent: "emerald" },
 ]
 
 export interface UpcomingStay {
@@ -53,37 +54,9 @@ export interface UpcomingStay {
   checkInTime: string
 }
 
-export const upcomingStays: UpcomingStay[] = [
-  {
-    id: "PV-7BD2K9",
-    title: "Modern 2 Bed Apartment",
-    location: "Manchester City Centre, M1 2EW",
-    image: IMG.cityLoft,
-    status: "Confirmed",
-    dateRange: "24 – 28 May 2025",
-    guests: 2,
-    checkInDay: "24 May",
-    checkInTime: "15:00",
-  },
-  {
-    id: "PV-KL9M3P",
-    title: "Riverside Cottage",
-    location: "Bakewell, Derbyshire, DE45 1QY",
-    image: IMG.riverside,
-    status: "Upcoming",
-    dateRange: "6 – 9 Jun 2025",
-    guests: 4,
-    checkInDay: "6 Jun",
-    checkInTime: "16:00",
-  },
-]
+export const upcomingStays: UpcomingStay[] = []
 
-export const recommended: PropertyCardData[] = [
-  { id: "luxe-city-loft", title: "Luxe City Loft", location: "Manchester, M1", image: IMG.cityLoft, pricePence: 12000, rating: 4.9, reviews: 128, saved: true },
-  { id: "lakeview-cabin", title: "Lakeview Cabin", location: "Windermere, LA23", image: IMG.lakeside, pricePence: 14500, rating: 4.8, reviews: 96, saved: true },
-  { id: "seaside-cottage", title: "Seaside Cottage", location: "Whitby, YO21", image: IMG.seaside, pricePence: 11000, rating: 4.7, reviews: 73, saved: true },
-  { id: "urban-penthouse", title: "Urban Penthouse", location: "Leeds, LS1", image: IMG.urban, pricePence: 16000, rating: 4.6, reviews: 54, saved: true },
-]
+export const recommended: PropertyCardData[] = []
 
 export interface ActivityItem {
   id: string
@@ -94,18 +67,15 @@ export interface ActivityItem {
   accent: "emerald" | "violet" | "amber" | "blue"
 }
 
-export const recentActivity: ActivityItem[] = [
-  { id: "a1", icon: "booking", title: "Booking confirmed", subtitle: "Modern 2 Bed Apartment", when: "Today, 10:24", accent: "emerald" },
-  { id: "a2", icon: "message", title: "Message from host", subtitle: "Riverside Cottage", when: "Yesterday, 14:18", accent: "violet" },
-  { id: "a3", icon: "payment", title: "Payment successful", subtitle: "Riverside Cottage", when: "12 May 2025", accent: "amber" },
-]
+export const recentActivity: ActivityItem[] = []
 
+// TODO: replace with real Supabase auth.getUser() + profiles query
 export const account = {
-  fullName: "Sarah Johnson",
-  email: "sarah.johnson@email.com",
-  phone: "+44 7700 900123",
-  memberSince: "March 2024",
-  verified: true,
+  fullName: "",
+  email: "",
+  phone: "",
+  memberSince: "",
+  verified: false,
 }
 
 export const propertyImages = IMG

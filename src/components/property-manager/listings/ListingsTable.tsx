@@ -5,11 +5,13 @@ import Link from 'next/link'
 import type { Listing } from '@/lib/property-manager/listings/types'
 import { cn } from '@/lib/utils'
 import ListingChannelBadges from './ListingChannelBadges'
+import { ResponsiveTable, type MobileCardMapping } from '@/components/mobile'
 
 interface ListingsTableProps {
   listings: Listing[]
   selectedId: string | null
   onSelect: (id: string) => void
+  totalCount?: number
 }
 
 function ListingStatusBadge({ listing }: { listing: Listing }) {
@@ -77,9 +79,29 @@ function DirectPageCell({ listing }: { listing: Listing }) {
   )
 }
 
-export default function ListingsTable({ listings, selectedId, onSelect }: ListingsTableProps) {
+export default function ListingsTable({ listings, selectedId, onSelect, totalCount }: ListingsTableProps) {
+  const displayTotal = totalCount ?? listings.length
+
+  const mobileMapping: MobileCardMapping<Listing> = {
+    getKey: (l) => l.id,
+    title: (l) => l.title,
+    subtitle: (l) => l.property_location,
+    leading: (l) => l.property_image ? (
+      <img src={l.property_image} alt={l.title} className="w-10 h-10 rounded-lg object-cover" />
+    ) : undefined,
+    badge: (l) => <ListingStatusBadge listing={l} />,
+    onRowClick: (l) => onSelect(l.id),
+    fields: [
+      { label: "Type", render: (l) => l.listing_type === "long_term" ? "Long-term" : "Short stay" },
+      { label: "Price", render: (l) => l.price_display },
+      { label: "Availability", render: (l) => l.availability_status },
+      { label: "Status", render: (l) => l.status === "live" ? "Live" : l.status === "draft" ? "Draft" : "Needs attention" },
+    ],
+  }
+
   return (
-    <div className="mt-4 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+    <ResponsiveTable rows={listings} mobile={mobileMapping} className="mt-4">
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -220,24 +242,10 @@ export default function ListingsTable({ listings, selectedId, onSelect }: Listin
 
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3.5 border-t border-slate-100">
-        <p className="text-sm text-slate-500">Showing 1 to 8 of 130 listings</p>
+        <p className="text-sm text-slate-500">Showing 1 to {listings.length} of {displayTotal} listings</p>
         <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              className={cn(
-                'w-8 h-8 rounded-lg text-sm font-medium transition-colors',
-                page === 1
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              )}
-            >
-              {page}
-            </button>
-          ))}
-          <span className="text-slate-400 px-1">...</span>
-          <button className="w-8 h-8 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
-            17
+          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-blue-600 text-white">
+            1
           </button>
         </div>
         <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -247,5 +255,6 @@ export default function ListingsTable({ listings, selectedId, onSelect }: Listin
         </select>
       </div>
     </div>
+    </ResponsiveTable>
   )
 }

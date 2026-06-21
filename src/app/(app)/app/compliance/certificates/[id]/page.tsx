@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -148,6 +148,7 @@ export default function CertificateDetailPage() {
   const qc = useQueryClient()
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
+  const [certTab, setCertTab] = useState("overview")
   const { data: properties = [] } = useProperties(workspaceId)
 
   const propertyOptions = properties.map((p) => ({
@@ -241,7 +242,7 @@ export default function CertificateDetailPage() {
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-certificates"] })
-    router.push("/app/compliance/certificates")
+    router.push("/property-manager/compliance/certificates")
   }
 
   function exportEvidence() {
@@ -417,7 +418,7 @@ export default function CertificateDetailPage() {
           </div>
           <div className="p-4 space-y-2.5">
             <Link
-              href="/app/compliance/certificates/new"
+              href="/property-manager/compliance/certificates/new"
               className="w-full flex items-center gap-3 px-4 py-3 bg-[#EFF6FF] rounded-xl border border-[#BFDBFE] hover:bg-[#DBEAFE] transition-all text-left"
             >
               <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0">
@@ -490,7 +491,7 @@ export default function CertificateDetailPage() {
               </div>
               {row.property_id && (
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`/app/properties/${row.property_id}`}><ExternalLink className="w-3.5 h-3.5" /></Link>
+                  <Link href={`/property-manager/portfolio/properties/${row.property_id}`}><ExternalLink className="w-3.5 h-3.5" /></Link>
                 </Button>
               )}
             </div>
@@ -507,7 +508,7 @@ export default function CertificateDetailPage() {
           <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Renewal</p>
             <Button variant="primary" size="sm" asChild>
-              <Link href="/app/compliance/certificates/new">
+              <Link href="/property-manager/compliance/certificates/new">
                 <Plus className="w-3.5 h-3.5" />
                 Schedule Next Renewal
               </Link>
@@ -530,7 +531,7 @@ export default function CertificateDetailPage() {
                 <td className="px-5 py-3">{statusBadge(row.status)}</td>
                 <td className="px-5 py-3">
                   <Button variant="ghost" size="icon-sm" asChild>
-                    <Link href={`/app/compliance/certificates/${id}`}><Eye className="w-3.5 h-3.5" /></Link>
+                    <Link href={`/property-manager/compliance/certificates/${id}`}><Eye className="w-3.5 h-3.5" /></Link>
                   </Button>
                 </td>
               </tr>
@@ -549,7 +550,7 @@ export default function CertificateDetailPage() {
           <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Work Tasks</p>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/app/tasks/new"><Plus className="w-3.5 h-3.5" />Add Task</Link>
+              <Link href="/property-manager/work/tasks/new"><Plus className="w-3.5 h-3.5" />Add Task</Link>
             </Button>
           </div>
           <div className="px-5 py-10 text-center text-sm text-slate-400">No tasks linked to this certificate yet.</div>
@@ -565,7 +566,7 @@ export default function CertificateDetailPage() {
           <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Costs</p>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/app/money"><Plus className="w-3.5 h-3.5" />Add Cost</Link>
+              <Link href="/property-manager/money"><Plus className="w-3.5 h-3.5" />Add Cost</Link>
             </Button>
           </div>
           <div className="px-5 py-10 text-center text-sm text-slate-400">No costs recorded for this certificate yet.</div>
@@ -575,61 +576,105 @@ export default function CertificateDetailPage() {
   }
 
   function ActivityTab() {
-    const events = [
-      { date: fmtDate(row.created_at), action: "Certificate created", actor: "You", detail: "Initial record created" },
-    ]
+    // Live audit_log entries for this certificate record (42P01-tolerant)
+    const { data: auditRows = [], isLoading: auditLoading } = useQuery({
+      queryKey: ["cert-activity", id, workspaceId],
+      enabled: !!id && !!workspaceId,
+      staleTime: 30_000,
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("id, action, actor_email, created_at, metadata")
+          .eq("resource_type", "compliance_item")
+          .eq("resource_id", id)
+          .eq("workspace_id", workspaceId!)
+          .order("created_at", { ascending: false })
+          .limit(20)
+        if (error) return []
+        return data ?? []
+      },
+    })
     return (
       <div className="space-y-4">
-        <div className="relative pl-5">
-          {events.map((ev, i) => (
-            <div key={i} className="relative mb-6">
-              <div className="absolute left-[-20px] top-1 w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white shadow" />
-              <div className="bg-white rounded-xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-800">{ev.action}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{ev.detail}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-medium text-slate-600">{ev.actor}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{ev.date}</p>
+        {auditLoading && <p className="text-sm text-slate-400 px-1">Loading activity…</p>}
+        {!auditLoading && auditRows.length === 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 px-5 py-10 text-center text-sm text-slate-400">
+            No activity recorded for this certificate yet.
+          </div>
+        )}
+        {auditRows.length > 0 && (
+          <div className="relative pl-5">
+            {auditRows.map((ev: any) => (
+              <div key={ev.id} className="relative mb-6">
+                <div className="absolute left-[-20px] top-1 w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white shadow" />
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{ev.action ?? "Update"}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{ev.metadata?.detail ?? "Record updated"}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs font-medium text-slate-600">{ev.actor_email ?? "System"}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{fmtDate(ev.created_at)}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
 
   function AuditTab() {
-    const rows = [
-      { date: fmtDate(row.created_at), action: "Created", actor: "You", detail: "Certificate record created" },
-    ]
+    // Live audit trail from audit_logs (workspace-scoped, 42P01-tolerant)
+    const { data: auditRows = [], isLoading: auditLoading } = useQuery({
+      queryKey: ["cert-audit", id, workspaceId],
+      enabled: !!id && !!workspaceId,
+      staleTime: 30_000,
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("id, action, actor_email, created_at, metadata")
+          .eq("resource_type", "compliance_item")
+          .eq("resource_id", id)
+          .eq("workspace_id", workspaceId!)
+          .order("created_at", { ascending: false })
+          .limit(50)
+        if (error) return []
+        return data ?? []
+      },
+    })
     return (
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[560px]">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50">
-              {["Date", "Action", "Actor", "Details"].map((h) => (
-                <th key={h} className="px-5 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {rows.map((r, i) => (
-              <tr key={i} className="hover:bg-slate-50">
-                <td className="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">{r.date}</td>
-                <td className="px-5 py-3 text-sm font-medium text-slate-800">{r.action}</td>
-                <td className="px-5 py-3 text-sm text-slate-600">{r.actor}</td>
-                <td className="px-5 py-3 text-xs text-slate-500">{r.detail}</td>
+        {auditLoading && <p className="text-sm text-slate-400 px-5 py-4">Loading audit trail…</p>}
+        {!auditLoading && auditRows.length === 0 && (
+          <p className="text-sm text-slate-400 px-5 py-10 text-center">No audit entries for this certificate yet.</p>
+        )}
+        {auditRows.length > 0 && (
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50">
+                {["Date", "Action", "Actor", "Details"].map((h) => (
+                  <th key={h} className="px-5 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {auditRows.map((r: any) => (
+                <tr key={r.id} className="hover:bg-slate-50">
+                  <td className="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(r.created_at)}</td>
+                  <td className="px-5 py-3 text-sm font-medium text-slate-800">{r.action ?? "Update"}</td>
+                  <td className="px-5 py-3 text-sm text-slate-600">{r.actor_email ?? "System"}</td>
+                  <td className="px-5 py-3 text-xs text-slate-500">{r.metadata?.detail ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        )}
       </div>
     )
   }
@@ -643,17 +688,17 @@ export default function CertificateDetailPage() {
           </div>
           <div className="p-3 space-y-1.5">
             <Button variant="soft" size="sm" className="w-full justify-start gap-2" asChild>
-              <Link href="/app/compliance/certificates/new"><RefreshCw className="w-3.5 h-3.5" />Schedule Renewal</Link>
+              <Link href="/property-manager/compliance/certificates/new"><RefreshCw className="w-3.5 h-3.5" />Schedule Renewal</Link>
             </Button>
             <Button variant="outline" size="sm" className="w-full justify-start gap-2" asChild>
-              <Link href="/app/tasks/new"><CheckSquare className="w-3.5 h-3.5" />Create Task</Link>
+              <Link href="/property-manager/work/tasks/new"><CheckSquare className="w-3.5 h-3.5" />Create Task</Link>
             </Button>
             <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={exportEvidence}>
               <Download className="w-3.5 h-3.5" />Export Evidence
             </Button>
             {row.property_id && (
               <Button variant="outline" size="sm" className="w-full justify-start gap-2" asChild>
-                <Link href={`/app/properties/${row.property_id}`}><Building2 className="w-3.5 h-3.5" />Open Property</Link>
+                <Link href={`/property-manager/portfolio/properties/${row.property_id}`}><Building2 className="w-3.5 h-3.5" />Open Property</Link>
               </Button>
             )}
           </div>
@@ -720,7 +765,7 @@ export default function CertificateDetailPage() {
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Certificate not found</h2>
           <p className="text-sm text-slate-500 mb-5">This compliance record may have been removed.</p>
           <Button variant="primary" size="sm" asChild>
-            <Link href="/app/compliance/certificates">Back to Certificates</Link>
+            <Link href="/property-manager/compliance/certificates">Back to Certificates</Link>
           </Button>
         </div>
       </div>
@@ -732,9 +777,9 @@ export default function CertificateDetailPage() {
       {/* Breadcrumb */}
       <div className="px-4 sm:px-6 py-3 border-b border-slate-100 bg-white">
         <nav className="flex items-center gap-2 text-sm overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap">
-          <Link href="/app/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
+          <Link href="/property-manager/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <Link href="/app/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
+          <Link href="/property-manager/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-slate-700 font-medium">{label} — {row.property_name ?? "Certificate"}</span>
         </nav>
@@ -781,7 +826,7 @@ export default function CertificateDetailPage() {
               {/* Hero Actions */}
               <div className="flex items-center gap-2 shrink-0 flex-wrap">
                 <Button variant="primary" size="sm" asChild>
-                  <Link href={`/app/compliance/certificates/${id}/edit`}>
+                  <Link href={`/property-manager/compliance/certificates/${id}/edit`}>
                     <Pencil className="w-3.5 h-3.5" />
                     Edit
                   </Link>
@@ -795,7 +840,7 @@ export default function CertificateDetailPage() {
                     { label: "Mark Valid", icon: CheckCircle2, onClick: () => setStatus("valid"), disabled: isSeed },
                     { label: "Mark Expiring Soon", icon: Clock, onClick: () => setStatus("expiring_soon"), disabled: isSeed },
                     { label: "Mark Expired", icon: AlertTriangle, onClick: () => setStatus("expired"), disabled: isSeed },
-                    { label: "Schedule Renewal", icon: RefreshCw, onClick: () => router.push("/app/compliance/certificates/new") },
+                    { label: "Schedule Renewal", icon: RefreshCw, onClick: () => router.push("/property-manager/compliance/certificates/new") },
                     { label: "Export Evidence", icon: Download, onClick: exportEvidence },
                   ]}
                 />
@@ -840,8 +885,21 @@ export default function CertificateDetailPage() {
       {/* Main Content: Tabs + Right Rail */}
       <div className="flex flex-col lg:flex-row gap-5 mx-4 sm:mx-6 mt-5 pb-10 items-start">
         <div className="flex-1 min-w-0 w-full">
-          <Tabs defaultValue="overview">
-            <TabsList variant="underline" className="w-full">
+          {/* Mobile dropdown — shown only below md breakpoint */}
+          <div className="md:hidden mb-4">
+            <select
+              value={certTab}
+              onChange={(e) => setCertTab(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              aria-label="Navigate section"
+            >
+              {DETAIL_TABS.map((t) => (
+                <option key={t.key} value={t.key}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          <Tabs value={certTab} onValueChange={setCertTab}>
+            <TabsList variant="underline" className="hidden md:flex w-full">
               {DETAIL_TABS.map((t) => (
                 <TabsTrigger key={t.key} value={t.key} className="flex items-center gap-1.5">
                   {t.icon}

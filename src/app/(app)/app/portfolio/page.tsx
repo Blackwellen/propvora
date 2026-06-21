@@ -313,6 +313,7 @@ export default function PortfolioPage() {
         occupied: effectiveOccupied,
         tenants,
         monthlyRent: (a && a.unitRent > 0 ? a.unitRent : p.target_rent) ?? 0,
+        hasTargetRent: (a && a.unitRent > 0) ? true : p.target_rent != null,
         operationProfile: normaliseOperationProfile(p.operation_profile),
         bedrooms: p.bedrooms ?? undefined,
         bathrooms: p.bathrooms ?? undefined,
@@ -450,14 +451,14 @@ export default function PortfolioPage() {
 
   const openWorkTotal = properties.reduce((s, p) => s + (p.openWork ?? 0), 0)
   const portfolioKpis = [
-    { label: "Properties",    value: String(properties.length), icon: Building2,    color: "text-[#2563EB]",  bg: "bg-blue-50",    href: "/app/portfolio/properties", sub: `${properties.filter(p => p.status === "Active").length} active` },
-    { label: "Units",         value: String(totalUnits),        icon: Home,          color: "text-[#7C3AED]",  bg: "bg-violet-50",  href: "/app/portfolio/units", sub: `${vacantUnits} vacant` },
-    { label: "Tenancies",     value: String(activeTenancies),   icon: Users,         color: "text-[#10B981]",  bg: "bg-emerald-50", href: "/app/portfolio/tenancies", sub: "Active" },
-    { label: "Occupancy",     value: totalUnits > 0 ? `${occupancyPct}%` : "—",  icon: TrendingUp,    color: occupancyPct >= 90 ? "text-[#10B981]" : occupancyPct >= 70 ? "text-[#F59E0B]" : "text-[#EF4444]", bg: occupancyPct >= 90 ? "bg-emerald-50" : occupancyPct >= 70 ? "bg-amber-50" : "bg-red-50", href: "/app/portfolio/units", sub: "Portfolio avg" },
-    { label: "Rent Roll",     value: totalRentRoll > 0 ? fmtGBP(totalRentRoll) : "—",     icon: PoundSterling, color: "text-[#10B981]",  bg: "bg-emerald-50", href: "/app/portfolio/tenancies", sub: "Monthly gross" },
-    { label: "Arrears",       value: arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0", icon: AlertTriangle, color: arrearsCount > 0 ? "text-[#EF4444]" : "text-slate-400", bg: arrearsCount > 0 ? "bg-red-50" : "bg-slate-50", href: "/app/money/arrears", sub: `${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}` },
-    { label: "Ending Soon",   value: String(endingSoon.length), icon: Clock,         color: endingSoon.length > 0 ? "text-[#F59E0B]" : "text-slate-400", bg: endingSoon.length > 0 ? "bg-amber-50" : "bg-slate-50", href: "/app/portfolio/tenancies", sub: "Within 60 days" },
-    { label: "Open Work",     value: String(openWorkTotal),     icon: Wrench, color: openWorkTotal > 0 ? "text-slate-700" : "text-slate-400", bg: "bg-slate-50", href: "/app/work", sub: "Tasks & jobs" },
+    { label: "Properties",    value: String(properties.length), icon: Building2,    color: "text-[#2563EB]",  bg: "bg-blue-50",    href: "/property-manager/portfolio/properties", sub: `${properties.filter(p => p.status === "Active").length} active` },
+    { label: "Units",         value: String(totalUnits),        icon: Home,          color: "text-[#7C3AED]",  bg: "bg-violet-50",  href: "/property-manager/portfolio/units", sub: `${vacantUnits} vacant` },
+    { label: "Tenancies",     value: String(activeTenancies),   icon: Users,         color: "text-[#10B981]",  bg: "bg-emerald-50", href: "/property-manager/portfolio/tenancies", sub: "Active" },
+    { label: "Occupancy",     value: totalUnits > 0 ? `${occupancyPct}%` : "0%",  icon: TrendingUp,    color: occupancyPct >= 90 ? "text-[#10B981]" : occupancyPct >= 70 ? "text-[#F59E0B]" : "text-[#EF4444]", bg: occupancyPct >= 90 ? "bg-emerald-50" : occupancyPct >= 70 ? "bg-amber-50" : "bg-red-50", href: "/property-manager/portfolio/units", sub: "Portfolio avg" },
+    { label: "Rent Roll",     value: fmtGBP(totalRentRoll),     icon: PoundSterling, color: "text-[#10B981]",  bg: "bg-emerald-50", href: "/property-manager/portfolio/tenancies", sub: "Monthly gross" },
+    { label: "Arrears",       value: arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0", icon: AlertTriangle, color: arrearsCount > 0 ? "text-[#EF4444]" : "text-slate-400", bg: arrearsCount > 0 ? "bg-red-50" : "bg-slate-50", href: "/property-manager/money/arrears", sub: `${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}` },
+    { label: "Ending Soon",   value: String(endingSoon.length), icon: Clock,         color: endingSoon.length > 0 ? "text-[#F59E0B]" : "text-slate-400", bg: endingSoon.length > 0 ? "bg-amber-50" : "bg-slate-50", href: "/property-manager/portfolio/tenancies", sub: "Within 60 days" },
+    { label: "Open Work",     value: String(openWorkTotal),     icon: Wrench, color: openWorkTotal > 0 ? "text-slate-700" : "text-slate-400", bg: "bg-slate-50", href: "/property-manager/work", sub: "Tasks & jobs" },
   ]
 
   /* ── SVG occupancy ring ── */
@@ -480,10 +481,10 @@ export default function PortfolioPage() {
       <MobileTopBar
         title="Portfolio"
         subtitle={`${properties.length} propert${properties.length !== 1 ? "ies" : "y"} · ${totalUnits} units`}
-        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+        primaryAction={{ label: "Add property", icon: Plus, href: "/property-manager/portfolio/properties/new" }}
         overflowActions={[
-          { label: "Map view", icon: Map, href: "/app/portfolio/map" },
-          { label: "Tenancy timeline", icon: Calendar, href: "/app/portfolio/timeline" },
+          { label: "Map view", icon: Map, href: "/property-manager/portfolio/map" },
+          { label: "Tenancy timeline", icon: Calendar, href: "/property-manager/portfolio/timeline" },
           { label: "Export portfolio (CSV)", icon: Download, onClick: exportPortfolio },
         ]}
       />
@@ -506,13 +507,13 @@ export default function PortfolioPage() {
               align="right"
               items={[
                 { label: "View all properties", icon: Building2, onClick: () => setActiveTab("properties") },
-                { label: "Open map view", icon: Map, onClick: () => router.push("/app/portfolio/map") },
-                { label: "Open tenancy timeline", icon: Calendar, onClick: () => router.push("/app/portfolio/timeline") },
+                { label: "Open map view", icon: Map, onClick: () => router.push("/property-manager/portfolio/map") },
+                { label: "Open tenancy timeline", icon: Calendar, onClick: () => router.push("/property-manager/portfolio/timeline") },
                 { label: "Export portfolio (CSV)", icon: Download, onClick: exportPortfolio },
               ]}
             />
             <Button variant="primary" size="md" asChild>
-              <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
+              <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
             </Button>
           </div>
         }
@@ -578,7 +579,7 @@ export default function PortfolioPage() {
             <p className="text-sm text-slate-500 mt-1">Add your first property to start tracking units, tenancies and occupancy.</p>
           </div>
           <Button variant="primary" size="md" asChild>
-            <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link>
+            <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link>
           </Button>
         </div>
 
@@ -657,7 +658,7 @@ export default function PortfolioPage() {
                               align="right"
                               items={[
                                 { label: `View ${profile.shortLabel} properties`, icon: Eye, onClick: () => setActiveTab("properties") },
-                                { label: "Add property", icon: Plus, onClick: () => router.push("/app/portfolio/properties/new") },
+                                { label: "Add property", icon: Plus, onClick: () => router.push("/property-manager/portfolio/properties/new") },
                               ]}
                             />
                           </div>
@@ -737,7 +738,7 @@ export default function PortfolioPage() {
                       const badgeColor = BADGE_COLOR[p.operationProfile ?? ""] ?? "#475569"
                       const badgeLabel = p.operationProfile === "Serviced Accommodation" ? "SA" : p.operationProfile ?? p.type
                       return (
-                        <Link key={p.id} href={`/app/portfolio/properties/${p.id}`}
+                        <Link key={p.id} href={`/property-manager/portfolio/properties/${p.id}`}
                           className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
                           <div className="relative h-[110px] shrink-0" style={{ background: BADGE_COLOR[p.operationProfile ?? ""] ? `linear-gradient(135deg, ${BADGE_COLOR[p.operationProfile ?? ""]}cc 0%, ${BADGE_COLOR[p.operationProfile ?? ""]} 100%)` : "linear-gradient(135deg, #475569 0%, #64748B 100%)" }}>
                             <div className="absolute inset-0 flex items-center justify-center opacity-10">
@@ -750,9 +751,9 @@ export default function PortfolioPage() {
                               <ActionMenu
                                 align="right"
                                 items={[
-                                  { label: "View property", icon: Eye, onClick: () => router.push(`/app/portfolio/properties/${p.id}`) },
-                                  { label: "Add unit", icon: Plus, onClick: () => router.push(`/app/portfolio/units/new?propertyId=${p.id}`) },
-                                  { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?propertyId=${p.id}`) },
+                                  { label: "View property", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/properties/${p.id}`) },
+                                  { label: "Add unit", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/units/new?propertyId=${p.id}`) },
+                                  { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?propertyId=${p.id}`) },
                                   ...(isLive ? [{ label: "Delete", icon: Trash2, variant: "danger" as const, onClick: () => setConfirmDelete({ id: p.id, name: p.name }) }] : []),
                                 ]}
                               />
@@ -796,12 +797,12 @@ export default function PortfolioPage() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[14px] font-bold text-slate-900">Map preview</h3>
-                    <Link href="/app/portfolio/map"
+                    <Link href="/property-manager/portfolio/map"
                       className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
                       Open full map <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
-                  <Link href="/app/portfolio/map"
+                  <Link href="/property-manager/portfolio/map"
                     className="relative block h-52 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group">
                     <div className="absolute inset-0" style={{ backgroundImage: "url(https://a.basemaps.cartocdn.com/light_all/6/31/20.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
                     <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-slate-900/5 transition-colors" />
@@ -845,10 +846,10 @@ export default function PortfolioPage() {
                 <h3 className="text-[13.5px] font-bold text-slate-900">Attention required</h3>
               </div>
               <div className="flex flex-col divide-y divide-slate-50">
-                <AttentionRow icon={AlertTriangle} label={`Arrears across ${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}`} value={arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0"} color={arrearsCount > 0 ? "text-red-600" : "text-slate-400"} bg={arrearsCount > 0 ? "bg-red-50" : "bg-slate-100"} href="/app/money/arrears" urgent />
-                <AttentionRow icon={Clock} label="Tenancies ending soon" value={endingSoon.length} color={endingSoon.length > 0 ? "text-amber-600" : "text-slate-400"} bg={endingSoon.length > 0 ? "bg-amber-50" : "bg-slate-100"} href="/app/portfolio/tenancies" />
-                <AttentionRow icon={Wrench} label="Open work orders" value={openWorkTotal} color={openWorkTotal > 0 ? "text-slate-600" : "text-slate-400"} bg="bg-slate-100" href="/app/work" />
-                <AttentionRow icon={Home} label="Vacant units" value={vacantUnits} color={vacantUnits > 0 ? "text-violet-600" : "text-slate-400"} bg={vacantUnits > 0 ? "bg-violet-50" : "bg-slate-100"} href="/app/portfolio/units" />
+                <AttentionRow icon={AlertTriangle} label={`Arrears across ${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}`} value={arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0"} color={arrearsCount > 0 ? "text-red-600" : "text-slate-400"} bg={arrearsCount > 0 ? "bg-red-50" : "bg-slate-100"} href="/property-manager/money/arrears" urgent />
+                <AttentionRow icon={Clock} label="Tenancies ending soon" value={endingSoon.length} color={endingSoon.length > 0 ? "text-amber-600" : "text-slate-400"} bg={endingSoon.length > 0 ? "bg-amber-50" : "bg-slate-100"} href="/property-manager/portfolio/tenancies" />
+                <AttentionRow icon={Wrench} label="Open work orders" value={openWorkTotal} color={openWorkTotal > 0 ? "text-slate-600" : "text-slate-400"} bg="bg-slate-100" href="/property-manager/work" />
+                <AttentionRow icon={Home} label="Vacant units" value={vacantUnits} color={vacantUnits > 0 ? "text-violet-600" : "text-slate-400"} bg={vacantUnits > 0 ? "bg-violet-50" : "bg-slate-100"} href="/property-manager/portfolio/units" />
               </div>
             </div>
 
@@ -859,12 +860,12 @@ export default function PortfolioPage() {
               </div>
               <div className="flex flex-col divide-y divide-slate-50">
                 {([
-                  { label: "Add property",      href: "/app/portfolio/properties/new", icon: Building2,  iconBg: "bg-blue-50",    iconColor: "text-[#2563EB]" },
-                  { label: "Add unit",           href: "/app/portfolio/units/new",      icon: Home,       iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
-                  { label: "Create tenancy",     href: "/app/portfolio/tenancies/new",  icon: Users,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
-                  { label: "Open work queue",    href: "/app/work",                     icon: Wrench,     iconBg: "bg-slate-100",  iconColor: "text-slate-500" },
+                  { label: "Add property",      href: "/property-manager/portfolio/properties/new", icon: Building2,  iconBg: "bg-blue-50",    iconColor: "text-[#2563EB]" },
+                  { label: "Add unit",           href: "/property-manager/portfolio/units/new",      icon: Home,       iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
+                  { label: "Create tenancy",     href: "/property-manager/portfolio/tenancies/new",  icon: Users,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+                  { label: "Open work queue",    href: "/property-manager/work",                     icon: Wrench,     iconBg: "bg-slate-100",  iconColor: "text-slate-500" },
                   { label: "Run rent review",    onClick: () => setActiveTab("tenancies"), icon: TrendingUp, iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
-                  { label: "Create planning set",href: "/app/planning",                 icon: BarChart2,  iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
+                  { label: "Create planning set",href: "/property-manager/planning",                 icon: BarChart2,  iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
                 ] as const).map((a, i) => {
                   const Icon = a.icon
                   const inner = (
@@ -961,7 +962,7 @@ export default function PortfolioPage() {
                 )}
               </button>
               <Button variant="primary" size="sm" asChild>
-                <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add</Link>
+                <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add</Link>
               </Button>
             </div>
 
@@ -1062,7 +1063,7 @@ export default function PortfolioPage() {
                 )}
               </button>
               <Button variant="primary" size="sm" asChild>
-                <Link href="/app/portfolio/units/new"><Plus className="w-4 h-4" />Add</Link>
+                <Link href="/property-manager/portfolio/units/new"><Plus className="w-4 h-4" />Add</Link>
               </Button>
             </div>
 
@@ -1152,7 +1153,7 @@ export default function PortfolioPage() {
                       return (
                         <tr key={u.id} className="hover:bg-slate-50/60 transition-colors group">
                           <td className="px-4 py-3">
-                            <Link href={`/app/portfolio/units/${u.id}`} className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors">{u.unit_name}</Link>
+                            <Link href={`/property-manager/portfolio/units/${u.id}`} className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors">{u.unit_name}</Link>
                             <p className="text-[11px] text-slate-500">{u.unit_type ?? "Unit"}</p>
                           </td>
                           <td className="px-4 py-3 text-[12.5px] text-slate-600">{u.property_name ?? "—"}</td>
@@ -1165,7 +1166,7 @@ export default function PortfolioPage() {
                           <td className="px-4 py-3 text-right text-[13px] font-bold text-slate-900 tabular-nums">{u.target_rent ? fmtGBP(u.target_rent) : <span className="text-slate-300">—</span>}</td>
                           <td className="px-4 py-3 text-[12px] text-slate-500">{u.floor_area_sqm ? `${u.floor_area_sqm}m²` : "—"}</td>
                           <td className="px-4 py-3">
-                            <Link href={`/app/portfolio/units/${u.id}`} className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
+                            <Link href={`/property-manager/portfolio/units/${u.id}`} className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                               <ChevronRight className="w-3.5 h-3.5" />
                             </Link>
                           </td>
@@ -1210,7 +1211,7 @@ export default function PortfolioPage() {
                 )}
               </button>
               <Button variant="primary" size="sm" asChild>
-                <Link href="/app/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create</Link>
+                <Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create</Link>
               </Button>
             </div>
 
@@ -1277,7 +1278,7 @@ export default function PortfolioPage() {
                 <TenancyCard
                   key={t.id}
                   tenancy={t}
-                  onView={id => router.push(`/app/portfolio/tenancies/${id}`)}
+                  onView={id => router.push(`/property-manager/portfolio/tenancies/${id}`)}
                 />
               ))}
               {filteredTenancies.length === 0 && (

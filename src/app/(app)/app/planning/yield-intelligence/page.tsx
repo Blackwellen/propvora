@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -73,7 +73,7 @@ export default function YieldIntelligencePage() {
           <BarChart2 className="w-8 h-8 text-slate-300 mx-auto mb-3" />
           <p className="text-[14px] font-semibold text-slate-700">No yield data yet</p>
           <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">Create planning sets with income and property value to see gross and net yields here.</p>
-          <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
+          <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
@@ -94,7 +94,7 @@ export default function YieldIntelligencePage() {
                 {ranked.map((s, i) => (
                   <tr
                     key={s.id}
-                    onClick={() => router.push(`/app/planning/sets/${s.id}/overview`)}
+                    onClick={() => router.push(`/property-manager/planning/sets/${s.id}/overview`)}
                     className={cn("border-b border-slate-50 hover:bg-slate-50/60 transition-colors cursor-pointer", i % 2 !== 0 && "bg-slate-50/20")}
                   >
                     <td className="px-3 py-2.5 font-medium text-slate-800 text-[12px] max-w-[200px] truncate">{s.title}</td>

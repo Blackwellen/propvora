@@ -118,7 +118,7 @@ export default async function PlanningSetDetailLayout({
           {/* Left: back + title + address */}
           <div className="flex flex-col gap-1.5 min-w-0 flex-1">
             <Link
-              href="/app/planning/sets"
+              href="/property-manager/planning/sets"
               className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 font-medium transition-colors w-fit"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -187,7 +187,7 @@ export default async function PlanningSetDetailLayout({
           {/* Right: action buttons */}
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
             <Link
-              href={`/app/planning/sets/${id}/edit`}
+              href={`/property-manager/planning/sets/${id}/edit`}
               className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors"
             >
               <Edit2 className="w-3.5 h-3.5" />

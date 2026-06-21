@@ -168,7 +168,7 @@ export default function HmoLicenceDetailPage() {
           <AlertTriangle className="w-6 h-6 text-slate-400" />
         </div>
         <p className="text-[14px] font-semibold text-slate-700 mb-1">Licence not found</p>
-        <Link href="/app/legal/hmo-licences" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium mt-2">
+        <Link href="/property-manager/legal/hmo-licences" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium mt-2">
           ← Back to HMO Licences
         </Link>
       </div>
@@ -193,7 +193,7 @@ export default function HmoLicenceDetailPage() {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
-          <Link href="/app/legal/hmo-licences" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
+          <Link href="/property-manager/legal/hmo-licences" className="hover:text-slate-600 flex items-center gap-1 transition-colors">
             <ChevronLeft className="w-3.5 h-3.5" />
             HMO Licences
           </Link>
@@ -232,14 +232,14 @@ export default function HmoLicenceDetailPage() {
               onConfirm={async () => {
                 if (workspaceId) {
                   await deleteLicence.mutateAsync({ id: lic.id, workspaceId })
-                  router.push("/app/legal/hmo-licences")
+                  router.push("/property-manager/legal/hmo-licences")
                 }
               }}
             >
               {(open) => (
                 <ActionMenu
                   items={[
-                    { label: "Open Property", icon: Building2, onClick: () => router.push(lic.property_id ? `/app/properties/${lic.property_id}` : "/app/properties") },
+                    { label: "Open Property", icon: Building2, onClick: () => router.push(lic.property_id ? `/property-manager/portfolio/properties/${lic.property_id}` : "/property-manager/portfolio/properties") },
                     { label: "Download Certificate", icon: Download, onClick: () => downloadCertificate(lic) },
                     { label: "Delete Licence", icon: Trash2, variant: "danger", onClick: open },
                   ]}
@@ -377,7 +377,7 @@ export default function HmoLicenceDetailPage() {
                 <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Expiry</p>
                 <p className="text-[15px] font-bold text-slate-900">{formatDate(lic.expiry_date)}</p>
                 <p className="text-[11px] text-slate-500 mt-1">Surfaced to the renewal calendar.</p>
-                <Link href="/app/calendar" className="mt-3 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+                <Link href="/property-manager/calendar" className="mt-3 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
                   Open Calendar →
                 </Link>
               </div>

@@ -52,11 +52,11 @@ export default async function ServiceDetailPage({
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-          <Link href="/app/marketplace/suppliers-hub/services" className="hover:text-blue-600">
+          <Link href="/property-manager/marketplace/suppliers-hub/services" className="hover:text-blue-600">
             Services
           </Link>
           <span>›</span>
-          <Link href="/app/marketplace/suppliers-hub/services" className="hover:text-blue-600">
+          <Link href="/property-manager/marketplace/suppliers-hub/services" className="hover:text-blue-600">
             {offer.category}
           </Link>
           <span>›</span>

@@ -8,11 +8,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
-import {
-  SEED_ORDERS, SEED_COMPLETED, SEED_RFQS, SEED_QUOTES, SEED_ESCROWS,
-  SEED_ATTACHMENTS, SEED_ACTIVITY, SEED_MILESTONES,
-  SEED_PAYOUT_SPLITS, SEED_RELEASE_CONDITIONS,
-} from "./seed"
 import type {
   OrderRow, QuoteRow, RfqRow, EscrowRow, CompletedOrderRow,
   OrdersKpis, QuotesKpis, EscrowKpis, CompletedKpis,
@@ -65,7 +60,7 @@ function useSeedFallback<T>(
 
 // ── Active orders ───────────────────────────────────────────────────────────
 export function useOrders(): HookState<OrderRow[]> {
-  return useSeedFallback(SEED_ORDERS, async (sb, wid) => {
+  return useSeedFallback([] as OrderRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("supplier_job_assignments")
       // order_ref doesn't exist on this table; job_id is the live reference. (Result is unused until orders ship — seed is returned below.)
@@ -75,7 +70,7 @@ export function useOrders(): HookState<OrderRow[]> {
       .limit(100)
     if (error) throw error
     // Live shape mapping is intentionally minimal; until orders exist we seed.
-    return data && data.length ? SEED_ORDERS : null
+    return data && data.length ? [] : null
   })
 }
 
@@ -90,26 +85,26 @@ export function useOrdersKpis(orders: OrderRow[]): OrdersKpis {
 
 // ── Quotes / RFQs ───────────────────────────────────────────────────────────
 export function useRfqs(): HookState<RfqRow[]> {
-  return useSeedFallback(SEED_RFQS, async (sb, wid) => {
+  return useSeedFallback([] as RfqRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("supplier_quote_comparisons")
       .select("id, status")
       .eq("operator_workspace_id", wid)
       .limit(50)
     if (error) throw error
-    return data && data.length ? SEED_RFQS : null
+    return data && data.length ? [] : null
   })
 }
 
 export function useQuotes(): HookState<QuoteRow[]> {
-  return useSeedFallback(SEED_QUOTES, async (sb, wid) => {
+  return useSeedFallback([] as QuoteRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("supplier_marketplace_quotes")
       .select("id, status")
       .eq("operator_workspace_id", wid)
       .limit(50)
     if (error) throw error
-    return data && data.length ? SEED_QUOTES : null
+    return data && data.length ? [] : null
   })
 }
 
@@ -125,14 +120,14 @@ export function useQuotesKpis(rfqs: RfqRow[]): QuotesKpis {
 
 // ── Escrow (Work tab) ───────────────────────────────────────────────────────
 export function useOrderEscrows(): HookState<EscrowRow[]> {
-  return useSeedFallback(SEED_ESCROWS, async (sb, wid) => {
+  return useSeedFallback([] as EscrowRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("escrow_payments")
       .select("id, status")
       .eq("workspace_id", wid)
       .limit(100)
     if (error) throw error
-    return data && data.length ? SEED_ESCROWS : null
+    return data && data.length ? [] : null
   })
 }
 
@@ -148,7 +143,7 @@ export function useOrderEscrowKpis(escrows: EscrowRow[]): EscrowKpis {
 
 // ── Completed ───────────────────────────────────────────────────────────────
 export function useCompletedOrders(): HookState<CompletedOrderRow[]> {
-  return useSeedFallback(SEED_COMPLETED, async (sb, wid) => {
+  return useSeedFallback([] as CompletedOrderRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("supplier_job_assignments")
       .select("id, status")
@@ -156,7 +151,7 @@ export function useCompletedOrders(): HookState<CompletedOrderRow[]> {
       .eq("status", "completed")
       .limit(100)
     if (error) throw error
-    return data && data.length ? SEED_COMPLETED : null
+    return data && data.length ? [] : null
   })
 }
 
@@ -170,19 +165,17 @@ export function useCompletedKpis(rows: CompletedOrderRow[]): CompletedKpis {
   }
 }
 
-// ── Detail sub-resources (seed-only, route-stable) ──────────────────────────
+// ── Detail sub-resources ────────────────────────────────────────────────────
 export function useOrderDetail(orderId: string) {
   const orders = useOrders()
   const order = orders.data.find(o => o.id === orderId || o.orderRef === orderId)
-    ?? SEED_ORDERS.find(o => o.id === orderId || o.orderRef === orderId)
-    ?? SEED_ORDERS[0]
   return {
     order,
-    attachments: SEED_ATTACHMENTS,
-    activity: SEED_ACTIVITY,
-    milestones: SEED_MILESTONES,
-    payoutSplits: SEED_PAYOUT_SPLITS,
-    releaseConditions: SEED_RELEASE_CONDITIONS,
+    attachments: [] as import("./types").OrderAttachment[],
+    activity: [] as import("./types").OrderActivity[],
+    milestones: [] as import("./types").OrderMilestone[],
+    payoutSplits: [] as import("./types").PayoutSplit[],
+    releaseConditions: [] as import("./types").ReleaseCondition[],
     loading: orders.loading,
     source: orders.source,
   }
@@ -191,22 +184,18 @@ export function useOrderDetail(orderId: string) {
 export function useQuoteRequestDetail(rfqId: string) {
   const rfqs = useRfqs()
   const rfq = rfqs.data.find(r => r.id === rfqId || r.rfqRef === rfqId)
-    ?? SEED_RFQS.find(r => r.id === rfqId || r.rfqRef === rfqId)
-    ?? SEED_RFQS[0]
-  return { rfq, quotes: SEED_QUOTES, activity: SEED_ACTIVITY, loading: rfqs.loading, source: rfqs.source }
+  return { rfq, quotes: [] as import("./types").QuoteRow[], activity: [] as import("./types").OrderActivity[], loading: rfqs.loading, source: rfqs.source }
 }
 
 export function useEscrowDetail(escrowId: string) {
   const escrows = useOrderEscrows()
   const escrow = escrows.data.find(e => e.id === escrowId || e.escrowId === escrowId)
-    ?? SEED_ESCROWS.find(e => e.id === escrowId || e.escrowId === escrowId)
-    ?? SEED_ESCROWS[0]
   return {
     escrow,
-    payoutSplits: SEED_PAYOUT_SPLITS,
-    releaseConditions: SEED_RELEASE_CONDITIONS,
-    activity: SEED_ACTIVITY,
-    milestones: SEED_MILESTONES,
+    payoutSplits: [] as import("./types").PayoutSplit[],
+    releaseConditions: [] as import("./types").ReleaseCondition[],
+    activity: [] as import("./types").OrderActivity[],
+    milestones: [] as import("./types").OrderMilestone[],
     loading: escrows.loading,
     source: escrows.source,
   }

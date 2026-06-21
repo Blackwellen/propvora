@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -19,7 +19,7 @@ export function UnitFinanceTab({ incomeChart, tenancy, unit }: { incomeChart: In
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <p className="text-[13px] text-slate-500">Rent derived from the active tenancy. Full transactions live in Money.</p>
-        <Link href="/app/money" className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-[12px] font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+        <Link href="/property-manager/money" className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-[12px] font-semibold hover:bg-blue-700 transition-colors shadow-sm">
           Open Money <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>

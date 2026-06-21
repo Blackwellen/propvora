@@ -7,14 +7,38 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { SEED_CATALOGUE, SEED_PACKAGES } from "./seed"
 import type {
   CatalogueData,
   PackagesData,
   CatalogueService,
   ServiceCategory,
   PricingModel,
+  PackageLine,
+  PackageAddon,
 } from "./types"
+
+const IMAGE_PALETTE = [
+  "from-rose-400 to-orange-400",
+  "from-sky-400 to-blue-500",
+  "from-emerald-400 to-teal-500",
+  "from-amber-400 to-orange-500",
+  "from-violet-400 to-indigo-500",
+  "from-cyan-400 to-sky-500",
+]
+
+const EMPTY_CATALOGUE: CatalogueData = {
+  supplier: { name: "", verified: false, rating: 0, reviews: 0 },
+  services: [],
+  kpis: {
+    activeServices: 0, quoteOnlyServices: 0, instantPayServices: 0,
+    emergencyServices: 0, topRevenueServiceName: "—", topRevenuePence: 0,
+  },
+}
+
+const EMPTY_PACKAGES: PackagesData = {
+  packages: [],
+  kpis: { activePackages: 0, mostBookedPackage: "—", packageRevenuePence: 0, addOnAttachRate: 0 },
+}
 
 export interface ServicesHookState<T> {
   data: T
@@ -101,7 +125,7 @@ function mapPricingModel(m: string | null): PricingModel {
 
 // ── Catalogue ──────────────────────────────────────────────────────────────────
 export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
-  return useServicesResource<CatalogueData>(SEED_CATALOGUE, async (supabase, workspaceId) => {
+  return useServicesResource<CatalogueData>(EMPTY_CATALOGUE, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_workspace_services")
       .select("id,name,category,pricing_model,rate_pence,active")
@@ -110,7 +134,6 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
     if (error) return { data: null, denied: isDenied(error) }
     if (!data || data.length === 0) return { data: null }
 
-    const hues = SEED_CATALOGUE.services.map((s) => s.imageHue)
     const services: CatalogueService[] = data.map((r, i) => {
       const model = mapPricingModel(r.pricing_model)
       const cat = (r.category as ServiceCategory) ?? "general"
@@ -119,7 +142,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
         name: r.name ?? "Service",
         category: cat,
         categories: [cat],
-        imageHue: hues[i % hues.length],
+        imageHue: IMAGE_PALETTE[i % IMAGE_PALETTE.length],
         pricingModel: model,
         pricePence: model === "fixed" ? r.rate_pence ?? null : null,
         priceMinPence: model === "range" ? r.rate_pence ?? null : null,
@@ -140,7 +163,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
     )
     return {
       data: {
-        ...SEED_CATALOGUE,
+        supplier: { name: "", verified: false, rating: 0, reviews: 0 },
         services,
         kpis: {
           activeServices: services.filter((s) => s.visible).length,
@@ -157,7 +180,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
 
 // ── Packages ──────────────────────────────────────────────────────────────────
 export function useServicesPackages(): ServicesHookState<PackagesData> {
-  return useServicesResource<PackagesData>(SEED_PACKAGES, async (supabase, workspaceId) => {
+  return useServicesResource<PackagesData>(EMPTY_PACKAGES, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_workspace_packages")
       .select("id,name,description,price_pence,active")
@@ -166,26 +189,37 @@ export function useServicesPackages(): ServicesHookState<PackagesData> {
     if (error) return { data: null, denied: isDenied(error) }
     if (!data || data.length === 0) return { data: null }
 
-    const base = SEED_PACKAGES.packages
-    const packages = data.map((r, i) => {
-      const seed = base[i % base.length]
-      return {
-        ...seed,
-        id: r.id,
-        name: r.name ?? seed.name,
-        description: r.description ?? seed.description,
-        pricingModel: "fixed" as PricingModel,
-        pricePence: r.price_pence ?? seed.pricePence,
-        active: Boolean(r.active),
-      }
-    })
+    const packages = data.map((r, i) => ({
+      id: r.id,
+      name: r.name ?? "Package",
+      description: r.description ?? "",
+      imageHue: IMAGE_PALETTE[i % IMAGE_PALETTE.length],
+      pricingModel: "fixed" as PricingModel,
+      pricePence: r.price_pence ?? null,
+      priceMinPence: null,
+      priceMaxPence: null,
+      marginPence: 0,
+      attachRate: 0,
+      bookings: 0,
+      rating: 0,
+      health: "on_track" as const,
+      mostPopular: false,
+      active: Boolean(r.active),
+      recurring: false,
+      lines: [] as PackageLine[],
+      addons: [] as PackageAddon[],
+      materialsIncluded: [] as string[],
+      materialsExcluded: [] as string[],
+      upsells: [] as { id: string; label: string; attachPct: number }[],
+    }))
     return {
       data: {
-        ...SEED_PACKAGES,
         packages,
         kpis: {
-          ...SEED_PACKAGES.kpis,
           activePackages: packages.filter((p) => p.active).length,
+          mostBookedPackage: packages.length > 0 ? packages[0].name : "—",
+          packageRevenuePence: 0,
+          addOnAttachRate: 0,
         },
       },
     }

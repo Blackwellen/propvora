@@ -10,18 +10,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
-import {
-  SEED_ACTIVE_ADDONS,
-  SEED_ADDON_CATALOG,
-  SEED_BILLING_HISTORY,
-  SEED_BILLING_PROFILE,
-  SEED_CANCELLATION,
-  SEED_PAYMENT_METHOD,
-  SEED_PLANS,
-  SEED_RENEWAL_EVENTS,
-  SEED_SUBSCRIPTION,
-  SEED_SUBSCRIPTION_EVENTS,
-} from "./seed"
+import { SEED_PLANS } from "./seed"
 import type {
   BillingHistoryRow,
   BillingPlan,
@@ -34,6 +23,32 @@ import type {
   SubscriptionAddon,
   SubscriptionEvent,
 } from "./types"
+
+const EMPTY_SUBSCRIPTION: Subscription = {
+  id: "",
+  planCode: "starter",
+  billingCycle: "monthly",
+  status: "trialing",
+  autoRenew: true,
+  currentPeriodStart: null,
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+  cancelledAt: null,
+  basePricePence: 0,
+  currency: "GBP",
+}
+
+const EMPTY_BILLING_PROFILE: BillingProfile = {
+  billingName: "",
+  billingEmail: "",
+  vatNumber: "",
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  postcode: "",
+  country: "GB",
+  taxRateBps: 2000,
+}
 import { isFeatureEnabled } from "@/lib/flags"
 
 function useSeedFallback<T>(
@@ -155,19 +170,19 @@ export function usePlans(): HookState<BillingPlan[]> {
 }
 
 export function useSubscription(): HookState<Subscription> {
-  return useSeedFallback(SEED_SUBSCRIPTION, async (sb, wid) => {
+  return useSeedFallback(EMPTY_SUBSCRIPTION, async (sb, wid) => {
     const { data, error } = await sb
       .from("workspace_subscriptions")
       .select("id")
       .eq("workspace_id", wid)
       .limit(1)
     if (error) throw error
-    return data && data.length ? SEED_SUBSCRIPTION : null
+    return data && data.length ? EMPTY_SUBSCRIPTION : null
   })
 }
 
 export function useActiveAddons(): HookState<SubscriptionAddon[]> {
-  return useSeedFallback(SEED_ACTIVE_ADDONS, async (sb, wid) => {
+  return useSeedFallback([] as SubscriptionAddon[], async (sb, wid) => {
     const { error } = await sb.from("workspace_subscription_addons").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -175,15 +190,15 @@ export function useActiveAddons(): HookState<SubscriptionAddon[]> {
 }
 
 export function useBillingProfile(): HookState<BillingProfile> {
-  return useSeedFallback(SEED_BILLING_PROFILE, async (sb, wid) => {
+  return useSeedFallback(EMPTY_BILLING_PROFILE, async (sb, wid) => {
     const { error } = await sb.from("workspace_billing_profiles").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
   })
 }
 
-export function usePaymentMethod(): HookState<PaymentMethod> {
-  return useSeedFallback(SEED_PAYMENT_METHOD, async (sb, wid) => {
+export function usePaymentMethod(): HookState<PaymentMethod | null> {
+  return useSeedFallback<PaymentMethod | null>(null, async (sb, wid) => {
     const { error } = await sb.from("workspace_payment_methods").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -191,7 +206,7 @@ export function usePaymentMethod(): HookState<PaymentMethod> {
 }
 
 export function useBillingHistory(): HookState<BillingHistoryRow[]> {
-  return useSeedFallback(SEED_BILLING_HISTORY, async (sb, wid) => {
+  return useSeedFallback([] as BillingHistoryRow[], async (sb, wid) => {
     const { error } = await sb.from("workspace_billing_history").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -199,7 +214,7 @@ export function useBillingHistory(): HookState<BillingHistoryRow[]> {
 }
 
 export function useSubscriptionEvents(): HookState<SubscriptionEvent[]> {
-  return useSeedFallback(SEED_SUBSCRIPTION_EVENTS, async (sb, wid) => {
+  return useSeedFallback([] as SubscriptionEvent[], async (sb, wid) => {
     const { error } = await sb.from("workspace_subscription_events").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -207,7 +222,7 @@ export function useSubscriptionEvents(): HookState<SubscriptionEvent[]> {
 }
 
 export function useRenewalEvents(): HookState<RenewalEvent[]> {
-  return useSeedFallback(SEED_RENEWAL_EVENTS, async (sb, wid) => {
+  return useSeedFallback([] as RenewalEvent[], async (sb, wid) => {
     const { error } = await sb.from("workspace_renewal_events").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null
@@ -215,7 +230,7 @@ export function useRenewalEvents(): HookState<RenewalEvent[]> {
 }
 
 export function useCancellation(): HookState<CancellationRequest | null> {
-  return useSeedFallback(SEED_CANCELLATION, async (sb, wid) => {
+  return useSeedFallback<CancellationRequest | null>(null, async (sb, wid) => {
     const { error } = await sb.from("workspace_cancellation_requests").select("id").eq("workspace_id", wid).limit(1)
     if (error) throw error
     return null

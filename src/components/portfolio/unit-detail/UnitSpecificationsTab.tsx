@@ -63,7 +63,7 @@ export function UnitSpecificationsTab({ unit, complianceItems, complianceLoaded,
             <Shield className="w-4 h-4 text-blue-500" />
             <span className="text-[13px] font-bold text-slate-900">Certificates & Compliance</span>
           </div>
-          <Link href={`/app/compliance?unit=${unit.id}`} className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+          <Link href={`/property-manager/compliance?unit=${unit.id}`} className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
             Open <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>

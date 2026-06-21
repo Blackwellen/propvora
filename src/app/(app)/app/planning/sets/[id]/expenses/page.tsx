@@ -134,7 +134,7 @@ export default function ExpensesPage() {
           5A Expenses
         </button>
         <button
-          onClick={() => router.push(`/app/planning/sets/${id}/bills`)}
+          onClick={() => router.push(`/property-manager/planning/sets/${id}/bills`)}
           className="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
         >
           5B Bills

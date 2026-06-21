@@ -420,7 +420,7 @@ export default function WorkReportsPage() {
       icon: Timer,
       iconBg: "bg-violet-50",
       iconColor: "text-violet-600",
-      value: metrics.avgDays > 0 ? `${metrics.avgDays}d` : "—",
+      value: metrics.avgDays > 0 ? `${metrics.avgDays}d` : "0d",
       label: "Avg Completion",
       sub: "Created → done",
       subColor: "text-slate-500",

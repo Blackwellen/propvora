@@ -86,7 +86,7 @@ export default function CompliancePage() {
           <AlertTriangle className="w-6 h-6 text-red-500" />
         </div>
         <div className="text-slate-700 font-semibold">{error}</div>
-        <Link href="/app/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
+        <Link href="/property-manager/planning/sets" className="text-sm text-[#7C3AED] hover:underline">Back to planning sets</Link>
       </div>
     )
   }

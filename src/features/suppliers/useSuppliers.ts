@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useQuery } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
@@ -98,99 +98,6 @@ export function mapContactToSupplier(c: Contact): SupplierView {
 }
 
 // ============================================================
-// Seed fallback (used only when the contacts table is missing
-// or there are no supplier contacts yet)
-// ============================================================
-
-export const SEED_SUPPLIERS: SupplierView[] = [
-  {
-    id: "seed-jw-electrical",
-    name: "James Wright Electrical Ltd",
-    initials: "JW",
-    avatarBg: avatarColor("seed-jw-electrical"),
-    trade: "Electrical",
-    category: "Electrical Contractor",
-    location: "London, EC1",
-    email: "hello@jwelectrical.co.uk",
-    phone: "+44 20 7946 0102",
-    company: "James Wright Electrical Ltd",
-    notes: "Excellent response times on emergency jobs. Preferred for East London properties.",
-    tags: ["preferred", "electrical"],
-    preferred: true,
-    status: "active",
-    isSeed: true,
-  },
-  {
-    id: "seed-ah-plumbing",
-    name: "AH Plumbing & Heating",
-    initials: "AH",
-    avatarBg: avatarColor("seed-ah-plumbing"),
-    trade: "Plumbing",
-    category: "Plumbing & Heating",
-    location: "Manchester, M1",
-    email: "office@ahplumbing.co.uk",
-    phone: "+44 161 496 0117",
-    company: "AH Plumbing & Heating",
-    notes: "Use for commercial boiler installations. Very reliable and compliant.",
-    tags: ["preferred", "plumbing"],
-    preferred: true,
-    status: "active",
-    isSeed: true,
-  },
-  {
-    id: "seed-sm-gas",
-    name: "Sarah Mitchell Gas Services",
-    initials: "SM",
-    avatarBg: avatarColor("seed-sm-gas"),
-    trade: "Gas",
-    category: "Gas Engineer",
-    location: "Birmingham, B1",
-    email: "sarah@smgas.co.uk",
-    phone: "+44 121 496 0133",
-    company: "Sarah Mitchell Gas Services",
-    notes: "Gas Safe registered. Fast turnaround on landlord safety certificates.",
-    tags: ["preferred", "gas"],
-    preferred: true,
-    status: "active",
-    isSeed: true,
-  },
-  {
-    id: "seed-elite-electrical",
-    name: "Elite Electrical Services",
-    initials: "EE",
-    avatarBg: avatarColor("seed-elite-electrical"),
-    trade: "Electrical",
-    category: "MEP Services",
-    location: "Leeds, LS1",
-    email: "contact@eliteelectrical.co.uk",
-    phone: "+44 113 496 0148",
-    company: "Elite Electrical Services",
-    notes: null,
-    tags: ["electrical"],
-    preferred: false,
-    status: "active",
-    isSeed: true,
-  },
-  {
-    id: "seed-green-clean",
-    name: "Green Clean Solutions",
-    initials: "GC",
-    avatarBg: avatarColor("seed-green-clean"),
-    trade: "Cleaning",
-    category: "Facilities Management",
-    location: "Bristol, BS1",
-    email: "hello@greenclean.co.uk",
-    phone: "+44 117 496 0159",
-    company: "Green Clean Solutions",
-    notes: null,
-    tags: ["cleaning"],
-    preferred: false,
-    status: "active",
-    isSeed: true,
-  },
-]
-
-// ============================================================
 // LIST hook — supplier contacts for a workspace
 // ============================================================
 
@@ -234,8 +141,8 @@ export function useSuppliers(workspaceId: string | undefined): UseSuppliersResul
   const hasLive = live.length > 0
 
   return {
-    suppliers: hasLive ? live : SEED_SUPPLIERS,
-    isSeed: !hasLive,
+    suppliers: live,
+    isSeed: false,
     loading: query.isLoading,
   }
 }
@@ -288,8 +195,5 @@ export function useSupplier(
     return { supplier: live, isSeed: false, loading: query.isLoading }
   }
 
-  // Seed fallback when the contact / table is missing.
-  const seed =
-    SEED_SUPPLIERS.find((s) => s.id === supplierId) ?? SEED_SUPPLIERS[0] ?? null
-  return { supplier: seed, isSeed: true, loading: query.isLoading }
+  return { supplier: null, isSeed: false, loading: query.isLoading }
 }

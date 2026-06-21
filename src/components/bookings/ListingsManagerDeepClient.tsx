@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
@@ -56,7 +56,7 @@ export function ListingsManagerDeepClient({
         propertyId: propertyId || null,
       })
       if (res.ok && res.data) {
-        router.push(`/app/bookings/listings/${res.data.id}`)
+        router.push(`/property-manager/bookings/listings/${res.data.id}`)
       } else {
         setErr(res.error ?? "Could not create the listing.")
       }
@@ -66,7 +66,7 @@ export function ListingsManagerDeepClient({
   if (!canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Listings" subtitle="Booking management" showBack backHref="/app/bookings" />
+        <MobileTopBar title="Listings" subtitle="Booking management" showBack backHref="/property-manager/bookings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={planName} reason={upgradeReason} />
         </div>
@@ -76,7 +76,7 @@ export function ListingsManagerDeepClient({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Listings" subtitle="Direct booking inventory" showBack backHref="/app/bookings" />
+      <MobileTopBar title="Listings" subtitle="Direct booking inventory" showBack backHref="/property-manager/bookings" />
 
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <ListingsHeader count={listings.length} onNew={() => setShowCreate(true)} />

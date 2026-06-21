@@ -117,7 +117,7 @@ export default function UnitDetailPage() {
             <p className="text-[15px] font-bold text-slate-700">Unit not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This unit doesn't exist or you don't have access to it.</p>
           </div>
-          <Link href="/app/portfolio/units" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/units" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Units
           </Link>
         </div>
@@ -144,11 +144,11 @@ export default function UnitDetailPage() {
         title={displayUnit.unit_name}
         subtitle={displayUnit.unit_type ?? "Unit"}
         showBack
-        backHref="/app/portfolio/units"
-        primaryAction={{ label: "New tenancy", icon: Plus, href: `/app/portfolio/tenancies/new?unitId=${unitId}` }}
+        backHref="/property-manager/portfolio/units"
+        primaryAction={{ label: "New tenancy", icon: Plus, href: `/property-manager/portfolio/tenancies/new?unitId=${unitId}` }}
         overflowActions={[
-          ...(displayUnit.property_id ? [{ label: "View parent property", icon: Building2, href: `/app/portfolio/properties/${displayUnit.property_id}` }] : []),
-          { label: "View work", icon: Wrench, href: `/app/work?unitId=${unitId}` },
+          ...(displayUnit.property_id ? [{ label: "View parent property", icon: Building2, href: `/property-manager/portfolio/properties/${displayUnit.property_id}` }] : []),
+          { label: "View work", icon: Wrench, href: `/property-manager/work?unitId=${unitId}` },
           { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },
         ]}
       />
@@ -158,13 +158,13 @@ export default function UnitDetailPage() {
         <div className="flex items-center justify-between">
           {/* Left: breadcrumb */}
           <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
-            <Link href="/app/portfolio" className="hover:text-blue-600 font-medium">Portfolio</Link>
+            <Link href="/property-manager/portfolio" className="hover:text-blue-600 font-medium">Portfolio</Link>
             <ChevronRight className="w-3 h-3 text-slate-300" />
-            <Link href="/app/portfolio/properties" className="hover:text-blue-600 font-medium">Properties</Link>
+            <Link href="/property-manager/portfolio/properties" className="hover:text-blue-600 font-medium">Properties</Link>
             {displayUnit.property_id && (
               <>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
-                <Link href={`/app/portfolio/properties/${displayUnit.property_id}`} className="hover:text-blue-600 font-medium">Property</Link>
+                <Link href={`/property-manager/portfolio/properties/${displayUnit.property_id}`} className="hover:text-blue-600 font-medium">Property</Link>
               </>
             )}
             <ChevronRight className="w-3 h-3 text-slate-300" />
@@ -173,7 +173,7 @@ export default function UnitDetailPage() {
 
           {/* Right: actions */}
           <div className="flex items-center gap-2">
-            <Link href={`/app/portfolio/tenancies/new?unitId=${unitId}`} className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white rounded-xl text-[12px] font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+            <Link href={`/property-manager/portfolio/tenancies/new?unitId=${unitId}`} className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white rounded-xl text-[12px] font-semibold hover:bg-blue-700 transition-colors shadow-sm">
               <Plus className="w-3.5 h-3.5" /> New Tenancy
             </Link>
             <button
@@ -224,7 +224,7 @@ export default function UnitDetailPage() {
             <div className="text-[12px] text-slate-500 flex items-center gap-1.5 mt-0.5">
               <MapPin className="w-3 h-3" />
               {displayUnit.unit_type ?? "Unit"}{displayUnit.property_id ? (
-                <Link href={`/app/portfolio/properties/${displayUnit.property_id}`} className="text-blue-600 hover:underline ml-1">
+                <Link href={`/property-manager/portfolio/properties/${displayUnit.property_id}`} className="text-blue-600 hover:underline ml-1">
                   · View Property
                 </Link>
               ) : ""}
@@ -237,15 +237,15 @@ export default function UnitDetailPage() {
               confirmLabel="Delete unit"
               onConfirm={async () => {
                 await deleteUnit.mutateAsync({ id: unitId, workspaceId: workspace!.id, propertyId: displayUnit.property_id })
-                router.push("/app/portfolio/units")
+                router.push("/property-manager/portfolio/units")
               }}
             >
               {(openDelete) => (
                 <ActionMenu
                   items={[
-                    { label: "View parent property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${displayUnit.property_id}`) },
-                    { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?unitId=${unitId}`) },
-                    { label: "View work", icon: Wrench, onClick: () => router.push(`/app/work?unitId=${unitId}`) },
+                    { label: "View parent property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${displayUnit.property_id}`) },
+                    { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?unitId=${unitId}`) },
+                    { label: "View work", icon: Wrench, onClick: () => router.push(`/property-manager/work?unitId=${unitId}`) },
                     { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },
                     { label: "Delete unit", icon: Trash2, variant: "danger", onClick: openDelete },
                   ]}

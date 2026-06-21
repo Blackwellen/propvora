@@ -46,7 +46,7 @@ export default async function AutomationCanvasPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1500px] space-y-4 px-6 pb-12">
+    <div className="mx-auto max-w-[1500px] space-y-4 pb-12">
       <AutomationsTabs />
       <CanvasClient workspaceId={workspaceId ?? undefined} />
     </div>

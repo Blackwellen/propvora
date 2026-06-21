@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
@@ -194,10 +194,10 @@ export function MarketplaceBrowseClient({
         subtitle="Browse services, suppliers & listings"
         primaryAction={
           canPublish
-            ? { label: "My listings", icon: Plus, href: "/app/marketplace/my-listings" }
+            ? { label: "My listings", icon: Plus, href: "/property-manager/marketplace/my-listings" }
             : undefined
         }
-        overflowActions={[{ label: "My listings", icon: Store, href: "/app/marketplace/my-listings" }]}
+        overflowActions={[{ label: "My listings", icon: Store, href: "/property-manager/marketplace/my-listings" }]}
       />
 
       <div className="hidden md:block">
@@ -207,14 +207,14 @@ export function MarketplaceBrowseClient({
           actions={
             <div className="flex items-center gap-2">
               <Button variant="outline" size="md" asChild>
-                <Link href="/app/marketplace/my-listings">
+                <Link href="/property-manager/marketplace/my-listings">
                   <Store className="w-4 h-4" />
                   My listings
                 </Link>
               </Button>
               {canPublish && (
                 <Button variant="primary" size="md" asChild>
-                  <Link href="/app/marketplace/my-listings?new=1">
+                  <Link href="/property-manager/marketplace/my-listings?new=1">
                     <Plus className="w-4 h-4" />
                     New listing
                   </Link>
@@ -239,7 +239,7 @@ export function MarketplaceBrowseClient({
             </p>
             <div className="mt-6">
               <Button variant="primary" size="md" asChild>
-                <Link href="/app/workspace-settings/subscription">View plans</Link>
+                <Link href="/property-manager/workspace-settings/subscription">View plans</Link>
               </Button>
             </div>
           </div>

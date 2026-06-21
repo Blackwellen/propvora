@@ -353,7 +353,7 @@ export default function EditInvoicePage() {
 
   // Redirect if invoice not found
   useEffect(() => {
-    if (notFound) router.replace("/app/money/invoices")
+    if (notFound) router.replace("/property-manager/money/invoices")
   }, [notFound, router])
 
   // Derive a display-safe source object for breadcrumb / header
@@ -386,7 +386,7 @@ export default function EditInvoicePage() {
     setIsSaving(true)
     await new Promise(r => setTimeout(r, 1200))
     setIsSaving(false)
-    router.push(`/app/money/invoices/${id}`)
+    router.push(`/property-manager/money/invoices/${id}`)
   }
 
   if (loadingInvoice) {
@@ -402,14 +402,14 @@ export default function EditInvoicePage() {
       {showCancelModal && (
         <CancelConfirmModal
           onClose={() => setShowCancelModal(false)}
-          onConfirm={() => { setShowCancelModal(false); router.push(`/app/money/invoices/${id}`) }}
+          onConfirm={() => { setShowCancelModal(false); router.push(`/property-manager/money/invoices/${id}`) }}
         />
       )}
       {showDeleteModal && (
         <DeleteConfirmModal
           invoiceNumber={source.invoice_number}
           onClose={() => setShowDeleteModal(false)}
-          onConfirm={() => { setShowDeleteModal(false); router.push("/app/money/invoices") }}
+          onConfirm={() => { setShowDeleteModal(false); router.push("/property-manager/money/invoices") }}
         />
       )}
 
@@ -418,15 +418,15 @@ export default function EditInvoicePage() {
           title="Edit Invoice"
           subtitle={source.invoice_number}
           showBack
-          backHref={`/app/money/invoices/${id}`}
+          backHref={`/property-manager/money/invoices/${id}`}
         />
         {/* Breadcrumb */}
         <div className="hidden md:flex items-center gap-2 mb-6">
-          <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+          <Link href="/property-manager/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Invoices
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href={`/app/money/invoices/${id}`} className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
+          <Link href={`/property-manager/money/invoices/${id}`} className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
             {source.invoice_number}
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -580,7 +580,7 @@ export default function EditInvoicePage() {
                 <div style={{ color: "#D97706" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
                 <p className="text-xs text-amber-700">
                   Stripe is not connected. Connect at{" "}
-                  <Link href="/app/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
+                  <Link href="/property-manager/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
                   to enable online payment links.
                 </p>
               </div>
@@ -714,7 +714,7 @@ export default function EditInvoicePage() {
             </div>
             <div className="flex items-center gap-3">
               <Link
-                href={`/app/money/invoices/${id}`}
+                href={`/property-manager/money/invoices/${id}`}
                 className="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 Cancel

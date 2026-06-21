@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo } from "react"
 import Link from "next/link"
@@ -114,7 +114,7 @@ export default function ForecastsPage() {
           <FolderOpen className="w-8 h-8 text-slate-300 mx-auto mb-3" />
           <p className="text-[14px] font-semibold text-slate-700">No forecast data yet</p>
           <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">Create planning sets with income and cost figures to project combined cashflow here.</p>
-          <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
+          <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
         </div>
       ) : (
         <>
@@ -179,7 +179,7 @@ export default function ForecastsPage() {
                   {rankedPlans.map((plan, i) => (
                     <button
                       key={plan.id}
-                      onClick={() => router.push(`/app/planning/sets/${plan.id}/overview`)}
+                      onClick={() => router.push(`/property-manager/planning/sets/${plan.id}/overview`)}
                       className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                     >
                       <span className="text-[12px] font-bold text-slate-400 w-4 shrink-0">{i + 1}</span>

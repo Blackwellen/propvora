@@ -199,7 +199,7 @@ export async function issueShareLink(input: {
     ip: await clientIp(),
   })
 
-  revalidatePath("/app/contacts/portal-access")
+  revalidatePath("/property-manager/contacts/portal-access")
 
   return {
     ok: true,
@@ -251,6 +251,6 @@ export async function revokeShareLink(input: {
     ip: await clientIp(),
   })
 
-  revalidatePath("/app/contacts/portal-access")
+  revalidatePath("/property-manager/contacts/portal-access")
   return { ok: true }
 }

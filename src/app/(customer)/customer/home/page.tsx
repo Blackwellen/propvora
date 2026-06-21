@@ -1,18 +1,11 @@
-import { createClient } from "@/lib/supabase/server"
-import HomePage from "@/features/customer/home/HomePage"
+import { redirect } from "next/navigation"
 
-export const metadata = { title: "Home · Propvora" }
-
-export default async function CustomerHomeRoute() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const meta = (user?.user_metadata ?? {}) as { full_name?: string; name?: string }
-  const display = meta.full_name || meta.name || user?.email?.split("@")[0] || "there"
-  const firstName = display.split(/[\s.@]+/)[0]
-  const pretty = firstName.charAt(0).toUpperCase() + firstName.slice(1)
-
-  return <HomePage firstName={pretty} />
+/**
+ * /customer/home → redirect to the canonical customer dashboard at /customer.
+ *
+ * The live-data server-component dashboard lives at src/app/(customer)/customer/page.tsx.
+ * This redirect ensures any bookmarked /customer/home URL is sent to the real page.
+ */
+export default function CustomerHomeRedirect() {
+  redirect("/customer")
 }

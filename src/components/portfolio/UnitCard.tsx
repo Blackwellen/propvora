@@ -86,7 +86,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
     : "Unit"
 
   return (
-    <Link href={`/app/portfolio/units/${unit.id}`} className="block group">
+    <Link href={`/property-manager/portfolio/units/${unit.id}`} className="block group">
       <article className={cn(
         "relative bg-white rounded-2xl overflow-hidden",
         "border border-slate-200/80",
@@ -118,9 +118,9 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
             <ActionMenu
               align="right"
               items={[
-                { label: "View unit", icon: Eye, onClick: () => router.push(`/app/portfolio/units/${unit.id}`) },
-                { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?unitId=${unit.id}`) },
-                { label: "Add work order", icon: Plus, onClick: () => router.push(`/app/portfolio/maintenance/new?unitId=${unit.id}`) },
+                { label: "View unit", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/units/${unit.id}`) },
+                { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?unitId=${unit.id}`) },
+                { label: "Add work order", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/maintenance/new?unitId=${unit.id}`) },
                 { label: "Archive unit", icon: Archive, onClick: () => {} },
               ]}
             />
@@ -185,9 +185,9 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
             {/* Rent */}
             <div className="text-right shrink-0">
               <p className="text-[14px] font-black text-slate-900 leading-none">
-                {unit.target_rent ? fmt(unit.target_rent) : <span className="text-slate-300 text-xs">—</span>}
+                {fmt(unit.target_rent ?? 0)}
               </p>
-              {unit.target_rent && <p className="text-[9.5px] text-slate-500 mt-0.5">/mo</p>}
+              <p className="text-[9.5px] text-slate-500 mt-0.5">/mo</p>
             </div>
           </div>
 

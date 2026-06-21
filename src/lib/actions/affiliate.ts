@@ -107,6 +107,55 @@ export async function submitAffiliateApplication(input: {
   return { ok: true, referralCode }
 }
 
+// ── Update affiliate profile (handle + payout email) ────────────────────────
+
+export async function updateAffiliateProfile(
+  workspaceId: string,
+  input: { publicHandle: string | null; payoutEmail: string | null }
+): Promise<AffiliateActionResult> {
+  if (!workspaceId) return { ok: false, error: "No workspace selected." }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "Please sign in." }
+
+  // Must be owner/admin of the workspace.
+  const { data: member } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+  if (!member || !["owner", "admin"].includes((member.role as string) ?? "")) {
+    return { ok: false, error: "Only a workspace owner or admin can update affiliate settings." }
+  }
+
+  const handle = (input.publicHandle ?? "").trim() || null
+  const payoutEmail = (input.payoutEmail ?? "").trim() || null
+
+  if (handle && !/^[a-z0-9_-]{3,32}$/i.test(handle)) {
+    return { ok: false, error: "Handle must be 3–32 characters (letters, numbers, - _)." }
+  }
+  if (payoutEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payoutEmail)) {
+    return { ok: false, error: "Please enter a valid payout email address." }
+  }
+
+  const { error } = await supabase
+    .from("affiliates")
+    .update({ public_handle: handle, payout_email: payoutEmail, updated_at: new Date().toISOString() })
+    .eq("workspace_id", workspaceId)
+
+  if (error) {
+    if (isMissingTable(error.code)) {
+      return { ok: false, error: "Affiliate programme not yet available." }
+    }
+    console.error("[updateAffiliateProfile]", error)
+    return { ok: false, error: "Could not save settings." }
+  }
+
+  return { ok: true }
+}
+
 // ── Internal door: one-click enrol for an existing workspace ────────────────
 
 export async function enrolWorkspaceAffiliate(workspaceId: string): Promise<AffiliateActionResult> {

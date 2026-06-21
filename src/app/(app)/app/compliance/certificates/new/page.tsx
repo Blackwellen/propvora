@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useRef, useState } from "react"
 import Link from "next/link"
@@ -756,12 +756,12 @@ export default function NewCertificatePage() {
           </div>
           <div className="flex gap-3">
             {newId ? (
-              <Button variant="primary" size="lg" onClick={() => router.push(`/app/compliance/certificates/${newId}`)}>
+              <Button variant="primary" size="lg" onClick={() => router.push(`/property-manager/compliance/certificates/${newId}`)}>
                 View Certificate
               </Button>
             ) : null}
             <Button variant="outline" size="lg" asChild>
-              <Link href="/app/compliance/certificates">Back to Certificates</Link>
+              <Link href="/property-manager/compliance/certificates">Back to Certificates</Link>
             </Button>
           </div>
         </div>
@@ -782,9 +782,9 @@ export default function NewCertificatePage() {
       {/* Breadcrumb */}
       <div className="px-6 py-3 border-b border-slate-100 bg-white">
         <nav className="flex items-center gap-2 text-sm">
-          <Link href="/app/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
+          <Link href="/property-manager/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <Link href="/app/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
+          <Link href="/property-manager/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-slate-700 font-medium">Add Certificate</span>
         </nav>

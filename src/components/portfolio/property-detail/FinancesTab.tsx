@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -23,7 +23,7 @@ export function FinancesTab({ tenanciesList, unitsList, prop }: { tenanciesList:
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <p className="text-[13px] text-slate-500">Rent roll derived from live tenancies. Full transactions, arrears and reports live in Money.</p>
-        <Link href="/app/money" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+        <Link href="/property-manager/money" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
           Open Money <ArrowUpRight size={13} />
         </Link>
       </div>
@@ -69,7 +69,7 @@ export function FinancesTab({ tenanciesList, unitsList, prop }: { tenanciesList:
                 {activeTenancies.map((t) => (
                   <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
-                      <Link href={`/app/portfolio/tenancies/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                      <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="font-medium text-blue-600 hover:underline">
                         {t.reference ?? t.id.slice(0, 8)}
                       </Link>
                     </td>

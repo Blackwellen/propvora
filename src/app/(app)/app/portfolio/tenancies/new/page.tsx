@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -98,7 +98,7 @@ function StepProperty({ data, onChange, properties, units }: {
         <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
           {properties.length === 0 ? (
             <div className="py-6 text-center text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
-              No properties — <Link href="/app/portfolio/properties/new" className="text-[#2563EB] underline">add one first</Link>
+              No properties — <Link href="/property-manager/portfolio/properties/new" className="text-[#2563EB] underline">add one first</Link>
             </div>
           ) : (
             properties.map((p) => (
@@ -418,7 +418,7 @@ export default function NewTenancyPage() {
         notes: data.notes || undefined,
         status: "active",
       })
-      router.push(`/app/portfolio/tenancies/${tenancy.id}`)
+      router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`)
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to create tenancy")
       setSaving(false)
@@ -432,11 +432,11 @@ export default function NewTenancyPage() {
         title="Create Tenancy"
         subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
         showBack
-        backHref="/app/portfolio/tenancies"
+        backHref="/property-manager/portfolio/tenancies"
       />
 
       <div className="hidden md:block mb-6">
-        <Link href="/app/portfolio/tenancies" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        <Link href="/property-manager/portfolio/tenancies" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ChevronLeft className="w-4 h-4" />Back to Tenancies
         </Link>
         <h1 className="text-2xl font-bold text-slate-900">Create Tenancy</h1>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { PoundSterling, TrendingUp } from "lucide-react"
@@ -25,7 +25,7 @@ function StatRow({
       <div className="flex-1 min-w-0">
         <p className="text-[11px] text-slate-400">{label}</p>
         <p className="text-[14px] font-bold text-slate-900">
-          {value === 0 ? "—" : `£${value.toLocaleString("en-GB")}`}
+          {`£${value.toLocaleString("en-GB")}`}
         </p>
       </div>
     </>
@@ -53,8 +53,8 @@ export function HomeMoneySnapshotCard({ data }: HomeMoneySnapshotCardProps) {
       </div>
 
       <div className="flex flex-col gap-3 flex-1">
-        <StatRow label="Rent roll (active)" value={data.income} dotColor="bg-emerald-500" href="/app/money/income" />
-        <StatRow label="Outstanding invoices" value={data.expenses} dotColor="bg-red-500" href="/app/money/invoices" />
+        <StatRow label="Rent roll (active)" value={data.income} dotColor="bg-emerald-500" href="/property-manager/money/income" />
+        <StatRow label="Outstanding invoices" value={data.expenses} dotColor="bg-red-500" href="/property-manager/money/invoices" />
 
         <div className="border-t border-slate-100 pt-2">
           <div className="flex items-center gap-2.5">
@@ -62,7 +62,7 @@ export function HomeMoneySnapshotCard({ data }: HomeMoneySnapshotCardProps) {
             <div className="flex-1 min-w-0">
               <p className="text-[11px] text-slate-400">Net cashflow</p>
               <p className={`text-[14px] font-bold ${data.netCashflow >= 0 ? "text-emerald-700" : "text-red-600"}`}>
-                {data.netCashflow === 0 ? "—" : `${data.netCashflow < 0 ? "-" : ""}£${Math.abs(data.netCashflow).toLocaleString("en-GB")}`}
+                {`${data.netCashflow < 0 ? "-" : ""}£${Math.abs(data.netCashflow).toLocaleString("en-GB")}`}
               </p>
             </div>
             {hasData && (
@@ -83,7 +83,7 @@ export function HomeMoneySnapshotCard({ data }: HomeMoneySnapshotCardProps) {
 
       <div className="pt-2 border-t border-slate-100">
         <Link
-          href="/app/money"
+          href="/property-manager/money"
           className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
         >
           View money →

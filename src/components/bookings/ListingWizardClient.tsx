@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
@@ -261,7 +261,7 @@ export function ListingWizardClient({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title={initial.title} subtitle="Listing setup" showBack backHref="/app/bookings/listings" />
+      <MobileTopBar title={initial.title} subtitle="Listing setup" showBack backHref="/property-manager/bookings/listings" />
 
       {toast && (
         <div
@@ -277,7 +277,7 @@ export function ListingWizardClient({
 
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <div className="hidden md:flex items-center gap-2 text-sm">
-          <Link href="/app/bookings/listings" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700">
+          <Link href="/property-manager/bookings/listings" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700">
             <ArrowLeft className="w-4 h-4" />
             Listings
           </Link>
@@ -494,7 +494,7 @@ export function ListingWizardClient({
                     Open next 180 days
                   </button>
                   <Link
-                    href={`/app/bookings/calendar?listing=${initial.id}`}
+                    href={`/property-manager/bookings/calendar?listing=${initial.id}`}
                     className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 ml-2"
                   >
                     Open calendar

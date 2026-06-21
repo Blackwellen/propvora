@@ -1,7 +1,7 @@
 import ApprovalsPage from "@/features/automations/pages/ApprovalsPage"
 
 export const metadata = {
-  title: "Automation approvals - Propvora",
+  title: "Review Inbox - Automations - Propvora",
   description: "Review and approve automation decisions before they're executed.",
 }
 

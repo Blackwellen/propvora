@@ -252,7 +252,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source,
           sourceLabel: SOURCE_META[source].label,
           status: mapNativeStatus((meta.status ?? null) as string | null),
-          href: `/app/calendar/events/${e.id}`,
+          href: `/property-manager/calendar/events/${e.id}`,
           propertyId: e.property_id ?? null,
           isNative: true,
         })
@@ -275,7 +275,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'work',
           sourceLabel: 'Work',
           status: deriveStatus(new Date(due), today, { done, cancelled }),
-          href: `/app/work/tasks/${t.id}`,
+          href: `/property-manager/work/tasks/${t.id}`,
           propertyId: t.property_id ?? null,
           isNative: false,
         })
@@ -298,7 +298,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'work',
           sourceLabel: 'Work',
           status: deriveStatus(new Date(when), today, { done, cancelled }),
-          href: `/app/work/jobs/${j.id}`,
+          href: `/property-manager/work/jobs/${j.id}`,
           propertyId: j.property_id ?? null,
           isNative: false,
         })
@@ -319,7 +319,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'work',
           sourceLabel: 'Work',
           status: deriveStatus(new Date(when), today, { cancelled: s.active === false }),
-          href: `/app/work/jobs`,
+          href: `/property-manager/work/jobs`,
           propertyId: s.property_id ?? null,
           isNative: false,
         })
@@ -342,7 +342,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'work',
           sourceLabel: 'Work',
           status: deriveStatus(new Date(when), today, { done, cancelled }),
-          href: `/app/work/ppm/${p.id}`,
+          href: `/property-manager/work/ppm/${p.id}`,
           propertyId: p.property_id ?? null,
           isNative: false,
         })
@@ -363,7 +363,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
             source: 'portfolio',
             sourceLabel: 'Portfolio',
             status: deriveStatus(new Date(tn.start_date), today, { done: tn.status === 'active' || ended }),
-            href: `/app/portfolio/tenancies/${tn.id}`,
+            href: `/property-manager/portfolio/tenancies/${tn.id}`,
             propertyId: tn.property_id ?? null,
             isNative: false,
           })
@@ -380,7 +380,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
             source: 'portfolio',
             sourceLabel: 'Portfolio',
             status: deriveStatus(new Date(tn.end_date), today, { done: ended }),
-            href: `/app/portfolio/tenancies/${tn.id}`,
+            href: `/property-manager/portfolio/tenancies/${tn.id}`,
             propertyId: tn.property_id ?? null,
             isNative: false,
           })
@@ -406,7 +406,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'money',
           sourceLabel: 'Money',
           status: deriveStatus(new Date(when), today, { done: paid, cancelled }),
-          href: `/app/money/rent-chase`,
+          href: `/property-manager/money/rent-chase`,
           propertyId: null,
           isNative: false,
         })
@@ -429,7 +429,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'money',
           sourceLabel: 'Money',
           status: resolved ? 'completed' : deriveStatus(new Date(when), today, {}),
-          href: `/app/money/arrears`,
+          href: `/property-manager/money/arrears`,
           propertyId: a.property_id ?? null,
           isNative: false,
         })
@@ -453,7 +453,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'compliance',
           sourceLabel: 'Compliance',
           status: deriveStatus(new Date(when), today, { done, cancelled }),
-          href: `/app/compliance/coverage`,
+          href: `/property-manager/compliance/coverage`,
           propertyId: ci.property_id ?? null,
           isNative: false,
         })
@@ -479,7 +479,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
             source: 'compliance',
             sourceLabel: 'Compliance',
             status: deriveStatus(new Date(when), today, {}),
-            href: `/app/portfolio/properties/${pr.id}`,
+            href: `/property-manager/portfolio/properties/${pr.id}`,
             propertyId: pr.id,
             isNative: false,
           })
@@ -502,7 +502,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'compliance',
           sourceLabel: 'Compliance',
           status: deriveStatus(new Date(when), today, { done }),
-          href: `/app/compliance/inspections/${ins.id}`,
+          href: `/property-manager/compliance/inspections/${ins.id}`,
           propertyId: ins.property_id ?? null,
           isNative: false,
         })
@@ -525,7 +525,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           source: 'planning',
           sourceLabel: 'Planning',
           status: deriveStatus(new Date(when), today, { done }),
-          href: `/app/planning/landlord-offers/${o.id}`,
+          href: `/property-manager/planning/landlord-offers/${o.id}`,
           propertyId: null,
           isNative: false,
         })

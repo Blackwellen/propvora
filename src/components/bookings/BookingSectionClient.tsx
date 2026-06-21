@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import {
@@ -66,7 +66,7 @@ export function BookingSectionClient({
   if (!canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title={module.label} subtitle="Booking management" showBack backHref="/app/bookings" />
+        <MobileTopBar title={module.label} subtitle="Booking management" showBack backHref="/property-manager/bookings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={planName} reason={upgradeReason} />
         </div>
@@ -76,15 +76,15 @@ export function BookingSectionClient({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title={module.label} subtitle="Booking management" showBack backHref="/app/bookings" />
+      <MobileTopBar title={module.label} subtitle="Booking management" showBack backHref="/property-manager/bookings" />
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <SectionHeader
-          breadcrumb={[{ label: "Bookings", href: "/app/bookings" }, { label: module.label }]}
+          breadcrumb={[{ label: "Bookings", href: "/property-manager/bookings" }, { label: module.label }]}
           title={module.label}
           subtitle={module.summary}
           actions={
             <Link
-              href={section === "listings" ? "/app/bookings/listings" : "/app/bookings"}
+              href={section === "listings" ? "/property-manager/bookings/listings" : "/property-manager/bookings"}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />

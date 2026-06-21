@@ -117,6 +117,7 @@ export function ArchivedTab({ env, rows }: { env: RequestsEnvelope<PipelineReque
               </div>
             ) : (
               <SupplierCard className="overflow-hidden">
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50/60">
@@ -140,6 +141,7 @@ export function ArchivedTab({ env, rows }: { env: RequestsEnvelope<PipelineReque
                     })}
                   </tbody>
                 </table>
+                </div>
               </SupplierCard>
             )}
             {(view === "table" || view === "detail") && (

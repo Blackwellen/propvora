@@ -71,8 +71,22 @@ export default function GlobalSettingsClient({ initial, notConfigured }: { initi
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto no-scrollbar rounded-xl border border-[#E2EAF6] bg-white p-1">
+      {/* Mobile dropdown — shown only below md breakpoint */}
+      <div className="md:hidden">
+        <select
+          value={tab}
+          onChange={(e) => setTab(e.target.value as TabKey)}
+          className="w-full rounded-lg border border-[#E2EAF6] bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Navigate section"
+        >
+          {TABS.map((t) => (
+            <option key={t.key} value={t.key}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tabs — hidden below md */}
+      <div className="hidden md:flex gap-1 overflow-x-auto no-scrollbar rounded-xl border border-[#E2EAF6] bg-white p-1">
         {TABS.map((t) => (
           <button key={t.key} type="button" onClick={() => setTab(t.key)}
             className={cn("inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors", tab === t.key ? "bg-[#0D1B2A] text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100")}>

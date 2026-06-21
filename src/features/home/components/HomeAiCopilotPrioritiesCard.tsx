@@ -34,7 +34,7 @@ export function HomeAiCopilotPrioritiesCard({ priorities }: HomeAiCopilotPriorit
           priorities.map((priority) => (
             <Link
               key={priority.id}
-              href={priority.href ?? "/app"}
+              href={priority.href ?? "/property-manager"}
               className="bg-white/10 hover:bg-white/20 rounded-xl p-3 flex items-start gap-3 transition-colors group"
             >
               <div className="w-6 h-6 rounded-full bg-white/20 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">

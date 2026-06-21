@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -33,6 +33,7 @@ import { PpmScheduleStatusBadge } from "@/features/work/ppm/components/PpmSchedu
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { useProperties } from "@/hooks/useProperties"
 import {
   usePpmPlans,
   useDeletePpmPlan,
@@ -47,7 +48,7 @@ const KPIS = [
     icon: CalendarClock,
     iconBg: "bg-blue-50",
     iconColor: "text-blue-600",
-    value: 34,
+    value: 0,
     label: "Active Schedules",
     sub: "Across all properties",
     valueColor: "text-slate-900",
@@ -56,16 +57,16 @@ const KPIS = [
     icon: CalendarDays,
     iconBg: "bg-amber-50",
     iconColor: "text-amber-600",
-    value: 8,
+    value: 0,
     label: "Due This Month",
-    sub: "June 2026",
+    sub: "This month",
     valueColor: "text-amber-700",
   },
   {
     icon: AlertCircle,
     iconBg: "bg-red-50",
     iconColor: "text-red-600",
-    value: 2,
+    value: 0,
     label: "Overdue",
     sub: "Require immediate attention",
     valueColor: "text-red-700",
@@ -74,18 +75,18 @@ const KPIS = [
     icon: TrendingUp,
     iconBg: "bg-blue-50",
     iconColor: "text-blue-600",
-    value: 14,
+    value: 0,
     label: "Due Next 30 Days",
-    sub: "Jul 1–30, 2026",
+    sub: "Next 30 days",
     valueColor: "text-slate-900",
   },
   {
     icon: CheckCircle2,
     iconBg: "bg-emerald-50",
     iconColor: "text-emerald-600",
-    value: 67,
+    value: 0,
     label: "Completed This Year",
-    sub: "Jan–Jun 2026",
+    sub: "This year",
     valueColor: "text-emerald-700",
   },
 ]
@@ -141,11 +142,26 @@ const OVERDUE_ACTIONS = [
 ]
 
 // ─── Compliance health donut ──────────────────────────────────────────────────
+// Derived from live PPM rows; static fallback used only when no data loaded yet.
 
-const COMPLIANCE_DATA = [
-  { name: "Compliant",       value: 158, pct: 86, fill: "#10B981" },
-  { name: "At Risk",         value: 18,  pct: 10, fill: "#F59E0B" },
-  { name: "Non-Compliant",   value: 7,   pct: 4,  fill: "#EF4444" },
+function deriveComplianceData(rows: UpcomingRow[]) {
+  if (rows.length === 0) return null
+  const compliant  = rows.filter(r => r.filterStatus === "scheduled" || r.filterStatus === "completed").length
+  const atRisk     = rows.filter(r => r.filterStatus === "due-soon").length
+  const nonCompliant = rows.filter(r => r.filterStatus === "overdue").length
+  const total = rows.length
+  const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0
+  return [
+    { name: "Compliant",     value: compliant,    pct: pct(compliant),    fill: "#10B981" },
+    { name: "Due Soon",      value: atRisk,       pct: pct(atRisk),       fill: "#F59E0B" },
+    { name: "Overdue",       value: nonCompliant, pct: pct(nonCompliant), fill: "#EF4444" },
+  ]
+}
+
+const FALLBACK_COMPLIANCE_DATA = [
+  { name: "Compliant",   value: 0, pct: 0, fill: "#10B981" },
+  { name: "Due Soon",    value: 0, pct: 0, fill: "#F59E0B" },
+  { name: "Overdue",     value: 0, pct: 0, fill: "#EF4444" },
 ]
 
 // ─── Top service types ────────────────────────────────────────────────────────
@@ -179,17 +195,20 @@ function badgeStatus(s: string): "scheduled" | "due-soon" | "overdue" | "complet
   return "scheduled"
 }
 
-function planToUpcoming(p: PpmPlan): UpcomingRow {
+function planToUpcoming(p: PpmPlan, propertyNameById?: Map<string, string>): UpcomingRow {
   const dueDays = (() => {
     if (!p.next_due_date) return "—"
     const diff = Math.ceil((new Date(p.next_due_date).getTime() - Date.now()) / 86_400_000)
     return diff < 0 ? `${Math.abs(diff)} days overdue` : `in ${diff} days`
   })()
+  const propertyName = p.property_id
+    ? (propertyNameById?.get(p.property_id) ?? "Property")
+    : "—"
   return {
     id: p.id,
     icon: "🔧",
     serviceType: p.name,
-    property: p.property_id ? "Linked Property" : "—",
+    property: propertyName,
     dueDate: p.next_due_date ? new Date(p.next_due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—",
     dueDaysLabel: dueDays,
     priority: (p.priority === "high" || p.priority === "low" ? p.priority : "medium") as "high" | "medium" | "low",
@@ -204,21 +223,34 @@ export default function PpmOverviewPage() {
   const router = useRouter()
   const workspaceId = useWorkspaceId()
   const { data: livePlans, isLoading } = usePpmPlans(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
   const deletePlan = useDeletePpmPlan()
   const generateJob = useGenerateJobFromPpm()
   const [statusFilter, setStatusFilter] = useState<"all" | "due-soon" | "overdue">("all")
 
   const hasLive = !!livePlans && livePlans.length > 0
 
+  const propertyNameById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const p of properties) map.set(p.id, p.name)
+    return map
+  }, [properties])
+
   const allUpcoming: UpcomingRow[] = useMemo(
-    () => (hasLive ? livePlans!.map(planToUpcoming) : UPCOMING_DUE),
-    [hasLive, livePlans]
+    () => (hasLive ? livePlans!.map((p) => planToUpcoming(p, propertyNameById)) : UPCOMING_DUE),
+    [hasLive, livePlans, propertyNameById]
   )
 
   const displayUpcomingDue = useMemo(() => {
     if (statusFilter === "all") return allUpcoming
     return allUpcoming.filter((r) => r.filterStatus === statusFilter)
   }, [allUpcoming, statusFilter])
+
+  const complianceData = useMemo(
+    () => deriveComplianceData(allUpcoming) ?? FALLBACK_COMPLIANCE_DATA,
+    [allUpcoming]
+  )
+  const compliancePct = complianceData[0]?.pct ?? 0
 
   // Live KPI values overriding the static template
   const kpiValues = useMemo(() => {
@@ -230,7 +262,7 @@ export default function PpmOverviewPage() {
   }, [allUpcoming])
 
   function goToPlan(row: UpcomingRow) {
-    if (row.id) router.push(`/app/work/ppm/${row.id}`)
+    if (row.id) router.push(`/property-manager/work/ppm/${row.id}`)
   }
 
   async function handleDelete(row: UpcomingRow) {
@@ -242,7 +274,7 @@ export default function PpmOverviewPage() {
     const plan = livePlans.find((p) => p.id === row.id)
     if (!plan) return
     const res = await generateJob.mutateAsync({ plan })
-    if (res.ok && res.jobId) router.push(`/app/work/jobs/${res.jobId}`)
+    if (res.ok && res.jobId) router.push(`/property-manager/work/jobs/${res.jobId}`)
   }
 
   return (
@@ -250,7 +282,7 @@ export default function PpmOverviewPage() {
       <MobileTopBar
         title="PPM Scheduler"
         subtitle="Planned maintenance"
-        primaryAction={{ label: "New PPM schedule", icon: Plus, href: "/app/work/ppm/schedules/new" }}
+        primaryAction={{ label: "New PPM schedule", icon: Plus, href: "/property-manager/work/ppm/schedules/new" }}
       />
       {/* Page header */}
       <div className="hidden md:flex items-center justify-between">
@@ -268,7 +300,7 @@ export default function PpmOverviewPage() {
             <Download className="w-4 h-4" /> Export ▾
           </button>
           <Link
-            href="/app/work/ppm/schedules/new"
+            href="/property-manager/work/ppm/schedules/new"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
           >
             <Plus className="w-4 h-4" /> New PPM Schedule
@@ -335,7 +367,7 @@ export default function PpmOverviewPage() {
                   </button>
                 ))}
                 <Link
-                  href="/app/work/ppm/schedules"
+                  href="/property-manager/work/ppm/schedules"
                   className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
                 >
                   View all <ChevronRight className="w-3 h-3" />
@@ -423,7 +455,7 @@ export default function PpmOverviewPage() {
             <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
               <p className="text-xs text-slate-500">Showing {displayUpcomingDue.length} of {allUpcoming.length} schedules</p>
               <Link
-                href="/app/work/ppm/schedules"
+                href="/property-manager/work/ppm/schedules"
                 className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
               >
                 View all →
@@ -483,7 +515,7 @@ export default function PpmOverviewPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={COMPLIANCE_DATA}
+                    data={complianceData}
                     cx="50%"
                     cy="50%"
                     innerRadius={52}
@@ -493,23 +525,23 @@ export default function PpmOverviewPage() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    {COMPLIANCE_DATA.map((entry, index) => (
+                    {complianceData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(val) => [`${val} properties`]}
+                    formatter={(val) => [`${val} plans`]}
                     contentStyle={{ borderRadius: 10, border: "1px solid #E2E8F0", fontSize: 12 }}
                   />
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <p className="text-2xl font-bold text-slate-900">86%</p>
-                <p className="text-[11px] text-slate-500">Compliant</p>
+                <p className="text-2xl font-bold text-slate-900">{compliancePct}%</p>
+                <p className="text-[11px] text-slate-500">On schedule</p>
               </div>
             </div>
             <div className="space-y-2 mt-2">
-              {COMPLIANCE_DATA.map((d) => (
+              {complianceData.map((d) => (
                 <div key={d.name} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.fill }} />
@@ -579,7 +611,7 @@ export default function PpmOverviewPage() {
               </div>
             </div>
             <Link
-              href="/app/work/ppm/reports"
+              href="/property-manager/work/ppm/reports"
               className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
             >
               View all insights <ChevronRight className="w-3 h-3" />

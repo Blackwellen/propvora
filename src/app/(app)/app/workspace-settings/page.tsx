@@ -11,49 +11,10 @@ import {
   CreditCard,
   Sparkles,
   LayoutGrid,
-  Plug,
   Lock,
   Database,
   ChevronRight,
 } from "lucide-react"
-
-/* ------------------------------------------------------------------ */
-/* Health stat cards                                                    */
-/* ------------------------------------------------------------------ */
-const STAT_CARDS = [
-  {
-    label: "Subscription",
-    value: "Pro Plan",
-    sub: "Renews 1 Jan 2027",
-    colour: "#2563EB",
-    icon: CreditCard,
-    href: "/app/workspace-settings/subscription",
-  },
-  {
-    label: "Team Members",
-    value: "3 active",
-    sub: "1 invite pending",
-    colour: "#059669",
-    icon: Users,
-    href: "/app/workspace-settings/team",
-  },
-  {
-    label: "AI Credits",
-    value: "247 / 500",
-    sub: "253 remaining this month",
-    colour: "#7C3AED",
-    icon: Sparkles,
-    href: "/app/workspace-settings/ai",
-  },
-  {
-    label: "Integrations",
-    value: "2 active",
-    sub: "3 not configured",
-    colour: "#D97706",
-    icon: Plug,
-    href: "/app/workspace-settings/integrations",
-  },
-] as const
 
 /* ------------------------------------------------------------------ */
 /* Category cards                                                       */
@@ -65,9 +26,9 @@ const CATEGORIES = [
     colour: "#2563EB",
     bg: "#EFF6FF",
     items: [
-      { label: "Workspace Profile",  href: "/app/workspace-settings/profile" },
-      { label: "Team",               href: "/app/workspace-settings/team" },
-      { label: "Roles & Permissions",href: "/app/workspace-settings/roles" },
+      { label: "Workspace Profile",  href: "/property-manager/workspace-settings/profile" },
+      { label: "Team",               href: "/property-manager/workspace-settings/team" },
+      { label: "Roles & Permissions",href: "/property-manager/workspace-settings/roles" },
     ],
   },
   {
@@ -76,10 +37,10 @@ const CATEGORIES = [
     colour: "#059669",
     bg: "#ECFDF5",
     items: [
-      { label: "Subscription",      href: "/app/workspace-settings/subscription" },
-      { label: "Add-ons",           href: "/app/workspace-settings/addons" },
-      { label: "Billing & Payment", href: "/app/workspace-settings/billing" },
-      { label: "Invoices",          href: "/app/workspace-settings/invoices" },
+      { label: "Subscription",      href: "/property-manager/workspace-settings/subscription" },
+      { label: "Add-ons",           href: "/property-manager/workspace-settings/addons" },
+      { label: "Billing & Payment", href: "/property-manager/workspace-settings/billing" },
+      { label: "Invoices",          href: "/property-manager/workspace-settings/invoices" },
     ],
   },
   {
@@ -88,8 +49,8 @@ const CATEGORIES = [
     colour: "#7C3AED",
     bg: "#F5F3FF",
     items: [
-      { label: "AI Credits",     href: "/app/workspace-settings/ai" },
-      { label: "Copilot & Inbox",href: "/app/workspace-settings/copilot-inbox" },
+      { label: "AI Credits",     href: "/property-manager/workspace-settings/ai" },
+      { label: "Copilot & Inbox",href: "/property-manager/workspace-settings/copilot-inbox" },
     ],
   },
   {
@@ -98,13 +59,14 @@ const CATEGORIES = [
     colour: "#D97706",
     bg: "#FFFBEB",
     items: [
-      { label: "Notifications", href: "/app/workspace-settings/notifications" },
-      { label: "Branding",      href: "/app/workspace-settings/branding" },
-      { label: "White Label",   href: "/app/workspace-settings/white-label" },
-      { label: "Menu Builder",  href: "/app/workspace-settings/navigation" },
-      { label: "Integrations",  href: "/app/workspace-settings/integrations" },
-      { label: "Email & SMTP",  href: "/app/workspace-settings/email" },
-      { label: "Storage",       href: "/app/workspace-settings/storage" },
+      { label: "Language & Preferences", href: "/property-manager/workspace-settings/preferences" },
+      { label: "Notifications", href: "/property-manager/workspace-settings/notifications" },
+      { label: "Branding",      href: "/property-manager/workspace-settings/branding" },
+      { label: "White Label",   href: "/property-manager/workspace-settings/white-label" },
+      { label: "Menu Builder",  href: "/property-manager/workspace-settings/navigation" },
+      { label: "Integrations",  href: "/property-manager/workspace-settings/integrations" },
+      { label: "Email & SMTP",  href: "/property-manager/workspace-settings/email" },
+      { label: "Storage",       href: "/property-manager/workspace-settings/storage" },
     ],
   },
   {
@@ -113,9 +75,9 @@ const CATEGORIES = [
     colour: "#0F172A",
     bg: "#F1F5F9",
     items: [
-      { label: "Security",    href: "/app/workspace-settings/security" },
-      { label: "SAML / SSO",  href: "/app/workspace-settings/sso" },
-      { label: "Audit Logs",  href: "/app/workspace-settings/audit" },
+      { label: "Security",    href: "/property-manager/workspace-settings/security" },
+      { label: "SAML / SSO",  href: "/property-manager/workspace-settings/sso" },
+      { label: "Audit Logs",  href: "/property-manager/workspace-settings/audit" },
     ],
   },
   {
@@ -124,9 +86,9 @@ const CATEGORIES = [
     colour: "#DC2626",
     bg: "#FEF2F2",
     items: [
-      { label: "Data & Exports", href: "/app/workspace-settings/data" },
-      { label: "Demo Data",      href: "/app/workspace-settings/demo-data" },
-      { label: "Danger Zone",    href: "/app/workspace-settings/danger-zone" },
+      { label: "Data & Exports", href: "/property-manager/workspace-settings/data" },
+      { label: "Demo Data",      href: "/property-manager/workspace-settings/demo-data" },
+      { label: "Danger Zone",    href: "/property-manager/workspace-settings/danger-zone" },
     ],
   },
 ]
@@ -172,10 +134,10 @@ export default function WorkspaceSettingsPage() {
   const seatLimit = planDef.features.teamSeats
 
   const STAT_CARDS = [
-    { label: "Subscription", value: `${planDef.name} plan`, sub: statusLabel, colour: "#2563EB", icon: CreditCard, href: "/app/workspace-settings/subscription" },
-    { label: "Team Members", value: teamCount == null ? "—" : `${teamCount} active`, sub: pendingInvites > 0 ? `${pendingInvites} invite pending` : "No pending invites", colour: "#059669", icon: Users, href: "/app/workspace-settings/team" },
-    { label: "Seats", value: teamCount == null ? "—" : `${teamCount} / ${seatLimit}`, sub: typeof seatLimit === "number" && teamCount != null ? `${Math.max(0, seatLimit - teamCount)} available` : "Unlimited", colour: "#7C3AED", icon: Users, href: "/app/workspace-settings/team" },
-    { label: "AI Copilot", value: planDef.features.aiCopilot ? "Included" : "Not on plan", sub: planDef.features.aiCopilot ? "Available on this plan" : "Upgrade to enable", colour: "#D97706", icon: Sparkles, href: "/app/workspace-settings/ai" },
+    { label: "Subscription", value: `${planDef.name} plan`, sub: statusLabel, colour: "#2563EB", icon: CreditCard, href: "/property-manager/workspace-settings/subscription" },
+    { label: "Team Members", value: teamCount == null ? "—" : `${teamCount} active`, sub: pendingInvites > 0 ? `${pendingInvites} invite pending` : "No pending invites", colour: "#059669", icon: Users, href: "/property-manager/workspace-settings/team" },
+    { label: "Seats", value: teamCount == null ? "—" : `${teamCount} / ${seatLimit}`, sub: typeof seatLimit === "number" && teamCount != null ? `${Math.max(0, seatLimit - teamCount)} available` : "Unlimited", colour: "#7C3AED", icon: Users, href: "/property-manager/workspace-settings/team" },
+    { label: "AI Copilot", value: planDef.features.aiCopilot ? "Included" : "Not on plan", sub: planDef.features.aiCopilot ? "Available on this plan" : "Upgrade to enable", colour: "#D97706", icon: Sparkles, href: "/property-manager/workspace-settings/ai" },
   ] as const
 
   return (

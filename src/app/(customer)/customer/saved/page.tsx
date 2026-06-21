@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { Heart, Store } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import { CustomerPageHeader, CustomerCard, CustomerEmptyState } from "@/components/customer/ui"
@@ -36,7 +36,7 @@ export default async function CustomerSavedPage() {
             description="Tap the heart on any marketplace listing to save it here for later. Your favourites stay private to your account."
             action={
               <Link
-                href="/app/marketplace"
+                href="/property-manager/marketplace"
                 className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
               >
                 <Store className="w-4 h-4" /> Browse marketplace

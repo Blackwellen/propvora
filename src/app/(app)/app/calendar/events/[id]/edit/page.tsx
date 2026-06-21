@@ -353,7 +353,7 @@ export default function EventEditPage() {
         setSaving(false)
         return
       }
-      router.push(`/app/calendar/events/${id}`)
+      router.push(`/property-manager/calendar/events/${id}`)
     } catch (err: unknown) {
       setSaveError(err instanceof Error ? err.message : "Unexpected error")
       setSaving(false)
@@ -366,7 +366,7 @@ export default function EventEditPage() {
     const supabase = createClient()
     const { error } = await supabase.from("calendar_events").delete().eq("id", id)
     if (error) { alert("Delete failed: " + error.message); setSaving(false); return }
-    router.push("/app/calendar")
+    router.push("/property-manager/calendar")
   }
 
   if (loading) {
@@ -383,7 +383,7 @@ export default function EventEditPage() {
 
   return (
     <div className="space-y-0 pb-32 lg:pb-24">
-      <MobileTopBar title="Edit Event" subtitle={form.title || "Event"} showBack backHref={sectionLink(`/app/calendar/events/${id}`)} />
+      <MobileTopBar title="Edit Event" subtitle={form.title || "Event"} showBack backHref={sectionLink(`/property-manager/calendar/events/${id}`)} />
       <div className="hidden md:block">
         <CalendarTabNav />
       </div>
@@ -391,9 +391,9 @@ export default function EventEditPage() {
       {/* Breadcrumb */}
       <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-          <a href={sectionLink("/app/calendar")} className="hover:text-[#2563EB]">Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")} className="hover:text-[#2563EB]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
-          <a href={sectionLink(`/app/calendar/events/${id}`)} className="hover:text-[#2563EB]">{form.title || "Event"}</a>
+          <a href={sectionLink(`/property-manager/calendar/events/${id}`)} className="hover:text-[#2563EB]">{form.title || "Event"}</a>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-900 font-medium">Edit</span>
         </nav>
@@ -671,7 +671,7 @@ export default function EventEditPage() {
           </div>
           <div className="flex gap-3">
             <Button variant="ghost" size="sm" asChild>
-              <a href={sectionLink(`/app/calendar/events/${id}`)}>Cancel</a>
+              <a href={sectionLink(`/property-manager/calendar/events/${id}`)}>Cancel</a>
             </Button>
             <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
               {saving ? "Saving..." : "Save Changes"}

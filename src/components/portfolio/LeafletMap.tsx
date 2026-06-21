@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useRef } from "react"
 import type { MapProperty } from "@/app/(app)/app/portfolio/map/page"
@@ -55,7 +55,7 @@ function buildPopupHtml(p: MapProperty): string {
           </div>
         </div>
         ${p.arrears > 0 ? `<p style="font-size:10px;color:#dc2626;background:#fef2f2;padding:3px 8px;border-radius:6px;margin-bottom:6px;">⚠ ${formatCurrency(p.arrears)} arrears</p>` : ""}
-        <a href="/app/portfolio/properties/${p.id}" style="display:flex;align-items:center;justify-content:center;gap:4px;background:#2563eb;color:#fff;font-size:12px;font-weight:600;padding:7px 0;border-radius:10px;text-decoration:none;">
+        <a href="/property-manager/portfolio/properties/${p.id}" style="display:flex;align-items:center;justify-content:center;gap:4px;background:#2563eb;color:#fff;font-size:12px;font-weight:600;padding:7px 0;border-radius:10px;text-decoration:none;">
           Open property →
         </a>
       </div>

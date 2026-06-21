@@ -119,7 +119,7 @@ export default function NewReminderPage() {
           <h2 className="text-lg font-bold text-slate-900">Reminders not available yet</h2>
           <p className="text-sm text-slate-500 mt-1">The reminders table isn&apos;t provisioned in this workspace, so reminders can&apos;t be saved right now.</p>
           <div className="mt-5 flex justify-center gap-3">
-            <Button variant="outline" asChild><Link href={sectionLink("/app/calendar/reminders")}>Back to Reminders</Link></Button>
+            <Button variant="outline" asChild><Link href={sectionLink("/property-manager/calendar/reminders")}>Back to Reminders</Link></Button>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function NewReminderPage() {
             <p className="text-xs text-slate-500 mt-1">{new Date(dueLocal).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · {CHANNELS.find((c) => c.value === channel)?.label}</p>
           </div>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button variant="primary" asChild><Link href={sectionLink("/app/calendar/reminders")}>View Reminders</Link></Button>
+            <Button variant="primary" asChild><Link href={sectionLink("/property-manager/calendar/reminders")}>View Reminders</Link></Button>
             <Button variant="ghost" onClick={() => { setDone(false); setTitle(""); setDueLocal(nowLocalInput()); setEventId("") }}>Create Another</Button>
           </div>
         </div>
@@ -154,14 +154,14 @@ export default function NewReminderPage() {
 
   return (
     <div className="space-y-0">
-      <MobileTopBar title="New Reminder" subtitle="Scheduled alert" showBack backHref={sectionLink("/app/calendar/reminders")} />
+      <MobileTopBar title="New Reminder" subtitle="Scheduled alert" showBack backHref={sectionLink("/property-manager/calendar/reminders")} />
       <div className="hidden md:block">
         <CalendarTabNav />
       </div>
 
       <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-          <Link href={sectionLink("/app/calendar/reminders")} className="hover:text-[#2563EB]">Reminders</Link>
+          <Link href={sectionLink("/property-manager/calendar/reminders")} className="hover:text-[#2563EB]">Reminders</Link>
           <ChevronLeft className="w-3 h-3 rotate-180" />
           <span className="text-slate-900 font-medium">New Reminder</span>
         </nav>
@@ -237,7 +237,7 @@ export default function NewReminderPage() {
 
           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
             <Button variant="ghost" size="sm" leftIcon={<ChevronLeft className="w-4 h-4" />} asChild>
-              <Link href={sectionLink("/app/calendar/reminders")}>Cancel</Link>
+              <Link href={sectionLink("/property-manager/calendar/reminders")}>Cancel</Link>
             </Button>
             <Button variant="primary" size="sm" leftIcon={saving ? undefined : <Check className="w-4 h-4" />} onClick={handleCreate} disabled={saving}>
               {saving ? "Saving…" : "Create Reminder"}

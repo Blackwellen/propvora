@@ -73,7 +73,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
         return
       }
       if (onSuccess) onSuccess(data.id)
-      else router.push(`/app/portals/access/${data.id}`)
+      else router.push(`/property-manager/portals/access/${data.id}`)
     } catch {
       setError("Network error — please try again.")
       setSubmitting(false)
@@ -234,9 +234,9 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
             <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50/60 border border-blue-100">
               <ShieldCheck className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
               <p className="text-[11px] text-blue-800 leading-relaxed">
-                The magic-link token is generated securely server-side and stored hashed.
-                The raw token is never shown here. Delivering the link to the recipient
-                requires the public portal route (not yet built).
+                The magic-link token is generated securely server-side and stored hashed only.
+                The raw token is never stored or shown here. Recipients access the secure portal
+                at <span className="font-mono text-[10px]">/portal?token=…</span> — revoke instantly from the grant detail page.
               </p>
             </div>
 

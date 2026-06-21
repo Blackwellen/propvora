@@ -16,11 +16,11 @@ function getNextBestAction(contact: ContactDetail): { label: string; cta: string
   if (contact.contact_type === "tenant" && contact.next_follow_up)
     return { label: "Follow-up due " + contact.next_follow_up, cta: "Create Task", href: "#" }
   if (contact.contact_type === "landlord" && (contact.planning_sets?.length ?? 0) > 0)
-    return { label: "Planning set ready — review forecast", cta: "View Planning Set", href: "/app/planning" }
+    return { label: "Planning set ready — review forecast", cta: "View Planning Set", href: "/property-manager/planning" }
   if (contact.contact_type === "applicant" && contact.next_follow_up)
     return { label: "Book a viewing — follow-up due " + contact.next_follow_up, cta: "Book Viewing", href: "#" }
   if (contact.contact_type === "supplier")
-    return { label: "Create a new job for this supplier", cta: "Create Job", href: "/app/work/jobs/new" }
+    return { label: "Create a new job for this supplier", cta: "Create Job", href: "/property-manager/work/jobs/new" }
   return { label: "No urgent actions", cta: "View Activity", href: "#" }
 }
 
@@ -29,19 +29,19 @@ export function RightRail({ contact }: { contact: ContactDetail }) {
 
   const quickLinks: { label: string; href: string; icon: React.ElementType }[] = contact.contact_type === "tenant"
     ? [
-        { label:"Open Tenancy",   href:"/app/portfolio/tenancies/t1", icon:Home },
+        { label:"Open Tenancy",   href:"/property-manager/portfolio/tenancies/t1", icon:Home },
         { label:"View Invoices",  href:"#",                            icon:Wallet },
         { label:"View Tasks",     href:"#",                            icon:ListChecks },
       ]
     : contact.contact_type === "landlord"
     ? [
-        { label:"View Properties",href:"/app/portfolio/properties",    icon:Building2 },
-        { label:"Planning Sets",  href:"/app/planning",                icon:TrendingUp },
+        { label:"View Properties",href:"/property-manager/portfolio/properties",    icon:Building2 },
+        { label:"Planning Sets",  href:"/property-manager/planning",                icon:TrendingUp },
         { label:"View Offers",    href:"#",                            icon:FileText },
       ]
     : contact.contact_type === "supplier"
     ? [
-        { label:"Create Job",     href:"/app/work/jobs/new",           icon:Briefcase },
+        { label:"Create Job",     href:"/property-manager/work/jobs/new",           icon:Briefcase },
         { label:"View Portal",    href:"#",                            icon:Globe },
         { label:"Job History",    href:"#",                            icon:Activity },
       ]

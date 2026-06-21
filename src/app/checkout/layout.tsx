@@ -4,7 +4,7 @@ import type { Metadata } from "next"
  * Public checkout layout — UNAUTHENTICATED (guest checkout).
  *
  * This group sits OUTSIDE every protected prefix in `src/proxy.ts`
- * (`/app`, `/property-manager`, `/supplier`, `/user`, `/admin`) so `/checkout/*`
+ * (/property-manager, `/property-manager`, `/supplier`, `/user`, `/admin`) so `/checkout/*`
  * is reachable by anonymous guests. Access to the underlying checkout rows is
  * scoped by a session token (RLS `request.checkout_session_token`), NOT by an
  * auth account. The screens supply their own secure-checkout chrome via

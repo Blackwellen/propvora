@@ -180,7 +180,7 @@ export default function DataPrivacyPage() {
             <input
               type="password" autoComplete="current-password" placeholder="Confirm your password"
               value={exportPassword} onChange={e => setExportPassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-emerald-400"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400"
             />
             {exportError && <p className="text-[12px] text-red-600">{exportError}</p>}
             <div className="flex items-center gap-2">
@@ -246,14 +246,14 @@ export default function DataPrivacyPage() {
             <input
               type="password" autoComplete="current-password" placeholder="Confirm your password"
               value={deletePassword} onChange={e => setDeletePassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-red-400 mb-3"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-400/30 focus:border-red-400 mb-3"
             />
             <p className="text-[12.5px] font-semibold text-slate-700 mb-2">
               Type <span className="text-red-600">DELETE</span> to confirm
             </p>
             <input
               value={deleteText} onChange={e => setDeleteText(e.target.value)} placeholder="Type DELETE"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-red-400 transition-all mb-3"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-red-400/30 focus:border-red-400 transition-all mb-3"
             />
             {deleteError && <p className="text-[12px] text-red-600 mb-3">{deleteError}</p>}
             <div className="flex items-center gap-3">

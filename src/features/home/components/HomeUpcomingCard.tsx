@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { CalendarDays, Eye, Wrench, Users, MessageSquare } from "lucide-react"
@@ -60,7 +60,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Upcoming</h3>
-        <Link href="/app/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           Calendar →
         </Link>
       </div>
@@ -75,7 +75,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
               <p className="text-[13px] font-medium text-slate-600">No upcoming events</p>
               <p className="text-[12px] text-slate-400 mt-0.5">Schedule events in your calendar</p>
             </div>
-            <Link href="/app/calendar" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/property-manager/calendar" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
               Open calendar →
             </Link>
           </div>
@@ -83,7 +83,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
           events.map((event) => (
             <Link
               key={event.id}
-              href={event.href ?? `/app/calendar/events/${event.id}`}
+              href={event.href ?? `/property-manager/calendar/events/${event.id}`}
               className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 transition-colors group"
             >
               <EventIcon type={event.eventType ?? "default"} />
@@ -106,7 +106,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
 
       {events.length > 0 && (
         <div className="pt-2 border-t border-slate-100">
-          <Link href="/app/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href="/property-manager/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
             View full calendar →
           </Link>
         </div>

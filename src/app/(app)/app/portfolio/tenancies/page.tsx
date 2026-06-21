@@ -1,15 +1,17 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { PortfolioSectionTabs } from "@/components/portfolio/PortfolioSectionTabs"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { TenancyCard, type TenancyCardData } from "@/components/portfolio/TenancyCard"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTenancies } from "@/hooks/useTenancies"
 import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import {
   Plus, Search, Users, ChevronLeft, ChevronRight, X,
   AlertTriangle, Calendar, SlidersHorizontal, MapPin, Download,
@@ -71,6 +73,7 @@ export default function TenanciesListPage() {
   const { workspace, isLoading: wsLoading } = useWorkspace()
   const { data: rawTenancies, isLoading: tenanciesLoading } = useTenancies(workspace?.id)
   const { data: rawProperties } = useProperties(workspace?.id)
+  const { data: rawContacts } = useContacts(workspace?.id)
 
   /* Filters */
   const [search, setSearch]               = useState("")
@@ -91,14 +94,16 @@ export default function TenanciesListPage() {
   const allTenancies: TenancyCardData[] = useMemo(() => {
     if (!workspace?.id || !rawTenancies?.length) return []
     const propName = new Map((rawProperties ?? []).map(p => [p.id, p.name]))
+    const contactName = new Map((rawContacts ?? []).map(c => [c.id, c.full_name]))
     return rawTenancies.map((t) => ({
       id: t.id, property_id: t.property_id, unit_id: t.unit_id,
       property_name: propName.get(t.property_id),
+      tenant_name: t.tenant_contact_id ? (contactName.get(t.tenant_contact_id) ?? "Tenant") : undefined,
       status: t.status, start_date: t.start_date, end_date: t.end_date,
       rent_amount: t.rent_amount, deposit_amount: t.deposit_amount,
       deposit_held_by: t.deposit_held_by, rent_frequency: t.rent_frequency,
     }))
-  }, [rawTenancies, rawProperties, workspace?.id])
+  }, [rawTenancies, rawProperties, rawContacts, workspace?.id])
 
   const propertyOptions = useMemo(() => {
     if (!workspace?.id || !rawProperties?.length) return []
@@ -194,13 +199,14 @@ export default function TenanciesListPage() {
 
   return (
     <DashboardContainer>
+      <PortfolioSectionTabs />
       {/* Mobile top bar */}
       <MobileTopBar
         title="Tenancies"
         subtitle={`${activeCount} active · ${arrearsCount} in arrears`}
-        primaryAction={{ label: "Create tenancy", icon: Plus, href: "/app/portfolio/tenancies/new" }}
+        primaryAction={{ label: "Create tenancy", icon: Plus, href: "/property-manager/portfolio/tenancies/new" }}
         overflowActions={[
-          { label: "Portfolio", href: "/app/portfolio" },
+          { label: "Portfolio", href: "/property-manager/portfolio" },
           { label: "Export CSV", icon: Download, onClick: handleExport },
         ]}
       />
@@ -231,10 +237,10 @@ export default function TenanciesListPage() {
         description={`${activeCount} active · ${endingSoonCount} ending soon · ${arrearsCount} in arrears`}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="md" asChild><Link href="/app/portfolio">← Portfolio</Link></Button>
+            <Button variant="outline" size="md" asChild><Link href="/property-manager/portfolio">← Portfolio</Link></Button>
             <Button variant="outline" size="md" onClick={handleExport} disabled={filtered.length === 0}><Download className="w-4 h-4" />Export</Button>
             <Button variant="primary" size="md" asChild>
-              <Link href="/app/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
+              <Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
             </Button>
           </div>
         }
@@ -409,7 +415,7 @@ export default function TenanciesListPage() {
               </button>
             )}
             <Button variant="primary" size="sm" asChild>
-              <Link href="/app/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
+              <Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create tenancy</Link>
             </Button>
           </div>
         </div>
@@ -419,7 +425,7 @@ export default function TenanciesListPage() {
             <TenancyCard
               key={t.id}
               tenancy={t}
-              onView={id => router.push(`/app/portfolio/tenancies/${id}`)}
+              onView={id => router.push(`/property-manager/portfolio/tenancies/${id}`)}
             />
           ))}
         </div>

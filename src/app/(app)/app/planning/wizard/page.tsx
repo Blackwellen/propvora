@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useCallback, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -74,7 +74,7 @@ function WizardInner() {
       }
       livePanel={<WizardLiveSummary />}
       planName={state.setName || "New Planning Set"}
-      onClose={() => router.push("/app/planning")}
+      onClose={() => router.push("/property-manager/planning")}
       onPrev={handlePrev}
       onNext={handleNext}
       onSave={() => { void saveDraft() }}

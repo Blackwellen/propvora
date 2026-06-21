@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
@@ -70,7 +70,7 @@ export default function WorkspacePrivacyPage() {
     <div className="space-y-6">
       <div>
         <Link
-          href="/app/workspace/global"
+          href="/property-manager/workspace/global"
           className="inline-flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-slate-700 mb-2"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Global &amp; internationalisation

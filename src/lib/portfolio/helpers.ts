@@ -15,14 +15,19 @@ const OPERATION_PROFILE_LABELS: Record<string, string> = {
   hmo: "HMO",
   student_let: "Student Let",
   serviced_accommodation: "Serviced Accommodation",
+  sa_lite: "Serviced Accommodation",
   holiday_let: "Holiday Let",
   build_to_rent: "Build-to-Rent",
   social_housing: "Social Housing",
+  supported_living: "Supported Living",
   commercial: "Commercial",
   mixed_use: "Mixed Use",
   refinancing: "Refinancing",
   dev_flip: "Development",
+  development: "Development",
+  buy_to_sell: "Buy-to-Sell",
   co_living: "Co-Living",
+  standard_rental: "Long-Term Let",
 }
 
 export function normaliseOperationProfile(value: string | null | undefined): string {

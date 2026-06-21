@@ -14,7 +14,7 @@ const NOW = 1_700_000_000_000
 
 const base = {
   standalone: false,
-  pathname: "/app",
+  pathname: "/property-manager",
   dismissedAt: null as number | null,
   installed: false,
   now: NOW,
@@ -51,14 +51,14 @@ describe("canShowInstallPrompt", () => {
   it("never shows on form / wizard / checkout / onboarding routes", () => {
     for (const p of [
       "/onboarding",
-      "/app/welcome",
+      "/property-manager/welcome",
       "/checkout",
       "/billing/upgrade",
       "/login",
       "/auth/callback",
-      "/app/properties/new",
+      "/property-manager/properties/new",
       "/affiliate-programme/apply",
-      "/app/planning/abc/build",
+      "/property-manager/planning/abc/build",
     ]) {
       expect(canShowInstallPrompt({ ...base, pathname: p })).toBe(false)
     }
@@ -68,14 +68,14 @@ describe("canShowInstallPrompt", () => {
 describe("isBlockedPath", () => {
   it("blocks form/wizard/checkout/onboarding paths", () => {
     expect(isBlockedPath("/onboarding/step-2")).toBe(true)
-    expect(isBlockedPath("/app/jobs/new")).toBe(true)
+    expect(isBlockedPath("/property-manager/jobs/new")).toBe(true)
     expect(isBlockedPath("/checkout/confirm")).toBe(true)
     expect(isBlockedPath("/register")).toBe(true)
   })
 
   it("allows normal app + marketing routes", () => {
-    expect(isBlockedPath("/app")).toBe(false)
-    expect(isBlockedPath("/app/portfolio")).toBe(false)
+    expect(isBlockedPath("/property-manager")).toBe(false)
+    expect(isBlockedPath("/property-manager/portfolio")).toBe(false)
     expect(isBlockedPath("/")).toBe(false)
     expect(isBlockedPath(null)).toBe(false)
   })

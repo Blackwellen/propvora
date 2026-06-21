@@ -105,7 +105,7 @@ export default function TenancyEditPage() {
         await updateTenancy.mutateAsync({ workspaceId: workspace.id, id: tenancy.id, payload: data })
       }
       setSaved(true)
-      setTimeout(() => router.push(`/app/portfolio/tenancies/${id}`), 1200)
+      setTimeout(() => router.push(`/property-manager/portfolio/tenancies/${id}`), 1200)
     } catch (err) {
       console.error(err)
     } finally {
@@ -126,15 +126,15 @@ export default function TenancyEditPage() {
         title="Edit tenancy"
         subtitle={tenancy?.reference ?? "this tenancy"}
         showBack
-        backHref={`/app/portfolio/tenancies/${id}`}
+        backHref={`/property-manager/portfolio/tenancies/${id}`}
       />
 
       <nav className="hidden md:flex items-center gap-1.5 text-sm text-slate-500 mb-6">
-        <Link href="/app/portfolio" className="hover:text-slate-600">Portfolio</Link>
+        <Link href="/property-manager/portfolio" className="hover:text-slate-600">Portfolio</Link>
         <span>/</span>
-        <Link href="/app/portfolio/tenancies" className="hover:text-slate-600">Tenancies</Link>
+        <Link href="/property-manager/portfolio/tenancies" className="hover:text-slate-600">Tenancies</Link>
         <span>/</span>
-        <Link href={`/app/portfolio/tenancies/${id}`} className="hover:text-slate-600">{tenancy?.reference ?? "Tenancy"}</Link>
+        <Link href={`/property-manager/portfolio/tenancies/${id}`} className="hover:text-slate-600">{tenancy?.reference ?? "Tenancy"}</Link>
         <span>/</span>
         <span className="text-slate-900 font-medium">Edit</span>
       </nav>
@@ -255,7 +255,7 @@ export default function TenancyEditPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button type="button" variant="ghost" size="md" onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/app/portfolio/tenancies/${id}`)}>
+            <Button type="button" variant="ghost" size="md" onClick={() => step > 1 ? setStep((s) => s - 1) : router.push(`/property-manager/portfolio/tenancies/${id}`)}>
               <ArrowLeft className="w-4 h-4" />{step === 1 ? "Cancel" : "Back"}
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={saving || saved}>

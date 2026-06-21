@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -36,9 +36,9 @@ export function PropertyDetailHeader({ prop, propertyId, onSave }: PropertyDetai
     <div className="bg-white border-b border-slate-200 px-6 py-4">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-[12px] text-slate-500 mb-3">
-        <Link href="/app/portfolio" className="hover:text-slate-700 transition-colors">Portfolio</Link>
+        <Link href="/property-manager/portfolio" className="hover:text-slate-700 transition-colors">Portfolio</Link>
         <ChevronRight size={12} className="text-slate-300" />
-        <Link href="/app/portfolio/properties" className="hover:text-slate-700 transition-colors">Properties</Link>
+        <Link href="/property-manager/portfolio/properties" className="hover:text-slate-700 transition-colors">Properties</Link>
         <ChevronRight size={12} className="text-slate-300" />
         <span className="text-slate-800 font-medium">{prop.name}</span>
       </div>
@@ -133,15 +133,15 @@ export function PropertyDetailHeader({ prop, propertyId, onSave }: PropertyDetai
             confirmLabel="Delete property"
             onConfirm={async () => {
               await deleteProperty.mutateAsync({ id: propertyId, workspaceId: workspace!.id })
-              router.push("/app/portfolio/properties")
+              router.push("/property-manager/portfolio/properties")
             }}
           >
             {(openDelete) => (
               <ActionMenu
                 items={[
-                  { label: "View work", icon: Wrench, onClick: () => router.push(`/app/work?property=${propertyId}`) },
-                  { label: "View compliance", icon: Shield, onClick: () => router.push(`/app/compliance?property=${propertyId}`) },
-                  { label: "View on map", icon: MapPin, onClick: () => router.push(`/app/portfolio/map?property=${propertyId}`) },
+                  { label: "View work", icon: Wrench, onClick: () => router.push(`/property-manager/work?property=${propertyId}`) },
+                  { label: "View compliance", icon: Shield, onClick: () => router.push(`/property-manager/compliance?property=${propertyId}`) },
+                  { label: "View on map", icon: MapPin, onClick: () => router.push(`/property-manager/portfolio/map?property=${propertyId}`) },
                   { label: "Archive property", icon: Archive, onClick: () => onSave("status", "archived") },
                   { label: "Delete property", icon: Trash2, variant: "danger", onClick: openDelete },
                 ]}
@@ -161,11 +161,11 @@ export function PropertyDetailHeader({ prop, propertyId, onSave }: PropertyDetai
             <Sparkles size={13} /> AI Portfolio Review
           </button>
           {/* New tenancy */}
-          <Link href={`/app/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
             <Users size={13} /> New Tenancy
           </Link>
           {/* Add unit */}
-          <Link href={`/app/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Unit
           </Link>
         </div>

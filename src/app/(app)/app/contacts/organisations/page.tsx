@@ -41,10 +41,10 @@ function OrgActionMenu({ contact, align = "right" }: { contact: Contact; align?:
         <ActionMenu
           align={align}
           items={[
-            { label: "View Profile", icon: Eye, onClick: () => router.push(`/app/contacts/${contact.id}`) },
-            { label: "Edit", icon: Edit, onClick: () => router.push(`/app/contacts/${contact.id}/edit`) },
-            { label: "Create Job", icon: Wrench, onClick: () => router.push(`/app/work/jobs/new?supplier=${contact.id}`) },
-            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/app/contacts/${contact.id}?tab=messages`) },
+            { label: "View Profile", icon: Eye, onClick: () => router.push(`/property-manager/contacts/${contact.id}`) },
+            { label: "Edit", icon: Edit, onClick: () => router.push(`/property-manager/contacts/${contact.id}/edit`) },
+            { label: "Create Job", icon: Wrench, onClick: () => router.push(`/property-manager/work/jobs/new?supplier=${contact.id}`) },
+            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/property-manager/messages?contact_id=${contact.id}`) },
             { label: archived ? "Restore" : "Archive", icon: Archive, disabled: isDemo, onClick: () => { updateContact.mutate({ id: contact.id, workspaceId: contact.workspace_id, payload: { status: archived ? "active" : "archived" } as Partial<Contact> }) } },
             { label: "Delete", icon: Trash2, variant: "danger", disabled: isDemo, onClick: openDelete },
           ]}
@@ -203,14 +203,14 @@ function OrgListRow({ contact }: { contact: Contact }) {
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <Link
-          href={`/app/contacts/${contact.id}?tab=messages`}
+          href={`/property-manager/messages?contact_id=${contact.id}`}
           className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
           title="Message"
         >
           <MessageSquare className="w-3.5 h-3.5" />
         </Link>
         <Link
-          href={`/app/contacts/${contact.id}`}
+          href={`/property-manager/contacts/${contact.id}`}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
         >
           View <ArrowUpRight className="w-3 h-3" />
@@ -778,7 +778,7 @@ export default function OrganisationsPage() {
                         primary_contact_role: null,
                         property_count: 0,
                       }}
-                      onClick={() => router.push(`/app/contacts/${c.id}`)}
+                      onClick={() => router.push(`/property-manager/contacts/${c.id}`)}
                     />
                   ))}
                 </div>

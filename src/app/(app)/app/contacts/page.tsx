@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect, useRef } from "react"
+import React, { useState, useMemo, useEffect, useRef, Suspense } from "react"
 import { UserPlus, Upload, Download, CheckCircle2, X, AlertTriangle } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -139,7 +139,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
   )
 }
 
-export default function ContactsPage() {
+function ContactsPageInner() {
   const { workspace } = useWorkspace()
   const { data: liveContacts, isLoading, error } = useContacts(workspace?.id)
 
@@ -339,5 +339,13 @@ export default function ContactsPage() {
 
       {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg(null)} />}
     </DashboardContainer>
+  )
+}
+
+export default function ContactsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-sm text-slate-500">Loading…</div>}>
+      <ContactsPageInner />
+    </Suspense>
   )
 }

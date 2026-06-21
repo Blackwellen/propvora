@@ -56,14 +56,14 @@ export default function Step07Forecast() {
             (state.forecastInterestRatePct / 100) /
             12,
         )
-      : 800
+      : 0
 
   const netMonthly = Math.round(grossMonthly - totalExpenses - debtService)
   const annualCashflow = netMonthly * 12
-  const totalUpfront = state.upfrontCosts.reduce((s, c) => s + c.amount, 0) || 299000
-  const grossYield = totalUpfront > 0 ? (grossMonthly * 12) / totalUpfront * 100 : 10.2
-  const netYield = totalUpfront > 0 ? (netMonthly * 12) / totalUpfront * 100 : 6.4
-  const paybackMonths = netMonthly > 0 ? totalUpfront / netMonthly : 18.6
+  const totalUpfront = state.upfrontCosts.reduce((s, c) => s + c.amount, 0)
+  const grossYield = totalUpfront > 0 ? (grossMonthly * 12) / totalUpfront * 100 : 0
+  const netYield = totalUpfront > 0 ? (netMonthly * 12) / totalUpfront * 100 : 0
+  const paybackMonths = netMonthly > 0 && totalUpfront > 0 ? totalUpfront / netMonthly : 0
 
   // ── 36-month chart data ─────────────────────────────────────────────────────
   const chartData = useMemo(() => {
@@ -92,9 +92,9 @@ export default function Step07Forecast() {
   }))
 
   // ── KPI strip config ─────────────────────────────────────────────────────────
-  const targetNet = Math.max(state.targetMonthlyCashflow || 12000, 12000)
+  const targetNet = state.targetMonthlyCashflow > 0 ? state.targetMonthlyCashflow : 0
   const netDelta = netMonthly - targetNet
-  const netDeltaPct = Math.abs((netDelta / targetNet) * 100).toFixed(1)
+  const netDeltaPct = targetNet > 0 ? Math.abs((netDelta / targetNet) * 100).toFixed(1) : "—"
 
   const kpis = [
     {
@@ -107,7 +107,7 @@ export default function Step07Forecast() {
     {
       label: "Forecast Net / mo",
       value: `£${netMonthly.toLocaleString()}`,
-      sub: `${netDelta >= 0 ? "+" : "-"}£${Math.abs(netDelta).toLocaleString()} (${netDeltaPct}%)`,
+      sub: targetNet > 0 ? `${netDelta >= 0 ? "+" : "-"}£${Math.abs(netDelta).toLocaleString()} (${netDeltaPct}%)` : "Set a target cashflow in Step 2",
       colour: netMonthly >= targetNet ? "#10B981" : "#EF4444",
       icon: TrendingUp,
     },
@@ -288,7 +288,7 @@ export default function Step07Forecast() {
             </div>
             <span className="text-[12.5px] text-slate-600">Show cumulative</span>
           </label>
-          <select className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none">
+          <select aria-label="Chart time period" className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
             <option>Monthly view</option>
             <option>Quarterly view</option>
             <option>Annual view</option>

@@ -101,7 +101,7 @@ export default function CalendarWeekPage() {
       <MobileTopBar
         title="Week"
         subtitle={rangeLabel}
-        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/property-manager/calendar/events/new") }}
         overflowActions={[
           { label: "Previous week", icon: ChevronRight, onClick: prevWeek },
           { label: "This week", icon: CalendarRange, onClick: thisWeek },
@@ -150,7 +150,7 @@ export default function CalendarWeekPage() {
           <button onClick={prevWeek} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">‹ Prev</button>
           <button onClick={thisWeek} className="text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium">This week</button>
           <button onClick={nextWeek} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">Next ›</button>
-          <Link href={sectionLink("/app/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">
             <Plus className="w-3.5 h-3.5" />
             New Event
           </Link>
@@ -262,13 +262,13 @@ export default function CalendarWeekPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <h3 className="text-[12px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Quick Links</h3>
             <div className="flex flex-col gap-2">
-              <Link href={sectionLink("/app/calendar/events/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors">
+              <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors">
                 <Plus className="w-3.5 h-3.5" />New Event
               </Link>
-              <Link href={sectionLink("/app/calendar/reminders/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors">
+              <Link href={sectionLink("/property-manager/calendar/reminders/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors">
                 <Bell className="w-3.5 h-3.5 text-slate-500" />New Reminder
               </Link>
-              <Link href={sectionLink("/app/calendar/views/month")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors">
+              <Link href={sectionLink("/property-manager/calendar/views/month")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors">
                 <CalendarRange className="w-3.5 h-3.5 text-slate-500" />View Month
               </Link>
             </div>

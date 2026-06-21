@@ -24,7 +24,7 @@ export interface Crumb {
 }
 
 export interface SectionHeaderProps {
-  /** Breadcrumb trail, e.g. [{label:"Money", href:"/app/money"}, {label:"Invoices"}]. */
+  /** Breadcrumb trail, e.g. [{label:"Money", href:"/property-manager/money"}, {label:"Invoices"}]. */
   breadcrumb?: Crumb[]
   title: string
   subtitle?: string

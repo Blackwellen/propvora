@@ -72,9 +72,9 @@ function PersonActionMenu({ contact, align = "right" }: { contact: Contact; alig
         <ActionMenu
           align={align}
           items={[
-            { label: "View Profile", icon: Eye, onClick: () => router.push(`/app/contacts/${contact.id}`) },
-            { label: "Edit", icon: Edit, onClick: () => router.push(`/app/contacts/${contact.id}/edit`) },
-            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/app/contacts/${contact.id}?tab=messages`) },
+            { label: "View Profile", icon: Eye, onClick: () => router.push(`/property-manager/contacts/${contact.id}`) },
+            { label: "Edit", icon: Edit, onClick: () => router.push(`/property-manager/contacts/${contact.id}/edit`) },
+            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/property-manager/messages?contact_id=${contact.id}`) },
             { label: archived ? "Restore" : "Archive", icon: Archive, disabled: isDemo, onClick: () => { updateContact.mutate({ id: contact.id, workspaceId: contact.workspace_id, payload: { status: archived ? "active" : "archived" } as Partial<Contact> }) } },
             { label: "Delete", icon: Trash2, variant: "danger", disabled: isDemo, onClick: openDelete },
           ]}
@@ -239,14 +239,14 @@ function PersonListRow({ contact }: { contact: Contact }) {
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <Link
-          href={`/app/contacts/${contact.id}?tab=messages`}
+          href={`/property-manager/messages?contact_id=${contact.id}`}
           className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
           title="Message"
         >
           <MessageSquare className="w-3.5 h-3.5" />
         </Link>
         <Link
-          href={`/app/contacts/${contact.id}`}
+          href={`/property-manager/contacts/${contact.id}`}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
         >
           View <ArrowUpRight className="w-3 h-3" />
@@ -273,7 +273,7 @@ function PersonTableRow({ contact }: { contact: Contact }) {
             {getInitials(contact.full_name)}
           </div>
           <div>
-            <Link href={`/app/contacts/${contact.id}`} className="text-sm font-semibold text-slate-900 hover:text-[#2563EB] transition-colors whitespace-nowrap">
+            <Link href={`/property-manager/contacts/${contact.id}`} className="text-sm font-semibold text-slate-900 hover:text-[#2563EB] transition-colors whitespace-nowrap">
               {contact.full_name}
             </Link>
             <InlineEditCell
@@ -348,7 +348,7 @@ function PersonTableRow({ contact }: { contact: Contact }) {
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
-          <Link href={`/app/contacts/${contact.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
+          <Link href={`/property-manager/contacts/${contact.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
           <PersonActionMenu contact={contact} />
@@ -912,7 +912,7 @@ export default function PeoplePage() {
                         arrears_amount: null,
                         follow_up: false,
                       }}
-                      onClick={() => router.push(`/app/contacts/${c.id}`)}
+                      onClick={() => router.push(`/property-manager/contacts/${c.id}`)}
                     />
                   ))}
                 </div>

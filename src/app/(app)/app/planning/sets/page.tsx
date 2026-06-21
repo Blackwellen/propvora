@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -137,7 +137,7 @@ export default function PlanningSetsPage() {
         is_demo: false,
       })
       showToast("Planning set duplicated")
-      router.push(`/app/planning/sets/${created.id}/overview`)
+      router.push(`/property-manager/planning/sets/${created.id}/overview`)
     } catch {
       showToast("Could not duplicate planning set")
     }
@@ -179,7 +179,7 @@ export default function PlanningSetsPage() {
 
   const actions = (
     <button
-      onClick={() => router.push("/app/planning/wizard")}
+      onClick={() => router.push("/property-manager/planning/wizard")}
       className="h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[12.5px] font-semibold hover:bg-violet-700 flex items-center gap-1.5 transition-colors"
     >
       <Plus className="w-4 h-4" />
@@ -271,7 +271,8 @@ export default function PlanningSetsPage() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 ml-auto focus:outline-none"
+          aria-label="Sort planning sets"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 ml-auto focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
         >
           <option value="newest">Sort: Newest first</option>
           <option value="target_high">Sort: Highest net/mo</option>
@@ -308,13 +309,13 @@ export default function PlanningSetsPage() {
             {!isLoading && filtered.map((set) => (
               <div
                 key={set.id}
-                onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)}
+                onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
                 className="bg-white rounded-2xl border border-slate-200 p-5 cursor-pointer active:scale-[0.99] transition-transform"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-[14px] font-bold text-slate-900">{set.title}</p>
                   <div onClick={(e) => e.stopPropagation()}>
-                    <SetMenu set={set} onView={() => router.push(`/app/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/app/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                    <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                   </div>
                 </div>
                 <ProfileTag profileKey={set.operation_profile} size="sm" />
@@ -344,13 +345,13 @@ export default function PlanningSetsPage() {
               {!isLoading && filtered.map((set) => (
                 <div
                   key={set.id}
-                  onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)}
+                  onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
                   className="bg-white rounded-2xl border border-slate-200 p-5 cursor-pointer hover:shadow-md hover:border-slate-300 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <p className="text-[14px] font-bold text-slate-900">{set.title}</p>
                     <div onClick={(e) => e.stopPropagation()}>
-                      <SetMenu set={set} onView={() => router.push(`/app/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/app/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                      <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                     </div>
                   </div>
                   <ProfileTag profileKey={set.operation_profile} size="sm" />
@@ -403,7 +404,7 @@ export default function PlanningSetsPage() {
                     {!isLoading && filtered.map((set) => (
                       <tr
                         key={set.id}
-                        onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)}
+                        onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
                         className={cn(
                           "border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer group",
                           selected.includes(set.id) && "bg-blue-50/50"
@@ -438,7 +439,7 @@ export default function PlanningSetsPage() {
                         <td className="px-3 py-3.5 text-[13px] text-slate-600">{set.roi > 0 ? `${set.roi.toFixed(1)}%` : "—"}</td>
                         <td className="px-3 py-3.5 text-[12px] text-slate-400 whitespace-nowrap">{timeAgo(set.updated_at)}</td>
                         <td className="px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
-                          <SetMenu set={set} onView={() => router.push(`/app/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/app/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                          <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                         </td>
                       </tr>
                     ))}
@@ -485,7 +486,7 @@ export default function PlanningSetsPage() {
               {highMargin.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => router.push(`/app/planning/sets/${s.id}/overview`)}
+                  onClick={() => router.push(`/property-manager/planning/sets/${s.id}/overview`)}
                   className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                 >
                   <div className="flex-1 min-w-0">
@@ -504,7 +505,7 @@ export default function PlanningSetsPage() {
               {needsData.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => router.push(`/app/planning/sets/${s.id}/overview`)}
+                  onClick={() => router.push(`/property-manager/planning/sets/${s.id}/overview`)}
                   className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                 >
                   <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-[11px] font-bold text-amber-700 shrink-0">
@@ -525,7 +526,7 @@ export default function PlanningSetsPage() {
               {atRisk.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => router.push(`/app/planning/sets/${s.id}/overview`)}
+                  onClick={() => router.push(`/property-manager/planning/sets/${s.id}/overview`)}
                   className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                 >
                   <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
@@ -597,7 +598,7 @@ function EmptyState({ hasSets }: { hasSets: boolean }) {
       </p>
       {!hasSets && (
         <Link
-          href="/app/planning/wizard"
+          href="/property-manager/planning/wizard"
           className="mt-1 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />

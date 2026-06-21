@@ -6,6 +6,7 @@ import {
   Plus, Search, X, Globe, Eye, Clock, XCircle, Send,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
+import { SectionHeader } from "@/components/layout/SectionHeader"
 import { PortalsTabNav } from "@/components/portals/PortalsTabNav"
 import { GrantPortalAccessModal } from "@/components/portals/GrantPortalAccessModal"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -42,7 +43,7 @@ function GrantRow({ grant, workspaceId }: { grant: PortalGrant; workspaceId: str
   return (
     <tr
       className="hover:bg-slate-50/60 transition-colors cursor-pointer"
-      onClick={() => router.push(`/app/portals/access/${grant.id}`)}
+      onClick={() => router.push(`/property-manager/portals/access/${grant.id}`)}
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
@@ -81,7 +82,7 @@ function GrantRow({ grant, workspaceId }: { grant: PortalGrant; workspaceId: str
       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
         <ActionMenu
           items={[
-            { label: "View grant", icon: Eye, onClick: () => router.push(`/app/portals/access/${grant.id}`) },
+            { label: "View grant", icon: Eye, onClick: () => router.push(`/property-manager/portals/access/${grant.id}`) },
             { label: "Extend expiry (+30d)", icon: Clock, onClick: () => workspaceId && extend.mutate({ id: grant.id, workspaceId, days: 30 }), disabled: isRevoked },
             { label: "Resend link", icon: Send, onClick: () => {}, disabled: true },
             { label: isRevoked ? "Revoked" : "Revoke access", icon: XCircle, variant: "danger", onClick: () => workspaceId && revoke.mutate({ id: grant.id, workspaceId }), disabled: isRevoked },
@@ -114,22 +115,21 @@ export default function PortalAccessListPage() {
 
   return (
     <DashboardContainer>
-      <PortalsTabNav />
-
-      <div className="px-6 pt-6 pb-10 space-y-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Portals</p>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Access Grants</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Every portal grant across the workspace.</p>
-          </div>
+      <SectionHeader
+        title="Access Grants"
+        subtitle="Every portal grant across the workspace."
+        actions={
           <button
             onClick={() => setShowGrant(true)}
             className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm shrink-0"
           >
             <Plus className="w-4 h-4" /> Grant portal access
           </button>
-        </div>
+        }
+        tabs={<PortalsTabNav />}
+      />
+
+      <div className="px-6 pt-6 pb-10 space-y-6">
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">

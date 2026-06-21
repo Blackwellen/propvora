@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
@@ -89,7 +89,7 @@ export default function ProvidersFilterClient({ allProviders, featuredProviders 
       {/* FILTER CHIPS */}
       <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {CHIPS.map(chip => (
               <button
                 key={chip.value}
@@ -153,7 +153,7 @@ export default function ProvidersFilterClient({ allProviders, featuredProviders 
                 View all featured →
               </Link>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-3 -mx-6 px-6 lg:-mx-10 lg:px-10 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {featuredProviders.map(provider => (
                 <ProviderFeaturedCard key={provider.id} provider={provider} />
               ))}

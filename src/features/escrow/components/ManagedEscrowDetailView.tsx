@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -29,6 +29,14 @@ export function ManagedEscrowDetailView({ escrowId, initialView = "overview" }: 
   function showToast(m: string) { setToast(m); setTimeout(() => setToast(null), 3000) }
 
   if (loading) return <div className="p-6 text-sm text-slate-400">Loading escrow…</div>
+  if (!escrow) return (
+    <div className="p-10 text-center">
+      <Banknote className="w-8 h-8 text-slate-200 mx-auto mb-3" />
+      <p className="text-sm font-medium text-slate-600 mb-1">Escrow not found</p>
+      <p className="text-[12.5px] text-slate-400 mb-4">This escrow may have been removed or the link may be incorrect.</p>
+      <Link href="/property-manager/money/escrow" className="text-[12.5px] text-[#2563EB] hover:underline">← Back to escrow</Link>
+    </div>
+  )
 
   const releaseBlocked = escrow.evidenceStatus === "missing" || escrow.evidenceStatus === "partial" || escrow.hasDispute
 
@@ -36,7 +44,7 @@ export function ManagedEscrowDetailView({ escrowId, initialView = "overview" }: 
     <div className="flex flex-col gap-5 px-4 md:px-6 py-5 bg-slate-50 min-h-screen">
       {toast && <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl">{toast}</div>}
 
-      <Link href="/app/money/escrow" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
+      <Link href="/property-manager/money/escrow" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
         <ArrowLeft className="w-4 h-4" /> Back to escrow
       </Link>
 

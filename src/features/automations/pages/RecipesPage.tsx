@@ -95,7 +95,7 @@ export default function RecipesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search recipes…"
-          className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+          className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30"
         />
         {["Trigger", "Module", "Use case", "Complexity"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}: All</span>
@@ -171,7 +171,7 @@ export default function RecipesPage() {
               ))}
             </div>
           )}
-          <div className="text-center text-xs text-slate-400">Showing 1 to {filtered.length} of 128 recipes</div>
+          <div className="text-center text-xs text-slate-400">Showing 1 to {filtered.length} of {data.recipes.length} recipes (including global library)</div>
         </div>
 
         {/* Right rail */}

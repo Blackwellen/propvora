@@ -6,5 +6,5 @@ interface PageProps {
 
 export default async function ProfileRootPage({ params }: PageProps) {
   const { slug } = await params
-  redirect(`/app/planning/profiles/${slug}/overview`)
+  redirect(`/property-manager/planning/profiles/${slug}/overview`)
 }

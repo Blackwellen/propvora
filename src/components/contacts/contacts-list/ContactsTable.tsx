@@ -59,9 +59,9 @@ export function ContactRowMenu({ contact, align = "right" }: { contact: MappedCo
         <ActionMenu
           align={align}
           items={[
-            { label: "View Profile", icon: Eye, onClick: () => router.push(`/app/contacts/${contact.id}`) },
-            { label: "Edit", icon: Edit, onClick: () => router.push(`/app/contacts/${contact.id}/edit`) },
-            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/app/contacts/${contact.id}?tab=messages`) },
+            { label: "View Profile", icon: Eye, onClick: () => router.push(`/property-manager/contacts/${contact.id}`) },
+            { label: "Edit", icon: Edit, onClick: () => router.push(`/property-manager/contacts/${contact.id}/edit`) },
+            { label: "Message", icon: MessageSquare, onClick: () => router.push(`/property-manager/messages?contact_id=${contact.id}`) },
             { label: archived ? "Restore" : "Archive", icon: Archive, disabled: contact.is_demo, onClick: () => { toggleArchive() } },
             { label: "Delete", icon: Trash2, variant: "danger", disabled: contact.is_demo, onClick: openDelete },
           ]}
@@ -135,10 +135,10 @@ export function GridContactCard({ contact }: { contact: MappedContact }) {
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
         <span className="text-[10px] text-slate-400">{relativeTime(contact.updated_at)}</span>
         <div className="flex items-center gap-1">
-          <Link href={`/app/contacts/${contact.id}?tab=messages`} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600" title="Message">
+          <Link href={`/property-manager/messages?contact_id=${contact.id}`} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600" title="Message">
             <MessageSquare className="w-3.5 h-3.5" />
           </Link>
-          <Link href={`/app/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors">
+          <Link href={`/property-manager/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors">
             View <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>
@@ -168,7 +168,7 @@ export function ListContactRow({ contact }: { contact: MappedContact }) {
         <span>{relativeTime(contact.updated_at)}</span>
       </div>
       <div className="flex items-center gap-1 shrink-0">
-        <Link href={`/app/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+        <Link href={`/property-manager/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
           View <ArrowUpRight className="w-3 h-3" />
         </Link>
       </div>
@@ -265,7 +265,7 @@ export function ContactsTable({
                   <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{formatDate(c.updated_at)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <Link href={`/app/contacts/${c.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
+                      <Link href={`/property-manager/contacts/${c.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </Link>
                       <ContactRowMenu contact={c} />

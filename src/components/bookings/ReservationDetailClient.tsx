@@ -149,7 +149,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
 
   return (
     <DashboardContainer>
-      <MobileTopBar title={booking.guestName} subtitle={booking.reference} showBack backHref="/app/bookings" />
+      <MobileTopBar title={booking.guestName} subtitle={booking.reference} showBack backHref="/property-manager/bookings" />
 
       {toast && (
         <div
@@ -169,7 +169,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
 
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <div className="hidden md:flex items-center gap-2 text-sm">
-          <Link href="/app/bookings" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700">
+          <Link href="/property-manager/bookings" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700">
             <ArrowLeft className="w-4 h-4" />
             Bookings
           </Link>
@@ -319,7 +319,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
               <FeeBreakdownPanel lines={feeLines} totalPence={booking.totalPence} currency={booking.currency} amountPaidPence={booking.amountPaidPence} />
               {booking.listingId && (
                 <Link
-                  href={`/app/bookings/listings/${booking.listingId}`}
+                  href={`/property-manager/bookings/listings/${booking.listingId}`}
                   className="flex items-center gap-2.5 rounded-2xl border border-slate-100 bg-white shadow-sm px-5 py-4 hover:border-slate-200 transition-colors"
                 >
                   <span className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">

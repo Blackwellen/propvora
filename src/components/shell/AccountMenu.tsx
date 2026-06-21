@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
@@ -122,7 +122,7 @@ export default function AccountMenu({
       </div>
       <div className="py-1.5 overflow-y-auto overscroll-contain">
         <Link
-          href="/app/account"
+          href="/property-manager/account"
           onClick={() => setOpen(false)}
           className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors"
         >
@@ -130,7 +130,7 @@ export default function AccountMenu({
           Account Settings
         </Link>
         <Link
-          href="/app/workspace-settings"
+          href="/property-manager/workspace-settings"
           onClick={() => setOpen(false)}
           className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors"
         >

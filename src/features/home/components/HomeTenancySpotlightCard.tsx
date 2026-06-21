@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { Users } from "lucide-react"
@@ -56,7 +56,7 @@ export function HomeTenancySpotlightCard({ tenants }: HomeTenancySpotlightCardPr
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Tenancy spotlight</h3>
-        <Link href="/app/portfolio/tenancies" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/tenancies" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all →
         </Link>
       </div>
@@ -71,7 +71,7 @@ export function HomeTenancySpotlightCard({ tenants }: HomeTenancySpotlightCardPr
               <p className="text-[13px] font-medium text-slate-600">No active tenancies</p>
               <p className="text-[12px] text-slate-400 mt-0.5">Tenancies will appear here once created</p>
             </div>
-            <Link href="/app/portfolio/tenancies/new" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/property-manager/portfolio/tenancies/new" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
               Create tenancy →
             </Link>
           </div>
@@ -79,7 +79,7 @@ export function HomeTenancySpotlightCard({ tenants }: HomeTenancySpotlightCardPr
           tenants.map((tenant, idx) => (
             <Link
               key={tenant.id}
-              href={tenant.href ?? `/app/portfolio/tenancies/${tenant.id}`}
+              href={tenant.href ?? `/property-manager/portfolio/tenancies/${tenant.id}`}
               className="flex items-center gap-3 group hover:bg-slate-50 rounded-lg p-1.5 -mx-1.5 transition-colors"
             >
               <div
@@ -104,7 +104,7 @@ export function HomeTenancySpotlightCard({ tenants }: HomeTenancySpotlightCardPr
       </div>
 
       <div className="pt-2 border-t border-slate-100">
-        <Link href="/app/portfolio/tenancies" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/tenancies" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View all tenancies →
         </Link>
       </div>

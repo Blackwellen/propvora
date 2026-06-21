@@ -169,7 +169,7 @@ function ProfileCard({
           Start Plan
         </button>
         <Link
-          href={`/app/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
+          href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
           className="flex-1 h-8 rounded-xl border border-slate-200 text-slate-700 text-[12.5px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center"
         >
           View Profile
@@ -219,7 +219,7 @@ function ProfileCompactRow({
           Start Plan
         </button>
         <Link
-          href={`/app/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
+          href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
           className="h-7 px-3 rounded-lg border border-slate-200 text-slate-600 text-[11.5px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center"
         >
           Details

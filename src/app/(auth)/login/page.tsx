@@ -75,7 +75,7 @@ const ALLOWED_REDIRECTS = [
   "/property-manager",
   "/user",
   "/supplier",
-  "/app",
+  "/property-manager",
   "/admin",
   "/supplier-portal",
   "/invite",
@@ -92,7 +92,7 @@ function isAllowedRedirect(url: string | null): url is string {
  *  redirect belongs to the SAME persona the user just picked. */
 const PERSONA_AREAS: { persona: LoginPersona; prefixes: string[] }[] = [
   { persona: "customer", prefixes: ["/user", "/customer"] },
-  { persona: "operator", prefixes: ["/property-manager", "/app"] },
+  { persona: "operator", prefixes: ["/property-manager", "/property-manager"] },
   { persona: "supplier", prefixes: ["/supplier", "/supplier-portal"] },
 ]
 
@@ -125,6 +125,7 @@ function isLoginPersona(v: unknown): v is LoginPersona {
 function LoginForm() {
   const searchParams = useSearchParams()
   const explicitRedirect = searchParams.get("redirectTo")
+  const timedOut = searchParams.get("reason") === "timeout"
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -303,6 +304,14 @@ function LoginForm() {
                   })}
                 </div>
               </div>
+
+              {/* Session timeout notice */}
+              {timedOut && (
+                <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                  <p className="text-[13px] text-amber-700">Your session expired due to inactivity. Please sign in again.</p>
+                </div>
+              )}
 
               {/* Error */}
               {authError && (

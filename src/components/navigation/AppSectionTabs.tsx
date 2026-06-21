@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import MobileTabs, { type MobileTabItem } from "@/components/mobile/MobileTabs"
 
@@ -22,7 +23,7 @@ interface AppSectionTabsProps {
 }
 
 /**
- * ONE consistent section tab strip for `/app` pages.
+ * ONE consistent section tab strip for /property-manager pages.
  *
  * Renders a single presentation across breakpoints so there is never a double
  * tab bar or a clipped/merged label:
@@ -45,6 +46,19 @@ export default function AppSectionTabs({
   "aria-label": ariaLabel = "Sections",
   className,
 }: AppSectionTabsProps) {
+  const desktopListRef = useRef<HTMLDivElement>(null)
+  const desktopBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  // Scroll active tab into view on desktop strip when value changes
+  useEffect(() => {
+    const el = desktopBtnRefs.current[value]
+    if (!el) return
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", inline: "center", block: "nearest" })
+  }, [value])
+
   function onKeyDown(e: React.KeyboardEvent) {
     const idx = tabs.findIndex((t) => t.id === value)
     if (idx === -1) return
@@ -61,7 +75,6 @@ export default function AppSectionTabs({
   const mobileItems: MobileTabItem[] = tabs.map((t) => ({
     id: t.id,
     label: t.label,
-    icon: t.icon,
     badge: t.badge,
   }))
 
@@ -76,7 +89,6 @@ export default function AppSectionTabs({
       >
         {tabs.map((tab) => {
           const active = tab.id === value
-          const Icon = tab.icon
           return (
             <button
               key={tab.id}
@@ -85,13 +97,12 @@ export default function AppSectionTabs({
               tabIndex={active ? 0 : -1}
               onClick={() => onChange(tab.id)}
               className={cn(
-                "flex items-center gap-2 border-b-2 -mb-px px-3.5 py-2.5 text-sm font-medium whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
+                "border-b-2 -mb-px px-3.5 py-2.5 text-sm font-medium whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
                 active
                   ? "border-[#2563EB] text-[#2563EB]"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               )}
             >
-              {Icon && <Icon className="h-4 w-4" />}
               {tab.label}
               {tab.badge != null && tab.badge !== 0 && (
                 <span

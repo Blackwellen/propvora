@@ -1,20 +1,12 @@
-import { publicSearch } from "@/components/marketplace-public/data"
-import { PublicSearchClient } from "@/components/marketplace-public/PublicSearchClient"
-import { intentByKey } from "@/components/marketplace-public/intent"
+import { redirect } from 'next/navigation'
 
-export const dynamic = "force-dynamic"
-
-export default async function EmergencyPage() {
-  const intent = intentByKey("emergency")
-  const seed = await publicSearch({ page: 1, pageSize: 24, category: intent.category ?? undefined, transactionType: intent.transactionType ?? undefined })
-  return (
-    <PublicSearchClient
-      intent="emergency"
-      lockIntent
-      initialListings={seed.items}
-      initialTotal={seed.total}
-      heading="Emergency call-outs"
-      subheading="Urgent trades ready to respond now — leaks, lockouts, heating and electrical emergencies."
-    />
-  )
+/**
+ * /marketplace/emergency — redirects to /marketplace/suppliers with the
+ * Emergency intent tab active (FIX-141). Emergency services are now surfaced
+ * within the unified suppliers page via the "⚡ Emergency" trade filter chip,
+ * rather than as a standalone page. The intent tab system keeps the Emergency
+ * tab in the nav for direct access.
+ */
+export default function EmergencyRedirectPage() {
+  redirect('/marketplace/suppliers')
 }

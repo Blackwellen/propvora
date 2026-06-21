@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
@@ -42,7 +42,7 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <input
                 type="date"
-                defaultValue="2026-04-28"
+                defaultValue={new Date().toISOString().slice(0, 10)}
                 className="w-full h-9 px-3 pr-9 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
               <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -54,9 +54,7 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <select className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
-                <option>Maple Avenue</option>
-                <option>Oakwood House</option>
-                <option>Riverside Court</option>
+                <option value="">— Select property —</option>
               </select>
             </div>
           </div>
@@ -67,7 +65,7 @@ export default function ManualTransactionPage() {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                defaultValue="Oakwood Supplies Ltd"
+                defaultValue=""
                 className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
             </div>
@@ -87,7 +85,7 @@ export default function ManualTransactionPage() {
             <label className="text-sm font-medium text-slate-700">Reference</label>
             <input
               type="text"
-              defaultValue="EXP-2026-04-0001"
+              placeholder="Auto-generated on save"
               className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
             />
           </div>
@@ -108,14 +106,14 @@ export default function ManualTransactionPage() {
             <label className="text-sm font-medium text-slate-700">Description <span className="text-[#EF4444]">*</span></label>
             <input
               type="text"
-              defaultValue="Repairs & maintenance materials for common areas"
+              placeholder="Enter transaction description"
               className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
             />
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Notes</label>
             <textarea
-              defaultValue="Replacement of lighting fixtures in main lobby and corridors. Invoice INV-38492."
+              placeholder="Add any supporting notes"
               rows={3}
               className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
             />
@@ -134,9 +132,9 @@ export default function ManualTransactionPage() {
         <div className="space-y-2">
           {[
             { label: "Status", value: <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">Draft</span> },
-            { label: "Created By", value: "James Taylor" },
-            { label: "Created On", value: "28 Apr 2026, 13:58" },
-            { label: "Last Updated", value: "Just now" },
+            { label: "Created By", value: "You" },
+            { label: "Created On", value: "Not saved yet" },
+            { label: "Last Updated", value: "—" },
           ].map((item) => (
             <div key={item.label} className="flex items-center justify-between gap-2">
               <span className="text-xs text-slate-500">{item.label}</span>
@@ -153,10 +151,10 @@ export default function ManualTransactionPage() {
         <div className="space-y-2.5">
           {[
             { icon: "✦", label: "Transaction Type", value: "Expense" },
-            { icon: "🏠", label: "Property", value: "Maple Avenue" },
-            { icon: "👤", label: "Contact / Supplier", value: "Oakwood Supplies Ltd" },
-            { icon: "📅", label: "Transaction Date", value: "28 Apr 2026" },
-            { icon: "📄", label: "Reference", value: "EXP-2026-04-0001" },
+            { icon: "🏠", label: "Property", value: "—" },
+            { icon: "👤", label: "Contact / Supplier", value: "—" },
+            { icon: "📅", label: "Transaction Date", value: "—" },
+            { icon: "📄", label: "Reference", value: "Auto-generated on save" },
             { icon: "🏷", label: "Tax Code", value: "20% (Standard Rate)" },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-2.5">
@@ -207,7 +205,7 @@ export default function ManualTransactionPage() {
 
   const footer = (
     <>
-      <Button variant="outline" size="sm" onClick={() => router.push("/app/accounting/accounts/journal-ledger")}>Cancel</Button>
+      <Button variant="outline" size="sm" onClick={() => router.push("/property-manager/accounting/accounts/journal-ledger")}>Cancel</Button>
       {step < 4 ? (
         <Button variant="primary" size="sm" onClick={() => setStep(Math.min(step + 1, 4))}>Next →</Button>
       ) : (
@@ -215,7 +213,7 @@ export default function ManualTransactionPage() {
           variant="primary"
           size="sm"
           disabled={!isBalanced}
-          onClick={() => router.push("/app/accounting/accounts/journal-ledger")}
+          onClick={() => router.push("/property-manager/accounting/accounts/journal-ledger")}
         >
           Post in Journal Ledger →
         </Button>
@@ -225,7 +223,7 @@ export default function ManualTransactionPage() {
 
   return (
     <>
-    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref={sectionLink("/app/accounting/reconciliation")} />
+    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref={sectionLink("/property-manager/accounting/reconciliation")} />
     <AccountingWizardShell
       breadcrumbNumber="09"
       breadcrumbLabel="Create Manual Transaction"

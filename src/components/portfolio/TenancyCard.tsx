@@ -266,8 +266,8 @@ export function TenancyCardStandard({
         <ActionMenu
           align="right"
           items={[
-            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-            { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
             { label: "Renew", icon: RefreshCw, onClick: () => {} },
             { label: "End tenancy", icon: LogOut, onClick: () => {} },
             { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
@@ -384,7 +384,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
       {/* Action buttons row */}
       <div className="flex items-center gap-2 px-5 py-3 flex-wrap">
         <Link
-          href={`/app/portfolio/tenancies/${tenancy.id}`}
+          href={`/property-manager/portfolio/tenancies/${tenancy.id}`}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors"
         >
           View full profile <ChevronRight className="w-3.5 h-3.5" />
@@ -399,8 +399,8 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
           <ActionMenu
             align="right"
             items={[
-              { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-              { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+              { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+              { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
               { label: "Renew", icon: RefreshCw, onClick: () => {} },
               { label: "End tenancy", icon: LogOut, onClick: () => {} },
               { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
@@ -483,8 +483,8 @@ export function TenancyCardRisk({ tenancy, onTakeAction }: { tenancy: TenancyCar
         <ActionMenu
           align="right"
           items={[
-            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-            { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
             { label: "Renew", icon: RefreshCw, onClick: () => {} },
             { label: "End tenancy", icon: LogOut, onClick: () => {} },
           ]}
@@ -570,8 +570,8 @@ export function TenancyCardEndingSoon({ tenancy, onStartRenewal }: { tenancy: Te
         <ActionMenu
           align="right"
           items={[
-            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-            { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
             { label: "Renew", icon: RefreshCw, onClick: () => {} },
             { label: "End tenancy", icon: LogOut, onClick: () => {} },
           ]}
@@ -677,8 +677,8 @@ export function TenancyCardCompact({
         <ActionMenu
           align="right"
           items={[
-            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-            { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
             { label: "Renew", icon: RefreshCw, onClick: () => {} },
             { label: "End tenancy", icon: LogOut, onClick: () => {} },
           ]}
@@ -998,8 +998,8 @@ export function TenancyCardMobile({ tenancy, onView }: { tenancy: TenancyCardDat
         <ActionMenu
           align="right"
           items={[
-            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/app/portfolio/tenancies/${tenancy.id}`) },
-            { label: "View property", icon: Building2, onClick: () => router.push(`/app/portfolio/properties/${tenancy.property_id}`) },
+            { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
             { label: "Renew", icon: RefreshCw, onClick: () => {} },
             { label: "End tenancy", icon: LogOut, onClick: () => {} },
           ]}

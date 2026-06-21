@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState, useTransition } from "react"
 import Link from "next/link"
@@ -77,12 +77,12 @@ export function ListingsManagerClient({
 
   const header = (
     <SectionHeader
-      breadcrumb={[{ label: "Bookings", href: "/app/bookings" }, { label: "Listings" }]}
+      breadcrumb={[{ label: "Bookings", href: "/property-manager/bookings" }, { label: "Listings" }]}
       title="Bookable listings"
       subtitle="Rates and availability for your direct-booking stay listings."
       actions={
         <Link
-          href="/app/marketplace/my-listings"
+          href="/property-manager/marketplace/my-listings"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
         >
           <Store className="w-4 h-4" />
@@ -95,7 +95,7 @@ export function ListingsManagerClient({
   if (!canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Listings" subtitle="Booking management" showBack backHref="/app/bookings" />
+        <MobileTopBar title="Listings" subtitle="Booking management" showBack backHref="/property-manager/bookings" />
         <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
           <div className="hidden md:block">{header}</div>
           <BookingUpgradePrompt planName={planName} reason={upgradeReason} />
@@ -110,8 +110,8 @@ export function ListingsManagerClient({
         title="Listings"
         subtitle="Rates & availability"
         showBack
-        backHref="/app/bookings"
-        primaryAction={{ label: "Inventory", icon: Store, href: "/app/marketplace/my-listings" }}
+        backHref="/property-manager/bookings"
+        primaryAction={{ label: "Inventory", icon: Store, href: "/property-manager/marketplace/my-listings" }}
       />
 
       {toast && (
@@ -145,7 +145,7 @@ export function ListingsManagerClient({
               description="Create a stay-booking listing in your marketplace inventory to set rates and availability here."
               action={
                 <Link
-                  href="/app/marketplace/my-listings?new=1"
+                  href="/property-manager/marketplace/my-listings?new=1"
                   className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />

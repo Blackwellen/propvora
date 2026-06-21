@@ -195,10 +195,6 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select property…</option>
-                <option value="maple">Maple House</option>
-                <option value="oakwood">Oakwood Court</option>
-                <option value="riverside">Riverside Apartments</option>
-                <option value="harbor">Harbor View</option>
               </select>
             </div>
           </div>
@@ -405,14 +401,14 @@ export default function BillsPage() {
     if (!liveBills) return []
     return liveBills.map((r, i) => ({
       id: r.id,
-      supplierInitials: (r.supplier_id ?? "??").slice(0, 2).toUpperCase(),
+      supplierInitials: (r.supplier_name ?? r.supplier_id ?? "??").slice(0, 2).toUpperCase(),
       supplierColor: "bg-slate-500",
-      supplierName: r.supplier_id ?? "Unknown Supplier",
+      supplierName: r.supplier_name ?? "Unknown Supplier",
       supplierSubtitle: "",
       billNumber: r.reference ?? `BILL-${String(i + 1).padStart(4, "0")}`,
       poRef: r.reference ?? "—",
       type: "Invoice" as BillType,
-      property: r.property_id ?? "—",
+      property: r.property_name ?? "—",
       linkedJob: "—",
       amount: r.amount,
       dueDate: r.due_date,
@@ -438,9 +434,9 @@ export default function BillsPage() {
       .filter((r) => r.approval_status === "approved" && r.payment_status !== "paid")
       .map((r, i): SupplierPayment => ({
         id: r.id,
-        supplierInitials: (r.supplier_id ?? "??").slice(0, 2).toUpperCase(),
+        supplierInitials: (r.supplier_name ?? r.supplier_id ?? "??").slice(0, 2).toUpperCase(),
         supplierColor: "bg-slate-500",
-        supplierName: r.supplier_id ?? `Supplier ${i + 1}`,
+        supplierName: r.supplier_name ?? `Supplier ${i + 1}`,
         paymentMethod: "BACS",
         amount: r.amount,
         status: r.payment_status === "scheduled" ? "ready" : "awaiting_approval",
@@ -452,7 +448,7 @@ export default function BillsPage() {
   const topSuppliers = useMemo(() => {
     const map = new Map<string, number>()
     for (const r of liveBills ?? []) {
-      const key = r.supplier_id ?? "Unknown Supplier"
+      const key = r.supplier_name ?? r.supplier_id ?? "Unknown Supplier"
       map.set(key, (map.get(key) ?? 0) + (r.amount ?? 0))
     }
     const total = [...map.values()].reduce((a, b) => a + b, 0) || 1
@@ -538,7 +534,7 @@ export default function BillsPage() {
       { label: "Property", render: (b) => b.property },
       { label: "Payment", render: (b) => b.paymentMethod },
     ],
-    onRowClick: (b) => router.push(`/app/money/bills/${b.id}`),
+    onRowClick: (b) => router.push(`/property-manager/money/bills/${b.id}`),
   }
   const supplierPaymentCardMapping: MobileCardMapping<SupplierPayment> = {
     getKey: (sp) => sp.id,
@@ -552,7 +548,7 @@ export default function BillsPage() {
       { label: "Amount", render: (sp) => formatCurrency(sp.amount) },
       { label: "Scheduled", render: (sp) => sp.scheduledDate },
     ],
-    onRowClick: (sp) => router.push(`/app/money/bills/${sp.id}`),
+    onRowClick: (sp) => router.push(`/property-manager/money/bills/${sp.id}`),
   }
 
   return (
@@ -576,7 +572,7 @@ export default function BillsPage() {
       <MoneyTabNav />
 
       {showAddModal && <AddBillModal onClose={() => setShowAddModal(false)} workspaceId={workspace?.id} onSaved={() => showToast("Bill saved successfully")} />}
-      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+      <DashboardContainer className="py-6 flex flex-col gap-6">
         {/* Header */}
         <div className="hidden md:block">
         <MoneyPageHeader
@@ -922,7 +918,7 @@ export default function BillsPage() {
                             </td>
                             <td className="px-3 py-3.5">
                               <div
-                                onClick={() => router.push(`/app/money/bills/${bill.id}`)}
+                                onClick={() => router.push(`/property-manager/money/bills/${bill.id}`)}
                                 className="text-[13px] font-semibold text-blue-600 hover:underline cursor-pointer"
                               >
                                 {bill.billNumber}
@@ -1004,7 +1000,7 @@ export default function BillsPage() {
                                 {(open) => (
                                   <ActionMenu
                                     items={[
-                                      { label: "View", icon: Eye, onClick: () => router.push(`/app/money/bills/${bill.id}`) },
+                                      { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/money/bills/${bill.id}`) },
                                       { label: "Approve", icon: CheckSquare, onClick: () => approveBillRow(bill.id) },
                                       { label: "Mark as Paid", icon: CheckCircle, onClick: () => markBillPaidRow(bill.id) },
                                       { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
@@ -1131,7 +1127,7 @@ export default function BillsPage() {
                             <td className="px-3 py-3.5">
                               <ActionMenu
                                 items={[
-                                  { label: "View Bill", icon: Eye, onClick: () => router.push(`/app/money/bills/${sp.id}`) },
+                                  { label: "View Bill", icon: Eye, onClick: () => router.push(`/property-manager/money/bills/${sp.id}`) },
                                   { label: "Mark as Paid", icon: CheckCircle, onClick: () => markBillPaidRow(sp.id) },
                                 ]}
                               />

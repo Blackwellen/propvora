@@ -9,7 +9,6 @@ const footerLinks = {
     { label: "Stays", href: "/stays", mk: true },
     { label: "Suppliers", href: "/suppliers", mk: true },
     { label: "Services", href: "/services", mk: true },
-    { label: "Emergency", href: "/emergency", mk: true },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Partner Programme", href: "/affiliate-programme" },

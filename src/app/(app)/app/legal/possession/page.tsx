@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -145,7 +145,7 @@ export default function PossessionPage() {
       { label: "Notice", render: (c) => formatDate(c.notice_served_date) },
       { label: "Expiry", render: (c) => formatDate(c.notice_expiry_date) },
     ],
-    onRowClick: (c) => router.push(`/app/legal/possession/${c.id}`),
+    onRowClick: (c) => router.push(`/property-manager/legal/possession/${c.id}`),
   }
 
   return (
@@ -173,7 +173,7 @@ export default function PossessionPage() {
             Export CSV
           </button>
           <Link
-            href="/app/legal/possession/new/select-tenancy"
+            href="/property-manager/legal/possession/new/select-tenancy"
             className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ export default function PossessionPage() {
               <Icon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? "—" : value}</p>
+              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? <span className="text-slate-300">…</span> : value}</p>
               <p className="text-[12px] font-medium text-slate-700 mt-0.5">{label}</p>
               <p className="text-[11px] text-slate-500">{sub}</p>
             </div>
@@ -228,7 +228,7 @@ export default function PossessionPage() {
                   Start a possession case from a live tenancy. Propvora builds the evidence chain and a review-only Section 8 draft as you go.
                 </p>
                 <Link
-                  href="/app/legal/possession/new/select-tenancy"
+                  href="/property-manager/legal/possession/new/select-tenancy"
                   className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -259,7 +259,7 @@ export default function PossessionPage() {
                       return (
                         <tr
                           key={c.id}
-                          onClick={() => router.push(`/app/legal/possession/${c.id}`)}
+                          onClick={() => router.push(`/property-manager/legal/possession/${c.id}`)}
                           className={`border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${i === cases.length - 1 ? "border-b-0" : ""}`}
                         >
                           <td className="px-4 py-3">
@@ -285,7 +285,7 @@ export default function PossessionPage() {
                           <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-1">
                               <Link
-                                href={`/app/legal/possession/${c.id}`}
+                                href={`/property-manager/legal/possession/${c.id}`}
                                 className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors whitespace-nowrap"
                               >
                                 <Eye className="w-3 h-3" />
@@ -302,8 +302,8 @@ export default function PossessionPage() {
                                 {(open) => (
                                   <ActionMenu
                                     items={[
-                                      { label: "View Case", icon: Eye, onClick: () => router.push(`/app/legal/possession/${c.id}`) },
-                                      { label: "Open Property", icon: Building2, onClick: () => router.push(c.property_id ? `/app/properties/${c.property_id}` : "/app/properties") },
+                                      { label: "View Case", icon: Eye, onClick: () => router.push(`/property-manager/legal/possession/${c.id}`) },
+                                      { label: "Open Property", icon: Building2, onClick: () => router.push(c.property_id ? `/property-manager/portfolio/properties/${c.property_id}` : "/property-manager/portfolio/properties") },
                                       { label: "Delete Case", icon: Trash2, variant: "danger", onClick: open },
                                     ]}
                                   />
@@ -345,7 +345,7 @@ export default function PossessionPage() {
                 notice period and arrears requirements applied.
               </p>
               <Link
-                href="/app/legal/rra-2026"
+                href="/property-manager/legal/rra-2026"
                 className="text-[11px] text-purple-700 hover:text-purple-900 font-medium underline"
               >
                 Open RRA 2026 readiness →
@@ -396,7 +396,7 @@ export default function PossessionPage() {
                 ))}
               </ol>
               <Link
-                href="/app/legal/possession/new/select-tenancy"
+                href="/property-manager/legal/possession/new/select-tenancy"
                 className="w-full bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
               >
                 Start Possession Wizard

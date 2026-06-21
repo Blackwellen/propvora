@@ -10,6 +10,7 @@ import {
   Share2,
   Download,
   Phone,
+  Activity,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getPlans, gbp, type PlanTier } from "@/lib/billing/plans"
@@ -39,6 +40,7 @@ const PLAN_CARD: Record<
       { label: "Email support", included: true, icon: Headphones },
       { label: "Advanced reports", included: false, icon: Download },
       { label: "AI Copilot", included: false, icon: Brain },
+      { label: "Automations", included: false, icon: Activity },
       { label: "Portals & accounting", included: false, icon: Store },
       { label: "White-label branding", included: false, icon: Share2 },
     ],
@@ -54,6 +56,7 @@ const PLAN_CARD: Record<
       { label: "Work & PPM", included: true },
       { label: "Priority email support", included: true, icon: Headphones },
       { label: "AI Copilot", included: false, icon: Brain },
+      { label: "Automations", included: false, icon: Activity },
       { label: "White-label branding", included: false, icon: Share2 },
     ],
   },
@@ -209,7 +212,7 @@ export default function PlanCards({ billing }: Props) {
         </div>
 
         <p className="text-center text-slate-500 text-sm mt-8">
-          All plans include a 14-day free trial · No credit card required · Cancel anytime
+          All plans include a 7-day free trial · No credit card required · Cancel anytime
         </p>
       </div>
     </section>

@@ -121,8 +121,8 @@ function AccountGroupSection({
     actions: (a) => (
       <ActionMenu
         items={[
-          { label: "Edit", icon: Edit2, onClick: () => router.push(`/app/accounting/accounts/${a.id}`) },
-          { label: "View Transactions", icon: ChevronRight, onClick: () => router.push(`/app/accounting/accounts/${a.id}`) },
+          { label: "Edit", icon: Edit2, onClick: () => router.push(`/property-manager/accounting/accounts/${a.id}`) },
+          { label: "View Transactions", icon: ChevronRight, onClick: () => router.push(`/property-manager/accounting/accounts/${a.id}`) },
           { label: a.status === "Active" ? "Deactivate" : "Activate", icon: Edit2, onClick: () => onToggleStatus(a) },
         ]}
       />
@@ -251,8 +251,8 @@ function AccountGroupSection({
                   <td className="px-4 py-3 relative">
                     <ActionMenu
                       items={[
-                        { label: "Edit", icon: Edit2, onClick: () => router.push(`/app/accounting/accounts/${acct.id}`) },
-                        { label: "View Transactions", icon: ChevronRight, onClick: () => router.push(`/app/accounting/accounts/${acct.id}`) },
+                        { label: "Edit", icon: Edit2, onClick: () => router.push(`/property-manager/accounting/accounts/${acct.id}`) },
+                        { label: "View Transactions", icon: ChevronRight, onClick: () => router.push(`/property-manager/accounting/accounts/${acct.id}`) },
                         { label: acct.status === "Active" ? "Deactivate" : "Activate", icon: Edit2, onClick: () => onToggleStatus(acct) },
                       ]}
                     />
@@ -371,7 +371,7 @@ export default function AccountsOverviewPage() {
       <MobileTopBar
         title="Accounts Overview"
         subtitle="Accounting"
-        primaryAction={{ label: "New account", icon: Plus, href: sectionLink("/app/accounting/accounts/new") }}
+        primaryAction={{ label: "New account", icon: Plus, href: sectionLink("/property-manager/accounting/accounts/new") }}
         overflowActions={accounts.length > 0 ? [{ label: "Export CSV", icon: Download, onClick: exportCsv }] : undefined}
       />
 
@@ -385,7 +385,7 @@ export default function AccountsOverviewPage() {
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="outline" size="md">
-              01 · Accounts Overview
+              Accounts
             </Badge>
             <h1 className="text-2xl font-bold text-slate-900">Accounts Overview</h1>
           </div>
@@ -409,7 +409,7 @@ export default function AccountsOverviewPage() {
             asChild
             leftIcon={<Plus className="w-3.5 h-3.5" />}
           >
-            <Link href={sectionLink("/app/accounting/accounts/new")}>New Account</Link>
+            <Link href={sectionLink("/property-manager/accounting/accounts/new")}>New Account</Link>
           </Button>
         </div>
       </div>
@@ -495,7 +495,7 @@ export default function AccountsOverviewPage() {
               asChild
               leftIcon={<Plus className="w-3.5 h-3.5" />}
             >
-              <Link href={sectionLink("/app/accounting/accounts/new")}>New Account</Link>
+              <Link href={sectionLink("/property-manager/accounting/accounts/new")}>New Account</Link>
             </Button>
           </>
         }
@@ -523,7 +523,7 @@ export default function AccountsOverviewPage() {
                 building the ledger — balances are computed live from posted journal entries.
               </p>
               <Button variant="primary" size="sm" asChild leftIcon={<Plus className="w-3.5 h-3.5" />}>
-                <Link href={sectionLink("/app/accounting/accounts/new")}>Create First Account</Link>
+                <Link href={sectionLink("/property-manager/accounting/accounts/new")}>Create First Account</Link>
               </Button>
             </div>
           ) : filteredGroups.length === 0 ? (
@@ -593,7 +593,7 @@ export default function AccountsOverviewPage() {
               ))}
             </div>
             <Button variant="outline" size="sm" className="w-full mt-4" asChild>
-              <Link href={sectionLink("/app/accounting/accounts/new")}>New Account</Link>
+              <Link href={sectionLink("/property-manager/accounting/accounts/new")}>New Account</Link>
             </Button>
           </div>
 

@@ -28,11 +28,11 @@ export default async function OperatorSupplierDetailPage({
   if (!access.canBrowse) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Supplier" showBack backHref="/app/marketplace/suppliers" />
+        <MobileTopBar title="Supplier" showBack backHref="/property-manager/marketplace/suppliers" />
         <NotAvailable
           title="Supplier procurement isn't on your plan"
           body={`Your ${access.planName} plan doesn't include the supplier marketplace yet.`}
-          cta={{ label: "View plans", href: "/app/workspace-settings/subscription" }}
+          cta={{ label: "View plans", href: "/property-manager/workspace-settings/subscription" }}
         />
       </DashboardContainer>
     )
@@ -47,11 +47,11 @@ export default async function OperatorSupplierDetailPage({
   if (!detail) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Supplier" showBack backHref="/app/marketplace/suppliers" />
+        <MobileTopBar title="Supplier" showBack backHref="/property-manager/marketplace/suppliers" />
         <NotAvailable
           title="This supplier isn't available"
           body="It may have been unpublished or is no longer taking enquiries."
-          cta={{ label: "Browse suppliers", href: "/app/marketplace/suppliers" }}
+          cta={{ label: "Browse suppliers", href: "/property-manager/marketplace/suppliers" }}
         />
       </DashboardContainer>
     )
@@ -67,7 +67,7 @@ export default async function OperatorSupplierDetailPage({
 
   return (
     <>
-      <MobileTopBar title={detail.title} showBack backHref="/app/marketplace/suppliers" />
+      <MobileTopBar title={detail.title} showBack backHref="/property-manager/marketplace/suppliers" />
       <OperatorSupplierDetail supplier={detail} session={session} />
     </>
   )

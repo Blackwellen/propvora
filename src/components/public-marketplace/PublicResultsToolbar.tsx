@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { Map, List, LayoutGrid, ChevronDown, Bookmark } from 'lucide-react'
+import { Map, List, ChevronDown, Bookmark } from 'lucide-react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 interface PublicResultsToolbarProps {
@@ -17,10 +18,22 @@ interface PublicResultsToolbarProps {
   showSaveSearch?: boolean
 }
 
+const DEFAULT_SORT_OPTIONS = [
+  'Recommended',
+  'Price: Low to High',
+  'Price: High to Low',
+  'Rating',
+  'Newest',
+]
+
+/**
+ * Results toolbar — wires sort to URL ?sort= param so the server can apply
+ * the selected sort order. Back-button safe and shareable.
+ */
 export default function PublicResultsToolbar({
   count,
   location,
-  sortOptions = ['Recommended', 'Price: Low to High', 'Price: High to Low', 'Rating', 'Newest'],
+  sortOptions = DEFAULT_SORT_OPTIONS,
   defaultSort = 'Recommended',
   showViewToggle = true,
   viewMode = 'grid',
@@ -28,18 +41,36 @@ export default function PublicResultsToolbar({
   listHref,
   showSaveSearch = false,
 }: PublicResultsToolbarProps) {
-  const [sort, setSort] = useState(defaultSort)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [showSort, setShowSort] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const currentSort = searchParams?.get('sort') ?? defaultSort
+
+  const applySort = useCallback((opt: string) => {
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    if (opt === defaultSort) {
+      params.delete('sort')
+    } else {
+      params.set('sort', opt)
+    }
+    params.delete('page') // reset pagination on sort change
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    setShowSort(false)
+  }, [router, pathname, searchParams, defaultSort])
 
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex items-center gap-4">
         <p className="text-sm text-slate-600">
           <span className="font-semibold text-slate-900">{count.toLocaleString()}</span>{' '}
-          {count === 1 ? 'result' : 'results'} · {location}
+          {count === 1 ? 'result' : 'results'}
+          {location ? ` · ${location}` : ''}
         </p>
         {showSaveSearch && (
-          <button className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700">
+          <button className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
             <Bookmark className="h-4 w-4" />
             Save search
           </button>
@@ -77,24 +108,31 @@ export default function PublicResultsToolbar({
           </div>
         )}
 
-        {/* Sort */}
-        <div className="relative">
+        {/* Sort dropdown */}
+        <div className="relative" ref={dropdownRef}>
           <button
-            onClick={() => setShowSort(!showSort)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 bg-white"
+            onClick={() => setShowSort(s => !s)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            aria-expanded={showSort}
+            aria-haspopup="listbox"
           >
-            Sort: {sort}
-            <ChevronDown className="h-3.5 w-3.5" />
+            Sort: {currentSort}
+            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', showSort && 'rotate-180')} />
           </button>
           {showSort && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1">
+            <div
+              role="listbox"
+              className="absolute right-0 top-full mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1"
+            >
               {sortOptions.map(opt => (
                 <button
                   key={opt}
-                  onClick={() => { setSort(opt); setShowSort(false) }}
+                  role="option"
+                  aria-selected={currentSort === opt}
+                  onClick={() => applySort(opt)}
                   className={cn(
-                    'w-full text-left px-4 py-2 text-sm hover:bg-slate-50',
-                    sort === opt ? 'font-semibold text-blue-600' : 'text-slate-700',
+                    'w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors',
+                    currentSort === opt ? 'font-semibold text-blue-600' : 'text-slate-700',
                   )}
                 >
                   {opt}

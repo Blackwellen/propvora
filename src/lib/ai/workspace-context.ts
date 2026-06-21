@@ -40,7 +40,10 @@ export interface WorkspaceSnapshot {
   units?: number
   activeTenancies?: number
   openTasks?: number
+  overdueTasks?: number
+  highPriorityTasks?: number
   openJobs?: number
+  jobsInProgress?: number
   contacts?: number
   documents?: number
   // Bookings (short-let / accommodation)
@@ -175,8 +178,14 @@ export async function getWorkspaceSnapshot(
     add("units", safeCount(supabase, "units", workspaceId))
     add("activeTenancies", safeCount(supabase, "tenancies", workspaceId, (q) => q.eq("status", "active")))
     add("openTasks", safeCount(supabase, "tasks", workspaceId, (q) => q.neq("status", "done")))
+    add("overdueTasks", safeCount(supabase, "tasks", workspaceId, (q) =>
+      q.neq("status", "done").lt("due_date", todayIso)))
+    add("highPriorityTasks", safeCount(supabase, "tasks", workspaceId, (q) =>
+      q.neq("status", "done").in("priority", ["high", "urgent", "critical"])))
     add("openJobs", safeCount(supabase, "jobs", workspaceId, (q) =>
       q.in("status", ["open", "scheduled", "in_progress", "assigned"])))
+    add("jobsInProgress", safeCount(supabase, "jobs", workspaceId, (q) =>
+      q.eq("status", "in_progress")))
     add("contacts", safeCount(supabase, "contacts", workspaceId))
     add("documents", safeCount(supabase, "documents", workspaceId))
   }
@@ -209,7 +218,6 @@ export async function getWorkspaceSnapshot(
       q.eq("status", "active")))
   }
 
-  void todayIso
   const results = await Promise.all(tasks)
   const snap: WorkspaceSnapshot = {}
   for (const [key, val] of results) {
@@ -256,8 +264,11 @@ export function renderWorkspaceContext(
   add("Properties", snap.properties)
   add("Units", snap.units)
   add("Active tenancies", snap.activeTenancies)
-  add("Open tasks", snap.openTasks)
+  add("Open tasks (not done)", snap.openTasks)
+  add("Overdue tasks (past due date)", snap.overdueTasks)
+  add("High-priority tasks", snap.highPriorityTasks)
   add("Open jobs", snap.openJobs)
+  add("Jobs in progress", snap.jobsInProgress)
   add("Contacts", snap.contacts)
   add("Documents", snap.documents)
   // bookings

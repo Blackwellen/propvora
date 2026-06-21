@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -179,7 +179,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Contact Type Breakdown</h2>
               <p className="text-xs text-slate-500 mt-0.5">Distribution across {contacts.length} contacts</p>
             </div>
-            <Link href="/app/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
           </div>
           {contacts.length === 0 ? (
             <div className="py-12 text-center">
@@ -219,7 +219,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                     <span>{c.tags.includes("arrears") ? "Arrears flagged" : c.tags.includes("follow_up") ? "Follow-up due" : "Inactive — review"}</span>
                   </div>
                 </div>
-                <Link href={`/app/contacts/${c.id}`} className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-[#2563EB] hover:text-white transition-colors">
+                <Link href={`/property-manager/contacts/${c.id}`} className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-[#2563EB] hover:text-white transition-colors">
                   Act
                 </Link>
               </div>
@@ -236,14 +236,14 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Key Contacts</h2>
               <p className="text-xs text-slate-500 mt-0.5">Most recently active</p>
             </div>
-            <Link href="/app/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
           </div>
           {keyContacts.length === 0 ? (
             <div className="py-8 text-center"><Users className="w-8 h-8 text-slate-200 mx-auto mb-2" /><p className="text-xs text-slate-400">No contacts yet</p></div>
           ) : (
             <div className="space-y-3">
               {keyContacts.map((c, i) => (
-                <Link key={c.id} href={`/app/contacts/${c.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
+                <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
                   <Avatar name={c.full_name} size="sm" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-[#2563EB]">{c.full_name}</p>
@@ -278,7 +278,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                 <p className="text-[10px] text-slate-400 mt-1">Tag a contact &ldquo;follow_up&rdquo; to track it here</p>
               </div>
             ) : followUpContacts.map(f => (
-              <Link key={f.id} href={`/app/contacts/${f.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition-colors">
+              <Link key={f.id} href={`/property-manager/contacts/${f.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition-colors">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50">
                   <Clock className="w-4 h-4 text-amber-600" />
                 </div>
@@ -316,7 +316,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Recent Activity</h2>
               <p className="text-xs text-slate-500 mt-0.5">Latest contact events</p>
             </div>
-            <Link href="/app/contacts/activity" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/activity" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
           </div>
           <div className="space-y-0">
             {recentActivity.length === 0 ? (
@@ -325,7 +325,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                 <p className="text-xs text-slate-400">No recent contact activity</p>
               </div>
             ) : recentActivity.map((c, i) => (
-              <Link key={c.id} href={`/app/contacts/${c.id}`} className={cn("flex items-start gap-3 py-2.5 group", i < recentActivity.length - 1 && "border-b border-slate-100")}>
+              <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className={cn("flex items-start gap-3 py-2.5 group", i < recentActivity.length - 1 && "border-b border-slate-100")}>
                 <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
                   <UserPlus className="w-3.5 h-3.5" style={{ color: "#10B981" }} />
                 </div>

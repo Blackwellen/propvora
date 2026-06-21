@@ -7,7 +7,7 @@ import { getGlobalFlag } from "@/lib/flags/public"
  * Public marketplace layout — UNAUTHENTICATED (anon-readable).
  *
  * This group sits OUTSIDE every protected prefix in `src/proxy.ts`
- * (`/app`, `/supplier-portal`, `/admin`, `/affiliate`) so `/marketplace/*` is
+ * (/property-manager, `/supplier-portal`, `/admin`, `/affiliate`) so `/marketplace/*` is
  * reachable by anonymous visitors. The only data it reads is PUBLISHED/active
  * listings (anon RLS via `marketplace_listings_public_read`) and it only ever
  * writes via the sanctioned enquiry/checkout APIs. Light tokens only — never

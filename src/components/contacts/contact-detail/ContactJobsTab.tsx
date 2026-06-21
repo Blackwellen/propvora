@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -17,7 +17,7 @@ export function WorkHistoryTab({ contact }: { contact: ContactDetail }) {
         <div>
           <p className="text-xs text-slate-500">{jobs.length} jobs · Total spend: <span className="font-semibold text-slate-900">£{totalCost.toLocaleString("en-GB")}</span></p>
         </div>
-        <Link href="/app/work/jobs/new">
+        <Link href="/property-manager/work/jobs/new">
           <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Create Job</Button>
         </Link>
       </div>

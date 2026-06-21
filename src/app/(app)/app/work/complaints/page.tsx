@@ -85,7 +85,7 @@ function ComplaintRow({
           <div className="flex items-center gap-3 mt-1.5 flex-wrap">
             {jobTitle && (
               <Link
-                href={`/app/work/jobs/${complaint.job_id}`}
+                href={`/property-manager/work/jobs/${complaint.job_id}`}
                 className="text-[12px] text-[#2563EB] hover:underline"
               >
                 {jobTitle}

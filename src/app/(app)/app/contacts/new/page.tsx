@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
@@ -167,7 +167,7 @@ export default function NewContactPage() {
             </div>
             <div className="flex flex-col gap-2.5 pt-2">
               <button
-                onClick={() => router.push(`/app/contacts/${createdContact.id}`)}
+                onClick={() => router.push(`/property-manager/contacts/${createdContact.id}`)}
                 className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 text-sm transition"
               >
                 View Contact
@@ -179,7 +179,7 @@ export default function NewContactPage() {
                 Add Another
               </button>
               <button
-                onClick={() => router.push("/app/contacts")}
+                onClick={() => router.push("/property-manager/contacts")}
                 className="w-full rounded-xl border border-slate-200 text-slate-500 font-medium py-2.5 text-sm hover:bg-slate-50 transition"
               >
                 Back to Contacts
@@ -196,7 +196,7 @@ export default function NewContactPage() {
       {/* Top breadcrumb bar */}
       <div className="sticky top-0 z-10 flex items-center gap-3 bg-white border-b border-slate-100 px-6 py-3.5">
         <button
-          onClick={() => router.push("/app/contacts")}
+          onClick={() => router.push("/property-manager/contacts")}
           className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition"
         >
           <ArrowLeft className="w-4 h-4" />

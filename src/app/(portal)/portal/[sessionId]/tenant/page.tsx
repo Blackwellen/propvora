@@ -4,7 +4,7 @@ import {
   Download, ChevronRight, AlertTriangle, Wrench, Phone, ShieldCheck, Bell, ArrowRight,
 } from "lucide-react"
 import { requirePortalSession } from "../_guard"
-import { getTenantTenancies, getTenantMaintenance, getTenantPayments } from "@/lib/portal/data"
+import { getTenantTenancies, getTenantMaintenance, getTenantPayments, getTenantDocuments } from "@/lib/portal/data"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { formatMoney, formatDate, tenancyStatusMeta } from "@/lib/portal/format"
 import {
@@ -50,9 +50,10 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
 
   const tenancies = await getTenantTenancies(session)
   const current = tenancies.find((t) => t.status === "active") ?? tenancies[0] ?? null
-  const [maintenance, payments] = await Promise.all([
+  const [maintenance, payments, documents] = await Promise.all([
     getTenantMaintenance(session).catch(() => []),
     getTenantPayments(session).catch(() => []),
+    getTenantDocuments(session).catch(() => []),
   ])
   const openMaint = maintenance.filter((m) => !["complete", "invoiced", "closed"].includes(m.status))
   const yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString()
@@ -95,7 +96,7 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
     { label: "Total paid this year", value: formatMoney(paidThisYear || (current.rent_amount ?? 0)), sub: paidThisYear ? "Actual payments" : "Rent amount", icon: PoundSterling, tone: "emerald", href: `${base}/payments` },
     { label: "Open maintenance", value: String(openMaint.length), sub: openMaint.length ? "In progress" : "All clear", icon: Wrench, tone: openMaint.length ? "amber" : "emerald", href: `${base}/maintenance` },
     { label: "Unread messages", value: "0", sub: "From your manager", icon: MessageSquare, tone: "slate", href: `${base}/messages` },
-    { label: "Documents available", value: "—", sub: "Agreement & certs", icon: FileText, tone: "violet", href: `${base}/documents` },
+    { label: "Documents available", value: String(documents.length), sub: "Agreement & certs", icon: FileText, tone: "violet", href: `${base}/documents` },
   ]
 
   return (

@@ -69,9 +69,9 @@ export async function getCommissionLedger(
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("affiliate_commissions")
-      // live shape: amount/currency + referred_workspace_id + workspace_id (table currently empty).
-      // TODO(affiliate): verify `amount` units vs commission_pence (pence) before commissions carry data.
-      .select("id, created_at, status, commission_pence:amount, referral_id:referred_workspace_id")
+      // commission_pence is a GENERATED column (CEIL(amount * 100)) added in
+      // 20260621000002_affiliate_schema_v2.sql.  Falls back to 0 if column absent.
+      .select("id, created_at, status, commission_pence, referral_id:referred_workspace_id")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false })
       .limit(200)
@@ -101,7 +101,8 @@ export async function getMonthlyEarnings(
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("affiliate_commissions")
-      .select("created_at, commission_pence:amount, status")
+      // commission_pence GENERATED column (see 20260621000002_affiliate_schema_v2.sql)
+      .select("created_at, commission_pence, status")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true })
     if (error) {

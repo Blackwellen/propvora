@@ -60,7 +60,7 @@ export default function MobileTopBar({
   return (
     <header
       className={cn(
-        "lg:hidden sticky top-0 z-40 flex items-center gap-2 h-14 px-3",
+        "lg:hidden sticky top-0 z-40 flex items-center gap-2 h-14 px-4 sm:px-6",
         "bg-white/95 backdrop-blur-md border-b border-[#E2EAF6]",
         className
       )}

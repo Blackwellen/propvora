@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback } from "react"
 import { usePathname, useRouter } from "next/navigation"
@@ -33,6 +33,7 @@ import {
   PoundSterling,
   Gavel,
   Wallet,
+  Ticket,
   ShieldAlert,
   Globe2,
   CalendarCheck,
@@ -62,6 +63,7 @@ const ADMIN_NAV_GROUPS = [
       { label: "Workspaces",    href: "/admin/workspaces",    icon: Building2 },
       { label: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
       { label: "Affiliates",    href: "/admin/affiliates",    icon: UserCheck },
+      { label: "Coupon Codes",  href: "/admin/coupon-codes",  icon: Ticket },
       { label: "Portals",       href: "/admin/portals",       icon: ExternalLink },
       { label: "Documents",     href: "/admin/documents",     icon: FolderArchive },
     ],
@@ -341,7 +343,7 @@ function AdminTopNav() {
       </Link>
       <div className="hidden md:block w-px h-6 bg-slate-200 mx-1" />
       <Link
-        href="/app"
+        href="/property-manager"
         className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-medium text-[#2563EB] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"
       >
         <ExternalLink className="w-4 h-4" />

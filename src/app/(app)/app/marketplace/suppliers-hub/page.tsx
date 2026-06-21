@@ -15,13 +15,16 @@ export const metadata: Metadata = {
  * (Suppliers | Services | Emergency) switching between the three marketplaces
  * via `?tab=`. The listing cards are the exact public-marketplace components,
  * so they stay 1:1 with the public marketplace. Defaults to "suppliers".
+ *
+ * searchParams are forwarded to each section so they can filter/sort/paginate.
  */
 export default async function SuppliersHubPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { tab } = await searchParams
+  const params = await searchParams
+  const tab = typeof params.tab === "string" ? params.tab : undefined
   const active: HubTab =
     tab === "services" ? "services" : tab === "emergency" ? "emergency" : "suppliers"
 
@@ -30,9 +33,9 @@ export default async function SuppliersHubPage({
       <Suspense fallback={<div className="mb-6 h-12 border-b border-slate-200" />}>
         <SuppliersHubTabs />
       </Suspense>
-      {active === "suppliers" && <SuppliersSection />}
-      {active === "services" && <ServicesSection />}
-      {active === "emergency" && <EmergencySection />}
+      {active === "suppliers" && <SuppliersSection searchParams={params} />}
+      {active === "services"  && <ServicesSection  searchParams={params} />}
+      {active === "emergency" && <EmergencySection  searchParams={params} />}
     </div>
   )
 }

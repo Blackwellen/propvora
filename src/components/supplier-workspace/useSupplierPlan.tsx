@@ -45,12 +45,12 @@ export interface SupplierPlanValue {
 }
 
 const DEFAULT_VALUE: SupplierPlanValue = {
-  planType: "team", // dev default — show everything until DB says otherwise
+  planType: "solo", // safe default — team view requires explicit DB value or >1 member
   role: "owner",
   memberCount: 1,
   loading: true,
-  isTeam: true,
-  isSolo: false,
+  isTeam: false,
+  isSolo: true,
   isEnterprise: false,
 }
 
@@ -69,7 +69,7 @@ export function SupplierPlanProvider({
   seedMemberCount?: number
 }) {
   const { workspaceId } = useSupplierWorkspace()
-  const [planType, setPlanType] = useState<SupplierPlanType>(seedPlanType ?? "team")
+  const [planType, setPlanType] = useState<SupplierPlanType>(seedPlanType ?? "solo")
   const [role, setRole] = useState<SupplierRole>(seedRole ?? "owner")
   const [memberCount, setMemberCount] = useState<number>(seedMemberCount ?? 1)
   const [loading, setLoading] = useState(!seedPlanType)
@@ -88,7 +88,8 @@ export function SupplierPlanProvider({
         const uid = auth?.user?.id
 
         // Plan type lives on the workspace row (additive `plan_type` column).
-        let resolvedPlan: SupplierPlanType = "team"
+        // Default to solo — team requires explicit DB value or >1 member.
+        let resolvedPlan: SupplierPlanType = "solo"
         try {
           const { data: ws } = await supabase
             .from("workspaces")
@@ -98,7 +99,7 @@ export function SupplierPlanProvider({
           const raw = (ws as { plan_type?: string } | null)?.plan_type
           if (raw === "solo" || raw === "team" || raw === "enterprise") resolvedPlan = raw
         } catch {
-          /* 42P01 / missing column — keep team default */
+          /* 42P01 / missing column — keep solo default */
         }
 
         // Member count + this user's role from supplier_workspace_members.

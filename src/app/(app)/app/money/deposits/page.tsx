@@ -90,7 +90,7 @@ const AVATAR_COLORS = [
 ]
 
 function mapDepositRow(r: MoneyDepositRow): DepositRow {
-  const initials = (r.tenant_id ?? r.id).slice(0, 2).toUpperCase()
+  const initials = (r.tenant_name ?? r.tenant_id ?? r.id).slice(0, 2).toUpperCase()
   const colorIdx = r.id.charCodeAt(r.id.length - 1) % AVATAR_COLORS.length
 
   const receivedDate = r.created_at
@@ -114,9 +114,9 @@ function mapDepositRow(r: MoneyDepositRow): DepositRow {
     id: r.id,
     avatarInitials: initials,
     avatarColor: AVATAR_COLORS[colorIdx],
-    tenantName: r.tenant_id ?? "Unknown Tenant",
+    tenantName: r.tenant_name ?? "Unknown Tenant",
     tenantRef: r.id.slice(0, 10).toUpperCase(),
-    propertyAddress: r.property_id ?? "Unknown Property",
+    propertyAddress: r.property_name ?? "Unknown Property",
     amount: r.amount,
     receivedDate,
     scheme: null,
@@ -716,7 +716,7 @@ function DepositRowItem({
       {/* Property */}
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium text-slate-700 truncate">{deposit.propertyAddress}</p>
-        <p className="text-[11px] text-slate-500 mt-0.5">
+        <p className="text-[11px] text-slate-500 mt-0.5 whitespace-nowrap">
           £{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })} · Received {deposit.receivedDate}
         </p>
       </div>
@@ -732,7 +732,7 @@ function DepositRowItem({
           {sc.icon}
           {sc.label}
         </div>
-        <p className={cn("text-[10px] mt-0.5 font-medium", sc.text)}>{deposit.statusDetail}</p>
+        <p className={cn("text-[10px] mt-0.5 font-medium truncate max-w-[11rem]", sc.text)}>{deposit.statusDetail}</p>
       </div>
 
       {/* Actions */}

@@ -169,8 +169,7 @@ export default function InviteClient({
     }
     setAccepted(true)
     setTimeout(() => {
-      router.push("/app")
-      router.refresh()
+      window.location.assign("/property-manager")
     }, 1400)
   }
 

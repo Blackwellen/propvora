@@ -82,6 +82,8 @@ export interface MoneyExpenseRow {
   description: string | null
   created_at: string
   updated_at: string
+  supplier_name?: string | null
+  property_name?: string | null
 }
 
 export interface MoneyInvoiceRow {
@@ -100,6 +102,9 @@ export interface MoneyInvoiceRow {
   description: string | null
   created_at: string
   updated_at: string
+  // joined display fields (optional — present when query includes the join)
+  contact_name?: string | null
+  property_address?: string | null
 }
 
 export interface MoneyBillRow {
@@ -117,6 +122,8 @@ export interface MoneyBillRow {
   approved_at: string | null
   created_at: string
   updated_at: string
+  supplier_name?: string | null
+  property_name?: string | null
 }
 
 export interface MoneyArrearsRow {
@@ -125,6 +132,8 @@ export interface MoneyArrearsRow {
   property_id: string | null
   tenant_id: string | null
   tenancy_id: string | null
+  tenant_name: string | null
+  property_name: string | null
   amount_owed: number
   amount_paid: number
   status: ArrearsStatus
@@ -141,6 +150,8 @@ export interface MoneyDepositRow {
   property_id: string | null
   tenant_id: string | null
   tenancy_id: string | null
+  tenant_name: string | null
+  property_name: string | null
   amount: number
   status: DepositStatus
   scheme_reference: string | null
@@ -377,6 +388,8 @@ function expenseStatusToLive(s: ExpenseStatus | string): string {
 function mapExpenseRecord(r: RawRow): MoneyExpenseRow {
   const date = str(r.date)
   const status = expenseStatusFromLive(str(r.status))
+  const contactJoin = r.contacts as { display_name?: string } | null | undefined
+  const propertyJoin = r.properties as { address_line1?: string } | null | undefined
   return {
     id: str(r.id),
     workspace_id: str(r.workspace_id),
@@ -386,11 +399,13 @@ function mapExpenseRecord(r: RawRow): MoneyExpenseRow {
     due_date: date,
     paid_date: status === 'paid' ? date || null : null,
     status,
-    cost_behaviour: null, // no column on expense_records
+    cost_behaviour: null,
     supplier_id: strN(r.contact_id),
     description: strN(r.description),
     created_at: str(r.created_at),
     updated_at: str(r.created_at),
+    supplier_name: contactJoin?.display_name ?? null,
+    property_name: propertyJoin?.address_line1 ?? null,
   }
 }
 
@@ -406,6 +421,8 @@ function invoiceStatusFromLive(s: string): InvoiceStatus {
 }
 function mapInvoice(r: RawRow): MoneyInvoiceRow {
   const t = str(r.invoice_type)
+  const contactJoin = r.contacts as { display_name?: string } | null | undefined
+  const propertyJoin = r.properties as { address_line1?: string } | null | undefined
   return {
     id: str(r.id),
     workspace_id: str(r.workspace_id),
@@ -422,6 +439,8 @@ function mapInvoice(r: RawRow): MoneyInvoiceRow {
     description: strN(r.notes),
     created_at: str(r.created_at),
     updated_at: str(r.updated_at),
+    contact_name: contactJoin?.display_name ?? null,
+    property_address: propertyJoin?.address_line1 ?? null,
   }
 }
 
@@ -447,6 +466,8 @@ function billStatusToApprovalPayment(s: string): { approval: BillApprovalStatus;
 }
 function mapBill(r: RawRow): MoneyBillRow {
   const { approval, payment } = billStatusToApprovalPayment(str(r.status))
+  const supplierJoin = r.contacts as { display_name?: string } | null | undefined
+  const propertyJoin = r.properties as { address_line1?: string } | null | undefined
   return {
     id: str(r.id),
     workspace_id: str(r.workspace_id),
@@ -462,6 +483,8 @@ function mapBill(r: RawRow): MoneyBillRow {
     approved_at: strN(r.approved_at),
     created_at: str(r.created_at),
     updated_at: str(r.updated_at),
+    supplier_name: supplierJoin?.display_name ?? null,
+    property_name: propertyJoin?.address_line1 ?? null,
   }
 }
 
@@ -489,12 +512,16 @@ function severityFromDays(days: number): ArrearsSeverity {
 }
 function mapArrears(r: RawRow): MoneyArrearsRow {
   const days = num(r.days_overdue)
+  const contactJoin = r.contacts as { display_name?: string } | null | undefined
+  const propertyJoin = r.properties as { address_line1?: string } | null | undefined
   return {
     id: str(r.id),
     workspace_id: str(r.workspace_id),
     property_id: strN(r.property_id),
     tenant_id: strN(r.contact_id),
     tenancy_id: strN(r.tenancy_id),
+    tenant_name: contactJoin?.display_name ?? null,
+    property_name: propertyJoin?.address_line1 ?? null,
     amount_owed: num(r.amount_due),
     amount_paid: num(r.amount_paid),
     status: arrearsStatusFromLive(str(r.status)),
@@ -524,12 +551,16 @@ function depositStatusFromLive(s: string): DepositStatus {
   }
 }
 function mapDeposit(r: RawRow): MoneyDepositRow {
+  const contactJoin = r.contacts as { display_name?: string } | null | undefined
+  const propertyJoin = r.properties as { address_line1?: string } | null | undefined
   return {
     id: str(r.id),
     workspace_id: str(r.workspace_id),
     property_id: strN(r.property_id),
     tenant_id: strN(r.contact_id),
     tenancy_id: strN(r.tenancy_id),
+    tenant_name: contactJoin?.display_name ?? null,
+    property_name: propertyJoin?.address_line1 ?? null,
     amount: num(r.amount),
     status: depositStatusFromLive(str(r.status)),
     scheme_reference: strN(r.reference_number),
@@ -760,7 +791,7 @@ export function useMoneyExpenses(
     queryFn: async () => {
       let q = supabase
         .from('expense_records')
-        .select('*')
+        .select('*, contacts(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .order('date', { ascending: false })
 
@@ -862,7 +893,7 @@ export function useMoneyInvoices(
     queryFn: async () => {
       let q = supabase
         .from('invoices')
-        .select('*')
+        .select('*, contacts(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .order('issue_date', { ascending: false })
 
@@ -1050,7 +1081,7 @@ export function useMoneyBills(
     queryFn: async () => {
       let q = supabase
         .from('bills')
-        .select('*')
+        .select('*, contacts!supplier_contact_id(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .order('due_date', { ascending: true })
 
@@ -1240,7 +1271,7 @@ export function useMoneyArrears(
     queryFn: async () => {
       let q = supabase
         .from('arrears_records')
-        .select('*')
+        .select('*, contacts(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .order('amount_outstanding', { ascending: false })
 
@@ -1320,7 +1351,7 @@ export function useMoneyDeposits(
     queryFn: async () => {
       let q = supabase
         .from('deposits')
-        .select('*')
+        .select('*, contacts(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .order('created_at', { ascending: false })
 

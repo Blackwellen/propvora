@@ -40,7 +40,7 @@ interface WizardStep {
 /* ─── Sub-tab strip ─────────────────────────────────────────── */
 function HmoTabStrip({ propertyId }: { propertyId: string }) {
   const pathname = usePathname()
-  const base = `/app/portfolio/properties/${propertyId}/hmo`
+  const base = `/property-manager/portfolio/properties/${propertyId}/hmo`
 
   const tabs = [
     { label: "Overview", href: base },
@@ -72,98 +72,7 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
 }
 
 /* ─── Mock Data ──────────────────────────────────────────────── */
-const ROOMS: RoomRow[] = [
-  {
-    id: "r1",
-    room: "Room 1",
-    tenant: "Sarah Mitchell",
-    tenantInitials: "SM",
-    avatarBg: "bg-blue-500",
-    rent: 750,
-    rentLabel: "£750/mo",
-    paymentDay: "1st",
-    leaseStart: "1 Mar 2025",
-    leaseEnd: "Periodic",
-    deposit: "£750 protected",
-    scheme: "DPS",
-    status: "occupied",
-  },
-  {
-    id: "r2",
-    room: "Room 2",
-    tenant: "James Chen",
-    tenantInitials: "JC",
-    avatarBg: "bg-amber-500",
-    rent: 720,
-    rentLabel: "£720/mo",
-    paymentDay: "1st",
-    leaseStart: "15 Apr 2025",
-    leaseEnd: "Periodic",
-    deposit: "£720 protected",
-    scheme: "TDS",
-    status: "occupied",
-  },
-  {
-    id: "r3",
-    room: "Room 3",
-    tenant: "Emma Davies",
-    tenantInitials: "ED",
-    avatarBg: "bg-emerald-500",
-    rent: 700,
-    rentLabel: "£700/mo",
-    paymentDay: "5th",
-    leaseStart: "1 Jun 2025",
-    leaseEnd: "Periodic",
-    deposit: "£700 protected",
-    scheme: "DPS",
-    status: "occupied",
-  },
-  {
-    id: "r4",
-    room: "Room 4",
-    tenant: "Ahmed Hassan",
-    tenantInitials: "AH",
-    avatarBg: "bg-violet-500",
-    rent: 780,
-    rentLabel: "£780/mo",
-    paymentDay: "1st",
-    leaseStart: "1 Jan 2025",
-    leaseEnd: "Periodic",
-    deposit: "£780 protected",
-    scheme: "DPS",
-    status: "occupied",
-  },
-  {
-    id: "r5",
-    room: "Room 5",
-    tenant: "Lisa Park",
-    tenantInitials: "LP",
-    avatarBg: "bg-pink-500",
-    rent: 900,
-    rentLabel: "£900/mo",
-    paymentDay: "15th",
-    leaseStart: "1 Feb 2025",
-    leaseEnd: "Periodic",
-    deposit: "£1,350 protected",
-    scheme: "mydeposits",
-    status: "occupied",
-  },
-  {
-    id: "r6",
-    room: "Room 6",
-    tenant: null,
-    tenantInitials: null,
-    avatarBg: "",
-    rent: null,
-    rentLabel: "£750 asking",
-    paymentDay: "—",
-    leaseStart: "—",
-    leaseEnd: "—",
-    deposit: "—",
-    scheme: null,
-    status: "vacant",
-  },
-]
+const ROOMS: RoomRow[] = []
 
 const WIZARD_STEPS: WizardStep[] = [
   { number: 1, label: "Select Room" },
@@ -708,7 +617,7 @@ export default function HmoRoomsPage({
         title="Room Management"
         subtitle="22 Victoria Road, Manchester · 6 rooms"
         showBack
-        backHref={`/app/portfolio/properties/${id}/hmo`}
+        backHref={`/property-manager/portfolio/properties/${id}/hmo`}
         primaryAction={{ label: "Add room", icon: Plus, onClick: () => setShowWizard(true) }}
       />
 
@@ -775,6 +684,13 @@ export default function HmoRoomsPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
+                  {ROOMS.length === 0 && (
+                    <tr>
+                      <td colSpan={9} className="px-4 py-10 text-center text-[12px] text-slate-400">
+                        No rooms configured yet. Add rooms to start tracking tenancies and rent.
+                      </td>
+                    </tr>
+                  )}
                   {ROOMS.map((room) => (
                     <tr key={room.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3 text-sm font-semibold text-slate-900">{room.room}</td>

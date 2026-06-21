@@ -15,7 +15,7 @@ export default function NotFound() {
       title="Page not found"
       description="The page you're looking for doesn't exist or may have moved. Check the address, or head back to a familiar place."
       actions={[
-        { label: "Back to dashboard", href: "/app" },
+        { label: "Back to dashboard", href: "/property-manager" },
         { label: "Back to home", href: "/" },
       ]}
     />

@@ -115,7 +115,7 @@ export default function DangerZonePage() {
       const supabase = createClient()
       await supabase.auth.signOut()
     }
-    router.push(result.redirect ?? "/app")
+    router.push(result.redirect ?? "/property-manager")
     router.refresh()
   }
 

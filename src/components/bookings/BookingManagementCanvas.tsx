@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -80,7 +80,7 @@ export function BookingModuleNav({
           const Icon = item.icon
           const active =
             item.key === activeSection ||
-            (item.href === "/app/bookings" ? pathname === item.href : pathname.startsWith(item.href))
+            (item.href === "/property-manager/bookings" ? pathname === item.href : pathname.startsWith(item.href))
           return (
             <Link
               key={item.key}
@@ -221,7 +221,7 @@ export function BookingManagementCanvas({
             <p className="text-xs text-slate-500 mt-0.5">Operational scope for this booking management area.</p>
           </div>
           {activeSection !== "dashboard" && (
-            <Link href="/app/bookings" className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-800">
+            <Link href="/property-manager/bookings" className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-800">
               Command center <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           )}

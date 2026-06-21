@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -96,7 +96,7 @@ export default function ConversionsPage() {
           notes: `${set.notes ?? ""}\nConverted to property ${created.id}`.trim(),
         },
       })
-      router.push(`/app/portfolio/properties/${created.id}`)
+      router.push(`/property-manager/portfolio/properties/${created.id}`)
     } catch {
       showToast("Could not convert planning set")
       setConverting(false)
@@ -109,7 +109,7 @@ export default function ConversionsPage() {
       subtitle="Convert planning records into live Portfolio properties."
       actions={
         <Link
-          href="/app/planning/sets"
+          href="/property-manager/planning/sets"
           className="h-9 px-4 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2"
         >
           <Eye className="w-4 h-4" />
@@ -148,7 +148,7 @@ export default function ConversionsPage() {
               : "Every planning set has been converted into a property."}
           </p>
           {sets.length === 0 && (
-            <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">
+            <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">
               New Planning Set
             </Link>
           )}
@@ -202,7 +202,7 @@ export default function ConversionsPage() {
                         </span>
                       ))}
                       <div className="ml-auto flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)} className="h-8 px-3 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] text-[12.5px] font-semibold hover:bg-[#7C3AED]/20 transition-colors">
+                        <button onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} className="h-8 px-3 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] text-[12.5px] font-semibold hover:bg-[#7C3AED]/20 transition-colors">
                           Open Set
                         </button>
                         <ConfirmDialog
@@ -215,7 +215,7 @@ export default function ConversionsPage() {
                           {(open) => (
                             <ActionMenu
                               items={[
-                                { label: "Open Planning Set", icon: Eye, onClick: () => router.push(`/app/planning/sets/${set.id}/overview`) },
+                                { label: "Open Planning Set", icon: Eye, onClick: () => router.push(`/property-manager/planning/sets/${set.id}/overview`) },
                                 { label: "Convert to Property", icon: ArrowRightLeft, onClick: open },
                               ]}
                             />
@@ -329,7 +329,7 @@ export default function ConversionsPage() {
                 {converted.slice(0, 5).map((s) => (
                   <button
                     key={s.id}
-                    onClick={() => s.property_id ? router.push(`/app/portfolio/properties/${s.property_id}`) : router.push(`/app/planning/sets/${s.id}/overview`)}
+                    onClick={() => s.property_id ? router.push(`/property-manager/portfolio/properties/${s.property_id}`) : router.push(`/property-manager/planning/sets/${s.id}/overview`)}
                     className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                   >
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />

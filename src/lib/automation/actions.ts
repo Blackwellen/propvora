@@ -36,7 +36,7 @@ async function resolveContext(): Promise<Ctx> {
   return { supabase, userId: user.id, workspaceId }
 }
 
-const REVALIDATE = "/app/automations"
+const REVALIDATE = "/property-manager/automations"
 
 export interface RuleInput {
   name: string

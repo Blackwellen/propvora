@@ -10,8 +10,8 @@ function Redirector() {
 
   useEffect(() => {
     const url = profile
-      ? `/app/planning/wizard?profile=${encodeURIComponent(profile)}`
-      : "/app/planning/wizard"
+      ? `/property-manager/planning/wizard?profile=${encodeURIComponent(profile)}`
+      : "/property-manager/planning/wizard"
     router.replace(url)
   }, [router, profile])
 

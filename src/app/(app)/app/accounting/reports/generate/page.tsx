@@ -134,9 +134,7 @@ export default function ReportGeneratePage() {
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Property Scope</label>
             <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
-              <option>All Portfolios</option>
-              <option>Maple Avenue</option>
-              <option>Oakwood House</option>
+              <option>All Properties</option>
             </select>
           </div>
           <div className="space-y-1.5">
@@ -275,7 +273,7 @@ export default function ReportGeneratePage() {
           <Button variant="outline" size="sm" onClick={() => setStep(step - 1)}>← Back</Button>
         )}
         <Button variant="ghost" size="sm" asChild>
-          <Link href={sectionLink("/app/accounting/reports")}>Cancel</Link>
+          <Link href={sectionLink("/property-manager/accounting/reports")}>Cancel</Link>
         </Button>
       </div>
       {step < 4 && (
@@ -288,7 +286,7 @@ export default function ReportGeneratePage() {
 
   return (
     <>
-    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref={sectionLink("/app/accounting/reports")} />
+    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref={sectionLink("/property-manager/accounting/reports")} />
     <AccountingWizardShell
       breadcrumbNumber="12"
       breadcrumbLabel="Generate Report Pack"

@@ -5,12 +5,10 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
-import {
-  SEED_MANAGED_ESCROWS, SEED_E_EVIDENCE, SEED_E_MILESTONES, SEED_E_CONDITIONS,
-  SEED_E_TIMELINE, SEED_E_SPLITS, SEED_CASHFLOW, SEED_PROJECTION,
-} from "./seed"
 import type {
   ManagedEscrowRow, ManagedEscrowKpis, EscrowCashflowPoint, EscrowProjectionPoint,
+  EscrowEvidenceItem, EscrowMilestoneItem, EscrowReleaseConditionItem,
+  EscrowTimelineItem, EscrowSplitItem,
 } from "./types"
 
 export interface HookState<T> {
@@ -59,14 +57,17 @@ function useSeedFallback<T>(
 }
 
 export function useManagedEscrows(): HookState<ManagedEscrowRow[]> {
-  return useSeedFallback(SEED_MANAGED_ESCROWS, async (sb, wid) => {
+  // escrow_payments live schema is minimal (id, status only). Full ManagedEscrowRow
+  // shape requires a richer schema not yet migrated. Return empty list until V2 migration.
+  return useSeedFallback([] as ManagedEscrowRow[], async (sb, wid) => {
     const { data, error } = await sb
       .from("escrow_payments")
       .select("id, status")
       .eq("workspace_id", wid)
-      .limit(200)
-    if (error) throw error
-    return data && data.length ? SEED_MANAGED_ESCROWS : null
+      .limit(1)
+    if (error) return null
+    void data
+    return null
   })
 }
 
@@ -77,31 +78,31 @@ export function useManagedEscrowKpis(rows: ManagedEscrowRow[]): ManagedEscrowKpi
     totalInEscrowPence: live.reduce((s, r) => s + r.amountHeldPence, 0),
     releaseDueSoon: live.filter(r => r.releaseDate && new Date(r.releaseDate).getTime() <= soon).length,
     disputedEscrowPence: rows.filter(r => r.hasDispute || r.stage === "disputed").reduce((s, r) => s + r.amountHeldPence, 0),
-    avgHoldDays: 4,
+    avgHoldDays: 0, // calculated when escrow schema migrated (escrow_payments full schema deferred to V2)
     awaitingEvidence: rows.filter(r => r.evidenceStatus === "missing" || r.evidenceStatus === "partial").length,
   }
 }
 
 export function useEscrowCashflow(): HookState<EscrowCashflowPoint[]> {
-  return useSeedFallback(SEED_CASHFLOW, async () => SEED_CASHFLOW)
+  // No live cashflow table — return empty so charts show honest empty state.
+  return useSeedFallback([], async () => [])
 }
 
 export function useEscrowProjection(): HookState<EscrowProjectionPoint[]> {
-  return useSeedFallback(SEED_PROJECTION, async () => SEED_PROJECTION)
+  // No live projection table — return empty so charts show honest empty state.
+  return useSeedFallback([], async () => [])
 }
 
 export function useManagedEscrowDetail(escrowId: string) {
   const escrows = useManagedEscrows()
   const escrow = escrows.data.find(e => e.id === escrowId || e.escrowId === escrowId)
-    ?? SEED_MANAGED_ESCROWS.find(e => e.id === escrowId || e.escrowId === escrowId)
-    ?? SEED_MANAGED_ESCROWS[0]
   return {
     escrow,
-    evidence: SEED_E_EVIDENCE,
-    milestones: SEED_E_MILESTONES,
-    conditions: SEED_E_CONDITIONS,
-    timeline: SEED_E_TIMELINE,
-    splits: SEED_E_SPLITS,
+    evidence: [] as EscrowEvidenceItem[],
+    milestones: [] as EscrowMilestoneItem[],
+    conditions: [] as EscrowReleaseConditionItem[],
+    timeline: [] as EscrowTimelineItem[],
+    splits: [] as EscrowSplitItem[],
     loading: escrows.loading,
     source: escrows.source,
   }

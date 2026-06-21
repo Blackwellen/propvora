@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import {
   TrendingDown,
@@ -29,6 +29,7 @@ import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/Res
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyExpenses, useCreateMoneyExpense, useMoneyExpensesSummary } from "@/hooks/useMoneyData"
+import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -124,14 +125,9 @@ const EXPENSE_TYPE_OPTIONS = [
   "Other",
 ]
 
-const PROPERTIES_LIST = [
-  "12 Maple Avenue",
-  "7 Elm Close",
-  "Riverside Lofts",
-  "Oakwood House",
-  "3 Bridge Street",
-  "14 Birchwood Rd",
-]
+// Property association is optional — property_id is resolved by the server hook.
+// List is intentionally empty; the form field is hidden until live property FK is wired.
+const PROPERTIES_LIST: string[] = []
 
 // ─── Donut Chart ─────────────────────────────────────────────────────────────
 
@@ -193,6 +189,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const createExpense = useCreateMoneyExpense(workspaceId)
+  const { data: propertiesList = [] } = useProperties(workspaceId)
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -219,7 +216,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
         status: (form.status as InsertMoneyExpense["status"]) || "planned",
         cost_behaviour: (form.cost_behaviour as InsertMoneyExpense["cost_behaviour"]) || null,
         description: form.description || null,
-        property_id: null,
+        property_id: form.property || null,
         supplier_id: null,
       })
       onClose()
@@ -273,7 +270,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
               <select id="exp-property" name="property" value={form.property} onChange={handleChange}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
-                {PROPERTIES_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
+                {propertiesList.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
           </div>
@@ -340,7 +337,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function MoneyExpensesPage() {
+function MoneyExpensesPageInner() {
   const { workspace } = useWorkspace()
   const { data: liveExpenses, isLoading } = useMoneyExpenses(workspace?.id)
   const { data: summary } = useMoneyExpensesSummary(workspace?.id)
@@ -388,9 +385,9 @@ export default function MoneyExpensesPage() {
       expenseType: r.expense_type,
       typeColor: "bg-blue-100 text-blue-700",
       costBehaviour: (r.cost_behaviour === "fixed" ? "Fixed" : r.cost_behaviour === "variable" ? "Variable" : r.cost_behaviour === "capital_reno" ? "Capital" : "Variable") as CostBehaviour,
-      propertyName: r.property_id ?? "—",
+      propertyName: r.property_name ?? "—",
       propertyAddress: "—",
-      supplierName: r.supplier_id ?? "—",
+      supplierName: r.supplier_name ?? "—",
       supplierInitials: "—",
       description: r.description ?? r.expense_type,
       amount: fmtGBP2(r.amount ?? 0),
@@ -503,33 +500,34 @@ export default function MoneyExpensesPage() {
         </div>
       )}
 
-      <MoneyTabNav
-        actions={
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Expense
-            </button>
-            <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <Download className="w-3.5 h-3.5" />
-              Export CSV
-            </button>
-          </div>
-        }
-      />
-
-      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
-        <div className="hidden md:block">
+      {/* Desktop: H1 header above tabs (ordering rule: title before tabs) */}
+      <div className="hidden md:block bg-white border-b border-slate-200 px-6 pt-6 pb-0">
         <MoneyPageHeader
           breadcrumb="Expenses"
           title="Expenses"
           subtitle="Track, manage and optimise all property expenses in one place."
-          actions={<></>}
+          actions={
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Expense
+              </button>
+              <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <Download className="w-3.5 h-3.5" />
+                Export CSV
+              </button>
+            </div>
+          }
         />
+        <div className="mt-4">
+          <MoneyTabNav />
         </div>
+      </div>
+
+      <DashboardContainer className="py-6 flex flex-col gap-6">
 
         {/* Mobile header — search (replaces desktop controls toolbar on phones) */}
         <MobilePageHeader
@@ -960,5 +958,13 @@ export default function MoneyExpensesPage() {
         </div>
       </DashboardContainer>
     </div>
+  )
+}
+
+export default function MoneyExpensesPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-sm text-slate-500">Loading…</div>}>
+      <MoneyExpensesPageInner />
+    </Suspense>
   )
 }

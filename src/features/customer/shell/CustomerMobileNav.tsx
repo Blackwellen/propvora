@@ -9,7 +9,7 @@ import { Home, Compass, BookOpen, CalendarCheck, MessageSquare, type LucideIcon 
    only below md. Routes are the literal `/customer/*` paths. */
 
 const ITEMS: { label: string; href: string; icon: LucideIcon; match: string[]; badge?: "messages" }[] = [
-  { label: "Home", href: "/customer/home", icon: Home, match: ["/customer/home", "/customer"] },
+  { label: "Home", href: "/customer", icon: Home, match: ["/customer", "/customer/home"] },
   { label: "Stays", href: "/customer/stays", icon: Compass, match: ["/customer/stays"] },
   { label: "Lets", href: "/customer/lets", icon: BookOpen, match: ["/customer/lets"] },
   { label: "Bookings", href: "/customer/bookings", icon: CalendarCheck, match: ["/customer/bookings"] },

@@ -116,8 +116,8 @@ function NoticePreviewInner() {
       backLabel="Back: Review Evidence"
       nextLabel="Next: Record Service"
       showSaveDraft={false}
-      onBack={() => router.push(`/app/legal/possession/new/review-evidence?case=${caseId}`)}
-      onNext={() => router.push(`/app/legal/possession/new/record-service?case=${caseId}`)}
+      onBack={() => router.push(`/property-manager/legal/possession/new/review-evidence?case=${caseId}`)}
+      onNext={() => router.push(`/property-manager/legal/possession/new/record-service?case=${caseId}`)}
     >
       <div>
         <div className="flex items-center justify-between mb-3">

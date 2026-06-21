@@ -122,7 +122,7 @@ export default function PropertyDetailPage() {
             <p className="text-[15px] font-bold text-slate-700">Property not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This property doesn't exist or you don't have access to it.</p>
           </div>
-          <Link href="/app/portfolio/properties" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/properties" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <ChevronLeft size={14} /> Back to Properties
           </Link>
         </div>

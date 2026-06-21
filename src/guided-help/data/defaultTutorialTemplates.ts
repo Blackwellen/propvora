@@ -14,7 +14,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Welcome to Propvora",
     summary: "A quick tour of your dashboard.",
     section: "Home",
-    routePattern: "/app",
+    routePattern: "/property-manager",
     helpHref: "/help",
     steps: [
       { title: "Your command centre", body: "The dashboard surfaces what needs attention: priority actions, KPIs and recent activity across your portfolio." },
@@ -28,7 +28,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Your Portfolio",
     summary: "Properties, units and tenancies in one place.",
     section: "Portfolio",
-    routePattern: "/app/portfolio",
+    routePattern: "/property-manager/portfolio",
     helpHref: "/help",
     steps: [
       { title: "Add your first property", body: "A property is the hub that connects units, tenancies, work, documents, compliance and money records." },
@@ -42,7 +42,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Work & Maintenance",
     summary: "Tasks, jobs and suppliers.",
     section: "Work",
-    routePattern: "/app/work",
+    routePattern: "/property-manager/work",
     helpHref: "/help",
     steps: [
       { title: "Tasks vs jobs", body: "Tasks are lightweight to-dos. Jobs are scheduled maintenance with suppliers, costs and evidence." },
@@ -56,7 +56,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Money",
     summary: "Income, expenses, invoices and arrears.",
     section: "Money",
-    routePattern: "/app/money",
+    routePattern: "/property-manager/money",
     helpHref: "/help",
     steps: [
       { title: "Track income & expenses", body: "Record rent in and costs out against properties and tenancies for a clear cashflow picture." },
@@ -70,7 +70,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Compliance",
     summary: "Certificates, inspections and evidence.",
     section: "Compliance",
-    routePattern: "/app/compliance",
+    routePattern: "/property-manager/compliance",
     helpHref: "/help",
     steps: [
       { title: "Track certificates", body: "Gas Safety, EICR, EPC and more — each with clear expiry states so nothing slips past a deadline." },
@@ -84,7 +84,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Contacts",
     summary: "People, organisations and portals.",
     section: "Contacts",
-    routePattern: "/app/contacts",
+    routePattern: "/property-manager/contacts",
     helpHref: "/help",
     steps: [
       { title: "People & organisations", body: "Keep tenants, suppliers, landlords and teams in one address book, linked to their records." },
@@ -97,7 +97,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Calendar",
     summary: "Events, reminders and linked dates.",
     section: "Calendar",
-    routePattern: "/app/calendar",
+    routePattern: "/property-manager/calendar",
     helpHref: "/help",
     steps: [
       { title: "One timeline", body: "Compliance expiries, tenancy dates, jobs and reminders come together in month, week, day and agenda views." },
@@ -110,7 +110,7 @@ export const TUTORIALS: Tutorial[] = [
     title: "Legal",
     summary: "Possession, HMO, RRA readiness.",
     section: "Legal",
-    routePattern: "/app/legal",
+    routePattern: "/property-manager/legal",
     helpHref: "/help",
     steps: [
       { title: "Legal readiness", body: "Track possession matters, HMO licences, EPC advisory and Renters' Rights readiness." },
@@ -179,10 +179,10 @@ export const PORTAL_TUTORIALS: Tutorial[] = [
 ]
 
 export const SETUP_CHECKLIST: ChecklistItem[] = [
-  { key: "chk.property", label: "Add your first property", description: "The hub for everything else.", href: "/app/portfolio/properties", metric: "properties" },
-  { key: "chk.unit", label: "Add a unit", description: "Break a property into lettable units.", href: "/app/portfolio", metric: "units" },
-  { key: "chk.tenancy", label: "Create a tenancy", description: "Track tenants, rent and deposits.", href: "/app/portfolio", metric: "tenancies" },
-  { key: "chk.contact", label: "Add a contact", description: "Tenants, suppliers and teams.", href: "/app/contacts", metric: "contacts" },
-  { key: "chk.document", label: "Upload a document", description: "Build your document library and evidence trail.", href: "/app/portfolio", metric: "documents" },
-  { key: "chk.team", label: "Invite a team member", description: "Collaborate with roles & permissions.", href: "/app/workspace-settings/team", metric: "team", roles: ["owner", "admin"] },
+  { key: "chk.property", label: "Add your first property", description: "The hub for everything else.", href: "/property-manager/portfolio/properties", metric: "properties" },
+  { key: "chk.unit", label: "Add a unit", description: "Break a property into lettable units.", href: "/property-manager/portfolio", metric: "units" },
+  { key: "chk.tenancy", label: "Create a tenancy", description: "Track tenants, rent and deposits.", href: "/property-manager/portfolio", metric: "tenancies" },
+  { key: "chk.contact", label: "Add a contact", description: "Tenants, suppliers and teams.", href: "/property-manager/contacts", metric: "contacts" },
+  { key: "chk.document", label: "Upload a document", description: "Build your document library and evidence trail.", href: "/property-manager/portfolio", metric: "documents" },
+  { key: "chk.team", label: "Invite a team member", description: "Collaborate with roles & permissions.", href: "/property-manager/workspace-settings/team", metric: "team", roles: ["owner", "admin"] },
 ]

@@ -120,7 +120,7 @@ export function ActiveOrdersTab() {
                     <td className="px-4 py-3"><StatusBadge tone={toneForEvidence(o.evidenceStatus)}>{humanise(o.evidenceStatus)}</StatusBadge></td>
                     <td className="px-4 py-3"><StatusBadge tone={toneForSla(o.slaStatus)}>{humanise(o.slaStatus)}</StatusBadge></td>
                     <td className="px-4 py-3 text-right">
-                      <Link href={`/app/work/orders/${o.orderRef}`} onClick={e => e.stopPropagation()}
+                      <Link href={`/property-manager/work/orders/${o.orderRef}`} onClick={e => e.stopPropagation()}
                         className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">
                         Open <ExternalLink className="w-3 h-3" />
                       </Link>
@@ -217,7 +217,7 @@ function OrderDetailPanel({ order, onAction }: { order: OrderRow; onAction: (k: 
           <ActionBtn icon={Flag} label="Raise dispute" onClick={() => onAction("dispute")} tone="red" />
           <ActionBtn icon={CalendarClock} label="Reschedule" onClick={() => onAction("reschedule")} />
           <ActionBtn icon={XCircle} label="Cancel" onClick={() => onAction("cancel")} tone="red" />
-          <Link href={`/app/work/orders/${order.orderRef}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100">
+          <Link href={`/property-manager/work/orders/${order.orderRef}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100">
             <ExternalLink className="w-3.5 h-3.5" /> Open order
           </Link>
         </div>

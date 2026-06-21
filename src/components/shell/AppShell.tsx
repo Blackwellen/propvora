@@ -14,6 +14,7 @@ import CommandPalette from "@/components/search/CommandPalette"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
+import { useInactivityTimeout } from "@/hooks/useInactivityTimeout"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -48,6 +49,7 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
   }, [])
   const [unreadCount] = useState(3)
   const { workspace } = useWorkspace()
+  useInactivityTimeout()
 
   /* sidebar total footprint: width + left-margin + right-gap */
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16

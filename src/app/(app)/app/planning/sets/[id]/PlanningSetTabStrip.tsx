@@ -11,7 +11,7 @@ interface PlanningSetTabStripProps {
 
 export function PlanningSetTabStrip({ planningSetId }: PlanningSetTabStripProps) {
   const pathname = usePathname()
-  const base = `/app/planning/sets/${planningSetId}`
+  const base = `/property-manager/planning/sets/${planningSetId}`
 
   return (
     <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden">

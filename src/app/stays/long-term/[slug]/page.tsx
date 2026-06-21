@@ -14,6 +14,13 @@ import {
   Car,
   TreePine,
   Zap,
+  ChevronRight,
+  ShieldCheck,
+  FileText,
+  Train,
+  Building2,
+  GraduationCap,
+  ShoppingCart,
 } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'

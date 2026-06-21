@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -355,8 +355,8 @@ export default function PortfolioMapPage() {
         title="Portfolio Map"
         subtitle={`${filtered.length} of ${properties.length} mapped`}
         showBack
-        backHref="/app/portfolio"
-        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+        backHref="/property-manager/portfolio"
+        primaryAction={{ label: "Add property", icon: Plus, href: "/property-manager/portfolio/properties/new" }}
       />
 
       {/* Desktop header — hidden on phones */}
@@ -367,10 +367,10 @@ export default function PortfolioMapPage() {
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="md" asChild>
-              <Link href="/app/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link>
+              <Link href="/property-manager/portfolio"><ArrowLeft className="w-4 h-4" />Portfolio</Link>
             </Button>
             <Button variant="primary" size="md" asChild>
-              <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
+              <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
             </Button>
           </div>
         }
@@ -413,7 +413,7 @@ export default function PortfolioMapPage() {
             </p>
           </div>
           <Button variant="primary" size="md" asChild>
-            <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
+            <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
           </Button>
         </div>
       ) : (

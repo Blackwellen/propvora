@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -70,56 +70,6 @@ type KpiItem =
       isRing: true
       ringColor: string
     }
-
-// ─── Seed (fallback) KPI data ────────────────────────────────────────────────
-
-const SEED_KPIS: KpiItem[] = [
-  { label: "Open Work", value: 18, sub: "Sample data", icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
-  { label: "Overdue", value: 4, sub: "Sample data", icon: AlertTriangle, bg: "bg-red-50", color: "text-red-600" },
-  { label: "Waiting Supplier", value: 3, sub: "Sample data", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
-  { label: "Revenue Blocking", value: 2, sub: "Sample data", icon: TrendingDown, bg: "bg-red-50", color: "text-red-600" },
-  { label: "Invoice Pending", value: 5, sub: "£2,450 total", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
-  { label: "Due This Week", value: 12, sub: "Sample data", icon: CalendarIcon, bg: "bg-blue-50", color: "text-blue-600" },
-  { label: "Scheduled Jobs", value: 7, sub: "This week", icon: Briefcase, bg: "bg-emerald-50", color: "text-emerald-600" },
-  { label: "Completion Rate", value: 72, sub: "Sample data", isRing: true, ringColor: "#2563EB" },
-]
-
-// ─── Seed (fallback) Gantt data ──────────────────────────────────────────────
-
-const GANTT_ROWS: GanttRow[] = [
-  { id: "j1001", num: 1, type: "job", title: "Boiler Annual Service", ref: "Job · J-1001", property: "16 Grove St", assigneeInitials: "HV", supplierInitials: "HV", startDate: "12 May", dueDate: "16 May", progress: 100, status: "complete", deps: "—", barColor: "bg-emerald-500", barWidth: 8, barLeft: 0, milestone: "Electrical Certification", milestoneDate: "28 May", href: "/app/work/jobs" },
-  { id: "j1002", num: 2, type: "job", title: "Fire Risk Assessment", ref: "Job · J-1002", property: "17 Brunswick Rd", assigneeInitials: "SG", startDate: "14 May", dueDate: "22 May", progress: 100, status: "complete", deps: "—", barColor: "bg-emerald-500", barWidth: 14, barLeft: 4, href: "/app/work/jobs" },
-  { id: "t2001", num: 3, type: "task", title: "Electrical EICR", ref: "Task · T-2001", property: "21 Manor Flat 3B", assigneeInitials: "VC", supplierInitials: "VC", startDate: "15 May", dueDate: "28 May", progress: 75, status: "in_progress", deps: "1FS", barColor: "bg-blue-500", barWidth: 22, barLeft: 5, href: "/app/work/tasks" },
-  { id: "t2002", num: 4, type: "task", title: "Fire Door Inspections", ref: "Task · T-2002", property: "16 Grove St", assigneeInitials: "SG", startDate: "19 May", dueDate: "30 May", progress: 60, status: "in_progress", deps: "2FS", barColor: "bg-blue-500", barWidth: 18, barLeft: 12, milestone: "Fire Risk Sign-off", milestoneDate: "30 May", href: "/app/work/tasks" },
-  { id: "j1003", num: 5, type: "job", title: "Plumbing Repairs", ref: "Job · J-1003", property: "22 Oak Ave", assigneeInitials: "SP", startDate: "20 May", dueDate: "5 Jun", progress: 35, status: "in_progress", deps: "1SS", barColor: "bg-blue-400", barWidth: 26, barLeft: 14, href: "/app/work/jobs" },
-  { id: "j1004", num: 6, type: "job", title: "Roof Leak Investigation", ref: "Job · J-1004", property: "18 Maple Rd", assigneeInitials: "PR", startDate: "25 May", dueDate: "5 Jun", progress: 0, status: "not_started", deps: "3FS", barColor: "bg-slate-300", barWidth: 16, barLeft: 22, href: "/app/work/jobs" },
-  { id: "j1005", num: 7, type: "job", title: "Lift Maintenance", ref: "Job · J-1005", property: "19 Park Lane", assigneeInitials: "LT", startDate: "26 May", dueDate: "10 Jun", progress: 40, status: "in_progress", deps: "2SS", barColor: "bg-blue-400", barWidth: 24, barLeft: 23, href: "/app/work/jobs" },
-  { id: "t2004", num: 8, type: "task", title: "Asbestos Survey", ref: "Task · T-2004", property: "17 Brunswick Rd", assigneeInitials: "ES", startDate: "30 May", dueDate: "12 Jun", progress: 0, status: "not_started", deps: "4FS", barColor: "bg-slate-300", barWidth: 20, barLeft: 28, href: "/app/work/tasks" },
-  { id: "j1006", num: 9, type: "job", title: "Facade Repairs", ref: "Job · J-1006", property: "20 Queen St", assigneeInitials: "BR", startDate: "8 Jun", dueDate: "20 Jun", progress: 15, status: "at_risk", deps: "6FS", barColor: "bg-red-400", barWidth: 18, barLeft: 38, milestone: "Facade Works Start", milestoneDate: "8 Jun", href: "/app/work/jobs" },
-  { id: "t2006", num: 10, type: "task", title: "Window Replacement", ref: "Task · T-2004", property: "20 Queen St", assigneeInitials: "GW", startDate: "10 Jun", dueDate: "25 Jun", progress: 0, status: "not_started", deps: "9FS", barColor: "bg-slate-300", barWidth: 20, barLeft: 40, href: "/app/work/tasks" },
-  { id: "j1007", num: 11, type: "job", title: "Fire Alarm Upgrade", ref: "Job · J-1006", property: "21 Manor Flat 3B", assigneeInitials: "SG", startDate: "15 Jun", dueDate: "30 Jun", progress: 0, status: "not_started", deps: "3FS", barColor: "bg-slate-300", barWidth: 22, barLeft: 44, href: "/app/work/jobs" },
-  { id: "j1008", num: 12, type: "job", title: "Boiler Replacement", ref: "Job · J-1007", property: "16 Grove St", assigneeInitials: "HV", startDate: "1 Jul", dueDate: "15 Jul", progress: 0, status: "not_started", deps: "5FS", barColor: "bg-slate-300", barWidth: 18, barLeft: 54, milestone: "Project Completion", milestoneDate: "15 Jul", href: "/app/work/jobs" },
-]
-
-// ─── Seed (fallback) bottom panel data ───────────────────────────────────────
-
-const SEED_MILESTONES = [
-  { name: "Electrical Certification", date: "28 May 2025", status: "Completed", color: "text-emerald-600" },
-  { name: "Fire Risk Sign-off", date: "30 May 2025", status: "Completed", color: "text-emerald-600" },
-  { name: "Facade Works Start", date: "08 Jun 2025", status: "At Risk", color: "text-amber-600" },
-  { name: "Project Completion", date: "15 Jul 2025", status: "Planned", color: "text-slate-500" },
-]
-
-const SEED_BOTTLENECKS = [
-  { title: "Facade Repairs", desc: "Delayed by 3 days — Waiting for Roof Leak Investigation", priority: "High", icon: AlertTriangle, color: "text-red-500" },
-  { title: "Boiler Replacement", desc: "Supplier availability impacting start date", priority: "Medium", icon: Clock, color: "text-amber-500" },
-]
-
-const SEED_AI_RECS = [
-  { text: "Bring forward Lift Maintenance by 2 days to reduce idle time", sub: "Impact: Saves 1 day" },
-  { text: "Consider parallel execution of Window Replacement with Facade Repairs", sub: "Impact: Saves 2 days" },
-  { text: "Reassign Plumbing Repairs to reduce critical path delay", sub: "Impact: Saves 1 day" },
-]
 
 const LEGEND = [
   { color: "bg-blue-500", label: "Task" },
@@ -425,20 +375,14 @@ export default function GanttPage() {
     const now = Date.now()
 
     if (!hasLiveData) {
-      // Seeded window matches the original static header
-      const start = new Date("2025-05-12").getTime()
-      const end = new Date("2025-08-30").getTime()
+      const now = new Date()
+      const monthLabel = now.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
       return {
-        rows: GANTT_ROWS,
-        windowStart: start,
-        windowEnd: end,
-        columns: [
-          { month: "May 2025", weeks: ["12", "19", "26"] },
-          { month: "Jun 2025", weeks: ["02", "09", "16", "23"] },
-          { month: "Jul 2025", weeks: ["07", "14", "21", "28"] },
-          { month: "Aug 2025", weeks: ["04", "11", "18", "25"] },
-        ],
-        dateLabel: "12 May 2025 – 30 Aug 2025",
+        rows: [],
+        windowStart: now.getTime(),
+        windowEnd: now.getTime() + 84 * 86_400_000,
+        columns: [{ month: monthLabel, weeks: [] }],
+        dateLabel: "No work items yet",
       }
     }
 
@@ -478,7 +422,7 @@ export default function GanttPage() {
         dueMs,
         status: g.status,
         progress: g.progress,
-        href: `/app/work/tasks/${t.id}`,
+        href: `/property-manager/work/tasks/${t.id}`,
       })
     })
 
@@ -504,7 +448,7 @@ export default function GanttPage() {
         dueMs,
         status: g.status,
         progress: g.progress,
-        href: `/app/work/jobs/${j.id}`,
+        href: `/property-manager/work/jobs/${j.id}`,
       })
     })
 
@@ -583,7 +527,16 @@ export default function GanttPage() {
 
   // ─── Live KPI strip (mirrors Overview page approach) ─────────────────────
   const kpis: KpiItem[] = useMemo(() => {
-    if (!hasLiveData) return SEED_KPIS
+    if (!hasLiveData) return [
+      { label: "Open Work", value: 0, sub: "No data yet", icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Overdue", value: 0, sub: "None", icon: AlertTriangle, bg: "bg-red-50", color: "text-red-600" },
+      { label: "Waiting Supplier", value: 0, sub: "None", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
+      { label: "Revenue Blocking", value: 0, sub: "None", icon: TrendingDown, bg: "bg-red-50", color: "text-red-600" },
+      { label: "Invoice Pending", value: 0, sub: "None", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
+      { label: "Due This Week", value: 0, sub: "None", icon: CalendarIcon, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Scheduled Jobs", value: 0, sub: "None", icon: Briefcase, bg: "bg-emerald-50", color: "text-emerald-600" },
+      { label: "Completion Rate", value: 0, sub: "No tasks yet", isRing: true, ringColor: "#2563EB" },
+    ]
     const now = new Date()
     const weekAhead = new Date(now.getTime() + 7 * DAY)
 
@@ -639,7 +592,7 @@ export default function GanttPage() {
 
   // ─── Milestones / Bottlenecks / AI recs (live or seed) ───────────────────
   const milestones = useMemo(() => {
-    if (!hasLiveData) return SEED_MILESTONES
+    if (!hasLiveData) return []
     const now = Date.now()
     const items = rows
       .filter((r) => r.dueMs && r.dueMs >= now - 7 * DAY)
@@ -658,7 +611,7 @@ export default function GanttPage() {
   }, [rows, hasLiveData])
 
   const bottlenecks = useMemo(() => {
-    if (!hasLiveData) return SEED_BOTTLENECKS
+    if (!hasLiveData) return []
     return rows
       .filter((r) => r.status === "at_risk")
       .slice(0, 4)
@@ -672,7 +625,7 @@ export default function GanttPage() {
   }, [rows, hasLiveData])
 
   const aiRecs = useMemo(() => {
-    if (!hasLiveData) return SEED_AI_RECS
+    if (!hasLiveData) return [{ text: "Add tasks and jobs to get AI scheduling recommendations.", sub: "Suggestions appear once work items exist" }]
     const atRisk = rows.filter((r) => r.status === "at_risk")
     const notStarted = rows.filter((r) => r.status === "not_started")
     const recs: { text: string; sub: string }[] = []
@@ -716,9 +669,9 @@ export default function GanttPage() {
       <MobileTopBar
         title="Gantt"
         subtitle="Timeline — agenda view"
-        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
         overflowActions={[
-          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" },
           { label: "Export", icon: Download, onClick: handleExport },
         ]}
       />
@@ -734,13 +687,13 @@ export default function GanttPage() {
         actions={
           <>
             <Link
-              href="/app/work/tasks/new"
+              href="/property-manager/work/tasks/new"
               className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-medium hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Task
             </Link>
             <Link
-              href="/app/work/jobs/new"
+              href="/property-manager/work/jobs/new"
               className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg text-[13px] font-medium hover:bg-slate-50 transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Job
@@ -753,7 +706,7 @@ export default function GanttPage() {
               <Download className="w-4 h-4" /> Export
             </button>
             <Link
-              href="/app/work"
+              href="/property-manager/work"
               className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-[13px] font-medium hover:bg-violet-700 transition-colors"
             >
               <Sparkles className="w-4 h-4" /> Ask AI
@@ -785,10 +738,10 @@ export default function GanttPage() {
         <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
           {([
             { label: "Gantt", href: null },
-            { label: "Timeline", href: "/app/work/ppm/timeline" },
-            { label: "List", href: "/app/work/tasks" },
-            { label: "Board", href: "/app/work/board" },
-            { label: "Calendar", href: "/app/calendar" },
+            { label: "Timeline", href: "/property-manager/work/ppm/timeline" },
+            { label: "List", href: "/property-manager/work/tasks" },
+            { label: "Board", href: "/property-manager/work/board" },
+            { label: "Calendar", href: "/property-manager/calendar" },
           ] as const).map((v) =>
             v.href ? (
               <Link
@@ -869,7 +822,7 @@ export default function GanttPage() {
 
         <div className="ml-auto flex items-center gap-2">
           <Link
-            href="/app/work/tasks"
+            href="/property-manager/work/tasks"
             className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-[12px] text-slate-600 hover:bg-slate-50"
           >
             <Filter className="w-3.5 h-3.5" /> Filters
@@ -972,7 +925,7 @@ export default function GanttPage() {
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-[13px] font-semibold text-slate-700">Milestones</h3>
-            <Link href="/app/work/jobs" className="text-[11px] text-[#2563EB] hover:underline">View all →</Link>
+            <Link href="/property-manager/work/jobs" className="text-[11px] text-[#2563EB] hover:underline">View all →</Link>
           </div>
           <div className="space-y-3">
             {milestones.length === 0 ? (
@@ -1038,7 +991,7 @@ export default function GanttPage() {
                   <p className="text-[10px] text-emerald-600 mt-0.5">{r.sub}</p>
                 </div>
                 <Link
-                  href="/app/work"
+                  href="/property-manager/work"
                   className="shrink-0 px-2 py-1 text-[10px] font-semibold text-[#2563EB] border border-[#BFDBFE] rounded-lg hover:bg-blue-50 transition-colors"
                 >
                   Apply

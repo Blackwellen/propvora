@@ -48,10 +48,10 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <p className="text-[14px] font-bold text-slate-900">Jobs</p>
           <div className="flex items-center gap-2">
-            <Link href={`/app/work/jobs/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+            <Link href={`/property-manager/work/jobs/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
               <Plus size={13} /> New Job
             </Link>
-            <Link href={`/app/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
               Open Work <ArrowUpRight size={12} />
             </Link>
           </div>
@@ -63,42 +63,67 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
             <p className="text-[12px] text-slate-500 mt-1">Raise a job to track maintenance and works.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60">
-                  {["Job", "Reference", "Scheduled", "Status", "Quoted", "Actions"].map((h) => (
-                    <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.map((job) => (
-                  <tr key={job.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                          <Wrench size={13} className="text-slate-400" />
-                        </div>
-                        <span className="font-medium text-slate-800">{job.title}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{job.reference ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600 tabular-nums">{fmtDate(job.scheduled_date)}</td>
-                    <td className="px-4 py-3"><StatusPill status={jobStatusLabel(job.status)} /></td>
-                    <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">{job.quoted_amount != null ? fmt(job.quoted_amount) : "—"}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ActionMenu align="right" items={[
-                          { label: "Open in Work", icon: Eye, onClick: () => router.push(`/app/work?property=${propertyId}`) },
-                        ]} />
-                      </div>
-                    </td>
+          <>
+            {/* Mobile cards */}
+            <ul className="md:hidden divide-y divide-slate-100" role="list">
+              {jobs.map((job) => (
+                <li
+                  key={job.id}
+                  onClick={() => router.push(`/property-manager/work?property=${propertyId}`)}
+                  className="flex items-start gap-3 p-3.5 cursor-pointer hover:bg-slate-50"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Wrench size={13} className="text-slate-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-800 text-[13px]">{job.title}</p>
+                    <p className="text-[11px] text-slate-400">{job.reference ?? "—"} · {fmtDate(job.scheduled_date)}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <StatusPill status={jobStatusLabel(job.status)} />
+                    {job.quoted_amount != null && <p className="text-[11px] font-semibold text-slate-700">{fmt(job.quoted_amount)}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60">
+                    {["Job", "Reference", "Scheduled", "Status", "Quoted", "Actions"].map((h) => (
+                      <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {jobs.map((job) => (
+                    <tr key={job.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                            <Wrench size={13} className="text-slate-400" />
+                          </div>
+                          <span className="font-medium text-slate-800">{job.title}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">{job.reference ?? "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 tabular-nums">{fmtDate(job.scheduled_date)}</td>
+                      <td className="px-4 py-3"><StatusPill status={jobStatusLabel(job.status)} /></td>
+                      <td className="px-4 py-3 font-semibold text-slate-800 tabular-nums">{job.quoted_amount != null ? fmt(job.quoted_amount) : "—"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ActionMenu align="right" items={[
+                            { label: "Open in Work", icon: Eye, onClick: () => router.push(`/property-manager/work?property=${propertyId}`) },
+                          ]} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
 
@@ -106,7 +131,7 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
       <Card className="overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <p className="text-[14px] font-bold text-slate-900">Tasks</p>
-          <Link href={`/app/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+          <Link href={`/property-manager/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
             Open Work <ArrowUpRight size={12} />
           </Link>
         </div>
@@ -116,27 +141,45 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
             <p className="text-[13px] font-semibold text-slate-500">No tasks for this property</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60">
-                  {["Task", "Priority", "Due", "Status"].map((h) => (
-                    <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.map((task) => (
-                  <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-slate-800">{task.title}</td>
-                    <td className="px-4 py-3 text-slate-600 capitalize">{task.priority}</td>
-                    <td className="px-4 py-3 text-slate-600 tabular-nums">{fmtDate(task.due_date)}</td>
-                    <td className="px-4 py-3"><StatusPill status={task.status.charAt(0).toUpperCase() + task.status.slice(1)} /></td>
+          <>
+            {/* Mobile cards */}
+            <ul className="md:hidden divide-y divide-slate-100" role="list">
+              {tasks.map((task) => (
+                <li key={task.id} className="flex items-start gap-3 p-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Clock size={13} className="text-amber-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-800 text-[13px]">{task.title}</p>
+                    <p className="text-[11px] text-slate-400 capitalize">{task.priority} priority · Due {fmtDate(task.due_date)}</p>
+                  </div>
+                  <StatusPill status={task.status.charAt(0).toUpperCase() + task.status.slice(1)} />
+                </li>
+              ))}
+            </ul>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60">
+                    {["Task", "Priority", "Due", "Status"].map((h) => (
+                      <th key={h} className="text-left text-[11px] font-semibold text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {tasks.map((task) => (
+                    <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-slate-800">{task.title}</td>
+                      <td className="px-4 py-3 text-slate-600 capitalize">{task.priority}</td>
+                      <td className="px-4 py-3 text-slate-600 tabular-nums">{fmtDate(task.due_date)}</td>
+                      <td className="px-4 py-3"><StatusPill status={task.status.charAt(0).toUpperCase() + task.status.slice(1)} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
     </div>

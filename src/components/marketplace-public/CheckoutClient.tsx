@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
@@ -234,7 +234,7 @@ export default function CheckoutClient({
           {orderId && (
             <p className="mt-3 text-[12px] text-slate-400">Order reference <span className="font-semibold text-slate-600 tabular-nums break-all">{orderId}</span></p>
           )}
-          <Link href="/app/marketplace/orders" className="mt-5 inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors">
+          <Link href="/property-manager/marketplace/orders" className="mt-5 inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors">
             View my orders
           </Link>
         </div>

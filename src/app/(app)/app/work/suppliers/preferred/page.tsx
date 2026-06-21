@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
@@ -39,7 +39,7 @@ function buildKpis(total: number, preferred: number) {
     { label: "Preferred Suppliers", value: String(preferred), sub: "Marked preferred", trend: `${total} total`, trendColor: "text-blue-600" },
     { label: "Average Response Time", value: "1h 42m", sub: "Industry avg: 2h 48m", trend: "better than avg", trendColor: "text-emerald-600" },
     { label: "Active Trades", value: "18", sub: "Covered by your network", trend: "trades covered", trendColor: "text-blue-600" },
-    { label: "Expiring Docs", value: "23", sub: "Require attention", trend: "View all", trendColor: "text-red-600", trendHref: "/app/work/suppliers/compliance" },
+    { label: "Expiring Docs", value: "23", sub: "Require attention", trend: "View all", trendColor: "text-red-600", trendHref: "/property-manager/work/suppliers/compliance" },
   ]
 }
 
@@ -69,7 +69,7 @@ function SupplierCard({
   onTogglePreferred: (s: SupplierView) => void
 }) {
   const router = useRouter()
-  const href = `/app/work/suppliers/${supplier.id}`
+  const href = `/property-manager/work/suppliers/${supplier.id}`
   // Deterministic seeded rating so the premium UI stays populated without external data.
   const rating = 4.5 + ((supplier.id.charCodeAt(0) % 5) / 10)
 
@@ -160,7 +160,7 @@ function SupplierCard({
               View Profile
             </Link>
             <Link
-              href={`/app/work/jobs/new?supplierId=${supplier.id}`}
+              href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
               className="flex-1 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
             >
               Assign to Job
@@ -173,7 +173,7 @@ function SupplierCard({
           <ActionMenu
             items={[
               { label: "View Profile", icon: Eye, onClick: () => router.push(href) },
-              { label: "Assign to Job", icon: Briefcase, onClick: () => router.push(`/app/work/jobs/new?supplierId=${supplier.id}`) },
+              { label: "Assign to Job", icon: Briefcase, onClick: () => router.push(`/property-manager/work/jobs/new?supplierId=${supplier.id}`) },
               {
                 label: supplier.preferred ? "Remove from Preferred" : "Mark Preferred",
                 icon: Star,
@@ -189,7 +189,7 @@ function SupplierCard({
               View Profile
             </Link>
             <Link
-              href={`/app/work/jobs/new?supplierId=${supplier.id}`}
+              href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
               className="px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors whitespace-nowrap text-center"
             >
               Assign to Job
@@ -289,7 +289,7 @@ export default function PreferredSuppliersPage() {
       <MobileTopBar
         title="Suppliers"
         subtitle="Preferred network"
-        primaryAction={{ label: "Add supplier", icon: Plus, href: "/app/contacts/new?type=supplier" }}
+        primaryAction={{ label: "Add supplier", icon: Plus, href: "/property-manager/contacts/new?type=supplier" }}
       />
       <MobilePageHeader
         title="Preferred Suppliers"
@@ -468,7 +468,7 @@ export default function PreferredSuppliersPage() {
               ].map((item) => (
                 <Link
                   key={item.label}
-                  href="/app/work/suppliers/compliance"
+                  href="/property-manager/work/suppliers/compliance"
                   className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
                 >
                   <div className="flex items-center gap-2">
@@ -483,7 +483,7 @@ export default function PreferredSuppliersPage() {
               ))}
             </div>
             <Link
-              href="/app/work/suppliers/compliance"
+              href="/property-manager/work/suppliers/compliance"
               className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
             >
               View all expiring documents →
@@ -499,7 +499,7 @@ export default function PreferredSuppliersPage() {
               Can&apos;t find the right supplier? Add a new supplier contact and mark it preferred.
             </p>
             <Link
-              href="/app/contacts/new?type=supplier"
+              href="/property-manager/contacts/new?type=supplier"
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-sm font-semibold hover:bg-blue-50 transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Supplier

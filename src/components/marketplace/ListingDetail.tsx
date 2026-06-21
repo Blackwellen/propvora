@@ -99,7 +99,7 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
       {/* Back link (desktop; mobile uses MobileTopBar at the page level) */}
       <div className="hidden md:block mb-4">
         <Link
-          href="/app/marketplace"
+          href="/property-manager/marketplace"
           className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-700 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />

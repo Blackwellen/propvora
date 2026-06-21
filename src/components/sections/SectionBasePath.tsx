@@ -6,13 +6,13 @@
  * hardcoded link inside its page bodies.
  *
  * The Property-Manager sections live under `/property-manager/<section>` (which
- * rewrites to `/app/<section>`). The SAME components are mounted inside the
+ * rewrites to /property-manager/<section>`). The SAME components are mounted inside the
  * Supplier workspace under `/supplier/<section>`. Wrapping a supplier mount in
  * <SectionBasePathProvider> lets shared tab-navs / in-page links resolve to the
  * supplier prefix; PM routes simply don't wrap (so they keep their defaults).
  *
  * `sectionLink()` rewrites an absolute PM-style href (e.g.
- * "/app/calendar/views/day" or "/property-manager/automations/recipes") onto the
+ * "/property-manager/calendar/views/day" or "/property-manager/automations/recipes") onto the
  * active base path. It is a no-op when no provider is mounted, so PM routes are
  * unchanged and fully backward-compatible.
  */
@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation"
 export interface SectionBasePathValue {
   /** Public href base for the section, e.g. "/supplier/calendar". */
   base: string
-  /** The canonical PM href base this section maps from, e.g. "/app/calendar". */
+  /** The canonical PM href base this section maps from, e.g. "/property-manager/calendar". */
   pmBase: string
   /** The public PM prefix variant, e.g. "/property-manager/calendar". */
   pmPublicBase: string

@@ -152,7 +152,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
                 <select
                   value={c.key}
                   onChange={(e) => updateCondition(i, { key: e.target.value })}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white"
+                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-400/30"
                 >
                   {tDef?.configFields.map((f) => (
                     <option key={f.key} value={f.key}>{f.label}</option>
@@ -161,7 +161,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
                 <select
                   value={c.op}
                   onChange={(e) => updateCondition(i, { op: e.target.value as DefinitionCondition["op"] })}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white"
+                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-400/30"
                 >
                   <option value="lte">is at most (≤)</option>
                   <option value="gte">is at least (≥)</option>

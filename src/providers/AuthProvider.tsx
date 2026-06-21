@@ -179,7 +179,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const switchWorkspace = useCallback(
     async (workspaceId: string) => {
       // 1. Persist the choice server-side (verifies membership).
-      await switchWorkspaceAction(workspaceId)
+      const result = await switchWorkspaceAction(workspaceId)
+      if (!result.ok) {
+        const msg = "error" in result ? result.error : "Workspace unavailable."
+        throw new Error(msg)
+      }
       // 2. Clear ALL cached query data so no prior-workspace records leak.
       queryClient.clear()
       // 3. Reload the workspace context in the provider.

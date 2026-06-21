@@ -108,7 +108,7 @@ export default function BillsPage() {
       {/* ── Inner tab switcher 5A / 5B ── */}
       <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
         <button
-          onClick={() => router.push(`/app/planning/sets/${id}/expenses`)}
+          onClick={() => router.push(`/property-manager/planning/sets/${id}/expenses`)}
           className="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
         >
           5A Expenses

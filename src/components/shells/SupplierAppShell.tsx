@@ -9,6 +9,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
+import SupplierQuickBar from "@/components/supplier-workspace/SupplierQuickBar"
 import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import {
   SupplierPlanProvider,
@@ -78,7 +79,9 @@ function SupplierShellChrome({ children }: { children: React.ReactNode }) {
             <TopNavigation base={SUPPLIER_BASE} />
           </div>
 
-          <ShellContent>{children}</ShellContent>
+          <ShellContent topRail={<SupplierQuickBar />}>
+            {children}
+          </ShellContent>
         </div>
 
         {/* Dedicated supplier mobile primary nav (below lg). */}

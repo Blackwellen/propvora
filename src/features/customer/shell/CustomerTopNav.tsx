@@ -50,7 +50,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { label: "Home", href: "/customer/home", icon: Home, match: ["/customer/home", "/customer"] },
+  { label: "Home", href: "/customer", icon: Home, match: ["/customer", "/customer/home"] },
   { label: "Stays", href: "/customer/stays", icon: Compass },
   { label: "Lets", href: "/customer/lets", icon: BookOpen },
   { label: "Favourites", href: "/customer/favourites", icon: Heart },
@@ -127,7 +127,7 @@ export default function CustomerTopNav({
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
       <div className="mx-auto max-w-[1480px] h-[68px] px-4 sm:px-6 lg:px-8 flex items-center gap-3">
         {/* Logo */}
-        <Link href="/customer/home" aria-label="Propvora home" className="shrink-0 mr-2">
+        <Link href="/customer" aria-label="Propvora home" className="shrink-0 mr-2">
           <span className="relative block h-7 w-[124px]">
             <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
           </span>
@@ -240,7 +240,7 @@ export default function CustomerTopNav({
                     type="button"
                     role="menuitem"
                     onClick={signOut}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400/50 focus-visible:bg-red-50"
                   >
                     <LogOut className="w-4 h-4 shrink-0" />
                     Log out

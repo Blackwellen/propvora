@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
@@ -169,7 +169,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Suppliers" subtitle="Browse & procure vetted suppliers" showBack backHref="/app/marketplace" />
+      <MobileTopBar title="Suppliers" subtitle="Browse & procure vetted suppliers" showBack backHref="/property-manager/marketplace" />
       <div className="hidden md:block">
         <PageHeader
           title="Supplier directory"
@@ -177,7 +177,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
           actions={
             compare.length > 0 ? (
               <Button variant="primary" size="md" asChild>
-                <Link href={`/app/marketplace/suppliers/compare?ids=${compare.join(",")}`}>
+                <Link href={`/property-manager/marketplace/suppliers/compare?ids=${compare.join(",")}`}>
                   <GitCompare className="w-4 h-4" /> Compare ({compare.length})
                 </Link>
               </Button>
@@ -192,7 +192,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
             <div className="w-20 h-20 rounded-3xl bg-[#EFF6FF] flex items-center justify-center mb-5"><Lock className="w-9 h-9 text-[#2563EB]" /></div>
             <h3 className="text-base font-bold text-slate-800">Supplier procurement isn&apos;t on your plan</h3>
             <p className="mt-1.5 max-w-md text-sm text-slate-500">Your {planName} plan doesn&apos;t include the supplier marketplace yet. Upgrade to browse and procure from vetted suppliers.</p>
-            <div className="mt-6"><Button variant="primary" size="md" asChild><Link href="/app/workspace-settings/subscription">View plans</Link></Button></div>
+            <div className="mt-6"><Button variant="primary" size="md" asChild><Link href="/property-manager/workspace-settings/subscription">View plans</Link></Button></div>
           </div>
         </div>
       ) : (
@@ -298,7 +298,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
       {compare.length > 0 && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.14)]">
           <span className="text-[12.5px] font-semibold text-slate-700">{compare.length} selected</span>
-          <Link href={`/app/marketplace/suppliers/compare?ids=${compare.join(",")}`} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><GitCompare className="w-4 h-4" /> Compare</Link>
+          <Link href={`/property-manager/marketplace/suppliers/compare?ids=${compare.join(",")}`} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><GitCompare className="w-4 h-4" /> Compare</Link>
           <button onClick={() => setCompare([])} aria-label="Clear comparison" className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
         </div>
       )}

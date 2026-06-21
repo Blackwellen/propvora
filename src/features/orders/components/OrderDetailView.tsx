@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -30,6 +30,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   function showToast(m: string) { setToast(m); setTimeout(() => setToast(null), 3000) }
 
   if (loading) return <div className="p-6 text-sm text-slate-400">Loading order…</div>
+  if (!order) return (
+    <div className="p-10 text-center text-sm text-slate-400">
+      <p className="font-medium text-slate-600 mb-1">Order not found</p>
+      <p>This order may have been removed or the link may be incorrect.</p>
+    </div>
+  )
 
   const evidenceMissing = order.evidenceStatus === "missing"
 
@@ -37,7 +43,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
     <div className="flex flex-col gap-5 px-4 md:px-6 py-5">
       {toast && <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl">{toast}</div>}
 
-      <Link href="/app/work/orders?tab=active" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
+      <Link href="/property-manager/work/orders?tab=active" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 w-fit">
         <ArrowLeft className="w-4 h-4" /> Back to orders
       </Link>
 

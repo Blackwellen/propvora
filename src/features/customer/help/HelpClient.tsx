@@ -4,33 +4,26 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Phone, Search, MessagesSquare, Flag, CheckCircle2, BookOpen, Calendar, CreditCard, Home,
-  Eye, FileText, Building2, Scale, Shield, User, Plus, ExternalLink, Clock, Upload, Mail,
-  AlertTriangle, ChevronRight,
+  Eye, FileText, Building2, Scale, Shield, User, Plus, Clock, Mail,
+  AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill, type PillTone } from "../components/StatusPill"
-import { propertyImages as IMG } from "../data/mock"
 
 const KPIS = [
-  { id: "open", label: "Open tickets", value: "2", sub: "1 requires your reply", icon: MessagesSquare, bg: "bg-violet-50 text-violet-600", subTone: "blue" },
-  { id: "priority", label: "Priority issues", value: "1", sub: "High priority", icon: Flag, bg: "bg-amber-50 text-amber-600", subTone: "amber" },
-  { id: "resolved", label: "Recent resolutions", value: "8", sub: "In the last 30 days", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600", subTone: "emerald" },
-  { id: "safety", label: "Safety contacts", value: "3", sub: "Saved contacts", icon: Phone, bg: "bg-blue-50 text-blue-600", subTone: "slate" },
-  { id: "guides", label: "Quick guides", value: "12", sub: "Step-by-step help", icon: BookOpen, bg: "bg-violet-50 text-violet-600", subTone: "slate" },
+  { id: "open", label: "Open tickets", value: "0", sub: "No open tickets", icon: MessagesSquare, bg: "bg-violet-50 text-violet-600", subTone: "slate" },
+  { id: "priority", label: "Priority issues", value: "0", sub: "No priority issues", icon: Flag, bg: "bg-amber-50 text-amber-600", subTone: "slate" },
+  { id: "resolved", label: "Recent resolutions", value: "0", sub: "In the last 30 days", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600", subTone: "slate" },
+  { id: "safety", label: "Safety contacts", value: "—", sub: "See contact details below", icon: Phone, bg: "bg-blue-50 text-blue-600", subTone: "slate" },
+  { id: "guides", label: "Quick guides", value: "—", sub: "Browse categories below", icon: BookOpen, bg: "bg-violet-50 text-violet-600", subTone: "slate" },
 ]
 const CATEGORIES = [
   { label: "Bookings", icon: Calendar }, { label: "Payments", icon: CreditCard }, { label: "Lets", icon: Home },
   { label: "Viewings", icon: Eye }, { label: "Applications", icon: FileText }, { label: "Tenancy", icon: Building2 },
   { label: "Disputes", icon: Scale }, { label: "Safety", icon: Shield }, { label: "Account", icon: User },
 ]
-const TICKETS = [
-  { id: "PRV-8421", topic: "Payment not received", linked: "Booking #BK-32894", linkedSub: "Riverside Apartment, M1", status: "Awaiting your reply", tone: "violet" as PillTone, update: "24 May 2025, 10:24" },
-  { id: "PRV-8417", topic: "Check-in issue", linked: "Booking #BK-32812", linkedSub: "Lakeview Cabin, LA23", status: "In progress", tone: "amber" as PillTone, update: "23 May 2025, 16:45" },
-  { id: "PRV-8399", topic: "Security deposit dispute", linked: "Tenancy #TN-55421", linkedSub: "City View Flat, M50", status: "In review", tone: "amber" as PillTone, update: "22 May 2025, 11:12" },
-  { id: "PRV-8375", topic: "Maintenance request", linked: "Tenancy #TN-55310", linkedSub: "Riverside Apartment, M1", status: "Resolved", tone: "emerald" as PillTone, update: "20 May 2025, 09:32" },
-  { id: "PRV-8362", topic: "Billing question", linked: "Payment #PMT-77123", linkedSub: "", status: "Resolved", tone: "emerald" as PillTone, update: "19 May 2025, 14:18" },
-]
+const TICKETS: { id: string; topic: string; linked: string; linkedSub: string; status: string; tone: PillTone; update: string }[] = []
 const TICKET_TABS = ["All tickets", "Awaiting your reply", "In progress", "Resolved"]
 
 export default function HelpClient() {
@@ -46,7 +39,7 @@ export default function HelpClient() {
         </div>
         <div className="bg-white rounded-2xl border border-rose-100 shadow-sm p-3 flex items-center gap-3">
           <span className="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0"><Phone className="w-4 h-4" /></span>
-          <div><p className="text-[12.5px] font-semibold text-rose-600">Emergency assistance</p><p className="text-[11px] text-slate-500">For urgent issues that need immediate help.</p><p className="text-[12px] text-slate-700 mt-0.5"><Clock className="w-3 h-3 inline" /> Call emergency line <span className="font-bold text-rose-600">+44 7700 900123</span> <span className="text-[10px] bg-rose-50 text-rose-500 rounded px-1">24/7</span></p></div>
+          <div><p className="text-[12.5px] font-semibold text-rose-600">Emergency assistance</p><p className="text-[11px] text-slate-500">For urgent issues that need immediate help.</p><p className="text-[12px] text-slate-700 mt-0.5"><Clock className="w-3 h-3 inline" /> Call emergency line <span className="font-bold text-rose-600">support@propvora.com</span> <span className="text-[10px] bg-rose-50 text-rose-500 rounded px-1">24/7</span></p></div>
         </div>
       </div>
 
@@ -89,7 +82,21 @@ export default function HelpClient() {
               <h3 className="text-[15px] font-bold text-slate-900">Your support tickets</h3>
               <div className="flex items-center gap-2"><button onClick={() => toast("New ticket — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-3 py-1.5 text-[12px] font-semibold"><Plus className="w-3.5 h-3.5" /> Open ticket</button><Link href="#" className="text-[12px] font-semibold text-blue-600">View all tickets →</Link></div>
             </div>
-            <div className="flex items-center gap-1 mb-2 border-b border-slate-100">
+            {/* Mobile dropdown — shown only below md breakpoint */}
+            <div className="md:hidden mb-2 border-b border-slate-100 pb-2">
+              <select
+                value={ticketTab}
+                onChange={(e) => setTicketTab(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Filter tickets"
+              >
+                {TICKET_TABS.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            {/* Desktop tab strip — hidden below md */}
+            <div className="hidden md:flex items-center gap-1 mb-2 border-b border-slate-100">
               {TICKET_TABS.map((t) => <button key={t} onClick={() => setTicketTab(t)} className={cn("px-3 py-2 text-[12.5px] font-semibold border-b-2 -mb-px", t === ticketTab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t}</button>)}
             </div>
             <div className="overflow-x-auto">
@@ -109,7 +116,8 @@ export default function HelpClient() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between mt-3 text-[12px] text-slate-500"><span>Showing 5 of 11 tickets</span><div className="flex items-center gap-1"><PageBtn>‹</PageBtn><PageBtn active>1</PageBtn><PageBtn>2</PageBtn><PageBtn>3</PageBtn><PageBtn>›</PageBtn></div></div>
+            {TICKETS.length === 0 && <p className="text-[12.5px] text-slate-400 py-4 text-center">No support tickets yet. Open a ticket above if you need help.</p>}
+          <div className="flex items-center justify-between mt-3 text-[12px] text-slate-500"><span>Showing {TICKETS.length} of {TICKETS.length} tickets</span></div>
           </div>
 
           {/* bottom info cards */}
@@ -133,7 +141,7 @@ export default function HelpClient() {
           {/* still need help */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
             <div className="flex items-center gap-2"><span className="w-9 h-9 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center"><MessagesSquare className="w-4 h-4" /></span><div><p className="text-[12.5px] font-bold text-slate-800">Still need help?</p><p className="text-[10.5px] text-slate-400">Our team is ready to help</p><button onClick={() => toast("Starting live chat…", "info")} className="mt-1 bg-[#0D1B2A] text-white rounded-lg px-2.5 py-1 text-[11px] font-semibold">Start live chat</button></div></div>
-            <Contact icon={Phone} title="Call support" lines={["+44 7700 900123", "Open 24/7"]} />
+            <Contact icon={Phone} title="Call support" lines={["support@propvora.com", "Open 24/7"]} />
             <Contact icon={Mail} title="Email support" lines={["support@propvora.com", "Response within 24h"]} />
             <Contact icon={Flag} title="Report a problem" lines={["Something not working?", "Let us know"]} />
           </div>
@@ -141,38 +149,13 @@ export default function HelpClient() {
 
         {/* Right rail: selected case */}
         <aside className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sticky top-[84px]">
-          <div className="flex items-center justify-between"><h3 className="text-[14px] font-bold text-slate-900">Selected case</h3><StatusPill tone="violet">Awaiting your reply</StatusPill></div>
-          <p className="text-[11.5px] text-slate-400 mt-1">#PRV-8421</p>
-          <p className="text-[15px] font-bold text-slate-900 mt-0.5">Payment not received</p>
-          <p className="text-[11px] text-slate-400">Created: 24 May 2025, 09:51</p>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-1">Conversation summary</p>
-            <p className="text-[11.5px] text-slate-500">You reported that the payment for your booking on 24 May 2025 has not been processed. We've escalated this with our payments team and are investigating.</p>
-            <Link href="#" className="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600">View full conversation <ChevronRight className="w-3.5 h-3.5" /></Link>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Linked booking</p>
-            <div className="flex gap-2.5">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={IMG.riverside} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" /><div><p className="text-[12px] font-semibold text-slate-800">Riverside Apartment, M1</p><p className="text-[10.5px] text-slate-400">Booking #BK-32894 · Check-in: 24 May 2025</p><Link href="/customer/bookings/PV-98230" className="text-[11px] font-semibold text-blue-600">View booking →</Link></div></div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Assigned to</p>
-            <div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">James Williams</p><p className="text-[10.5px] text-slate-400">Senior Support Specialist</p></div></div><button onClick={() => toast("Messaging James…", "info")} className="text-[11px] font-semibold text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1">Message</button></div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-1">Response expectation</p>
-            <p className="text-[11.5px] text-slate-500"><Clock className="w-3.5 h-3.5 inline text-slate-400" /> We aim to respond within <span className="font-semibold text-slate-700">4 hours</span></p>
-            <p className="text-[10.5px] text-slate-400">SLA target: Today, 14:00</p>
-            <div className="h-1.5 rounded-full bg-slate-100 mt-1.5 overflow-hidden"><div className="h-full bg-blue-600 rounded-full" style={{ width: "70%" }} /></div>
-            <p className="text-[10px] text-slate-400 mt-0.5 text-right">70% elapsed</p>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-1.5"><p className="text-[12px] font-semibold text-slate-700">Attachments</p><span className="text-[11px] text-slate-400">2 files</span></div>
-            {[["payment-confirmation.pdf", "312 KB · Uploaded 24 May 2025"], ["receipt-screenshot.png", "158 KB · Uploaded 24 May 2025"]].map(([n, s]) => <div key={n} className="flex items-center gap-2 py-1"><FileText className="w-4 h-4 text-slate-400" /><div><p className="text-[11.5px] font-medium text-slate-700">{n}</p><p className="text-[10px] text-slate-400">{s}</p></div></div>)}
+          <h3 className="text-[14px] font-bold text-slate-900 mb-3">Selected case</h3>
+          <div className="py-8 text-center">
+            <MessagesSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-[12.5px] text-slate-400">Select a ticket to see case details.</p>
           </div>
           <div className="mt-3 space-y-2">
-            <button onClick={() => toast("Replying to case…", "info")} className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold">Reply to case</button>
-            <button onClick={() => toast("Evidence uploader — coming soon", "info")} className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Upload className="w-4 h-4" /> Upload evidence</button>
-            <button onClick={() => toast("Close case — coming soon", "info")} className="w-full border border-rose-200 text-rose-600 rounded-xl py-2 text-[12.5px] font-semibold hover:bg-rose-50">Close case</button>
+            <button onClick={() => toast("Open a ticket to get started", "info")} className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold">Open a ticket</button>
           </div>
         </aside>
       </div>

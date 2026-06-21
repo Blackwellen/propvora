@@ -1,9 +1,10 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { PortfolioSectionTabs } from "@/components/portfolio/PortfolioSectionTabs"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { PropertyCard, type PropertyCardData } from "@/components/portfolio/PropertyCard"
@@ -208,16 +209,17 @@ export default function PropertiesListPage() {
           : "—",
       },
     ],
-    onRowClick: (p) => router.push(`/app/portfolio/properties/${p.id}`),
+    onRowClick: (p) => router.push(`/property-manager/portfolio/properties/${p.id}`),
   }
 
   return (
     <DashboardContainer>
+      <PortfolioSectionTabs />
       {/* Mobile top bar — compact title + primary "Add" + Export overflow */}
       <MobileTopBar
         title="Properties"
         subtitle={`${filtered.length} propert${filtered.length !== 1 ? "ies" : "y"}`}
-        primaryAction={{ label: "Add property", icon: Plus, href: "/app/portfolio/properties/new" }}
+        primaryAction={{ label: "Add property", icon: Plus, href: "/property-manager/portfolio/properties/new" }}
         overflowActions={[
           { label: "Export CSV", icon: Download, onClick: handleExport },
         ]}
@@ -259,7 +261,7 @@ export default function PropertiesListPage() {
               <Download className="w-4 h-4" />Export
             </Button>
             <Button variant="primary" size="md" asChild>
-              <Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
+              <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add property</Link>
             </Button>
           </div>
         }
@@ -393,7 +395,7 @@ export default function PropertiesListPage() {
         <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
           <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center"><Building2 className="w-10 h-10 text-slate-300" /></div>
           <div><p className="text-base font-bold text-slate-700">No properties yet</p><p className="text-sm text-slate-500 mt-1">Add your first property to get started</p></div>
-          <Button variant="primary" size="md" asChild><Link href="/app/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link></Button>
+          <Button variant="primary" size="md" asChild><Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add first property</Link></Button>
         </div>
       ) : paginated.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
@@ -409,7 +411,7 @@ export default function PropertiesListPage() {
         /* Desktop renders the existing PropertyTable; phones get a stacked card
            list via the column→card mapping. No data/logic change. */
         <ResponsiveTable rows={paginated} mobile={propertyCardMapping}>
-          <PropertyTable properties={paginated} onRowClick={(id) => router.push(`/app/portfolio/properties/${id}`)} />
+          <PropertyTable properties={paginated} onRowClick={(id) => router.push(`/property-manager/portfolio/properties/${id}`)} />
         </ResponsiveTable>
       )}
 

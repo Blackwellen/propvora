@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -42,50 +42,7 @@ interface Vacancy {
 }
 
 /* ─── Mock data ───────────────────────────────────────────────── */
-const VACANCIES: Vacancy[] = [
-  {
-    id: "v1", address: "14 Elm Close, Manchester", type: "2-Bed Flat", bedrooms: 2, furnished: "Unfurnished",
-    availableFrom: "Now", rent: "£950/mo", status: "Active",
-    portals: [{ label: "Rightmove", short: "RM", listed: true }, { label: "Zoopla", short: "Z", listed: true }, { label: "OnTheMarket", short: "OTM", listed: false }],
-    prospectCount: 4, daysListed: 21,
-  },
-  {
-    id: "v2", address: "HMO Room 6 — Victoria Rd", type: "HMO Room", bedrooms: null, furnished: "Part-Furnished",
-    availableFrom: "Now", rent: "£750/mo", status: "Active",
-    portals: [{ label: "Rightmove", short: "RM", listed: false }, { label: "Zoopla", short: "Z", listed: false }, { label: "OnTheMarket", short: "OTM", listed: false }],
-    prospectCount: 1, daysListed: 7,
-  },
-  {
-    id: "v3", address: "8 Park Lane, Leeds", type: "3-Bed House", bedrooms: 3, furnished: "Furnished",
-    availableFrom: "1 Jul 2026", rent: "£1,350/mo", status: "Active",
-    portals: [{ label: "Rightmove", short: "RM", listed: true }, { label: "Zoopla", short: "Z", listed: true }, { label: "OnTheMarket", short: "OTM", listed: true }],
-    prospectCount: 7, daysListed: 14,
-  },
-  {
-    id: "v4", address: "22 Brook Lane, Liverpool", type: "1-Bed Flat", bedrooms: 1, furnished: "Unfurnished",
-    availableFrom: "15 Jun 2026", rent: "£650/mo", status: "Under Offer",
-    portals: [{ label: "Rightmove", short: "RM", listed: true }, { label: "Zoopla", short: "Z", listed: true }, { label: "OnTheMarket", short: "OTM", listed: true }],
-    prospectCount: 2, daysListed: 28,
-  },
-  {
-    id: "v5", address: "45 High Street, Birmingham", type: "Studio", bedrooms: null, furnished: "Furnished",
-    availableFrom: "Now", rent: "£550/mo", status: "Active",
-    portals: [{ label: "Rightmove", short: "RM", listed: true }, { label: "Zoopla", short: "Z", listed: false }, { label: "OnTheMarket", short: "OTM", listed: false }],
-    prospectCount: 5, daysListed: 35,
-  },
-  {
-    id: "v6", address: "3 Oak Drive, Bristol", type: "2-Bed Flat", bedrooms: 2, furnished: "Unfurnished",
-    availableFrom: "1 Aug 2026", rent: "£895/mo", status: "Draft",
-    portals: [{ label: "Rightmove", short: "RM", listed: false }, { label: "Zoopla", short: "Z", listed: false }, { label: "OnTheMarket", short: "OTM", listed: false }],
-    prospectCount: 0, daysListed: 0,
-  },
-  {
-    id: "v7", address: "67 Beach Rd, Brighton", type: "3-Bed House", bedrooms: 3, furnished: "Furnished",
-    availableFrom: "1 Jul 2026", rent: "£1,800/mo", status: "Active",
-    portals: [{ label: "Rightmove", short: "RM", listed: true }, { label: "Zoopla", short: "Z", listed: true }, { label: "OnTheMarket", short: "OTM", listed: false }],
-    prospectCount: 2, daysListed: 5,
-  },
-]
+const VACANCIES: Vacancy[] = []
 
 const STATUS_FILTERS: { key: VacancyStatus | "All"; label: string }[] = [
   { key: "All",         label: "All" },
@@ -116,7 +73,7 @@ export default function VacanciesPage() {
         title="Vacancies"
         subtitle={`${VACANCIES.length} total vacancies`}
         showBack
-        backHref="/app/portfolio/leasing"
+        backHref="/property-manager/portfolio/leasing"
         primaryAction={{ label: "New vacancy", icon: Plus, onClick: () => {} }}
       />
 
@@ -172,6 +129,13 @@ export default function VacanciesPage() {
         </div>
 
         {/* Grid */}
+        {filtered.length === 0 && (
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-10 text-center">
+            <BedDouble className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+            <p className="text-[13px] font-medium text-slate-600">No vacancies yet</p>
+            <p className="text-[12px] text-slate-400 mt-1">Create a vacancy to start listing properties and tracking prospects.</p>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
             <div key={v.id} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">

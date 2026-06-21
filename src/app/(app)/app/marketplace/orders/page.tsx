@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { Package, ShoppingBag, ArrowDownLeft, ArrowUpRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { listOrders, type OrderSide } from "@/lib/marketplace/orders"
@@ -39,7 +39,7 @@ export default async function MarketplaceOrdersPage({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Orders" subtitle="Your marketplace orders" showBack backHref="/app/marketplace" />
+      <MobileTopBar title="Orders" subtitle="Your marketplace orders" showBack backHref="/property-manager/marketplace" />
       <div className="hidden md:block">
         <PageHeader title="Marketplace orders" description="Track purchases and sales across the marketplace" />
       </div>
@@ -49,7 +49,7 @@ export default async function MarketplaceOrdersPage({
         {([["any", "All"], ["buyer", "Bought"], ["seller", "Sold"]] as const).map(([key, label]) => (
           <Link
             key={key}
-            href={key === "any" ? "/app/marketplace/orders" : `/app/marketplace/orders?side=${key}`}
+            href={key === "any" ? "/property-manager/marketplace/orders" : `/property-manager/marketplace/orders?side=${key}`}
             className={`inline-flex items-center gap-1 h-9 px-3.5 rounded-[10px] text-[12.5px] font-semibold transition-colors ${
               side === key ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700"
             }`}
@@ -67,7 +67,7 @@ export default async function MarketplaceOrdersPage({
             variant="no-results"
             title="No orders yet"
             description="When you book a stay, buy a service or sell to another workspace, your orders appear here with their live status."
-            action={{ label: "Browse the marketplace", href: "/app/marketplace", icon: ShoppingBag }}
+            action={{ label: "Browse the marketplace", href: "/property-manager/marketplace", icon: ShoppingBag }}
           />
         </div>
       ) : (

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import {
@@ -391,10 +391,10 @@ function ArrearCard({
                 Record Payment
               </button>
               <div className="flex gap-1">
-                <Link href="/app/money/invoices" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
+                <Link href="/property-manager/money/invoices" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
                   <FileText className="w-3 h-3" /> Invoice
                 </Link>
-                <Link href="/app/contacts" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
+                <Link href="/property-manager/contacts" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
                   <Phone className="w-3 h-3" /> Contact
                 </Link>
               </div>
@@ -468,12 +468,12 @@ export default function ArrearsPage() {
       id: r.id,
       initials: "—",
       avatarBg: "bg-slate-400",
-      tenantName: r.tenant_id ?? "—",
+      tenantName: r.tenant_name ?? r.tenant_id?.slice(0, 8) ?? "—",
       tenantEmail: "—",
       tenantPhone: "—",
       riskLevel: r.severity === "critical" || r.severity === "high" ? "HIGH_RISK" : r.severity === "medium" ? "AT_RISK" : "MEDIUM_RISK",
-      propertyName: r.property_id ?? "—",
-      propertyAddress: r.property_id ?? "—",
+      propertyName: r.property_name ?? r.property_id?.slice(0, 8) ?? "—",
+      propertyAddress: r.property_name ?? "—",
       invoiceRef: r.id.slice(0, 8).toUpperCase(),
       invoiceLabel: r.notes ?? "Arrears",
       dueDate: r.created_at ? new Date(r.created_at).toLocaleDateString("en-GB") : "—",
@@ -558,15 +558,15 @@ export default function ArrearsPage() {
       <MobileTopBar
         title="Arrears"
         subtitle={`${filtered.length} case${filtered.length === 1 ? "" : "s"}`}
-        primaryAction={{ label: "Create Invoice", icon: Plus, href: "/app/money/invoices/new" }}
+        primaryAction={{ label: "Create Invoice", icon: Plus, href: "/property-manager/money/invoices/new" }}
         overflowActions={[
-          { label: "Rent Chase", icon: Phone, href: "/app/money/rent-chase" },
+          { label: "Rent Chase", icon: Phone, href: "/property-manager/money/rent-chase" },
           { label: "Export CSV", icon: Download, onClick: handleExportCSV },
         ]}
       />
       <MoneyTabNav />
 
-      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+      <DashboardContainer className="py-6 flex flex-col gap-6">
         {/* Header */}
         <div className="hidden md:block">
         <MoneyPageHeader
@@ -575,11 +575,11 @@ export default function ArrearsPage() {
           subtitle="Monitor, chase and resolve overdue balances with speed and precision."
           actions={
             <>
-              <Link href="/app/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
+              <Link href="/property-manager/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
                 <Plus className="w-4 h-4" />
                 Create Invoice
               </Link>
-              <Link href="/app/money/rent-chase" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
+              <Link href="/property-manager/money/rent-chase" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
                 Rent Chase
               </Link>
               <button onClick={handleExportCSV} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">

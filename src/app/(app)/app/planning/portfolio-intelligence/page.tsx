@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -58,7 +58,7 @@ export default function PortfolioIntelligencePage() {
     }
   }, [sets])
 
-  const open = (id: string) => router.push(`/app/planning/sets/${id}/overview`)
+  const open = (id: string) => router.push(`/property-manager/planning/sets/${id}/overview`)
 
   // Health: blend of avg net yield + share of low-risk sets
   const netVals = sets.filter((s) => s.net_yield > 0)
@@ -96,7 +96,7 @@ export default function PortfolioIntelligencePage() {
           <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-3" />
           <p className="text-[14px] font-semibold text-slate-700">No portfolio data yet</p>
           <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">Create planning sets to benchmark performance and risk across your pipeline.</p>
-          <Link href="/app/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
+          <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-2 mt-4 h-9 px-5 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors">New Planning Set</Link>
         </div>
       ) : (
         <>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useMemo } from "react"
 import Link from "next/link"
 import { Scale, Key, Zap, Gavel, ArrowRight, AlertTriangle, Plus } from "lucide-react"
@@ -49,7 +49,7 @@ export default function LegalOverviewPage() {
   const CARDS = [
     {
       title: "Possession",
-      href: "/app/legal/possession",
+      href: "/property-manager/legal/possession",
       icon: Gavel,
       iconCls: "bg-blue-100 text-blue-600",
       metric: activeCases,
@@ -58,7 +58,7 @@ export default function LegalOverviewPage() {
     },
     {
       title: "HMO Licences",
-      href: "/app/legal/hmo-licences",
+      href: "/property-manager/legal/hmo-licences",
       icon: Key,
       iconCls: "bg-green-100 text-green-600",
       metric: activeLicences,
@@ -67,7 +67,7 @@ export default function LegalOverviewPage() {
     },
     {
       title: "EPC Advisory",
-      href: "/app/legal/epc-advisory",
+      href: "/property-manager/legal/epc-advisory",
       icon: Zap,
       iconCls: "bg-yellow-100 text-yellow-600",
       metric: `${epc.readinessPct}%`,
@@ -76,7 +76,7 @@ export default function LegalOverviewPage() {
     },
     {
       title: "RRA 2026",
-      href: "/app/legal/rra-2026",
+      href: "/property-manager/legal/rra-2026",
       icon: Scale,
       iconCls: "bg-purple-100 text-purple-600",
       metric: `${rraPct}%`,
@@ -103,7 +103,7 @@ export default function LegalOverviewPage() {
           </div>
         </div>
         <Link
-          href="/app/legal/possession/new/select-tenancy"
+          href="/property-manager/legal/possession/new/select-tenancy"
           className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -122,7 +122,7 @@ export default function LegalOverviewPage() {
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
               </div>
-              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? "—" : c.metric}</p>
+              <p className="text-2xl font-bold text-slate-900 leading-tight">{isLoading ? <span className="text-slate-300">…</span> : c.metric}</p>
               <p className="text-[12px] font-medium text-slate-700 mt-0.5">{c.metricLabel}</p>
               <p className="text-[11px] text-slate-500 mt-1">{c.sub}</p>
               <p className="text-[12px] font-semibold text-slate-800 mt-3">{c.title}</p>
@@ -137,7 +137,7 @@ export default function LegalOverviewPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Upcoming Licence Expiries</h2>
-              <Link href="/app/legal/hmo-licences" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">View all →</Link>
+              <Link href="/property-manager/legal/hmo-licences" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">View all →</Link>
             </div>
             {expiringSoon.length === 0 ? (
               <div className="py-12 text-center text-[12px] text-slate-400">No HMO licences expiring within 90 days.</div>
@@ -146,7 +146,7 @@ export default function LegalOverviewPage() {
                 {expiringSoon.map((l) => {
                   const d = daysUntil(l.expiry_date) ?? 0
                   return (
-                    <Link key={l.id} href={`/app/legal/hmo-licences/${l.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                    <Link key={l.id} href={`/property-manager/legal/hmo-licences/${l.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
                           <Key className="w-4 h-4 text-green-600" />

@@ -200,6 +200,7 @@ export function usePortalDiagnostics(
     queryFn: async () => {
       const out: PortalDiagnostics = { uploads: null, messages: null }
 
+      // portal_uploads and portal_messages link to grants via access_id column.
       const uploads = await supabase
         .from("portal_uploads")
         .select("id", { count: "exact", head: true })
@@ -322,11 +323,13 @@ export function useRevokeGrant() {
         .update({ status: "revoked", revoked_at: now })
         .eq("id", id)
       if (error) throw error
-      // best-effort: flip token rows too (ignore if table absent)
+      // best-effort: flip token rows too (ignore if table absent).
+      // The live schema links tokens to grants via entity_id (entity_type='portal_grant').
       await supabase
         .from("portal_access_tokens")
-        .update({ status: "revoked" })
-        .eq("access_id", id)
+        .update({ revoked: true })
+        .eq("entity_id", id)
+        .eq("entity_type", "portal_grant")
     },
     onSuccess: (_d, { workspaceId, id }) => {
       qc.invalidateQueries({ queryKey: ["portal-grants", workspaceId] })
@@ -353,10 +356,12 @@ export function useExtendGrant() {
         .update({ status: "active", expires_at: expires, revoked_at: null })
         .eq("id", id)
       if (error) throw error
+      // The live schema links tokens to grants via entity_id (entity_type='portal_grant').
       await supabase
         .from("portal_access_tokens")
-        .update({ status: "active", expires_at: expires })
-        .eq("access_id", id)
+        .update({ revoked: false, expires_at: expires })
+        .eq("entity_id", id)
+        .eq("entity_type", "portal_grant")
     },
     onSuccess: (_d, { workspaceId, id }) => {
       qc.invalidateQueries({ queryKey: ["portal-grants", workspaceId] })

@@ -1,15 +1,15 @@
-"use client"
+﻿"use client"
 import React from "react"
 import { useRouter } from "next/navigation"
 import { Gavel, Check, ChevronLeft, Save, ChevronRight } from "lucide-react"
 import { LegalDisclaimer } from "./LegalDisclaimer"
 
 const WIZARD_STEPS = [
-  { label: "Select Tenancy", href: "/app/legal/possession/new/select-tenancy" },
-  { label: "Select Grounds", href: "/app/legal/possession/new/select-grounds" },
-  { label: "Review Evidence", href: "/app/legal/possession/new/review-evidence" },
-  { label: "Notice Preview", href: "/app/legal/possession/new/notice-preview" },
-  { label: "Record Service", href: "/app/legal/possession/new/record-service" },
+  { label: "Select Tenancy", href: "/property-manager/legal/possession/new/select-tenancy" },
+  { label: "Select Grounds", href: "/property-manager/legal/possession/new/select-grounds" },
+  { label: "Review Evidence", href: "/property-manager/legal/possession/new/review-evidence" },
+  { label: "Notice Preview", href: "/property-manager/legal/possession/new/notice-preview" },
+  { label: "Record Service", href: "/property-manager/legal/possession/new/record-service" },
 ]
 
 interface PossessionWizardShellProps {
@@ -31,7 +31,7 @@ interface PossessionWizardShellProps {
 export function PossessionWizardShell({
   currentStep,
   title = "Possession Wizard",
-  subtitle = "Create a legally compliant possession case with confidence.",
+  subtitle = "Record possession case details and generate a review-only draft notice.",
   children,
   rightRail,
   onBack,
@@ -51,7 +51,7 @@ export function PossessionWizardShell({
     } else if (currentStep > 1) {
       router.push(WIZARD_STEPS[currentStep - 2].href)
     } else {
-      router.push("/app/legal/possession")
+      router.push("/property-manager/legal/possession")
     }
   }
 
@@ -69,7 +69,7 @@ export function PossessionWizardShell({
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <button
-            onClick={() => router.push("/app/legal/possession")}
+            onClick={() => router.push("/property-manager/legal/possession")}
             aria-label="Back to possession cases"
             className="text-slate-400 hover:text-slate-600 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded"
           >

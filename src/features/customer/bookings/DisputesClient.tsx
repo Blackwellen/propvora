@@ -10,21 +10,23 @@ import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill, disputeTone } from "../components/StatusPill"
-import { disputes, type Dispute } from "../data/bookings"
+import type { Dispute } from "../data/bookings"
+
+const disputes: Dispute[] = []
 
 const KPIS = [
-  { id: "open", label: "Open disputes", value: "4", sub: "Require attention", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
-  { id: "await", label: "Awaiting response", value: "2", sub: "From host or Propvora", icon: Clock, bg: "bg-violet-50 text-violet-600" },
-  { id: "evidence", label: "Evidence submitted", value: "6", sub: "Across all disputes", icon: FileText, bg: "bg-blue-50 text-blue-600" },
-  { id: "refund", label: "Refund in progress", value: "£620", sub: "Total amount", icon: PoundSterling, bg: "bg-emerald-50 text-emerald-600" },
-  { id: "resolved", label: "Resolved cases", value: "15", sub: "Last 12 months", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
+  { id: "open", label: "Open disputes", value: "0", sub: "Require attention", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
+  { id: "await", label: "Awaiting response", value: "0", sub: "From host or Propvora", icon: Clock, bg: "bg-violet-50 text-violet-600" },
+  { id: "evidence", label: "Evidence submitted", value: "0", sub: "Across all disputes", icon: FileText, bg: "bg-blue-50 text-blue-600" },
+  { id: "refund", label: "Refund in progress", value: "—", sub: "No active refunds", icon: PoundSterling, bg: "bg-emerald-50 text-emerald-600" },
+  { id: "resolved", label: "Resolved cases", value: "0", sub: "Last 12 months", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
 ]
 
 export default function DisputesClient() {
   const { toast } = useCustomerToast()
   const open = disputes.filter((d) => !d.past)
   const past = disputes.filter((d) => d.past)
-  const [selectedId, setSelectedId] = useState(open[0].id)
+  const [selectedId, setSelectedId] = useState(open[0]?.id ?? "")
   const selected = disputes.find((d) => d.id === selectedId) ?? open[0]
 
   return (
@@ -70,15 +72,26 @@ export default function DisputesClient() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-5 items-start">
         <div className="space-y-5">
           <Section title="Open disputes">
-            {open.map((d) => <DisputeRow key={d.id} d={d} active={d.id === selectedId} onClick={() => setSelectedId(d.id)} />)}
+            {open.length === 0
+              ? <p className="text-[13px] text-slate-400 py-4 text-center">No open disputes.</p>
+              : open.map((d) => <DisputeRow key={d.id} d={d} active={d.id === selectedId} onClick={() => setSelectedId(d.id)} />)}
           </Section>
           <Section title="Past disputes">
-            {past.map((d) => <DisputeRow key={d.id} d={d} active={d.id === selectedId} onClick={() => setSelectedId(d.id)} past />)}
+            {past.length === 0
+              ? <p className="text-[13px] text-slate-400 py-4 text-center">No past disputes.</p>
+              : past.map((d) => <DisputeRow key={d.id} d={d} active={d.id === selectedId} onClick={() => setSelectedId(d.id)} past />)}
           </Section>
         </div>
 
         {/* Right detail panel */}
-        <DisputePanel d={selected} toast={toast} />
+        {selected ? (
+          <DisputePanel d={selected} toast={toast} />
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
+            <p className="text-[14px] font-semibold text-slate-900 mb-1">No disputes</p>
+            <p className="text-[12.5px] text-slate-400">Disputes will appear here if you raise an issue with a booking.</p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -176,7 +189,7 @@ function DisputePanel({ d, toast }: { d: Dispute; toast: (m: string, k?: "succes
       <div className="mt-4 pt-4 border-t border-slate-100">
         <div className="flex items-center justify-between mb-2"><p className="text-[12.5px] font-semibold text-slate-700">Messages</p><button className="text-[11.5px] font-semibold text-blue-600">View all</button></div>
         <div className="space-y-2">
-          <Msg who="Sarah Johnson (You)" when={`${d.raised}, 14:32`} text="The hot tub was a key reason for booking this property and it was unavailable throughout our stay." />
+          <Msg who="You" when={`${d.raised}, 14:32`} text="The hot tub was a key reason for booking this property and it was unavailable throughout our stay." />
           <Msg who="Propvora Support" when={`${d.raised}, 15:10`} support text="Thank you for raising this. We've notified the host and will update you shortly." />
         </div>
       </div>

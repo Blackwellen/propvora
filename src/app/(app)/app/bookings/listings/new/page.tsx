@@ -1,4 +1,4 @@
-import { DashboardContainer } from "@/components/layout/PageContainer"
+﻿import { DashboardContainer } from "@/components/layout/PageContainer"
 import { MobileTopBar } from "@/components/mobile"
 import { getBookingAccess } from "@/components/bookings/server"
 import { loadAttachableProperties } from "@/components/bookings/server-deep"
@@ -21,7 +21,7 @@ export default async function NewListingPage() {
   if (!access.canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="New listing" subtitle="Booking management" showBack backHref="/app/bookings/listings" />
+        <MobileTopBar title="New listing" subtitle="Booking management" showBack backHref="/property-manager/bookings/listings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={access.planName} reason={access.upgradeReason} />
         </div>

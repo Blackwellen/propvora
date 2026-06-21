@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -568,7 +568,7 @@ export default function NewPropertyPage() {
         if (unitsError) throw unitsError
       }
 
-      router.push(`/app/portfolio/properties/${created.id}`)
+      router.push(`/property-manager/portfolio/properties/${created.id}`)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save property"
       setSaveError(message)
@@ -595,11 +595,11 @@ export default function NewPropertyPage() {
         title="Add Property"
         subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
         showBack
-        backHref="/app/portfolio/properties"
+        backHref="/property-manager/portfolio/properties"
       />
 
       <div className="hidden md:block mb-6">
-        <Link href="/app/portfolio/properties" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        <Link href="/property-manager/portfolio/properties" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ChevronLeft className="w-4 h-4" />
           Back to Properties
         </Link>

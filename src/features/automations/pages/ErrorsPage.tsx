@@ -12,10 +12,10 @@ import { useAutomationErrors } from "../data/hooks"
 import type { ErrorRow } from "../data/types"
 
 const TABS = [
-  { id: "queue", label: "Error queue", count: 48 },
-  { id: "incidents", label: "Incidents", count: 7 },
-  { id: "muted", label: "Muted", count: 5 },
-  { id: "resolved", label: "Resolved", count: 186 },
+  { id: "queue", label: "Error queue" },
+  { id: "incidents", label: "Incidents" },
+  { id: "muted", label: "Muted" },
+  { id: "resolved", label: "Resolved" },
   { id: "all", label: "All errors" },
 ]
 
@@ -71,24 +71,42 @@ export default function ErrorsPage() {
       iconTone="red"
       actions={actions}
     >
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <AutomationsKpiCard label="Open errors" value={48} trend="12%" icon={Bug} tone="red" />
-        <AutomationsKpiCard label="Critical incidents" value={7} trend="75%" icon={AlertTriangle} tone="red" />
-        <AutomationsKpiCard label="Muted alerts" value={5} trend="17%" trendDir="down" icon={BellOff} tone="slate" />
-        <AutomationsKpiCard label="Retries pending" value={23} trend="5" icon={RefreshCw} tone="amber" />
-        <AutomationsKpiCard label="Mean time to resolution" value="1h 42m" sub="-18m vs last week" icon={Clock} tone="violet" />
-      </div>
+      {(() => {
+        const openCount = errors.filter((e) => e.status !== "resolved").length
+        const criticalCount = errors.filter((e) => e.severity === "critical").length
+        const retriesCount = errors.filter((e) => e.safeToRetry && (e.retriesRemaining ?? 0) > 0).length
+        return (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+            <AutomationsKpiCard label="Open errors" value={openCount} icon={Bug} tone="red" />
+            <AutomationsKpiCard label="Critical incidents" value={criticalCount} icon={AlertTriangle} tone="red" />
+            <AutomationsKpiCard label="Muted alerts" value={0} sub="No muted alerts" icon={BellOff} tone="slate" />
+            <AutomationsKpiCard label="Retries pending" value={retriesCount} icon={RefreshCw} tone="amber" />
+            <AutomationsKpiCard label="Mean time to resolution" value="—" sub="Requires live data" icon={Clock} tone="violet" />
+          </div>
+        )
+      })()}
 
-      <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
-            {t.label}{t.count != null && <span className="ml-1 text-slate-400">{t.count}</span>}
-          </button>
-        ))}
-      </div>
+      {(() => {
+        const tabCounts: Record<string, number | undefined> = {
+          queue: errors.filter((e) => e.status === "active").length,
+          incidents: errors.filter((e) => e.severity === "critical").length,
+          muted: 0,
+          resolved: errors.filter((e) => e.status === "resolved").length,
+          all: undefined,
+        }
+        return (
+          <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
+            {TABS.map((t) => (
+              <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
+                {t.label}{tabCounts[t.id] != null && <span className="ml-1 text-slate-400">{tabCounts[t.id]}</span>}
+              </button>
+            ))}
+          </div>
+        )
+      })()}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30" />
         {["Critical", "Active", "Resolved", "Needs config", "External integration", "More filters"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>
         ))}
@@ -109,7 +127,7 @@ export default function ErrorsPage() {
               onToggleAll={(c) => setSelected(c ? errors.map((r) => r.id) : [])}
               page={page}
               pageSize={8}
-              total={48}
+              total={errors.length}
               onPageChange={setPage}
               onRowClick={(r) => setActive(r)}
               activeRowId={active?.id}

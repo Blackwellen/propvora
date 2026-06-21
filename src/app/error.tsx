@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect } from "react"
 import Link from "next/link"
@@ -78,7 +78,7 @@ export default function GlobalError({
               Try again
             </button>
             <Link
-              href="/app"
+              href="/property-manager"
               className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Back to dashboard

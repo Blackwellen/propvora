@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -128,14 +128,14 @@ export function ListingDetailShell({
         title={listing.title}
         subtitle="Listing management"
         showBack
-        backHref="/app/bookings/listings"
+        backHref="/property-manager/bookings/listings"
       />
 
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         {/* Breadcrumb */}
         <div className="hidden md:flex items-center gap-2 text-sm">
           <Link
-            href="/app/bookings/listings"
+            href="/property-manager/bookings/listings"
             className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

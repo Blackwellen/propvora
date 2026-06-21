@@ -2,6 +2,7 @@
 
 import { Target, Info, CheckCircle2, Clock } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
+import { SectionHeader } from "@/components/layout/SectionHeader"
 import { PortalsTabNav } from "@/components/portals/PortalsTabNav"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { usePortalPurposes } from "@/hooks/usePortals"
@@ -13,24 +14,21 @@ export default function PortalPurposesPage() {
 
   return (
     <DashboardContainer>
-      <PortalsTabNav />
+      <SectionHeader
+        title="Portal Purposes"
+        subtitle="Purpose templates that scope what a portal grant is for, with default link expiry."
+        tabs={<PortalsTabNav />}
+      />
 
       <div className="px-6 pt-6 pb-10 space-y-6">
-        <div>
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Portals</p>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Portal Purposes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Purpose templates that scope what a portal grant is for, with default link expiry.
-          </p>
-        </div>
 
         {usingDefaults && (
           <div className="flex items-start gap-2 p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
             <p className="text-[12px] text-blue-800 leading-relaxed">
-              Showing built-in default purposes. Customising purposes persists to the
-              <span className="font-mono"> portal_purposes </span> config table (apply the
-              portal migration to enable editing). The grant wizard already uses these templates.
+              Showing built-in default purposes. Custom purposes are stored in the
+              <span className="font-mono"> portal_purposes </span> table
+              (migration 20260621120000 — apply to enable workspace customisation). The grant wizard already uses these templates.
             </p>
           </div>
         )}

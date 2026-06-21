@@ -27,7 +27,7 @@ export default async function ListingChannelsPage({
   if (!access.canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Channel sync" subtitle="Booking management" showBack backHref={`/app/bookings/listings/${listingId}`} />
+        <MobileTopBar title="Channel sync" subtitle="Booking management" showBack backHref={`/property-manager/bookings/listings/${listingId}`} />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={access.planName} reason={access.upgradeReason} />
         </div>
@@ -40,7 +40,7 @@ export default async function ListingChannelsPage({
   if (!detail.listing) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Channel sync" subtitle={listingId.slice(0, 8)} showBack backHref={`/app/bookings/listings/${listingId}`} />
+        <MobileTopBar title="Channel sync" subtitle={listingId.slice(0, 8)} showBack backHref={`/property-manager/bookings/listings/${listingId}`} />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingNotReady
             title="Listing not found"
@@ -57,7 +57,7 @@ export default async function ListingChannelsPage({
         title="Channel sync"
         subtitle={detail.listing.title ?? "Listing"}
         showBack
-        backHref={`/app/bookings/listings/${listingId}`}
+        backHref={`/property-manager/bookings/listings/${listingId}`}
       />
       <div className="px-4 md:px-6 py-4 md:py-6 max-w-3xl">
         <ChannelSyncManager listingId={listingId} listingTitle={detail.listing.title ?? undefined} />

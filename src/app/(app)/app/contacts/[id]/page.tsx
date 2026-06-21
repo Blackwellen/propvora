@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle2, User, Activity, Home, Wallet, FolderOpen, MessageCircle, StickyNote, ListChecks, Shield, Building2, TrendingUp, FileText, Settings, Globe, Briefcase, CalendarDays } from "lucide-react"
@@ -91,7 +91,7 @@ function getTabsForType(type: ContactType): TabDef[] {
   ]
 }
 
-export default function ContactDetailPage() {
+function ContactDetailPageInner() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -124,7 +124,7 @@ export default function ContactDetailPage() {
         </div>
         <h2 className="text-lg font-semibold text-slate-800 mb-1">Contact not found</h2>
         <p className="text-sm text-slate-500 mb-4">This contact may have been deleted or you may not have access.</p>
-        <Link href="/app/contacts" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
           Back to Contacts
         </Link>
       </div>
@@ -182,7 +182,7 @@ export default function ContactDetailPage() {
 
   async function handleDelete() {
     await deleteContact.mutateAsync({ id: contact.id, workspaceId: wsId })
-    router.push("/app/contacts")
+    router.push("/property-manager/contacts")
   }
 
   const tabs = getTabsForType(contact.contact_type)
@@ -298,5 +298,13 @@ export default function ContactDetailPage() {
         )}
       </div>
     </ContactSaveContext.Provider>
+  )
+}
+
+export default function ContactDetailPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-sm text-slate-500">Loading…</div>}>
+      <ContactDetailPageInner />
+    </Suspense>
   )
 }

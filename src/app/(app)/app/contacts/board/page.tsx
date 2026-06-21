@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
@@ -150,8 +150,8 @@ function BoardCard({
       tabIndex={0}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={() => router.push(`/app/contacts/${contact.id}`)}
-      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/app/contacts/${contact.id}`) }}
+      onClick={() => router.push(`/property-manager/contacts/${contact.id}`)}
+      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/property-manager/contacts/${contact.id}`) }}
       className={cn(
         "bg-white rounded-xl border border-slate-200 p-3.5 cursor-pointer active:cursor-grabbing select-none transition-all duration-150",
         isDragging ? "ring-2 ring-blue-400 shadow-lg rotate-1 opacity-80" : "hover:shadow-md hover:border-slate-300"
@@ -263,7 +263,7 @@ function BoardColumn({
 
       {/* Footer */}
       <Link
-        href="/app/contacts/new"
+        href="/property-manager/contacts/new"
         className="bg-white border-x border-b border-slate-200 rounded-b-xl px-3 py-2 text-xs text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-1.5 w-full"
       >
         <Plus className="w-3.5 h-3.5" />
@@ -380,7 +380,7 @@ export default function ContactsBoardPage() {
       <MobileTopBar
         title="Contact Board"
         subtitle="Swipe columns"
-        primaryAction={{ label: "Add contact", icon: Plus, href: "/app/contacts/new" }}
+        primaryAction={{ label: "Add contact", icon: Plus, href: "/property-manager/contacts/new" }}
       />
       <div className="md:hidden -mx-4">
         <ContactsTabNav />
@@ -409,14 +409,14 @@ export default function ContactsBoardPage() {
       </div>
 
       {/* Header */}
-      <div className="hidden md:flex items-start justify-between gap-4 px-6 pt-6 pb-4">
+      <div className="hidden md:flex items-start justify-between gap-4 pt-6 pb-4">
         <div>
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Contacts</p>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contact Board</h1>
           <p className="text-sm text-slate-500 mt-0.5">Visualise contacts by relationship stage or type</p>
         </div>
         <Link
-          href="/app/contacts/new"
+          href="/property-manager/contacts/new"
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
@@ -425,7 +425,7 @@ export default function ContactsBoardPage() {
       </div>
 
       {/* Controls */}
-      <div className="hidden md:flex items-center gap-3 px-6 pb-3 flex-wrap">
+      <div className="hidden md:flex items-center gap-3 pb-3 flex-wrap">
         {/* Mode toggle */}
         <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm">
           <button

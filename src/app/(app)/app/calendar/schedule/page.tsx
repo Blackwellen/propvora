@@ -151,7 +151,7 @@ export default function SchedulePage() {
       <MobileTopBar
         title="Schedule"
         subtitle="Overdue, today, week ahead"
-        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/app/calendar/events/new") }}
+        primaryAction={{ label: "New event", icon: Plus, href: sectionLink("/property-manager/calendar/events/new") }}
       />
       <div className="md:hidden">
         <CalendarTabNav />
@@ -170,7 +170,7 @@ export default function SchedulePage() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link
-              href={sectionLink("/app/calendar/events/new")}
+              href={sectionLink("/property-manager/calendar/events/new")}
               className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" />

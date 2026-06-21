@@ -26,11 +26,11 @@ const ASSUMPTIONS = [
 ]
 
 const SUMMARY_ROWS = [
-  { label: "Gross Income", upside: "£4,561,000", base: "£3,842,000", variance: "+£719,000", pct: "+18.7%", positive: true },
-  { label: "Operating Expenses", upside: "£1,351,000", base: "£1,198,000", variance: "+£153,000", pct: "+12.8%", positive: false },
-  { label: "Net Operating Income", upside: "£3,210,000", base: "£2,644,000", variance: "+£566,000", pct: "+21.4%", positive: true },
-  { label: "Net Income", upside: "£2,480,000", base: "£2,089,000", variance: "+£391,000", pct: "+18.7%", positive: true },
-  { label: "Cash Flow", upside: "£2,130,000", base: "£1,734,000", variance: "+£396,000", pct: "+22.9%", positive: true },
+  { label: "Gross Income", upside: "—", base: "—", variance: "—", pct: "—", positive: true },
+  { label: "Operating Expenses", upside: "—", base: "—", variance: "—", pct: "—", positive: false },
+  { label: "Net Operating Income", upside: "—", base: "—", variance: "—", pct: "—", positive: true },
+  { label: "Net Income", upside: "—", base: "—", variance: "—", pct: "—", positive: true },
+  { label: "Cash Flow", upside: "—", base: "—", variance: "—", pct: "—", positive: true },
 ]
 
 function ImpactChart() {
@@ -59,10 +59,10 @@ function ImpactChart() {
 export default function AddForecastScenarioPage() {
   const sectionLink = useSectionLink()
   const [step, setStep] = useState(1)
-  const [scenarioName, setScenarioName] = useState("Upside Case – Strong Leasing")
-  const [description, setDescription] = useState("Assumes stronger leasing velocity, rental growth above market and controlled operating expenses.")
+  const [scenarioName, setScenarioName] = useState("")
+  const [description, setDescription] = useState("")
   const [period, setPeriod] = useState("12M")
-  const [tags, setTags] = useState(["Upside", "Growth", "Leasing"])
+  const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
 
   function addTag(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -78,14 +78,14 @@ export default function AddForecastScenarioPage() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-6">
-      <MobileTopBar title="Add Forecast Scenario" subtitle="Forecast" showBack backHref={sectionLink("/app/accounting/forecast")} />
+      <MobileTopBar title="Add Forecast Scenario" subtitle="Forecast" showBack backHref={sectionLink("/property-manager/accounting/forecast")} />
 
       {/* Header */}
       <div className="hidden md:flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <Link href={sectionLink("/app/accounting")} className="hover:text-slate-600">Accounting</Link>
+          <Link href={sectionLink("/property-manager/accounting")} className="hover:text-slate-600">Accounting</Link>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-slate-500 font-medium">10 · Add Forecast Scenario</span>
+          <span className="text-slate-500 font-medium">Add Forecast Scenario</span>
         </div>
         <h1 className="text-2xl font-bold text-slate-900">Add Forecast Scenario</h1>
         <p className="text-sm text-slate-500">Create a new forecast scenario to explore different outcomes and compare against your base plan.</p>
@@ -246,15 +246,15 @@ export default function AddForecastScenarioPage() {
             {/* 4 mini KPI cards */}
             <div className="grid grid-cols-2 gap-3 mb-5">
               {[
-                { label: "Net Income (12M)", value: "£2.48M", delta: "+18.7% vs Base Plan", up: true },
-                { label: "NOI (12M)", value: "£3.21M", delta: "+15.4%", up: true },
-                { label: "Cash Flow (12M)", value: "£2.13M", delta: "+22.9%", up: true },
-                { label: "Yield on Cost", value: "7.8%", delta: "+1.6pp", up: true },
+                { label: "Net Income (12M)", value: "—", delta: "Requires live portfolio data", up: true },
+                { label: "NOI (12M)", value: "—", delta: "Requires live portfolio data", up: true },
+                { label: "Cash Flow (12M)", value: "—", delta: "Requires live portfolio data", up: true },
+                { label: "Yield on Cost", value: "—", delta: "Requires live portfolio data", up: true },
               ].map((m) => (
                 <div key={m.label} className="bg-slate-50 rounded-xl p-3 border border-[#E2E8F0]">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{m.label}</p>
                   <p className="text-lg font-black text-slate-900">{m.value}</p>
-                  <p className="text-[11px] font-medium text-[#10B981] mt-0.5">{m.delta}</p>
+                  <p className="text-[11px] font-medium text-slate-400 mt-0.5">{m.delta}</p>
                 </div>
               ))}
             </div>
@@ -318,7 +318,7 @@ export default function AddForecastScenarioPage() {
       {/* Footer */}
       <div className="flex items-center justify-between pt-6 border-t border-[#E2E8F0]">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={sectionLink("/app/accounting/forecast")}>Cancel</Link>
+          <Link href={sectionLink("/property-manager/accounting/forecast")}>Cancel</Link>
         </Button>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">Save Draft</Button>

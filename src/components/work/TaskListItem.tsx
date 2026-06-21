@@ -58,7 +58,7 @@ export function TaskListItem({ task }: { task: TaskItem }) {
       {/* Main info */}
       <div className="flex-1 min-w-0">
         <Link
-          href={`/app/work/${task.type}s/${task.id}`}
+          href={`/property-manager/work/${task.type}s/${task.id}`}
           className="text-sm font-medium text-slate-900 hover:text-[#2563EB] transition-colors line-clamp-1"
         >
           {task.title}
@@ -76,7 +76,7 @@ export function TaskListItem({ task }: { task: TaskItem }) {
       {/* Property chip */}
       {task.propertyName && (
         <Link
-          href={`/app/portfolio/properties/${task.propertyId}`}
+          href={`/property-manager/portfolio/properties/${task.propertyId}`}
           className="hidden md:flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-[#2563EB] text-xs font-medium hover:bg-blue-100 transition-colors shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
@@ -125,14 +125,14 @@ export function TaskListItem({ task }: { task: TaskItem }) {
             <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
             <div className="absolute right-0 top-full mt-1 w-44 z-30 bg-white rounded-xl shadow-xl border border-slate-200 py-1">
               <Link
-                href={`/app/work/${task.type}s/${task.id}`}
+                href={`/property-manager/work/${task.type}s/${task.id}`}
                 className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 onClick={() => setMenuOpen(false)}
               >
                 <Eye className="w-4 h-4" />View
               </Link>
               <Link
-                href={`/app/work/${task.type}s/${task.id}/edit`}
+                href={`/property-manager/work/${task.type}s/${task.id}/edit`}
                 className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 onClick={() => setMenuOpen(false)}
               >

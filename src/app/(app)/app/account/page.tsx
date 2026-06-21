@@ -5,23 +5,26 @@ import {
   User, Shield, KeyRound, Bell, Sliders, Monitor, Activity, Link2, Lock,
 } from "lucide-react"
 
+// Quick-stat cards: values are honest signposts, not live-fetched data.
+// "Security Score" deliberately shows "Review" until MFA is confirmed enabled by the user.
+// "Active Sessions" links through to the sessions page which shows live data.
 const STATS = [
-  { label: "Security Score",  value: "Good",    sub: "2FA not enabled",     colour: "#D97706", icon: Shield },
-  { label: "Active Sessions", value: "2",       sub: "2 devices active",    colour: "#2563EB", icon: Monitor },
-  { label: "Notifications",   value: "6 of 8",  sub: "channels active",     colour: "#059669", icon: Bell },
-  { label: "Last Login",      value: "Today",   sub: "This device · Chrome", colour: "#059669", icon: Activity },
+  { label: "Security Score",  value: "Review",   sub: "Visit Security to configure MFA",  colour: "#D97706", icon: Shield },
+  { label: "Active Sessions", value: "—",        sub: "See Sessions & Devices",            colour: "#2563EB", icon: Monitor },
+  { label: "Notifications",   value: "—",        sub: "See Notifications to configure",   colour: "#059669", icon: Bell },
+  { label: "Last Login",      value: "—",        sub: "See Activity for login history",    colour: "#059669", icon: Activity },
 ]
 
 const SECTIONS = [
-  { title: "Profile",            desc: "Name, email, phone, avatar, timezone",  href: "/app/account/profile",            icon: User,     colour: "#2563EB" },
-  { title: "Security",           desc: "Password, MFA, recovery codes",         href: "/app/account/security",           icon: Shield,   colour: "#DC2626" },
-  { title: "Login Methods",      desc: "OAuth providers, magic link, email",    href: "/app/account/login",              icon: KeyRound, colour: "#7C3AED" },
-  { title: "Notifications",      desc: "Channels, categories, quiet hours",     href: "/app/account/notifications",      icon: Bell,     colour: "#D97706" },
-  { title: "Preferences",        desc: "Theme, density, defaults, timezone",    href: "/app/account/preferences",        icon: Sliders,  colour: "#059669" },
-  { title: "Sessions & Devices", desc: "Active sessions, device management",    href: "/app/account/sessions",           icon: Monitor,  colour: "#2563EB" },
-  { title: "Activity",           desc: "Login history, changes, AI actions",    href: "/app/account/activity",           icon: Activity, colour: "#7C3AED" },
-  { title: "Connected Accounts", desc: "Google, Apple and OAuth providers",      href: "/app/account/connected-accounts", icon: Link2,    colour: "#059669" },
-  { title: "Data & Privacy",     desc: "Export data, delete account, privacy",  href: "/app/account/data-privacy",       icon: Lock,     colour: "#DC2626" },
+  { title: "Profile",            desc: "Name, email, phone, avatar, timezone",  href: "/property-manager/account/profile",            icon: User,     colour: "#2563EB" },
+  { title: "Security",           desc: "Password, MFA, recovery codes",         href: "/property-manager/account/security",           icon: Shield,   colour: "#DC2626" },
+  { title: "Login Methods",      desc: "OAuth providers, magic link, email",    href: "/property-manager/account/login",              icon: KeyRound, colour: "#7C3AED" },
+  { title: "Notifications",      desc: "Channels, categories, quiet hours",     href: "/property-manager/account/notifications",      icon: Bell,     colour: "#D97706" },
+  { title: "Preferences",        desc: "Theme, density, defaults, timezone",    href: "/property-manager/account/preferences",        icon: Sliders,  colour: "#059669" },
+  { title: "Sessions & Devices", desc: "Active sessions, device management",    href: "/property-manager/account/sessions",           icon: Monitor,  colour: "#2563EB" },
+  { title: "Activity",           desc: "Login history, changes, AI actions",    href: "/property-manager/account/activity",           icon: Activity, colour: "#7C3AED" },
+  { title: "Connected Accounts", desc: "Google, Apple and OAuth providers",      href: "/property-manager/account/connected-accounts", icon: Link2,    colour: "#059669" },
+  { title: "Data & Privacy",     desc: "Export data, delete account, privacy",  href: "/property-manager/account/data-privacy",       icon: Lock,     colour: "#DC2626" },
 ]
 
 export default function AccountOverviewPage() {

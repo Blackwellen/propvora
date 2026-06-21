@@ -31,7 +31,7 @@ function TaskCard({ task }: TaskCardProps) {
   const overdue = isOverdue(task.dueDate) && task.status !== "done"
   return (
     <Link
-      href={`/app/work/${task.type}s/${task.id}`}
+      href={`/property-manager/work/${task.type}s/${task.id}`}
       className={cn(
         "block bg-white rounded-xl border border-[#E2E8F0] p-3 shadow-sm",
         "hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"

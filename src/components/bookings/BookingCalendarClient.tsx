@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState, useTransition, useCallback } from "react"
 import { useRouter } from "next/navigation"
@@ -97,14 +97,14 @@ export function BookingCalendarClient({
     const params = new URLSearchParams()
     if (selectedListingId) params.set("listing", selectedListingId)
     params.set("month", next)
-    router.push(`/app/bookings/calendar?${params.toString()}`)
+    router.push(`/property-manager/bookings/calendar?${params.toString()}`)
   }
 
   function selectListing(id: string) {
     const params = new URLSearchParams()
     params.set("listing", id)
     params.set("month", monthStart)
-    router.push(`/app/bookings/calendar?${params.toString()}`)
+    router.push(`/property-manager/bookings/calendar?${params.toString()}`)
   }
 
   function toggleBlock(day: AvailabilityDay) {
@@ -172,7 +172,7 @@ export function BookingCalendarClient({
   if (!canManage) {
     return (
       <DashboardContainer>
-        <MobileTopBar title="Calendar" subtitle="Booking management" showBack backHref="/app/bookings" />
+        <MobileTopBar title="Calendar" subtitle="Booking management" showBack backHref="/property-manager/bookings" />
         <div className="px-4 md:px-6 py-4 md:py-6">
           <BookingUpgradePrompt planName={planName} reason={upgradeReason} />
         </div>
@@ -184,7 +184,7 @@ export function BookingCalendarClient({
 
   return (
     <DashboardContainer>
-      <MobileTopBar title="Calendar" subtitle="Availability & pricing" showBack backHref="/app/bookings" />
+      <MobileTopBar title="Calendar" subtitle="Availability & pricing" showBack backHref="/property-manager/bookings" />
 
       {toast && (
         <div

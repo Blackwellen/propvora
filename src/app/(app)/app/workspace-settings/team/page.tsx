@@ -501,6 +501,7 @@ export default function TeamPage() {
                               {(open) => (
                                 <button
                                   onClick={open}
+                                  aria-label={`Remove ${member.name} from workspace`}
                                   className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                                   title="Remove"
                                 >
@@ -511,6 +512,7 @@ export default function TeamPage() {
                           )}
                           {member.status === "invited" && (
                             <button
+                              aria-label={`Resend invite to ${member.name}`}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
                               title="Resend invite"
                             >
@@ -541,6 +543,7 @@ export default function TeamPage() {
               <h3 className="text-[15px] font-bold text-slate-900">Invite team member</h3>
               <button
                 onClick={() => setShowInviteModal(false)}
+                aria-label="Close invite modal"
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-4 h-4" />

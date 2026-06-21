@@ -225,12 +225,12 @@ export default function EditInspectionPage() {
 
   async function handleCancelInspection() {
     await supabase.from("property_inspections").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", id)
-    router.push(`/app/compliance/inspections/${id}`)
+    router.push(`/property-manager/compliance/inspections/${id}`)
   }
 
   async function handleDelete() {
     await supabase.from("property_inspections").update({ deleted_at: new Date().toISOString() }).eq("id", id)
-    router.push("/app/compliance/inspections")
+    router.push("/property-manager/compliance/inspections")
   }
 
   if (loading) {
@@ -243,7 +243,7 @@ export default function EditInspectionPage() {
         <h2 className="text-lg font-semibold text-slate-900 mb-1">Inspection not found</h2>
         <p className="text-sm text-slate-500 mb-5">This inspection may have been removed.</p>
         <Button variant="primary" size="sm" asChild>
-          <Link href="/app/compliance/inspections">Back to Inspections</Link>
+          <Link href="/property-manager/compliance/inspections">Back to Inspections</Link>
         </Button>
       </div>
     )
@@ -255,11 +255,11 @@ export default function EditInspectionPage() {
     <div className="space-y-0 pb-[120px] lg:pb-0">
       <div className="px-4 sm:px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
-          <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/app/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/app/compliance/inspections/${id}`} className="hover:text-[#2563EB] transition-colors">{typeLabel}</Link>
+          <Link href={`/property-manager/compliance/inspections/${id}`} className="hover:text-[#2563EB] transition-colors">{typeLabel}</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">Edit</span>
         </nav>
@@ -395,7 +395,7 @@ export default function EditInspectionPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="md" asChild>
-              <Link href={`/app/compliance/inspections/${id}`}>Discard Changes</Link>
+              <Link href={`/property-manager/compliance/inspections/${id}`}>Discard Changes</Link>
             </Button>
             <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
               <Save className="w-4 h-4" />

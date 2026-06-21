@@ -51,7 +51,7 @@ export function ListingCard({ listing, rating = null, reviewCount = null, trust,
   const gradient = CATEGORY_GRADIENT[cat.key] ?? CATEGORY_GRADIENT.other
 
   return (
-    <Link href={`/app/marketplace/${listing.id}`} className={cn("block group", className)}>
+    <Link href={`/property-manager/marketplace/${listing.id}`} className={cn("block group", className)}>
       <article
         className={cn(
           "relative bg-white rounded-2xl overflow-hidden border border-slate-200/80",
