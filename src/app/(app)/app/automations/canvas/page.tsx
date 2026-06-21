@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { gateAutomation, gateCanvasLite } from "@/lib/billing/gates"
+import { resolveFlags } from "@/lib/flags"
 import { UpgradePrompt } from "@/components/automations-builder/shared"
 import AutomationsTabs from "@/features/automations/components/AutomationsTabs"
 import CanvasClient from "./CanvasClient"
@@ -45,9 +46,23 @@ export default async function AutomationCanvasPage() {
     }
   }
 
+  // When canvas is accessible, also check automationsFull for Webhooks/Integrations tabs.
+  let automationsFull = false
+  try {
+    const flags = await resolveFlags(["automationsFull"], { supabase, workspaceId: workspaceId ?? undefined })
+    automationsFull = Boolean(flags.automationsFull)
+  } catch {
+    // fail-closed
+  }
+  const hiddenTabs: string[] = []
+  if (!automationsFull) {
+    hiddenTabs.push("Webhooks")
+    hiddenTabs.push("Integrations")
+  }
+
   return (
-    <div className="mx-auto max-w-[1500px] space-y-4 pb-12">
-      <AutomationsTabs />
+    <div className="mx-auto max-w-[1500px] space-y-4 px-6 pb-12">
+      <AutomationsTabs hiddenTabs={hiddenTabs} />
       <CanvasClient workspaceId={workspaceId ?? undefined} />
     </div>
   )

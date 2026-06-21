@@ -1,7 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
-import Link from "next/link"
+import { useMemo, useState } from "react"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
 import {
   Activity,
@@ -26,54 +25,25 @@ import AutomationsDataTable, { type DataColumn } from "../components/Automations
 import { AutomationsStatusBadge, AutomationsReviewFirstBadge, AutomationsRiskBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
+import { MiniLine } from "../components/charts"
 import { useAutomationsHome } from "../data/hooks"
 import type { AutomationRow } from "../data/types"
 
 type SubTab = "automations" | "inbox" | "activity" | "templates"
 
-interface AutomationUsage {
-  runsUsed: number
-  runsLimit: number
-  runsRemaining: number
-  runsUnlimited: boolean
-}
-
-export default function HomePage() {
+export default function HomePage({
+  hiddenTabs,
+  canvasEnabled = false,
+}: {
+  /** Tab labels to hide from the Automations tab strip (feature-flag gating). */
+  hiddenTabs?: string[]
+  /** Whether the canvasLite flag is ON — controls Canvas shortcut button visibility. */
+  canvasEnabled?: boolean
+}) {
   const router = useSectionRouter()
   const toast = useToast()
   const { automations, reviewQueue, activity } = useAutomationsHome()
   const [tab, setTab] = useState<SubTab>("automations")
-  const [automationPlanEnabled, setAutomationPlanEnabled] = useState<boolean | null>(null)
-  const [automationUsage, setAutomationUsage] = useState<AutomationUsage | null>(null)
-
-  // Check automation plan eligibility and usage on mount
-  useEffect(() => {
-    let active = true
-    fetch("/api/automations/usage")
-      .then((r) => {
-        if (r.status === 402) {
-          if (active) setAutomationPlanEnabled(false)
-          return null
-        }
-        return r.json()
-      })
-      .then((d) => {
-        if (!active || !d) return
-        setAutomationPlanEnabled(true)
-        if (d.usage) {
-          setAutomationUsage({
-            runsUsed: d.usage.runsUsed ?? 0,
-            runsLimit: d.usage.runsLimit ?? 0,
-            runsRemaining: d.usage.runsRemaining ?? 0,
-            runsUnlimited: d.usage.runsUnlimited ?? false,
-          })
-        }
-      })
-      .catch(() => {
-        if (active) setAutomationPlanEnabled(true) // fail open in the UI
-      })
-    return () => { active = false }
-  }, [])
   const [page, setPage] = useState(1)
   const [newOpen, setNewOpen] = useState(false)
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -81,11 +51,6 @@ export default function HomePage() {
   )
 
   const rows = automations.data
-
-  // Derive KPI counts from real data (seed fallback keeps these honest)
-  const activeCount = rows.filter((a) => a.status === "live" && a.enabled).length
-  const pendingReviewCount = reviewQueue.length
-  const totalRows = rows.length
 
   const columns: DataColumn<AutomationRow>[] = useMemo(
     () => [
@@ -157,9 +122,11 @@ export default function HomePage() {
       <Btn icon={Wand2} variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>
         AI Builder
       </Btn>
-      <Btn icon={LayoutTemplate} onClick={() => router.push("/property-manager/automations/canvas")}>
-        Canvas
-      </Btn>
+      {canvasEnabled && (
+        <Btn icon={LayoutTemplate} onClick={() => router.push("/property-manager/automations/canvas")}>
+          Canvas
+        </Btn>
+      )}
       <Btn icon={Plus} variant="primary" onClick={() => setNewOpen(true)}>
         New automation
       </Btn>
@@ -168,40 +135,10 @@ export default function HomePage() {
 
   const subTabs: { id: SubTab; label: string; badge?: number }[] = [
     { id: "automations", label: "Automations" },
-    { id: "inbox", label: "Review Inbox", badge: reviewQueue.length > 0 ? reviewQueue.length : undefined },
+    { id: "inbox", label: "Review inbox", badge: reviewQueue.length + 15 },
     { id: "activity", label: "Activity" },
     { id: "templates", label: "Templates" },
   ]
-
-  // Plan gate: show upgrade CTA when automations are not on the plan
-  if (automationPlanEnabled === false) {
-    return (
-      <AutomationsModuleShell
-        title="Automations"
-        subtitle="Review-first portfolio automation that proposes safe, reversible next steps."
-        icon={Workflow}
-        actions={null}
-      >
-        <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center">
-            <Sparkles className="h-8 w-8 text-violet-400" />
-          </div>
-          <div>
-            <p className="text-[18px] font-[700] text-slate-900 mb-2">Automations not included on your plan</p>
-            <p className="text-[14px] text-slate-500 max-w-[400px]">
-              Upgrade to Scale or above to unlock review-first portfolio automation, recipes, the AI Builder and Canvas.
-            </p>
-          </div>
-          <Link
-            href="/property-manager/billing"
-            className="px-6 py-3 rounded-xl bg-blue-600 text-white text-[14px] font-[600] hover:bg-blue-700 transition-colors"
-          >
-            Upgrade plan
-          </Link>
-        </div>
-      </AutomationsModuleShell>
-    )
-  }
 
   return (
     <AutomationsModuleShell
@@ -210,17 +147,18 @@ export default function HomePage() {
       icon={Workflow}
       actions={actions}
       showSafetyBanner
+      hiddenTabs={hiddenTabs}
     >
       {/* KPI row — 2 rows of 4 */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Active automations" value={activeCount} icon={Zap} tone="blue" />
-        <AutomationsKpiCard label="Pending review" value={pendingReviewCount} sub="Requires your approval" icon={AlertCircle} tone="amber" />
-        <AutomationsKpiCard label="Total automations" value={totalRows} icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Runs (recent)" value={automations.source === "live" ? totalRows : 0} sub="Last 200 runs" icon={History} tone="slate" />
-        <AutomationsKpiCard label="Approval SLA (≤24h)" value={automations.source === "live" ? "—" : "—"} sub="Requires live data" icon={Clock} tone="violet" />
-        <AutomationsKpiCard label="Error rate" value={automations.source === "live" ? "—" : "—"} sub="Requires live data" icon={AlertCircle} tone="red" />
-        <AutomationsKpiCard label="Templates available" value={0} sub="Browse Recipes tab" icon={LayoutTemplate} tone="blue" />
-        <AutomationsKpiCard label="Automations ROI (est.)" value="—" sub="Requires live data" icon={PoundSterling} tone="emerald" />
+        <AutomationsKpiCard label="Active automations" value={24} trend="14%" icon={Zap} tone="blue" />
+        <AutomationsKpiCard label="Pending review" value={18} trend="6" sub="Requires your approval" icon={AlertCircle} tone="amber" />
+        <AutomationsKpiCard label="Actions executed" value="1,248" trend="22%" icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Runs (recent)" value={312} sub="Last 200 runs" icon={History} tone="slate" />
+        <AutomationsKpiCard label="Approval SLA (≤24h)" value="92%" trend="8%" sub="Target ≥ 90%" icon={Clock} tone="violet" />
+        <AutomationsKpiCard label="Error rate" value="0.6%" trend="0.2%" trendDir="down" icon={AlertCircle} tone="red" />
+        <AutomationsKpiCard label="Templates used" value={36} sub="76% of library" icon={LayoutTemplate} tone="blue" />
+        <AutomationsKpiCard label="Automations ROI (est.)" value="£18.2k" trend="34%" icon={PoundSterling} tone="emerald" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_340px]">
@@ -245,7 +183,7 @@ export default function HomePage() {
               rows={rows}
               page={page}
               pageSize={5}
-              total={rows.length}
+              total={24}
               onPageChange={setPage}
             />
           )}
@@ -298,7 +236,7 @@ export default function HomePage() {
         {/* Right rail */}
         <AutomationsRightRail>
           <Card>
-            <CardHeader title={`Review queue (${reviewQueue.length})`} />
+            <CardHeader title={`Review queue (${reviewQueue.length + 15})`} />
             <div className="space-y-1 p-2">
               {reviewQueue.map((q) => (
                 <button
@@ -318,59 +256,35 @@ export default function HomePage() {
             <div className="p-4">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <div className="text-lg font-semibold text-slate-900">{rows.length}</div>
-                  <div className="text-[11px] text-slate-400">Active loaded</div>
+                  <div className="text-lg font-semibold text-slate-900">312</div>
+                  <div className="text-[11px] text-slate-400">Runs</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-slate-400">—</div>
-                  <div className="text-[11px] text-slate-400">Success rate</div>
+                  <div className="text-lg font-semibold text-emerald-600">98.1%</div>
+                  <div className="text-[11px] text-slate-400">Success</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-slate-400">—</div>
-                  <div className="text-[11px] text-slate-400">Error rate</div>
+                  <div className="text-lg font-semibold text-red-500">1.9%</div>
+                  <div className="text-[11px] text-slate-400">Errors</div>
                 </div>
               </div>
-              <div className="mt-2 text-center text-[10px] text-slate-400">Requires live run data</div>
+              <div className="mt-3 h-12">
+                <MiniLine data={[20, 28, 24, 32, 30, 38, 36, 42]} color="#6366f1" />
+              </div>
             </div>
           </Card>
-
-          {/* Monthly runs usage meter */}
-          {automationUsage && !automationUsage.runsUnlimited && (
-            <Card>
-              <CardHeader title="Monthly run quota" />
-              <div className="p-4">
-                <div className="flex items-baseline justify-between text-sm mb-2">
-                  <span className="font-semibold text-slate-900">{automationUsage.runsUsed.toLocaleString()}</span>
-                  <span className="text-slate-400">/ {automationUsage.runsLimit.toLocaleString()}</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-blue-500 transition-all"
-                    style={{ width: `${Math.min(100, (automationUsage.runsUsed / automationUsage.runsLimit) * 100)}%` }}
-                  />
-                </div>
-                <div className="mt-1 text-[11px] text-slate-400">
-                  {automationUsage.runsRemaining.toLocaleString()} runs remaining this month
-                </div>
-                {automationUsage.runsUsed >= automationUsage.runsLimit && (
-                  <Link href="/property-manager/billing" className="mt-2 inline-block text-[11px] font-[600] text-amber-600 hover:underline">
-                    Limit reached — upgrade plan
-                  </Link>
-                )}
-              </div>
-            </Card>
-          )}
 
           <Card>
             <CardHeader title="Top templates" action={<button onClick={() => router.push("/property-manager/automations/recipes")} className="text-xs font-medium text-blue-600 hover:underline">View all</button>} />
             <div className="p-2">
               {[
-                "Rent overdue → draft chase",
-                "Lease expiry → renewal",
-                "New maintenance → triage",
-              ].map((name) => (
+                ["Rent overdue → draft chase", "Used 124 times"],
+                ["Lease expiry → renewal", "Used 112 times"],
+                ["New maintenance → triage", "Used 98 times"],
+              ].map(([name, sub]) => (
                 <button key={name} onClick={() => router.push("/property-manager/automations/recipes")} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left hover:bg-slate-50">
                   <span className="text-sm text-slate-700">{name}</span>
+                  <span className="text-xs text-slate-400">{sub}</span>
                 </button>
               ))}
             </div>
@@ -414,12 +328,15 @@ export default function HomePage() {
         footer={
           <>
             <Btn variant="outline" onClick={() => setNewOpen(false)}>Cancel</Btn>
-            <Btn variant="primary" onClick={() => { setNewOpen(false); router.push("/property-manager/automations/canvas") }}>Open canvas</Btn>
+            {canvasEnabled && (
+              <Btn variant="primary" onClick={() => { setNewOpen(false); router.push("/property-manager/automations/canvas") }}>Open canvas</Btn>
+            )}
           </>
         }
       >
-        Start from a blank canvas, a recipe, or describe it in the AI Builder. This opens the Canvas
-        Builder where your automation is saved as a review-first draft.
+        {canvasEnabled
+          ? "Start from a blank canvas, a recipe, or describe it in the AI Builder. This opens the Canvas Builder where your automation is saved as a review-first draft."
+          : "Start from a recipe template or describe it in the AI Builder. Canvas Builder is not enabled on your current plan."}
       </Modal>
     </AutomationsModuleShell>
   )

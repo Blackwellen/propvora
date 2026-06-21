@@ -19,6 +19,7 @@ export default function AutomationsModuleShell({
   iconTone,
   actions,
   showSafetyBanner = false,
+  hiddenTabs,
   children,
 }: {
   title: string
@@ -27,13 +28,19 @@ export default function AutomationsModuleShell({
   iconTone?: "violet" | "red"
   actions?: ReactNode
   showSafetyBanner?: boolean
+  /**
+   * Tab labels to hide from the Automations tab strip.
+   * Passed down from pages that resolve feature flags server-side.
+   * e.g. ["Canvas Builder"] when canvasLite=OFF, ["Webhooks","Integrations"] when automationsFull=OFF
+   */
+  hiddenTabs?: string[]
   children: ReactNode
 }) {
   return (
     <ToastProvider>
       <div className="mx-auto max-w-[1500px] space-y-5 px-6 pb-12">
         <AutomationsHeader title={title} subtitle={subtitle} icon={icon} iconTone={iconTone} actions={actions} />
-        <AutomationsTabs />
+        <AutomationsTabs hiddenTabs={hiddenTabs} />
         {showSafetyBanner && <AutomationsSafetyBanner />}
         <div className="pt-1">{children}</div>
       </div>
