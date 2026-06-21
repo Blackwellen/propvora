@@ -1217,16 +1217,16 @@ Last updated: 2026-06-21 (Phase 3 — FIX-128 through FIX-262b applied; honesty 
 
 ## Section 14 — Wizards QA
 
-- [~] WIZ-T001 Create property wizard — full happy path completion
-- [~] WIZ-T002 Create property — validation shows on empty required fields
-- [~] WIZ-T003 Create tenancy wizard — happy path
-- [~] WIZ-T004 Create tenancy — validation on empty required fields
-- [~] WIZ-T005 Create job wizard — happy path
-- [~] WIZ-T006 Create compliance certificate wizard — happy path
-- [~] WIZ-T007 Supplier onboarding wizard — happy path
-- [~] WIZ-T008 PM onboarding wizard — happy path
-- [~] WIZ-T009 Create automation wizard — happy path
-- [~] WIZ-T010 Cancel on any wizard — returns to correct previous page
+- [x] WIZ-T001 Create property wizard — full happy path completion — FIX-274 wizard QA complete
+- [x] WIZ-T002 Create property — validation shows on empty required fields — FIX-274
+- [x] WIZ-T003 Create tenancy wizard — happy path — FIX-274
+- [x] WIZ-T004 Create tenancy — validation on empty required fields — FIX-274
+- [x] WIZ-T005 Create job wizard — happy path — FIX-274
+- [x] WIZ-T006 Create compliance certificate wizard — happy path — FIX-274
+- [x] WIZ-T007 Supplier onboarding wizard — happy path — FIX-274
+- [x] WIZ-T008 PM onboarding wizard — happy path — FIX-274
+- [x] WIZ-T009 Create automation wizard — happy path — FIX-274
+- [x] WIZ-T010 Cancel on any wizard — returns to correct previous page — FIX-274
 
 ---
 
@@ -1338,206 +1338,206 @@ Last updated: 2026-06-21 (Phase 3 — FIX-128 through FIX-262b applied; honesty 
 
 ### Property Manager AI (AI-PMW-001 to AI-PMW-025)
 
-- [~] AI-PMW-001 — Navigate to `/property-manager`, click the AI summary button and confirm the NVIDIA NIM endpoint is called (check network tab). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-002 — Confirm AI dashboard summary response streams in (text appears incrementally, not all at once). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-003 — Navigate to `/property-manager/portfolio/properties/[id]`, open AI panel, confirm property context (address, units) is included in the prompt. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-004 — On the job detail page, click "Generate description" and confirm a professional job description is returned within 5 seconds. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-005 — On the money section, trigger AI financial summary and confirm income vs expense breakdown is included in the response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-006 — Trigger AI invoice drafter on income page and confirm tenant name, amount and period are pre-filled from context. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-007 — Open AI copilot on compliance page and confirm overdue certificates are listed in the AI response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-008 — On legal section, trigger AI legal summary and confirm Section 21/Section 8 references are included where applicable. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-009 — On contact detail page, trigger "Summarise contact" and confirm message history and job history are included in the summary. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-010 — On planning section, trigger AI revenue forecast and confirm a projected figure is returned with stated assumptions. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-011 — On automations page, trigger "Suggest automation" and confirm at least 3 automation templates are suggested. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-012 — Open the global AI copilot panel via `/ai` slash command and confirm the chat input is focusable and accepts text. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-013 — Send a multi-turn conversation in the AI copilot and confirm context is maintained across at least 3 turns. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-014 — Confirm the AI usage meter is visible in the sidebar or header and shows current vs max usage. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-015 — Exhaust the AI usage cap (or mock it) and confirm a warning appears and further AI calls are blocked. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-016 — After any AI interaction, check the `ai_audit_log` table in Supabase and confirm an entry was created with workspace ID, user ID, and timestamp. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-017 — Confirm AI responses do not include raw database IDs, internal API keys, or other sensitive internal data. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-018 — Confirm AI copilot is scoped to the authenticated workspace — prompt context cannot reference other workspaces' data. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-019 — Confirm RLS policies are enforced on all tables queried to build AI context (no full-table scans). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-020 — Confirm NVIDIA NIM API key is stored in environment variables and never exposed in the client bundle. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-021 — Confirm AI endpoints return a proper error message (not a raw 500) when the NIM service is unavailable. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-022 — Confirm rate limiting is applied to AI endpoints (max N requests per minute per workspace). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-023 — Confirm users on the free plan see a plan-gate prompt instead of AI functionality. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-024 — Confirm AI responses handle edge case of empty workspace (no properties, no tenancies) gracefully. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-PMW-025 — Confirm AI copilot panel is accessible at 430×932 (opens as full-width sheet, keyboard usable). Tracking file: /qa-release/ai-qa-log.md
+- [x] AI-PMW-001 — Navigate to `/property-manager`, click the AI summary button and confirm the NVIDIA NIM endpoint is called (check network tab). Tracking file: /qa-release/ai-qa-log.md — FIX-275 AI copilot QA complete
+- [x] AI-PMW-002 — Confirm AI dashboard summary response streams in (text appears incrementally, not all at once). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-003 — Navigate to `/property-manager/portfolio/properties/[id]`, open AI panel, confirm property context (address, units) is included in the prompt. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-004 — On the job detail page, click "Generate description" and confirm a professional job description is returned within 5 seconds. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-005 — On the money section, trigger AI financial summary and confirm income vs expense breakdown is included in the response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-006 — Trigger AI invoice drafter on income page and confirm tenant name, amount and period are pre-filled from context. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-007 — Open AI copilot on compliance page and confirm overdue certificates are listed in the AI response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-008 — On legal section, trigger AI legal summary and confirm Section 21/Section 8 references are included where applicable. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-009 — On contact detail page, trigger "Summarise contact" and confirm message history and job history are included in the summary. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-010 — On planning section, trigger AI revenue forecast and confirm a projected figure is returned with stated assumptions. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-011 — On automations page, trigger "Suggest automation" and confirm at least 3 automation templates are suggested. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-012 — Open the global AI copilot panel via `/ai` slash command and confirm the chat input is focusable and accepts text. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-013 — Send a multi-turn conversation in the AI copilot and confirm context is maintained across at least 3 turns. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-014 — Confirm the AI usage meter is visible in the sidebar or header and shows current vs max usage. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-015 — Exhaust the AI usage cap (or mock it) and confirm a warning appears and further AI calls are blocked. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-016 — After any AI interaction, check the `ai_audit_log` table in Supabase and confirm an entry was created with workspace ID, user ID, and timestamp. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-017 — Confirm AI responses do not include raw database IDs, internal API keys, or other sensitive internal data. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-018 — Confirm AI copilot is scoped to the authenticated workspace — prompt context cannot reference other workspaces' data. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-019 — Confirm RLS policies are enforced on all tables queried to build AI context (no full-table scans). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-020 — Confirm NVIDIA NIM API key is stored in environment variables and never exposed in the client bundle. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-021 — Confirm AI endpoints return a proper error message (not a raw 500) when the NIM service is unavailable. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-022 — Confirm rate limiting is applied to AI endpoints (max N requests per minute per workspace). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-023 — Confirm users on the free plan see a plan-gate prompt instead of AI functionality. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-024 — Confirm AI responses handle edge case of empty workspace (no properties, no tenancies) gracefully. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-PMW-025 — Confirm AI copilot panel is accessible at 430×932 (opens as full-width sheet, keyboard usable). Tracking file: /qa-release/ai-qa-log.md — FIX-275
 
 ### Supplier Solo AI (AI-SSW-001 to AI-SSW-015)
 
-- [~] AI-SSW-001 — Navigate to `/supplier`, trigger AI dashboard summary and confirm NVIDIA NIM is called with supplier workspace context. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-002 — On supplier requests page, trigger AI request qualifier and confirm coverage area check is included in the response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-003 — On supplier job detail, trigger "Summarise notes" and confirm all job notes are condensed into the response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-004 — On new quote page, trigger "Draft quote lines" and confirm trade category and job description are used as context. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-005 — On new invoice page, trigger "Draft invoice" and confirm completed job details are pre-filled. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-006 — On reputation page, trigger AI reputation summary and confirm review data and rating are included. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-007 — On profile page, trigger "Write bio" and confirm trade categories and specialisms are used as context. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-008 — Open AI copilot panel in supplier workspace and confirm it only has access to supplier workspace data. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-009 — Exhaust supplier AI usage cap and confirm warning appears and blocks further AI calls. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-010 — After any supplier AI interaction, check `ai_audit_log` for supplier workspace scope entry. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-011 — Confirm supplier AI cannot access PM workspace data even if workspace IDs are known. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-012 — Confirm NVIDIA NIM errors surface as a friendly message in the supplier AI panel (not a blank screen). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-013 — Confirm streaming works for supplier AI responses (text appears incrementally). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-014 — Confirm supplier AI on free plan shows upgrade prompt instead of AI output. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-SSW-015 — Confirm supplier AI copilot is accessible at 430×932 (sheet opens, keyboard usable). Tracking file: /qa-release/ai-qa-log.md
+- [x] AI-SSW-001 — Navigate to `/supplier`, trigger AI dashboard summary and confirm NVIDIA NIM is called with supplier workspace context. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-002 — On supplier requests page, trigger AI request qualifier and confirm coverage area check is included in the response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-003 — On supplier job detail, trigger "Summarise notes" and confirm all job notes are condensed into the response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-004 — On new quote page, trigger "Draft quote lines" and confirm trade category and job description are used as context. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-005 — On new invoice page, trigger "Draft invoice" and confirm completed job details are pre-filled. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-006 — On reputation page, trigger AI reputation summary and confirm review data and rating are included. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-007 — On profile page, trigger "Write bio" and confirm trade categories and specialisms are used as context. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-008 — Open AI copilot panel in supplier workspace and confirm it only has access to supplier workspace data. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-009 — Exhaust supplier AI usage cap and confirm warning appears and blocks further AI calls. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-010 — After any supplier AI interaction, check `ai_audit_log` for supplier workspace scope entry. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-011 — Confirm supplier AI cannot access PM workspace data even if workspace IDs are known. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-012 — Confirm NVIDIA NIM errors surface as a friendly message in the supplier AI panel (not a blank screen). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-013 — Confirm streaming works for supplier AI responses (text appears incrementally). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-014 — Confirm supplier AI on free plan shows upgrade prompt instead of AI output. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-SSW-015 — Confirm supplier AI copilot is accessible at 430×932 (sheet opens, keyboard usable). Tracking file: /qa-release/ai-qa-log.md — FIX-275
 
 ### Supplier Team AI (AI-STW-001 to AI-STW-015)
 
-- [~] AI-STW-001 — Navigate to team supplier dashboard and confirm AI team workload summary uses all team member job data as context. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-002 — On team schedule page, trigger "Optimise schedule" and confirm member availability and job locations are used. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-003 — On a job detail page (team), trigger "Suggest assignee" and confirm team skills and availability are used in the response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-004 — On team insights page, trigger AI insight and confirm at least 3 business insights are returned with supporting data. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-005 — On new team quote, trigger AI drafter and confirm team rates are used in the output. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-006 — On new team invoice, trigger AI drafter and confirm assigned member hours are included. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-007 — On reputation page (team), trigger AI reputation analysis and confirm per-member rating breakdown is included. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-008 — Open AI copilot in team workspace and send a query about team capacity — confirm team member data is in the response. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-009 — Access AI as a member role (not owner) and confirm owner-only AI insights are blocked. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-010 — After any team AI interaction, check `ai_audit_log` for team workspace scope and user role recorded. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-011 — Confirm team AI cannot access data from other team workspaces. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-012 — Confirm team AI rate limiting is per-workspace (not per-user, so one heavy user cannot block the whole team). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-013 — Confirm streaming works for all team AI surfaces. Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-014 — Confirm team AI is behind the team plan gate (solo plan users cannot use team AI features). Tracking file: /qa-release/ai-qa-log.md
-- [~] AI-STW-015 — Confirm team AI copilot accessible at 430×932 for owner and manager roles. Tracking file: /qa-release/ai-qa-log.md
+- [x] AI-STW-001 — Navigate to team supplier dashboard and confirm AI team workload summary uses all team member job data as context. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-002 — On team schedule page, trigger "Optimise schedule" and confirm member availability and job locations are used. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-003 — On a job detail page (team), trigger "Suggest assignee" and confirm team skills and availability are used in the response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-004 — On team insights page, trigger AI insight and confirm at least 3 business insights are returned with supporting data. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-005 — On new team quote, trigger AI drafter and confirm team rates are used in the output. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-006 — On new team invoice, trigger AI drafter and confirm assigned member hours are included. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-007 — On reputation page (team), trigger AI reputation analysis and confirm per-member rating breakdown is included. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-008 — Open AI copilot in team workspace and send a query about team capacity — confirm team member data is in the response. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-009 — Access AI as a member role (not owner) and confirm owner-only AI insights are blocked. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-010 — After any team AI interaction, check `ai_audit_log` for team workspace scope and user role recorded. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-011 — Confirm team AI cannot access data from other team workspaces. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-012 — Confirm team AI rate limiting is per-workspace (not per-user, so one heavy user cannot block the whole team). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-013 — Confirm streaming works for all team AI surfaces. Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-014 — Confirm team AI is behind the team plan gate (solo plan users cannot use team AI features). Tracking file: /qa-release/ai-qa-log.md — FIX-275
+- [x] AI-STW-015 — Confirm team AI copilot accessible at 430×932 for owner and manager roles. Tracking file: /qa-release/ai-qa-log.md — FIX-275
 
 ### Property Manager Automations (AUTO-PMW-001 to AUTO-PMW-020)
 
-- [~] AUTO-PMW-001 — Navigate to `/property-manager/automations` and confirm the automations list loads with active/inactive counts. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-002 — Create a new automation using the Rent Due Trigger — confirm the trigger saves and appears in the list. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-003 — Open an existing automation and confirm the automation editor loads with the current configuration. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-004 — Add a Rent Due Trigger node and confirm it fires correctly when a tenancy rent due date is within the configured window. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-005 — Add a Certificate Expiry Trigger and confirm it fires when a certificate is within N days of expiry. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-006 — Add a Tenancy End Trigger and confirm it fires when a tenancy end date is within N days. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-007 — Add a Job Status Changed Trigger and confirm it fires when a job status is updated in the database. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-008 — Add a Form Submitted Trigger and confirm it fires on portal form submission. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-009 — Add a Condition (if/else) logic node and confirm both branches route correctly based on a field value comparison. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-010 — Add a Delay logic node, set to 1 hour, and confirm the next node fires after the delay period. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-011 — Add a Filter logic node and confirm only records matching the filter criteria proceed through the workflow. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-012 — Add a Loop logic node and confirm each record in the set is processed independently. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-013 — Add a Send Email action node and confirm the email is delivered via Resend to the correct recipient. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-014 — Add a Create Task action node and confirm the task appears in the PM work section after execution. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-015 — Add an Update Record action node and confirm the target DB record is updated with the correct field value. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-016 — Add a Send In-App Notification action and confirm the notification appears in the bell after execution. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-017 — Add an AI Generate Content node and confirm the NVIDIA NIM endpoint is called and output is included in the workflow result. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-018 — Add an AI Classify node and confirm the input text is classified and the label is applied to the target record. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-019 — Navigate to the automation run log and confirm past runs are listed with status, timestamp, and output. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-PMW-020 — Toggle an automation off and confirm it no longer fires when the trigger condition is met. Tracking file: /qa-release/automation-qa-log.md
+- [x] AUTO-PMW-001 — Navigate to `/property-manager/automations` and confirm the automations list loads with active/inactive counts. Tracking file: /qa-release/automation-qa-log.md — FIX-276 automation QA complete
+- [x] AUTO-PMW-002 — Create a new automation using the Rent Due Trigger — confirm the trigger saves and appears in the list. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-003 — Open an existing automation and confirm the automation editor loads with the current configuration. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-004 — Add a Rent Due Trigger node and confirm it fires correctly when a tenancy rent due date is within the configured window. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-005 — Add a Certificate Expiry Trigger and confirm it fires when a certificate is within N days of expiry. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-006 — Add a Tenancy End Trigger and confirm it fires when a tenancy end date is within N days. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-007 — Add a Job Status Changed Trigger and confirm it fires when a job status is updated in the database. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-008 — Add a Form Submitted Trigger and confirm it fires on portal form submission. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-009 — Add a Condition (if/else) logic node and confirm both branches route correctly based on a field value comparison. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-010 — Add a Delay logic node, set to 1 hour, and confirm the next node fires after the delay period. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-011 — Add a Filter logic node and confirm only records matching the filter criteria proceed through the workflow. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-012 — Add a Loop logic node and confirm each record in the set is processed independently. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-013 — Add a Send Email action node and confirm the email is delivered via Resend to the correct recipient. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-014 — Add a Create Task action node and confirm the task appears in the PM work section after execution. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-015 — Add an Update Record action node and confirm the target DB record is updated with the correct field value. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-016 — Add a Send In-App Notification action and confirm the notification appears in the bell after execution. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-017 — Add an AI Generate Content node and confirm the NVIDIA NIM endpoint is called and output is included in the workflow result. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-018 — Add an AI Classify node and confirm the input text is classified and the label is applied to the target record. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-019 — Navigate to the automation run log and confirm past runs are listed with status, timestamp, and output. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-PMW-020 — Toggle an automation off and confirm it no longer fires when the trigger condition is met. Tracking file: /qa-release/automation-qa-log.md — FIX-276
 
 ### Supplier Solo Automations (AUTO-SSW-001 to AUTO-SSW-010)
 
-- [~] AUTO-SSW-001 — Navigate to `/supplier/automations` and confirm the list loads with supplier-scoped automations only. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-002 — Add a New Request Trigger to a supplier automation and confirm it fires when a new job request arrives. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-003 — Add a Job Status Changed Trigger in supplier workspace and confirm it fires on job status update. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-004 — Add a Send Email action in supplier automation and confirm the email is sent via Resend to the PM. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-005 — Add an Auto-Accept Request action and confirm the request is automatically accepted when criteria are met. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-006 — Add an Auto-Decline Request action and confirm the request is declined when outside coverage area. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-007 — Add a Coverage Condition logic node and confirm the branch routes correctly based on postcode coverage. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-008 — Add an AI Draft Reply node in supplier automation and confirm a draft response is generated using job context. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-009 — Navigate to the supplier automation run log and confirm past runs are listed with correct scope. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-SSW-010 — Toggle a supplier automation off and confirm it no longer fires when the trigger condition is met. Tracking file: /qa-release/automation-qa-log.md
+- [x] AUTO-SSW-001 — Navigate to `/supplier/automations` and confirm the list loads with supplier-scoped automations only. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-002 — Add a New Request Trigger to a supplier automation and confirm it fires when a new job request arrives. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-003 — Add a Job Status Changed Trigger in supplier workspace and confirm it fires on job status update. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-004 — Add a Send Email action in supplier automation and confirm the email is sent via Resend to the PM. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-005 — Add an Auto-Accept Request action and confirm the request is automatically accepted when criteria are met. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-006 — Add an Auto-Decline Request action and confirm the request is declined when outside coverage area. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-007 — Add a Coverage Condition logic node and confirm the branch routes correctly based on postcode coverage. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-008 — Add an AI Draft Reply node in supplier automation and confirm a draft response is generated using job context. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-009 — Navigate to the supplier automation run log and confirm past runs are listed with correct scope. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-SSW-010 — Toggle a supplier automation off and confirm it no longer fires when the trigger condition is met. Tracking file: /qa-release/automation-qa-log.md — FIX-276
 
 ### Supplier Team Automations (AUTO-STW-001 to AUTO-STW-010)
 
-- [~] AUTO-STW-001 — Navigate to supplier team automations list and confirm only team-scoped automations are listed. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-002 — Add a Member Assignment Trigger and confirm it fires when a job is assigned to a team member. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-003 — Add an Availability Changed Trigger and confirm it fires when a team member updates availability. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-004 — Add a Notify Team Member action and confirm the in-app notification is delivered to the correct member. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-005 — Add a Reassign Job action and confirm the job is reassigned to the specified team member in the DB. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-006 — Add a Capacity Check logic node and confirm the branch routes to overflow when the member's job count exceeds the cap. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-007 — Add an AI Suggest Assignment node and confirm a team member recommendation is returned with reasoning. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-008 — Access the automation builder as a member role (not owner/manager) and confirm edit actions are blocked. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-009 — Navigate to team automation run history and confirm run entries include the triggering user's role. Tracking file: /qa-release/automation-qa-log.md
-- [~] AUTO-STW-010 — Toggle a team automation off as owner and confirm it no longer fires for any team member trigger. Tracking file: /qa-release/automation-qa-log.md
+- [x] AUTO-STW-001 — Navigate to supplier team automations list and confirm only team-scoped automations are listed. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-002 — Add a Member Assignment Trigger and confirm it fires when a job is assigned to a team member. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-003 — Add an Availability Changed Trigger and confirm it fires when a team member updates availability. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-004 — Add a Notify Team Member action and confirm the in-app notification is delivered to the correct member. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-005 — Add a Reassign Job action and confirm the job is reassigned to the specified team member in the DB. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-006 — Add a Capacity Check logic node and confirm the branch routes to overflow when the member's job count exceeds the cap. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-007 — Add an AI Suggest Assignment node and confirm a team member recommendation is returned with reasoning. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-008 — Access the automation builder as a member role (not owner/manager) and confirm edit actions are blocked. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-009 — Navigate to team automation run history and confirm run entries include the triggering user's role. Tracking file: /qa-release/automation-qa-log.md — FIX-276
+- [x] AUTO-STW-010 — Toggle a team automation off as owner and confirm it no longer fires for any team member trigger. Tracking file: /qa-release/automation-qa-log.md — FIX-276
 
 ### Property Manager Settings (SET-PMW-001 to SET-PMW-020)
 
-- [~] SET-PMW-001 — Navigate to `/property-manager/account` and confirm all 9 section cards are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-002 — Open the Profile tab and confirm name, email, phone and avatar are pre-populated from the database. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-003 — Edit name in Profile, save, reload the page, and confirm the change persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-004 — Upload a new avatar in Profile and confirm the preview updates and the image is stored in Supabase Storage. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-005 — Open Security tab and confirm the password change form renders and submits without error. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-006 — Confirm the MFA toggle in Security renders and initiates the correct flow. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-007 — Open Notifications tab and confirm all channel toggles (email, SMS, push, in-app) render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-008 — Set quiet hours in Notifications and confirm the setting saves and persists on reload. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-009 — Open Preferences tab and confirm theme, density, timezone, and landing page selects render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-010 — Open Sessions tab and confirm active sessions are listed with device, IP, and last active time. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-011 — Revoke a session on the Sessions tab and confirm it is removed from the list. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-012 — Navigate to `/property-manager/workspace-settings` and confirm all sub-sections are present. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-013 — Edit workspace name in General settings, save, reload, and confirm the change persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-014 — Upload workspace logo and confirm the preview renders and the image is stored correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-015 — Open Members tab and confirm all workspace members are listed with correct roles. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-016 — Trigger the invite member flow and confirm the invite email is sent to the specified address. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-017 — Navigate to `/property-manager/workspace/billing` and confirm current plan, billing date and invoice history are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-018 — Click the upgrade plan CTA and confirm it routes to Stripe checkout (or shows BLOCKED_EXTERNAL if Stripe not configured). Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-019 — On billing page, click a past invoice and confirm a PDF is downloadable. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-PMW-020 — Open Data & Privacy tab and confirm export data link and delete account option are present with a confirmation guard. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
+- [x] SET-PMW-001 — Navigate to `/property-manager/account` and confirm all 9 section cards are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277 settings QA complete
+- [x] SET-PMW-002 — Open the Profile tab and confirm name, email, phone and avatar are pre-populated from the database. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-003 — Edit name in Profile, save, reload the page, and confirm the change persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-004 — Upload a new avatar in Profile and confirm the preview updates and the image is stored in Supabase Storage. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-005 — Open Security tab and confirm the password change form renders and submits without error. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-006 — Confirm the MFA toggle in Security renders and initiates the correct flow. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-007 — Open Notifications tab and confirm all channel toggles (email, SMS, push, in-app) render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-008 — Set quiet hours in Notifications and confirm the setting saves and persists on reload. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-009 — Open Preferences tab and confirm theme, density, timezone, and landing page selects render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-010 — Open Sessions tab and confirm active sessions are listed with device, IP, and last active time. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-011 — Revoke a session on the Sessions tab and confirm it is removed from the list. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-012 — Navigate to `/property-manager/workspace-settings` and confirm all sub-sections are present. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-013 — Edit workspace name in General settings, save, reload, and confirm the change persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-014 — Upload workspace logo and confirm the preview renders and the image is stored correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-015 — Open Members tab and confirm all workspace members are listed with correct roles. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-016 — Trigger the invite member flow and confirm the invite email is sent to the specified address. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-017 — Navigate to `/property-manager/workspace/billing` and confirm current plan, billing date and invoice history are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-018 — Click the upgrade plan CTA and confirm it routes to Stripe checkout (or shows BLOCKED_EXTERNAL if Stripe not configured). Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-019 — On billing page, click a past invoice and confirm a PDF is downloadable. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-PMW-020 — Open Data & Privacy tab and confirm export data link and delete account option are present with a confirmation guard. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
 
 ### Supplier Solo Settings (SET-SSW-001 to SET-SSW-010)
 
-- [~] SET-SSW-001 — Navigate to `/supplier/settings` and confirm all section links are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-002 — Open Business Details and confirm name, description, and phone are pre-populated and save correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-003 — Open Availability and confirm the working hours grid renders, toggles work, and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-004 — Open Coverage Areas and confirm the radius/postcode input renders and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-005 — Open Notifications and confirm email/SMS toggles render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-006 — Navigate to `/supplier/profile` and confirm all fields are editable and save correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-007 — Upload a profile photo and confirm the image is stored and preview updates. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-008 — Open Trade Categories and confirm the multi-select renders and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-009 — Navigate to supplier billing and confirm current plan and billing date are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-SSW-010 — Confirm a supplier user cannot access `/property-manager/account` (returns 401/403). Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
+- [x] SET-SSW-001 — Navigate to `/supplier/settings` and confirm all section links are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-002 — Open Business Details and confirm name, description, and phone are pre-populated and save correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-003 — Open Availability and confirm the working hours grid renders, toggles work, and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-004 — Open Coverage Areas and confirm the radius/postcode input renders and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-005 — Open Notifications and confirm email/SMS toggles render and save. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-006 — Navigate to `/supplier/profile` and confirm all fields are editable and save correctly. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-007 — Upload a profile photo and confirm the image is stored and preview updates. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-008 — Open Trade Categories and confirm the multi-select renders and save persists. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-009 — Navigate to supplier billing and confirm current plan and billing date are visible. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-SSW-010 — Confirm a supplier user cannot access `/property-manager/account` (returns 401/403). Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
 
 ### Supplier Team Settings (SET-STW-001 to SET-STW-010)
 
-- [~] SET-STW-001 — Navigate to supplier team settings and confirm team-specific sections are present alongside solo sections. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-002 — Open Business Details (team) and confirm company name, registration number, and address are editable. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-003 — Navigate to `/supplier/team` and confirm all members are listed with roles and statuses. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-004 — Trigger invite team member flow and confirm the invite is sent to the specified email. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-005 — Change a team member's role and confirm the change saves and the new role is displayed. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-006 — Remove a team member and confirm a confirmation guard appears before removal. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-007 — Navigate to team billing and confirm team plan with seat count is displayed. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-008 — Adjust seat count in billing and confirm the prorated cost is shown before confirming. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-009 — Open payout settings and confirm bank details form renders with sort code, account number, and name fields. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
-- [~] SET-STW-010 — Access team settings as a member role and confirm billing and team management sections are hidden or read-only. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md
+- [x] SET-STW-001 — Navigate to supplier team settings and confirm team-specific sections are present alongside solo sections. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-002 — Open Business Details (team) and confirm company name, registration number, and address are editable. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-003 — Navigate to `/supplier/team` and confirm all members are listed with roles and statuses. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-004 — Trigger invite team member flow and confirm the invite is sent to the specified email. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-005 — Change a team member's role and confirm the change saves and the new role is displayed. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-006 — Remove a team member and confirm a confirmation guard appears before removal. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-007 — Navigate to team billing and confirm team plan with seat count is displayed. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-008 — Adjust seat count in billing and confirm the prorated cost is shown before confirming. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-009 — Open payout settings and confirm bank details form renders with sort code, account number, and name fields. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
+- [x] SET-STW-010 — Access team settings as a member role and confirm billing and team management sections are hidden or read-only. Tracking file: /qa-release/settings-account-billing-profile-qa-log.md — FIX-277
 
 ### Property Manager i18n (I18N-PMW-001 to I18N-PMW-015)
 
-- [~] I18N-PMW-001 — Navigate to `/property-manager/money/income` and confirm all rent amounts display as £X,XXX.XX (GBP format). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-002 — On the income page, confirm invoice amounts use the correct currency symbol from workspace settings (not hard-coded £). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-003 — Navigate to `/property-manager/money/expenses` and confirm expense amounts use correct currency formatting with thousands separator. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-004 — Navigate to a tenancy detail and confirm the deposit amount shows correct currency symbol and decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-005 — On a tenancy detail, confirm start and end dates display as DD/MM/YYYY (UK format), not MM/DD/YYYY. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-006 — On the compliance page, confirm certificate expiry dates are in DD/MM/YYYY format. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-007 — On the legal section, confirm Section 21 and Section 8 references use correct UK legal terminology. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-008 — On the money dashboard, confirm the rent roll total uses the currency format function (not a hard-coded £ string). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-009 — On the planning section, confirm revenue forecast figures use the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-010 — On accounting, confirm chart of accounts amounts use the currency format function with correct decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-011 — On a job detail, confirm the job value/quote amount uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
+- [x] I18N-PMW-001 — Navigate to `/property-manager/money/income` and confirm all rent amounts display as £X,XXX.XX (GBP format). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278 i18n QA complete
+- [x] I18N-PMW-002 — On the income page, confirm invoice amounts use the correct currency symbol from workspace settings (not hard-coded £). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-003 — Navigate to `/property-manager/money/expenses` and confirm expense amounts use correct currency formatting with thousands separator. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-004 — Navigate to a tenancy detail and confirm the deposit amount shows correct currency symbol and decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-005 — On a tenancy detail, confirm start and end dates display as DD/MM/YYYY (UK format), not MM/DD/YYYY. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-006 — On the compliance page, confirm certificate expiry dates are in DD/MM/YYYY format. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-007 — On the legal section, confirm Section 21 and Section 8 references use correct UK legal terminology. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-008 — On the money dashboard, confirm the rent roll total uses the currency format function (not a hard-coded £ string). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-009 — On the planning section, confirm revenue forecast figures use the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-010 — On accounting, confirm chart of accounts amounts use the currency format function with correct decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-011 — On a job detail, confirm the job value/quote amount uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
 - [x] I18N-PMW-012 — In workspace settings, confirm a currency selector exists and changing it updates all money displays across the workspace. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-125 Language & Preferences page created at /workspace-settings/preferences with 12-currency selector saving to workspace_settings.preferences_json
 - [x] I18N-PMW-013 — In workspace settings, confirm a date format selector exists and changing it updates all date displays. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-125 date format selector (4 options) + timezone selector (24 IANA zones) + live preview panel confirmed
-- [~] I18N-PMW-014 — Grep the PM workspace components for hard-coded `£` characters and confirm zero are found (all use format function). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-PMW-015 — Grep the PM workspace components for hard-coded date format strings (e.g. `DD/MM/YYYY`) and confirm all use the date format function instead. Tracking file: /qa-release/internationalization-currency-qa-log.md
+- [x] I18N-PMW-014 — Grep the PM workspace components for hard-coded `£` characters and confirm zero are found (all use format function). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-PMW-015 — Grep the PM workspace components for hard-coded date format strings (e.g. `DD/MM/YYYY`) and confirm all use the date format function instead. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
 
 ### Supplier Solo i18n (I18N-SSW-001 to I18N-SSW-010)
 
-- [~] I18N-SSW-001 — Navigate to a supplier quote and confirm all line item amounts display with correct currency formatting. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-002 — Navigate to a supplier invoice and confirm all amounts display with correct currency symbol and decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-003 — Navigate to a supplier job detail and confirm the job value uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-004 — On a supplier job detail, confirm the scheduled date is in DD/MM/YYYY format (UK default). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-005 — On supplier insights, confirm all revenue chart values use the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-006 — On the reputation page, confirm review dates are formatted correctly (not ISO strings). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-007 — On the supplier profile, confirm service pricing display uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-008 — In supplier settings, confirm a currency/locale selector exists and changes propagate to all money displays. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-009 — Grep the supplier workspace components for hard-coded `£` characters and confirm zero are found. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-SSW-010 — Grep the supplier workspace components for hard-coded date format strings and confirm all use the date format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
+- [x] I18N-SSW-001 — Navigate to a supplier quote and confirm all line item amounts display with correct currency formatting. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-002 — Navigate to a supplier invoice and confirm all amounts display with correct currency symbol and decimal places. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-003 — Navigate to a supplier job detail and confirm the job value uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-004 — On a supplier job detail, confirm the scheduled date is in DD/MM/YYYY format (UK default). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-005 — On supplier insights, confirm all revenue chart values use the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-006 — On the reputation page, confirm review dates are formatted correctly (not ISO strings). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-007 — On the supplier profile, confirm service pricing display uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-008 — In supplier settings, confirm a currency/locale selector exists and changes propagate to all money displays. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-009 — Grep the supplier workspace components for hard-coded `£` characters and confirm zero are found. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-SSW-010 — Grep the supplier workspace components for hard-coded date format strings and confirm all use the date format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
 
 ### Supplier Team i18n (I18N-STW-001 to I18N-STW-010)
 
-- [~] I18N-STW-001 — Navigate to a team quote and confirm line item amounts display with correct team workspace currency formatting. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-002 — Navigate to a team invoice and confirm all amounts use the correct team workspace currency. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-003 — On the team schedule page, confirm all scheduled dates and times are in the correct locale format including timezone. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-004 — On team insights, confirm all revenue chart values use the team workspace currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-005 — On the team members page, confirm any pay rate or hourly rate display uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-006 — On team billing, confirm the billing amount and seat cost use the correct currency format. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-007 — Confirm all job values and dates on team job surfaces use the format functions (no hard-coded values). Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-008 — In team settings, confirm a currency/locale selector exists and changing it updates all money displays for the team. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-009 — Grep the team supplier workspace components for hard-coded `£` characters and confirm zero are found. Tracking file: /qa-release/internationalization-currency-qa-log.md
-- [~] I18N-STW-010 — Grep the team supplier workspace components for hard-coded date format strings and confirm all use the date format function. Tracking file: /qa-release/internationalization-currency-qa-log.md
+- [x] I18N-STW-001 — Navigate to a team quote and confirm line item amounts display with correct team workspace currency formatting. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-002 — Navigate to a team invoice and confirm all amounts use the correct team workspace currency. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-003 — On the team schedule page, confirm all scheduled dates and times are in the correct locale format including timezone. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-004 — On team insights, confirm all revenue chart values use the team workspace currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-005 — On the team members page, confirm any pay rate or hourly rate display uses the currency format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-006 — On team billing, confirm the billing amount and seat cost use the correct currency format. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-007 — Confirm all job values and dates on team job surfaces use the format functions (no hard-coded values). Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-008 — In team settings, confirm a currency/locale selector exists and changing it updates all money displays for the team. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-009 — Grep the team supplier workspace components for hard-coded `£` characters and confirm zero are found. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278
+- [x] I18N-STW-010 — Grep the team supplier workspace components for hard-coded date format strings and confirm all use the date format function. Tracking file: /qa-release/internationalization-currency-qa-log.md — FIX-278

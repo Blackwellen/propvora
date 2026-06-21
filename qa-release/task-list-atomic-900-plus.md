@@ -974,256 +974,256 @@
 
 ## WIZARD — Wizard Flows (001–020)
 
-- [~] WIZARD-001 — Inspect onboarding wizard step 1 at 1536×960: WizardShell used. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-002 — Inspect onboarding wizard step 1 at 390×844. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-003 — Navigate forward and backward through all onboarding steps. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-004 — Verify progress stepper updates on each step of onboarding wizard. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-005 — Inspect income builder wizard (step 3) at 1536×960. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-006 — Inspect income builder at 390×844. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-007 — Click all 11 income tabs in income builder wizard. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-008 — Verify calc engine total updates when income inputs change. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-009 — Inspect automation creation wizard at 1536×960. Tracking file: /qa-release/sections/15-automations.md
-- [~] WIZARD-010 — Inspect automation creation wizard at 390×844. Tracking file: /qa-release/sections/15-automations.md
-- [~] WIZARD-011 — Inspect property add wizard from PM portfolio at 1536×960. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] WIZARD-012 — Complete property add wizard end-to-end. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] WIZARD-013 — Inspect invite team member wizard at 1536×960. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] WIZARD-014 — Inspect supplier onboarding wizard at 1536×960. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-015 — Inspect supplier onboarding wizard at 390×844. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-016 — Verify wizard success state renders after completion. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-017 — Verify draft save on wizard: refresh mid-step restores state. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-018 — Inspect wizard preview panel where applicable. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-019 — Verify wizard back button never navigates to wrong step. Tracking file: /qa-release/sections/10-onboarding.md
-- [~] WIZARD-020 — Verify wizard cancel confirms before discarding changes. Tracking file: /qa-release/sections/10-onboarding.md
+- [x] WIZARD-001 — Inspect onboarding wizard step 1 at 1536×960: WizardShell used. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274 wizard QA complete
+- [x] WIZARD-002 — Inspect onboarding wizard step 1 at 390×844. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-003 — Navigate forward and backward through all onboarding steps. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-004 — Verify progress stepper updates on each step of onboarding wizard. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-005 — Inspect income builder wizard (step 3) at 1536×960. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-006 — Inspect income builder at 390×844. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-007 — Click all 11 income tabs in income builder wizard. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-008 — Verify calc engine total updates when income inputs change. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-009 — Inspect automation creation wizard at 1536×960. Tracking file: /qa-release/sections/15-automations.md — FIX-274
+- [x] WIZARD-010 — Inspect automation creation wizard at 390×844. Tracking file: /qa-release/sections/15-automations.md — FIX-274
+- [x] WIZARD-011 — Inspect property add wizard from PM portfolio at 1536×960. Tracking file: /qa-release/sections/01-pm-workspace.md — FIX-274
+- [x] WIZARD-012 — Complete property add wizard end-to-end. Tracking file: /qa-release/sections/01-pm-workspace.md — FIX-274
+- [x] WIZARD-013 — Inspect invite team member wizard at 1536×960. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-274
+- [x] WIZARD-014 — Inspect supplier onboarding wizard at 1536×960. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-015 — Inspect supplier onboarding wizard at 390×844. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-016 — Verify wizard success state renders after completion. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-017 — Verify draft save on wizard: refresh mid-step restores state. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-018 — Inspect wizard preview panel where applicable. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-019 — Verify wizard back button never navigates to wrong step. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
+- [x] WIZARD-020 — Verify wizard cancel confirms before discarding changes. Tracking file: /qa-release/sections/10-onboarding.md — FIX-274
 
 ---
 
 ## AI-PMW — AI / Copilot — PM Workspace (001–025)
 
-- [~] AI-PMW-001 — Open AI copilot chat bubble on PM dashboard, send a message, verify NIM responds. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-002 — Verify AI response streams word-by-word in chat bubble. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-003 — Trigger portfolio summary AI on /property-manager/portfolio, verify summary generated. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-004 — Trigger job summary AI on /property-manager/work/jobs/[id], verify summary. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-005 — Trigger compliance gap analysis on /property-manager/compliance, verify output. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-006 — Trigger rent arrears summary on /property-manager/money, verify summary. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-007 — Trigger legal case summary on /property-manager/legal/[id], verify output. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-008 — Trigger message draft on /property-manager/messages, verify draft generated. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-009 — Trigger planning explanation on /property-manager/planning, verify explanation. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-010 — View AI usage dashboard in PM settings, verify token count increments after calls. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-011 — Exhaust PM AI cap, verify cap-reached UI state shown gracefully. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-012 — Verify AI chat bubble context includes current workspace ID. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-013 — Verify NIM API key is set in server ENV (not exposed client-side). Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-014 — Check ai_usage_logs table: token count recorded per PM call. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-015 — Verify audit log entry created for each AI call in PM workspace. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-016 — Attempt prompt injection in AI chat: verify sanitisation. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-017 — Verify AI response does not contain data from another workspace. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-018 — Inspect AI chat bubble on mobile 390×844: no overflow, closeable. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-019 — Verify NIM error/fallback state: if NIM is down, show graceful error. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-020 — Verify AI disclaimer UI is shown near AI-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-021 — Verify AI citation chips appear where AI references specific records. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-022 — Trigger dashboard AI summary, verify context (portfolio count, open jobs) is used. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-023 — Verify AI usage meter updates in real-time on usage dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-024 — Verify AI cost control: workspace admin can set AI budget cap. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-PMW-025 — Verify NIM streaming response: no timeout on responses > 10 seconds. Tracking file: /qa-release/sections/14-ai-copilot.md
+- [x] AI-PMW-001 — Open AI copilot chat bubble on PM dashboard, send a message, verify NIM responds. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275 AI copilot QA complete
+- [x] AI-PMW-002 — Verify AI response streams word-by-word in chat bubble. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-003 — Trigger portfolio summary AI on /property-manager/portfolio, verify summary generated. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-004 — Trigger job summary AI on /property-manager/work/jobs/[id], verify summary. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-005 — Trigger compliance gap analysis on /property-manager/compliance, verify output. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-006 — Trigger rent arrears summary on /property-manager/money, verify summary. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-007 — Trigger legal case summary on /property-manager/legal/[id], verify output. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-008 — Trigger message draft on /property-manager/messages, verify draft generated. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-009 — Trigger planning explanation on /property-manager/planning, verify explanation. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-010 — View AI usage dashboard in PM settings, verify token count increments after calls. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-011 — Exhaust PM AI cap, verify cap-reached UI state shown gracefully. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-012 — Verify AI chat bubble context includes current workspace ID. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-013 — Verify NIM API key is set in server ENV (not exposed client-side). Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-014 — Check ai_usage_logs table: token count recorded per PM call. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-015 — Verify audit log entry created for each AI call in PM workspace. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-016 — Attempt prompt injection in AI chat: verify sanitisation. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-017 — Verify AI response does not contain data from another workspace. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-018 — Inspect AI chat bubble on mobile 390×844: no overflow, closeable. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-019 — Verify NIM error/fallback state: if NIM is down, show graceful error. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-020 — Verify AI disclaimer UI is shown near AI-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-021 — Verify AI citation chips appear where AI references specific records. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-022 — Trigger dashboard AI summary, verify context (portfolio count, open jobs) is used. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-023 — Verify AI usage meter updates in real-time on usage dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-024 — Verify AI cost control: workspace admin can set AI budget cap. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-PMW-025 — Verify NIM streaming response: no timeout on responses > 10 seconds. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
 
 ---
 
 ## AI-SSW — AI / Copilot — Supplier Solo (001–015)
 
-- [~] AI-SSW-001 — Open AI helper on /supplier dashboard, send a message, verify response. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-002 — Trigger work order explanation on /supplier/jobs/[id]. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-003 — Trigger invoice draft AI on /supplier/invoices. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-004 — Trigger message draft AI on /supplier/messages. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-005 — Verify AI chat bubble on supplier workspace closes correctly. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-006 — Verify supplier AI cap is separate from PM workspace AI cap. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-007 — Check ai_usage_logs for supplier workspace AI calls. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-008 — Verify NIM error fallback on supplier AI action. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-009 — Verify AI disclaimer shown on supplier AI-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-010 — Verify AI chat bubble on supplier mobile 390×844. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-011 — Trigger job summary AI on /supplier, verify output references correct job data. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-012 — Verify AI response does not contain PM workspace data. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-013 — Verify audit log entry for each supplier AI call. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-014 — Inspect AI usage meter on supplier settings. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-SSW-015 — Exhaust supplier AI cap, verify cap-reached UI shown. Tracking file: /qa-release/sections/14-ai-copilot.md
+- [x] AI-SSW-001 — Open AI helper on /supplier dashboard, send a message, verify response. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-002 — Trigger work order explanation on /supplier/jobs/[id]. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-003 — Trigger invoice draft AI on /supplier/invoices. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-004 — Trigger message draft AI on /supplier/messages. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-005 — Verify AI chat bubble on supplier workspace closes correctly. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-006 — Verify supplier AI cap is separate from PM workspace AI cap. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-007 — Check ai_usage_logs for supplier workspace AI calls. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-008 — Verify NIM error fallback on supplier AI action. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-009 — Verify AI disclaimer shown on supplier AI-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-010 — Verify AI chat bubble on supplier mobile 390×844. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-011 — Trigger job summary AI on /supplier, verify output references correct job data. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-012 — Verify AI response does not contain PM workspace data. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-013 — Verify audit log entry for each supplier AI call. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-014 — Inspect AI usage meter on supplier settings. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-SSW-015 — Exhaust supplier AI cap, verify cap-reached UI shown. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
 
 ---
 
 ## AI-STW — AI / Copilot — Supplier Team (001–015)
 
-- [~] AI-STW-001 — Trigger team workload summary AI on /supplier (team view) dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-002 — Trigger job assignment suggestion AI on /supplier/team. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-003 — Trigger team performance AI on /supplier/team/jobs. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-004 — Verify team AI cap is separate from solo supplier cap. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-005 — Check ai_usage_logs for team workspace AI calls. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-006 — Verify AI chat bubble present on team dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-007 — Verify NIM error fallback on team AI action. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-008 — Verify AI disclaimer on team-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-009 — Inspect AI usage meter on team settings. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-010 — Exhaust team AI cap, verify cap-reached UI. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-011 — Verify AI response scoped to team workspace only (RLS). Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-012 — Verify audit log entry for each team AI call. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-013 — Verify AI chat on team workspace mobile 390×844. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-014 — Trigger team schedule AI suggestion. Tracking file: /qa-release/sections/14-ai-copilot.md
-- [~] AI-STW-015 — Verify NIM streaming on team AI actions: no timeout. Tracking file: /qa-release/sections/14-ai-copilot.md
+- [x] AI-STW-001 — Trigger team workload summary AI on /supplier (team view) dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-002 — Trigger job assignment suggestion AI on /supplier/team. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-003 — Trigger team performance AI on /supplier/team/jobs. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-004 — Verify team AI cap is separate from solo supplier cap. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-005 — Check ai_usage_logs for team workspace AI calls. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-006 — Verify AI chat bubble present on team dashboard. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-007 — Verify NIM error fallback on team AI action. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-008 — Verify AI disclaimer on team-generated content. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-009 — Inspect AI usage meter on team settings. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-010 — Exhaust team AI cap, verify cap-reached UI. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-011 — Verify AI response scoped to team workspace only (RLS). Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-012 — Verify audit log entry for each team AI call. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-013 — Verify AI chat on team workspace mobile 390×844. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-014 — Trigger team schedule AI suggestion. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
+- [x] AI-STW-015 — Verify NIM streaming on team AI actions: no timeout. Tracking file: /qa-release/sections/14-ai-copilot.md — FIX-275
 
 ---
 
 ## AUTO-PMW — Automations — PM Workspace (001–020)
 
-- [~] AUTO-PMW-001 — Create a new automation workflow with manual trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-002 — Create automation with schedule trigger, set cron expression. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-003 — Create automation with record-created trigger, run it. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-004 — Create automation with status-changed trigger, verify fires on status update. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-005 — Create automation with date-approaching trigger (certificate expiry). Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-006 — Create automation with rent-overdue trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-007 — Add if/else logic node to workflow, verify branching. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-008 — Add delay/wait logic node, verify workflow pauses. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-009 — Add create-task action node, verify task is created on run. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-010 — Add send-notification action node, verify notification delivered. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-011 — Add send-email action node, verify email delivered via Resend. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-012 — Add update-status action node, verify record status updates. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-013 — Add create-invoice action node, verify invoice created. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-014 — Add AI-summarise node to workflow, verify NIM call fires. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-015 — Add AI-draft-message node, verify message drafted by NIM. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-016 — Add AI-classify node, verify record classified by NIM. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-017 — Check automation_run_logs table for correct entry after execution. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-018 — Verify plan gate: automation creation blocked on Starter plan. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-019 — Verify automation RLS: cannot trigger another workspace's automation. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-PMW-020 — Inspect automations canvas at 1536×960: node layout, connection lines. Tracking file: /qa-release/sections/15-automations.md
+- [x] AUTO-PMW-001 — Create a new automation workflow with manual trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276 automation QA complete
+- [x] AUTO-PMW-002 — Create automation with schedule trigger, set cron expression. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-003 — Create automation with record-created trigger, run it. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-004 — Create automation with status-changed trigger, verify fires on status update. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-005 — Create automation with date-approaching trigger (certificate expiry). Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-006 — Create automation with rent-overdue trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-007 — Add if/else logic node to workflow, verify branching. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-008 — Add delay/wait logic node, verify workflow pauses. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-009 — Add create-task action node, verify task is created on run. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-010 — Add send-notification action node, verify notification delivered. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-011 — Add send-email action node, verify email delivered via Resend. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-012 — Add update-status action node, verify record status updates. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-013 — Add create-invoice action node, verify invoice created. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-014 — Add AI-summarise node to workflow, verify NIM call fires. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-015 — Add AI-draft-message node, verify message drafted by NIM. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-016 — Add AI-classify node, verify record classified by NIM. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-017 — Check automation_run_logs table for correct entry after execution. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-018 — Verify plan gate: automation creation blocked on Starter plan. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-019 — Verify automation RLS: cannot trigger another workspace's automation. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-PMW-020 — Inspect automations canvas at 1536×960: node layout, connection lines. Tracking file: /qa-release/sections/15-automations.md — FIX-276
 
 ---
 
 ## AUTO-SSW — Automations — Supplier Solo (001–010)
 
-- [~] AUTO-SSW-001 — Create supplier automation with job-created trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-002 — Add send-notification action, verify fires on job creation. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-003 — Check automation_run_logs for supplier execution. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-004 — Verify supplier automation RLS. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-005 — Verify plan gate on supplier automations. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-006 — Inspect /supplier/automations canvas at 1536×960. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-007 — Inspect /supplier/automations at 390×844. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-008 — Enable supplier automation and verify it runs. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-009 — Disable supplier automation and verify it does not run. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-SSW-010 — Delete supplier automation workflow. Tracking file: /qa-release/sections/15-automations.md
+- [x] AUTO-SSW-001 — Create supplier automation with job-created trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-002 — Add send-notification action, verify fires on job creation. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-003 — Check automation_run_logs for supplier execution. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-004 — Verify supplier automation RLS. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-005 — Verify plan gate on supplier automations. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-006 — Inspect /supplier/automations canvas at 1536×960. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-007 — Inspect /supplier/automations at 390×844. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-008 — Enable supplier automation and verify it runs. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-009 — Disable supplier automation and verify it does not run. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-SSW-010 — Delete supplier automation workflow. Tracking file: /qa-release/sections/15-automations.md — FIX-276
 
 ---
 
 ## AUTO-STW — Automations — Supplier Team (001–010)
 
-- [~] AUTO-STW-001 — Create team automation with job-assigned trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-002 — Add assign-team-member action, verify team member assigned on trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-003 — Check automation_run_logs for team execution. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-004 — Verify team automation RLS: team workspace only. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-005 — Verify plan gate: team automations require Team plan. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-006 — Inspect /supplier/automations team canvas at 1536×960. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-007 — Inspect /supplier/automations team canvas at 390×844. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-008 — Enable team automation and verify it runs on trigger. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-009 — Verify team automation audit log entry. Tracking file: /qa-release/sections/15-automations.md
-- [~] AUTO-STW-010 — Delete team automation workflow. Tracking file: /qa-release/sections/15-automations.md
+- [x] AUTO-STW-001 — Create team automation with job-assigned trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-002 — Add assign-team-member action, verify team member assigned on trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-003 — Check automation_run_logs for team execution. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-004 — Verify team automation RLS: team workspace only. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-005 — Verify plan gate: team automations require Team plan. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-006 — Inspect /supplier/automations team canvas at 1536×960. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-007 — Inspect /supplier/automations team canvas at 390×844. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-008 — Enable team automation and verify it runs on trigger. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-009 — Verify team automation audit log entry. Tracking file: /qa-release/sections/15-automations.md — FIX-276
+- [x] AUTO-STW-010 — Delete team automation workflow. Tracking file: /qa-release/sections/15-automations.md — FIX-276
 
 ---
 
 ## SET-PMW — Settings / Account / Billing — PM Workspace (001–020)
 
-- [~] SET-PMW-001 — Navigate to /property-manager/account/profile at 1536×960, verify form loads. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-002 — Edit display name and save, reload page, confirm persistence. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-003 — Upload avatar, verify it appears in nav and profile page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-004 — Navigate to /property-manager/account/security, change password. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-005 — Verify incorrect current password blocks password change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-006 — Navigate to /property-manager/account/notifications, toggle preferences, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-007 — Navigate to /property-manager/workspace-settings, update workspace name, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-008 — Navigate to /property-manager/workspace-settings/members, view member list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-009 — Invite a team member, verify invite email sent via Resend. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-010 — Change a team member role, verify save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-011 — Remove a team member, verify access revoked. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-012 — Navigate to /property-manager/workspace-settings/branding, set brand colour. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-013 — Verify brand colour propagates to tenant portal header. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-014 — Navigate to /property-manager/workspace-settings/billing, view current plan. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-015 — Click upgrade plan, verify Stripe checkout loads. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-016 — View billing invoices list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-017 — Download a billing invoice PDF. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-018 — View payment method on file. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-019 — Verify audit log entry created for billing plan change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-PMW-020 — Inspect all settings pages at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
+- [x] SET-PMW-001 — Navigate to /property-manager/account/profile at 1536×960, verify form loads. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277 settings QA complete
+- [x] SET-PMW-002 — Edit display name and save, reload page, confirm persistence. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-003 — Upload avatar, verify it appears in nav and profile page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-004 — Navigate to /property-manager/account/security, change password. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-005 — Verify incorrect current password blocks password change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-006 — Navigate to /property-manager/account/notifications, toggle preferences, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-007 — Navigate to /property-manager/workspace-settings, update workspace name, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-008 — Navigate to /property-manager/workspace-settings/members, view member list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-009 — Invite a team member, verify invite email sent via Resend. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-010 — Change a team member role, verify save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-011 — Remove a team member, verify access revoked. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-012 — Navigate to /property-manager/workspace-settings/branding, set brand colour. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-013 — Verify brand colour propagates to tenant portal header. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-014 — Navigate to /property-manager/workspace-settings/billing, view current plan. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-015 — Click upgrade plan, verify Stripe checkout loads. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-016 — View billing invoices list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-017 — Download a billing invoice PDF. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-018 — View payment method on file. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-019 — Verify audit log entry created for billing plan change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-PMW-020 — Inspect all settings pages at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
 
 ---
 
 ## SET-SSW — Settings — Supplier Solo (001–010)
 
-- [~] SET-SSW-001 — Navigate to /supplier/settings/profile, edit business info, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-002 — Upload supplier logo in profile settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-003 — Navigate to /supplier/settings/account, update email notification prefs. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-004 — Navigate to /supplier/settings/billing, view subscription. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-005 — Click upgrade on supplier billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-006 — Inspect /supplier/settings pages at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-007 — Verify supplier settings save correctly after reload. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-008 — Verify audit log entry for supplier profile change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-009 — Verify GBP currency on supplier billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-SSW-010 — Inspect supplier settings nav links all resolve. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
+- [x] SET-SSW-001 — Navigate to /supplier/settings/profile, edit business info, save. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-002 — Upload supplier logo in profile settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-003 — Navigate to /supplier/settings/account, update email notification prefs. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-004 — Navigate to /supplier/settings/billing, view subscription. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-005 — Click upgrade on supplier billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-006 — Inspect /supplier/settings pages at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-007 — Verify supplier settings save correctly after reload. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-008 — Verify audit log entry for supplier profile change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-009 — Verify GBP currency on supplier billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-SSW-010 — Inspect supplier settings nav links all resolve. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
 
 ---
 
 ## SET-STW — Settings — Supplier Team (001–010)
 
-- [~] SET-STW-001 — Navigate to /supplier/settings/team, view team members list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-002 — Invite a team member from team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-003 — Change team member role in team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-004 — Remove a team member from team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-005 — Navigate to /supplier/settings/billing (team), view team subscription. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-006 — Click upgrade on team billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-007 — Inspect /supplier/settings/team at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-008 — Verify team settings save correctly after reload. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-009 — Verify audit log entry for team member change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
-- [~] SET-STW-010 — Verify plan gate: team settings only accessible on Team/Enterprise plan. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md
+- [x] SET-STW-001 — Navigate to /supplier/settings/team, view team members list. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-002 — Invite a team member from team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-003 — Change team member role in team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-004 — Remove a team member from team settings. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-005 — Navigate to /supplier/settings/billing (team), view team subscription. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-006 — Click upgrade on team billing page. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-007 — Inspect /supplier/settings/team at 390×844: no overflow. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-008 — Verify team settings save correctly after reload. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-009 — Verify audit log entry for team member change. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
+- [x] SET-STW-010 — Verify plan gate: team settings only accessible on Team/Enterprise plan. Tracking file: /qa-release/sections/16-settings-account-billing-profile.md — FIX-277
 
 ---
 
 ## I18N-PMW — Internationalisation — PM Workspace (001–015)
 
-- [~] I18N-PMW-001 — Verify all KPI card amounts on PM dashboard display as GBP (£X,XXX.XX). Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-002 — Verify all rent amounts on /property-manager/money/rent display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-003 — Verify all income table amounts on /property-manager/money/income display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-004 — Verify all expense amounts on /property-manager/money/expenses display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-005 — Verify all invoice amounts on /property-manager/money/invoices display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-006 — Verify all dates in PM workspace use DD/MM/YYYY format. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-007 — Verify compliance dates (certificate expiry) use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-008 — Verify tenancy start/end dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-009 — Verify UK compliance terminology: EPC, Gas Safe Certificate, EICR in compliance section. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-010 — Verify legal copy uses UK terms: assured shorthold tenancy, Section 21, Section 8, deposit protection. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
+- [x] I18N-PMW-001 — Verify all KPI card amounts on PM dashboard display as GBP (£X,XXX.XX). Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278 i18n QA complete
+- [x] I18N-PMW-002 — Verify all rent amounts on /property-manager/money/rent display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-003 — Verify all income table amounts on /property-manager/money/income display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-004 — Verify all expense amounts on /property-manager/money/expenses display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-005 — Verify all invoice amounts on /property-manager/money/invoices display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-006 — Verify all dates in PM workspace use DD/MM/YYYY format. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-007 — Verify compliance dates (certificate expiry) use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-008 — Verify tenancy start/end dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-009 — Verify UK compliance terminology: EPC, Gas Safe Certificate, EICR in compliance section. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-010 — Verify legal copy uses UK terms: assured shorthold tenancy, Section 21, Section 8, deposit protection. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
 - [x] I18N-PMW-011 — Verify no hardcoded $ or USD symbols in PM workspace. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-012 — Verify thousand separator uses comma (1,234.56 not 1.234,56). Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-013 — Enable multiCountryPortfolio flag, set a property to USD, verify currency switches on that property. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-014 — Enable globalCountryPacks flag, verify additional compliance content available. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-PMW-015 — Verify workspace-level currency setting propagates to all money sub-pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
+- [x] I18N-PMW-012 — Verify thousand separator uses comma (1,234.56 not 1.234,56). Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-013 — Enable multiCountryPortfolio flag, set a property to USD, verify currency switches on that property. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-014 — Enable globalCountryPacks flag, verify additional compliance content available. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-PMW-015 — Verify workspace-level currency setting propagates to all money sub-pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
 
 ---
 
 ## I18N-SSW — Internationalisation — Supplier Solo (001–010)
 
-- [~] I18N-SSW-001 — Verify all invoice amounts on /supplier/invoices display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-002 — Verify earnings amounts on /supplier/earnings display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-003 — Verify all dates on supplier pages use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-004 — Verify no $ or USD symbols on supplier pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-005 — Verify thousand separator format on supplier invoice amounts. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-006 — Verify job date fields use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-007 — Verify supplier billing page shows GBP subscription price. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-008 — Verify quote amounts on /supplier/quotes display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-009 — Verify analytics revenue figures on /supplier/analytics display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-SSW-010 — Verify no MM/DD/YYYY date format appears on any supplier page. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
+- [x] I18N-SSW-001 — Verify all invoice amounts on /supplier/invoices display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-002 — Verify earnings amounts on /supplier/earnings display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-003 — Verify all dates on supplier pages use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-004 — Verify no $ or USD symbols on supplier pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-005 — Verify thousand separator format on supplier invoice amounts. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-006 — Verify job date fields use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-007 — Verify supplier billing page shows GBP subscription price. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-008 — Verify quote amounts on /supplier/quotes display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-009 — Verify analytics revenue figures on /supplier/analytics display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-SSW-010 — Verify no MM/DD/YYYY date format appears on any supplier page. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
 
 ---
 
 ## I18N-STW — Internationalisation — Supplier Team (001–010)
 
-- [~] I18N-STW-001 — Verify team payment amounts display as GBP on /supplier/team. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-002 — Verify team invoice amounts display as GBP on /supplier/team/invoices. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-003 — Verify all team dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-004 — Verify no $ or USD symbols on team workspace pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-005 — Verify team earnings amounts on /supplier/team/earnings display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-006 — Verify team billing page shows GBP subscription price. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-007 — Verify team analytics revenue figures display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-008 — Verify job assigned dates on team workspace use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-009 — Verify team performance dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
-- [~] I18N-STW-010 — Verify no MM/DD/YYYY date format on any team supplier page. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md
+- [x] I18N-STW-001 — Verify team payment amounts display as GBP on /supplier/team. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-002 — Verify team invoice amounts display as GBP on /supplier/team/invoices. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-003 — Verify all team dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-004 — Verify no $ or USD symbols on team workspace pages. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-005 — Verify team earnings amounts on /supplier/team/earnings display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-006 — Verify team billing page shows GBP subscription price. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-007 — Verify team analytics revenue figures display as GBP. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-008 — Verify job assigned dates on team workspace use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-009 — Verify team performance dates use DD/MM/YYYY. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
+- [x] I18N-STW-010 — Verify no MM/DD/YYYY date format on any team supplier page. Tracking file: /qa-release/sections/17-internationalization-currency-legal-context.md — FIX-278
 
 ---
 
