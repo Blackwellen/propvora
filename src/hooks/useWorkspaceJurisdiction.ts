@@ -1,0 +1,49 @@
+'use client'
+
+/**
+ * useWorkspaceJurisdiction — reads the active workspace's i18n settings from
+ * the AuthProvider context (no extra API call). Returns currency, locale,
+ * dateFormat, and timezone with GB-safe defaults when not yet configured.
+ *
+ * FIX-291: Created as part of i18n 100/100 gap-fill. Reads from
+ * workspace.settings (JSONB column already in the DB schema).
+ */
+
+import { useWorkspace } from '@/providers/AuthProvider'
+import type { WorkspaceSettings } from '@/providers/AuthProvider'
+
+export interface WorkspaceJurisdiction {
+  /** ISO-4217 currency code (default GBP) */
+  currency: string
+  /** BCP-47 locale tag (default en-GB) */
+  locale: string
+  /** Date display format string (default DD/MM/YYYY) */
+  dateFormat: string
+  /** IANA timezone (default Europe/London) */
+  timezone: string
+  /** True while workspace is still loading */
+  isLoading: boolean
+  /** Raw settings object from workspace.settings JSONB */
+  settings: WorkspaceSettings
+}
+
+const GB_DEFAULTS: Required<WorkspaceSettings> = {
+  currency: 'GBP',
+  locale: 'en-GB',
+  dateFormat: 'DD/MM/YYYY',
+  timezone: 'Europe/London',
+}
+
+export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
+  const { workspace, isLoading } = useWorkspace()
+  const raw = (workspace?.settings ?? {}) as WorkspaceSettings
+
+  return {
+    currency: raw.currency || GB_DEFAULTS.currency,
+    locale: raw.locale || GB_DEFAULTS.locale,
+    dateFormat: raw.dateFormat || GB_DEFAULTS.dateFormat,
+    timezone: raw.timezone || GB_DEFAULTS.timezone,
+    isLoading,
+    settings: raw,
+  }
+}

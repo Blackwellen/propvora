@@ -15,7 +15,15 @@ import { switchWorkspace as switchWorkspaceAction } from "@/lib/actions/workspac
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Workspace {
+/** Workspace i18n settings stored as JSONB in workspaces.settings */
+export interface WorkspaceSettings {
+  currency?: string
+  locale?: string
+  dateFormat?: string
+  timezone?: string
+}
+
+export interface Workspace {
   id: string
   name: string
   slug: string
@@ -26,6 +34,8 @@ interface Workspace {
   plan: string
   trial_ends_at: string | null
   owner_id: string
+  /** i18n / locale preferences stored in JSONB settings column. */
+  settings: WorkspaceSettings | null
 }
 
 interface AuthContextValue {
@@ -77,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id")
+          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, settings")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)
