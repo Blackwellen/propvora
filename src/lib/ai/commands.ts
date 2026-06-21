@@ -35,6 +35,21 @@ export type CommandCategory =
 /** Which capability flag must be true for this command to be offered. */
 export type CapabilityKey = keyof WorkspaceCapabilities | "always"
 
+/**
+ * Feature-flag pack that groups commands by product area.
+ * Workspaces only see packs that are relevant to their type and enabled flags.
+ */
+export type CommandPack =
+  | "ai-core"       // core AI tools — always available to authenticated workspaces
+  | "portfolio"     // property management: properties, units, tenancies
+  | "compliance"    // compliance & legal readiness
+  | "money"         // rent, payments, cashflow, accounting
+  | "work"          // maintenance, jobs, work orders
+  | "planning"      // lettings, planning sets, acquisitions
+  | "supplier"      // supplier workspace: jobs, quotes, verification
+  | "bookings"      // stays, accommodation, booking management
+  | "marketplace"   // marketplace OS: listings, orders, disputes
+
 export interface CopilotCommand {
   /** Slash slug, e.g. "/summarise". Unique. */
   slug: string
@@ -44,6 +59,12 @@ export interface CopilotCommand {
   category: CommandCategory
   /** Capability gate — "always" means available to every workspace type. */
   capability: CapabilityKey
+  /**
+   * Feature-flag pack this command belongs to. Used to filter the palette by
+   * workspace type and enabled feature flags. NEXT_PUBLIC_QA_ALL_FLAGS=true
+   * bypasses the filter and shows all commands.
+   */
+  pack: CommandPack
   /** The instruction sent to the model when this command runs. */
   prompt: string
   /** Draft/operation that must be human-approved before anything is created. */
@@ -58,15 +79,16 @@ export interface CopilotCommand {
 // The registry. Ordered roughly by how often each is used.
 // ---------------------------------------------------------------------------
 export const COPILOT_COMMANDS: CopilotCommand[] = [
-  // --- General / analysis (read-only) ---
+  // --- General / AI core (always available) ---
   {
     slug: "/summarise",
     label: "/summarise",
     description: "Summarise the current page in context",
     category: "General",
     capability: "always",
+    pack: "ai-core",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers, no bold formatting. Summarise this workspace situation using the live counts in the WORKSPACE PROFILE. Write 3 to 5 sentences covering what is most important right now, then give a numbered list of 3 to 5 concrete next actions the user should take. Use plain numbered lines like '1. Action here'. Under 200 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise the user's current workspace situation using the live counts in the WORKSPACE PROFILE. Lead with the most important metric for this workspace type, then list 3-5 specific things they could act on today. Output format: short opening sentence, then numbered list of actions with one-line reasoning each. Under 200 words. If counts are unavailable, say so rather than guessing.",
     requiresApproval: false,
     shortcut: "⌘1",
   },
@@ -76,10 +98,34 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Your prioritised to-do list for the week",
     category: "General",
     capability: "always",
+    pack: "ai-core",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Produce a numbered weekly priority list for this workspace ordered by urgency. Use ONLY the live counts above (open tasks, jobs, disputes, requests, payouts due). For each item give a one-line reason why it is urgent. Format each as '1. Task — why it matters'. Under 200 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Produce a prioritised weekly action list for this workspace, ordered by urgency. Ground every item in the live counts shown in WORKSPACE CONTEXT (open tasks, jobs, disputes, requests, payouts due). For each item give a one-line reason why it matters this week. Output format: numbered list, item name then dash then reason. Under 200 words. Do not invent figures not present in the context.",
     requiresApproval: false,
     shortcut: "⌘2",
+  },
+  {
+    slug: "/create-task",
+    label: "/create-task",
+    description: "Draft a task from context",
+    category: "Tasks & Work",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Turn the user's request into a well-formed task draft. Output format: four labelled fields — Title: (one line), Description: (2-3 sentences), Priority: (Low / Medium / High / Urgent with one-line reason), Due date window: (e.g. within 24 hours / this week / this month). End with: 'Review and confirm before saving.' Do NOT claim the task was created.",
+    requiresApproval: true,
+    mutationType: "task-draft",
+  },
+  {
+    slug: "/escalation-summary",
+    label: "/escalation-summary",
+    description: "List open escalations and high-priority items",
+    category: "General",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise open escalations and high-priority items for this workspace using the live counts in WORKSPACE CONTEXT (open disputes, high-priority jobs, overdue tasks, pending payouts). Output format: numbered list — item type, count or status, recommended action. If a count is not available, omit that item. Under 180 words.",
+    requiresApproval: false,
   },
 
   // --- Portfolio / operator ---
@@ -89,30 +135,67 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Portfolio health summary",
     category: "Portfolio",
     capability: "portfolio",
+    pack: "portfolio",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Give a concise portfolio health summary using the live counts (properties, units, active tenancies, open tasks and jobs). Write two short paragraphs: the first covering occupancy and financial health, the second covering voids, risks and gaps. Then give a numbered list of 3 actions to improve portfolio health. Under 220 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Give a concise portfolio health summary for this property operator using the live counts from WORKSPACE CONTEXT (properties, units, active tenancies, open tasks, open jobs). Call out occupancy, voids and any operational gaps. Output format: labelled fields — Occupancy: / Voids: / Open tasks: / Open jobs: / Key concerns: — each on one line with a short observation. Under 220 words. Do not invent any figure not present in the context.",
     requiresApproval: false,
   },
   {
     slug: "/check-tenancy",
     label: "/check-tenancy",
-    description: "Check tenancy status & what to watch",
+    description: "Check tenancy status and what to watch",
     category: "Portfolio",
     capability: "portfolio",
+    pack: "portfolio",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain what to review for active tenancies in a UK portfolio. Cover rent status, break clauses, renewal windows, deposit protection and compliance ties. Reference the live active-tenancy count if shown. Give a numbered checklist of things to verify. Frame legal points as general information and note that a solicitor should confirm specifics. Under 220 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Explain the key areas to review for active UK tenancies: rent payment status, break clauses, renewal windows, deposit protection compliance, and right-to-rent validity. Reference the live active-tenancy count from WORKSPACE CONTEXT if shown. Output format: numbered list of review items, each with a one-line what-to-check and one-line risk if missed. Frame all legal points as general information; recommend confirming with a solicitor. Under 220 words.",
     requiresApproval: false,
+  },
+  {
+    slug: "/void-properties",
+    label: "/void-properties",
+    description: "List vacant units and days void",
+    category: "Portfolio",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise the void / vacant situation for this portfolio using the live counts from WORKSPACE CONTEXT (properties, units, active tenancies). Calculate approximate void units as units minus active tenancies if both counts are available. Output format: numbered list — each void unit (use placeholder if actual IDs unknown), estimated days void if determinable, and one recommended action to fill it. End with total estimated void count and monthly revenue impact note (use placeholder figures clearly marked as illustrative). Under 200 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/tenancy-renewals",
+    label: "/tenancy-renewals",
+    description: "Tenancies ending in the next 90 days",
+    category: "Portfolio",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain what to do for tenancies ending in the next 90 days: renewal negotiation steps, notice periods under UK law (Section 21 / Section 5 notice), what documents to prepare, and how to handle a tenant who wants to leave. Reference the live active-tenancy count from WORKSPACE CONTEXT. Output format: numbered list of action steps with timeframes (90 days out, 60 days, 30 days, final week). Frame legal points as general information; recommend a solicitor for specific cases. Under 230 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/draft-move-in-letter",
+    label: "/draft-move-in-letter",
+    description: "Draft a move-in welcome letter for a tenancy",
+    category: "Communication",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional and warm move-in welcome letter for a new UK residential tenant. Include: greeting with tenant name placeholder {TENANT_NAME}, property address placeholder {PROPERTY_ADDRESS}, tenancy start date placeholder {START_DATE}, key contacts (property manager name {PM_NAME}, emergency number {EMERGENCY_CONTACT}), meter reading reminder, deposit protection scheme reference placeholder {DEPOSIT_SCHEME}, how to report maintenance, and a closing welcome note. Output format: letter body with clear paragraphs labelled by topic. This is a DRAFT for the user to personalise and send; nothing has been created or sent.",
+    requiresApproval: true,
+    mutationType: "document-draft",
   },
 
   // --- Compliance ---
   {
     slug: "/review-compliance",
     label: "/review-compliance",
-    description: "Review compliance gaps & deadlines",
+    description: "Review compliance gaps and deadlines",
     category: "Compliance",
     capability: "compliance",
+    pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Provide a UK rental compliance checklist as a numbered list. Cover these 8 areas in order: 1. Gas Safety certificate (annual), 2. EICR electrical inspection (every 5 years), 3. EPC energy certificate (10 years, minimum grade E), 4. Smoke and CO alarms, 5. Legionella risk assessment, 6. HMO licensing if applicable, 7. Deposit protection (30-day deadline), 8. Right to Rent checks. For each state the frequency and the risk of a gap. Frame all legal points as general information. Under 260 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Provide a UK rental compliance checklist covering the seven core requirements: Gas Safety Certificate (annual), Electrical Installation Condition Report (every 5 years), EPC minimum E rating (10-year cycle), smoke and carbon monoxide alarms, Legionella risk assessment, HMO licensing where applicable, and deposit protection (within 30 days). Output format: numbered list — requirement name, frequency, consequence of non-compliance (one line each). Frame all points as general information and recommend confirming deadlines with a compliance specialist. Under 260 words.",
     requiresApproval: false,
   },
   {
@@ -121,119 +204,56 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Find likely missing documents",
     category: "Compliance",
     capability: "compliance",
+    pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. List the documents a UK rental portfolio most commonly is missing as a numbered list. Cover Gas Safety certificate, EICR, EPC, signed AST, deposit protection certificate, Right to Rent checks, and How to Rent guide. For each document state the legal risk of its absence and a one-line suggestion for closing the gap. Under 240 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. List the documents a UK rental portfolio most commonly is missing and the legal risk of each absence. Cover: Gas Safety Certificate, EICR, EPC, signed AST, deposit protection certificate, Right to Rent check records, How to Rent guide acknowledgement, and Legionella assessment. Reference the documents count from WORKSPACE CONTEXT if shown. Output format: numbered list — document name, risk if missing (one line), how to close the gap (one line). Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/compliance-calendar",
+    label: "/compliance-calendar",
+    description: "Next 10 compliance items due",
+    category: "Compliance",
+    capability: "compliance",
+    pack: "compliance",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Produce a compliance action calendar for a UK rental portfolio showing the 10 most time-sensitive recurring compliance obligations. For each item show the legal requirement, typical renewal frequency, and suggested action trigger (e.g. 6 weeks before expiry). Output format: numbered list — item name, frequency, trigger point, consequence of missing it. End with a note that actual due dates depend on the property's specific certificate dates and should be confirmed in the Compliance section. Under 260 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/deposit-status",
+    label: "/deposit-status",
+    description: "List tenancies with deposit issues",
+    category: "Compliance",
+    capability: "compliance",
+    pack: "compliance",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain the deposit protection obligations for UK landlords under the Housing Act 2004: the 30-day protection deadline, the three government-approved schemes (DPS, MyDeposits, TDS), prescribed information requirements, and the penalty for non-compliance (up to 3x deposit). Reference the active-tenancy count from WORKSPACE CONTEXT. Output format: numbered list — obligation name, deadline, risk if missed (one line each). End with: 'Review each tenancy in the Portfolio section to confirm deposit protection status.' Frame as general information; recommend a solicitor for specific cases. Under 230 words.",
     requiresApproval: false,
   },
 
-  // --- Bookings ---
+  // --- Money ---
   {
-    slug: "/draft-listing",
-    label: "/draft-listing",
-    description: "Draft a booking/accommodation listing",
-    category: "Bookings",
-    capability: "bookings",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a short-let accommodation listing. Structure it as: Title (one line), Description (120 to 150 words in plain prose), Highlights (numbered list of 5 items), House Rules (numbered list of 5 rules). Use placeholders like {property name}, {location}, {bedrooms} where specifics are not provided. Mark this clearly at the top as: DRAFT — review and edit before publishing. This creates nothing automatically.",
-    requiresApproval: true,
-    mutationType: "listing-draft",
-  },
-  {
-    slug: "/summarise-booking",
-    label: "/summarise-booking",
-    description: "Summarise a reservation & next steps",
-    category: "Bookings",
-    capability: "bookings",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Provide a reusable reservation summary template with labelled placeholders. Cover: Guest name and contact, Dates (check-in and check-out), Payment and deposit status, Access and check-in plan, Outstanding actions before arrival. Format each field as 'Label: {placeholder}' on its own line. Then add a short paragraph on what to confirm in the 48 hours before check-in. Under 220 words.",
-    requiresApproval: false,
-  },
-  {
-    slug: "/suggest-pricing",
-    label: "/suggest-pricing",
-    description: "Suggest a pricing approach for a listing",
-    category: "Bookings",
-    capability: "bookings",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Suggest a structured pricing framework for a short-let listing. Cover these points as a numbered list: 1. Base nightly rate logic, 2. Weekday versus weekend differential, 3. Seasonal and peak-period adjustments, 4. Length-of-stay discounts, 5. Cleaning fee structure, 6. Minimum stay rules. Include illustrative example figures clearly labelled as examples only and not financial advice. Under 240 words.",
-    requiresApproval: false,
-  },
-
-  // --- Marketplace ---
-  {
-    slug: "/draft-marketplace-listing",
-    label: "/draft-marketplace-listing",
-    description: "Draft a marketplace service/product listing",
-    category: "Marketplace",
-    capability: "marketplace",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a marketplace listing for a property service or product. Structure it as: Title (one line), Description (100 to 140 words in plain prose), What is included (numbered list of 5 items), Pricing line (one sentence). Use placeholders for specifics not provided. Mark clearly at the top as: DRAFT — review before publishing. This creates nothing automatically.",
-    requiresApproval: true,
-    mutationType: "listing-draft",
-  },
-  {
-    slug: "/explain-dispute",
-    label: "/explain-dispute",
-    description: "Explain a dispute and the resolution path",
-    category: "Marketplace",
-    capability: "marketplace",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain how an open marketplace order dispute progresses and what the operator should do. Write two short paragraphs: the first covering evidence gathering and the resolution stages, the second covering payment-hold implications and fair communication with both sides. Then give a numbered list of 3 immediate actions the operator should take. Reference the open-dispute count if shown. Frame this as process guidance, not legal advice. Under 240 words.",
-    requiresApproval: false,
-  },
-  {
-    slug: "/review-orders",
-    label: "/review-orders",
-    description: "Review open marketplace orders",
-    category: "Marketplace",
-    capability: "marketplace",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain how to triage open marketplace orders. Give a numbered list covering the 4 key order states that need action: awaiting payment, accepted but not started, in progress, and ready to release. For each state describe what to check and what to do. Add a short paragraph on how to spot at-risk orders. Reference the open-order count if shown. Under 220 words.",
-    requiresApproval: false,
-  },
-
-  // --- Supplier ---
-  {
-    slug: "/compare-quotes",
-    label: "/compare-quotes",
-    description: "Compare supplier quotes objectively",
-    category: "Supplier",
-    capability: "supplier",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain how to compare competing supplier quotes for a job objectively. Give a numbered scoring framework covering: 1. Normalise scope and inclusions, 2. Compare price per deliverable, 3. Check insurance and verification status, 4. Assess lead time and availability, 5. Review warranty and aftercare, 6. Check platform rating and reviews. Reference the open-quote count if shown. Under 240 words.",
-    requiresApproval: false,
-  },
-  {
-    slug: "/draft-supplier-message",
-    label: "/draft-supplier-message",
-    description: "Draft a message to a supplier",
+    slug: "/chase-arrears",
+    label: "/chase-arrears",
+    description: "Draft an arrears chase message",
     category: "Communication",
-    capability: "supplier",
+    capability: "portfolio",
+    pack: "money",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional concise message to a supplier or contractor about a job. Structure it as: Opening (one sentence stating the request), Context (property and access details using placeholders like {property address} and {access instructions}), Timeline (when the work is needed), Confirmation request (what you need them to confirm). Mark clearly at the top as: DRAFT — review before sending. This sends nothing automatically.",
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a firm but fair rent arrears chase message for a UK tenant. Include: tenant name placeholder {TENANT_NAME}, property address placeholder {PROPERTY_ADDRESS}, amount overdue placeholder {AMOUNT_OVERDUE}, due date placeholder {DUE_DATE}, payment methods, and a one-line note that continued non-payment may lead to formal action (frame as general information, not legal advice). Output format: message body with subject line on the first line, then the body paragraphs. End with: 'This is a DRAFT — review before sending.' Nothing has been sent.",
     requiresApproval: true,
     mutationType: "message-draft",
   },
   {
-    slug: "/explain-verification",
-    label: "/explain-verification",
-    description: "Explain supplier verification status",
-    category: "Supplier",
-    capability: "supplier",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain what supplier verification covers and why each badge matters. Give a numbered list covering: 1. Identity verification, 2. Business registration check, 3. Public liability insurance, 4. Trade licences and qualifications, 5. References and work history. For each item say what it protects the operator against and what the minimum requirement should be before assigning a job. Under 220 words.",
-    requiresApproval: false,
-  },
-
-  // --- Payments ---
-  {
     slug: "/explain-payout",
     label: "/explain-payout",
-    description: "Explain a payout / hold",
+    description: "Explain a payout or hold",
     category: "Payments",
     capability: "payments",
+    pack: "money",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain how payouts and payment holds work. Write two short paragraphs: the first covering why funds may be held (pending completion, open dispute, verification required) and the typical release sequence; the second covering what the user can do to unblock a held payout through Propvora controls. Make clear that you cannot move money — all releases are actioned by the user. Reference the pending-payout count if shown. Under 220 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Explain how payouts and payment holds work for this workspace: common reasons funds may be held (pending job completion, open dispute, identity verification), the typical release sequence, and what the user can do to unblock a held payout. Reference the pending-payout count from WORKSPACE CONTEXT if shown. Output format: numbered list of hold reasons then steps to unblock. End with: 'Any payout release must be actioned by you through Propvora's controls — I cannot move money.' Under 220 words.",
     requiresApproval: false,
   },
   {
@@ -242,46 +262,35 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Explain a 30-day cashflow view",
     category: "Money",
     capability: "payments",
+    pack: "money",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain how to read a 30-day cashflow for this workspace. Write one short paragraph summarising the concept, then give two numbered lists: the first listing typical money-in sources (rent, orders, bookings) and the second listing typical money-out items (mortgage payments, fees, maintenance reserve, payouts). Include illustrative example figures labelled clearly as examples only, not financial advice. Under 240 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Explain how to read and build a 30-day cashflow forecast for this workspace: income streams (rent, orders, bookings), outgoings (mortgage, agent fees, maintenance reserve, payouts due), void risk, and the net position. Output format: labelled fields — Income sources: / Outgoings to account for: / Void risk: / What to watch: — each with a short paragraph. Include a note that any figures used as examples are illustrative and not financial advice. Under 240 words.",
     requiresApproval: false,
   },
 
-  // --- Money / arrears (operator) ---
-  {
-    slug: "/chase-arrears",
-    label: "/chase-arrears",
-    description: "Draft an arrears chase message",
-    category: "Communication",
-    capability: "portfolio",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a firm but fair rent arrears chase message for a UK tenant. Use placeholders like {tenant name}, {amount owed} and {due date}. Write the message in plain business letter style with: Opening (state the arrears clearly), Middle (request payment or a payment plan), Close (deadline for response and next steps). After the message draft, add a one-sentence note on when escalation via Section 8 becomes relevant, framed as general information only. Mark clearly at the top as: DRAFT — review before sending.",
-    requiresApproval: true,
-    mutationType: "message-draft",
-  },
-
-  // --- Tasks & Work ---
-  {
-    slug: "/create-task",
-    label: "/create-task",
-    description: "Draft a task from context",
-    category: "Tasks & Work",
-    capability: "always",
-    prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Turn the user's request into a well-formed task. Present it as labelled fields on separate lines: Title: (one clear action-oriented line), Description: (2 to 3 sentences explaining what needs doing and why), Priority: (High / Medium / Low with a one-line reason), Suggested due date: (a timeframe like 'within 3 days' or 'by end of week'). Mark clearly at the top as: DRAFT TASK — confirm and save in Propvora. This creates nothing automatically.",
-    requiresApproval: true,
-    mutationType: "task-draft",
-  },
+  // --- Tasks and Work ---
   {
     slug: "/create-work-order",
     label: "/create-work-order",
     description: "Draft a maintenance work order",
     category: "Tasks & Work",
     capability: "portfolio",
+    pack: "work",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a maintenance work order as labelled fields on separate lines: Title: (one line describing the issue), Issue description: (2 to 3 sentences), Property and unit: ({property address} — {unit reference}), Urgency: (Emergency / Urgent / Routine with reason), Trade required: (e.g. Plumber, Electrician, General builder). Mark clearly at the top as: DRAFT WORK ORDER — confirm and create in Propvora. This creates nothing automatically.",
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a maintenance work order based on the user's description. Output format: five labelled fields — Title: (one line), Issue description: (2-3 sentences), Property/unit: (placeholder {PROPERTY_ADDRESS} if not specified), Urgency: (Routine / Urgent / Emergency with one-line reason), Trade required: (e.g. plumber, electrician, general handyman). End with: 'Confirm and save this draft in the Work section.' Do NOT claim it was created.",
     requiresApproval: true,
     mutationType: "job-draft",
+  },
+  {
+    slug: "/job-pipeline",
+    label: "/job-pipeline",
+    description: "Jobs by status — open, in-progress, complete",
+    category: "Tasks & Work",
+    capability: "portfolio",
+    pack: "work",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise the current maintenance job pipeline for this workspace using the live counts from WORKSPACE CONTEXT (open jobs). Explain what each pipeline stage means (open, assigned, scheduled, in-progress, complete) and what action the operator should take at each stage. Output format: numbered list of stages — stage name, what it means, operator action required. End with the open-job count from context and a note on what to prioritise. Under 220 words. Do not invent counts not in the context.",
+    requiresApproval: false,
   },
 
   // --- Planning ---
@@ -291,8 +300,9 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Review a planning set",
     category: "Planning",
     capability: "planning",
+    pack: "planning",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Help review a property planning set for an acquisition or development. Write one short paragraph on the key risks to check, then give a numbered checklist of what a complete planning set should contain: 1. Planning permission status and conditions, 2. Building regulations approval, 3. Title deeds and boundary confirmation, 4. Survey reports (structural, environmental), 5. Utility connections and capacity, 6. Access rights and easements. End with a one-sentence note that legal and financial points should be confirmed with qualified professionals. Under 240 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Help review a property planning set (acquisition or development). Cover: key risks to assess, typical planning-permission timeline in England, what a complete planning pack should contain, and common oversights. Output format: numbered list of review items — each with a one-line what-to-check and one-line risk. End with a note that planning matters must be confirmed with a planning consultant or solicitor. Under 240 words.",
     requiresApproval: false,
   },
   {
@@ -301,10 +311,130 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Draft a landlord acquisition offer",
     category: "Planning",
     capability: "planning",
+    pack: "planning",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional landlord acquisition offer letter in plain business letter style. Include these sections as labelled paragraphs: Property (address placeholder), Offered price ({offered price} — subject to survey and valuation), Completion timeline ({proposed completion date}), Conditions (subject to satisfactory survey and vacant possession), Contact details ({your name and contact}). Mark clearly at the top as: DRAFT OFFER LETTER — review with your solicitor before sending. This creates nothing automatically.",
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional landlord acquisition offer letter. Include: property address placeholder {PROPERTY_ADDRESS}, offered price placeholder {OFFERED_PRICE}, proposed completion timeline placeholder {COMPLETION_DATE}, conditions (subject to survey, subject to vacant possession, subject to satisfactory searches). Keep it professional and concise. Output format: letter body with labelled sections — Offer, Price, Conditions, Next steps. End with: 'This is a DRAFT — review with your solicitor before sending.' Nothing has been submitted.",
     requiresApproval: true,
     mutationType: "document-draft",
+  },
+
+  // --- Bookings ---
+  {
+    slug: "/draft-listing",
+    label: "/draft-listing",
+    description: "Draft a booking/accommodation listing",
+    category: "Bookings",
+    capability: "bookings",
+    pack: "bookings",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a compelling short-let or accommodation listing. Output format: four labelled sections — Title: (one punchy line under 10 words), Description: (120-150 words, guest-focused), Highlights: (5 bullet points as dashed list), House rules: (5 rules as dashed list). Use placeholders {PROPERTY_NAME}, {LOCATION}, {BEDROOMS}, {SLEEPS} where specifics are not provided. End with: 'This is a DRAFT — edit and publish it yourself in the Bookings section.' Nothing has been created.",
+    requiresApproval: true,
+    mutationType: "listing-draft",
+  },
+  {
+    slug: "/summarise-booking",
+    label: "/summarise-booking",
+    description: "Summarise a reservation and next steps",
+    category: "Bookings",
+    capability: "bookings",
+    pack: "bookings",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Provide a reusable reservation summary template an operator can fill in for any booking. Output format: labelled fields — Guest: {GUEST_NAME} / Dates: {CHECK_IN} to {CHECK_OUT} / Payment status: {PAYMENT_STATUS} / Deposit held: {DEPOSIT_AMOUNT} / Access/check-in plan: {ACCESS_METHOD} / Outstanding actions: {ACTION_LIST}. After the template, add a numbered list of 5 standard pre-arrival actions the operator should complete. Under 220 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/suggest-pricing",
+    label: "/suggest-pricing",
+    description: "Suggest a pricing approach for a listing",
+    category: "Bookings",
+    capability: "bookings",
+    pack: "bookings",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Suggest a structured pricing approach for a short-let listing. Output format: labelled sections — Base rate logic: / Weekday vs weekend: / Seasonal and peak adjustments: / Length-of-stay discounts: / Cleaning fee: / Minimum stay: — each section with one paragraph of guidance. Include placeholder example figures clearly marked as illustrative only, not financial advice. Under 240 words.",
+    requiresApproval: false,
+  },
+
+  // --- Marketplace ---
+  {
+    slug: "/draft-marketplace-listing",
+    label: "/draft-marketplace-listing",
+    description: "Draft a marketplace service or product listing",
+    category: "Marketplace",
+    capability: "marketplace",
+    pack: "marketplace",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a marketplace listing for a property service or product. Output format: four labelled sections — Title: (one clear line under 10 words), Description: (100-140 words, buyer-focused), Scope and inclusions: (5 items as dashed list), Pricing: (one line with placeholder {PRICE} clearly marked as illustrative). End with: 'This is a DRAFT — review and publish it yourself in the Marketplace section.' Nothing has been published.",
+    requiresApproval: true,
+    mutationType: "listing-draft",
+  },
+  {
+    slug: "/explain-dispute",
+    label: "/explain-dispute",
+    description: "Explain a dispute and the resolution path",
+    category: "Marketplace",
+    capability: "marketplace",
+    pack: "marketplace",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain how a marketplace or order dispute typically progresses and what the operator should do at each stage. Cover: opening a dispute, evidence gathering, the standard review stages, payment-hold implications, and communicating with both parties. Reference the open-dispute count from WORKSPACE CONTEXT if shown. Output format: numbered list of stages — stage name, what happens, what the operator should do. End with: 'This is process guidance, not a legal ruling — consult a solicitor for formal disputes.' Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/review-orders",
+    label: "/review-orders",
+    description: "Review open marketplace orders",
+    category: "Marketplace",
+    capability: "marketplace",
+    pack: "marketplace",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain how to triage open marketplace orders, covering each order state and what action it requires. States to cover: awaiting payment, accepted but not started, in progress, ready to release funds, disputed. Reference the open-order count from WORKSPACE CONTEXT if shown. Output format: numbered list — state name, what it means, operator action required (one line each). End with a note on how to spot at-risk orders (no activity in 72+ hours, no supplier response). Under 220 words.",
+    requiresApproval: false,
+  },
+
+  // --- Supplier pack ---
+  {
+    slug: "/compare-quotes",
+    label: "/compare-quotes",
+    description: "Compare supplier quotes objectively",
+    category: "Supplier",
+    capability: "supplier",
+    pack: "supplier",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain how to compare competing supplier quotes for a job objectively. Cover: normalising scope (like-for-like), price versus inclusions, checking insurance and verification status, lead time, warranty terms, and review scores. Provide a simple scoring framework. Output format: numbered list of comparison criteria — criterion name, what to check, why it matters (one line each). Then a scoring table template with placeholder columns. Reference the open-quote count from WORKSPACE CONTEXT if shown. Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/draft-supplier-message",
+    label: "/draft-supplier-message",
+    description: "Draft a message to a supplier",
+    category: "Communication",
+    capability: "supplier",
+    pack: "supplier",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional message to a supplier or contractor about a job. Output format: labelled sections — Subject: (one line), Message body: (covering the request, property/access details using placeholder {PROPERTY_ADDRESS}, timeline, and confirmation request), Sign-off: (using placeholder {YOUR_NAME}). Keep it courteous and under 150 words. End with: 'This is a DRAFT — review and send it yourself from the Messages section.' Nothing has been sent.",
+    requiresApproval: true,
+    mutationType: "message-draft",
+  },
+  {
+    slug: "/explain-verification",
+    label: "/explain-verification",
+    description: "Explain supplier verification status",
+    category: "Supplier",
+    capability: "supplier",
+    pack: "supplier",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain what supplier verification covers on Propvora and why each badge matters. Cover: identity verification, business registration, public liability insurance, trade-specific licences (Gas Safe, NICEIC, etc.), and reference checks. Output format: numbered list — badge name, what it verifies, why it matters before assigning work (one line each). End with a note on what minimum badges an operator should require for high-risk jobs (gas, electrical). Under 220 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/supplier-quotes",
+    label: "/supplier-quotes",
+    description: "Summary of outstanding supplier quotes",
+    category: "Supplier",
+    capability: "supplier",
+    pack: "supplier",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise the outstanding quote situation for this workspace using the live open-quote count from WORKSPACE CONTEXT. Explain what each quote status means (draft, sent/pending, submitted, accepted, rejected) and what the operator should do if a quote has been open for more than 5 days without a response. Output format: numbered list — status name, what it means, action required. End with the open-quote count from context. Under 200 words.",
+    requiresApproval: false,
   },
 
   // --- Automations ---
@@ -314,8 +444,9 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     description: "Suggest a useful automation recipe",
     category: "Automations",
     capability: "automations",
+    pack: "ai-core",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Suggest 3 high-value automation recipes for this workspace type. Present each as a numbered item with this structure: the trigger, the condition (if any), the action, and the time saved per week. Format each as: '1. Recipe name — Trigger: X. Condition: Y. Action: Z. Time saved: approximately N minutes per week.' Make clear at the end that these are suggestions the user builds and enables themselves in the Automations canvas. Under 220 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Suggest 3 high-value automation recipes for this workspace type and its active modules. For each recipe show the trigger, condition, and action. Explain the time saved per week (estimate clearly labelled as illustrative). Output format: numbered list — Recipe name, Trigger: / Condition: / Action: / Time saved: — each on its own line. End with: 'Build and enable these in the Automations section — they are suggestions only.' Under 220 words.",
     requiresApproval: false,
   },
 ]
@@ -323,19 +454,24 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
 // ---------------------------------------------------------------------------
 // Lookups
 // ---------------------------------------------------------------------------
-const BY_SLUG = new Map(COPILOT_COMMANDS.map((c) => [c.slug, c]))
+const BY_SLUG = new Map(COPILOT_COMMANDS.map((c) => [c.slug.toLowerCase(), c]))
 
 export function getCommand(slug: string): CopilotCommand | undefined {
-  return BY_SLUG.get(slug.startsWith("/") ? slug : `/${slug}`)
+  const key = (slug.startsWith("/") ? slug : `/${slug}`).toLowerCase()
+  return BY_SLUG.get(key)
 }
 
-/** Does a message begin with a known slash command? Returns it + the remaining args text. */
+/**
+ * Does a message begin with a known slash command?
+ * Returns the command + any trailing args text.
+ * Handles: /slug, /slug args, /slug-with-dashes, case-insensitive.
+ */
 export function parseSlashCommand(
   message: string
 ): { command: CopilotCommand; args: string } | null {
   const trimmed = message.trimStart()
   if (!trimmed.startsWith("/")) return null
-  const firstTok = trimmed.split(/\s+/, 1)[0]
+  const firstTok = trimmed.split(/\s+/, 1)[0].toLowerCase()
   const cmd = BY_SLUG.get(firstTok)
   if (!cmd) return null
   const args = trimmed.slice(firstTok.length).trim()
@@ -355,3 +491,97 @@ export function commandsForType(
 ): CopilotCommand[] {
   return commandsForCapabilities(capsFor(type))
 }
+
+// ---------------------------------------------------------------------------
+// Pack-based filtering for the slash-command palette.
+// Returns the packs that are enabled for a given workspace type.
+// NEXT_PUBLIC_QA_ALL_FLAGS=true bypasses all pack filtering.
+// ---------------------------------------------------------------------------
+
+export function getEnabledPacks(
+  workspaceType: WorkspaceType,
+  caps: WorkspaceCapabilities
+): CommandPack[] {
+  // QA all-flags mode: show every pack regardless of workspace type.
+  if (
+    typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_QA_ALL_FLAGS === "true"
+  ) {
+    return [
+      "ai-core",
+      "portfolio",
+      "compliance",
+      "money",
+      "work",
+      "planning",
+      "supplier",
+      "bookings",
+      "marketplace",
+    ]
+  }
+
+  const packs: CommandPack[] = ["ai-core"]
+
+  if (workspaceType === "operator") {
+    packs.push("portfolio", "compliance", "money", "work", "planning")
+    if (caps.bookings) packs.push("bookings")
+    if (caps.marketplace) packs.push("marketplace")
+  }
+
+  if (workspaceType === "supplier") {
+    packs.push("supplier", "work")
+    if (caps.compliance) packs.push("compliance")
+    if (caps.marketplace) packs.push("marketplace")
+  }
+
+  if (workspaceType === "customer") {
+    if (caps.bookings) packs.push("bookings")
+    if (caps.marketplace) packs.push("marketplace")
+  }
+
+  return packs
+}
+
+/**
+ * Return all commands visible for a workspace type + capability set,
+ * filtered by enabled packs.
+ */
+export function commandsForPacks(
+  workspaceType: WorkspaceType,
+  caps: WorkspaceCapabilities
+): CopilotCommand[] {
+  const enabledPacks = getEnabledPacks(workspaceType, caps)
+  return COPILOT_COMMANDS.filter(
+    (c) =>
+      enabledPacks.includes(c.pack) &&
+      (c.capability === "always" || caps[c.capability as keyof WorkspaceCapabilities])
+  )
+}
+
+/** Human-readable pack label for palette group headers. */
+export function packLabel(pack: CommandPack): string {
+  switch (pack) {
+    case "ai-core":     return "AI Core"
+    case "portfolio":   return "Portfolio"
+    case "compliance":  return "Compliance"
+    case "money":       return "Money"
+    case "work":        return "Work & Maintenance"
+    case "planning":    return "Planning"
+    case "supplier":    return "Supplier"
+    case "bookings":    return "Bookings"
+    case "marketplace": return "Marketplace"
+  }
+}
+
+/** Stable pack display order for the palette. */
+export const PACK_ORDER: CommandPack[] = [
+  "ai-core",
+  "portfolio",
+  "compliance",
+  "money",
+  "work",
+  "planning",
+  "supplier",
+  "bookings",
+  "marketplace",
+]

@@ -7,7 +7,11 @@ import {
   COPILOT_COMMANDS,
   capabilitiesFor as fallbackCaps,
   commandsForCapabilities,
+  commandsForPacks,
+  packLabel,
+  PACK_ORDER,
 } from "@/lib/ai/commands-client"
+import type { CommandPack } from "@/lib/ai/commands-client"
 
 interface SlashCommand {
   slug: string
@@ -15,17 +19,24 @@ interface SlashCommand {
   description: string
   shortcut: string
   category: string
+  pack: string
 }
 
 // Default catalogue (operator type) derived from the SHARED registry so the
-// palette can never drift from what actually has a handler. When a workspace is
-// available we refine this to the workspace-TYPE-filtered list from the API.
-function toUi(slug: string, label: string, description: string, category: string, shortcut?: string | null): SlashCommand {
-  return { slug, label, description, category, shortcut: shortcut ?? "" }
+// palette can never drift from what actually has a handler.
+function toUi(
+  slug: string,
+  label: string,
+  description: string,
+  category: string,
+  pack: string,
+  shortcut?: string | null,
+): SlashCommand {
+  return { slug, label, description, category, pack, shortcut: shortcut ?? "" }
 }
 
-const DEFAULT_COMMANDS: SlashCommand[] = commandsForCapabilities(fallbackCaps("operator")).map((c) =>
-  toUi(c.slug, c.label, c.description, c.category, c.shortcut)
+const DEFAULT_COMMANDS: SlashCommand[] = commandsForCapabilities(fallbackCaps("operator")).map(
+  (c) => toUi(c.slug, c.label, c.description, c.category, c.pack, c.shortcut),
 )
 
 interface SlashCommandPaletteProps {
@@ -53,42 +64,65 @@ export default function SlashCommandPalette({
     let cancelled = false
     fetch(`/api/ai/commands?workspaceId=${encodeURIComponent(workspace.id)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled || !data?.commands?.length) return
-        setCommands(
-          data.commands.map((c: { slug: string; label: string; description: string; category: string; shortcut: string | null }) =>
-            toUi(c.slug, c.label, c.description, c.category, c.shortcut)
+      .then(
+        (data: {
+          commands?: {
+            slug: string
+            label: string
+            description: string
+            category: string
+            pack: string
+            shortcut: string | null
+          }[]
+        } | null) => {
+          if (cancelled || !data?.commands?.length) return
+          setCommands(
+            data.commands.map((c) => toUi(c.slug, c.label, c.description, c.category, c.pack, c.shortcut)),
           )
-        )
-      })
+        },
+      )
       .catch(() => {})
     return () => {
       cancelled = true
     }
   }, [workspace?.id])
 
-  // Categories + suggestions derived from the live command set (never drift).
+  // Categories + suggestions derived from the live command set.
   const CATEGORIES = useMemo(() => {
     const counts = commands.reduce<Record<string, number>>((acc, c) => {
       acc[c.category] = (acc[c.category] ?? 0) + 1
       return acc
     }, {})
     const order = Object.keys(counts)
-    return [{ label: "All actions", count: commands.length }, ...order.map((l) => ({ label: l, count: counts[l] }))]
+    return [
+      { label: "All actions", count: commands.length },
+      ...order.map((l) => ({ label: l, count: counts[l] })),
+    ]
   }, [commands])
 
-  const SUGGESTED_COMMANDS = useMemo(
-    () => commands.slice(0, 3).map((c) => c.slug),
-    [commands]
-  )
+  const SUGGESTED_COMMANDS = useMemo(() => commands.slice(0, 3).map((c) => c.slug), [commands])
 
   const filtered = commands.filter((c) => {
-    const matchesCategory =
-      activeCategory === "All actions" || c.category === activeCategory
+    const matchesCategory = activeCategory === "All actions" || c.category === activeCategory
     const q = query.replace(/^\//, "").toLowerCase()
     const matchesQuery = !q || c.slug.includes(q) || c.description.toLowerCase().includes(q)
     return matchesCategory && matchesQuery
   })
+
+  // Group filtered commands by pack in canonical PACK_ORDER.
+  const groupedByPack = useMemo(() => {
+    const groups: { pack: CommandPack; label: string; cmds: SlashCommand[] }[] = []
+    for (const pack of PACK_ORDER) {
+      const cmds = filtered.filter((c) => c.pack === pack)
+      if (cmds.length > 0) {
+        groups.push({ pack, label: packLabel(pack), cmds })
+      }
+    }
+    return groups
+  }, [filtered])
+
+  // Flat ordered list for keyboard navigation.
+  const flatFiltered = useMemo(() => groupedByPack.flatMap((g) => g.cmds), [groupedByPack])
 
   useEffect(() => {
     setSelectedIndex(0)
@@ -101,28 +135,30 @@ export default function SlashCommandPalette({
         onClose()
       } else if (e.key === "ArrowDown") {
         e.preventDefault()
-        setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1))
+        setSelectedIndex((i) => Math.min(i + 1, flatFiltered.length - 1))
       } else if (e.key === "ArrowUp") {
         e.preventDefault()
         setSelectedIndex((i) => Math.max(i - 1, 0))
       } else if (e.key === "Enter") {
         e.preventDefault()
-        const cmd = filtered[selectedIndex]
+        const cmd = flatFiltered[selectedIndex]
         if (cmd) onSelect(cmd.slug)
       }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [filtered, selectedIndex, onClose, onSelect])
+  }, [flatFiltered, selectedIndex, onClose, onSelect])
+
+  // Track cumulative index across groups for keyboard highlight.
+  let cumulativeIndex = 0
 
   return (
     <div
       className="absolute bottom-full left-0 right-0 mb-2 z-50 rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden"
-      style={{ maxHeight: 380 }}
+      style={{ maxHeight: 400 }}
     >
       <div className="flex h-full" style={{ minHeight: 320 }}>
-        {/* Left: Categories + Context — hidden on phones so the command list
-            gets full width inside the full-screen Copilot sheet. */}
+        {/* Left: Categories — hidden on phones so the command list gets full width. */}
         <div className="hidden sm:flex w-[160px] shrink-0 border-r border-slate-100 bg-slate-50 p-3 flex-col gap-1">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">
             Categories
@@ -138,7 +174,11 @@ export default function SlashCommandPalette({
               }`}
             >
               <span className="truncate">{cat.label}</span>
-              <span className={`text-[10px] ml-1 shrink-0 ${activeCategory === cat.label ? "text-blue-100" : "text-slate-400"}`}>
+              <span
+                className={`text-[10px] ml-1 shrink-0 ${
+                  activeCategory === cat.label ? "text-blue-100" : "text-slate-400"
+                }`}
+              >
                 {cat.count}
               </span>
             </button>
@@ -158,35 +198,62 @@ export default function SlashCommandPalette({
           </div>
         </div>
 
-        {/* Center: Commands */}
+        {/* Center: Commands grouped by pack */}
         <div ref={listRef} className="flex-1 overflow-y-auto p-2">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">
-            {activeCategory} ({filtered.length})
+            {activeCategory} ({flatFiltered.length})
           </p>
-          {filtered.map((cmd, i) => (
-            <button
-              key={cmd.slug}
-              onClick={() => onSelect(cmd.slug)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all ${
-                i === selectedIndex
-                  ? "bg-blue-50 border border-blue-100"
-                  : "hover:bg-slate-50"
-              }`}
-            >
-              <div>
-                <p className="text-[11.5px] font-semibold text-blue-700">{cmd.label}</p>
-                <p className="text-[10px] text-slate-500">{cmd.description}</p>
+
+          {groupedByPack.length === 0 && (
+            <p className="text-[11px] text-slate-400 px-3 py-4 text-center">
+              No commands match your search.
+            </p>
+          )}
+
+          {groupedByPack.map((group) => {
+            const groupStartIndex = cumulativeIndex
+            cumulativeIndex += group.cmds.length
+
+            return (
+              <div key={group.pack} className="mb-2">
+                {/* Pack group header */}
+                <div className="flex items-center gap-2 px-3 py-1 mb-0.5">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                    {group.label}
+                  </span>
+                  <div className="flex-1 h-px bg-slate-100" />
+                </div>
+
+                {group.cmds.map((cmd, i) => {
+                  const globalIndex = groupStartIndex + i
+                  return (
+                    <button
+                      key={cmd.slug}
+                      onClick={() => onSelect(cmd.slug)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all ${
+                        globalIndex === selectedIndex
+                          ? "bg-blue-50 border border-blue-100"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <div>
+                        <p className="text-[11.5px] font-semibold text-blue-700">{cmd.label}</p>
+                        <p className="text-[10px] text-slate-500">{cmd.description}</p>
+                      </div>
+                      {cmd.shortcut ? (
+                        <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-mono ml-2 shrink-0">
+                          {cmd.shortcut}
+                        </span>
+                      ) : null}
+                    </button>
+                  )
+                })}
               </div>
-              {cmd.shortcut ? (
-                <span className="text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-mono ml-2 shrink-0">
-                  {cmd.shortcut}
-                </span>
-              ) : null}
-            </button>
-          ))}
+            )
+          })}
         </div>
 
-        {/* Right: Recents + Tip — hidden on phones (full-screen sheet space). */}
+        {/* Right: Suggested + Tip — hidden on phones. */}
         <div className="hidden sm:block w-[160px] shrink-0 border-l border-slate-100 bg-slate-50 p-3">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
             Suggested
@@ -207,7 +274,7 @@ export default function SlashCommandPalette({
           <div className="mt-3 rounded-xl bg-violet-50 border border-violet-100 p-2">
             <p className="text-[9px] font-bold text-violet-600 uppercase tracking-wide">Tip</p>
             <p className="text-[10px] text-violet-700 mt-0.5 leading-snug">
-              Actions run in the context of the current page.
+              Commands run in the context of the current page.
             </p>
           </div>
         </div>

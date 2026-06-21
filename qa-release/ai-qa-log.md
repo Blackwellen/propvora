@@ -1,6 +1,6 @@
 # AI QA Log
 
-Last updated: 2026-06-21 (FIX-275 — AI copilot full code-audit pass; PM/Supplier/Customer workspaces scored)
+Last updated: 2026-06-21 (FIX-284 — Command registry audit: 35 commands, 9 packs, prompt quality, palette grouping)
 
 ## NVIDIA NIM Configuration
 - Environment variable: `NVIDIA_API_KEY` (nvapi-… confirmed present in .env.local)
@@ -77,6 +77,53 @@ if (text.trim() === "/clear") {
   return
 }
 ```
+
+---
+
+## FIX-284 Command Registry Audit — 2026-06-21
+
+### Scope
+Full audit of all copilot slash commands. Added `pack` system, fixed prompts, added 8 new commands, updated palette to group by pack.
+
+### Changes made
+- `src/lib/ai/commands.ts`: Added `CommandPack` type (9 packs). Added `pack` field to `CopilotCommand` interface. Expanded registry from 21 to 35 commands. All prompts start with "Respond in plain text only. No asterisks, no markdown headers." and specify output format explicitly. Added `getEnabledPacks()`, `commandsForPacks()`, `packLabel()`, `PACK_ORDER`. `parseSlashCommand()` now case-insensitive. `BY_SLUG` map uses lowercase keys.
+- `src/lib/ai/commands-client.ts`: Re-exports `commandsForPacks`, `getEnabledPacks`, `packLabel`, `PACK_ORDER`, `CommandPack`.
+- `src/app/api/ai/commands/route.ts`: Now uses `commandsForPacks()`, returns `pack` field in response.
+- `src/features/copilot/components/SlashCommandPalette.tsx`: Commands now grouped by pack with labelled dividers. Keyboard navigation updated for grouped list. Imports `CommandPack`, `commandsForPacks`, `packLabel`, `PACK_ORDER`.
+
+### New commands added (8)
+| Slug | Pack | Description |
+|------|------|-------------|
+| /void-properties | portfolio | Vacant units with days void summary |
+| /tenancy-renewals | portfolio | Tenancies ending in next 90 days |
+| /draft-move-in-letter | portfolio | Move-in welcome letter draft (requiresApproval) |
+| /deposit-status | compliance | Deposit protection obligations and risks |
+| /compliance-calendar | compliance | Next 10 compliance items due |
+| /job-pipeline | work | Jobs by status with action guidance |
+| /supplier-quotes | supplier | Outstanding quotes summary |
+| /escalation-summary | ai-core | Open escalations and high-priority items |
+
+### Command pack distribution (35 total)
+| Pack | Commands | Workspace types |
+|------|----------|-----------------|
+| ai-core | 4 | All |
+| portfolio | 6 | Operator |
+| compliance | 4 | Operator, Supplier |
+| money | 3 | Operator |
+| work | 2 | Operator, Supplier |
+| planning | 2 | Operator |
+| supplier | 4 | Supplier |
+| bookings | 3 | Operator (when caps.bookings) |
+| marketplace | 3 | Operator, Supplier, Customer (when caps.marketplace) |
+
+### parseSlashCommand verification
+- `/slug` (no args): handled — args returns empty string
+- `/slug some context` (with args): handled — args returns the trailing text
+- `/slug-with-dashes`: handled — split on whitespace extracts full slug
+- Case-insensitive: fixed — BY_SLUG now uses `.toLowerCase()` keys; lookup also lowercases input
+
+### TypeScript
+`npx tsc --noEmit` exit code 0 — no errors.
 
 ---
 

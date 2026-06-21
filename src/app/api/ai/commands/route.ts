@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getWorkspaceProfile, capabilitiesFor } from "@/lib/ai/workspace-context"
-import { commandsForCapabilities } from "@/lib/ai/commands"
+import { commandsForPacks } from "@/lib/ai/commands"
 
 // The copilot command catalogue, filtered to the active workspace TYPE so the
 // palette only ever shows commands that have a real handler AND apply to this
@@ -31,11 +31,13 @@ export async function GET(request: NextRequest) {
 
     const profile = await getWorkspaceProfile(supabase, workspaceId)
     const caps = capabilitiesFor(profile.type)
-    const commands = commandsForCapabilities(caps).map((c) => ({
+    // commandsForPacks respects NEXT_PUBLIC_QA_ALL_FLAGS for QA mode.
+    const commands = commandsForPacks(profile.type, caps).map((c) => ({
       slug: c.slug,
       label: c.label,
       description: c.description,
       category: c.category,
+      pack: c.pack,
       requiresApproval: c.requiresApproval,
       shortcut: c.shortcut ?? null,
     }))

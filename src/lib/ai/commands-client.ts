@@ -13,10 +13,14 @@ import type { WorkspaceCapabilities, WorkspaceType } from "./workspace-context"
 export {
   COPILOT_COMMANDS,
   commandsForCapabilities,
+  commandsForPacks,
   getCommand,
+  getEnabledPacks,
+  packLabel,
+  PACK_ORDER,
   parseSlashCommand,
 } from "./commands"
-export type { CopilotCommand, CommandCategory } from "./commands"
+export type { CopilotCommand, CommandCategory, CommandPack } from "./commands"
 
 export function capabilitiesFor(type: WorkspaceType): WorkspaceCapabilities {
   switch (type) {
