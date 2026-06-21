@@ -1,13 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { CheckCircle2, ChevronDown, Clock, Mail, ShieldCheck, ThumbsDown, XCircle } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
+import { CheckCircle2, ChevronDown, Clock, Loader2, Mail, ShieldCheck, ThumbsDown, XCircle } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsRiskBadge } from "../components/AutomationsBadges"
 import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives"
 import { useAutomationApprovals } from "../data/hooks"
+import { useWorkspace } from "@/providers/AuthProvider"
 import type { ApprovalRow } from "../data/types"
 
 const TABS = [
@@ -20,12 +21,35 @@ const TABS = [
 
 export default function ApprovalsPage() {
   const toast = useToast()
-  const { data: approvals, loading } = useAutomationApprovals()
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id ?? ""
+  const { data: approvals, loading, reload } = useAutomationApprovals()
   const [tab, setTab] = useState("all")
   const [page, setPage] = useState(1)
   const [active, setActive] = useState<ApprovalRow>(approvals[0])
   const [selected, setSelected] = useState<string[]>([])
   const [rejectOpen, setRejectOpen] = useState(false)
+  const [rejectNote, setRejectNote] = useState("")
+  const [deciding, setDeciding] = useState(false)
+
+  const decide = useCallback(async (approvalId: string, decision: "approved" | "rejected", note?: string) => {
+    setDeciding(true)
+    try {
+      const res = await fetch("/api/automations/approvals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId, approvalId, decision, note }),
+      })
+      const json = await res.json() as { ok?: boolean; error?: string }
+      if (!json.ok) throw new Error(json.error ?? "Failed to record decision.")
+      toast(decision === "approved" ? "Approval recorded" : "Rejection recorded")
+      reload()
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Decision failed")
+    } finally {
+      setDeciding(false)
+    }
+  }, [workspaceId, toast, reload])
 
   const rows = useMemo(() => {
     if (tab === "high") return approvals.filter((a) => a.risk === "high" || a.risk === "critical")
@@ -146,9 +170,17 @@ export default function ApprovalsPage() {
               </div>
             </div>
             <div className="flex gap-2 border-t border-slate-100 px-4 py-3">
-              <Btn variant="outline" onClick={() => toast("Inspecting…")}>Inspect</Btn>
-              <Btn variant="danger" icon={ThumbsDown} onClick={() => setRejectOpen(true)}>Reject</Btn>
-              <Btn variant="emerald" className="flex-1 justify-center" onClick={() => toast(`Approved: ${active.proposedAction}`)}>Approve</Btn>
+              <Btn variant="outline" onClick={() => toast("Inspect — view raw rule details")}>Inspect</Btn>
+              <Btn variant="danger" icon={ThumbsDown} onClick={() => setRejectOpen(true)} disabled={deciding}>Reject</Btn>
+              <Btn
+                variant="emerald"
+                className="flex-1 justify-center"
+                disabled={deciding}
+                onClick={() => void decide(active.id, "approved")}
+              >
+                {deciding ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Approve
+              </Btn>
             </div>
           </Card>
         )}
@@ -156,12 +188,34 @@ export default function ApprovalsPage() {
 
       <Modal
         open={rejectOpen}
-        onClose={() => setRejectOpen(false)}
+        onClose={() => { setRejectOpen(false); setRejectNote("") }}
         title="Reject approval"
-        footer={<><Btn variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Btn><Btn variant="danger" onClick={() => { setRejectOpen(false); toast("Approval rejected") }}>Reject</Btn></>}
+        footer={
+          <>
+            <Btn variant="outline" onClick={() => { setRejectOpen(false); setRejectNote("") }}>Cancel</Btn>
+            <Btn
+              variant="danger"
+              disabled={deciding || !rejectNote.trim()}
+              onClick={async () => {
+                if (!active) return
+                await decide(active.id, "rejected", rejectNote)
+                setRejectOpen(false)
+                setRejectNote("")
+              }}
+            >
+              {deciding ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Reject
+            </Btn>
+          </>
+        }
       >
         <label className="mb-1 block text-xs font-medium text-slate-600">Reason (required)</label>
-        <textarea className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-blue-400 focus:outline-none" placeholder="Why is this being rejected?" />
+        <textarea
+          value={rejectNote}
+          onChange={(e) => setRejectNote(e.target.value)}
+          className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-blue-400 focus:outline-none"
+          placeholder="Why is this being rejected?"
+        />
       </Modal>
     </AutomationsModuleShell>
   )

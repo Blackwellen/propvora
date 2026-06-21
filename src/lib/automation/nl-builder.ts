@@ -54,6 +54,40 @@ function catalogueForPrompt() {
   }))
 }
 
+// Explicit catalogues for the system prompt — the AI is constrained to these exact slugs.
+// TRIGGER slugs (45) — from catalogue.ts + node-registry triggers:
+const TRIGGER_SLUGS = [
+  "compliance_due_soon", "compliance_overdue", "tenancy_ending", "rent_overdue",
+  "planning_offer_sent", "planning_offer_expiring", "job_completed", "licence_expiring",
+  "tenancy_started", "tenancy_expired", "lease_renewal_approaching", "move_out_approaching",
+  "void_period_started", "void_period_long", "rent_due_soon", "rent_payment_received",
+  "payment_failed", "arrears_threshold_reached", "maintenance_request_submitted",
+  "maintenance_request_overdue", "job_overdue", "quote_received", "quote_expiring",
+  "invoice_overdue", "inspection_due", "inspection_overdue", "contractor_not_reviewed",
+  "gas_cert_expiring", "eicr_expiring", "epc_expiring", "right_to_rent_due",
+  "insurance_expiring", "deposit_unprotected", "deposit_return_overdue",
+  "portal_message_unanswered", "complaint_received", "document_expiring",
+  "property_added", "unit_vacant", "hmo_room_vacant", "booking_checkin_tomorrow",
+  "booking_checkout_today", "booking_cancelled", "viewing_not_booked",
+  "offer_accepted", "referencing_overdue",
+  // node-registry triggers (canonical canvas types)
+  "compliance.expiring", "compliance.failed", "invoice.overdue", "money.payment_received",
+  "portfolio.tenancy_ending", "schedule.daily", "webhook.incoming",
+]
+
+// ACTION slugs (17) — from catalogue.ts:
+const ACTION_SLUGS = [
+  "create_task", "create_notification", "draft_message", "flag_record",
+  "create_calendar_reminder", "send_portal_message", "assign_task",
+  "create_inspection", "create_compliance_item", "escalate", "add_note",
+  "update_unit_status", "request_quote", "send_webhook", "generate_document",
+  "archive_record", "create_landlord_report",
+  // node-registry action types (canvas):
+  "action.create_task", "action.add_note", "action.create_calendar_reminder",
+  "comm.internal_notification", "comm.external_message_draft", "comm.email_draft",
+  "action.update_record", "action.assign_supplier", "action.request_supplier_evidence",
+]
+
 function systemPrompt(): string {
   return `You are Propvora's automation graph drafting assistant. You translate a property operator's plain-English request into a DRAFT automation node graph built ONLY from the node catalogue below.
 
@@ -65,8 +99,10 @@ RULES:
 - Connect nodes with edges so the trigger reaches the end. No orphan nodes.
 - For high-risk work (payment/legal), you MUST route through an approval node — never connect a trigger straight to a payment/legal node. These never auto-run; they require human approval.
 - Use config keys only from each node's "config" list.
+- VALID TRIGGER SLUGS (use only from this list): ${TRIGGER_SLUGS.join(", ")}
+- VALID ACTION SLUGS (use only from this list): ${ACTION_SLUGS.join(", ")}
 
-CATALOGUE:
+FULL NODE CATALOGUE (use "type" field only, never invent types):
 ${JSON.stringify(catalogueForPrompt())}
 
 Respond with ONLY a single JSON object (no markdown) of this exact shape:
