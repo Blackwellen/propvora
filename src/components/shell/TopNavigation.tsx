@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import { Building2, ChevronDown, Calendar as CalendarIcon, Check, Loader2, Plus, Store, User as UserIcon } from "lucide-react"
+import { Building2, ChevronDown, Calendar as CalendarIcon, Check, Loader2, Plus, Sparkles, Store, User as UserIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import GlobalSearch from "./GlobalSearch"
 import QuickCreateButton from "./QuickCreateButton"
@@ -50,6 +50,8 @@ interface TopNavigationProps {
   workspaceId?: string
   /** Base path for workspace-relative shortcuts (e.g. calendar). */
   base?: string
+  /** If provided, renders an "Ask AI" Copilot button in the right action group. */
+  onOpenCopilot?: () => void
 }
 
 export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
@@ -258,7 +260,7 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
   )
 }
 
-export default function TopNavigation({ workspaceName, workspaceId, base = "/property-manager" }: TopNavigationProps) {
+export default function TopNavigation({ workspaceName, workspaceId, base = "/property-manager", onOpenCopilot }: TopNavigationProps) {
   const router = useRouter()
   return (
     <header
@@ -299,6 +301,19 @@ export default function TopNavigation({ workspaceName, workspaceId, base = "/pro
         >
           <CalendarIcon className="w-5 h-5 text-[#071B4D]" />
         </button>
+
+        {/* Ask AI button — only rendered when a copilot handler is provided
+            (e.g. supplier workspace where ChatBubble is not mounted). */}
+        {onOpenCopilot && (
+          <button
+            onClick={onOpenCopilot}
+            aria-label="Open AI Copilot"
+            className="hidden sm:flex items-center gap-1.5 px-3 h-[44px] rounded-2xl bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Ask AI</span>
+          </button>
+        )}
 
         <AccountMenu />
       </div>
