@@ -47,6 +47,49 @@ export function useAutomationCanvasState(initial: CanvasState) {
 
   const onConnect = useCallback(
     (connection: Connection) => {
+      const { source, target } = connection
+      if (!source || !target) return
+
+      // Prevent self-connections
+      if (source === target) return
+
+      // Prevent circular connections (DFS from target back to source)
+      const adj: Record<string, string[]> = {}
+      present.edges.forEach((e) => {
+        if (!adj[e.source]) adj[e.source] = []
+        adj[e.source].push(e.target)
+      })
+      function wouldCreateCycle(): boolean {
+        const visited = new Set<string>()
+        const stack = [target!]
+        while (stack.length > 0) {
+          const cur = stack.pop()!
+          if (cur === source) return true
+          if (visited.has(cur)) continue
+          visited.add(cur)
+          const nexts = adj[cur] ?? []
+          stack.push(...nexts)
+        }
+        return false
+      }
+      if (wouldCreateCycle()) return
+
+      // Prevent more than one trigger node from being the source of an edge
+      // if the source is a trigger, ensure no other trigger already has outgoing edges
+      const sourceNode = present.nodes.find((n) => n.id === source)
+      if (sourceNode?.data.category === "trigger") {
+        const triggerIds = present.nodes
+          .filter((n) => n.data.category === "trigger")
+          .map((n) => n.id)
+        const otherTriggerHasEdge = present.edges.some(
+          (e) => triggerIds.includes(e.source) && e.source !== source
+        )
+        if (otherTriggerHasEdge) {
+          // A different trigger already has outgoing edges — only one trigger allowed
+          return
+        }
+      }
+
       const edge: Edge = {
         ...connection,
         id: `e-${connection.source}-${connection.target}-${Date.now()}`,

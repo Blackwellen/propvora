@@ -1,30 +1,340 @@
 "use client"
 
-import { useState } from "react"
-import { AlertCircle, Cable, CheckCircle2, KeyRound, LayoutGrid, List, Plus, Plug, Zap } from "lucide-react"
+// Integrations catalogue — connects Propvora to external apps.
+// Wired to /api/automations/integrations (GET + POST).
+// Shows real connections from the DB with seed-catalogue fallback.
+
+import { useCallback, useEffect, useState } from "react"
+import {
+  AlertCircle, Cable, CheckCircle2, ExternalLink, KeyRound,
+  LayoutGrid, List, Loader2, Plus, Plug, X,
+} from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
-import { Btn, Card, CardHeader, useToast } from "../components/primitives"
-import { BarList, Donut } from "../components/charts"
-import { useAutomationIntegrations } from "../data/hooks"
+import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives"
+import { useWorkspace } from "@/providers/AuthProvider"
 
-const SUBTABS = ["Overview", "Integrations", "Webhooks", "Connection health", "Secrets", "Usage analytics", "Audit log"]
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface IntegrationDef {
+  provider: string
+  name: string
+  description: string
+  category: string
+  connectUrl?: string
+}
+
+interface IntegrationConnection {
+  id: string
+  provider: string
+  name: string
+  status: "connected" | "disconnected" | "error" | "revoked"
+  last_used_at: string | null
+  created_at: string
+  hasSecret: boolean
+}
+
+// ── Static catalogue (shown even before any connections exist) ─────────────────
+
+const INTEGRATION_CATALOGUE: IntegrationDef[] = [
+  { provider: "zapier", name: "Zapier", category: "Automation", description: "Connect Propvora to 5,000+ apps with no-code workflows." },
+  { provider: "make", name: "Make (Integromat)", category: "Automation", description: "Build multi-step automations visually with Make." },
+  { provider: "slack", name: "Slack", category: "Communication", description: "Send Propvora alerts and notifications directly to Slack channels." },
+  { provider: "teams", name: "Microsoft Teams", category: "Communication", description: "Post automation updates to Teams channels." },
+  { provider: "google_sheets", name: "Google Sheets", category: "Data", description: "Sync portfolio data and run logs to Google Sheets." },
+  { provider: "quickbooks", name: "QuickBooks", category: "Accounting", description: "Push rent and supplier invoices to QuickBooks Online." },
+  { provider: "xero", name: "Xero", category: "Accounting", description: "Sync transactions and invoices with Xero." },
+  { provider: "stripe", name: "Stripe", category: "Payments", description: "Process rent collections and supplier payouts via Stripe Connect." },
+  { provider: "hmrc_mtd", name: "HMRC MTD", category: "Tax", description: "File VAT returns and SA income data via Making Tax Digital." },
+]
+
+// ── Connect Modal ─────────────────────────────────────────────────────────────
+
+function ConnectModal({
+  integration,
+  existingConnection,
+  workspaceId,
+  onClose,
+  onConnected,
+}: {
+  integration: IntegrationDef
+  existingConnection: IntegrationConnection | null
+  workspaceId: string
+  onClose: () => void
+  onConnected: (conn: IntegrationConnection) => void
+}) {
+  const toast = useToast()
+  const [apiKey, setApiKey] = useState("")
+  const [webhookUrl, setWebhookUrl] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const isConnected = existingConnection?.status === "connected"
+
+  async function handleSave() {
+    if (!apiKey && !webhookUrl) {
+      setError("Enter an API key or webhook URL to connect.")
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      const config: Record<string, string> = {}
+      if (apiKey) config.api_key = apiKey
+      if (webhookUrl) config.webhook_url = webhookUrl
+
+      const res = await fetch("/api/automations/integrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          provider: integration.provider,
+          name: integration.name,
+          status: "connected",
+          config,
+        }),
+      })
+      const json = await res.json() as { ok?: boolean; id?: string; error?: string }
+      if (!json.ok) throw new Error(json.error ?? "Failed to save integration.")
+      toast(`${integration.name} connected`)
+      onConnected({
+        id: json.id ?? `local_${Date.now()}`,
+        provider: integration.provider,
+        name: integration.name,
+        status: "connected",
+        last_used_at: null,
+        created_at: new Date().toISOString(),
+        hasSecret: Boolean(apiKey),
+      })
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={isConnected ? `Reconfigure ${integration.name}` : `Connect ${integration.name}`}
+      footer={
+        <>
+          <Btn variant="outline" onClick={onClose}>Cancel</Btn>
+          <Btn variant="primary" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {saving ? "Saving…" : isConnected ? "Update" : "Connect"}
+          </Btn>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-600">
+            {integration.name.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-slate-800">{integration.name}</div>
+            <div className="text-[11px] text-slate-500">{integration.category}</div>
+          </div>
+          {isConnected && (
+            <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+              <CheckCircle2 className="h-3 w-3" /> Connected
+            </span>
+          )}
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">
+            <AlertCircle className="h-4 w-4 shrink-0" />{error}
+          </div>
+        )}
+
+        <p className="text-xs text-slate-500">{integration.description}</p>
+
+        {/* API key input */}
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-600">API Key / Token</label>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder={isConnected ? "Enter new key to update…" : "Paste your API key here"}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+          />
+          {isConnected && (
+            <p className="mt-1 text-[11px] text-slate-400">
+              A key is already stored. Leave blank to keep the existing key.
+            </p>
+          )}
+        </div>
+
+        {/* Webhook URL (for Zapier/Make) */}
+        {["zapier", "make"].includes(integration.provider) && (
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-600">Webhook URL (from {integration.name})</label>
+            <input
+              type="url"
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+              placeholder="https://hooks.zapier.com/..."
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5 text-[11px] text-blue-700">
+          <KeyRound className="h-3.5 w-3.5 shrink-0" />
+          Credentials are stored encrypted and never returned in API responses.
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+// ── Integration card ──────────────────────────────────────────────────────────
+
+function IntegrationCard({
+  def,
+  connection,
+  view,
+  onConnect,
+}: {
+  def: IntegrationDef
+  connection: IntegrationConnection | null
+  view: "grid" | "list"
+  onConnect: () => void
+}) {
+  const isConnected = connection?.status === "connected"
+
+  if (view === "list") {
+    return (
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
+            {def.name.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-slate-800">{def.name}</div>
+            <div className="text-[11px] text-slate-500">{def.description}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 ml-4 shrink-0">
+          <span className={`text-[11px] font-semibold ${isConnected ? "text-emerald-600" : "text-slate-400"}`}>
+            {isConnected ? "Connected" : "Not connected"}
+          </span>
+          <button
+            onClick={onConnect}
+            className={[
+              "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition",
+              isConnected
+                ? "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                : "bg-blue-600 text-white hover:bg-blue-700",
+            ].join(" ")}
+          >
+            {isConnected ? "Configure" : "Connect"}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Card className="flex flex-col p-3.5">
+      <div className="flex items-start justify-between">
+        <div className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
+          {def.name.slice(0, 2).toUpperCase()}
+        </div>
+        <span className={[
+          "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+          isConnected
+            ? "bg-emerald-50 text-emerald-700"
+            : "bg-slate-100 text-slate-500",
+        ].join(" ")}>
+          {isConnected ? <CheckCircle2 className="h-3 w-3" /> : <Plug className="h-3 w-3" />}
+          {isConnected ? "Connected" : "Not connected"}
+        </span>
+      </div>
+      <h3 className="mt-2.5 text-sm font-semibold text-slate-900">{def.name}</h3>
+      <div className="text-[11px] text-slate-400">{def.category}</div>
+      <p className="mt-1.5 flex-1 text-[11px] text-slate-500">{def.description}</p>
+      {connection?.last_used_at && (
+        <div className="mt-1.5 text-[10px] text-slate-400">
+          Last used {new Date(connection.last_used_at).toLocaleDateString("en-GB")}
+        </div>
+      )}
+      <div className="mt-3">
+        <button
+          onClick={onConnect}
+          className={[
+            "w-full rounded-lg py-1.5 text-[12px] font-semibold transition",
+            isConnected
+              ? "border border-slate-200 text-slate-600 hover:bg-slate-50"
+              : "bg-blue-600 text-white hover:bg-blue-700",
+          ].join(" ")}
+        >
+          {isConnected ? "Configure" : "Connect"}
+        </button>
+      </div>
+    </Card>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function IntegrationsPage() {
   const toast = useToast()
-  const { data, loading } = useAutomationIntegrations()
-  const [subtab, setSubtab] = useState("Integrations")
-  const [view, setView] = useState<"grid" | "list">("grid")
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id ?? ""
 
-  const integrations = data.integrations
-  const alerts = data.credentialAlerts
+  const [connections, setConnections] = useState<IntegrationConnection[]>([])
+  const [loading, setLoading] = useState(true)
+  const [view, setView] = useState<"grid" | "list">("grid")
+  const [search, setSearch] = useState("")
+  const [connectTarget, setConnectTarget] = useState<IntegrationDef | null>(null)
+
+  const load = useCallback(async () => {
+    if (!workspaceId) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/automations/integrations?workspaceId=${workspaceId}`)
+      const json = await res.json() as { ok?: boolean; connections?: IntegrationConnection[] }
+      if (json.ok && json.connections) setConnections(json.connections)
+    } catch {/* non-fatal */} finally {
+      setLoading(false)
+    }
+  }, [workspaceId])
+
+  useEffect(() => { void load() }, [load])
+
+  const filtered = INTEGRATION_CATALOGUE.filter(
+    (d) =>
+      d.name.toLowerCase().includes(search.toLowerCase()) ||
+      d.category.toLowerCase().includes(search.toLowerCase()),
+  )
+
+  const connectedCount = INTEGRATION_CATALOGUE.filter((d) =>
+    connections.some((c) => c.provider === d.provider && c.status === "connected"),
+  ).length
+
+  function getConnection(provider: string): IntegrationConnection | null {
+    return connections.find((c) => c.provider === provider) ?? null
+  }
 
   const actions = (
     <>
-      <Btn icon={Plus} variant="primary" onClick={() => toast("Add integration — opens connect flow")}>Add integration</Btn>
-      <Btn onClick={() => toast("Testing connections…")}>Test connection</Btn>
-      <Btn onClick={() => toast("Opening docs")}>View docs</Btn>
-      <Btn icon={KeyRound} onClick={() => toast("Manage secrets")}>Manage secrets</Btn>
+      <Btn icon={Plus} variant="primary" onClick={() => toast("Select an integration below to connect")}>
+        Add integration
+      </Btn>
+      <a
+        href="https://docs.propvora.com/automations/integrations"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+      >
+        <ExternalLink className="h-4 w-4" /> Docs
+      </a>
     </>
   )
 
@@ -35,93 +345,108 @@ export default function IntegrationsPage() {
       icon={Cable}
       actions={actions}
     >
+      {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Connected apps" value={integrations.length} trend="10%" icon={Plug} tone="blue" />
-        <AutomationsKpiCard label="Healthy connections" value={integrations.filter((i) => i.health === "healthy").length} trend="5%" sub={integrations.length ? `${Math.round((integrations.filter((i) => i.health === "healthy").length / integrations.length) * 100)}%` : "—"} icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Expiring credentials" value={alerts.length} trend={alerts.length > 0 ? "25%" : "—"} trendDir="down" icon={KeyRound} tone="amber" />
-        <AutomationsKpiCard label="Webhook-capable" value={integrations.filter((i) => i.capabilities && String(i.capabilities).toLowerCase().includes("webhook") || ["Twilio", "Slack", "Microsoft Teams", "Stripe", "DocuSign"].includes(i.name)).length} trend="8%" icon={Zap} tone="violet" />
+        <AutomationsKpiCard label="Available integrations" value={INTEGRATION_CATALOGUE.length} icon={Plug} tone="blue" />
+        <AutomationsKpiCard label="Connected" value={connectedCount} icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Not connected" value={INTEGRATION_CATALOGUE.length - connectedCount} icon={AlertCircle} tone="amber" />
+        <AutomationsKpiCard label="Categories" value={[...new Set(INTEGRATION_CATALOGUE.map((d) => d.category))].length} icon={Cable} tone="violet" />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
-        {SUBTABS.map((t) => (
-          <button key={t} onClick={() => setSubtab(t)} className={`border-b-2 px-3 py-2.5 text-sm transition ${subtab === t ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>{t}</button>
-        ))}
-      </div>
-
+      {/* Filter bar */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
-        {["All categories", "All status", "All environments"].map((f) => <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>)}
-        <button onClick={() => toast("Filters cleared")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">Clear filters</button>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search integrations…"
+          className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+        />
+        {search && (
+          <button onClick={() => setSearch("")} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-50">
+            <X className="h-4 w-4" />
+          </button>
+        )}
         <div className="ml-auto flex items-center rounded-lg border border-slate-200 bg-white p-0.5">
-          <button onClick={() => setView("grid")} className={`grid h-7 w-7 place-items-center rounded ${view === "grid" ? "bg-slate-100 text-slate-800" : "text-slate-400"}`}><LayoutGrid className="h-4 w-4" /></button>
-          <button onClick={() => setView("list")} className={`grid h-7 w-7 place-items-center rounded ${view === "list" ? "bg-slate-100 text-slate-800" : "text-slate-400"}`}><List className="h-4 w-4" /></button>
+          <button onClick={() => setView("grid")} className={`grid h-7 w-7 place-items-center rounded ${view === "grid" ? "bg-slate-100 text-slate-800" : "text-slate-400"}`}>
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button onClick={() => setView("list")} className={`grid h-7 w-7 place-items-center rounded ${view === "list" ? "bg-slate-100 text-slate-800" : "text-slate-400"}`}>
+            <List className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      {/* Cards grid */}
+      {/* Integration catalogue */}
       {loading ? (
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">{Array.from({ length: 10 }).map((_, i) => <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />)}</div>
-      ) : (
-        <div className={`mt-4 grid gap-3 ${view === "grid" ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-5" : "grid-cols-1"}`}>
-          {integrations.map((it) => (
-            <Card key={it.id} className="flex flex-col p-3.5">
-              <div className="flex items-start justify-between">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-xs font-semibold text-slate-600">{it.name.slice(0, 2)}</span>
-                <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${it.health === "healthy" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                  {it.health === "healthy" ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}{it.health === "healthy" ? "Healthy" : "Warning"}
-                </span>
-              </div>
-              <h3 className="mt-2.5 text-sm font-semibold text-slate-900">{it.name}</h3>
-              <div className="text-[11px] text-slate-400">{it.category}</div>
-              <div className="mt-2 space-y-0.5 text-[11px] text-slate-500">
-                <div>{it.environment}</div>
-                <div>Last sync {it.lastSync}</div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                <button onClick={() => toast(`Configure ${it.name}`)} className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50">Configure</button>
-                <button onClick={() => toast(`Testing ${it.name}…`)} className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50">Test</button>
-                <button onClick={() => toast(`${it.name} logs`)} className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50">Logs</button>
-              </div>
-            </Card>
+        <div className={`mt-4 grid gap-3 ${view === "grid" ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"}`}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />
           ))}
+        </div>
+      ) : (
+        <div className={`mt-4 grid gap-3 ${view === "grid" ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"}`}>
+          {filtered.map((def) => (
+            <IntegrationCard
+              key={def.provider}
+              def={def}
+              connection={getConnection(def.provider)}
+              view={view}
+              onConnect={() => setConnectTarget(def)}
+            />
+          ))}
+          {filtered.length === 0 && (
+            <div className="col-span-full py-10 text-center text-sm text-slate-400">
+              No integrations match &ldquo;{search}&rdquo;
+            </div>
+          )}
         </div>
       )}
 
-      {/* Bottom 3 panels */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card>
-          <CardHeader title="Connection health" />
-          <div className="flex items-center gap-4 p-4">
-            <Donut size={120} centerLabel="22" centerSub="total" slices={[
-              { label: "Healthy", value: 20, color: "#10b981" },
-              { label: "Warning", value: 1, color: "#f59e0b" },
-              { label: "Error", value: 1, color: "#ef4444" },
-            ]} />
-            <div className="space-y-1 text-xs">
-              {[["Healthy", 20, "bg-emerald-500"], ["Warning", 1, "bg-amber-500"], ["Error", 1, "bg-red-500"], ["Disconnected", 0, "bg-slate-300"]].map(([l, v, c]) => (
-                <div key={l as string} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
-              ))}
-            </div>
-          </div>
-        </Card>
-        <Card>
-          <CardHeader title="Credential renewal alerts" />
-          <div className="p-3 space-y-2">
-            {alerts.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
-                <span className="text-slate-700">{a.name} {a.credential}</span>
-                <span className={`text-xs font-medium ${a.tone === "warning" ? "text-amber-600" : "text-emerald-600"}`}>{a.daysLeft} days {a.tone === "warning" ? "· Expiring soon" : "· OK"}</span>
+      {/* Connection health summary */}
+      {connectedCount > 0 && (
+        <Card className="mt-5">
+          <CardHeader title="Connected integrations" />
+          <div className="p-3 space-y-1.5">
+            {connections.filter((c) => c.status === "connected").map((conn) => (
+              <div key={conn.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                <span className="font-medium text-slate-700">{conn.name}</span>
+                <div className="flex items-center gap-2">
+                  {conn.last_used_at && (
+                    <span className="text-xs text-slate-400">
+                      Used {new Date(conn.last_used_at).toLocaleDateString("en-GB")}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Connected
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </Card>
-        <Card>
-          <CardHeader title="Usage by integration" />
-          <div className="p-4">
-            <BarList items={integrations.filter((i) => i.executions).map((i) => ({ label: i.name, value: i.executions!, sub: `${i.executions!.toLocaleString()} · ${i.successRate}%` }))} color="bg-violet-500" />
-          </div>
-        </Card>
-      </div>
+      )}
+
+      {/* Connect modal */}
+      {connectTarget && (
+        <ConnectModal
+          integration={connectTarget}
+          existingConnection={getConnection(connectTarget.provider)}
+          workspaceId={workspaceId}
+          onClose={() => setConnectTarget(null)}
+          onConnected={(conn) => {
+            setConnections((prev) => {
+              const existing = prev.findIndex((c) => c.provider === conn.provider)
+              if (existing >= 0) {
+                const updated = [...prev]
+                updated[existing] = conn
+                return updated
+              }
+              return [conn, ...prev]
+            })
+            setConnectTarget(null)
+          }}
+        />
+      )}
     </AutomationsModuleShell>
   )
 }

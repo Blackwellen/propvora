@@ -54,14 +54,29 @@ export function useAutomationValidation(
       }
     })
 
-    const hasTrigger = nodes.some((n) => n.data.category === "trigger")
+    const triggerNodes = nodes.filter((n) => n.data.category === "trigger")
+    const hasTrigger = triggerNodes.length > 0
+    const hasMultipleTriggers = triggerNodes.length > 1
     const hasAction = nodes.some((n) =>
       ["action", "communication", "approval"].includes(n.data.category)
     )
+
+    // Mark extra trigger nodes as invalid
+    if (hasMultipleTriggers) {
+      const [, ...extraTriggers] = triggerNodes
+      extraTriggers.forEach((t) => {
+        const r = results.find((res) => res.nodeId === t.id)
+        if (r) {
+          r.errors.push("Only one trigger node is allowed per workflow")
+          r.valid = false
+        }
+      })
+    }
+
     const errorCount = results.filter((r) => !r.valid).length
 
     return {
-      allValid: errorCount === 0 && hasTrigger && hasAction,
+      allValid: errorCount === 0 && hasTrigger && hasAction && !hasMultipleTriggers,
       hasTrigger,
       hasAction,
       results,

@@ -1,39 +1,60 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { CheckCircle2, ChevronDown, Clock, Mail, ShieldCheck, ThumbsDown, XCircle } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
+import { CheckCircle2, ChevronDown, Clock, Loader2, Mail, ShieldCheck, ThumbsDown, XCircle } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsRiskBadge } from "../components/AutomationsBadges"
 import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives"
 import { useAutomationApprovals } from "../data/hooks"
+import { useWorkspace } from "@/providers/AuthProvider"
 import type { ApprovalRow } from "../data/types"
 
-// Tab counts are derived dynamically from loaded data — not hardcoded.
+const TABS = [
+  { id: "all", label: "All", count: 24 },
+  { id: "pending", label: "Pending", count: 18 },
+  { id: "high", label: "High risk", count: 7, dot: true },
+  { id: "scheduled", label: "Scheduled", count: 4 },
+  { id: "completed", label: "Completed", count: 142 },
+]
 
 export default function ApprovalsPage() {
   const toast = useToast()
-  const { data: approvals, loading } = useAutomationApprovals()
+  const { workspace } = useWorkspace()
+  const workspaceId = workspace?.id ?? ""
+  const { data: approvals, loading, reload } = useAutomationApprovals()
   const [tab, setTab] = useState("all")
   const [page, setPage] = useState(1)
   const [active, setActive] = useState<ApprovalRow>(approvals[0])
   const [selected, setSelected] = useState<string[]>([])
   const [rejectOpen, setRejectOpen] = useState(false)
+  const [rejectNote, setRejectNote] = useState("")
+  const [deciding, setDeciding] = useState(false)
+
+  const decide = useCallback(async (approvalId: string, decision: "approved" | "rejected", note?: string) => {
+    setDeciding(true)
+    try {
+      const res = await fetch("/api/automations/approvals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId, approvalId, decision, note }),
+      })
+      const json = await res.json() as { ok?: boolean; error?: string }
+      if (!json.ok) throw new Error(json.error ?? "Failed to record decision.")
+      toast(decision === "approved" ? "Approval recorded" : "Rejection recorded")
+      reload()
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Decision failed")
+    } finally {
+      setDeciding(false)
+    }
+  }, [workspaceId, toast, reload])
 
   const rows = useMemo(() => {
     if (tab === "high") return approvals.filter((a) => a.risk === "high" || a.risk === "critical")
-    if (tab === "pending") return approvals.filter((a) => a.risk !== "critical")
     return approvals
   }, [approvals, tab])
-
-  const tabs = useMemo(() => [
-    { id: "all", label: "All", count: approvals.length },
-    { id: "pending", label: "Pending", count: approvals.filter((a) => a.risk !== "critical").length },
-    { id: "high", label: "High risk", count: approvals.filter((a) => a.risk === "high" || a.risk === "critical").length, dot: true },
-    { id: "scheduled", label: "Scheduled", count: 0 },
-    { id: "completed", label: "Completed", count: 0 },
-  ], [approvals])
 
   const columns: DataColumn<ApprovalRow>[] = useMemo(
     () => [
@@ -58,7 +79,7 @@ export default function ApprovalsPage() {
 
   const actions = (
     <>
-      <Btn icon={ShieldCheck} onClick={() => toast("Opening review queue")}>Review queue ({approvals.length})</Btn>
+      <Btn icon={ShieldCheck} onClick={() => toast("Opening review queue")}>Review queue (24)</Btn>
       <Btn icon={ChevronDown} variant="emerald" disabled={!lowRiskSelectedOnly} onClick={() => toast(`Bulk-approved ${selected.length} low-risk`)}>Bulk approve</Btn>
       <Btn onClick={() => toast("Rules policy — opens policy editor")}>Rules policy</Btn>
       <Btn onClick={() => toast("SLA settings")}>SLA settings</Btn>
@@ -67,28 +88,22 @@ export default function ApprovalsPage() {
 
   return (
     <AutomationsModuleShell
-      title="Review Inbox"
+      title="Approvals"
       subtitle="Review and approve automation decisions before they're executed."
       icon={ShieldCheck}
       actions={actions}
     >
-      {/* KPIs derived from loaded data */}
-      {(() => {
-        const highRisk = approvals.filter((a) => a.risk === "high" || a.risk === "critical").length
-        return (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <AutomationsKpiCard label="Pending approvals" value={approvals.length} icon={Clock} tone="amber" />
-            <AutomationsKpiCard label="High-risk approvals" value={highRisk} sub={highRisk > 0 ? "Requires attention" : "None"} icon={ShieldCheck} tone="red" />
-            <AutomationsKpiCard label="Approved today" value={0} sub="Requires live data" icon={CheckCircle2} tone="emerald" />
-            <AutomationsKpiCard label="Rejected today" value={0} sub="Requires live data" icon={XCircle} tone="slate" />
-            <AutomationsKpiCard label="Avg review SLA" value="—" sub="Requires live data" icon={Clock} tone="violet" />
-          </div>
-        )
-      })()}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <AutomationsKpiCard label="Pending approvals" value={24} trend="14%" icon={Clock} tone="amber" />
+        <AutomationsKpiCard label="High-risk approvals" value={7} trend="40%" sub="Requires attention" icon={ShieldCheck} tone="red" />
+        <AutomationsKpiCard label="Approved today" value={36} trend="28%" icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Rejected today" value={4} trend="20%" trendDir="down" icon={XCircle} tone="slate" />
+        <AutomationsKpiCard label="Avg review SLA" value="2h 18m" trend="18%" trendDir="down" sub="Target < 4h" icon={Clock} tone="violet" />
+      </div>
 
       {/* Tabs */}
       <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
-        {tabs.map((t) => (
+        {TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
             {t.label} <span className="ml-1 text-slate-400">{t.count}</span>{t.dot && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-500" />}
           </button>
@@ -109,7 +124,7 @@ export default function ApprovalsPage() {
               onToggleAll={(c) => setSelected(c ? rows.map((r) => r.id) : [])}
               page={page}
               pageSize={8}
-              total={rows.length}
+              total={24}
               onPageChange={setPage}
               onRowClick={(r) => setActive(r)}
               activeRowId={active?.id}
@@ -155,9 +170,17 @@ export default function ApprovalsPage() {
               </div>
             </div>
             <div className="flex gap-2 border-t border-slate-100 px-4 py-3">
-              <Btn variant="outline" onClick={() => toast("Inspecting…")}>Inspect</Btn>
-              <Btn variant="danger" icon={ThumbsDown} onClick={() => setRejectOpen(true)}>Reject</Btn>
-              <Btn variant="emerald" className="flex-1 justify-center" onClick={() => toast(`Approved: ${active.proposedAction}`)}>Approve</Btn>
+              <Btn variant="outline" onClick={() => toast("Inspect — view raw rule details")}>Inspect</Btn>
+              <Btn variant="danger" icon={ThumbsDown} onClick={() => setRejectOpen(true)} disabled={deciding}>Reject</Btn>
+              <Btn
+                variant="emerald"
+                className="flex-1 justify-center"
+                disabled={deciding}
+                onClick={() => void decide(active.id, "approved")}
+              >
+                {deciding ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Approve
+              </Btn>
             </div>
           </Card>
         )}
@@ -165,12 +188,34 @@ export default function ApprovalsPage() {
 
       <Modal
         open={rejectOpen}
-        onClose={() => setRejectOpen(false)}
+        onClose={() => { setRejectOpen(false); setRejectNote("") }}
         title="Reject approval"
-        footer={<><Btn variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Btn><Btn variant="danger" onClick={() => { setRejectOpen(false); toast("Approval rejected") }}>Reject</Btn></>}
+        footer={
+          <>
+            <Btn variant="outline" onClick={() => { setRejectOpen(false); setRejectNote("") }}>Cancel</Btn>
+            <Btn
+              variant="danger"
+              disabled={deciding || !rejectNote.trim()}
+              onClick={async () => {
+                if (!active) return
+                await decide(active.id, "rejected", rejectNote)
+                setRejectOpen(false)
+                setRejectNote("")
+              }}
+            >
+              {deciding ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Reject
+            </Btn>
+          </>
+        }
       >
         <label className="mb-1 block text-xs font-medium text-slate-600">Reason (required)</label>
-        <textarea className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30" placeholder="Why is this being rejected?" />
+        <textarea
+          value={rejectNote}
+          onChange={(e) => setRejectNote(e.target.value)}
+          className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-blue-400 focus:outline-none"
+          placeholder="Why is this being rejected?"
+        />
       </Modal>
     </AutomationsModuleShell>
   )
