@@ -50,6 +50,13 @@ export default function CopilotChatInput({
   }
 
   function handleSlashSelect(cmd: string) {
+    // Client-only commands (/help, /clear) fire immediately — no need to prefill.
+    if (cmd === "/help" || cmd === "/clear") {
+      setShowPalette(false)
+      setValue("")
+      onSend(cmd)
+      return
+    }
     setValue(cmd + " ")
     setShowPalette(false)
     inputRef.current?.focus()

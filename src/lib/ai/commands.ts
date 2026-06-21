@@ -52,6 +52,11 @@ export interface CopilotCommand {
   mutationType?: string
   /** Keyboard hint shown in the palette. */
   shortcut?: string
+  /**
+   * When true, the client handles this command locally without calling the API.
+   * /help renders the command list; /clear resets the chat.
+   */
+  clientOnly?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -81,6 +86,39 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     requiresApproval: false,
     shortcut: "⌘2",
   },
+  {
+    slug: "/help",
+    label: "/help",
+    description: "Show all available commands",
+    category: "General",
+    capability: "always",
+    // Client intercepts /help and renders the command list inline — no API call.
+    prompt: "",
+    requiresApproval: false,
+    shortcut: "?",
+    clientOnly: true,
+  },
+  {
+    slug: "/clear",
+    label: "/clear",
+    description: "Clear the chat conversation",
+    category: "General",
+    capability: "always",
+    // Client intercepts /clear and resets the message list — no API call.
+    prompt: "",
+    requiresApproval: false,
+    clientOnly: true,
+  },
+  {
+    slug: "/feedback",
+    label: "/feedback",
+    description: "Share feedback about the Copilot",
+    category: "General",
+    capability: "always",
+    prompt:
+      "The user wants to share feedback about the Propvora AI Copilot. Acknowledge their intent warmly, then explain that feedback can be submitted via: (1) the settings panel under Help & Support > Feedback, or (2) emailing support@propvora.com. Ask what feedback they would like to share so you can note it in this conversation.",
+    requiresApproval: false,
+  },
 
   // --- Portfolio / operator ---
   {
@@ -103,6 +141,36 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
       "Explain what to review for active tenancies in a UK portfolio: rent status, break clauses, renewal windows, deposit protection and compliance ties. Reference the live active-tenancy count. Keep legal points as general information and recommend confirming with a solicitor. Under 220 words.",
     requiresApproval: false,
   },
+  {
+    slug: "/issues",
+    label: "/issues",
+    description: "List issues and things needing attention",
+    category: "Portfolio",
+    capability: "portfolio",
+    prompt:
+      "Review the live workspace data and list the key issues, problems, or things needing attention right now. Group them by urgency (Urgent / This week / Monitor). Use only the live counts and context provided — do not invent issues. Be specific and actionable. Under 250 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/compare",
+    label: "/compare",
+    description: "Compare properties, periods or options",
+    category: "Portfolio",
+    capability: "portfolio",
+    prompt:
+      "Help compare what the user has described — whether properties, financial periods, options or strategies. Present a structured comparison with clear criteria and a recommended approach. Ask the user for specifics if the request lacks detail. Under 260 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/valuation",
+    label: "/valuation",
+    description: "Help estimate or discuss property valuation",
+    category: "Portfolio",
+    capability: "portfolio",
+    prompt:
+      "Discuss property valuation for a UK property operator. Cover the main methods (comparable sales, yield-based for investment, cost approach), what drives value (location, condition, EPC, HMO vs single-let), and what the user should look for. Frame all figures as general information — recommend a RICS surveyor for formal valuation. Under 260 words.",
+    requiresApproval: false,
+  },
 
   // --- Compliance ---
   {
@@ -123,6 +191,37 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "compliance",
     prompt:
       "List the documents a UK rental portfolio most commonly is missing (Gas Safety, EICR, EPC, signed AST, deposit protection certificate, Right to Rent checks) and the legal risk of each absence. Suggest how to close the gaps. Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/compliance-check",
+    label: "/compliance-check",
+    description: "Check compliance status and flag overdue items",
+    category: "Compliance",
+    capability: "compliance",
+    prompt:
+      "Run a UK rental property compliance check. Go through the key compliance areas in order of legal risk: (1) Gas Safety Certificate — annual, CP12 required; (2) EICR — every 5 years or tenancy change; (3) EPC — minimum E rating, 10-year validity; (4) Smoke & CO alarms — each floor/room with solid fuel; (5) Legionella risk assessment; (6) HMO licence if 5+ people in 2+ households; (7) Deposit protection — 30-day deadline; (8) Right to Rent checks. For each, state the frequency, what proof is needed, and the legal risk of non-compliance. Frame as general information — recommend a compliance specialist for formal audit. Under 300 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/notice",
+    label: "/notice",
+    description: "Help draft a legal notice (review-only draft)",
+    category: "Compliance",
+    capability: "compliance",
+    prompt:
+      "Help draft a legal notice for a UK tenancy. IMPORTANT: This is a general information draft only — the user MUST have it reviewed by a solicitor or letting agent before serving. Produce the requested notice type (Section 21, Section 8, Section 13 rent increase, or repair notice as applicable) with the standard required content and clear [PLACEHOLDER] fields. Add a prominent disclaimer: 'DRAFT ONLY — This document has been produced by an AI assistant for information purposes. It must be reviewed by a qualified solicitor or letting agent before use. Incorrect service of a notice may be invalid.' Under 300 words.",
+    requiresApproval: true,
+    mutationType: "document-draft",
+  },
+  {
+    slug: "/checklist",
+    label: "/checklist",
+    description: "Generate a compliance or inspection checklist",
+    category: "Compliance",
+    capability: "compliance",
+    prompt:
+      "Generate a practical compliance or inspection checklist for a UK rental property. Cover: pre-tenancy checks (property condition, inventory, meter readings, key handover, standing orders, direct debit mandates), mid-tenancy inspections (every 3-6 months: condition, subletting checks, lease compliance), and end-of-tenancy (checkout inspection vs inventory, deposit return timeline, utility final readings, cleaning standard). Format as a numbered checklist with checkbox markers. Under 280 words.",
     requiresApproval: false,
   },
 
@@ -204,17 +303,6 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     requiresApproval: false,
   },
   {
-    slug: "/draft-supplier-message",
-    label: "/draft-supplier-message",
-    description: "Draft a message to a supplier",
-    category: "Communication",
-    capability: "supplier",
-    prompt:
-      "Draft a professional, concise message to a supplier/contractor about a job. Cover the request, the property/access context (use placeholders), the timeline, and ask for confirmation. Keep it courteous and clear. This is a DRAFT the user sends themselves.",
-    requiresApproval: true,
-    mutationType: "message-draft",
-  },
-  {
     slug: "/explain-verification",
     label: "/explain-verification",
     description: "Explain supplier verification status",
@@ -236,6 +324,8 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
       "Explain how payouts and payment holds work for the user: why funds may be held (pending completion, dispute, verification), the typical release sequence, and what the user can do to unblock a held payout. Make clear you cannot move money — any release is actioned by the user through Propvora's controls. Reference the pending-payout count if shown. Under 220 words.",
     requiresApproval: false,
   },
+
+  // --- Money / Finance ---
   {
     slug: "/cashflow-forecast",
     label: "/cashflow-forecast",
@@ -244,6 +334,37 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "payments",
     prompt:
       "Explain how to read a 30-day cashflow for this workspace: money in (rent / orders / bookings), money out (mortgage, fees, maintenance reserve, payouts), and voids/risk. Give a simple framework with illustrative figures clearly marked as examples, not financial advice. Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/invoice",
+    label: "/invoice",
+    description: "Draft an invoice or payment request",
+    category: "Money",
+    capability: "payments",
+    prompt:
+      "Draft a professional invoice or payment request. Use placeholders ({Client Name}, {Amount}, {Due Date}, {Description}, {Invoice Number}) for specifics not provided. Include standard UK invoice fields: supplier details, client details, line items, VAT if applicable, payment terms, and bank details placeholder. This is a DRAFT the user reviews before sending.",
+    requiresApproval: true,
+    mutationType: "document-draft",
+  },
+  {
+    slug: "/forecast",
+    label: "/forecast",
+    description: "Generate a financial forecast narrative",
+    category: "Money",
+    capability: "payments",
+    prompt:
+      "Generate a financial forecast narrative for this workspace. Use the live workspace data (property count, active tenancies, pending payouts) as the basis. Cover projected income, likely costs, and key uncertainties. Present assumptions clearly. Frame as guidance only — not financial advice. Under 280 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/expenses",
+    label: "/expenses",
+    description: "Summarise or categorise expenses",
+    category: "Money",
+    capability: "payments",
+    prompt:
+      "Help summarise or categorise expenses for a property operator. List standard UK property expense categories (mortgage/finance, insurance, maintenance, management fees, utilities, compliance costs, professional fees, void allowance) and explain what belongs in each. If the user has provided specific expenses, help categorise them. Under 240 words.",
     requiresApproval: false,
   },
 
@@ -282,6 +403,93 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
       "Draft a maintenance work order: title, description of the issue, affected property/unit (placeholder), urgency, and the trade required. Return it as a structured draft for the user to confirm. Do NOT claim it was created.",
     requiresApproval: true,
     mutationType: "job-draft",
+  },
+  {
+    slug: "/draft-job",
+    label: "/draft-job",
+    description: "Draft a job description for a maintenance task",
+    category: "Tasks & Work",
+    capability: "portfolio",
+    prompt:
+      "Draft a clear, professional job description for a maintenance or repair task. Include: job title, scope of work, property/location placeholder, trade required, access arrangements placeholder, timeline, and any health & safety notes (asbestos awareness, confined spaces, gas/electrical isolation as relevant). This is a DRAFT for the user to review and post.",
+    requiresApproval: true,
+    mutationType: "job-draft",
+  },
+  {
+    slug: "/prioritise",
+    label: "/prioritise",
+    description: "Prioritise open jobs or tasks by urgency",
+    category: "Tasks & Work",
+    capability: "always",
+    prompt:
+      "Help the user prioritise their open jobs and tasks by urgency. Explain the criteria for prioritisation: tenant safety (emergency), legal compliance deadlines, habitability, contractual obligations, then routine work. If the user has listed specific items, rank them and explain the order. Use the live open-task and open-job counts from the workspace context. Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/schedule",
+    label: "/schedule",
+    description: "Suggest scheduling for maintenance work",
+    category: "Tasks & Work",
+    capability: "portfolio",
+    prompt:
+      "Help suggest a scheduling approach for maintenance work. Cover: batching similar trade visits to reduce costs, coordinating with tenancy check-in/check-out windows, seasonal timing for boilers/gardens, managing access with tenants, and how to build a rolling maintenance calendar. Under 240 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/quote-request",
+    label: "/quote-request",
+    description: "Draft a quote request to send to a supplier",
+    category: "Tasks & Work",
+    capability: "supplier",
+    prompt:
+      "Draft a professional quote request to send to a supplier or contractor. Include: what the job is, the property address placeholder, access arrangements placeholder, timeline needed, any specifications or standards required, and what to include in the quote (labour, materials, call-out, VAT). Keep it clear and professional. This is a DRAFT the user sends themselves.",
+    requiresApproval: true,
+    mutationType: "message-draft",
+  },
+
+  // --- Communication ---
+  {
+    slug: "/draft-supplier-message",
+    label: "/draft-supplier-message",
+    description: "Draft a message to a supplier",
+    category: "Communication",
+    capability: "supplier",
+    prompt:
+      "Draft a professional, concise message to a supplier/contractor about a job. Cover the request, the property/access context (use placeholders), the timeline, and ask for confirmation. Keep it courteous and clear. This is a DRAFT the user sends themselves.",
+    requiresApproval: true,
+    mutationType: "message-draft",
+  },
+  {
+    slug: "/reply",
+    label: "/reply",
+    description: "Draft a reply to the current message thread",
+    category: "Communication",
+    capability: "always",
+    prompt:
+      "Draft a professional, courteous reply to the conversation thread provided. If a CONVERSATION THREAD is shown above, base the reply directly on that thread. If no thread context is provided, ask the user to describe the situation. The reply should be clear, empathetic and action-oriented. This is a DRAFT the user reviews and sends themselves.",
+    requiresApproval: true,
+    mutationType: "message-draft",
+  },
+  {
+    slug: "/summarise-thread",
+    label: "/summarise-thread",
+    description: "Summarise a message thread",
+    category: "Communication",
+    capability: "always",
+    prompt:
+      "Summarise the message thread provided. Cover: who is involved, what the core issue or topic is, the current status/resolution state, and what action (if any) is needed next. If no CONVERSATION THREAD is shown above, ask the user to describe the thread. Under 200 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/chase",
+    label: "/chase",
+    description: "Draft a polite chase message",
+    category: "Communication",
+    capability: "always",
+    prompt:
+      "Draft a polite but firm chase message. It should: reference the original request, note that it has not yet received a response, give a clear deadline, and offer to help if there are any issues. Keep it professional and non-confrontational. Use placeholders for recipient name, original request description and deadline. This is a DRAFT the user sends themselves.",
+    requiresApproval: true,
+    mutationType: "message-draft",
   },
 
   // --- Planning ---
