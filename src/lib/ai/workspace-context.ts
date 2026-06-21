@@ -46,6 +46,11 @@ export interface WorkspaceSnapshot {
   jobsInProgress?: number
   contacts?: number
   documents?: number
+  // Compliance
+  complianceDue30Days?: number
+  complianceOverdue?: number
+  // Pending approvals (automation human-approval queue)
+  pendingApprovals?: number
   // Bookings (short-let / accommodation)
   bookingListings?: number
   upcomingBookings?: number
@@ -189,6 +194,18 @@ export async function getWorkspaceSnapshot(
     add("contacts", safeCount(supabase, "contacts", workspaceId))
     add("documents", safeCount(supabase, "documents", workspaceId))
   }
+  if (c.compliance) {
+    // Compliance items due in the next 30 days
+    const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    add("complianceDue30Days", safeCount(supabase, "compliance_items", workspaceId, (q) =>
+      q.gte("due_date", todayIso).lte("due_date", in30Days).neq("status", "compliant")))
+    add("complianceOverdue", safeCount(supabase, "compliance_items", workspaceId, (q) =>
+      q.lt("due_date", todayIso).neq("status", "compliant")))
+  }
+  if (c.automations) {
+    add("pendingApprovals", safeCount(supabase, "automation_approval_queue", workspaceId, (q) =>
+      q.eq("status", "pending")))
+  }
   if (c.bookings) {
     add("bookingListings", safeCount(supabase, "booking_listings", workspaceId))
     add("upcomingBookings", safeCount(supabase, "bookings", workspaceId, (q) =>
@@ -271,6 +288,10 @@ export function renderWorkspaceContext(
   add("Jobs in progress", snap.jobsInProgress)
   add("Contacts", snap.contacts)
   add("Documents", snap.documents)
+  // compliance
+  add("Compliance items due in 30 days", snap.complianceDue30Days)
+  add("Compliance items overdue", snap.complianceOverdue)
+  add("Pending automation approvals", snap.pendingApprovals)
   // bookings
   add("Booking listings", snap.bookingListings)
   add("Upcoming bookings", snap.upcomingBookings)
@@ -350,4 +371,96 @@ export async function getFullWorkspaceContext(
     ? await getWorkspaceSnapshot(supabase, workspaceId, caps)
     : {}
   return { profile, caps, snapshot }
+}
+
+// ---------------------------------------------------------------------------
+// Entity-level context fetchers — used when the copilot is open on a specific
+// entity page (property detail, tenancy detail, etc.). These run under the
+// caller's RLS-scoped client so cross-workspace leaks are impossible.
+// All are 42P01-safe: return null if the row or table doesn't exist.
+// ---------------------------------------------------------------------------
+
+export interface PropertyContext {
+  name: string | null
+  address: string | null
+  type: string | null
+  units: number
+  vacantUnits: number
+  activeTenancies: number
+}
+
+export async function fetchPropertyContext(
+  supabase: SupabaseClient,
+  propertyId: string,
+  workspaceId: string
+): Promise<PropertyContext | null> {
+  try {
+    const { data: property } = await supabase
+      .from("properties")
+      .select("id, name, address, status, property_type, units(id, status), tenancies(id, status, end_date, rent_amount)")
+      .eq("id", propertyId)
+      .eq("workspace_id", workspaceId)
+      .single()
+    if (!property) return null
+    const units: any[] = (property as any).units ?? []
+    const tenancies: any[] = (property as any).tenancies ?? []
+    return {
+      name: (property as any).name ?? null,
+      address: (property as any).address ?? null,
+      type: (property as any).property_type ?? null,
+      units: units.length,
+      vacantUnits: units.filter((u: any) => u.status === "vacant").length,
+      activeTenancies: tenancies.filter((t: any) => t.status === "active").length,
+    }
+  } catch {
+    return null
+  }
+}
+
+export interface TenancyContext {
+  propertyName: string | null
+  tenantName: string | null
+  status: string | null
+  startDate: string | null
+  endDate: string | null
+  rentAmount: number | null
+}
+
+export async function fetchTenancyContext(
+  supabase: SupabaseClient,
+  tenancyId: string,
+  workspaceId: string
+): Promise<TenancyContext | null> {
+  try {
+    const { data: tenancy } = await supabase
+      .from("tenancies")
+      .select("id, status, start_date, end_date, rent_amount, properties(name), contacts(name)")
+      .eq("id", tenancyId)
+      .eq("workspace_id", workspaceId)
+      .single()
+    if (!tenancy) return null
+    const t = tenancy as any
+    return {
+      propertyName: t.properties?.name ?? null,
+      tenantName: t.contacts?.name ?? null,
+      status: t.status ?? null,
+      startDate: t.start_date ?? null,
+      endDate: t.end_date ?? null,
+      rentAmount: t.rent_amount ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Parse the pageContext JSON string safely.
+ * The client sends a JSON object with optional entity IDs.
+ */
+export function safeParsePageContext(raw: string): Record<string, string> {
+  try {
+    const parsed = JSON.parse(raw)
+    if (typeof parsed === "object" && parsed !== null) return parsed as Record<string, string>
+  } catch { /* ignore */ }
+  return {}
 }

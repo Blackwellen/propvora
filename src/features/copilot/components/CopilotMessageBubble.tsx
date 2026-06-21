@@ -4,6 +4,7 @@ import React from "react"
 import PersonAvatar from "./PersonAvatar"
 import CopilotComplianceResultCard from "./CopilotComplianceResultCard"
 import CopilotDraftMessageCard from "./CopilotDraftMessageCard"
+import type { QuickAction } from "../types"
 
 interface CopilotMessageBubbleProps {
   role: "user" | "ai"
@@ -12,6 +13,10 @@ interface CopilotMessageBubbleProps {
   card?: "compliance-result" | "draft-message"
   /** When true and content is empty, show a typing indicator (streaming). */
   streaming?: boolean
+  /** Suggested follow-up commands shown as clickable chips below AI messages. */
+  quickActions?: QuickAction[]
+  /** Called when the user clicks a quick-action chip. */
+  onQuickAction?: (slug: string) => void
 }
 
 /**
@@ -103,6 +108,8 @@ export default function CopilotMessageBubble({
   timestamp,
   card,
   streaming,
+  quickActions,
+  onQuickAction,
 }: CopilotMessageBubbleProps) {
   const isUser = role === "user"
 
@@ -139,6 +146,21 @@ export default function CopilotMessageBubble({
             <TypingDots />
           ) : null}
         </div>
+
+        {/* Quick action chips — shown under AI messages only, after streaming completes */}
+        {!isUser && !streaming && quickActions && quickActions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {quickActions.map((action) => (
+              <button
+                key={action.slug}
+                onClick={() => onQuickAction?.(action.slug)}
+                className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold hover:bg-blue-100 transition-colors border border-blue-100"
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Card */}
         {card === "compliance-result" && (

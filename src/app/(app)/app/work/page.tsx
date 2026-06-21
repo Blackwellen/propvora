@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useMemo } from "react"
 import Link from "next/link"
@@ -26,13 +26,12 @@ import {
 import { cn } from "@/lib/utils"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { MobileTopBar } from "@/components/mobile"
-import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useTasks } from "@/hooks/useTasks"
 import { useJobs } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
-import { useProperties } from "@/hooks/useProperties"
+import { openCopilot } from "@/lib/copilot/open"
 import {
   BarChart,
   Bar,
@@ -45,22 +44,61 @@ import {
   Cell,
 } from "recharts"
 
+// ─── Seed fallbacks (shown when workspace has no data yet) ────────────────────
 
+const SEED_KPIS = {
+  openWork: 18, overdue: 4, waitingSupplier: 3, revenueBlocking: 2,
+  invoicePending: 5, dueThisWeek: 12, scheduledJobs: 7, completionRate: 72,
+}
+
+const SEED_PIPELINE = [
+  { name: "To Do",       value: 8,  color: "#94A3B8" },
+  { name: "In Progress", value: 5,  color: "#2563EB" },
+  { name: "Waiting",     value: 3,  color: "#F59E0B" },
+  { name: "Blocked",     value: 2,  color: "#EF4444" },
+  { name: "Done",        value: 15, color: "#10B981" },
+]
+
+const SEED_CHASE = [
+  { title: "Gas Safety Certificate", property: "14 Grove St",  supplier: "Gas Safe Co",          status: "OVERDUE 3 DAYS", color: "red"   as const, initials: "GS" },
+  { title: "Boiler Service",         property: "Manor Flat 3", supplier: "HeatPro Ltd",          status: "Due in 2 days",  color: "amber" as const, initials: "HP" },
+  { title: "Plumbing repair",        property: "22 Oak Ave",   supplier: "Supplier not responded", status: "No response",  color: "red"   as const, initials: "PA" },
+]
+
+const SEED_UPCOMING = [
+  { date: "JUN 16", title: "Boiler Annual Service",       property: "14 Grove St",      status: "Scheduled",  statusColor: "bg-blue-50 text-blue-700"       },
+  { date: "JUN 17", title: "Gas Safety Inspection",       property: "Manor Flat 3B",    status: "Confirmed",  statusColor: "bg-emerald-50 text-emerald-700"  },
+  { date: "JUN 19", title: "Electrical Safety Check",     property: "Victoria Terrace", status: "At Risk",    statusColor: "bg-amber-50 text-amber-700"      },
+  { date: "JUN 21", title: "Plumbing Repair — Kitchen",   property: "22 Oak Ave",       status: "Unassigned", statusColor: "bg-slate-100 text-slate-600"     },
+  { date: "JUN 22", title: "Possession Readiness Review", property: "Brunswick HMO",    status: "Legal",      statusColor: "bg-red-50 text-red-700"          },
+]
+
+const SEED_BLOCKED = [
+  { title: "Legal Evidence Review",       property: "22 Oak Ave",       tag: "Legal",            tagColor: "bg-red-50 text-red-700" },
+  { title: "Electrical compliance cert",  property: "Victoria Terrace", tag: "Waiting Supplier", tagColor: "bg-amber-50 text-amber-700" },
+  { title: "Kitchen extraction fan",      property: "Manor Flat 2A",    tag: "Parts On Order",   tagColor: "bg-slate-100 text-slate-600" },
+]
+
+const SEED_ACTIVITY = [
+  { icon: CheckCircle2,  bg: "bg-emerald-50", color: "text-emerald-600", text: "Boiler service marked complete at 14 Grove St",  initials: "JT", time: "2h ago" },
+  { icon: ClipboardList, bg: "bg-blue-50",    color: "text-blue-600",    text: "New task created: Gas safety inspection",         initials: "MP", time: "4h ago" },
+  { icon: MessageSquare, bg: "bg-violet-50",  color: "text-violet-600",  text: "Supplier HeatPro replied to quote request",       initials: "HP", time: "6h ago" },
+  { icon: AlertTriangle, bg: "bg-amber-50",   color: "text-amber-600",   text: "Plumbing repair flagged overdue at 22 Oak Ave",   initials: "SA", time: "1d ago" },
+  { icon: Briefcase,     bg: "bg-blue-50",    color: "text-blue-600",    text: "Job assigned to Gas Safe Co",                      initials: "GS", time: "1d ago" },
+]
 
 // ─── Quick actions ────────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { label: "Create Task",      href: "/property-manager/work/tasks/new",   icon: ClipboardList, iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "Create Job",       href: "/property-manager/work/jobs/new",    icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "Add Supplier",     href: "/property-manager/work/suppliers",   icon: UserPlus,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
-  { label: "Request Quote",    href: "/property-manager/work/suppliers",   icon: FileText,      iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
-  { label: "Log Issue",        href: "/property-manager/work/tasks/new",   icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600" },
-  { label: "Upload Document",  href: "/property-manager/work",             icon: Upload,        iconBg: "bg-slate-100",  iconColor: "text-slate-600" },
-  { label: "View Calendar",    href: "/property-manager/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "AI Assistant",     href: "/property-manager/work",             icon: Sparkles,      iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
+  { label: "Create Task",      href: "/app/work/tasks/new",   icon: ClipboardList, iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Create Job",       href: "/app/work/jobs/new",    icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Add Supplier",     href: "/app/work/suppliers",   icon: UserPlus,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+  { label: "Request Quote",    href: "/app/work/suppliers",   icon: FileText,      iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
+  { label: "Log Issue",        href: "/app/work/tasks/new",   icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600" },
+  { label: "Upload Document",  href: "/app/work",             icon: Upload,        iconBg: "bg-slate-100",  iconColor: "text-slate-600" },
+  { label: "View Calendar",    href: "/app/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "AI Assistant",     href: "/app/work",             icon: Sparkles,      iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
 ]
-
-// Automation shortcut inserted inline in the page below the quick actions grid
 
 const SUPPLIER_HEALTH = [
   { name: "On Time",  value: 82, color: "#10B981" },
@@ -88,13 +126,6 @@ export default function WorkPage() {
   const workspaceId = useWorkspaceId()
   const { data: tasks = [], isLoading: tasksLoading } = useTasks(workspaceId)
   const { data: jobs = [], isLoading: jobsLoading } = useJobs(workspaceId)
-  const { data: properties = [] } = useProperties(workspaceId)
-
-  const propertyNameById = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const p of properties) map.set(p.id, p.name)
-    return map
-  }, [properties])
 
   const hasLiveData = tasks.length > 0 || jobs.length > 0
 
@@ -166,17 +197,16 @@ export default function WorkPage() {
       .slice(0, 3)
       .map(t => {
         const diffDays = Math.ceil((now.getTime() - new Date(t.due_date!).getTime()) / 86_400_000)
-        const propertyName = t.property_id ? (propertyNameById.get(t.property_id) ?? "Property") : "—"
         return {
           title: t.title,
-          property: propertyName,
+          property: t.property_id ?? "—",
           supplier: "—",
           status: `OVERDUE ${diffDays} DAY${diffDays === 1 ? "" : "S"}`,
           color: "red" as const,
           initials: t.title.slice(0, 2).toUpperCase(),
         }
       })
-  }, [tasks, hasLiveData, propertyNameById])
+  }, [tasks, hasLiveData])
 
   // ─── Upcoming tasks (due in 7 days) ─────────────────────────────────────
   const upcomingItems = useMemo(() => {
@@ -189,16 +219,15 @@ export default function WorkPage() {
       .map(t => {
         const d = new Date(t.due_date!)
         const dateStr = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }).toUpperCase()
-        const propertyName = t.property_id ? (propertyNameById.get(t.property_id) ?? "Property") : "—"
         return {
           date: dateStr,
           title: t.title,
-          property: propertyName,
+          property: t.property_id ?? "—",
           status: t.status === "in_progress" ? "In Progress" : t.status === "todo" ? "To Do" : "Waiting",
           statusColor: t.status === "in_progress" ? "bg-blue-50 text-blue-700" : t.status === "waiting" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600",
         }
       })
-  }, [tasks, hasLiveData, propertyNameById])
+  }, [tasks, hasLiveData])
 
   // ─── Blocked items ───────────────────────────────────────────────────────
   const blockedItems = useMemo(() => {
@@ -208,11 +237,11 @@ export default function WorkPage() {
       .slice(0, 3)
       .map(t => ({
         title: t.title,
-        property: t.property_id ? (propertyNameById.get(t.property_id) ?? "Property") : "—",
+        property: t.property_id ?? "—",
         tag: "Blocked",
         tagColor: "bg-red-50 text-red-700",
       }))
-  }, [tasks, hasLiveData, propertyNameById])
+  }, [tasks, hasLiveData])
 
   const displayBlocked = blockedItems
 
@@ -326,11 +355,11 @@ export default function WorkPage() {
       <MobileTopBar
         title="Work"
         subtitle="Operations command centre"
-        primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
+        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
         overflowActions={[
-          { label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" },
+          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
           { label: "Export", icon: Download, onClick: exportCsv },
-          { label: "Ask AI", icon: Sparkles, href: "/property-manager/work" },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: "/summarise" }) },
         ]}
       />
       <div className="md:hidden -mx-4">
@@ -345,13 +374,13 @@ export default function WorkPage() {
         actions={
           <>
             <Link
-              href="/property-manager/work/tasks/new"
+              href="/app/work/tasks/new"
               className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Task
             </Link>
             <Link
-              href="/property-manager/work/jobs/new"
+              href="/app/work/jobs/new"
               className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Job
@@ -362,12 +391,12 @@ export default function WorkPage() {
             >
               <Download className="w-4 h-4" /> Export
             </button>
-            <Link
-              href="/property-manager/work"
+            <button
+              onClick={() => openCopilot({ prompt: "/summarise" })}
               className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Sparkles className="w-4 h-4" /> Ask AI
-            </Link>
+            </button>
           </>
         }
         tabs={<WorkTabNav />}
@@ -384,7 +413,7 @@ export default function WorkPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-slate-900">Work Pipeline</h2>
             <Link
-              href="/property-manager/work/board"
+              href="/app/work/board"
               className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
             >
               View Board <ChevronRight className="w-3 h-3" />
@@ -465,7 +494,7 @@ export default function WorkPage() {
                   </p>
                 </div>
                 <Link
-                  href="/property-manager/work/tasks"
+                  href="/app/work/tasks"
                   className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
                 >
                   Chase <ChevronRight className="w-3 h-3" />
@@ -480,7 +509,7 @@ export default function WorkPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-slate-900">Next 7 Days</h2>
             <Link
-              href="/property-manager/calendar"
+              href="/app/calendar"
               className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
             >
               Calendar <ChevronRight className="w-3 h-3" />
@@ -546,7 +575,7 @@ export default function WorkPage() {
             ))}
           </div>
           <Link
-            href="/property-manager/work/suppliers"
+            href="/app/work/suppliers"
             className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View Suppliers <ChevronRight className="w-3 h-3" />
@@ -565,7 +594,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.overdue} Overdue</p>
                 <p className="text-xs text-slate-500">Require immediate attention</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/app/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -577,7 +606,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.dueThisWeek} Due This Week</p>
                 <p className="text-xs text-slate-500">Next 7 days</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/app/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -589,7 +618,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.scheduledJobs} Scheduled Jobs</p>
                 <p className="text-xs text-slate-500">Upcoming</p>
               </div>
-              <Link href="/property-manager/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/app/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -619,7 +648,7 @@ export default function WorkPage() {
             ))}
           </div>
           <Link
-            href="/property-manager/work/board"
+            href="/app/work/board"
             className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View All <ChevronRight className="w-3 h-3" />
@@ -629,7 +658,7 @@ export default function WorkPage() {
         {/* Cost Exposure */}
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
           <h2 className="text-base font-semibold text-slate-900 mb-1">Cost Exposure</h2>
-          <p className="text-3xl font-bold text-slate-900 mt-2 leading-none">{fmt(costExposure?.total ?? 0)}</p>
+          <p className="text-3xl font-bold text-slate-900 mt-2 leading-none">{fmt(costExposure?.total ?? 8420)}</p>
           <p className="text-xs text-slate-500 mb-4">Potential Exposure</p>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-sm">
@@ -637,25 +666,25 @@ export default function WorkPage() {
                 <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
                 Overdue
               </span>
-              <span className="font-semibold text-red-600">{fmt(costExposure?.overdue ?? 0)}</span>
+              <span className="font-semibold text-red-600">{fmt(costExposure?.overdue ?? 4250)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2 text-slate-600">
                 <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
                 At Risk
               </span>
-              <span className="font-semibold text-amber-600">{fmt(costExposure?.atRisk ?? 0)}</span>
+              <span className="font-semibold text-amber-600">{fmt(costExposure?.atRisk ?? 2950)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2 text-slate-600">
                 <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
                 Pending Quotes
               </span>
-              <span className="font-semibold text-blue-600">{fmt(costExposure?.pending ?? 0)}</span>
+              <span className="font-semibold text-blue-600">{fmt(costExposure?.pending ?? 1220)}</span>
             </div>
           </div>
           <Link
-            href="/property-manager/work/jobs"
+            href="/app/work/jobs"
             className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View Financial Impact <ChevronRight className="w-3 h-3" />
@@ -724,18 +753,6 @@ export default function WorkPage() {
             })}
           </div>
         </div>
-      </div>
-
-      {/* Automation shortcut */}
-      <div className="px-4 sm:px-6 pb-6">
-        <AutomationShortcutBanner
-          label="Automate: Job completion notification"
-          description="Notify property managers when a supplier marks a job complete. No manual chasing required."
-          triggerNodeType="supplier.job.completed"
-          defaultName="Job completion notification"
-          accentBg="bg-blue-50"
-          accentIcon="text-blue-600"
-        />
       </div>
     </div>
   )

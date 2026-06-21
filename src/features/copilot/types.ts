@@ -37,10 +37,17 @@ export interface ComplianceItem {
   action: string
 }
 
+export interface QuickAction {
+  slug: string
+  label: string
+}
+
 export interface ChatMessage {
   id: string
   role: "user" | "ai"
   content: string
   timestamp: string
   card?: "compliance-result" | "draft-message"
+  /** Suggested follow-up commands shown as clickable chips below this message. */
+  quickActions?: QuickAction[]
 }

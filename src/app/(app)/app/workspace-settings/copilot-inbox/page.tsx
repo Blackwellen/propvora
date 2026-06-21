@@ -28,6 +28,13 @@ interface InboxSettings {
 type BubblePosition = "bottom-right" | "bottom-left"
 type AttachmentSize = "5MB" | "10MB" | "25MB"
 type MessageRetention = "90 days" | "1 year" | "Forever"
+type ResponseStyle = "concise" | "standard" | "detailed"
+
+const RESPONSE_STYLE_OPTIONS: { value: ResponseStyle; label: string; desc: string }[] = [
+  { value: "concise", label: "Concise", desc: "Up to ~100 words per reply" },
+  { value: "standard", label: "Standard", desc: "Up to ~300 words per reply (default)" },
+  { value: "detailed", label: "Detailed", desc: "Up to ~600 words per reply" },
+]
 
 function ToggleRow({
   label,
@@ -123,6 +130,8 @@ export default function CopilotInboxPage() {
   const [maxCredits, setMaxCredits] = useState<number>(50)
   const [attachmentSize, setAttachmentSize] = useState<AttachmentSize>("10MB")
   const [retention, setRetention] = useState<MessageRetention>("1 year")
+  const [customInstructions, setCustomInstructions] = useState<string>("")
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>("standard")
   const [isDirty, setIsDirty] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -158,6 +167,8 @@ export default function CopilotInboxPage() {
         if (typeof s.copilot_max_credits === "number") setMaxCredits(s.copilot_max_credits as number)
         if (typeof s.inbox_attachment_size === "string") setAttachmentSize(s.inbox_attachment_size as AttachmentSize)
         if (typeof s.inbox_retention === "string") setRetention(s.inbox_retention as MessageRetention)
+        if (typeof s.copilot_instructions === "string") setCustomInstructions(s.copilot_instructions as string)
+        if (typeof s.copilot_response_style === "string") setResponseStyle(s.copilot_response_style as ResponseStyle)
       }
       setLoading(false)
     })
@@ -187,8 +198,10 @@ export default function CopilotInboxPage() {
       copilot_slash_commands:  copilot.slashCommands,
       copilot_approval_queue:  copilot.approvalQueue,
       copilot_drafts_only:     copilot.canCreateDrafts,
-      copilot_bubble_position: bubblePos,
-      copilot_max_credits:     maxCredits,
+      copilot_bubble_position:  bubblePos,
+      copilot_max_credits:      maxCredits,
+      copilot_instructions:     customInstructions,
+      copilot_response_style:   responseStyle,
       inbox_enabled:             inbox.inboxEnabled,
       portal_supplier_messaging: inbox.supplierPortalMessaging,
       inbox_contact_dm:          inbox.contactDirectMessaging,
@@ -317,7 +330,7 @@ export default function CopilotInboxPage() {
         </div>
 
         {/* Max credits per session */}
-        <div className="flex items-center justify-between py-3.5">
+        <div className="flex items-center justify-between py-3.5 border-b border-slate-100">
           <div className="flex-1 pr-4">
             <p className={cn("text-[13px] font-medium", !copilot.copilotEnabled ? "text-slate-400" : "text-slate-800")}>
               Max credits per session
@@ -336,6 +349,57 @@ export default function CopilotInboxPage() {
               !copilot.copilotEnabled ? "opacity-50 cursor-not-allowed" : ""
             )}
           />
+        </div>
+
+        {/* Response style */}
+        <div className="py-3.5 border-b border-slate-100">
+          <p className={cn("text-[13px] font-medium mb-1", !copilot.copilotEnabled ? "text-slate-400" : "text-slate-800")}>
+            Preferred response style
+          </p>
+          <p className="text-[11.5px] text-slate-400 mb-3">Controls how long Copilot replies are by default</p>
+          <div className="flex gap-2 flex-wrap">
+            {RESPONSE_STYLE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => { setResponseStyle(opt.value); setIsDirty(true) }}
+                disabled={!copilot.copilotEnabled}
+                className={cn(
+                  "flex flex-col items-start px-3.5 py-2.5 rounded-xl border text-left transition-all",
+                  responseStyle === opt.value
+                    ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+                  !copilot.copilotEnabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                )}
+              >
+                <span className="text-[12.5px] font-semibold">{opt.label}</span>
+                <span className="text-[11px] text-slate-400 mt-0.5">{opt.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom instructions */}
+        <div className="py-3.5">
+          <p className={cn("text-[13px] font-medium mb-1", !copilot.copilotEnabled ? "text-slate-400" : "text-slate-800")}>
+            Custom instructions
+          </p>
+          <p className="text-[11.5px] text-slate-400 mb-2">
+            Tell the Copilot how to refer to your business, preferred terminology, or any standing instructions.
+            These are injected into every conversation in this workspace.
+          </p>
+          <textarea
+            value={customInstructions}
+            onChange={e => { setCustomInstructions(e.target.value); setIsDirty(true) }}
+            disabled={!copilot.copilotEnabled}
+            placeholder="e.g. Always refer to our properties by reference code, not address. Use formal English."
+            maxLength={500}
+            rows={3}
+            className={cn(
+              "w-full px-3 py-2 rounded-xl border border-slate-200 text-[12.5px] text-slate-800 bg-slate-50 resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all placeholder-slate-400",
+              !copilot.copilotEnabled ? "opacity-50 cursor-not-allowed" : ""
+            )}
+          />
+          <p className="text-[10.5px] text-slate-400 mt-1 text-right">{customInstructions.length}/500</p>
         </div>
       </div>
 

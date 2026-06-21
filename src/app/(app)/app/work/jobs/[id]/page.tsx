@@ -48,6 +48,7 @@ import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import type { Job, UpdateJob } from "@/types/database"
+import { openCopilot } from "@/lib/copilot/open"
 
 // Job lifecycle status options (matches the live `jobs.status` enum).
 const JOB_STATUS_OPTIONS = [
@@ -553,7 +554,7 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
                 ))}
               </div>
             )}
-            <Link href="/property-manager/work/suppliers" className="mt-3 text-[12px] text-[#2563EB] hover:underline">View Supplier →</Link>
+            <Link href="/app/work/suppliers" className="mt-3 text-[12px] text-[#2563EB] hover:underline">View Supplier →</Link>
           </div>
         )}
 
@@ -774,14 +775,14 @@ export default function JobDetailPage() {
   if (error || jobData === null || jobData === undefined) {
     return (
       <div className="space-y-5">
-        <Link href="/property-manager/work/jobs" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/app/work/jobs" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
           <ChevronLeft className="w-4 h-4" /> Back to Jobs
         </Link>
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <AlertTriangle className="w-10 h-10 text-slate-300" />
           <p className="text-base font-semibold text-slate-700">Job not found</p>
           <p className="text-sm text-slate-400">This job may have been deleted or you don&apos;t have access.</p>
-          <Link href="/property-manager/work/jobs" className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1d4ed8]">
+          <Link href="/app/work/jobs" className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1d4ed8]">
             Back to Jobs
           </Link>
         </div>
@@ -802,7 +803,7 @@ export default function JobDetailPage() {
     setCompleting(true)
     try {
       await updateJob.mutateAsync({ id: job.id, workspaceId, payload: { status: "complete" } })
-      router.push("/property-manager/work/jobs")
+      router.push("/app/work/jobs")
     } catch {
       setCompleting(false)
     }
@@ -820,7 +821,7 @@ export default function JobDetailPage() {
   async function handleDelete() {
     if (!workspaceId) return
     await deleteJob.mutateAsync({ id: job.id, workspaceId })
-    router.push("/property-manager/work/jobs")
+    router.push("/app/work/jobs")
   }
 
   return (
@@ -831,18 +832,18 @@ export default function JobDetailPage() {
         title="Job Detail"
         subtitle={jobData.title}
         showBack
-        backHref="/property-manager/work/jobs"
+        backHref="/app/work/jobs"
         overflowActions={[
           { label: jobData.status === "complete" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (jobData.status !== "complete") handleMarkComplete() } },
-          { label: "Reschedule", icon: Calendar, href: "/property-manager/work/ppm" },
-          { label: "Request quote", icon: FileText, href: "/property-manager/work/suppliers" },
-          { label: "Ask AI", icon: Sparkles, href: "/property-manager/work" },
+          { label: "Reschedule", icon: Calendar, href: "/app/work/ppm" },
+          { label: "Request quote", icon: FileText, href: "/app/work/suppliers" },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` }) },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
 
       {/* Back link */}
-      <Link href="/property-manager/work/jobs" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/app/work/jobs" className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
         <ChevronLeft className="w-4 h-4" /> Back to Jobs
       </Link>
 
@@ -854,7 +855,7 @@ export default function JobDetailPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/property-manager/work/ppm"
+            href="/app/work/ppm"
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             <Calendar className="w-3.5 h-3.5" /> Reschedule
@@ -867,17 +868,17 @@ export default function JobDetailPage() {
             <CheckCircle2 className="w-3.5 h-3.5" /> {completing ? "Saving…" : "Mark Complete"}
           </button>
           <Link
-            href="/property-manager/work/suppliers"
+            href="/app/work/suppliers"
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             Request Quote
           </Link>
-          <Link
-            href="/property-manager/work"
+          <button
+            onClick={() => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </Link>
+          </button>
           <ConfirmDeleteDialog
             title="Delete this job?"
             description="This action cannot be undone. The job will be permanently removed."
@@ -941,7 +942,7 @@ export default function JobDetailPage() {
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 {job.propertyId ? (
-                  <Link href="/property-manager/portfolio" className="text-[#2563EB] hover:underline">{job.property}</Link>
+                  <Link href="/app/portfolio" className="text-[#2563EB] hover:underline">{job.property}</Link>
                 ) : (
                   <span>{job.property}</span>
                 )}
@@ -1049,7 +1050,7 @@ export default function JobDetailPage() {
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <p className="text-xs font-semibold text-amber-700">Note: Full scheduling and rescheduling is available via the PPM Scheduler.</p>
-                <Link href="/property-manager/work/ppm" className="mt-2 inline-block text-xs font-semibold text-[#2563EB] hover:underline">Open PPM Scheduler →</Link>
+                <Link href="/app/work/ppm" className="mt-2 inline-block text-xs font-semibold text-[#2563EB] hover:underline">Open PPM Scheduler →</Link>
               </div>
             </div>
           )}
@@ -1059,7 +1060,7 @@ export default function JobDetailPage() {
               <div className="bg-white border border-slate-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-slate-900">Quotes &amp; Estimates</h3>
-                  <Link href="/property-manager/work/suppliers" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
+                  <Link href="/app/work/suppliers" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
                     <Plus className="w-3 h-3" /> Request Quote
                   </Link>
                 </div>
@@ -1127,7 +1128,7 @@ export default function JobDetailPage() {
                 ) : (
                   <p className="text-sm text-slate-400">No supplier assigned to this job.</p>
                 )}
-                <Link href="/property-manager/work/suppliers" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">Browse Suppliers →</Link>
+                <Link href="/app/work/suppliers" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">Browse Suppliers →</Link>
               </div>
             </div>
           )}
@@ -1295,7 +1296,7 @@ export default function JobDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-slate-500">{job.linkedIssues.length} tasks linked to this job</p>
-                <Link href="/property-manager/work/tasks/new" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
+                <Link href="/app/work/tasks/new" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
                   <Plus className="w-3 h-3" /> Link Task
                 </Link>
               </div>
@@ -1306,7 +1307,7 @@ export default function JobDetailPage() {
                 </div>
               ) : (
                 job.linkedIssues.map(issue => (
-                  <Link key={issue.id} href={`/property-manager/work/tasks/${issue.id}`} className="block p-3 border border-slate-100 rounded-xl hover:bg-slate-50">
+                  <Link key={issue.id} href={`/app/work/tasks/${issue.id}`} className="block p-3 border border-slate-100 rounded-xl hover:bg-slate-50">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs text-slate-400">{issue.id}</p>

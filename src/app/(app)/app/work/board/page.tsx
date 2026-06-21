@@ -48,6 +48,7 @@ import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Task, TaskStatus } from "@/types/database"
+import { openCopilot } from "@/lib/copilot/open"
 
 // ─── Column definitions ────────────────────────────────────────────────────────
 
@@ -586,7 +587,10 @@ export default function WorkBoardPage() {
               <Download className="w-4 h-4" />
               Export
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors shadow-sm">
+            <button
+              onClick={() => openCopilot({ prompt: "Summarise my kanban board — which tasks need attention and what should I focus on today?" })}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors shadow-sm"
+            >
               <Sparkles className="w-4 h-4" />
               Ask AI
             </button>
@@ -746,9 +750,16 @@ export default function WorkBoardPage() {
                     </div>
                   )
                 })}
+<<<<<<< HEAD
                 <Link href="/property-manager/work" className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block">
+=======
+                <button
+                  onClick={() => openCopilot({ prompt: "Give me AI insights on my open tasks — which are at risk and what should I prioritise?" })}
+                  className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block w-full text-left"
+                >
+>>>>>>> worktree-agent-ad8652c37a135b149
                   Ask AI for more insights →
-                </Link>
+                </button>
               </div>
 
               {/* Recent Activity */}
