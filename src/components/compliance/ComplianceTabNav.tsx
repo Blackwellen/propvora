@@ -25,7 +25,13 @@ const COMPLIANCE_TABS = [
   { key: "reports",       label: "Reports",       href: "/app/compliance/reports",       icon: BarChart3 },
 ] as const
 
-export function ComplianceTabNav({ actions }: { actions?: React.ReactNode }) {
+interface ComplianceTabNavProps {
+  actions?: React.ReactNode
+  /** Optional badge counts keyed by tab key (e.g. { certificates: 3 }) */
+  counts?: Record<string, number>
+}
+
+export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
   const pathname = usePathname()
 
   return (
@@ -38,6 +44,7 @@ export function ComplianceTabNav({ actions }: { actions?: React.ReactNode }) {
                 ? pathname === "/app/compliance" || pathname === "/app/compliance/overview"
                 : pathname.startsWith(tab.href)
             const Icon = tab.icon
+            const count = counts?.[tab.key]
             return (
               <Link
                 key={tab.key}
@@ -51,6 +58,11 @@ export function ComplianceTabNav({ actions }: { actions?: React.ReactNode }) {
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 {tab.label}
+                {count != null && count > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 text-[10px] font-[700] min-w-[18px] h-[18px] px-1">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
               </Link>
             )
           })}

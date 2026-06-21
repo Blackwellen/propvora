@@ -42,9 +42,11 @@ const MONEY_TABS = [
 
 interface MoneyTabNavProps {
   actions?: React.ReactNode
+  /** Optional badge counts keyed by tab key (e.g. { arrears: 5 }) */
+  counts?: Record<string, number>
 }
 
-export function MoneyTabNav({ actions }: MoneyTabNavProps) {
+export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
   const pathname = usePathname()
 
   return (
@@ -57,6 +59,7 @@ export function MoneyTabNav({ actions }: MoneyTabNavProps) {
                 ? pathname === "/app/money"
                 : pathname.startsWith(tab.href)
             const Icon = tab.icon
+            const count = counts?.[tab.key]
             return (
               <Link
                 key={tab.key}
@@ -70,6 +73,11 @@ export function MoneyTabNav({ actions }: MoneyTabNavProps) {
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 {tab.label}
+                {count != null && count > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 text-[10px] font-[700] min-w-[18px] h-[18px] px-1">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
               </Link>
             )
           })}
