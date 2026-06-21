@@ -1,46 +1,49 @@
-"use client"
+'use client'
 
-import { useWorkspace } from "@/providers/AuthProvider"
+/**
+ * useWorkspaceJurisdiction — reads the active workspace's i18n settings from
+ * the AuthProvider context (no extra API call). Returns currency, locale,
+ * dateFormat, and timezone with GB-safe defaults when not yet configured.
+ *
+ * FIX-291: Created as part of i18n 100/100 gap-fill. Reads from
+ * workspace.settings (JSONB column already in the DB schema).
+ */
 
-export interface WorkspaceJurisdictionResult {
-  countryCode: string
+import { useWorkspace } from '@/providers/AuthProvider'
+import type { WorkspaceSettings } from '@/providers/AuthProvider'
+
+export interface WorkspaceJurisdiction {
+  /** ISO-4217 currency code (default GBP) */
   currency: string
+  /** BCP-47 locale tag (default en-GB) */
   locale: string
+  /** Date display format string (default DD/MM/YYYY) */
   dateFormat: string
+  /** IANA timezone (default Europe/London) */
   timezone: string
-  settings: Record<string, unknown>
+  /** True while workspace is still loading */
+  isLoading: boolean
+  /** Raw settings object from workspace.settings JSONB */
+  settings: WorkspaceSettings
 }
 
-/**
- * Returns the active workspace's i18n jurisdiction settings.
- * Reads from workspace.settings (populated by AuthProvider via Supabase).
- * Falls back to UK defaults when settings are absent.
- */
-export function useWorkspaceJurisdiction(): WorkspaceJurisdictionResult {
-  const { workspace } = useWorkspace()
-  const settings =
-    (workspace?.settings as Record<string, unknown> | undefined | null) ?? {}
-
-  const countryCode = (settings.countryCode as string | undefined) ?? "GB"
-  const currency = (settings.currency as string | undefined) ?? "GBP"
-  const locale = (settings.locale as string | undefined) ?? "en-GB"
-  const dateFormat = (settings.dateFormat as string | undefined) ?? "dd/MM/yyyy"
-  const timezone =
-    (settings.timezone as string | undefined) ?? "Europe/London"
-
-  return { countryCode, currency, locale, dateFormat, timezone, settings }
+const GB_DEFAULTS: Required<WorkspaceSettings> = {
+  currency: 'GBP',
+  locale: 'en-GB',
+  dateFormat: 'DD/MM/YYYY',
+  timezone: 'Europe/London',
 }
 
-/**
- * Convenience hook — returns just the countryCode.
- */
-export function useCountryCode(): string {
-  return useWorkspaceJurisdiction().countryCode
-}
+export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
+  const { workspace, isLoading } = useWorkspace()
+  const raw = (workspace?.settings ?? {}) as WorkspaceSettings
 
-/**
- * Convenience hook — returns just the currency code (e.g. "GBP").
- */
-export function useWorkspaceCurrency(): string {
-  return useWorkspaceJurisdiction().currency
+  return {
+    currency: raw.currency || GB_DEFAULTS.currency,
+    locale: raw.locale || GB_DEFAULTS.locale,
+    dateFormat: raw.dateFormat || GB_DEFAULTS.dateFormat,
+    timezone: raw.timezone || GB_DEFAULTS.timezone,
+    isLoading,
+    settings: raw,
+  }
 }

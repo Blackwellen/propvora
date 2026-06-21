@@ -17,6 +17,16 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         <LegalDisclaimer />
       </div>
       <div className="flex-1">{children}</div>
+      {/* Jurisdiction footer note — subtle reminder that legal info is England & Wales.
+          For non-GB workspaces this is especially important. GB workspaces still see it
+          because Scotland and Northern Ireland have different regulations. */}
+      <div className="px-6 pb-6">
+        <p className="text-[11px] text-slate-400 mt-8 border-t border-slate-100 pt-3">
+          Information relates to England &amp; Wales law unless otherwise stated. Scotland and Northern Ireland have
+          different regulations. Propvora is not a law firm and does not provide legal advice. Consult a qualified
+          solicitor before acting on any legal information shown here.
+        </p>
+      </div>
     </div>
   )
 }

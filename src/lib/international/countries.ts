@@ -242,3 +242,105 @@ export function formatCurrencyFromPence(
 export function areaUnit(profile: Pick<CountryProfile, "measurementSystem">): "sqm" | "sqft" {
   return profile.measurementSystem === "imperial" ? "sqft" : "sqm"
 }
+
+/**
+ * Build the jurisdiction context clause injected into every AI Copilot system
+ * prompt. Tells the model which laws, terminology and disclaimer level to use.
+ *
+ * The clause varies per country so the AI uses correct terminology (tenant /
+ * Mieter / locataire) and references the right statutes. For unreviewed
+ * jurisdictions it instructs the model to use generic guidance only.
+ *
+ * FIX-291: Added as part of i18n 100/100 gap-fill (AREA 7 — AI jurisdiction
+ * clause completeness).
+ */
+export function aiJurisdictionClause(profile: CountryProfile): string {
+  const { code, name, currencyCode, localeDefault, legalStatus, legalFramework } = profile
+  const reviewed = legalStatus === "reviewed"
+  // Static disclaimer text matched to review status.
+  const legalDisclaimer = reviewed
+    ? "United Kingdom property, compliance and legal workflows are the reviewed V1 baseline. This is not legal, tax or financial advice."
+    : `${name} pack not fully reviewed. Generic property management guidance only.`
+
+  // Base line — always emitted.
+  const base =
+    `Jurisdiction: ${name} (${code}). Currency: ${currencyCode}. Locale: ${localeDefault}.` +
+    ` Legal framework: ${typeof legalFramework?.tenancy_act === "string" ? legalFramework.tenancy_act : "local tenancy law"}.`
+
+  // Country-specific instruction block.
+  let specific = ""
+  switch (code) {
+    case "GB":
+      specific =
+        'UK-specific: use "tenant", "landlord", "tenancy agreement", "deposit", "Section 21 notice" (no-fault possession — now abolished under Renters\' Rights Act 2026 — refer to the new grounds-based possession process), "Section 8 notice" (grounds-based). ' +
+        'Deposit protection schemes: TDS, DPS, myDeposits. Right to Rent checks required for all adult occupiers. ' +
+        'For HMOs reference HMO licensing rules. EPC rating required for new lettings. Gas Safety, EICR and Legionella risk assessments are legally required.'
+      break
+    case "DE":
+      specific =
+        'German law: use "Mieter" (tenant), "Vermieter" (landlord), "Mietvertrag" (tenancy agreement), "Kaution" (deposit), "Kündigung" (notice to quit). ' +
+        'Reference BGB §§ 535–580a for tenancy rules. Kaution capped at 3 months\' net rent. Betriebskosten (service charges) must be itemised. ' +
+        'Heizungscheck (heating inspection) and Rauchwarnmelder (smoke detector) rules apply.'
+      break
+    case "US":
+      specific =
+        'US law: use "tenant", "landlord", "lease", "security deposit". ' +
+        'IMPORTANT: US law varies state by state — do not name specific eviction procedures, notice periods or deposit rules without stating "check your state law". ' +
+        'Fair Housing Act applies federally (protected classes). Americans with Disabilities Act may apply to commercial premises. ' +
+        'State landlord–tenant acts govern security deposit limits, habitability standards, and eviction procedures.'
+      break
+    case "AU":
+      specific =
+        'Australian law: use "tenant", "landlord/agent", "tenancy agreement" or "residential tenancy agreement", "bond" (security deposit). ' +
+        'Bond must be lodged with the relevant state bond authority (e.g. NSW Fair Trading, Consumer Affairs Victoria). ' +
+        'Dispute resolution via state tribunal (VCAT, NCAT, QCAT, etc.). Pool safety and smoke alarm rules vary by state. ' +
+        'Rates and rules differ across ACT, NSW, VIC, QLD, SA, WA, TAS, NT — always state the relevant jurisdiction.'
+      break
+    case "AE":
+      specific =
+        'UAE law: use "tenant", "landlord", "tenancy contract", "security deposit". ' +
+        'Dubai: Law No. 26 of 2007 (as amended). Ejari registration is mandatory for all Dubai tenancies. ' +
+        'RERA (Real Estate Regulatory Agency) oversees the rental market. Rent increases governed by RERA index. ' +
+        'Rent disputes handled by the Rental Dispute Centre (RDC). Abu Dhabi follows separate rules under Law No. 20 of 2006. ' +
+        'DEWA (Dubai Electricity & Water Authority) connections are the tenant\'s responsibility.'
+      break
+    case "CA":
+      specific =
+        'Canadian law: use "tenant", "landlord", "tenancy agreement", "deposit". ' +
+        'Rules vary significantly by province — do not state specific notice periods or deposit rules without naming the province. ' +
+        'Ontario: Residential Tenancies Act (LTB adjudicates disputes). BC: Residential Tenancy Act (RTB). Quebec: Civil Code + Tribunal administratif du logement. ' +
+        'PIPEDA / Law 25 applies to personal data.'
+      break
+    case "IE":
+      specific =
+        'Irish law: use "tenant", "landlord", "tenancy agreement", "deposit". ' +
+        'Residential Tenancies Act 2004 (as amended). RTB (Residential Tenancies Board) handles registrations and disputes. ' +
+        'Rent Pressure Zone (RPZ) rules cap rent increases in designated areas.'
+      break
+    case "FR":
+      specific =
+        'French law: use "locataire" (tenant), "bailleur/propriétaire" (landlord), "bail" (tenancy agreement), "dépôt de garantie" (deposit). ' +
+        'Deposit capped at 1 month\'s rent (unfurnished) or 2 months (furnished). Loi ALUR governs most residential tenancies. ' +
+        'DPE (Diagnostic de Performance Énergétique) required. ANIL/ADIL for free local legal advice.'
+      break
+    case "NL":
+      specific =
+        'Dutch law: use "huurder" (tenant), "verhuurder" (landlord), "huurcontract" (tenancy agreement), "borg" (deposit). ' +
+        'Social sector rents regulated by Huurcommissie. Free-sector (liberalised) rents mostly unregulated. ' +
+        'Huurcommissie mediates rent disputes in social sector.'
+      break
+    default:
+      specific = reviewed
+        ? `Provide property management guidance using local ${name} terminology and laws where known.`
+        : `Jurisdiction ${name} is not yet reviewed. Use generic, jurisdiction-neutral property management guidance only. ` +
+          `Do not cite specific local laws or statutes. Always recommend consulting a qualified local lawyer or property professional.`
+  }
+
+  // Disclaimer line — matches the pack's review status.
+  const disclaimer = reviewed
+    ? `Disclaimer: ${legalDisclaimer}`
+    : `IMPORTANT RESTRICTION: ${name} legal pack is ${legalStatus === "research_only" ? "research-only" : "not fully reviewed"}. ` +
+      `${legalDisclaimer} Always direct users to a qualified local property lawyer for legal questions.`
+
+  return [base, specific, disclaimer].filter(Boolean).join("\n")
+}

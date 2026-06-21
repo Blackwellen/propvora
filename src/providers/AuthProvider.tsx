@@ -15,7 +15,15 @@ import { switchWorkspace as switchWorkspaceAction } from "@/lib/actions/workspac
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Workspace {
+/** Workspace i18n settings stored as JSONB in workspaces.settings */
+export interface WorkspaceSettings {
+  currency?: string
+  locale?: string
+  dateFormat?: string
+  timezone?: string
+}
+
+export interface Workspace {
   id: string
   name: string
   slug: string
@@ -26,8 +34,8 @@ interface Workspace {
   plan: string
   trial_ends_at: string | null
   owner_id: string
-  /** i18n preferences: countryCode, currency, locale, dateFormat, timezone */
-  settings?: Record<string, unknown>
+  /** i18n / locale preferences stored in JSONB settings column. */
+  settings: WorkspaceSettings | null
 }
 
 interface AuthContextValue {
@@ -181,11 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const switchWorkspace = useCallback(
     async (workspaceId: string) => {
       // 1. Persist the choice server-side (verifies membership).
-      const result = await switchWorkspaceAction(workspaceId)
-      if (!result.ok) {
-        const msg = "error" in result ? result.error : "Workspace unavailable."
-        throw new Error(msg)
-      }
+      await switchWorkspaceAction(workspaceId)
       // 2. Clear ALL cached query data so no prior-workspace records leak.
       queryClient.clear()
       // 3. Reload the workspace context in the provider.

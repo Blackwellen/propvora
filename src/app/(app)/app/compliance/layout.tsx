@@ -1,5 +1,4 @@
 import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
-import JurisdictionBanner from "@/components/i18n/JurisdictionBanner"
 
 export const dynamic = "force-dynamic"
 
@@ -16,9 +15,15 @@ export default function ComplianceLayout({
         <p className="mt-1 text-sm text-slate-500">Risk, renewals and evidence control centre.</p>
       </div>
       <ComplianceTabNav />
-      <div className="px-6 pt-4">
-        <JurisdictionBanner />
-        {children}
+      <div className="px-6 pt-0">{children}</div>
+      {/* Jurisdiction footer note — compliance rules are England & Wales by default.
+          Non-GB jurisdictions will see different requirements. */}
+      <div className="px-6 pb-6">
+        <p className="text-[11px] text-slate-400 mt-8 border-t border-slate-100 pt-3">
+          Compliance requirements shown are based on England &amp; Wales regulations unless your workspace jurisdiction is
+          set otherwise. Scotland, Northern Ireland and non-UK jurisdictions may have different legal requirements.
+          Always verify with a qualified local professional.
+        </p>
       </div>
     </div>
   )
