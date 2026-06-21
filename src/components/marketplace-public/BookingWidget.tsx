@@ -206,10 +206,10 @@ export default function BookingWidget({
                 blockedDates={loadingAvail ? [] : blockedDates}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                onSelect={handleDateSelect}
-                onClose={() => setCalendarOpen(false)}
-                minNights={isStay ? 1 : undefined}
-                singleDate={isService}
+                onChange={(ci, co) => {
+                  handleDateSelect(ci ?? '', co ?? '')
+                }}
+                minDate={new Date()}
               />
             </div>
           )}

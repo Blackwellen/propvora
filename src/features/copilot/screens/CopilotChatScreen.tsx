@@ -8,6 +8,7 @@ import { useCopilotPageContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { ChatMessage } from "../types"
 import { COPILOT_COMMANDS } from "@/lib/ai/commands"
+import type { SectionContext } from "../context/useCopilotPageContext"
 
 function now() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -21,8 +22,8 @@ const WELCOME: ChatMessage = {
   timestamp: now(),
 }
 
-export default function CopilotChatScreen() {
-  const context = useCopilotPageContext()
+export default function CopilotChatScreen({ sectionContext }: { sectionContext?: SectionContext }) {
+  const context = { ...useCopilotPageContext(), ...(sectionContext ?? {}) }
   const { workspace } = useWorkspace()
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME])
   const [streaming, setStreaming] = useState(false)

@@ -34,7 +34,7 @@ function hexPolygon(lat: number, lng: number, radiusDeg: number): [number, numbe
   })
 }
 
-export default function ServicesMapInner({ offers }: { offers: PublicServiceOffer[] }) {
+export default function ServicesMapInner({ offers, basePath = '/services/offer' }: { offers: PublicServiceOffer[]; basePath?: string }) {
   return (
     <MapContainer
       center={[53.4808, -2.2426]}
