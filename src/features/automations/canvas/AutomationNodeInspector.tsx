@@ -6,7 +6,7 @@ import React, { useState } from "react"
 import type { Node } from "@xyflow/react"
 import { Settings, Database, Code2, TestTube2, FileJson, Copy, Check } from "lucide-react"
 import type { CanvasFlowNodeData, InspectorTab } from "./types"
-import { nodeConfigSchema } from "@/lib/automation/node-registry"
+import { nodeConfigSchema, getAvailableVars } from "@/lib/automation/node-registry"
 
 const TABS: Array<{ id: InspectorTab; label: string; icon: React.ElementType }> = [
   { id: "settings", label: "Settings",  icon: Settings },
@@ -21,6 +21,10 @@ interface Props {
   onUpdateConfig: (nodeId: string, config: Record<string, unknown>) => void
   onUpdateLabel: (nodeId: string, label: string) => void
   onRemoveNode: (nodeId: string) => void
+  /** Type of the trigger node in this flow (for context var lookup). */
+  triggerNodeType?: string | null
+  /** Types of all upstream nodes (excluding trigger). */
+  upstreamNodeTypes?: string[]
 }
 
 function EmptyState() {
@@ -41,9 +45,15 @@ function SettingsTab({
   onUpdateConfig,
   onUpdateLabel,
   onRemoveNode,
+  triggerNodeType,
+  upstreamNodeTypes,
 }: Props & { node: Node<CanvasFlowNodeData> }) {
   const schema = nodeConfigSchema(node.data.nodeType)
   const config = node.data.config
+  const hasTokenFields = schema.some((f) => f.supportsTokens)
+  const contextVars = hasTokenFields
+    ? getAvailableVars(triggerNodeType ?? null, upstreamNodeTypes ?? [])
+    : []
 
   function handleFieldChange(key: string, value: string | number | boolean) {
     onUpdateConfig(node.id, { [key]: value })
@@ -133,7 +143,7 @@ function SettingsTab({
               )}
               {field.supportsTokens && (
                 <p className="mt-1 text-[11px] text-violet-500">
-                  Tokens: {"{{summary}}"}, {"{{trigger_id}}"}, etc.
+                  Supports template tokens — see Context Variables below.
                 </p>
               )}
             </div>
@@ -143,6 +153,29 @@ function SettingsTab({
         <p className="rounded-lg bg-slate-50 px-3 py-3 text-[12px] text-slate-400 text-center">
           This node has no configurable fields.
         </p>
+      )}
+
+      {/* Context variables panel — shown only when node has token-supporting fields */}
+      {hasTokenFields && contextVars.length > 0 && (
+        <div>
+          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-violet-600">
+            Context Variables
+          </p>
+          <div className="max-h-[180px] overflow-y-auto space-y-1 rounded-xl border border-violet-100 bg-violet-50 px-2.5 py-2">
+            {contextVars.map((v) => (
+              <div key={v.token} className="flex items-center justify-between gap-2">
+                <span className="rounded bg-white px-1.5 py-0.5 font-mono text-[10px] text-violet-700 border border-violet-200 shrink-0">
+                  {v.token}
+                </span>
+                <span className="truncate text-[10px] text-slate-500">{v.label}</span>
+                <span className="shrink-0 text-[9px] text-slate-400 uppercase">{v.type}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-1 text-[10px] text-violet-400">
+            Click a token to copy, then paste into any token-enabled field above.
+          </p>
+        </div>
       )}
 
       {/* Remove node */}
@@ -351,7 +384,7 @@ function TestDataTab({ node }: { node: Node<CanvasFlowNodeData> }) {
 }
 
 // ── Main inspector ────────────────────────────────────────────────────────────
-export function AutomationNodeInspector({ node, onUpdateConfig, onUpdateLabel, onRemoveNode }: Props) {
+export function AutomationNodeInspector({ node, onUpdateConfig, onUpdateLabel, onRemoveNode, triggerNodeType, upstreamNodeTypes }: Props) {
   const [activeTab, setActiveTab] = useState<InspectorTab>("settings")
 
   return (
@@ -393,7 +426,7 @@ export function AutomationNodeInspector({ node, onUpdateConfig, onUpdateLabel, o
         {!node ? (
           <EmptyState />
         ) : activeTab === "settings" ? (
-          <SettingsTab node={node} onUpdateConfig={onUpdateConfig} onUpdateLabel={onUpdateLabel} onRemoveNode={onRemoveNode} />
+          <SettingsTab node={node} onUpdateConfig={onUpdateConfig} onUpdateLabel={onUpdateLabel} onRemoveNode={onRemoveNode} triggerNodeType={triggerNodeType} upstreamNodeTypes={upstreamNodeTypes} />
         ) : activeTab === "inputs" ? (
           <InputsTab node={node} />
         ) : activeTab === "json" ? (

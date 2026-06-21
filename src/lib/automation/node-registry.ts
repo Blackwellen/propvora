@@ -612,3 +612,202 @@ export function nodeBlockedFromAutoRun(type: string): boolean {
 export const GATED_CATEGORIES: AutomationNodeCategory[] = ["payment", "legal"]
 /** Categories that are always review-required (draft/approval path). */
 export const APPROVAL_CATEGORIES: AutomationNodeCategory[] = ["payment", "legal", "approval"]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONTEXT VARIABLES — available template tokens per upstream node category.
+// Used by the inspector to show which {{vars}} are accessible at a given node.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ContextVar {
+  token: string          // e.g. "{{summary}}"
+  label: string          // human label
+  source: string         // originating node category
+  type: "string" | "number" | "date" | "boolean" | "id"
+}
+
+/** Base context vars always available from the trigger event. */
+const TRIGGER_VARS: ContextVar[] = [
+  { token: "{{trigger_id}}", label: "Trigger ID", source: "trigger", type: "id" },
+  { token: "{{workspace_id}}", label: "Workspace ID", source: "trigger", type: "id" },
+  { token: "{{entity_type}}", label: "Entity type", source: "trigger", type: "string" },
+  { token: "{{entity_id}}", label: "Entity ID", source: "trigger", type: "id" },
+  { token: "{{summary}}", label: "Summary text", source: "trigger", type: "string" },
+  { token: "{{triggered_at}}", label: "Triggered at", source: "trigger", type: "date" },
+]
+
+/** Per-trigger type additional context vars. */
+const TRIGGER_SPECIFIC_VARS: Record<string, ContextVar[]> = {
+  "compliance.expiring": [
+    { token: "{{within_days}}", label: "Days until expiry", source: "trigger", type: "number" },
+    { token: "{{certificate_type}}", label: "Certificate type", source: "trigger", type: "string" },
+    { token: "{{property_id}}", label: "Property ID", source: "trigger", type: "id" },
+    { token: "{{property_name}}", label: "Property name", source: "trigger", type: "string" },
+  ],
+  "invoice.overdue": [
+    { token: "{{invoice_id}}", label: "Invoice ID", source: "trigger", type: "id" },
+    { token: "{{days_overdue}}", label: "Days overdue", source: "trigger", type: "number" },
+    { token: "{{amount_due}}", label: "Amount due (pence)", source: "trigger", type: "number" },
+    { token: "{{tenant_name}}", label: "Tenant name", source: "trigger", type: "string" },
+  ],
+  "portfolio.tenancy_ending": [
+    { token: "{{tenancy_id}}", label: "Tenancy ID", source: "trigger", type: "id" },
+    { token: "{{end_date}}", label: "Tenancy end date", source: "trigger", type: "date" },
+    { token: "{{within_days}}", label: "Days until end", source: "trigger", type: "number" },
+    { token: "{{tenant_name}}", label: "Tenant name", source: "trigger", type: "string" },
+    { token: "{{property_name}}", label: "Property name", source: "trigger", type: "string" },
+  ],
+  "work.task_overdue": [
+    { token: "{{task_id}}", label: "Task ID", source: "trigger", type: "id" },
+    { token: "{{task_title}}", label: "Task title", source: "trigger", type: "string" },
+    { token: "{{days_overdue}}", label: "Days overdue", source: "trigger", type: "number" },
+    { token: "{{assignee_name}}", label: "Assignee name", source: "trigger", type: "string" },
+  ],
+  "supplier.job.completed": [
+    { token: "{{job_id}}", label: "Job ID", source: "trigger", type: "id" },
+    { token: "{{supplier_name}}", label: "Supplier name", source: "trigger", type: "string" },
+    { token: "{{property_name}}", label: "Property name", source: "trigger", type: "string" },
+    { token: "{{completed_at}}", label: "Completed at", source: "trigger", type: "date" },
+  ],
+  "money.payment_received": [
+    { token: "{{payment_id}}", label: "Payment ID", source: "trigger", type: "id" },
+    { token: "{{amount}}", label: "Amount (pence)", source: "trigger", type: "number" },
+    { token: "{{payer_name}}", label: "Payer name", source: "trigger", type: "string" },
+    { token: "{{received_at}}", label: "Received at", source: "trigger", type: "date" },
+  ],
+  "portfolio.tenancy_started": [
+    { token: "{{tenancy_id}}", label: "Tenancy ID", source: "trigger", type: "id" },
+    { token: "{{tenant_name}}", label: "Tenant name", source: "trigger", type: "string" },
+    { token: "{{tenant_email}}", label: "Tenant email", source: "trigger", type: "string" },
+    { token: "{{property_name}}", label: "Property name", source: "trigger", type: "string" },
+    { token: "{{start_date}}", label: "Start date", source: "trigger", type: "date" },
+  ],
+  "record.created": [
+    { token: "{{record_type}}", label: "Record type", source: "trigger", type: "string" },
+    { token: "{{record_id}}", label: "Record ID", source: "trigger", type: "id" },
+    { token: "{{created_by}}", label: "Created by (user ID)", source: "trigger", type: "id" },
+  ],
+  "record.updated": [
+    { token: "{{record_type}}", label: "Record type", source: "trigger", type: "string" },
+    { token: "{{record_id}}", label: "Record ID", source: "trigger", type: "id" },
+    { token: "{{changed_field}}", label: "Changed field name", source: "trigger", type: "string" },
+    { token: "{{old_value}}", label: "Old field value", source: "trigger", type: "string" },
+    { token: "{{new_value}}", label: "New field value", source: "trigger", type: "string" },
+  ],
+  "booking.confirmed": [
+    { token: "{{booking_id}}", label: "Booking ID", source: "trigger", type: "id" },
+    { token: "{{guest_name}}", label: "Guest name", source: "trigger", type: "string" },
+    { token: "{{check_in}}", label: "Check-in date", source: "trigger", type: "date" },
+    { token: "{{check_out}}", label: "Checkout date", source: "trigger", type: "date" },
+    { token: "{{property_name}}", label: "Property name", source: "trigger", type: "string" },
+  ],
+}
+
+/** Vars produced by intermediate nodes (lookup, ai, utility). */
+const CATEGORY_OUTPUT_VARS: Partial<Record<AutomationNodeCategory, ContextVar[]>> = {
+  lookup: [
+    { token: "{{record.id}}", label: "Looked-up record ID", source: "lookup", type: "id" },
+    { token: "{{record.name}}", label: "Record name", source: "lookup", type: "string" },
+    { token: "{{record.status}}", label: "Record status", source: "lookup", type: "string" },
+  ],
+  ai: [
+    { token: "{{ai.output}}", label: "AI output text", source: "ai", type: "string" },
+    { token: "{{ai.category}}", label: "AI category result", source: "ai", type: "string" },
+    { token: "{{ai.risk_score}}", label: "AI risk score (0–100)", source: "ai", type: "number" },
+    { token: "{{ai.summary}}", label: "AI summary", source: "ai", type: "string" },
+  ],
+  utility: [
+    { token: "{{var.name}}", label: "Set variable value", source: "utility", type: "string" },
+    { token: "{{formatted_text}}", label: "Formatted text output", source: "utility", type: "string" },
+  ],
+  condition: [
+    { token: "{{branch}}", label: "Branch taken (TRUE/FALSE)", source: "condition", type: "string" },
+  ],
+}
+
+/**
+ * Returns all context variable tokens available at a given node, based on:
+ * 1. The trigger node's type (gives trigger-specific vars)
+ * 2. All upstream node categories (gives output vars from those nodes)
+ *
+ * Pass the trigger node type and an array of upstream node types (excluding the trigger).
+ */
+export function getAvailableVars(
+  triggerType: string | null,
+  upstreamNodeTypes: string[],
+): ContextVar[] {
+  const vars: ContextVar[] = [...TRIGGER_VARS]
+
+  // Add trigger-specific vars
+  if (triggerType && TRIGGER_SPECIFIC_VARS[triggerType]) {
+    vars.push(...TRIGGER_SPECIFIC_VARS[triggerType])
+  }
+
+  // Add output vars from upstream categories (deduplicated by category)
+  const seenCategories = new Set<AutomationNodeCategory>()
+  for (const nodeType of upstreamNodeTypes) {
+    const cat = nodeCategory(nodeType)
+    if (cat && !seenCategories.has(cat) && CATEGORY_OUTPUT_VARS[cat]) {
+      vars.push(...CATEGORY_OUTPUT_VARS[cat]!)
+      seenCategories.add(cat)
+    }
+  }
+
+  return vars
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONNECTION VALIDATION — which node categories can connect to which.
+// Prevents nonsensical flows (e.g. trigger → trigger, end → anything).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Return true if an edge from sourceCategory to targetCategory is valid. */
+export function isConnectionValid(
+  sourceCategory: AutomationNodeCategory,
+  targetCategory: AutomationNodeCategory,
+): boolean {
+  // End nodes cannot be sources
+  if (sourceCategory === "end") return false
+  // Nothing can connect to a trigger
+  if (targetCategory === "trigger") return false
+  // Triggers cannot connect directly to end nodes (must have at least one action)
+  if (sourceCategory === "trigger" && targetCategory === "end") return false
+  // Payment/legal (gated) cannot connect directly to another payment/legal node
+  if (
+    (sourceCategory === "payment" || sourceCategory === "legal") &&
+    (targetCategory === "payment" || targetCategory === "legal")
+  ) return false
+  // Everything else is allowed
+  return true
+}
+
+/** Human-readable reason why a connection is invalid (or null if valid). */
+export function connectionInvalidReason(
+  sourceCategory: AutomationNodeCategory,
+  targetCategory: AutomationNodeCategory,
+): string | null {
+  if (!isConnectionValid(sourceCategory, targetCategory)) {
+    if (sourceCategory === "end") return "End nodes cannot have outgoing connections."
+    if (targetCategory === "trigger") return "Trigger nodes cannot receive connections — they start the flow."
+    if (sourceCategory === "trigger" && targetCategory === "end") return "Connect a trigger to an action node first."
+    if (
+      (sourceCategory === "payment" || sourceCategory === "legal") &&
+      (targetCategory === "payment" || targetCategory === "legal")
+    ) return "Gated nodes (payment/legal) must route through an approval node before another gated node."
+    return "This connection type is not allowed."
+  }
+  return null
+}
+
+/** True when a node has all required config fields filled. */
+export function nodeConfigComplete(
+  nodeType: string,
+  config: Record<string, unknown>,
+): boolean {
+  const schema = nodeConfigSchema(nodeType)
+  return schema
+    .filter((f) => f.required)
+    .every((f) => {
+      const v = config[f.key]
+      return v !== undefined && v !== null && v !== ""
+    })
+}

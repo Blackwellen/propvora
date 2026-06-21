@@ -27,6 +27,7 @@ import {
   ResponsiveTable,
   type FilterGroup,
 } from "@/components/mobile"
+import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
 import {
   useComplianceCertificates,
   useDeleteCertificate,
@@ -349,6 +350,18 @@ export default function CertificatesPage() {
             </ResponsiveTable>
           )}
         </div>
+      </div>
+
+      {/* Automation shortcut */}
+      <div className="px-4 sm:px-6 pb-4">
+        <AutomationShortcutBanner
+          label="Automate: Certificate expiry reminders"
+          description="Automatically notify tenants and owners before certificates expire. Set up once, runs every time."
+          triggerNodeType="compliance.expiring"
+          defaultName="Certificate expiry reminder"
+          accentBg="bg-amber-50"
+          accentIcon="text-amber-600"
+        />
       </div>
 
       {/* Mobile filter sheet */}

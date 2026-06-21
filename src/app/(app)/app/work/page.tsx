@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { MobileTopBar } from "@/components/mobile"
+import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useTasks } from "@/hooks/useTasks"
@@ -58,6 +59,8 @@ const QUICK_ACTIONS = [
   { label: "View Calendar",    href: "/property-manager/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
   { label: "AI Assistant",     href: "/property-manager/work",             icon: Sparkles,      iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
 ]
+
+// Automation shortcut inserted inline in the page below the quick actions grid
 
 const SUPPLIER_HEALTH = [
   { name: "On Time",  value: 82, color: "#10B981" },
@@ -721,6 +724,18 @@ export default function WorkPage() {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Automation shortcut */}
+      <div className="px-4 sm:px-6 pb-6">
+        <AutomationShortcutBanner
+          label="Automate: Job completion notification"
+          description="Notify property managers when a supplier marks a job complete. No manual chasing required."
+          triggerNodeType="supplier.job.completed"
+          defaultName="Job completion notification"
+          accentBg="bg-blue-50"
+          accentIcon="text-blue-600"
+        />
       </div>
     </div>
   )

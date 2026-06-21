@@ -8,6 +8,7 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { MobileTopBar } from "@/components/mobile"
+import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
 import { downloadCsv, parseCsv } from "@/lib/export/csv"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
@@ -338,6 +339,18 @@ function ContactsPageInner() {
       )}
 
       {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg(null)} />}
+
+      {/* Automation shortcut */}
+      <div className="px-4 sm:px-6 pb-6">
+        <AutomationShortcutBanner
+          label="Automate: New tenant welcome email"
+          description="Automatically send a welcome email when a new tenancy starts. Professional onboarding, hands-free."
+          triggerNodeType="portfolio.tenancy_started"
+          defaultName="New tenant welcome email"
+          accentBg="bg-emerald-50"
+          accentIcon="text-emerald-600"
+        />
+      </div>
     </DashboardContainer>
   )
 }

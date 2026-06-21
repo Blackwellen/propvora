@@ -4,7 +4,7 @@
 // 4-zone layout: Left Library | Central Canvas | Right Inspector | Bottom Testing
 // Supports ?automationId=xxx, ?mode=max, ?fullscreen=true
 
-import React, { useCallback, useRef, useState } from "react"
+import React, { useCallback, useMemo, useRef, useState } from "react"
 import { ReactFlowProvider } from "@xyflow/react"
 import { useSearchParams } from "next/navigation"
 import { Plus, Sparkles } from "lucide-react"
@@ -44,6 +44,36 @@ export function AutomationCanvasPageInner({ workspaceId }: Props) {
   const flow = useAutomationFlow(workspaceId, automationId)
   const dryRun = useAutomationDryRun(workspaceId)
   const validation = useAutomationValidation(canvas.nodes)
+
+  // ── Context variable helpers ─────────────────────────────────────────────────
+  // Derive trigger node type and upstream node types for the inspector
+  const triggerNodeType = useMemo(() => {
+    const trigger = canvas.nodes.find((n) => n.data.category === "trigger")
+    return trigger?.data.nodeType ?? null
+  }, [canvas.nodes])
+
+  const upstreamNodeTypes = useMemo(() => {
+    if (!canvas.selectedNodeId) return []
+    // Walk the edge graph to find all ancestors of the selected node (excluding trigger)
+    const adj: Record<string, string[]> = {}
+    canvas.edges.forEach((e) => {
+      if (!adj[e.target]) adj[e.target] = []
+      adj[e.target].push(e.source)
+    })
+    const visited = new Set<string>()
+    const queue = [canvas.selectedNodeId]
+    while (queue.length) {
+      const id = queue.shift()!
+      if (visited.has(id)) continue
+      visited.add(id)
+      const parents = adj[id] ?? []
+      queue.push(...parents)
+    }
+    visited.delete(canvas.selectedNodeId)
+    return canvas.nodes
+      .filter((n) => visited.has(n.id) && n.data.category !== "trigger")
+      .map((n) => n.data.nodeType)
+  }, [canvas.nodes, canvas.edges, canvas.selectedNodeId])
 
   const [viewMode, setViewMode] = useState<ViewMode>("visual")
   const [maximised, setMaximised] = useState(initMode)
@@ -243,6 +273,8 @@ export function AutomationCanvasPageInner({ workspaceId }: Props) {
                 onUpdateConfig={canvas.updateNodeConfig}
                 onUpdateLabel={canvas.updateNodeLabel}
                 onRemoveNode={canvas.removeNode}
+                triggerNodeType={triggerNodeType}
+                upstreamNodeTypes={upstreamNodeTypes}
               />
             )}
           </div>

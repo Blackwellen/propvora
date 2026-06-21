@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import type { CanvasFlowNodeData } from "./types"
 import type { AutomationNodeCategory } from "@/lib/automation/node-registry"
+import { nodeConfigComplete } from "@/lib/automation/node-registry"
 
 // ── Category → visual config ────────────────────────────────────────────────
 
@@ -76,6 +77,8 @@ export const AutomationNodeCard = memo(function AutomationNodeCard(
   const Icon = style.icon
   const isTerminal = data.category === "end"
   const isTrigger = data.category === "trigger"
+  // Config complete check: show warning badge if required fields are missing
+  const configComplete = nodeConfigComplete(data.nodeType, data.config ?? {})
 
   return (
     <div
@@ -131,6 +134,13 @@ export const AutomationNodeCard = memo(function AutomationNodeCard(
           <p className="mt-1 text-[11px] leading-relaxed text-slate-500 line-clamp-2">
             {data.description}
           </p>
+        )}
+        {/* Config required warning badge */}
+        {!configComplete && data.category !== "trigger" && data.category !== "end" && (
+          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5">
+            <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
+            <span className="text-[10px] font-semibold text-red-600">Configuration required</span>
+          </div>
         )}
       </div>
 

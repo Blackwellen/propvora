@@ -11,7 +11,6 @@ import {
   BackgroundVariant,
   MiniMap,
   Controls,
-  useReactFlow,
   type Node,
   type Edge,
   type NodeChange,
@@ -23,6 +22,7 @@ import "@xyflow/react/dist/style.css"
 import { Zap, LayoutTemplate, Wand2, Plus } from "lucide-react"
 import type { CanvasFlowNodeData } from "./types"
 import { AutomationNodeCard } from "./AutomationNodeCard"
+import { isConnectionValid, nodeCategory } from "@/lib/automation/node-registry"
 
 // v12: nodeTypes must be typed as NodeTypes; cast the custom component.
 const nodeTypes: NodeTypes = {
@@ -113,6 +113,22 @@ function CanvasInner({
     [onNodeClick]
   )
 
+  // Connection validation: prevent invalid edge connections at the canvas level
+  const isValidConnection = useCallback(
+    (connection: Edge | Connection): boolean => {
+      const sourceNode = nodes.find((n) => n.id === connection.source)
+      const targetNode = nodes.find((n) => n.id === connection.target)
+      if (!sourceNode || !targetNode) return false
+      // Prevent self-connections
+      if (connection.source === connection.target) return false
+      const srcCat = nodeCategory((sourceNode.data as CanvasFlowNodeData).nodeType)
+      const tgtCat = nodeCategory((targetNode.data as CanvasFlowNodeData).nodeType)
+      if (!srcCat || !tgtCat) return true // unknown types: allow
+      return isConnectionValid(srcCat, tgtCat)
+    },
+    [nodes]
+  )
+
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
       <ReactFlow
@@ -127,6 +143,7 @@ function CanvasInner({
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
         onPaneClick={onPaneClick}
+        isValidConnection={isValidConnection}
         fitView
         fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
         minZoom={0.2}
