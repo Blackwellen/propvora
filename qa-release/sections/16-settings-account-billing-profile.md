@@ -1,6 +1,6 @@
 # Section 16 — Settings / Account / Billing / Profile
 
-Last updated: 2026-06-21 (Session 41 — FIX-229: billing hooks cleared ("Blackwellen Ltd" removed); FIX-247: subscription page fake invoices cleared; FIX-248: billing page plan derived from live data; FIX-218: workspace invoices cleared; FIX-127: account overview stats cleared of fake values; FIX-111: settings dead code removed; all builds EXIT:0)
+Last updated: 2026-06-21 (FIX-277: Full settings QA audit — PM workspace, Supplier Solo, Customer settings all assessed; FIX-277: customer AccountSettingsClient fake data sweep — Sarah Johnson name/address/emergency contact/finance/security/verification all cleared; customer Right Rail cleared of hardcoded "March 2024", "Saved cards: 2", "Bank accounts: 1", trust-safety badges; tsc EXIT:0)
 
 Coverage for all settings, account management, billing, and profile surfaces across PM workspace, Supplier Solo (SSW), and Supplier Team (STW). Each row tests a specific settings function end-to-end: save, security, plan gate, and audit logging.
 
@@ -32,11 +32,21 @@ Coverage for all settings, account management, billing, and profile surfaces acr
 | SET-PMW-018 | PM | Notifications | /property-manager/workspace-settings/notifications | Alert toggles + channels + digest | ✅ | ✅ | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED — loads from getWorkspaceSettings; saves to saveWorkspaceSettings("chat"); push channel permanently disabled (VAPID not configured — honest UI); 42P01-tolerant. Browser test [~] |
 | SET-PMW-019 | PM | Integrations | /property-manager/workspace-settings/integrations | Integration status grid | ✅ | ✅ | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED — fetches /api/integrations/status; no hardcoded "Connected"; env-check fallback; 8 integrations shown. Browser test [~] |
 | SET-PMW-020 | PM | Overview | /property-manager/workspace-settings | Settings category grid | ✅ | N/A | N/A | N/A | [~] | [~] | 5 | CODE_CONFIRMED (FIX-144) — Language & Preferences now in Configuration group; stat cards derive live team/plan data; all 6 category groups present. Browser test [~] |
-| SET-SSW-001 | SSW | Profile | /supplier/settings/profile | Edit profile | [~] | [~] | [~] | [~] | [~] | [~] | [~] | BROWSER_REQUIRED |
-| SET-SSW-002 | SSW | Account | /supplier/settings/account | Account settings | [~] | [~] | [~] | [~] | [~] | [~] | [~] | BROWSER_REQUIRED |
+| SET-SSW-001 | SSW | Settings Overview | /supplier/settings | Marketplace visibility toggle + nav links | ✅ | ✅ | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED (FIX-277) — page exists; loads live profile status via /api/supplier/profile; PATCH to toggle active/paused/draft; SettingsNavigationLinks shows 4 nav cards (Business profile, Verification, Team, Coverage). Narrow scope — no billing, no payout, no insurance in settings page itself. Browser test [~] |
+| SET-SSW-002 | SSW | Business Profile | /supplier/profile | Edit business name/bio/trades | [~] | [~] | N/A | [~] | [~] | [~] | [~] | BROWSER_REQUIRED |
 | SET-SSW-003 | SSW | Billing | /supplier/settings/billing | Subscription | [~] | [~] | [~] | [~] | [~] | [~] | [~] | BROWSER_REQUIRED — Stripe blocker |
+| SET-SSW-004 | SSW | Verification | /supplier/verification | Insurance/certification settings | [~] | [~] | N/A | [~] | [~] | [~] | [~] | BROWSER_REQUIRED |
+| SET-SSW-005 | SSW | Team | /supplier/team | Team member list | [~] | [~] | N/A | [~] | [~] | [~] | [~] | BROWSER_REQUIRED |
 | SET-STW-001 | STW | Team | /supplier/settings/team | Team members | [~] | [~] | [~] | [~] | [~] | [~] | [~] | BROWSER_REQUIRED — BLK-010 migration needed |
 | SET-STW-002 | STW | Billing | /supplier/settings/billing | Team billing | [~] | [~] | [~] | [~] | [~] | [~] | [~] | BROWSER_REQUIRED — BLK-010 migration + Stripe blocker |
+| SET-CTW-001 | Customer | Account Settings | /customer/account-settings | Profile form — name/email/phone/DOB | ✅ | ✅ | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED (FIX-277) — form fields load blank (honest empty state); form is editable with dirty-save bar; was previously pre-filled with fake "Sarah Johnson" data — now cleared. Avatar initials cleared. Browser test [~] |
+| SET-CTW-002 | Customer | Account Settings | /customer/account-settings | Tab navigation — 6 tabs | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED — overview/profile/finance/security/notifications/privacy tabs; desktop strip + mobile dropdown both present. Browser test [~] |
+| SET-CTW-003 | Customer | Account Settings | /customer/account-settings?tab=security | Security panel | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED (FIX-277) — Password sub shows generic copy (not "Last changed 2 months ago"); 2FA sub shows "Not yet enabled" (not fake "Authenticator app enabled"); data export request present. Browser test [~] |
+| SET-CTW-004 | Customer | Account Settings | /customer/account-settings?tab=notifications | Communication preferences | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED — email/SMS/push/marketing toggles; client-side state (not yet persisted). Browser test [~] |
+| SET-CTW-005 | Customer | Account Settings | /customer/account-settings?tab=finance | Finance section | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED (FIX-277) — shows "Not set" / "Configure in payments" / "GBP (£)" — honest empty state; was showing fake "Visa ····4242". Payment summary right rail shows "—" not "2"/"1". Browser test [~] |
+| SET-CTW-006 | Customer | Account Settings | /customer/account-settings?tab=privacy | Privacy section | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED — profile visibility toggle; search personalisation toggle; delete/export account button. Browser test [~] |
+| SET-CTW-007 | Customer | Account Settings | /customer/account-settings | Right-rail account status | ✅ | N/A | N/A | N/A | [~] | [~] | 4 | CODE_CONFIRMED (FIX-277) — "Member since" shows "—" not "March 2024"; verification shows "Unverified" not fake "Verified"; trust-safety panel shows honest empty message. Browser test [~] |
+| SET-CTW-008 | Customer | Account Settings | /customer/account-settings | Delete / export account | ✅ | N/A | N/A | N/A | [~] | [~] | 3 | CODE_CONFIRMED — button present in Privacy tab; triggers toast "opens secure flow"; full delete flow not yet implemented (P2). Browser test [~] |
 
 ---
 

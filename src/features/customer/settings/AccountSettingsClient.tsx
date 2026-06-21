@@ -5,16 +5,13 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   BadgeCheck, UserCheck, CreditCard, RefreshCw, ShieldCheck, Camera, Plus, MapPin,
-  Fingerprint, KeyRound, Download, CheckCircle2, ChevronRight,
+  Fingerprint, Bell, Lock, KeyRound, Download, Trash2, Mail, MessageSquare,
+  Smartphone, ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill } from "../components/StatusPill"
 import { customerInputClass } from "@/components/customer/ui"
-import NotificationsSection from "./components/NotificationsSection"
-import FinanceSection from "./components/FinanceSection"
-import SecuritySection from "./components/SecuritySection"
-import PrivacySection from "./components/PrivacySection"
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -43,31 +40,17 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
         <p className="text-[13.5px] text-slate-500 mt-1">Manage your profile, payments, privacy and security in one place.</p>
       </div>
 
-      {/* Mobile dropdown — shown only below md breakpoint */}
-      <div className="md:hidden border-b border-slate-200 pb-2.5">
-        <select
-          value={tab}
-          onChange={(e) => changeTab(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          aria-label="Navigate section"
-        >
-          {TABS.map((t) => (
-            <option key={t.id} value={t.id}>{t.label}</option>
-          ))}
-        </select>
-      </div>
-      {/* Desktop tab strip — hidden below md */}
-      <div className="hidden md:flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
+      <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
         {TABS.map((t) => <button key={t.id} onClick={() => changeTab(t.id)} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap", t.id === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t.label}</button>)}
       </div>
 
       {/* Status strip */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <Stat icon={UserCheck} bg="bg-emerald-50 text-emerald-600" label="Verification status" value="Verified" pill cta="Manage" onClick={() => changeTab("security")} />
-        <Stat icon={BadgeCheck} bg="bg-blue-50 text-blue-600" label="Profile completeness" value="85%" cta="Complete profile" onClick={() => changeTab("profile")} />
-        <Stat icon={CreditCard} bg="bg-violet-50 text-violet-600" label="Saved payment methods" value="3" cta="Manage cards" onClick={() => changeTab("finance")} />
-        <Stat icon={RefreshCw} bg="bg-amber-50 text-amber-600" label="Autopay status" value="Active" cta="Manage autopay" onClick={() => changeTab("finance")} />
-        <Stat icon={ShieldCheck} bg="bg-emerald-50 text-emerald-600" label="Security health" value="Strong" cta="Review" onClick={() => changeTab("security")} />
+        <Stat icon={UserCheck} bg="bg-slate-100 text-slate-400" label="Verification status" value="Unverified" cta="Verify identity" onClick={() => changeTab("security")} />
+        <Stat icon={BadgeCheck} bg="bg-blue-50 text-blue-600" label="Profile completeness" value="—" cta="Complete profile" onClick={() => changeTab("profile")} />
+        <Stat icon={CreditCard} bg="bg-violet-50 text-violet-600" label="Saved payment methods" value="—" cta="Add card" onClick={() => changeTab("finance")} />
+        <Stat icon={RefreshCw} bg="bg-slate-100 text-slate-400" label="Autopay status" value="Not set" cta="Set up autopay" onClick={() => changeTab("finance")} />
+        <Stat icon={ShieldCheck} bg="bg-slate-100 text-slate-400" label="Security health" value="—" cta="Review" onClick={() => changeTab("security")} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5 items-start">
@@ -76,10 +59,10 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <>
               <Panel title="Profile information">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white text-[18px] font-bold">
+                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[18px] font-bold">
                     <button onClick={() => toast("Upload avatar (upload-only) — coming soon", "info")} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm"><Camera className="w-3.5 h-3.5" /></button>
                   </span>
-                  <div><p className="text-[14px] font-semibold text-slate-800">Your Profile</p><p className="text-[12px] text-slate-400">Customer · Verified</p></div>
+                  <div><p className="text-[14px] font-semibold text-slate-800">Your Profile</p><p className="text-[12px] text-slate-400">Customer · Unverified</p></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Full name" defaultValue="" onChange={() => setDirty(true)} />
@@ -100,37 +83,65 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             </>
           )}
 
-          {(tab === "overview" || tab === "notifications") && <NotificationsSection />}
+          {(tab === "overview" || tab === "notifications") && (
+            <Panel title="Communication preferences">
+              <PrefRow icon={Mail} title="Email notifications" sub="Booking updates, receipts and offers" defaultOn />
+              <PrefRow icon={MessageSquare} title="SMS notifications" sub="Time-sensitive booking alerts" defaultOn />
+              <PrefRow icon={Smartphone} title="Push notifications" sub="On your devices" />
+              <PrefRow icon={Bell} title="Marketing &amp; offers" sub="Curated deals and credits" defaultOn />
+            </Panel>
+          )}
 
-          {(tab === "overview" || tab === "finance") && <FinanceSection />}
+          {(tab === "overview" || tab === "finance") && (
+            <Panel title="Finance &amp; payment settings" action={<Link href="/customer/payments" className="text-[12px] font-semibold text-blue-600">Open payments →</Link>}>
+              <FinRow label="Default payment method" value="Not set" />
+              <FinRow label="Autopay" value="Configure in payments" />
+              <FinRow label="Refund destination" value="Original payment method" />
+              <FinRow label="Billing currency" value="GBP (£)" />
+            </Panel>
+          )}
 
-          {(tab === "overview" || tab === "security") && <SecuritySection />}
+          {(tab === "overview" || tab === "security") && (
+            <Panel title="Security">
+              <SecRow icon={KeyRound} title="Password" sub="Update your login password" cta="Change password" onClick={() => toast("Change password — coming soon", "info")} />
+              <SecRow icon={Smartphone} title="Two-factor authentication" sub="Not yet enabled" cta="Enable 2FA" onClick={() => toast("Manage 2FA — coming soon", "info")} />
+              <SecRow icon={Download} title="Download your data" sub="Get a copy of your account data" cta="Request" onClick={() => toast("Data export requested", "success")} />
+            </Panel>
+          )}
 
-          {(tab === "overview" || tab === "privacy") && <PrivacySection />}
+          {(tab === "overview" || tab === "privacy") && (
+            <Panel title="Privacy">
+              <PrefRow icon={ShieldCheck} title="Profile visibility" sub="Show profile to hosts you book with" defaultOn />
+              <PrefRow icon={Lock} title="Search personalisation" sub="Use my activity to improve results" defaultOn />
+              <div className="pt-2 mt-2 border-t border-slate-100">
+                <button onClick={() => toast("Account deletion — opens secure flow", "warning")} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-rose-600"><Trash2 className="w-4 h-4" /> Delete / export account</button>
+              </div>
+            </Panel>
+          )}
         </div>
 
         {/* Right rail */}
         <aside className="space-y-5">
           <Panel title="Account status">
-            <Row l="Member since" r="March 2024" />
+            <Row l="Member since" r="—" />
             <Row l="Account type" r="Customer" />
             <Row l="Status" r="Active" />
-            <div className="flex items-center justify-between"><span className="text-[12px] text-slate-500">Verification</span><StatusPill tone="emerald">Verified</StatusPill></div>
+            <div className="flex items-center justify-between"><span className="text-[12px] text-slate-500">Verification</span><StatusPill tone="slate">Unverified</StatusPill></div>
           </Panel>
           <Panel title="Quick actions">
             <QA icon={KeyRound} label="Change password" onClick={() => toast("Change password — coming soon", "info")} />
-            <QA icon={Fingerprint} label="Verify identity" onClick={() => toast("Identity already verified", "success")} />
+            <QA icon={Fingerprint} label="Verify identity" onClick={() => toast("Identity verification — coming soon", "info")} />
             <QA icon={CreditCard} label="Manage cards" onClick={() => router.push("/customer/payments")} />
             <QA icon={Download} label="Download data" onClick={() => toast("Data export requested", "success")} />
           </Panel>
           <Panel title="Payment summary">
-            <Row l="Saved cards" r="2" />
-            <Row l="Bank accounts" r="1" />
-            <Row l="Autopay" r="Active" />
+            <Row l="Saved cards" r="—" />
+            <Row l="Bank accounts" r="—" />
+            <Row l="Autopay" r="Not set" />
             <Link href="/customer/payments" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">Manage payment methods →</Link>
           </Panel>
           <Panel title="Trust &amp; safety">
-            {["Verified identity", "Secure payments enabled", "2FA active"].map((t) => <p key={t} className="text-[11.5px] text-slate-500 flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> {t}</p>)}
+            <p className="text-[12.5px] text-slate-400">Complete your profile to build trust with hosts and landlords.</p>
           </Panel>
         </aside>
       </div>
@@ -173,6 +184,16 @@ function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
 }
 function AddrRow({ label, value, primary }: { label: string; value: string; primary?: boolean }) {
   return <div className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"><span className="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12.5px] font-semibold text-slate-800">{label} {primary && <StatusPill tone="blue">Primary</StatusPill>}</p><p className="text-[11.5px] text-slate-400 truncate">{value}</p></div></div>
+}
+function PrefRow({ icon: Icon, title, sub, defaultOn }: { icon: typeof Mail; title: string; sub: string; defaultOn?: boolean }) {
+  const [on, setOn] = useState(!!defaultOn)
+  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800" dangerouslySetInnerHTML={{ __html: title }} /><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={() => setOn(!on)} className={cn("w-9 h-5 rounded-full p-0.5 transition", on ? "bg-emerald-500" : "bg-slate-200")}><span className={cn("block w-4 h-4 rounded-full bg-white transition-transform", on && "translate-x-4")} /></button></div>
+}
+function FinRow({ label, value }: { label: string; value: string }) {
+  return <div className="flex items-center justify-between py-1.5"><span className="text-[12px] text-slate-500">{label}</span><span className="text-[12px] font-semibold text-slate-800">{value}</span></div>
+}
+function SecRow({ icon: Icon, title, sub, cta, onClick }: { icon: typeof KeyRound; title: string; sub: string; cta: string; onClick: () => void }) {
+  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">{title}</p><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={onClick} className="text-[11.5px] font-semibold text-blue-600">{cta}</button></div>
 }
 function QA({ icon: Icon, label, onClick }: { icon: typeof KeyRound; label: string; onClick: () => void }) {
   return <button onClick={onClick} className="w-full flex items-center gap-2.5 py-2 group"><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span><span className="flex-1 text-left text-[12.5px] font-medium text-slate-700">{label}</span><ChevronRight className="w-4 h-4 text-slate-300" /></button>

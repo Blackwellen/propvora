@@ -1,6 +1,6 @@
 # Settings, Account, Billing & Profile QA Log
 
-Last updated: 2026-06-21 (Session 41 — FIX-229/247/248: billing honesty sweep; FIX-141: security settings save fix; FIX-218: workspace invoices cleared; FIX-125: Language & Preferences page; FIX-127: account overview stats cleared; FIX-111: workspace settings dead code removed; FIX-144: Settings overview Language & Preferences link added)
+Last updated: 2026-06-21 (FIX-277: Full settings QA audit — PM workspace, Supplier Solo, Customer all code-assessed. Customer AccountSettingsClient fake data sweep: "Sarah Johnson" name/email/phone/DOB/addresses/emergency contact cleared; "Visa ····4242" finance data cleared; "Last changed 2 months ago"/"Authenticator app enabled" security sub text cleared; "March 2024"/"Saved cards: 2"/"Bank accounts: 1"/fake trust-safety badges all replaced with honest empty states. tsc EXIT:0)
 
 ## Session Fix Summary (Settings/Billing areas)
 
@@ -20,6 +20,7 @@ Last updated: 2026-06-21 (Session 41 — FIX-229/247/248: billing honesty sweep;
 | FIX-229 | Billing | Billing hooks cleared — "Blackwellen Ltd" fake company billing profile removed; hooks return honest null/empty when no Stripe subscription |
 | FIX-247 | Billing | SubscriptionPage fake invoice list cleared — no hardcoded invoice rows; honest empty state when no Stripe invoices |
 | FIX-248 | Billing | BillingPage hardcoded "Enterprise" plan name removed; plan name derives from live Stripe subscription or plan tier |
+| FIX-277 | Customer Settings | AccountSettingsClient fake data sweep: "Sarah Johnson"/address/emergency contact cleared; finance "Visa ····4242" cleared; security subs updated to generic; status strip scores cleared; right-rail "March 2024"/"Saved cards: 2"/"Bank accounts: 1" cleared; trust-safety badge list replaced with honest empty state. Also: SET-PMW-001–020 and SET-SSW/STW code-confirmed in section matrix. |
 
 ## Scoring
 5 = fully working | 4 = minor issue | 3 = partial | 2 = major issue | 1 = broken | 0 = not implemented
