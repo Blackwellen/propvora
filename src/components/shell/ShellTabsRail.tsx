@@ -100,7 +100,7 @@ export default function ShellTabsRail() {
                   background: isActive ? widget.colour : widget.colour + "1A",
                 }}
               >
-                <div style={{ color: isActive ? "#fff" : widget.colour }}>
+                <div style={{ color: isActive ? "var(--text-inverse)" : widget.colour }}>
                   <Icon className="w-3.5 h-3.5" />
                 </div>
               </div>

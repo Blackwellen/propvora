@@ -195,7 +195,7 @@ export default function SupplierPaymentsPage() {
               <button
                 disabled
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white opacity-50 cursor-not-allowed"
-                style={{ backgroundColor: "#2563EB" }}
+                style={{ backgroundColor: "var(--brand)" }}
               >
                 <Plus className="w-4 h-4" />Pay Supplier
               </button>

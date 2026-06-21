@@ -20,7 +20,7 @@ const TRUST = [
 
 export default function MarketplaceTeaser() {
   return (
-    <section className="py-24 relative overflow-hidden" style={{ background: "#06122F" }}>
+    <section className="py-24 relative overflow-hidden" style={{ background: "var(--bg-marketing-dark)" }}>
       {/* Dot overlay */}
       <div
         className="absolute inset-0 opacity-[0.04]"
@@ -31,7 +31,7 @@ export default function MarketplaceTeaser() {
       />
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-15 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at center, #0EA5E9 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(ellipse at center, var(--color-sky-500, #0EA5E9) 0%, transparent 70%)" }}
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

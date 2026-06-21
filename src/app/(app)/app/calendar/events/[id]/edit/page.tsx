@@ -110,7 +110,7 @@ function SectionCard({ title, Icon, children }: { title: string; Icon: React.Ele
     <div className="rounded-xl border border-slate-200 bg-white p-6 mb-4">
       <div className="flex items-center gap-2 mb-5 pb-4 border-b border-slate-100">
         <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
-          <div style={{ color: "#2563EB" }}><Icon className="w-3.5 h-3.5" /></div>
+          <div style={{ color: "var(--brand)" }}><Icon className="w-3.5 h-3.5" /></div>
         </div>
         <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
       </div>

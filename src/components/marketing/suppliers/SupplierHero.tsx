@@ -9,7 +9,7 @@ export default function SupplierHero() {
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute top-10 right-1/4 w-[520px] h-[520px] rounded-full opacity-30"
-          style={{ background: "radial-gradient(circle, #DBEAFE 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, var(--color-brand-100, #DBEAFE) 0%, transparent 70%)" }}
         />
       </div>
 

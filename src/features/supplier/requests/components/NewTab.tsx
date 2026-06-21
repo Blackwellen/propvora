@@ -112,7 +112,7 @@ export function NewTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
             ) : view === "map" ? (
               <SupplierCard className="p-0 overflow-hidden">
                 <div className="relative h-[280px] bg-gradient-to-br from-sky-50 to-slate-100 flex items-center justify-center">
-                  <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle, #475569 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+                  <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle, var(--color-slate-600, #475569) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
                   <div className="text-center">
                     <MapIcon className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-medium text-slate-600">Map view</p>

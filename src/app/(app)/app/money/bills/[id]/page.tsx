@@ -455,7 +455,7 @@ export default function BillDetailPage() {
                 </Button>
                 <div title="Stripe Connect not configured — go to Settings to enable">
                   <Button variant="outline" size="sm" disabled>
-                    <div style={{ color: "#7C3AED" }}><CreditCard className="w-4 h-4" /></div>
+                    <div style={{ color: "var(--accent)" }}><CreditCard className="w-4 h-4" /></div>
                     Pay via Stripe
                   </Button>
                 </div>

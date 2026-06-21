@@ -590,7 +590,7 @@ function SummaryRail({ form, step }: { form: FormData; step: number }) {
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">Risk</span>
-            <span className="font-semibold" style={{ color: RISK_COLOURS[form.risk] || "#2563EB" }}>{form.risk}</span>
+            <span className="font-semibold" style={{ color: RISK_COLOURS[form.risk] || "var(--brand)" }}>{form.risk}</span>
           </div>
         </div>
       </div>

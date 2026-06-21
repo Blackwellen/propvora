@@ -34,7 +34,7 @@ function PropvoraCopilotIcon() {
         boxShadow: "0 2px 8px rgba(37,99,235,0.35)",
       }}
     >
-      <span style={{ color: "#fff", fontSize: 16, lineHeight: 1 }}>✦</span>
+      <span className="text-white" style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
     </div>
   )
 }

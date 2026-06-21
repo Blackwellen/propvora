@@ -997,7 +997,7 @@ export default function Step04ExpensesBills() {
               <span className="text-[11.5px] text-slate-500">{m.label}</span>
               <span
                 className="text-[12px] font-bold"
-                style={{ color: m.colour ?? "#374151" }}
+                style={{ color: m.colour ?? "var(--text-secondary)" }}
               >
                 {m.value}
               </span>

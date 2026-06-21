@@ -123,7 +123,7 @@ function ImpactTooltip({ active, payload }: { active?: boolean; payload?: { name
   return (
     <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-lg text-xs">
       <div className="font-semibold text-slate-700">{payload[0].name}</div>
-      <div className="font-bold" style={{ color: v >= 0 ? "#10B981" : "#EF4444" }}>
+      <div className="font-bold" style={{ color: v >= 0 ? "var(--color-success)" : "var(--color-danger-500, #EF4444)" }}>
         {v >= 0 ? "+" : ""}{fmtFull(v)}/mo
       </div>
     </div>

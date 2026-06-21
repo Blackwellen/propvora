@@ -135,9 +135,9 @@ export default function HeroSection() {
       {/* Background glows */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/3 w-[700px] h-[700px] rounded-full opacity-25"
-          style={{ background: "radial-gradient(circle, #DBEAFE 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(circle, var(--color-brand-100, #DBEAFE) 0%, transparent 70%)" }} />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-15"
-          style={{ background: "radial-gradient(circle, #EDE9FE 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(circle, var(--color-ai-100, #EDE9FE) 0%, transparent 70%)" }} />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
@@ -183,7 +183,7 @@ export default function HeroSection() {
               <Link
                 href="/register"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14.5px] text-white transition-all hover:-translate-y-0.5"
-                style={{ background: "linear-gradient(135deg, #2563EB, #1d4ed8)", boxShadow: "0 8px 24px rgba(37,99,235,0.35)" }}
+                style={{ background: "linear-gradient(135deg, var(--brand), var(--brand-strong))", boxShadow: "0 8px 24px rgba(37,99,235,0.35)" }}
               >
                 Start free trial
                 <ArrowRight className="w-4 h-4" />

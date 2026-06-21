@@ -130,7 +130,7 @@ export default function StoragePage() {
                   onClick={() => toggleFileType(ft.key)}
                   className="flex items-center gap-3 w-full text-left py-2 hover:bg-slate-50 rounded-xl px-2 transition-colors"
                 >
-                  <div style={{ color: checked ? "#2563EB" : "#94A3B8" }}>
+                  <div style={{ color: checked ? "var(--brand)" : "var(--text-disabled)" }}>
                     {checked ? (
                       <CheckSquare className="w-4 h-4" />
                     ) : (

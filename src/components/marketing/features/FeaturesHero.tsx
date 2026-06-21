@@ -42,7 +42,7 @@ export default function FeaturesHero() {
   return (
     <section
       className="pt-32 pb-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #06122F 0%, #0d1f4e 60%, #1d4ed8 100%)" }}
+      style={{ background: "linear-gradient(135deg, var(--bg-marketing-dark) 0%, #0d1f4e 60%, var(--brand-strong) 100%)" }}
     >
       {/* Dot grid overlay */}
       <div

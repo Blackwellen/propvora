@@ -123,7 +123,7 @@ export default function CustomerShell({
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#F6FAFF" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--bg-app-shell)" }}>
       <SkipLink />
 
       {/* ── FLOATING TOP TOOLBAR (desktop) ──────────────────────────────────

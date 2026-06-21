@@ -342,35 +342,35 @@ export default function PlanningSetOverviewPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#7C3AED" }}><Activity className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--accent)" }}><Activity className="w-4 h-4" /></div>}
           iconBg="bg-violet-50"
           label="Net Monthly Income"
           value={`${netMonthly < 0 ? "-" : ""}${fmtFull(netMonthly)} /mo`}
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#10B981" }}><TrendingUp className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--color-success)" }}><TrendingUp className="w-4 h-4" /></div>}
           iconBg="bg-emerald-50"
           label="Projected Annual Profit"
           value={fmt(projectedAnnualProfit)}
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#2563EB" }}><BarChart2 className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--brand)" }}><BarChart2 className="w-4 h-4" /></div>}
           iconBg="bg-blue-50"
           label="Gross Yield"
           value={fmtPct(grossYield)}
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#F59E0B" }}><DollarSign className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--color-warning-500, #F59E0B)" }}><DollarSign className="w-4 h-4" /></div>}
           iconBg="bg-amber-50"
           label="ROI"
           value={fmtPct(roi)}
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#EF4444" }}><Target className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--color-danger-500, #EF4444)" }}><Target className="w-4 h-4" /></div>}
           iconBg="bg-red-50"
           label="Upfront Cash Required"
           value={fmt(totalProjectCost)}
@@ -386,7 +386,7 @@ export default function PlanningSetOverviewPage() {
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "#10B981" }}><ShieldCheck className="w-4 h-4" /></div>}
+          icon={<div style={{ color: "var(--color-success)" }}><ShieldCheck className="w-4 h-4" /></div>}
           iconBg="bg-emerald-50"
           label="Plan Health Score"
           value={loading ? <Skeleton className="h-6 w-20" /> : <HealthGauge score={healthScore} />}
@@ -407,7 +407,7 @@ export default function PlanningSetOverviewPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <div style={{ color: "#2563EB" }}><Home className="w-4 h-4" /></div>
+                    <div style={{ color: "var(--brand)" }}><Home className="w-4 h-4" /></div>
                   </div>
                   <h3 className="text-sm font-semibold text-slate-900">Plan Summary</h3>
                 </div>
@@ -486,7 +486,7 @@ export default function PlanningSetOverviewPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-                  <div style={{ color: "#10B981" }}><TrendingUp className="w-4 h-4" /></div>
+                  <div style={{ color: "var(--color-success)" }}><TrendingUp className="w-4 h-4" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">Profitability Snapshot</h3>
               </div>
@@ -541,7 +541,7 @@ export default function PlanningSetOverviewPage() {
             <Skeleton className="h-48 w-full" />
           ) : (
             <div className="rounded-2xl border border-violet-200 shadow-sm p-5 overflow-hidden"
-              style={{ background: "linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 60%, #EFF6FF 100%)" }}
+              style={{ background: "linear-gradient(135deg, var(--color-ai-100, #EDE9FE) 0%, var(--accent-soft) 60%, var(--brand-soft) 100%)" }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -656,7 +656,7 @@ export default function PlanningSetOverviewPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center">
-                  <div style={{ color: "#64748B" }}><Clock className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "var(--text-muted)" }}><Clock className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">Recent Activity</h3>
               </div>
@@ -695,7 +695,7 @@ export default function PlanningSetOverviewPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <div style={{ color: "#2563EB" }}><CheckCircle2 className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "var(--brand)" }}><CheckCircle2 className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">Upcoming Tasks</h3>
               </div>

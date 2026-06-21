@@ -74,7 +74,7 @@ function SupplierShellChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <GuidedHelpProvider workspaceId={workspace?.id}>
-      <div className="h-dvh overflow-hidden" style={{ background: "#F6FAFF" }}>
+      <div className="h-dvh overflow-hidden" style={{ background: "var(--bg-app-shell)" }}>
         <SkipLink />
 
         {/* Fixed sidebar — shared SideNavigation, supplier config. */}

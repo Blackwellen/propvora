@@ -43,7 +43,7 @@ export default function Step7PortalAccess({
 
           {state.portalExpiry === "never" && (
             <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
-              <div style={{ color: "#f59e0b" }}><AlertCircle className="w-4 h-4 mt-0.5" /></div>
+              <div style={{ color: "var(--color-warning)" }}><AlertCircle className="w-4 h-4 mt-0.5" /></div>
               <p className="text-xs text-amber-700">
                 Never-expiring links are a security risk. We recommend setting an expiry date.
               </p>

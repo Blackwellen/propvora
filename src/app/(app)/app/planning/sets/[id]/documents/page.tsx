@@ -39,15 +39,15 @@ const STATUS_CONFIG: Record<DocumentStatus, { label: string; cls: string }> = {
 function FileIcon({ name }: { name: string }) {
   const ext = name?.split(".").pop()?.toLowerCase() ?? ""
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
-    return <div style={{ color: "#10B981" }}><ImageIcon className="w-5 h-5" /></div>
+    return <div style={{ color: "var(--color-success)" }}><ImageIcon className="w-5 h-5" /></div>
   }
   if (["doc", "docx"].includes(ext)) {
-    return <div style={{ color: "#2563EB" }}><FileText className="w-5 h-5" /></div>
+    return <div style={{ color: "var(--brand)" }}><FileText className="w-5 h-5" /></div>
   }
   if (ext === "pdf") {
-    return <div style={{ color: "#EF4444" }}><FileText className="w-5 h-5" /></div>
+    return <div style={{ color: "var(--color-danger-500, #EF4444)" }}><FileText className="w-5 h-5" /></div>
   }
-  return <div style={{ color: "#94A3B8" }}><File className="w-5 h-5" /></div>
+  return <div style={{ color: "var(--text-disabled)" }}><File className="w-5 h-5" /></div>
 }
 
 // ── Action button per status ──────────────────────────────────────────────────

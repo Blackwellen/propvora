@@ -152,7 +152,7 @@ export default function IntegrationsPage() {
 
       {/* Info banner */}
       <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-        <div style={{ color: "#2563EB" }}>
+        <div style={{ color: "var(--brand)" }}>
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
         </div>
         <p className="text-[12.5px] text-blue-700">

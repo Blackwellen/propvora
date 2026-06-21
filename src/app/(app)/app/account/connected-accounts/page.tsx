@@ -67,7 +67,7 @@ export default function ConnectedAccountsPage() {
 
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center gap-2 mb-5">
-          <div style={{ color: "#2563EB" }}>
+          <div style={{ color: "var(--brand)" }}>
             <Link2 className="w-4 h-4" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">OAuth Providers</h3>

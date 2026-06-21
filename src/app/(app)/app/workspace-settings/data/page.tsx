@@ -50,7 +50,7 @@ export default function DataPage() {
       {/* Full workspace export */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
         <div className="flex items-center gap-3 mb-2">
-          <div style={{ color: "#2563EB" }}>
+          <div style={{ color: "var(--brand)" }}>
             <Database className="w-5 h-5" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">Full Workspace Export</h3>
@@ -106,7 +106,7 @@ export default function DataPage() {
       {/* Audit log export */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <div style={{ color: "#64748B" }}>
+          <div style={{ color: "var(--text-muted)" }}>
             <ClipboardList className="w-5 h-5" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">Audit Log Export</h3>

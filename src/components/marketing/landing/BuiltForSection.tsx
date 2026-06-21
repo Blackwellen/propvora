@@ -69,7 +69,7 @@ export default function BuiltForSection() {
               Designed to scale.
               <span
                 className="absolute -bottom-1 left-0 right-0 h-1 rounded-full"
-                style={{ background: "linear-gradient(90deg, #2563EB, #0EA5E9)" }}
+                style={{ background: "linear-gradient(90deg, var(--brand), var(--color-sky-500, #0EA5E9))" }}
               />
             </span>
           </h2>

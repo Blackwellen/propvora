@@ -7,13 +7,13 @@ import { EmptyState } from "./shared"
 
 export function ActivityTimeline({ items }: { items: ActivityRecord[] }) {
   const iconMap: Record<string, React.ReactNode> = {
-    payment:  <div style={{ color: "#10B981" }}><CheckCircle2 className="w-4 h-4" /></div>,
-    document: <div style={{ color: "#2563EB" }}><FileText className="w-4 h-4" /></div>,
-    task:     <div style={{ color: "#F59E0B" }}><ListChecks className="w-4 h-4" /></div>,
-    alert:    <div style={{ color: "#EF4444" }}><AlertTriangle className="w-4 h-4" /></div>,
-    system:   <div style={{ color: "#94a3b8" }}><Activity className="w-4 h-4" /></div>,
-    note:     <div style={{ color: "#8B5CF6" }}><StickyNote className="w-4 h-4" /></div>,
-    portal:   <div style={{ color: "#0EA5E9" }}><Globe className="w-4 h-4" /></div>,
+    payment:  <div style={{ color: "var(--color-success-500, #10B981)" }}><CheckCircle2 className="w-4 h-4" /></div>,
+    document: <div style={{ color: "var(--brand)" }}><FileText className="w-4 h-4" /></div>,
+    task:     <div style={{ color: "var(--color-warning-500, #F59E0B)" }}><ListChecks className="w-4 h-4" /></div>,
+    alert:    <div style={{ color: "var(--color-danger-500, #EF4444)" }}><AlertTriangle className="w-4 h-4" /></div>,
+    system:   <div style={{ color: "var(--text-disabled)" }}><Activity className="w-4 h-4" /></div>,
+    note:     <div style={{ color: "var(--color-ai-500, #8B5CF6)" }}><StickyNote className="w-4 h-4" /></div>,
+    portal:   <div style={{ color: "var(--color-sky-500, #0EA5E9)" }}><Globe className="w-4 h-4" /></div>,
   }
 
   if (items.length === 0) return <EmptyState icon={Activity} message="No activity recorded yet." />
@@ -24,7 +24,7 @@ export function ActivityTimeline({ items }: { items: ActivityRecord[] }) {
       {items.map((a, i) => (
         <div key={i} className="flex items-start gap-3 relative">
           <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0 z-10 -ml-4">
-            {iconMap[a.type] ?? <div style={{ color: "#94a3b8" }}><Activity className="w-4 h-4" /></div>}
+            {iconMap[a.type] ?? <div style={{ color: "var(--text-disabled)" }}><Activity className="w-4 h-4" /></div>}
           </div>
           <div className="flex-1 pt-1">
             <p className="text-sm text-slate-800">{a.action}</p>

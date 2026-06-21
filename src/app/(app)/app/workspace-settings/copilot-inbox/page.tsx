@@ -253,7 +253,7 @@ export default function CopilotInboxPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
-            <div style={{ color: "#7C3AED" }}><Sparkles className="w-4.5 h-4.5" /></div>
+            <div style={{ color: "var(--accent)" }}><Sparkles className="w-4.5 h-4.5" /></div>
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-slate-900">Copilot Settings</h3>
@@ -407,7 +407,7 @@ export default function CopilotInboxPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-            <div style={{ color: "#2563EB" }}><MessageCircle className="w-4.5 h-4.5" /></div>
+            <div style={{ color: "var(--brand)" }}><MessageCircle className="w-4.5 h-4.5" /></div>
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-slate-900">Inbox Settings</h3>

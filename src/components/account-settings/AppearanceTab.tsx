@@ -13,31 +13,31 @@ function ShellStyleMiniPreview({ style: _style }: { style: ShellStyle }) {
   return (
     <div
       className="w-full h-[88px] rounded-xl overflow-hidden relative"
-      style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+      style={{ background: "var(--color-surface, #F8FAFC)", border: "1px solid var(--color-border)" }}
     >
       <div
         className="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col"
-        style={{ background: "#FFFFFF", borderRight: "1px solid #E2E8F0" }}
+        style={{ background: "var(--bg-surface)", borderRight: "1px solid var(--color-border)" }}
       >
-        <div className="w-3 h-1.5 rounded mx-auto mt-2 mb-2" style={{ background: "#2563EB" }} />
+        <div className="w-3 h-1.5 rounded mx-auto mt-2 mb-2" style={{ background: "var(--brand)" }} />
         {[true, false, false, false].map((active, i) => (
           <div
             key={i}
             className="mx-1.5 mb-1 h-2 rounded-sm"
             style={{
-              background: active ? "#EFF6FF" : "transparent",
-              border: active ? "none" : "1px solid #E2E8F0",
+              background: active ? "var(--brand-soft)" : "transparent",
+              border: active ? "none" : "1px solid var(--color-border)",
             }}
           />
         ))}
       </div>
       <div
         className="absolute left-[30px] right-0 top-0 h-[18px] flex items-center px-2 gap-1.5"
-        style={{ background: "#FFFFFF", borderBottom: "1px solid #E2E8F0" }}
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--color-border)" }}
       >
-        <div className="flex-1 h-1.5 rounded-full" style={{ background: "#E2E8F0" }} />
-        <div className="w-5 h-3.5 rounded-md" style={{ background: "#2563EB" }} />
-        <div className="w-3 h-3 rounded-full" style={{ background: "#E2E8F0" }} />
+        <div className="flex-1 h-1.5 rounded-full" style={{ background: "var(--color-border)" }} />
+        <div className="w-5 h-3.5 rounded-md" style={{ background: "var(--brand)" }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: "var(--color-border)" }} />
       </div>
       <div className="absolute left-[30px] right-0 top-[18px] bottom-0 p-2 flex flex-col gap-1.5">
         <div className="flex gap-1.5">

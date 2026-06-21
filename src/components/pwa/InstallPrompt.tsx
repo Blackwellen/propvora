@@ -133,7 +133,7 @@ export default function InstallPrompt() {
   return (
     <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-[360px] z-[70] pwa-safe-bottom">
       <div className="rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,var(--brand),var(--accent))" }}>
           <Download className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">

@@ -23,7 +23,7 @@ export default function Step1TypeSelector({
 
       {errors.length > 0 && (
         <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2.5">
-          <div style={{ color: "#ef4444" }}><AlertCircle className="w-4 h-4" /></div>
+          <div style={{ color: "var(--color-error)" }}><AlertCircle className="w-4 h-4" /></div>
           <p className="text-sm text-red-600">{errors[0]}</p>
         </div>
       )}
@@ -50,7 +50,7 @@ export default function Step1TypeSelector({
               </div>
               {selected && (
                 <div className="self-end ml-auto mt-auto">
-                  <div style={{ color: "#2563EB" }}><Check className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "var(--brand)" }}><Check className="w-3.5 h-3.5" /></div>
                 </div>
               )}
             </button>

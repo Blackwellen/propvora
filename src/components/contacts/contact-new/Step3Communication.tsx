@@ -109,7 +109,7 @@ export default function Step3Communication({
 
       {assembledAddress && (
         <div className="flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 px-3 py-2.5">
-          <div style={{ color: "#64748b" }}><MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" /></div>
+          <div style={{ color: "var(--text-muted)" }}><MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" /></div>
           <p className="text-sm text-slate-600">{assembledAddress}</p>
         </div>
       )}

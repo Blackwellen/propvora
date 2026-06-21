@@ -8,7 +8,7 @@ const supplierJobs = [
 
 export default function PortalsSection() {
   return (
-    <section id="portals" className="py-24 relative overflow-hidden" style={{ background: "#06122F" }}>
+    <section id="portals" className="py-24 relative overflow-hidden" style={{ background: "var(--bg-marketing-dark)" }}>
       {/* Dot overlay */}
       <div
         className="absolute inset-0 opacity-[0.04]"

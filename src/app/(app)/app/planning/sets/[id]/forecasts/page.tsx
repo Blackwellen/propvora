@@ -66,7 +66,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
       <div className="font-semibold text-slate-600 mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="flex items-center justify-between gap-3">
-          <span style={{ color: p.color ?? "#64748B" }}>{p.name}</span>
+          <span style={{ color: p.color ?? "var(--text-muted)" }}>{p.name}</span>
           <span className="font-bold text-slate-900">{fmtFull(p.value)}</span>
         </div>
       ))}
@@ -177,7 +177,7 @@ export default function ForecastsPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <div style={{ color: "#2563EB" }}><TrendingUp className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "var(--brand)" }}><TrendingUp className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">12-Month Net Cashflow</h3>
               </div>
@@ -186,7 +186,7 @@ export default function ForecastsPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-xl bg-violet-50 flex items-center justify-center">
-                  <div style={{ color: "#7C3AED" }}><TrendingUp className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "var(--accent)" }}><TrendingUp className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">24-Month Net Cashflow</h3>
               </div>
@@ -275,7 +275,7 @@ export default function ForecastsPage() {
             {/* ── Right CTA panel ── */}
             <div className="w-full lg:w-[260px] flex-shrink-0 flex flex-col gap-4">
               <div className="rounded-2xl border border-violet-200 shadow-sm p-5 overflow-hidden"
-                style={{ background: "linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%)" }}
+                style={{ background: "linear-gradient(135deg, var(--color-ai-100, #EDE9FE) 0%, var(--accent-soft) 100%)" }}
               >
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-xl bg-violet-600 flex items-center justify-center">

@@ -279,7 +279,7 @@ export default function Step09ReviewCreate() {
               }
             }}
             className="h-10 px-6 rounded-xl text-white text-[13px] font-bold hover:opacity-90 transition-all"
-            style={{ background: "linear-gradient(135deg, #7C3AED, #2563EB)" }}
+            style={{ background: "linear-gradient(135deg, var(--accent), var(--brand))" }}
           >
             View Planning Set
           </button>
@@ -350,7 +350,7 @@ export default function Step09ReviewCreate() {
               <div className="flex items-center gap-2 mb-2">
                 <div
                   className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shrink-0"
-                  style={{ backgroundColor: profile?.colour ?? "#7C3AED" }}
+                  style={{ backgroundColor: profile?.colour ?? "var(--accent)" }}
                 >
                   {profile?.label.charAt(0) ?? "P"}
                 </div>
@@ -365,7 +365,7 @@ export default function Step09ReviewCreate() {
                 {profile && (
                   <>
                     <span
-                      style={{ background: "#7C3AED18", color: "#7C3AED" }}
+                      style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
                       className="text-[11px] font-bold px-2 py-0.5 rounded-full"
                     >
                       High Demand
@@ -984,7 +984,7 @@ export default function Step09ReviewCreate() {
                 onClick={() => void handleCreate()}
                 disabled={isCreating}
                 className="flex-1 h-10 rounded-xl text-white text-[13.5px] font-semibold hover:opacity-90 transition-all disabled:opacity-60"
-                style={{ background: "linear-gradient(135deg, #7C3AED, #2563EB)" }}
+                style={{ background: "linear-gradient(135deg, var(--accent), var(--brand))" }}
               >
                 {isCreating ? "Creating…" : "Confirm Creation"}
               </button>

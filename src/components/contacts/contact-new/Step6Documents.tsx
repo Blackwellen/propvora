@@ -28,7 +28,7 @@ export default function Step6Documents({
 
       {state.documents.length === 0 && (
         <div className="rounded-lg border border-dashed border-slate-200 px-4 py-8 text-center">
-          <div style={{ color: "#cbd5e1" }} className="flex justify-center mb-2">
+          <div style={{ color: "var(--color-border-strong, #CBD5E1)" }} className="flex justify-center mb-2">
             <FileText className="w-8 h-8" />
           </div>
           <p className="text-sm text-slate-400">No document slots defined for this contact type.</p>
@@ -40,14 +40,14 @@ export default function Step6Documents({
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-slate-700">{doc.name}</p>
             {doc.file && (
-              <div style={{ color: "#22c55e" }}><Check className="w-4 h-4" /></div>
+              <div style={{ color: "var(--color-success)" }}><Check className="w-4 h-4" /></div>
             )}
           </div>
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <label className="text-xs text-slate-500 mb-1 block">Upload file</label>
               <label className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-50 transition">
-                <div style={{ color: "#94a3b8" }}><Upload className="w-4 h-4" /></div>
+                <div style={{ color: "var(--text-disabled)" }}><Upload className="w-4 h-4" /></div>
                 <span className="text-xs text-slate-500 truncate">
                   {doc.file ? doc.file.name : "Choose file…"}
                 </span>

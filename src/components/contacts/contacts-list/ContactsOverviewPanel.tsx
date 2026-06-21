@@ -61,8 +61,8 @@ function DonutChart({ segments, total }: { segments: PieSegment[]; total: number
               return <path key={i} d={d} fill={seg.colour} />
             })
           )}
-          <text x={cx} y={cy - 8} textAnchor="middle" style={{ fontSize: 22, fontWeight: 700, fill: "#0F172A" }}>{total}</text>
-          <text x={cx} y={cy + 10} textAnchor="middle" style={{ fontSize: 11, fill: "#94A3B8" }}>total</text>
+          <text x={cx} y={cy - 8} textAnchor="middle" style={{ fontSize: 22, fontWeight: 700, fill: "var(--text-primary, #0F172A)" }}>{total}</text>
+          <text x={cx} y={cy + 10} textAnchor="middle" style={{ fontSize: 11, fill: "var(--text-disabled, #94A3B8)" }}>total</text>
         </svg>
       </div>
       <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2 self-center w-full">
@@ -327,7 +327,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
             ) : recentActivity.map((c, i) => (
               <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className={cn("flex items-start gap-3 py-2.5 group", i < recentActivity.length - 1 && "border-b border-slate-100")}>
                 <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                  <UserPlus className="w-3.5 h-3.5" style={{ color: "#10B981" }} />
+                  <UserPlus className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-700 font-medium leading-relaxed group-hover:text-[#2563EB] transition-colors truncate">

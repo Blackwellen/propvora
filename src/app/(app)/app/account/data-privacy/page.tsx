@@ -99,7 +99,7 @@ export default function DataPrivacyPage() {
       {/* Data rights */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center gap-2 mb-4">
-          <div style={{ color: "#2563EB" }}><Lock className="w-4 h-4" /></div>
+          <div style={{ color: "var(--brand)" }}><Lock className="w-4 h-4" /></div>
           <h3 className="text-[14px] font-bold text-slate-900">Your Data Rights</h3>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -120,7 +120,7 @@ export default function DataPrivacyPage() {
       {acceptances && acceptances.length > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
           <div className="flex items-center gap-2 mb-4">
-            <div style={{ color: "#7C3AED" }}><ShieldCheck className="w-4 h-4" /></div>
+            <div style={{ color: "var(--accent)" }}><ShieldCheck className="w-4 h-4" /></div>
             <h3 className="text-[14px] font-bold text-slate-900">Policy Acceptances</h3>
           </div>
           <div className="space-y-2.5">
@@ -160,7 +160,7 @@ export default function DataPrivacyPage() {
       {/* Export data */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center gap-2 mb-2">
-          <div style={{ color: "#059669" }}><FileText className="w-4 h-4" /></div>
+          <div style={{ color: "var(--color-success)" }}><FileText className="w-4 h-4" /></div>
           <h3 className="text-[14px] font-bold text-slate-900">Export My Data</h3>
         </div>
         <p className="text-[13px] text-slate-500 mb-4">
@@ -203,7 +203,7 @@ export default function DataPrivacyPage() {
       {/* Delete account */}
       <div className="bg-red-50 rounded-2xl border border-red-200 p-6">
         <div className="flex items-center gap-2 mb-2">
-          <div style={{ color: "#DC2626" }}><AlertTriangle className="w-4 h-4" /></div>
+          <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-4 h-4" /></div>
           <h3 className="text-[14px] font-bold text-red-900">Delete Account</h3>
         </div>
         {deleteDone ? (
@@ -233,7 +233,7 @@ export default function DataPrivacyPage() {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 w-full max-w-[420px] shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div style={{ color: "#DC2626" }}><AlertTriangle className="w-5 h-5" /></div>
+                <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-5 h-5" /></div>
                 <h3 className="text-[15px] font-bold text-slate-900">Confirm Account Deletion</h3>
               </div>
               <button onClick={() => { setShowDeleteConfirm(false); setDeleteText(""); setDeletePassword(""); setDeleteError(null) }}

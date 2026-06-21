@@ -21,7 +21,7 @@ export default function Step4RelationshipLinks({
       </div>
 
       <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 flex items-center gap-2">
-        <div style={{ color: "#64748b" }}><AlertCircle className="w-4 h-4" /></div>
+        <div style={{ color: "var(--text-muted)" }}><AlertCircle className="w-4 h-4" /></div>
         <p className="text-xs text-slate-500">You can link records after saving too — no need to do it now.</p>
       </div>
 
