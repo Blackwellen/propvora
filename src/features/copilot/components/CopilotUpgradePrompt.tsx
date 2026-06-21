@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { motion } from "framer-motion"
 import { X, Sparkles, Zap, LifeBuoy, BookOpen, ChevronRight } from "lucide-react"
@@ -88,7 +88,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
 
         <div className="w-full flex flex-col gap-2">
           <Link
-            href="/app/workspace-settings/billing"
+            href="/property-manager/workspace-settings/billing"
             onClick={onClose}
             className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white text-[13px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >

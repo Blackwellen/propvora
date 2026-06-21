@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { usePathname } from "next/navigation"
 
 export interface CopilotPageContext {
@@ -10,7 +10,7 @@ export interface CopilotPageContext {
 
 export function useCopilotPageContext(): CopilotPageContext {
   const pathname = usePathname()
-  const parts = pathname.replace("/app/", "").split("/")
+  const parts = pathname.replace("/property-manager/", "").split("/")
   const sectionMap: Record<string, string> = {
     compliance: "Compliance",
     money: "Money",

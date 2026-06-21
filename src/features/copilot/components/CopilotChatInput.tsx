@@ -97,17 +97,19 @@ export default function CopilotChatInput({
             {/* Slash button */}
             <button
               onClick={handleSlashButton}
+              aria-label="Slash commands"
               title="Slash commands"
-              className="w-7 h-7 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center text-[13px] font-bold"
+              className="w-7 h-7 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               /
             </button>
             {/* Attach */}
             <button
+              aria-label="Attach file"
               title="Attach file"
-              className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center"
+              className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40"
             >
-              <Paperclip className="w-3.5 h-3.5" />
+              <Paperclip className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
 
@@ -118,10 +120,11 @@ export default function CopilotChatInput({
             <button
               onClick={handleSend}
               disabled={!value.trim()}
-              className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              aria-label="Send message"
               title="Send message"
+              className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </div>

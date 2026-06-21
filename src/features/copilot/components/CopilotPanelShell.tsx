@@ -220,6 +220,7 @@ export default function CopilotPanelShell({ isOpen, onClose }: CopilotPanelShell
 
         {activeTab === "inbox" && inboxScreen === "conversation" && (
           <CopilotConversationView
+            conversationId={activeConvId}
             onBack={handleBackToList}
             isExpanded={expanded}
           />
