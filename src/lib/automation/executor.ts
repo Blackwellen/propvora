@@ -57,6 +57,21 @@ import type { ActionType, RunContext, SmartRule } from "./types"
 
 const RUNS_TABLE = "automation_v2_runs"
 
+// ── Per-node timeout guard ────────────────────────────────────────────────────
+// Prevents a single slow action (e.g. a webhook call in a future action type, or
+// a slow DB insert) from blocking the executor indefinitely. 30 s is generous —
+// all current safe actions are DB inserts that should complete in < 2 s.
+const NODE_TIMEOUT_MS = 30_000
+
+function withTimeout<T>(fn: () => Promise<T>, ms = NODE_TIMEOUT_MS): Promise<T> {
+  return Promise.race([
+    fn(),
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Node timeout after ${ms}ms`)), ms)
+    ),
+  ])
+}
+
 /** A run that has been claimed (queued→running) and is ready to execute. */
 interface ClaimedRun {
   id: string
@@ -345,15 +360,25 @@ async function executeClaimedRun(
     const ruleLike = asSmartRuleForAction(def, action)
     const payload = buildActionPayload(ruleLike, context)
 
-    const res = await executeAction(supabase, {
-      workspaceId: run.workspaceId,
-      actorId,
-      actionType,
-      payload,
-      runId: run.id,
-      ruleId: def.id,
-      context,
-    })
+    // Wrap in timeout so a single action can never block the queue drainer
+    // indefinitely. On timeout, treat as a failed step and continue.
+    let res: Awaited<ReturnType<typeof executeAction>>
+    try {
+      res = await withTimeout(() =>
+        executeAction(supabase, {
+          workspaceId: run.workspaceId,
+          actorId,
+          actionType,
+          payload,
+          runId: run.id,
+          ruleId: def.id,
+          context,
+        })
+      )
+    } catch (timeoutErr) {
+      const timeoutMsg = timeoutErr instanceof Error ? timeoutErr.message : "Action timed out."
+      res = { ok: false, result: {}, error: timeoutMsg }
+    }
 
     if (res.ok) {
       stepsRun++

@@ -52,6 +52,52 @@ function ValidationIcon({ status }: { status: CanvasFlowNodeData["validationStat
   return <div className="h-3.5 w-3.5 rounded-full border-2 border-slate-300 bg-white" />
 }
 
+/**
+ * Run-status indicator dot — shows the last execution outcome for this node.
+ * Green = last run succeeded, Red = failed/timeout, Yellow = running/awaiting,
+ * Grey = skipped/blocked, no dot = never run.
+ */
+function RunStatusDot({
+  status,
+  errorMsg,
+}: {
+  status: CanvasFlowNodeData["lastRunStatus"]
+  errorMsg?: string | null
+}) {
+  if (!status) return null
+  const dotMap: Record<NonNullable<CanvasFlowNodeData["lastRunStatus"]>, string> = {
+    succeeded:          "bg-emerald-500",
+    failed:             "bg-red-500",
+    timeout:            "bg-red-500",
+    running:            "bg-amber-400 animate-pulse",
+    awaiting_approval:  "bg-amber-400",
+    skipped:            "bg-slate-400",
+    blocked:            "bg-slate-400",
+  }
+  const dotCls = dotMap[status] ?? "bg-slate-300"
+  const title =
+    status === "succeeded"
+      ? "Last run: succeeded"
+      : status === "failed"
+      ? `Last run: failed${errorMsg ? ` — ${errorMsg}` : ""}`
+      : status === "timeout"
+      ? "Last run: timed out"
+      : status === "running"
+      ? "Currently running"
+      : status === "awaiting_approval"
+      ? "Awaiting approval"
+      : status === "skipped"
+      ? "Last run: skipped"
+      : "Last run: blocked"
+  return (
+    <span
+      title={title}
+      aria-label={title}
+      className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotCls}`}
+    />
+  )
+}
+
 function RiskBadge({ risk }: { risk: CanvasFlowNodeData["risk"] }) {
   if (risk === "low") return null
   const map: Record<string, string> = {
@@ -128,7 +174,10 @@ export const AutomationNodeCard = memo(function AutomationNodeCard(
           <p className="text-[13px] font-semibold leading-snug text-slate-900 line-clamp-2">
             {data.label}
           </p>
-          <ValidationIcon status={data.validationStatus} />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <RunStatusDot status={data.lastRunStatus} errorMsg={data.lastRunError} />
+            <ValidationIcon status={data.validationStatus} />
+          </div>
         </div>
         {data.description && (
           <p className="mt-1 text-[11px] leading-relaxed text-slate-500 line-clamp-2">

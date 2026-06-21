@@ -13,6 +13,14 @@ export interface CanvasFlowNodeData extends Record<string, unknown> {
   validationStatus: "valid" | "warning" | "error" | "unchecked"
   requiresApproval: boolean
   risk: "low" | "medium" | "high" | "critical" | "restricted"
+  /**
+   * Last execution status for this node, populated from `automation_node_runs`
+   * after a run completes. Undefined means the node has never been run.
+   * Used to render the run-status indicator dot on the node card.
+   */
+  lastRunStatus?: "succeeded" | "failed" | "skipped" | "blocked" | "awaiting_approval" | "running" | "timeout"
+  /** Error message from the last failed run, shown on hover. */
+  lastRunError?: string | null
 }
 
 /** The canonical workflow definition JSON (persisted in automation_flow_versions.definition_json). */
