@@ -13,6 +13,8 @@ import { useWorkspace } from '@/providers/AuthProvider'
 import type { WorkspaceSettings } from '@/providers/AuthProvider'
 
 export interface WorkspaceJurisdiction {
+  /** ISO-3166-1 alpha-2 country code (default GB) */
+  countryCode: string
   /** ISO-4217 currency code (default GBP) */
   currency: string
   /** BCP-47 locale tag (default en-GB) */
@@ -27,7 +29,8 @@ export interface WorkspaceJurisdiction {
   settings: WorkspaceSettings
 }
 
-const GB_DEFAULTS: Required<WorkspaceSettings> = {
+const GB_DEFAULTS: Required<WorkspaceSettings> & { countryCode: string } = {
+  countryCode: 'GB',
   currency: 'GBP',
   locale: 'en-GB',
   dateFormat: 'DD/MM/YYYY',
@@ -36,9 +39,10 @@ const GB_DEFAULTS: Required<WorkspaceSettings> = {
 
 export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
   const { workspace, isLoading } = useWorkspace()
-  const raw = (workspace?.settings ?? {}) as WorkspaceSettings
+  const raw = (workspace?.settings ?? {}) as WorkspaceSettings & { countryCode?: string }
 
   return {
+    countryCode: raw.countryCode || GB_DEFAULTS.countryCode,
     currency: raw.currency || GB_DEFAULTS.currency,
     locale: raw.locale || GB_DEFAULTS.locale,
     dateFormat: raw.dateFormat || GB_DEFAULTS.dateFormat,
@@ -46,4 +50,14 @@ export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
     isLoading,
     settings: raw,
   }
+}
+
+/** Convenience hook — returns just the countryCode. */
+export function useCountryCode(): string {
+  return useWorkspaceJurisdiction().countryCode
+}
+
+/** Convenience hook — returns just the currency code (e.g. "GBP"). */
+export function useWorkspaceCurrency(): string {
+  return useWorkspaceJurisdiction().currency
 }

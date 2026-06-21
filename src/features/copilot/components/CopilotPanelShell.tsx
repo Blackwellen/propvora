@@ -204,7 +204,7 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData }: Copi
 
       {/* ── Body ───────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        {activeTab === "copilot" && <CopilotChatScreen summaryData={summaryData} />}
+        {activeTab === "copilot" && <CopilotChatScreen />}
 
         {activeTab === "inbox" && inboxScreen === "list" && (
           <CopilotInboxScreen

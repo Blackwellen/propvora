@@ -750,14 +750,10 @@ export default function WorkBoardPage() {
                     </div>
                   )
                 })}
-<<<<<<< HEAD
-                <Link href="/property-manager/work" className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block">
-=======
                 <button
                   onClick={() => openCopilot({ prompt: "Give me AI insights on my open tasks — which are at risk and what should I prioritise?" })}
                   className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block w-full text-left"
                 >
->>>>>>> worktree-agent-ad8652c37a135b149
                   Ask AI for more insights →
                 </button>
               </div>
