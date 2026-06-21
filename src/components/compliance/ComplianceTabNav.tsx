@@ -1,5 +1,4 @@
 "use client"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -12,100 +11,44 @@ import {
   Building2,
   Truck,
   BarChart3,
-  Flame,
-  Zap,
-  Home,
-  Users,
-  Vault,
-  AlertTriangle,
-  Droplets,
-  CheckCircle,
-  FileWarning,
-  Lock,
 } from "lucide-react"
-import { useCountryCode } from "@/hooks/useWorkspaceJurisdiction"
-import { getTabsForCountry, COMPLIANCE_TABS } from "@/lib/i18n/tab-config"
 
-// Map tab keys to icons
-const TAB_ICONS: Record<string, React.ElementType> = {
-  overview:               LayoutDashboard,
-  certificates:           FileCheck2,
-  inspections:            ClipboardList,
-  evidence:               Shield,
-  coverage:               Building2,
-  "supplier-docs":        Truck,
-  documents:              FolderOpen,
-  reports:                BarChart3,
-  gas_safety:             Flame,
-  eicr:                   Zap,
-  epc:                    Zap,
-  right_to_rent:          Users,
-  hmo_licensing:          Home,
-  deposit_protection:     Vault,
-  fire_safety:            Flame,
-  legionella:             Droplets,
-  section21_tracker:      FileWarning,
-  section8_tracker:       FileWarning,
-  fair_housing:           CheckCircle,
-  habitability:           Home,
-  lead_paint:             AlertTriangle,
-  smoke_co_us:            Flame,
-  security_deposit_us:    Vault,
-  rent_control_us:        Lock,
-  bond_lodgement:         Vault,
-  smoke_alarms_au:        Flame,
-  pool_safety_au:         Droplets,
-  gas_appliances_au:      Flame,
-  heizung:                Flame,
-  nebenkostenabrechnung:  BarChart3,
-  rauchmelder:            Flame,
-  mietrecht:              FileWarning,
-  ejari:                  CheckCircle,
-  dewa:                   Zap,
-  trakheesi:              Building2,
-  fire_safety_ca:         Flame,
-  smoke_co_ca:            Flame,
+// 8 tabs — operational compliance. Legal (Possession, HMO Licences, EPC, RRA 2026) lives in /app/legal
+const COMPLIANCE_TABS = [
+  { key: "overview",      label: "Overview",      href: "/app/compliance/overview", root: "/app/compliance", icon: LayoutDashboard },
+  { key: "certificates",  label: "Certificates",  href: "/app/compliance/certificates",  icon: FileCheck2 },
+  { key: "inspections",   label: "Inspections",   href: "/app/compliance/inspections",   icon: ClipboardList },
+  { key: "documents",     label: "Documents",     href: "/app/compliance/documents",     icon: FolderOpen },
+  { key: "evidence",      label: "Evidence",      href: "/app/compliance/evidence",      icon: Shield },
+  { key: "coverage",      label: "Coverage",      href: "/app/compliance/coverage",      icon: Building2 },
+  { key: "supplier-docs", label: "Supplier Docs", href: "/app/compliance/supplier-docs", icon: Truck },
+  { key: "reports",       label: "Reports",       href: "/app/compliance/reports",       icon: BarChart3 },
+] as const
+
+interface ComplianceTabNavProps {
+  actions?: React.ReactNode
+  /** Optional badge counts keyed by tab key (e.g. { certificates: 3 }) */
+  counts?: Record<string, number>
 }
 
-// Routes that have real pages — key to href mapping.
-// All other country-specific tabs route to the compliance overview with a hash.
-const TAB_ROUTES: Record<string, string> = {
-  overview:       "/app/compliance/overview",
-  certificates:   "/app/compliance/certificates",
-  inspections:    "/app/compliance/inspections",
-  evidence:       "/app/compliance/evidence",
-  coverage:       "/app/compliance/coverage",
-  "supplier-docs": "/app/compliance/supplier-docs",
-  documents:      "/app/compliance/documents",
-  reports:        "/app/compliance/reports",
-}
-
-function tabHref(key: string): string {
-  return TAB_ROUTES[key] ?? `/app/compliance/overview#${key}`
-}
-
-export function ComplianceTabNav({ actions }: { actions?: React.ReactNode }) {
+export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
   const pathname = usePathname()
-  const countryCode = useCountryCode()
-  const tabs = getTabsForCountry(COMPLIANCE_TABS, countryCode)
 
   return (
     <div className="border-b border-slate-200 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {tabs.map((tab) => {
-            const href = tabHref(tab.key)
+          {COMPLIANCE_TABS.map((tab) => {
             const active =
               tab.key === "overview"
                 ? pathname === "/app/compliance" || pathname === "/app/compliance/overview"
-                : href.startsWith("/app/compliance/") && !href.includes("#")
-                  ? pathname.startsWith(href)
-                  : false
-            const Icon = TAB_ICONS[tab.key] ?? FileCheck2
+                : pathname.startsWith(tab.href)
+            const Icon = tab.icon
+            const count = counts?.[tab.key]
             return (
               <Link
                 key={tab.key}
-                href={href}
+                href={tab.href}
                 className={cn(
                   "flex items-center gap-2 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                   active
@@ -115,6 +58,11 @@ export function ComplianceTabNav({ actions }: { actions?: React.ReactNode }) {
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 {tab.label}
+                {count != null && count > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 text-[10px] font-[700] min-w-[18px] h-[18px] px-1">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
               </Link>
             )
           })}

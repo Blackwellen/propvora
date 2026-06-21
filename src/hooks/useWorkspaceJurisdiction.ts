@@ -1,76 +1,46 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import { useWorkspace } from "@/providers/AuthProvider"
 
-interface JurisdictionData {
+export interface WorkspaceJurisdictionResult {
   countryCode: string
-  countryName: string | null
-  currency: string | null
-  locale: string | null
-  effectiveStatus: string
-  legalStatus: string
-  taxStatus: string
-  offerStatus: string | null
-  packMissing: boolean
+  currency: string
+  locale: string
+  dateFormat: string
+  timezone: string
+  settings: Record<string, unknown>
 }
 
 /**
- * Fetches the workspace's current jurisdiction (country code, currency, legal status).
- * Falls back to GB if the workspace or API is unavailable.
+ * Returns the active workspace's i18n jurisdiction settings.
+ * Reads from workspace.settings (populated by AuthProvider via Supabase).
+ * Falls back to UK defaults when settings are absent.
  */
-export function useWorkspaceJurisdiction() {
+export function useWorkspaceJurisdiction(): WorkspaceJurisdictionResult {
   const { workspace } = useWorkspace()
-  const workspaceId = workspace?.id
+  const settings =
+    (workspace?.settings as Record<string, unknown> | undefined | null) ?? {}
 
-  return useQuery<JurisdictionData>({
-    queryKey: ["workspace-jurisdiction", workspaceId],
-    enabled: !!workspaceId,
-    staleTime: 5 * 60 * 1000,
-    queryFn: async () => {
-      const res = await fetch(
-        `/api/workspace/jurisdiction?workspaceId=${encodeURIComponent(workspaceId!)}`,
-        { credentials: "include" }
-      )
-      if (!res.ok) {
-        // Non-fatal: fall back to GB defaults
-        return {
-          countryCode: "GB",
-          countryName: "United Kingdom",
-          currency: "GBP",
-          locale: "en-GB",
-          effectiveStatus: "reviewed",
-          legalStatus: "reviewed",
-          taxStatus: "reviewed",
-          offerStatus: "offer",
-          packMissing: false,
-        }
-      }
-      const json = await res.json()
-      // API returns { current: WorkspaceJurisdiction, countries, canEdit }
-      const current = json.current as JurisdictionData | null
-      if (!current) {
-        return {
-          countryCode: "GB",
-          countryName: "United Kingdom",
-          currency: "GBP",
-          locale: "en-GB",
-          effectiveStatus: "reviewed",
-          legalStatus: "reviewed",
-          taxStatus: "reviewed",
-          offerStatus: "offer",
-          packMissing: false,
-        }
-      }
-      return current
-    },
-  })
+  const countryCode = (settings.countryCode as string | undefined) ?? "GB"
+  const currency = (settings.currency as string | undefined) ?? "GBP"
+  const locale = (settings.locale as string | undefined) ?? "en-GB"
+  const dateFormat = (settings.dateFormat as string | undefined) ?? "dd/MM/yyyy"
+  const timezone =
+    (settings.timezone as string | undefined) ?? "Europe/London"
+
+  return { countryCode, currency, locale, dateFormat, timezone, settings }
 }
 
 /**
- * Returns just the country code, defaulting to 'GB'.
+ * Convenience hook — returns just the countryCode.
  */
 export function useCountryCode(): string {
-  const { data } = useWorkspaceJurisdiction()
-  return data?.countryCode ?? "GB"
+  return useWorkspaceJurisdiction().countryCode
+}
+
+/**
+ * Convenience hook — returns just the currency code (e.g. "GBP").
+ */
+export function useWorkspaceCurrency(): string {
+  return useWorkspaceJurisdiction().currency
 }

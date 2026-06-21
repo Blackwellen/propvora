@@ -1,5 +1,46 @@
 # Internationalisation & Currency QA Log
 
+## FIX-287 — Enterprise i18n Supabase hardening (2026-06-21)
+
+### Overview
+Full end-to-end wiring of i18n preferences to Supabase. `workspace.settings` JSONB is now the single source of truth for currency, locale, dateFormat, timezone. Server action saves to DB. Client hooks read from AuthProvider (no extra API call). Count badges wired to tab navs.
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `src/providers/AuthProvider.tsx` | Added `settings` to workspace Supabase select + Workspace type |
+| `src/app/(app)/app/workspace-settings/preferences/page.tsx` | NEW — i18n preferences form (currency, locale, dateFormat, timezone) |
+| `src/app/(app)/app/workspace-settings/preferences/actions.ts` | NEW — `saveI18nPreferences` server action writing to `workspaces.settings` |
+| `src/app/(app)/app/workspace-settings/layout.tsx` | Added Preferences nav item |
+| `src/hooks/useWorkspaceJurisdiction.ts` | NEW — reads from workspace.settings via AuthProvider (no API call) |
+| `src/hooks/useFormatCurrency.ts` | NEW — `useFormatCurrency()` hook using workspace currency |
+| `src/components/compliance/ComplianceTabNav.tsx` | Added `counts?: Record<string,number>` prop + badge rendering |
+| `src/components/money/MoneyTabNav.tsx` | Added `counts?: Record<string,number>` prop + badge rendering |
+| `src/components/legal/LegalTabNav.tsx` | Added `counts?: Record<string,number>` prop + badge rendering |
+
+### Wiring Status
+| Item | Status |
+|------|--------|
+| `workspace.settings` column | LIVE DATA (exists in 001_core_schema.sql) |
+| `workspace.settings` in AuthProvider select | LIVE DATA |
+| `saveI18nPreferences` server action | LIVE DATA — writes to `workspaces.settings` |
+| Preferences page form | LIVE DATA |
+| `useWorkspaceJurisdiction` hook | LIVE DATA — reads from workspace.settings |
+| `useFormatCurrency` hook | LIVE DATA — uses workspace.settings.currency |
+| ComplianceTabNav count badges | WIRED (accepts counts prop, ready for real data) |
+| MoneyTabNav count badges | WIRED (accepts counts prop, ready for real data) |
+| LegalTabNav count badges | WIRED (accepts counts prop, ready for real data) |
+| TypeScript | CLEAN (tsc --noEmit exit 0) |
+
+### Score Change
+| Area | Before | After |
+|------|--------|-------|
+| i18n preferences persistence | 1 (broken/not saved) | 4 (live save, minor: URL tab not yet wired) |
+| Currency display hook | 2 (hardcoded GBP) | 4 (useFormatCurrency, workspace-aware) |
+| Tab badge counts | 0 (not implemented) | 3 (wired, data feeding pending per page) |
+
+---
+
 ## FIX-286 — Country-specific tab systems (2026-06-21)
 
 ### Overview

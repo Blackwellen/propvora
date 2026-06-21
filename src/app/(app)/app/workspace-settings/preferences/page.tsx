@@ -1,16 +1,11 @@
 "use client"
 
-import React, { useEffect, useId, useState } from "react"
-import { Check, Loader2, Info } from "lucide-react"
+import React, { useEffect, useId, useState, useTransition } from "react"
+import { Check, Loader2, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 import { SUPPORTED_LOCALES, LOCALE_META } from "@/lib/i18n/config"
-import { formatMoney, formatDate } from "@/lib/i18n/format"
-import { getAllCountryPacks, getCountryPack } from "@/lib/i18n/country-packs"
-
-export const dynamic = "force-dynamic"
-
-// ── Primitive components matching workspace-settings conventions ──────────────
+import { saveI18nPreferences } from "./actions"
 
 function SectionCard({
   title,
@@ -22,7 +17,7 @@ function SectionCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
+    <div className="bg-white rounded-2xl border border-slate-200 p-6">
       <div className="mb-5">
         <h2 className="text-[14px] font-bold text-slate-900">{title}</h2>
         {description && <p className="text-[12px] text-slate-400 mt-0.5">{description}</p>}
@@ -34,17 +29,17 @@ function SectionCard({
 
 function SelectField({
   label,
-  helper,
   value,
   onChange,
   options,
+  helper,
   disabled,
 }: {
   label: string
-  helper?: string
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
+  helper?: string
   disabled?: boolean
 }) {
   const id = useId()
@@ -58,7 +53,7 @@ function SelectField({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all disabled:opacity-60"
+        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all disabled:opacity-60"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -71,22 +66,6 @@ function SelectField({
   )
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-
-const LOCALE_OPTIONS = SUPPORTED_LOCALES.map((l) => ({
-  value: l,
-  label: LOCALE_META[l].label,
-}))
-
-const COUNTRY_OPTIONS = [
-  { value: "", label: "— Select country —" },
-  ...getAllCountryPacks().map((p) => ({
-    value: p.code,
-    label: `${p.name} (${p.currency})`,
-  })),
-  { value: "OTHER", label: "Other / Not listed" },
-]
-
 const CURRENCY_OPTIONS = [
   { value: "GBP", label: "GBP — British Pound (£)" },
   { value: "EUR", label: "EUR — Euro (€)" },
@@ -95,345 +74,180 @@ const CURRENCY_OPTIONS = [
   { value: "NZD", label: "NZD — New Zealand Dollar ($)" },
   { value: "CAD", label: "CAD — Canadian Dollar ($)" },
   { value: "AED", label: "AED — UAE Dirham (د.إ)" },
-  { value: "SGD", label: "SGD — Singapore Dollar ($)" },
-  { value: "CHF", label: "CHF — Swiss Franc (Fr.)" },
-  { value: "SEK", label: "SEK — Swedish Krona (kr)" },
-  { value: "NOK", label: "NOK — Norwegian Krone (kr)" },
-  { value: "DKK", label: "DKK — Danish Krone (kr)" },
 ]
 
 const DATE_FORMAT_OPTIONS = [
-  { value: "DD/MM/YYYY", label: "DD/MM/YYYY (15/06/2026) — UK default" },
-  { value: "MM/DD/YYYY", label: "MM/DD/YYYY (06/15/2026) — US style" },
-  { value: "YYYY-MM-DD", label: "YYYY-MM-DD (2026-06-15) — ISO 8601" },
-  { value: "D MMMM YYYY", label: "D MMMM YYYY (15 June 2026) — Long form" },
+  { value: "dd/MM/yyyy", label: "DD/MM/YYYY (United Kingdom)" },
+  { value: "MM/dd/yyyy", label: "MM/DD/YYYY (United States)" },
+  { value: "yyyy-MM-dd", label: "YYYY-MM-DD (ISO 8601)" },
+  { value: "dd.MM.yyyy", label: "DD.MM.YYYY (Germany)" },
+  { value: "dd-MM-yyyy", label: "DD-MM-YYYY (Netherlands)" },
 ]
 
-// A representative set of IANA timezones
 const TIMEZONE_OPTIONS = [
-  { value: "Europe/London",      label: "Europe/London (GMT / BST)" },
-  { value: "Europe/Dublin",      label: "Europe/Dublin (GMT / IST)" },
-  { value: "Europe/Paris",       label: "Europe/Paris (CET / CEST)" },
-  { value: "Europe/Berlin",      label: "Europe/Berlin (CET / CEST)" },
-  { value: "Europe/Madrid",      label: "Europe/Madrid (CET / CEST)" },
-  { value: "Europe/Amsterdam",   label: "Europe/Amsterdam (CET / CEST)" },
-  { value: "Europe/Stockholm",   label: "Europe/Stockholm (CET / CEST)" },
-  { value: "Europe/Warsaw",      label: "Europe/Warsaw (CET / CEST)" },
-  { value: "Europe/Lisbon",      label: "Europe/Lisbon (WET / WEST)" },
-  { value: "America/New_York",   label: "America/New York (EST / EDT)" },
-  { value: "America/Chicago",    label: "America/Chicago (CST / CDT)" },
-  { value: "America/Denver",     label: "America/Denver (MST / MDT)" },
-  { value: "America/Los_Angeles","label": "America/Los Angeles (PST / PDT)" },
-  { value: "America/Toronto",    label: "America/Toronto (EST / EDT)" },
-  { value: "America/Vancouver",  label: "America/Vancouver (PST / PDT)" },
-  { value: "America/Sao_Paulo",  label: "America/Sao Paulo (BRT / BRST)" },
-  { value: "Asia/Dubai",         label: "Asia/Dubai (GST)" },
-  { value: "Asia/Singapore",     label: "Asia/Singapore (SGT)" },
-  { value: "Asia/Tokyo",         label: "Asia/Tokyo (JST)" },
-  { value: "Asia/Bangkok",       label: "Asia/Bangkok (ICT)" },
-  { value: "Australia/Sydney",   label: "Australia/Sydney (AEST / AEDT)" },
-  { value: "Australia/Melbourne","label": "Australia/Melbourne (AEST / AEDT)" },
-  { value: "Pacific/Auckland",   label: "Pacific/Auckland (NZST / NZDT)" },
-  { value: "UTC",                label: "UTC (Coordinated Universal Time)" },
+  { value: "Europe/London", label: "Europe/London (UTC+0/+1)" },
+  { value: "Europe/Dublin", label: "Europe/Dublin (UTC+0/+1)" },
+  { value: "Europe/Paris", label: "Europe/Paris (UTC+1/+2)" },
+  { value: "Europe/Berlin", label: "Europe/Berlin (UTC+1/+2)" },
+  { value: "America/New_York", label: "America/New_York (UTC-5/-4)" },
+  { value: "America/Chicago", label: "America/Chicago (UTC-6/-5)" },
+  { value: "America/Los_Angeles", label: "America/Los_Angeles (UTC-8/-7)" },
+  { value: "America/Toronto", label: "America/Toronto (UTC-5/-4)" },
+  { value: "Australia/Sydney", label: "Australia/Sydney (UTC+10/+11)" },
+  { value: "Australia/Melbourne", label: "Australia/Melbourne (UTC+10/+11)" },
+  { value: "Pacific/Auckland", label: "Pacific/Auckland (UTC+12/+13)" },
+  { value: "Asia/Dubai", label: "Asia/Dubai (UTC+4)" },
 ]
 
-const NUMBER_FORMAT_OPTIONS = [
-  { value: "1,234.56", label: "1,234.56 — UK / US (comma thousands, dot decimal)" },
-  { value: "1.234,56", label: "1.234,56 — EU (dot thousands, comma decimal)" },
-  { value: "1 234.56", label: "1 234.56 — Nordic (space thousands, dot decimal)" },
-  { value: "1 234,56", label: "1 234,56 — FR / RU (space thousands, comma decimal)" },
-]
-
-// ── Page ──────────────────────────────────────────────────────────────────────
+const LOCALE_OPTIONS = SUPPORTED_LOCALES.map((l) => ({
+  value: l,
+  label: LOCALE_META[l].label,
+}))
 
 export default function PreferencesPage() {
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null)
-
-  // Settings state
-  const [countryCode, setCountryCode] = useState("")
-  const [locale, setLocale] = useState("en-GB")
-  const [currency, setCurrency] = useState("GBP")
-  const [dateFormat, setDateFormat] = useState("DD/MM/YYYY")
-  const [timezone, setTimezone] = useState("Europe/London")
-  const [numberFormat, setNumberFormat] = useState("1,234.56")
-
-  const [isDirty, setIsDirty] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const { workspace, refreshWorkspace } = useWorkspace()
+  const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
 
-  // Load workspace preferences from workspace_settings.preferences_json (tolerant)
+  // Derive initial values from workspace.settings
+  const settings = (workspace?.settings as Record<string, unknown> | undefined) ?? {}
+
+  const [currency, setCurrency] = useState(
+    (settings.currency as string | undefined) ?? "GBP"
+  )
+  const [locale, setLocale] = useState(
+    (settings.locale as string | undefined) ?? "en-GB"
+  )
+  const [dateFormat, setDateFormat] = useState(
+    (settings.dateFormat as string | undefined) ?? "dd/MM/yyyy"
+  )
+  const [timezone, setTimezone] = useState(
+    (settings.timezone as string | undefined) ?? "Europe/London"
+  )
+
+  // Update form fields when workspace loads / changes
   useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user || cancelled) return
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("current_workspace_id")
-          .eq("id", user.id)
-          .maybeSingle()
-        const wsId = profile?.current_workspace_id as string | undefined
-        if (!wsId || cancelled) return
-        setWorkspaceId(wsId)
-
-        // Try to load from workspace_settings table (42P01-safe)
-        const { data: ws } = await supabase
-          .from("workspace_settings")
-          .select("preferences_json")
-          .eq("workspace_id", wsId)
-          .maybeSingle()
-        if (cancelled) return
-        if (ws && ws.preferences_json) {
-          const prefs = ws.preferences_json as Record<string, string>
-          if (prefs.countryCode) setCountryCode(prefs.countryCode)
-          if (prefs.locale) setLocale(prefs.locale)
-          if (prefs.currency) setCurrency(prefs.currency)
-          if (prefs.dateFormat) setDateFormat(prefs.dateFormat)
-          if (prefs.timezone) setTimezone(prefs.timezone)
-          if (prefs.numberFormat) setNumberFormat(prefs.numberFormat)
-        }
-      } catch {
-        // Non-critical: stay at defaults
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [])
+    const s = (workspace?.settings as Record<string, unknown> | undefined) ?? {}
+    setCurrency((s.currency as string | undefined) ?? "GBP")
+    setLocale((s.locale as string | undefined) ?? "en-GB")
+    setDateFormat((s.dateFormat as string | undefined) ?? "dd/MM/yyyy")
+    setTimezone((s.timezone as string | undefined) ?? "Europe/London")
+  }, [workspace])
 
   function markDirty() {
     setIsDirty(true)
     setSaved(false)
-    setError(null)
+    setSaveError(null)
   }
 
-  async function handleSave() {
-    if (!workspaceId) { setError("No active workspace."); return }
-    setSaving(true)
-    setError(null)
-    try {
-      const supabase = createClient()
-      const prefsJson = { countryCode, locale, currency, dateFormat, timezone, numberFormat }
-      // Upsert into workspace_settings.preferences_json (tolerant — table may not exist yet)
-      const { error: upsertErr } = await supabase
-        .from("workspace_settings")
-        .upsert(
-          { workspace_id: workspaceId, preferences_json: prefsJson },
-          { onConflict: "workspace_id" }
-        )
-      if (upsertErr) {
-        // If table missing (42P01/PGRST205) — silently succeed; prefs are client-only for now
-        const schemaGapCodes = new Set(["42P01", "42703", "PGRST205", "PGRST204", "PGRST116"])
-        if (!schemaGapCodes.has(upsertErr.code ?? "")) {
-          setError("Failed to save preferences.")
-          return
-        }
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaveError(null)
+    setSaved(false)
+
+    // Use countryCode from existing workspace settings if available (managed via Jurisdiction page)
+    const countryCode = (settings.countryCode as string | undefined) ?? "GB"
+
+    startTransition(async () => {
+      try {
+        await saveI18nPreferences({ countryCode, currency, locale, dateFormat, timezone })
+        await refreshWorkspace()
+        setSaved(true)
+        setIsDirty(false)
+        setTimeout(() => setSaved(false), 3000)
+      } catch (err) {
+        setSaveError(err instanceof Error ? err.message : "Failed to save preferences.")
       }
-      setSaved(true)
-      setIsDirty(false)
-      setTimeout(() => setSaved(false), 3000)
-    } catch {
-      setError("An unexpected error occurred.")
-    } finally {
-      setSaving(false)
-    }
+    })
   }
-
-  // Derive pack for legal disclaimer preview
-  const activePack = countryCode ? getCountryPack(countryCode) : null
-
-  // When country changes, auto-fill currency + locale from pack
-  function handleCountryChange(code: string) {
-    setCountryCode(code)
-    markDirty()
-    if (code && code !== "OTHER") {
-      const pack = getCountryPack(code)
-      setCurrency(pack.currency)
-      setLocale(pack.locale)
-      const fmt = pack.dateFormat.replace("DD.MM.YYYY", "DD/MM/YYYY")
-      const mapped =
-        fmt === "MM/DD/YYYY" ? "MM/DD/YYYY"
-        : fmt === "YYYY-MM-DD" ? "YYYY-MM-DD"
-        : "DD/MM/YYYY"
-      setDateFormat(mapped)
-    }
-  }
-
-  // Live preview of how formats look
-  const previewAmount = formatMoney(189900, currency, locale)
-  const previewDate = formatDate(new Date(), undefined, locale)
 
   return (
-    <div>
-      {/* Page header */}
-      <div className="mb-7">
-        <h1 className="text-[20px] font-bold text-slate-900">Language &amp; Preferences</h1>
-        <p className="text-[13px] text-slate-500 mt-0.5">
-          Controls how dates, currencies, and numbers display throughout your workspace.
-          These settings apply to your workspace members and exported documents.
+    <div className="space-y-6 max-w-2xl">
+      <div>
+        <h1 className="text-xl font-bold text-slate-900">Preferences</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Configure localisation, currency and date display for this workspace.
         </p>
       </div>
 
-      <div className="space-y-5">
-        {/* Country / Jurisdiction */}
+      <form onSubmit={handleSave} className="space-y-6">
         <SectionCard
-          title="Country / Jurisdiction"
-          description="Sets the operating jurisdiction for compliance templates, terminology, property types, and AI legal framing."
+          title="Display preferences"
+          description="Currency, date format and timezone used across all PM workspace pages."
         >
-          <SelectField
-            label="Operating country"
-            value={countryCode}
-            onChange={handleCountryChange}
-            options={COUNTRY_OPTIONS}
-            helper="Selecting a country auto-fills currency, locale and date format. Compliance tabs adapt to the jurisdiction."
-          />
-          {activePack && activePack.reviewStatus === "generic" && (
-            <div className="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
-              <Info className="w-4 h-4 shrink-0 mt-0.5" />
-              <p>
-                <strong>{activePack.name}</strong> is a generic/research-level jurisdiction. Propvora&apos;s compliance and legal workflows are reviewed for the UK only. General information is provided with a strong disclaimer for all other countries.
-              </p>
-            </div>
-          )}
-          {activePack && (
-            <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-[12px] text-slate-600">
-              <p className="font-semibold text-slate-700 mb-1">Legal disclaimer (active for this jurisdiction):</p>
-              <p>{activePack.legalDisclaimer}</p>
-            </div>
-          )}
-        </SectionCard>
-
-        {/* Language */}
-        <SectionCard
-          title="Language"
-          description="Display language for the workspace interface and AI-generated content."
-        >
-          <SelectField
-            label="Language"
-            value={locale}
-            onChange={(v) => { setLocale(v); markDirty() }}
-            options={LOCALE_OPTIONS}
-            helper="Changing language affects formatting, copy defaults, and AI context framing."
-          />
-        </SectionCard>
-
-        {/* Currency */}
-        <SectionCard
-          title="Default currency"
-          description="Used when creating new financial records. Existing records keep their original currency."
-        >
-          <SelectField
-            label="Currency"
-            value={currency}
-            onChange={(v) => { setCurrency(v); markDirty() }}
-            options={CURRENCY_OPTIONS}
-            helper="The workspace default. Individual properties and tenancies can override this."
-          />
-        </SectionCard>
-
-        {/* Date format */}
-        <SectionCard
-          title="Date format"
-          description="How dates appear across the UI, in exports, and in tenant/landlord portal communications."
-        >
-          <SelectField
-            label="Date format"
-            value={dateFormat}
-            onChange={(v) => { setDateFormat(v); markDirty() }}
-            options={DATE_FORMAT_OPTIONS}
-          />
-        </SectionCard>
-
-        {/* Timezone */}
-        <SectionCard
-          title="Timezone"
-          description="All timestamps, calendar events and compliance deadlines are shown in this timezone."
-        >
-          <SelectField
-            label="Timezone"
-            value={timezone}
-            onChange={(v) => { setTimezone(v); markDirty() }}
-            options={TIMEZONE_OPTIONS}
-            helper="Important for compliance deadlines and calendar sync accuracy."
-          />
-        </SectionCard>
-
-        {/* Number format */}
-        <SectionCard
-          title="Number format"
-          description="How large numbers and decimal values are displayed."
-        >
-          <SelectField
-            label="Number format"
-            value={numberFormat}
-            onChange={(v) => { setNumberFormat(v); markDirty() }}
-            options={NUMBER_FORMAT_OPTIONS}
-          />
-        </SectionCard>
-
-        {/* Live preview */}
-        <SectionCard title="Preview">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Currency</p>
-              <p className="text-[22px] font-bold text-slate-900">{previewAmount}</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Date</p>
-              <p className="text-[22px] font-bold text-slate-900">{previewDate}</p>
-            </div>
+          <div className="space-y-4">
+            <SelectField
+              label="Currency"
+              value={currency}
+              onChange={(v) => { setCurrency(v); markDirty() }}
+              options={CURRENCY_OPTIONS}
+              helper="Controls how all money values are displayed in the PM workspace. Change jurisdiction in Settings → Jurisdiction."
+            />
+            <SelectField
+              label="Locale / language"
+              value={locale}
+              onChange={(v) => { setLocale(v); markDirty() }}
+              options={LOCALE_OPTIONS}
+              helper="Affects date, number, and list formatting."
+            />
+            <SelectField
+              label="Date format"
+              value={dateFormat}
+              onChange={(v) => { setDateFormat(v); markDirty() }}
+              options={DATE_FORMAT_OPTIONS}
+              helper="How dates are displayed in reports and calendar views."
+            />
+            <SelectField
+              label="Timezone"
+              value={timezone}
+              onChange={(v) => { setTimezone(v); markDirty() }}
+              options={TIMEZONE_OPTIONS}
+              helper="Used for deadline calculations, rent chase reminders and calendar events."
+            />
           </div>
-          <p className="mt-3 text-[11px] text-slate-400">
-            Preview uses live locale formatters. The date format selector above applies to
-            exported documents and portal communications; the UI uses the locale&apos;s native format.
-          </p>
         </SectionCard>
 
-        {/* Link to full Jurisdiction settings */}
-        <div className="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[13px] text-blue-700">
-          <p className="font-semibold">Advanced jurisdiction settings</p>
-          <p className="mt-0.5 text-[12px] text-blue-600">
-            For full AI-copilot locale guardrails, country-pack status, sanctions checks and tax-country configuration see{" "}
-            <a href="/property-manager/workspace-settings/jurisdiction" className="underline font-medium">
-              Jurisdiction &amp; Locale settings
+        {/* Note about jurisdiction */}
+        <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
+          <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+          <p className="text-[12px] text-blue-700 leading-relaxed">
+            To change your workspace country, legal jurisdiction, tax regime or VAT settings, go to{" "}
+            <a href="/app/workspace-settings/jurisdiction" className="underline font-medium">
+              Settings → Jurisdiction
             </a>
             .
           </p>
         </div>
-      </div>
 
-      {/* Sticky save bar */}
-      <div
-        className={cn(
-          "app-save-bar fixed left-0 right-0 border-t border-slate-200 bg-white px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 transition-all duration-200",
-          isDirty ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
-        )}
-      >
-        <div>
-          <p className="text-[13px] text-slate-500">You have unsaved changes</p>
-          {error && <p className="text-[12px] text-red-500 mt-0.5">{error}</p>}
-        </div>
+        {/* Save row */}
         <div className="flex items-center gap-3">
           <button
-            type="button"
-            onClick={() => { setIsDirty(false); setSaved(false); setError(null) }}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            type="submit"
+            disabled={isPending || !isDirty}
+            className={cn(
+              "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all",
+              isDirty && !isPending
+                ? "bg-[#2563EB] text-white hover:bg-blue-700"
+                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+            )}
           >
-            Discard
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : saved ? (
+              <Check className="w-4 h-4" />
+            ) : null}
+            {isPending ? "Saving…" : saved ? "Saved" : "Save preferences"}
           </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-[13px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-70"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
-            {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}
-          </button>
+          {saveError && (
+            <p className="text-sm text-red-600">{saveError}</p>
+          )}
+          {saved && !saveError && (
+            <p className="text-sm text-emerald-600">Preferences saved.</p>
+          )}
         </div>
-      </div>
+      </form>
     </div>
   )
 }

@@ -26,6 +26,8 @@ interface Workspace {
   plan: string
   trial_ends_at: string | null
   owner_id: string
+  /** i18n preferences: countryCode, currency, locale, dateFormat, timezone */
+  settings?: Record<string, unknown>
 }
 
 interface AuthContextValue {
@@ -77,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id")
+          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, settings")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)
