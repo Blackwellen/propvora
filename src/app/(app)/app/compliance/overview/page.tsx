@@ -13,7 +13,9 @@ import {
   ArrowUpRight,
   Flame,
   FileSearch,
+  Sparkles,
 } from "lucide-react"
+import { openCopilot } from "@/lib/copilot/open"
 import { ComplianceKpiCard } from "@/components/compliance/ComplianceKpiCard"
 import { ComplianceStatusBadge } from "@/components/compliance/ComplianceStatusBadge"
 import { createClient } from "@/lib/supabase/client"
@@ -197,6 +199,33 @@ export default function ComplianceOverviewPage() {
           >
             <Upload className="w-3.5 h-3.5" />
             Upload document
+          </button>
+          <button
+            onClick={() => openCopilot({
+              prompt: "What compliance items need my attention? Summarise overdue, expiring soon, and any coverage gaps.",
+              sectionContext: {
+                section: "compliance",
+                pageTitle: "Compliance Overview",
+                summaryData: {
+                  totalItems: stats.total,
+                  overdueCount: stats.expired,
+                  expiringSoon: stats.expiring,
+                  missingCount: stats.missing,
+                  compliantCount: stats.compliant,
+                  healthPct: healthScore ?? 0,
+                  trackedProperties: stats.trackedProperties,
+                  atRiskProperties: stats.atRiskProperties,
+                  certificatesTracked: extra.certCount,
+                  certificatesExpiringSoon: extra.certExpiringSoon,
+                  inspectionsScheduled: extra.inspectionUpcoming,
+                  inspectionsOverdue: extra.inspectionOverdue,
+                },
+              },
+            })}
+            className="inline-flex items-center gap-1.5 border border-violet-200 bg-violet-50 text-violet-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-violet-100 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Ask AI
           </button>
           <ActionMenu
             items={[

@@ -16,7 +16,9 @@ import {
   ArrowRight,
   X,
   ChevronRight,
+  Sparkles,
 } from "lucide-react"
+import { openCopilot } from "@/lib/copilot/open"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
 import MoneyKpiCard from "@/components/money/MoneyKpiCard"
@@ -355,6 +357,26 @@ export default function MoneyOverviewPage() {
               <Link href="/app/money/bills/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                 <Receipt className="w-4 h-4" /> Add Bill
               </Link>
+              <button
+                onClick={() => openCopilot({
+                  prompt: "Summarise my finances for this month — income, expenses, cashflow and any outstanding items.",
+                  sectionContext: {
+                    section: "money",
+                    pageTitle: "Money Overview",
+                    summaryData: {
+                      incomeReceived,
+                      expensesPaid,
+                      netCashflow,
+                      outstandingInvoices: outstanding,
+                      rentArrears: arrearsTotal,
+                      arrearsOpenCases: openCases,
+                    },
+                  },
+                })}
+                className="inline-flex items-center gap-1.5 border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
+              >
+                <Sparkles className="w-4 h-4" /> Ask AI
+              </button>
             </>
           }
           tabs={<MoneyTabNav />}

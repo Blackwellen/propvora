@@ -404,7 +404,25 @@ export default function PortfolioPage() {
       "",
       "Please flag the top risks, highlight quick wins, and suggest where to focus next.",
     ]
-    openCopilot({ prompt: lines.join("\n") })
+    openCopilot({
+      prompt: lines.join("\n"),
+      sectionContext: {
+        section: "portfolio",
+        pageTitle: "Portfolio Overview",
+        summaryData: {
+          propertyCount: properties.length,
+          unitCount: totalUnits,
+          occupancyRate: `${occupancyPct}%`,
+          occupiedUnits,
+          vacantUnits,
+          activeTenancies,
+          monthlyRentRoll: totalRentRoll,
+          arrearsTotal,
+          arrearsCount,
+          tenanciesEndingSoon: endingSoon.length,
+        },
+      },
+    })
   }
 
   /* CSV export — client-side, derived from the live (or seeded) rows */

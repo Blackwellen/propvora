@@ -13,7 +13,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   Wrench,
+  Sparkles,
 } from "lucide-react"
+import { openCopilot } from "@/lib/copilot/open"
 import { HomeKpiRow } from "../components/HomeKpiRow"
 import { HomePortfolioSnapshotCard } from "../components/HomePortfolioSnapshotCard"
 import { HomeTenancySpotlightCard } from "../components/HomeTenancySpotlightCard"
@@ -179,7 +181,7 @@ function QuickActionsMenu() {
 /* ------------------------------------------------------------------ */
 /* Command Header                                                         */
 /* ------------------------------------------------------------------ */
-function CommandHeader({ workspaceName }: { workspaceName: string }) {
+function CommandHeader({ workspaceName, onAskAI }: { workspaceName: string; onAskAI?: () => void }) {
   const now = new Date()
   const hour = now.getHours()
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
@@ -211,6 +213,15 @@ function CommandHeader({ workspaceName }: { workspaceName: string }) {
       </div>
 
       <div className="flex items-center gap-2.5 flex-shrink-0">
+        {onAskAI && (
+          <button
+            onClick={onAskAI}
+            className="hidden sm:flex items-center gap-1.5 border border-violet-200 bg-violet-50 text-violet-700 text-[12.5px] font-semibold px-3 py-2 rounded-xl hover:bg-violet-100 transition-colors"
+          >
+            <Sparkles style={{ width: 13, height: 13 }} />
+            Ask AI
+          </button>
+        )}
         <QuickActionsMenu />
       </div>
     </div>
@@ -757,7 +768,26 @@ export function HomeDashboardPage() {
   return (
     <div className="py-4 flex flex-col gap-5 min-h-0">
       {/* 1. Command Header */}
-      <CommandHeader workspaceName={workspace?.name ?? "Your Workspace"} />
+      <CommandHeader
+        workspaceName={workspace?.name ?? "Your Workspace"}
+        onAskAI={() => openCopilot({
+          prompt: "Summarise my property management dashboard for today — portfolio, rent, open work and compliance.",
+          sectionContext: {
+            section: "dashboard",
+            pageTitle: "Home Dashboard",
+            summaryData: {
+              propertyCount: kpi.properties,
+              unitCount: kpi.units,
+              activeTenancies: kpi.activeTenancies,
+              occupancyPct: kpi.occupancyPct,
+              rentCollectedThisMonth: kpi.rentCollected,
+              openWorkItems: kpi.openWork,
+              complianceDue: kpi.complianceDue,
+              rentArrears: kpi.arrears,
+            },
+          },
+        })}
+      />
 
       {/* Soft error banner — page still renders with whatever loaded */}
       {errored && (

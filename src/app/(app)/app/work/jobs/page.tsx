@@ -970,7 +970,21 @@ export default function JobsPage() {
             <Download className="w-3.5 h-3.5" /> Export
           </button>
           <button
-            onClick={() => openCopilot({ prompt: "Summarise my open jobs and flag any at risk of an SLA breach." })}
+            onClick={() => openCopilot({
+              prompt: "Summarise my open jobs and flag any at risk of an SLA breach.",
+              sectionContext: {
+                section: "work",
+                pageTitle: "Jobs",
+                summaryData: {
+                  openJobs: liveOrDemo.filter(j => j.status !== "complete" && j.status !== "invoiced").length,
+                  overdueJobs: liveOrDemo.filter(j => j.status === "overdue").length,
+                  inProgressJobs: liveOrDemo.filter(j => j.status === "in_progress").length,
+                  waitingJobs: liveOrDemo.filter(j => j.status === "waiting").length,
+                  scheduledJobs: liveOrDemo.filter(j => j.status === "scheduled").length,
+                  totalJobs: liveOrDemo.length,
+                },
+              },
+            })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI

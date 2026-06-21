@@ -3,18 +3,20 @@
 import { useState, useRef, KeyboardEvent } from "react"
 import { Paperclip, Send } from "lucide-react"
 import SlashCommandPalette from "./SlashCommandPalette"
-import type { CopilotPageContext } from "../context/useCopilotPageContext"
+import type { CopilotPageContext, SectionContext } from "../context/useCopilotPageContext"
 
 interface CopilotChatInputProps {
   context: CopilotPageContext
-  onSend: (message: string) => void
+  onSend: (message: string, sectionContext?: SectionContext) => void
   placeholder?: string
+  sectionContext?: SectionContext
 }
 
 export default function CopilotChatInput({
   context,
   onSend,
   placeholder = "Ask Copilot about this page or type / for actions...",
+  sectionContext,
 }: CopilotChatInputProps) {
   const [value, setValue] = useState("")
   const [showPalette, setShowPalette] = useState(false)
@@ -33,7 +35,7 @@ export default function CopilotChatInput({
   function handleSend() {
     const msg = value.trim()
     if (!msg) return
-    onSend(msg)
+    onSend(msg, sectionContext)
     setValue("")
     setShowPalette(false)
   }

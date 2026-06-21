@@ -707,7 +707,19 @@ export default function TasksPage() {
         overflowActions={[
           { label: "Select all", icon: CheckSquare, onClick: () => setSelectedIds(displayTasks.map((t) => t.id)) },
           { label: "Export", icon: Download, onClick: exportSelected },
-          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: "Help me prioritise my open tasks for this week." }) },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({
+              prompt: "Help me prioritise my open tasks for this week.",
+              sectionContext: {
+                section: "work",
+                pageTitle: "Tasks",
+                summaryData: {
+                  openTasks: liveOrDemo.filter(t => !["done", "cancelled"].includes(t.status)).length,
+                  overdueTasks: liveOrDemo.filter(t => t.overdue).length,
+                  dueTodayTasks: liveOrDemo.filter(t => t.dueToday).length,
+                  totalTasks: liveOrDemo.length,
+                },
+              },
+            }) },
         ]}
       />
       <MobilePageHeader
@@ -781,7 +793,19 @@ export default function TasksPage() {
             <Download className="w-3.5 h-3.5" /> Export
           </button>
           <button
-            onClick={() => openCopilot({ prompt: "Help me prioritise my open tasks for this week." })}
+            onClick={() => openCopilot({
+              prompt: "Help me prioritise my open tasks for this week.",
+              sectionContext: {
+                section: "work",
+                pageTitle: "Tasks",
+                summaryData: {
+                  openTasks: liveOrDemo.filter(t => !["done", "cancelled"].includes(t.status)).length,
+                  overdueTasks: liveOrDemo.filter(t => t.overdue).length,
+                  dueTodayTasks: liveOrDemo.filter(t => t.dueToday).length,
+                  totalTasks: liveOrDemo.length,
+                },
+              },
+            })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI

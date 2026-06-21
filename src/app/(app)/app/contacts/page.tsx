@@ -1,14 +1,14 @@
 "use client"
 
-import React, { useState, useMemo, useEffect, useRef, Suspense } from "react"
-import { UserPlus, Upload, Download, CheckCircle2, X, AlertTriangle } from "lucide-react"
+import React, { useState, useMemo, useEffect, useRef } from "react"
+import { UserPlus, Upload, Download, CheckCircle2, X, AlertTriangle, Sparkles } from "lucide-react"
+import { openCopilot } from "@/lib/copilot/open"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { MobileTopBar } from "@/components/mobile"
-import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
 import { downloadCsv, parseCsv } from "@/lib/export/csv"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
@@ -140,7 +140,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
   )
 }
 
-function ContactsPageInner() {
+export default function ContactsPage() {
   const { workspace } = useWorkspace()
   const { data: liveContacts, isLoading, error } = useContacts(workspace?.id)
 
@@ -258,6 +258,25 @@ function ContactsPageInner() {
                 <button onClick={() => importInputRef.current?.click()} disabled={importing} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
                   <Upload className="w-4 h-4" /> {importing ? "Importing…" : "Import"}
                 </button>
+                <button
+                  onClick={() => openCopilot({
+                    prompt: "Summarise my contacts — how many tenants, landlords, and suppliers do I have?",
+                    sectionContext: {
+                      section: "contacts",
+                      pageTitle: "Contacts",
+                      summaryData: {
+                        totalContacts: contacts.length,
+                        tenantsCount: contacts.filter(c => c.contact_type === "tenant").length,
+                        landlordsCount: contacts.filter(c => c.contact_type === "landlord" || c.contact_type === "owner").length,
+                        suppliersCount: contacts.filter(c => c.contact_type === "supplier").length,
+                        activeContacts: contacts.filter(c => c.status === "active").length,
+                      },
+                    },
+                  })}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" /> Ask AI
+                </button>
                 <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm">
                   <UserPlus className="w-4 h-4" /> Add Contact
                 </button>
@@ -339,26 +358,6 @@ function ContactsPageInner() {
       )}
 
       {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg(null)} />}
-
-      {/* Automation shortcut */}
-      <div className="px-4 sm:px-6 pb-6">
-        <AutomationShortcutBanner
-          label="Automate: New tenant welcome email"
-          description="Automatically send a welcome email when a new tenancy starts. Professional onboarding, hands-free."
-          triggerNodeType="portfolio.tenancy_started"
-          defaultName="New tenant welcome email"
-          accentBg="bg-emerald-50"
-          accentIcon="text-emerald-600"
-        />
-      </div>
     </DashboardContainer>
-  )
-}
-
-export default function ContactsPage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-sm text-slate-500">Loading…</div>}>
-      <ContactsPageInner />
-    </Suspense>
   )
 }

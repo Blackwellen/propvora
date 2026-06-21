@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
+import type { OpenCopilotDetail, OpenCopilotSectionContext } from "@/lib/copilot/open"
 import { AnimatePresence } from "framer-motion"
 import SideNavigation from "./SideNavigation"
 import TopNavigation from "./TopNavigation"
@@ -41,9 +42,16 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
   }, [])
 
   const [chatOpen, setChatOpen] = useState(false)
+  const [copilotSectionContext, setCopilotSectionContext] = useState<OpenCopilotSectionContext | undefined>(undefined)
   // Any page can open the Copilot by dispatching OPEN_COPILOT_EVENT.
+  // Pages may include sectionContext in the event detail so the AI is aware of
+  // what section and data the user is currently viewing.
   useEffect(() => {
-    const open = () => setChatOpen(true)
+    const open = (e: Event) => {
+      const detail = (e as CustomEvent<OpenCopilotDetail>).detail
+      if (detail?.sectionContext) setCopilotSectionContext(detail.sectionContext)
+      setChatOpen(true)
+    }
     window.addEventListener(OPEN_COPILOT_EVENT, open)
     return () => window.removeEventListener(OPEN_COPILOT_EVENT, open)
   }, [])
@@ -109,6 +117,7 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
             isOpen={chatOpen}
             onClose={() => setChatOpen(false)}
             aiCopilotEnabled={aiCopilotEnabled}
+            sectionContext={copilotSectionContext}
           />
         )}
       </AnimatePresence>

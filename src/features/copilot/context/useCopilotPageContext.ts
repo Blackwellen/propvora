@@ -1,16 +1,24 @@
-﻿"use client"
+"use client"
 import { usePathname } from "next/navigation"
+
+export interface SectionContext {
+  section: string
+  pageTitle?: string
+  summaryData?: Record<string, unknown>
+}
 
 export interface CopilotPageContext {
   section: string
   tab: string | null
   entity: string | null
   breadcrumb: string
+  /** Optional structured section context passed to the AI chat API. */
+  sectionContext?: SectionContext
 }
 
 export function useCopilotPageContext(): CopilotPageContext {
   const pathname = usePathname()
-  const parts = pathname.replace("/property-manager/", "").split("/")
+  const parts = pathname.replace("/property-manager/", "").replace("/app/", "").split("/")
   const sectionMap: Record<string, string> = {
     compliance: "Compliance",
     money: "Money",

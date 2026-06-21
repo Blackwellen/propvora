@@ -5,9 +5,9 @@ import CopilotContextBar from "../components/CopilotContextBar"
 import CopilotMessageBubble from "../components/CopilotMessageBubble"
 import CopilotChatInput from "../components/CopilotChatInput"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
+import type { SectionContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { ChatMessage } from "../types"
-import { COPILOT_COMMANDS } from "@/lib/ai/commands-client"
 
 function now() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -21,21 +21,12 @@ const WELCOME: ChatMessage = {
   timestamp: now(),
 }
 
-/** Build the /help response message from the live COPILOT_COMMANDS registry. */
-function buildHelpContent(): string {
-  // Group commands by category, skipping clientOnly commands with no description value
-  const grouped: Record<string, string[]> = {}
-  for (const cmd of COPILOT_COMMANDS) {
-    if (!grouped[cmd.category]) grouped[cmd.category] = []
-    grouped[cmd.category].push(`**${cmd.label}** — ${cmd.description}`)
-  }
-  const sections = Object.entries(grouped)
-    .map(([cat, cmds]) => `**${cat}**\n${cmds.join("\n")}`)
-    .join("\n\n")
-  return `Here are all available commands:\n\n${sections}\n\n_Tip: Type \`/\` to open the command palette, or start typing a command name to filter._`
+interface CopilotChatScreenProps {
+  /** Optional section context injected by the page that opens the copilot. */
+  sectionContext?: SectionContext
 }
 
-export default function CopilotChatScreen() {
+export default function CopilotChatScreen({ sectionContext }: CopilotChatScreenProps) {
   const context = useCopilotPageContext()
   const { workspace } = useWorkspace()
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME])
@@ -50,49 +41,9 @@ export default function CopilotChatScreen() {
   }, [messages])
 
   const handleSend = useCallback(
-    async (text: string) => {
+    async (text: string, msgSectionContext?: SectionContext) => {
       if (streaming) return
       setError(null)
-
-      const trimmed = text.trim()
-
-      // --- Client-side /clear shortcut ---
-      if (trimmed === "/clear") {
-        setMessages([
-          {
-            id: `u-${Date.now()}`,
-            role: "user",
-            content: "/clear",
-            timestamp: now(),
-          },
-          {
-            id: `a-${Date.now()}`,
-            role: "ai",
-            content: "Chat cleared. Ask me anything or type / for available commands.",
-            timestamp: now(),
-          },
-        ])
-        setThreadId(undefined)
-        return
-      }
-
-      // --- Client-side /help shortcut (no API call) ---
-      if (trimmed === "/help") {
-        const userMsg: ChatMessage = {
-          id: `u-${Date.now()}`,
-          role: "user",
-          content: "/help",
-          timestamp: now(),
-        }
-        const helpMsg: ChatMessage = {
-          id: `a-${Date.now()}`,
-          role: "ai",
-          content: buildHelpContent(),
-          timestamp: now(),
-        }
-        setMessages((prev) => [...prev, userMsg, helpMsg])
-        return
-      }
 
       const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: text, timestamp: now() }
       const aiId = `a-${Date.now()}`
@@ -100,6 +51,10 @@ export default function CopilotChatScreen() {
       setMessages((prev) => [...prev, userMsg, aiMsg])
       setStreaming(true)
       setStreamingId(aiId)
+
+      // Use the per-message context if provided, then fall back to the
+      // component-level sectionContext prop (set by the opening page).
+      const effectiveSectionContext = msgSectionContext ?? sectionContext
 
       try {
         const res = await fetch("/api/ai/chat", {
@@ -110,6 +65,7 @@ export default function CopilotChatScreen() {
             threadId,
             contextRoute: context.breadcrumb || undefined,
             workspaceId: workspace?.id,
+            ...(effectiveSectionContext ? { sectionContext: effectiveSectionContext } : {}),
           }),
         })
 
@@ -157,7 +113,7 @@ export default function CopilotChatScreen() {
         setStreamingId(null)
       }
     },
-    [streaming, threadId, context.breadcrumb, workspace?.id]
+    [streaming, threadId, context.breadcrumb, workspace?.id, sectionContext]
   )
 
   return (
@@ -184,7 +140,11 @@ export default function CopilotChatScreen() {
       )}
 
       <div className="px-4 pb-4 pt-2 shrink-0">
-        <CopilotChatInput context={context} onSend={handleSend} />
+        <CopilotChatInput
+          context={context}
+          onSend={handleSend}
+          sectionContext={sectionContext}
+        />
       </div>
     </div>
   )
