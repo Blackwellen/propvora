@@ -26,6 +26,7 @@ import { useTasks } from "@/hooks/useTasks"
 import { useJobs } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import type { Task, Job } from "@/types/database"
+import { openCopilot } from "@/lib/copilot/open"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -752,12 +753,12 @@ export default function GanttPage() {
             >
               <Download className="w-4 h-4" /> Export
             </button>
-            <Link
-              href="/app/work"
+            <button
+              onClick={() => openCopilot({ prompt: "Review my task and job schedule — are there any timeline conflicts or items I should reschedule?" })}
               className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-[13px] font-medium hover:bg-violet-700 transition-colors"
             >
               <Sparkles className="w-4 h-4" /> Ask AI
-            </Link>
+            </button>
           </>
         }
       />

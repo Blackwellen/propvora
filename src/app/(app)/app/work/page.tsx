@@ -31,6 +31,7 @@ import { WorkKpiStrip, type WorkKpi } from "@/components/work/WorkKpiStrip"
 import { useTasks } from "@/hooks/useTasks"
 import { useJobs } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { openCopilot } from "@/lib/copilot/open"
 import {
   BarChart,
   Bar,
@@ -358,7 +359,7 @@ export default function WorkPage() {
         overflowActions={[
           { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
           { label: "Export", icon: Download, onClick: exportCsv },
-          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: "/summarise" }) },
         ]}
       />
       <div className="md:hidden -mx-4">
@@ -390,12 +391,12 @@ export default function WorkPage() {
             >
               <Download className="w-4 h-4" /> Export
             </button>
-            <Link
-              href="/app/work"
+            <button
+              onClick={() => openCopilot({ prompt: "/summarise" })}
               className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Sparkles className="w-4 h-4" /> Ask AI
-            </Link>
+            </button>
           </>
         }
         tabs={<WorkTabNav />}

@@ -35,6 +35,7 @@ import { KpiCard, RiskPill } from "@/components/planning/shared"
 import { PLANNING_PROFILES, type PlanningProfile } from "@/lib/planning/profiles"
 import { PROFILE_SLUG_MAP } from "@/lib/planning/profile-config"
 import { cn } from "@/lib/utils"
+import { openCopilot } from "@/lib/copilot/open"
 
 // ── Icon + number config per profile key ────────────────────────────────────
 const PROFILE_CONFIGS: Record<string, { icon: React.ElementType; number: number }> = {
@@ -343,7 +344,10 @@ function AISuggestionsPanel() {
           <p className="text-[12px] text-slate-600">{tip}</p>
         </div>
       ))}
-      <button className="mt-3 w-full h-9 rounded-xl border border-violet-200 text-[13px] font-semibold text-[#7C3AED] hover:bg-violet-50 transition-colors">
+      <button
+        onClick={() => openCopilot({ prompt: "/review-planning" })}
+        className="mt-3 w-full h-9 rounded-xl border border-violet-200 text-[13px] font-semibold text-[#7C3AED] hover:bg-violet-50 transition-colors"
+      >
         Ask AI Copilot →
       </button>
     </div>

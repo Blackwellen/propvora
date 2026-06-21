@@ -6,7 +6,40 @@ import CopilotMessageBubble from "../components/CopilotMessageBubble"
 import CopilotChatInput from "../components/CopilotChatInput"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
-import type { ChatMessage } from "../types"
+import type { ChatMessage, QuickAction } from "../types"
+
+// Quick-action definitions keyed by command slug
+const QUICK_ACTION_MAP: Record<string, QuickAction[]> = {
+  "/summarise": [
+    { slug: "/issues", label: "/issues" },
+    { slug: "/cashflow-forecast", label: "/cashflow-forecast" },
+    { slug: "/review-compliance", label: "/review-compliance" },
+  ],
+  "/issues": [
+    { slug: "/create-task", label: "/create-task" },
+    { slug: "/escalation-summary", label: "/escalation-summary" },
+  ],
+  "/cashflow-forecast": [
+    { slug: "/chase-arrears", label: "/chase-arrears" },
+    { slug: "/explain-payout", label: "/explain-payout" },
+  ],
+  "/review-compliance": [
+    { slug: "/compliance-calendar", label: "/compliance-calendar" },
+    { slug: "/deposit-status", label: "/deposit-status" },
+  ],
+  "/explain-portfolio": [
+    { slug: "/void-properties", label: "/void-properties" },
+    { slug: "/tenancy-renewals", label: "/tenancy-renewals" },
+  ],
+}
+
+/** Detect the first slash command in a message string */
+function detectCommand(text: string): string | null {
+  const trimmed = text.trimStart()
+  if (!trimmed.startsWith("/")) return null
+  const tok = trimmed.split(/\s+/, 1)[0].toLowerCase()
+  return tok
+}
 
 function now() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -46,6 +79,13 @@ export default function CopilotChatScreen() {
       setStreaming(true)
       setStreamingId(aiId)
 
+      // Build page context JSON — includes entity IDs from context if available
+      const pageContextPayload = context.entityId
+        ? JSON.stringify({ section: context.section, [context.entityIdKey ?? "entityId"]: context.entityId })
+        : context.section
+          ? JSON.stringify({ section: context.section })
+          : undefined
+
       try {
         const res = await fetch("/api/ai/chat", {
           method: "POST",
@@ -55,6 +95,7 @@ export default function CopilotChatScreen() {
             threadId,
             contextRoute: context.breadcrumb || undefined,
             workspaceId: workspace?.id,
+            pageContext: pageContextPayload,
           }),
         })
 
@@ -76,10 +117,16 @@ export default function CopilotChatScreen() {
         const newThread = res.headers.get("X-Thread-Id")
         if (newThread) setThreadId(newThread)
 
+        // Detect active command for quick-action injection
+        const commandSlug = res.headers.get("X-AI-Command") || detectCommand(text)
+
         const reader = res.body?.getReader()
         if (!reader) {
           const full = await res.text()
-          setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: full } : m)))
+          const quickActions = commandSlug ? QUICK_ACTION_MAP[commandSlug] : undefined
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiId ? { ...m, content: full, quickActions } : m))
+          )
           return
         }
         const decoder = new TextDecoder()
@@ -89,6 +136,13 @@ export default function CopilotChatScreen() {
           if (done) break
           acc += decoder.decode(value, { stream: true })
           setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: acc } : m)))
+        }
+        // After stream completes, inject quick actions if applicable
+        const quickActions = commandSlug ? QUICK_ACTION_MAP[commandSlug] : undefined
+        if (quickActions) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiId ? { ...m, quickActions } : m))
+          )
         }
       } catch {
         setMessages((prev) =>
@@ -102,7 +156,15 @@ export default function CopilotChatScreen() {
         setStreamingId(null)
       }
     },
-    [streaming, threadId, context.breadcrumb, workspace?.id]
+    [streaming, threadId, context, workspace?.id]
+  )
+
+  // Quick action chip click: prefill and send the slug as a command
+  const handleQuickAction = useCallback(
+    (slug: string) => {
+      handleSend(slug)
+    },
+    [handleSend]
   )
 
   return (
@@ -118,6 +180,8 @@ export default function CopilotChatScreen() {
             timestamp={msg.timestamp}
             card={msg.card}
             streaming={streaming && msg.id === streamingId}
+            quickActions={msg.quickActions}
+            onQuickAction={handleQuickAction}
           />
         ))}
       </div>

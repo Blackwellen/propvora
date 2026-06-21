@@ -48,6 +48,7 @@ import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import type { Job, UpdateJob } from "@/types/database"
+import { openCopilot } from "@/lib/copilot/open"
 
 // Job lifecycle status options (matches the live `jobs.status` enum).
 const JOB_STATUS_OPTIONS = [
@@ -836,7 +837,7 @@ export default function JobDetailPage() {
           { label: jobData.status === "complete" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (jobData.status !== "complete") handleMarkComplete() } },
           { label: "Reschedule", icon: Calendar, href: "/app/work/ppm" },
           { label: "Request quote", icon: FileText, href: "/app/work/suppliers" },
-          { label: "Ask AI", icon: Sparkles, href: "/app/work" },
+          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` }) },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
@@ -872,12 +873,12 @@ export default function JobDetailPage() {
           >
             Request Quote
           </Link>
-          <Link
-            href="/app/work"
+          <button
+            onClick={() => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` })}
             className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </Link>
+          </button>
           <ConfirmDeleteDialog
             title="Delete this job?"
             description="This action cannot be undone. The job will be permanently removed."
