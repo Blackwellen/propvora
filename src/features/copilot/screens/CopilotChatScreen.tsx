@@ -44,14 +44,14 @@ export default function CopilotChatScreen({ sectionContext }: { sectionContext?:
       // Client-only commands: intercept before any API call.
       // /help renders the command catalogue inline; /clear resets the conversation.
       if (text.trim() === "/help") {
-        const visibleCmds = COPILOT_COMMANDS.filter((c) => !c.clientOnly)
+        const visibleCmds = COPILOT_COMMANDS
         const grouped: Record<string, typeof visibleCmds> = {}
         for (const cmd of visibleCmds) {
           grouped[cmd.category] = grouped[cmd.category] ?? []
           grouped[cmd.category].push(cmd)
         }
         const lines = Object.entries(grouped)
-          .map(([cat, cmds]) => `**${cat}**\n` + cmds.map((c) => `• ${c.slug} — ${c.description}`).join("\n"))
+          .map(([cat, cmds]) => `${cat}:\n` + cmds.map((c) => `${c.slug} — ${c.description}`).join("\n"))
           .join("\n\n")
         const helpMsg: ChatMessage = {
           id: `help-${Date.now()}`,
