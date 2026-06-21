@@ -20,6 +20,45 @@ export interface UploadedFile {
 /** Client-side validation mirror of the server allowlist (fast-fail UX). */
 export const MAX_UPLOAD_BYTES = 10_485_760 // 10 MB — must match /api/upload
 
+// ── UPLOAD-016: Blocked executable / script extensions ────────────────────────
+//
+// Defence-in-depth: reject dangerous extensions at the client validation layer
+// (fast-fail UX) so they never reach the server. The server independently
+// rejects them via the ALLOWED_EXTENSIONS allowlist in src/lib/r2.ts and the
+// isExecutable() magic-byte check in /api/upload/route.ts.
+
+const BLOCKED_EXTENSIONS = new Set([
+  ".exe", ".sh", ".bat", ".cmd", ".ps1", ".vbs",
+  ".js", ".mjs", ".ts", ".py", ".rb", ".php",
+])
+
+const BLOCKED_MIME_TYPES = new Set([
+  "application/x-msdownload",
+  "application/x-sh",
+  "application/x-bat",
+  "text/x-script",
+])
+
+/**
+ * Returns true when the filename ends with a blocked executable/script extension.
+ * Case-insensitive. Used as a fast-fail guard BEFORE attempting upload.
+ */
+export function hasBlockedExtension(filename: string): boolean {
+  const lastDot = filename.lastIndexOf(".")
+  if (lastDot === -1) return false
+  const ext = filename.slice(lastDot).toLowerCase()
+  return BLOCKED_EXTENSIONS.has(ext)
+}
+
+/**
+ * Returns true when the MIME type is in the blocked list.
+ * Strips charset suffixes before comparison.
+ */
+export function hasBlockedMimeType(mimeType: string): boolean {
+  const base = mimeType.split(";")[0].trim().toLowerCase()
+  return BLOCKED_MIME_TYPES.has(base)
+}
+
 export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -52,7 +91,19 @@ export function validateUploadFile(
   if (file.size > MAX_UPLOAD_BYTES) {
     return `File is too large (max ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)} MB).`
   }
+
+  // UPLOAD-016: Block executable/script extensions before any network call.
+  if (hasBlockedExtension(file.name)) {
+    return "That file type is not allowed for security reasons."
+  }
+
   const type = (file.type || "").split(";")[0].trim().toLowerCase()
+
+  // UPLOAD-016: Block known executable MIME types.
+  if (type && hasBlockedMimeType(type)) {
+    return "That file type is not allowed for security reasons."
+  }
+
   const allowed = opts.imagesOnly
     ? ACCEPTED_IMAGE_TYPES
     : [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_DOC_TYPES]

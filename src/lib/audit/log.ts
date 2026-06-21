@@ -51,12 +51,20 @@ export interface AuditEntry {
  * Adding here keeps call sites consistent and greppable.
  */
 export const AUDIT_ACTIONS = {
+  // SEC-030: auth events
+  AUTH_LOGIN: "auth.login",
+  AUTH_LOGOUT: "auth.logout",
+  // account
   ACCOUNT_DELETION_REQUESTED: "account.deletion_requested",
   ACCOUNT_EXPORT_REQUESTED: "account.export_requested",
+  // portal
   PORTAL_GRANT_CREATED: "portal.grant_created",
+  // files
   FILE_UPLOADED: "file.uploaded",
+  // invites
   INVITE_CREATED: "invite.created",
   INVITE_ACCEPTED: "invite.accepted",
+  // billing
   BILLING_SUBSCRIPTION_UPDATED: "billing.subscription_updated",
   BILLING_PAYMENT_FAILED: "billing.payment_failed",
   BILLING_DISPUTE_CREATED: "billing.dispute_created",
