@@ -16,9 +16,7 @@ import {
   ArrowRight,
   X,
   ChevronRight,
-  Sparkles,
 } from "lucide-react"
-import { openCopilot } from "@/lib/copilot/open"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
 import MoneyKpiCard from "@/components/money/MoneyKpiCard"
@@ -30,7 +28,7 @@ import { useMoneyOverview, useCreateMoneyIncome, useMoneyActivity } from "@/hook
 import type { InsertMoneyIncome, MoneyActivityRow } from "@/hooks/useMoneyData"
 import Link from "next/link"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
-import { AutomationShortcutBanner } from "@/components/automations/AutomationShortcutBanner"
+import JurisdictionBanner from "@/components/i18n/JurisdictionBanner"
 
 // ─── Money formatting (Intl, no float rounding bugs) ──────────────────────────
 
@@ -338,6 +336,7 @@ export default function MoneyOverviewPage() {
       />
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+        <JurisdictionBanner />
         {/* Desktop section header — mobile uses MobileTopBar above */}
         <div className="hidden md:block">
         <SectionHeader
@@ -357,26 +356,6 @@ export default function MoneyOverviewPage() {
               <Link href="/app/money/bills/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                 <Receipt className="w-4 h-4" /> Add Bill
               </Link>
-              <button
-                onClick={() => openCopilot({
-                  prompt: "Summarise my finances for this month — income, expenses, cashflow and any outstanding items.",
-                  summaryData: {
-                    section: "money",
-                    pageTitle: "Money Overview",
-                    summaryData: {
-                      incomeReceived,
-                      expensesPaid,
-                      netCashflow,
-                      outstandingInvoices: outstanding,
-                      rentArrears: arrearsTotal,
-                      arrearsOpenCases: openCases,
-                    },
-                  },
-                })}
-                className="inline-flex items-center gap-1.5 border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
-              >
-                <Sparkles className="w-4 h-4" /> Ask AI
-              </button>
             </>
           }
           tabs={<MoneyTabNav />}
@@ -655,16 +634,6 @@ export default function MoneyOverviewPage() {
                 Open Accounting <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-
-            {/* Automation shortcut */}
-            <AutomationShortcutBanner
-              label="Automate: Rent overdue chase"
-              description="Send automatic reminders when rent becomes overdue. Runs every day at your configured time."
-              triggerNodeType="invoice.overdue"
-              defaultName="Rent overdue chase"
-              accentBg="bg-red-50"
-              accentIcon="text-red-600"
-            />
           </div>
         </div>
       </DashboardContainer>

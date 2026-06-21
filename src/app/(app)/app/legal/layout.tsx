@@ -1,5 +1,6 @@
 import { LegalTabNav } from "@/components/legal/LegalTabNav"
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
+import JurisdictionBanner from "@/components/i18n/JurisdictionBanner"
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       <LegalTabNav />
       {/* Persistent, non-dismissible legal disclaimer on every legal page. */}
       <div className="px-6 pt-4">
+        <JurisdictionBanner />
         <LegalDisclaimer />
       </div>
       <div className="flex-1">{children}</div>

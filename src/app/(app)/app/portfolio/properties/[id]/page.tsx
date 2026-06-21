@@ -26,25 +26,22 @@ import { ContactsTab } from "@/components/portfolio/property-detail/ContactsTab"
 import { WorkTab } from "@/components/portfolio/property-detail/WorkTab"
 import { ActivityTab } from "@/components/portfolio/property-detail/ActivityTab"
 import { MapTab } from "@/components/portfolio/property-detail/MapTab"
+import { useCountryTabs } from "@/lib/i18n/use-country-tabs"
 
-const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "units", label: "Units" },
-  { id: "tenancies", label: "Tenancies" },
-  { id: "finances", label: "Finances" },
-  { id: "compliance", label: "Compliance" },
-  { id: "documents", label: "Documents" },
-  { id: "contacts", label: "Contacts" },
-  { id: "work", label: "Work" },
-  { id: "activity", label: "Activity" },
-  { id: "map", label: "Map" },
-]
+// Keys that map to the "tenancies" content (different labels per country)
+const TENANCY_KEYS = new Set([
+  "tenancies", "leases_us", "tenancy_agreements", "mietvertraege",
+  "tenancy_contracts", "tenancies_ca",
+])
 
 export default function PropertyDetailPage() {
   const params = useParams()
   const router = useRouter()
   const propertyId = params.id as string
   const { workspace } = useWorkspace()
+  const countryTabs = useCountryTabs("portfolio")
+  // Build MobileTabs-compatible format from countryTabs
+  const TABS = countryTabs.map(t => ({ id: t.key, label: t.label }))
   const [activeTab, setActiveTab] = useState("overview")
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null)
   const [uploadingCover, setUploadingCover] = useState(false)
@@ -190,7 +187,8 @@ export default function PropertyDetailPage() {
           {activeTab === "units" && (
             <UnitsTab unitsList={unitsList} propertyId={propertyId} />
           )}
-          {activeTab === "tenancies" && (
+          {/* Tenancy tab: key varies per country (leases_us, tenancy_agreements, mietvertraege, etc.) */}
+          {TENANCY_KEYS.has(activeTab) && (
             <TenanciesTab propertyId={propertyId} tenanciesList={tenanciesList} unitsList={unitsList} />
           )}
           {activeTab === "finances" && (
@@ -213,6 +211,21 @@ export default function PropertyDetailPage() {
           )}
           {activeTab === "map" && (
             <MapTab prop={prop} />
+          )}
+          {/* Country-specific placeholder tabs (hmo, betriebskosten_prop, bond_au_prop, ejari_prop, fair_housing_us) */}
+          {(activeTab === "hmo" ||
+            activeTab === "betriebskosten_prop" ||
+            activeTab === "bond_au_prop" ||
+            activeTab === "ejari_prop" ||
+            activeTab === "fair_housing_us") && (
+            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+              <p className="text-sm font-medium text-slate-700 mb-1">
+                {countryTabs.find(t => t.key === activeTab)?.label}
+              </p>
+              <p className="text-xs text-slate-500">
+                This section is coming soon for your jurisdiction.
+              </p>
+            </div>
           )}
         </div>
       </div>
