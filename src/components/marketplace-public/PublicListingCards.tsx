@@ -145,57 +145,94 @@ export function StayCard({ listing, className }: CardProps) {
   )
 }
 
-/* ── SupplierCard ── */
+/* ── SupplierCard ── Airbnb-style full-bleed image + Upwork/Airtasker info ── */
 export function SupplierCard({ listing, className }: CardProps) {
   const href = publicListingHref({ id: listing.id, transactionType: listing.transactionType })
   const trust = trustFromListing(listing)
+  const isVerified = trust.includes("verified")
+  const [imgErr, setImgErr] = useState(false)
+  const showImage = !!listing.thumbnailUrl && !imgErr
+  const intent = intentForTransactionType(listing.transactionType)
+  const Icon = intent.icon
+
   return (
-    <Link href={href} className={cn("block group", className)}>
-      <article className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full">
-        <Cover listing={listing} height="h-36">
-          <WishHeart id={listing.id} />
-          {trust.includes("verified") && (
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 shadow-sm">
-              <BadgeCheck className="w-3 h-3" /> Verified
-            </span>
+    <article className={cn("bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group", className)}>
+      {/* Hero image — 16:9 ratio, full-bleed */}
+      <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+        <Link href={href} tabIndex={-1} aria-hidden="true">
+          {showImage ? (
+            <Image
+              src={listing.thumbnailUrl!}
+              alt={listing.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              onError={() => setImgErr(true)}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ background: INTENT_GRADIENT.suppliers }}
+            >
+              <Icon className="w-10 h-10 text-white/25" aria-hidden="true" />
+            </div>
           )}
-        </Cover>
-        <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent" />
+        </Link>
+        {/* Verified badge — top left */}
+        {isVerified && (
+          <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10.5px] font-bold text-emerald-700 shadow-sm pointer-events-none">
+            <BadgeCheck className="w-3 h-3" aria-hidden="true" /> Verified
+          </span>
+        )}
+        {/* Fast response — top right */}
+        {listing.instantBook && (
+          <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm pointer-events-none">
+            <Clock className="w-3 h-3" aria-hidden="true" /> Fast response
+          </span>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
+        <Link href={href} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded">
           <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
             {listing.title}
           </h3>
-          {listing.description && (
-            <p className="mt-1 text-[12px] text-slate-500 line-clamp-2">{listing.description}</p>
+        </Link>
+        {listing.description && (
+          <p className="mt-1 text-[12px] text-slate-500 line-clamp-2">{listing.description}</p>
+        )}
+        {(listing.location ?? listing.region ?? listing.city) && (
+          <p className="mt-1.5 flex items-center gap-1 text-[11.5px] text-slate-500 truncate">
+            <MapPin className="w-3 h-3 shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="truncate">{listing.location ?? listing.region ?? listing.city}</span>
+          </p>
+        )}
+        {/* Rating + trust badges */}
+        <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <Rating rating={listing.rating} count={listing.reviewCount} />
+          {isVerified && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+              <ShieldCheck className="w-3 h-3" aria-hidden="true" /> Vetted
+            </span>
           )}
-          {(listing.location ?? listing.region ?? listing.city) && (
-            <p className="mt-1.5 flex items-center gap-1 text-[11.5px] text-slate-500 truncate">
-              <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
-              <span className="truncate">{listing.location ?? listing.region ?? listing.city}</span>
-            </p>
-          )}
-          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <Rating rating={listing.rating} count={listing.reviewCount} />
-            {trust.includes("verified") && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
-                <ShieldCheck className="w-3 h-3" /> Vetted
-              </span>
-            )}
-            {listing.instantBook && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB]">
-                <Clock className="w-3 h-3" /> Fast response
-              </span>
-            )}
-          </div>
-          <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-slate-100">
-            <div>
-              <span className="block text-[10px] font-medium uppercase tracking-wide text-slate-400">From</span>
-              <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
-            </div>
-            <span className="text-[11px] font-medium text-slate-400">Get a quote →</span>
-          </div>
         </div>
-      </article>
-    </Link>
+        {/* Price + CTA */}
+        <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-slate-100">
+          <div>
+            <span className="block text-[10px] font-medium uppercase tracking-wide text-slate-400">From</span>
+            <PriceTag pence={listing.basePricePence} currency={listing.currency} pricingModel={listing.pricingModel} size="md" />
+          </div>
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1"
+          >
+            Get quote
+          </Link>
+        </div>
+      </div>
+    </article>
   )
 }
 

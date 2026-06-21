@@ -189,7 +189,9 @@ export async function proxy(request: NextRequest) {
   // /portal/* and /p/* intentionally NOT included here — they use magic-link
   // token-based session auth (set by /api/portal/verify), not the Supabase
   // session cookie. Their auth is enforced inside the portal route handlers.
-  const protectedPrefixes = ["/property-manager", "/property-manager", "/supplier", "/customer", "/user", "/admin"]
+  // NOTE: "/supplier/" and "/supplier-portal/" (with trailing slash) deliberately
+  // exclude the public "/suppliers" marketplace route which must be anon-readable.
+  const protectedPrefixes = ["/property-manager", "/supplier/", "/supplier-portal/", "/customer", "/user", "/admin"]
 
   // Public checkout funnel — the guest `/checkout/*` group must be reachable
   // WITHOUT an auth account (access is scoped by a session token via RLS, not a

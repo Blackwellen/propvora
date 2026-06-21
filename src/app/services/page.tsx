@@ -1,99 +1,60 @@
-import type { Metadata } from 'next'
-import { Search, MapPin, Calendar, CheckCircle, Lock, HeadphonesIcon, Star } from 'lucide-react'
-import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
-import { getPublicServiceOffers, getFeaturedServiceOffers } from '@/lib/public-marketplace/queries'
-import ServicesFilterClient from './ServicesFilterClient'
+import type { Metadata } from "next"
+import { redirect } from "next/navigation"
+import { Shield, CheckCircle, Lock, Wrench } from "lucide-react"
+import PublicPageShell from "@/components/public-marketplace/PublicPageShell"
+import { getGlobalFlag } from "@/lib/flags/public"
+import { getPublicProviders, getPublicServiceOffers, getPublicEmergencyServices } from "@/lib/public-marketplace/queries"
+import ServicesHeroSearch from "./ServicesHeroSearch"
+import ServicesFilterClient from "./ServicesFilterClient"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: 'Services | Propvora — Find trusted property services',
-  description: 'Find and book verified property services across 60+ trade categories — plumbers, electricians, gas engineers, cleaners and more.',
-  openGraph: {
-    title: 'Services | Propvora',
-    description: 'Find verified property services across 60+ trade categories.',
-    type: 'website',
-  },
+  title: "Services & Trades | Propvora",
+  description:
+    "Book vetted cleaning, gas, electrical, compliance and property maintenance services. Find suppliers, emergency call-outs and professional service packages.",
+  robots: { index: true, follow: true },
 }
 
 const TRUST_ITEMS = [
-  { icon: CheckCircle, title: 'Vetted & trusted', desc: 'Every service provider is background-checked and vetted.' },
-  { icon: Lock, title: 'Secure payments', desc: 'Escrow-protected, with full dispute resolution.' },
-  { icon: Star, title: 'Satisfaction guarantee', desc: '100% satisfaction or we make it right.' },
-  { icon: HeadphonesIcon, title: 'Managed bookings', desc: 'Our team handles disputes and complaints 24/7.' },
+  { icon: Shield, title: "Vetted suppliers", desc: "Every provider is insurance-verified before listing." },
+  { icon: CheckCircle, title: "Compliant & insured", desc: "Fully insured, Gas Safe and NICEIC certified trades." },
+  { icon: Lock, title: "Secure bookings", desc: "Escrow-protected payments with full dispute resolution." },
+  { icon: Wrench, title: "Emergency cover", desc: "24/7 emergency call-out for urgent property issues." },
 ]
 
-import { redirect as _gateRedirect } from "next/navigation"
-import { getGlobalFlag as _gateFlag } from "@/lib/flags/public"
-
 export default async function ServicesPage() {
-  if (!(await _gateFlag("marketplaceEnabled"))) _gateRedirect("/")
-  const [allOffers, featuredOffers] = await Promise.all([
+  if (!(await getGlobalFlag("marketplaceEnabled"))) redirect("/")
+
+  const [providers, offers, emergency] = await Promise.all([
+    getPublicProviders(),
     getPublicServiceOffers(),
-    getFeaturedServiceOffers(),
+    getPublicEmergencyServices(),
   ])
 
   return (
     <PublicPageShell hideFooter>
-      {/* TOP SECTION — two-column */}
-      <section className="bg-white pb-6 pt-6 border-b border-slate-100">
+      {/* TOP SECTION */}
+      <section className="bg-white border-b border-slate-100 pb-8 pt-6">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            {/* LEFT */}
             <div className="lg:col-span-1">
               <h1 className="text-3xl font-bold text-slate-900 leading-tight">
-                Find trusted services for your home or property
+                Find trusted services &amp; trades
               </h1>
               <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-                Vetted professionals. Transparent pricing. Quality work, every time.
+                Vetted suppliers, emergency call-outs and professional service packages. All in one place.
               </p>
             </div>
-
-            {/* RIGHT: 3-segment search */}
             <div className="lg:col-span-2">
-              <div className="flex items-stretch bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3.5 flex-1 border-r border-slate-200 min-w-0">
-                  <Search className="h-4 w-4 text-slate-400 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">What do you need?</div>
-                    <input
-                      type="text"
-                      placeholder="e.g. Plumbing, Cleaning, Electrical"
-                      className="w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent mt-0.5"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-3.5 border-r border-slate-200 min-w-0">
-                  <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Location</div>
-                    <input
-                      type="text"
-                      placeholder="City, area or postcode"
-                      className="w-32 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent mt-0.5"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-3.5 border-r border-slate-200 min-w-0">
-                  <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">When</div>
-                    <input
-                      type="text"
-                      placeholder="Anytime"
-                      className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent mt-0.5"
-                    />
-                  </div>
-                </div>
-                <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 transition-colors shrink-0 font-semibold text-sm">
-                  <Search className="h-4 w-4" />
-                  Search services
-                </button>
-              </div>
+              <ServicesHeroSearch />
             </div>
           </div>
         </div>
       </section>
 
-      <ServicesFilterClient allOffers={allOffers} featuredOffers={featuredOffers} />
+      {/* TABBED RESULTS */}
+      <ServicesFilterClient providers={providers} allOffers={offers} emergency={emergency} />
 
       {/* TRUST STRIP */}
       <section className="bg-slate-50 border-t border-slate-100 py-10">

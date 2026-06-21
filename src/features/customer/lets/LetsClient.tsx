@@ -26,7 +26,7 @@ export default function LetsClient({ initialTab = "overview" }: { initialTab?: s
 
   function changeTab(id: string) {
     setTab(id)
-    router.replace(id === "overview" ? "/customer/lets" : `/customer/lets?tab=${id}`, { scroll: false })
+    router.replace(id === "overview" ? "/customer/lets/journey" : `/customer/lets/journey?tab=${id}`, { scroll: false })
   }
 
   return (

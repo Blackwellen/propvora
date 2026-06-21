@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, CheckCircle2, AlertCircle, Send } from "lucide-react"
+import { Loader2, CheckCircle2, AlertCircle, Send, Calendar } from "lucide-react"
 
 /* ──────────────────────────────────────────────────────────────────────────
    QuoteRequestForm — the REAL supplier/emergency primary CTA.
@@ -20,11 +20,13 @@ interface Props {
   buyerWorkspaceId?: string | null
   /** Emergency intents word the CTA more urgently. */
   urgent?: boolean
+  /** Pre-fill a preferred date (ISO string) from search params. */
+  preferredDate?: string | null
 }
 
 type Phase = "form" | "submitting" | "done"
 
-export default function QuoteRequestForm({ listingId, defaultEmail, defaultName, buyerWorkspaceId, urgent }: Props) {
+export default function QuoteRequestForm({ listingId, defaultEmail, defaultName, buyerWorkspaceId, urgent, preferredDate }: Props) {
   const [phase, setPhase] = useState<Phase>("form")
   const [name, setName] = useState(defaultName ?? "")
   const [email, setEmail] = useState(defaultEmail ?? "")
@@ -32,6 +34,7 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
   const [message, setMessage] = useState("")
   const [consent, setConsent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [date, setDate] = useState(preferredDate ?? "")
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,6 +58,7 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
           email: email.trim() || null,
           phone: phone.trim() || null,
           message: message.trim(),
+          preferredDate: date.trim() || null,
           buyerWorkspaceId: buyerWorkspaceId ?? null,
           gdprConsent: consent,
         }),
@@ -112,6 +116,19 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
         placeholder="Phone (optional)"
         className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
       />
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+          <Calendar className="h-4 w-4 text-slate-400" aria-hidden="true" />
+        </div>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          min={new Date().toISOString().slice(0, 10)}
+          className="w-full h-10 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          aria-label="Preferred date (optional)"
+        />
+      </div>
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}

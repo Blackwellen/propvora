@@ -1,8 +1,9 @@
 ﻿'use client'
 
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { Suspense, useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Filter, Map, Loader2 } from 'lucide-react'
+import { Filter, Map, Loader2, X, MapPin, Calendar, Users } from 'lucide-react'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
 import type { PublicStay } from '@/lib/public-marketplace/types'
 
@@ -28,7 +29,19 @@ const SORT_OPTIONS = [
   { label: 'Rating: Highest first', value: 'rating_desc' },
 ]
 
-export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
+function formatDateDisplay(iso: string): string {
+  if (!iso) return ''
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
+
+function StaysFilterInner({ stays }: { stays: PublicStay[] }) {
+  const searchParams = useSearchParams()
+  const locationParam = searchParams?.get('location') ?? ''
+  const checkInParam = searchParams?.get('checkIn') ?? ''
+  const checkOutParam = searchParams?.get('checkOut') ?? ''
+  const guestsParam = Number(searchParams?.get('guests') ?? 0)
+
   const [active, setActive] = useState<Set<FilterKey>>(new Set())
   const [sortBy, setSortBy] = useState('')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -44,6 +57,19 @@ export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
 
   const filtered = useMemo(() => {
     let result = [...stays]
+    // URL param filters from hero search bar
+    if (locationParam) {
+      const loc = locationParam.toLowerCase()
+      result = result.filter(s =>
+        (s.location ?? '').toLowerCase().includes(loc) ||
+        (s.city ?? '').toLowerCase().includes(loc) ||
+        (s.postcode ?? '').toLowerCase().includes(loc)
+      )
+    }
+    if (guestsParam > 0) {
+      result = result.filter(s => (s.guests ?? 1) >= guestsParam)
+    }
+    // Chip filters
     if (active.has('pets')) result = result.filter(s => s.petsAllowed)
     if (active.has('instant')) result = result.filter(s => s.instantBook)
     if (active.has('verified')) result = result.filter(s => s.verified)
@@ -56,13 +82,13 @@ export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
     else if (sortBy === 'rating_desc') result = [...result].sort((a, b) => b.rating - a.rating)
     else if (active.has('price')) result = [...result].sort((a, b) => a.pricePerNight - b.pricePerNight)
     return result
-  }, [stays, active, sortBy])
+  }, [stays, active, sortBy, locationParam, guestsParam])
 
-  const activeCount = active.size
+  const activeCount = active.size + (locationParam ? 1 : 0) + (checkInParam ? 1 : 0) + (guestsParam > 0 ? 1 : 0)
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
 
-  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [filtered.length, active, sortBy])
+  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [filtered.length, active, sortBy, locationParam, guestsParam])
 
   const loadMore = useCallback(() => {
     setVisibleCount(c => Math.min(c + PAGE_SIZE, filtered.length))
@@ -121,11 +147,35 @@ export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
 
       {/* RESULTS TOOLBAR */}
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5">
+        {/* Active search context pills */}
+        {(locationParam || checkInParam || checkOutParam || guestsParam > 0) && (
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {locationParam && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[12.5px] font-medium text-blue-700">
+                <MapPin className="h-3 w-3" /> {locationParam}
+              </span>
+            )}
+            {(checkInParam || checkOutParam) && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[12.5px] font-medium text-blue-700">
+                <Calendar className="h-3 w-3" />
+                {checkInParam ? formatDateDisplay(checkInParam) : '–'} → {checkOutParam ? formatDateDisplay(checkOutParam) : '–'}
+              </span>
+            )}
+            {guestsParam > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[12.5px] font-medium text-blue-700">
+                <Users className="h-3 w-3" /> {guestsParam} {guestsParam === 1 ? 'guest' : 'guests'}
+              </span>
+            )}
+            <a href="/stays" className="inline-flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-700 ml-1">
+              <X className="h-3.5 w-3.5" /> Clear search
+            </a>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="text-xl font-bold text-slate-900">{filtered.length.toLocaleString()} stays</span>
             <span className="text-slate-500 text-sm ml-2">
-              {activeCount > 0 ? 'Matching your filters' : 'Across the UK'}
+              {activeCount > 0 ? 'Matching your search' : 'Across the UK'}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -182,5 +232,22 @@ export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
         )}
       </div>
     </>
+  )
+}
+
+/** Wrap with Suspense — required because StaysFilterInner reads useSearchParams */
+export default function StaysFilterClient({ stays }: { stays: PublicStay[] }) {
+  return (
+    <Suspense fallback={
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-[280px] animate-pulse rounded-2xl bg-slate-100" />
+          ))}
+        </div>
+      </div>
+    }>
+      <StaysFilterInner stays={stays} />
+    </Suspense>
   )
 }

@@ -16,6 +16,7 @@ import type { PublicListingDetail as Listing } from "./data"
 import { intentForTransactionType } from "./intent"
 import { trustFromListing } from "./trust"
 import QuoteRequestForm from "./QuoteRequestForm"
+import BookingWidget from "./BookingWidget"
 
 /* ──────────────────────────────────────────────────────────────────────────
    PublicListingDetail — enterprise-premium public listing surface.
@@ -304,22 +305,17 @@ export default function PublicListingDetail({ listing, session }: Props) {
               </div>
             )}
 
-            {isCheckout && listing.basePricePence != null && listing.basePricePence > 0 && (
-              <PriceBreakdown
-                pence={listing.basePricePence}
-                currency={listing.currency ?? "GBP"}
-              />
-            )}
-
             <div className="mt-4">
               {isCheckout ? (
-                <Link
-                  href={`/marketplace/checkout/${listing.id}`}
-                  className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[#2563EB] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[#1d4ed8] transition-colors"
-                >
-                  <CalendarCheck className="w-4.5 h-4.5" aria-hidden="true" />
-                  {isStay ? "Reserve this stay" : "Book this service"}
-                </Link>
+                <BookingWidget
+                  listingId={listing.id}
+                  intent={intent.key as "stays" | "services"}
+                  basePricePence={listing.basePricePence}
+                  currency={listing.currency ?? "GBP"}
+                  instantBook={listing.instantBook}
+                  maxGuests={8}
+                  signedIn={session?.signedIn ?? false}
+                />
               ) : (
                 <div>
                   <div className="flex items-center gap-1.5 mb-3 text-[12px] font-semibold text-slate-500">
@@ -336,15 +332,6 @@ export default function PublicListingDetail({ listing, session }: Props) {
                 </div>
               )}
             </div>
-
-            {isCheckout && (
-              <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
-                <Info className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                {session?.signedIn
-                  ? "You'll confirm payment securely on the next step."
-                  : "You'll sign in to confirm payment securely."}
-              </p>
-            )}
           </div>
 
           {trust.length > 0 && (
@@ -360,12 +347,12 @@ export default function PublicListingDetail({ listing, session }: Props) {
         </aside>
       </div>
 
-      {/* Mobile sticky book bar */}
+      {/* Mobile sticky book bar — takes user to checkout; date selection happens on that page */}
       {isCheckout && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-xl items-center gap-3">
             <div className="min-w-0">
-              {listing.basePricePence != null && (
+              {listing.basePricePence != null && listing.basePricePence > 0 && (
                 <p className="text-[15px] font-bold tabular-nums text-[#0B1B3F]">
                   {formatPence(listing.basePricePence, listing.currency ?? "GBP")}
                 </p>
