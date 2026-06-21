@@ -10,6 +10,7 @@ import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gat
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
 import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
 import { aiJurisdictionClause } from "@/lib/international/guardrails"
+import { getCountryPack, aiPackTermsClause } from "@/lib/i18n/country-packs"
 import { gateAiCopilot } from "@/lib/billing/gates"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
@@ -102,6 +103,8 @@ export async function POST(request: NextRequest) {
     // 5b. Resolve the workspace jurisdiction + country-pack status (GB-safe default).
     // Drives the jurisdiction clause: GB keeps full review-only depth; non-reviewed
     // jurisdictions get a stronger disclaimer + generic-only legal/tax framing.
+    // Additionally, inject terminology overrides from the country pack (Section 21/8,
+    // "tenant" vs "Mieter", "deposit" vs "bond", etc.) so the model uses correct local terms.
     const jurisdiction = await getWorkspaceJurisdiction(supabase, workspaceId)
     const jurisdictionClause = aiJurisdictionClause({
       countryCode: jurisdiction.countryCode,
@@ -110,6 +113,8 @@ export async function POST(request: NextRequest) {
       currency: jurisdiction.currency,
       locale: jurisdiction.locale,
     })
+    const countryPack = getCountryPack(jurisdiction.countryCode)
+    const packTermsClause = aiPackTermsClause(countryPack)
 
     // 6. Get or create thread
     let thread = threadId ?? null
@@ -201,6 +206,8 @@ CROSS-CONTEXT INTELLIGENCE:
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
+
+${packTermsClause}
 
 FORMATTING RULES (strictly follow):
 - Never use markdown asterisks (* or **) for bold or bullet points

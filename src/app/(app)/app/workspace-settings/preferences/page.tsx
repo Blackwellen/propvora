@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useEffect, useId, useState } from "react"
-import { Check, Loader2 } from "lucide-react"
+import { Check, Loader2, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { SUPPORTED_LOCALES, LOCALE_META } from "@/lib/i18n/config"
 import { formatMoney, formatDate } from "@/lib/i18n/format"
+import { getAllCountryPacks, getCountryPack } from "@/lib/i18n/country-packs"
 
 export const dynamic = "force-dynamic"
 
@@ -77,6 +78,15 @@ const LOCALE_OPTIONS = SUPPORTED_LOCALES.map((l) => ({
   label: LOCALE_META[l].label,
 }))
 
+const COUNTRY_OPTIONS = [
+  { value: "", label: "— Select country —" },
+  ...getAllCountryPacks().map((p) => ({
+    value: p.code,
+    label: `${p.name} (${p.currency})`,
+  })),
+  { value: "OTHER", label: "Other / Not listed" },
+]
+
 const CURRENCY_OPTIONS = [
   { value: "GBP", label: "GBP — British Pound (£)" },
   { value: "EUR", label: "EUR — Euro (€)" },
@@ -140,6 +150,7 @@ export default function PreferencesPage() {
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
 
   // Settings state
+  const [countryCode, setCountryCode] = useState("")
   const [locale, setLocale] = useState("en-GB")
   const [currency, setCurrency] = useState("GBP")
   const [dateFormat, setDateFormat] = useState("DD/MM/YYYY")
@@ -177,6 +188,7 @@ export default function PreferencesPage() {
         if (cancelled) return
         if (ws && ws.preferences_json) {
           const prefs = ws.preferences_json as Record<string, string>
+          if (prefs.countryCode) setCountryCode(prefs.countryCode)
           if (prefs.locale) setLocale(prefs.locale)
           if (prefs.currency) setCurrency(prefs.currency)
           if (prefs.dateFormat) setDateFormat(prefs.dateFormat)
@@ -203,7 +215,7 @@ export default function PreferencesPage() {
     setError(null)
     try {
       const supabase = createClient()
-      const prefsJson = { locale, currency, dateFormat, timezone, numberFormat }
+      const prefsJson = { countryCode, locale, currency, dateFormat, timezone, numberFormat }
       // Upsert into workspace_settings.preferences_json (tolerant — table may not exist yet)
       const { error: upsertErr } = await supabase
         .from("workspace_settings")
@@ -229,6 +241,26 @@ export default function PreferencesPage() {
     }
   }
 
+  // Derive pack for legal disclaimer preview
+  const activePack = countryCode ? getCountryPack(countryCode) : null
+
+  // When country changes, auto-fill currency + locale from pack
+  function handleCountryChange(code: string) {
+    setCountryCode(code)
+    markDirty()
+    if (code && code !== "OTHER") {
+      const pack = getCountryPack(code)
+      setCurrency(pack.currency)
+      setLocale(pack.locale)
+      const fmt = pack.dateFormat.replace("DD.MM.YYYY", "DD/MM/YYYY")
+      const mapped =
+        fmt === "MM/DD/YYYY" ? "MM/DD/YYYY"
+        : fmt === "YYYY-MM-DD" ? "YYYY-MM-DD"
+        : "DD/MM/YYYY"
+      setDateFormat(mapped)
+    }
+  }
+
   // Live preview of how formats look
   const previewAmount = formatMoney(189900, currency, locale)
   const previewDate = formatDate(new Date(), undefined, locale)
@@ -245,6 +277,34 @@ export default function PreferencesPage() {
       </div>
 
       <div className="space-y-5">
+        {/* Country / Jurisdiction */}
+        <SectionCard
+          title="Country / Jurisdiction"
+          description="Sets the operating jurisdiction for compliance templates, terminology, property types, and AI legal framing."
+        >
+          <SelectField
+            label="Operating country"
+            value={countryCode}
+            onChange={handleCountryChange}
+            options={COUNTRY_OPTIONS}
+            helper="Selecting a country auto-fills currency, locale and date format. Compliance tabs adapt to the jurisdiction."
+          />
+          {activePack && activePack.reviewStatus === "generic" && (
+            <div className="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
+              <Info className="w-4 h-4 shrink-0 mt-0.5" />
+              <p>
+                <strong>{activePack.name}</strong> is a generic/research-level jurisdiction. Propvora&apos;s compliance and legal workflows are reviewed for the UK only. General information is provided with a strong disclaimer for all other countries.
+              </p>
+            </div>
+          )}
+          {activePack && (
+            <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-[12px] text-slate-600">
+              <p className="font-semibold text-slate-700 mb-1">Legal disclaimer (active for this jurisdiction):</p>
+              <p>{activePack.legalDisclaimer}</p>
+            </div>
+          )}
+        </SectionCard>
+
         {/* Language */}
         <SectionCard
           title="Language"
@@ -331,11 +391,11 @@ export default function PreferencesPage() {
           </p>
         </SectionCard>
 
-        {/* Link to Jurisdiction settings */}
+        {/* Link to full Jurisdiction settings */}
         <div className="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[13px] text-blue-700">
-          <p className="font-semibold">Need to change country or jurisdiction?</p>
+          <p className="font-semibold">Advanced jurisdiction settings</p>
           <p className="mt-0.5 text-[12px] text-blue-600">
-            Operating country, legal jurisdiction and AI-copilot locale guardrails are configured in{" "}
+            For full AI-copilot locale guardrails, country-pack status, sanctions checks and tax-country configuration see{" "}
             <a href="/property-manager/workspace-settings/jurisdiction" className="underline font-medium">
               Jurisdiction &amp; Locale settings
             </a>

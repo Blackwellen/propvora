@@ -10,6 +10,7 @@ import { resolveModelChain, gatewayComplete, recordUsageEvent } from "@/lib/ai/g
 import { SAFETY_CLAUSES, fenceUntrusted, proposeAction } from "@/lib/ai/safety"
 import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
 import { aiJurisdictionClause } from "@/lib/international/guardrails"
+import { getCountryPack, aiPackTermsClause } from "@/lib/i18n/country-packs"
 import { gateAiCopilot } from "@/lib/billing/gates"
 
 const actionsSchema = z.object({
@@ -158,6 +159,8 @@ export async function POST(request: NextRequest) {
       currency: jurisdiction.currency,
       locale: jurisdiction.locale,
     })
+    const countryPack = getCountryPack(jurisdiction.countryCode)
+    const packTermsClause = aiPackTermsClause(countryPack)
 
     const systemPrompt = `You are the Propvora AI Copilot for property operations management.
 You are executing a structured AI action requested by the user.
@@ -168,6 +171,8 @@ ${fencedSnapshot}
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
+
+${packTermsClause}
 
 Provide expert, actionable property management guidance.
 Follow the JURISDICTION rules above: the action templates assume UK regulations, but if this workspace's jurisdiction is not fully reviewed you MUST keep legal/tax/compliance content generic, avoid citing jurisdiction-specific statutes, and direct the user to a qualified local professional.

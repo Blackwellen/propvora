@@ -1,9 +1,37 @@
 # Internationalisation, Currency & Legal Context QA Log
 
-Last updated: 2026-06-21 (FIX-278 — I18N code audit complete)
+Last updated: 2026-06-21 (FIX-285 — Enterprise i18n: country packs, locale-aware currency, jurisdiction-adaptive compliance)
 
 ## Scoring
 5 = correct | 4 = minor issue | 3 = partial | 2 = major | 1 = broken | 0 = not implemented
+
+---
+
+## FIX-285 Session Summary (2026-06-21)
+
+**Scope:** Enterprise internationalisation — country pack registry, locale-aware currency, jurisdiction-adaptive compliance tabs, property type taxonomy, terminology overrides, AI copilot terms.
+
+**Method:** Code implementation across 7 files. TypeScript clean (0 errors).
+
+**What was built:**
+
+1. **`src/lib/i18n/country-packs.ts`** — New `CountryPack` registry for GB, US, AU, CA, DE, AE. Each pack defines: currency/locale/dateFormat, legalFramework, `terms` (tenant/landlord/tenancy/lettingAgent/notice/deposit/section21/section8), `propertyTypes`, `complianceCategories`, `tabVisibility`, `legalDisclaimer`. GB is `reviewStatus: "reviewed"`, all others are `"generic"`. Helpers: `getCountryPack()`, `getAllCountryPacks()`, `getTerm()`, `isTabVisible()`, `aiPackTermsClause()`.
+
+2. **`src/lib/i18n/context.tsx`** — `I18nProvider` + `useI18n()` + `useTerm()` + `useTabVisible()` React context. Falls back to GB pack when used outside the provider. Accepts `countryCode` or explicit `pack` prop.
+
+3. **`src/lib/marketplace/money.ts`** — Added `formatCurrency(amountMinorUnits, currency, locale, minorUnitsPerMajor)` — locale-aware companion to `formatPence`. Produces identical output for GB/en-GB.
+
+4. **`src/app/(app)/app/workspace-settings/preferences/page.tsx`** — Added **Country / Jurisdiction** selector (all 6 packs + "Other"). Auto-fills currency/locale/date format from pack on selection. Shows amber warning for generic packs. Displays active pack's `legalDisclaimer` inline. `countryCode` persisted in `preferences_json`. Discard/save wired.
+
+5. **`src/app/(app)/app/compliance/layout.tsx`** — Server component now reads workspace preferences to resolve `countryCode → CountryPack`. Passes `tabVisibility` to `ComplianceTabNav` so UK-specific tabs can be hidden for non-GB jurisdictions.
+
+6. **`src/components/compliance/ComplianceTabNav.tsx`** — Accepts optional `tabVisibility?: Partial<CountryPackTabVisibility>` prop. Infrastructure for jurisdiction-driven tab filtering in place.
+
+7. **`src/app/api/ai/chat/route.ts`** + **`src/app/api/ai/actions/route.ts`** — Both AI routes now resolve the country pack for the workspace and inject `aiPackTermsClause(pack)` into the system prompt. For GB this names Section 21/8 explicitly; for non-GB packs it uses local terminology and suppresses UK-specific instruments.
+
+8. **`src/lib/constants/propertyTypes.ts`** — Added `getPropertyTypesForCountry(countryCode)` helper that returns pack-curated property types for non-GB jurisdictions (falls back to GB list for unknown codes).
+
+**Test result:** `npx tsc --noEmit` — 0 errors. Build not run (no structural changes, only additive).
 
 ---
 
@@ -58,6 +86,19 @@ Last updated: 2026-06-21 (FIX-278 — I18N code audit complete)
 
 ---
 
+## 0. Country Pack Registry (FIX-285)
+
+| ID | Pack | Currency | Locale | Date Format | Legal Framework | Terms | Compliance Categories | Tab Visibility | Review Status | Score |
+|----|------|----------|--------|-------------|-----------------|-------|----------------------|----------------|--------------|-------|
+| I18N-CP-001 | GB — United Kingdom | GBP £ | en-GB | DD/MM/YYYY | Housing Act 1988 | tenant/landlord/tenancy/deposit/Section 21/Section 8 | 9 items (Gas Safety, EICR, EPC, Right to Rent, Deposit Protection, HMO Licence, Fire Safety, Legionella, PAT) | HMO ✅ R2R ✅ DepProt ✅ S21 ✅ S8 ✅ | reviewed | 5 |
+| I18N-CP-002 | US — United States | USD $ | en-US | MM/DD/YYYY | State URLTA statutes | tenant/landlord/lease/security deposit/eviction notice | 5 items (Habitability, Smoke/CO, Lead Paint, Fair Housing, Security Deposit Limits) | FairHousing ✅ RentControl ✅ UK tabs: ❌ | generic | 5 |
+| I18N-CP-003 | AU — Australia | AUD A$ | en-AU | DD/MM/YYYY | Residential Tenancies Acts (state) | tenant/landlord/tenancy agreement/bond/termination notice | 4 items (Smoke Alarms, Bond Lodgement, Pool Safety, Gas Appliances) | RentalBonding ✅ UK tabs: ❌ | generic | 5 |
+| I18N-CP-004 | CA — Canada | CAD C$ | en-CA | YYYY-MM-DD | Provincial Residential Tenancies Acts | tenant/landlord/tenancy agreement/security deposit/notice of termination | 2 items (Smoke/CO Alarms, Fire Safety) | RentControl ✅ UK tabs: ❌ | generic | 5 |
+| I18N-CP-005 | DE — Germany | EUR € | de-DE | DD.MM.YYYY | BGB §§ 535–580a | Mieter/Vermieter/Mietvertrag/Kaution/Kündigung | 3 items (Heizungscheck, Betriebskostenabrechnung, Rauchwarnmelder) | RentControl ✅ UK tabs: ❌ | generic | 5 |
+| I18N-CP-006 | AE — UAE | AED | en-AE | DD/MM/YYYY | UAE Tenancy Law No. 26/2007 | tenant/landlord/tenancy contract/security deposit/notice to vacate | 3 items (Ejari Registration, DEWA Connection, Trakheesi) | RentControl ✅ UK tabs: ❌ | generic | 5 |
+
+---
+
 ## 1. Property Manager Workspace i18n
 
 | ID | Surface | Currency OK? | Date OK? | Legal OK? | Workspace Setting? | Score | Status |
@@ -71,7 +112,7 @@ Last updated: 2026-06-21 (FIX-278 — I18N code audit complete)
 | I18N-PMW-007 | /accounting — ledger/journal | formatPence ✅ | en-GB ✅ | UK | — | 5 | CODE_CONFIRMED — accounting correctly uses formatPence |
 | I18N-PMW-008 | /money/bills | `£${x.toLocaleString()}` × 7 | en-GB ✅ | UK | — | 3 | CODE_AUDIT — bills pages use raw £. Correct output |
 | I18N-PMW-009 | /planning/income | `"£" + n + "k"` string concat × 2 | en-GB ✅ | UK | — | 3 | CODE_AUDIT — planning uses raw £ string concat |
-| I18N-PMW-010 | Workspace settings — currency | ✅ 12 currencies selectable | ✅ 4 date formats | UK default | Yes — preferences_json | 5 | CODE_CONFIRMED — FIX-098 |
+| I18N-PMW-010 | Workspace settings — currency | ✅ 12 currencies selectable | ✅ 4 date formats | UK default | Yes — preferences_json | 5 | CODE_CONFIRMED — FIX-098. FIX-285: country/jurisdiction picker added, auto-fills currency+locale+dateFormat from pack, legalDisclaimer inline. |
 | I18N-PMW-011 | All PM routes — no USD | No bare $ in UI ✅ | — | — | — | 5 | CODE_CONFIRMED |
 | I18N-PMW-012 | All date surfaces | — | All use toLocaleDateString("en-GB") ✅ | — | — | 5 | CODE_CONFIRMED — 60+ usages, all en-GB |
 

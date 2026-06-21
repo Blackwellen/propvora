@@ -114,3 +114,37 @@ export function getPropertyTypeOption(value: string): PropertyTypeOption | undef
 export function templateForPropertyType(value: string): PropertyTemplate {
   return getPropertyTypeOption(value)?.template ?? "standard_rental"
 }
+
+/**
+ * Return the property type options for a given country code.
+ *
+ * For GB (the default) returns the full UK dwelling type list above.
+ * For other jurisdictions returns the pack's curated list, mapped to the
+ * standard_rental template (since non-UK packs don't distinguish HMO/SA/etc.).
+ * Falls back to GB list if the country code is unknown.
+ */
+export function getPropertyTypesForCountry(
+  countryCode: string | null | undefined
+): PropertyTypeOption[] {
+  // Avoid a hard i18n import cycle by doing a lazy import check.
+  // We use a try-catch so build-time SSR tree-shaking can skip this.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { getCountryPack } = require("@/lib/i18n/country-packs") as {
+      getCountryPack: (code: string | null | undefined) => {
+        code: string
+        propertyTypes: Array<{ key: string; label: string; description?: string }>
+      }
+    }
+    const pack = getCountryPack(countryCode)
+    if (pack.code === "GB") return PROPERTY_TYPE_OPTIONS
+    // Map pack property types to PropertyTypeOption shape
+    return pack.propertyTypes.map((pt) => ({
+      value: pt.key,
+      label: pt.label,
+      template: "standard_rental" as PropertyTemplate,
+    }))
+  } catch {
+    return PROPERTY_TYPE_OPTIONS
+  }
+}
