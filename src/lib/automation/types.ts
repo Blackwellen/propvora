@@ -3,6 +3,7 @@
 // (migration 20260615030000_smart_rules.sql).
 
 export type TriggerType =
+  // --- Existing triggers ---
   | "compliance_due_soon"
   | "compliance_overdue"
   | "tenancy_ending"
@@ -11,13 +12,72 @@ export type TriggerType =
   | "planning_offer_expiring"
   | "job_completed"
   | "licence_expiring"
+  // --- Tenancy lifecycle ---
+  | "tenancy_started"
+  | "tenancy_expired"
+  | "lease_renewal_approaching"
+  | "move_out_approaching"
+  | "void_period_started"
+  | "void_period_long"
+  // --- Rent & payments ---
+  | "rent_due_soon"
+  | "rent_payment_received"
+  | "payment_failed"
+  | "arrears_threshold_reached"
+  // --- Maintenance & jobs ---
+  | "maintenance_request_submitted"
+  | "maintenance_request_overdue"
+  | "job_overdue"
+  | "quote_received"
+  | "quote_expiring"
+  | "invoice_overdue"
+  | "inspection_due"
+  | "inspection_overdue"
+  | "contractor_not_reviewed"
+  // --- Compliance & certificates ---
+  | "gas_cert_expiring"
+  | "eicr_expiring"
+  | "epc_expiring"
+  | "right_to_rent_due"
+  | "insurance_expiring"
+  | "deposit_unprotected"
+  | "deposit_return_overdue"
+  // --- Communications & portal ---
+  | "portal_message_unanswered"
+  | "complaint_received"
+  | "document_expiring"
+  // --- Portfolio events ---
+  | "property_added"
+  | "unit_vacant"
+  | "hmo_room_vacant"
+  | "booking_checkin_tomorrow"
+  | "booking_checkout_today"
+  | "booking_cancelled"
+  // --- Planning / lettings ---
+  | "viewing_not_booked"
+  | "offer_accepted"
+  | "referencing_overdue"
 
 export type ActionType =
+  // --- Existing actions ---
   | "create_task"
   | "create_notification"
   | "draft_message"
   | "flag_record"
   | "create_calendar_reminder"
+  // --- New actions ---
+  | "send_portal_message"
+  | "assign_task"
+  | "create_inspection"
+  | "create_compliance_item"
+  | "escalate"
+  | "add_note"
+  | "update_unit_status"
+  | "request_quote"
+  | "send_webhook"
+  | "generate_document"
+  | "archive_record"
+  | "create_landlord_report"
 
 export type RunStatus =
   | "pending_review"

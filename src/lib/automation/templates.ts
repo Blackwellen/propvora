@@ -7,7 +7,7 @@ export interface RuleTemplate {
   template_id: string
   name: string
   description: string
-  category: "Compliance" | "Tenancy" | "Finance" | "Planning" | "Maintenance"
+  category: "Compliance" | "Tenancy" | "Finance" | "Planning" | "Maintenance" | "Communications" | "Lettings" | "Stays"
   trigger_type: TriggerType
   trigger_config: Record<string, unknown>
   condition_config: Record<string, unknown>
@@ -18,6 +18,7 @@ export interface RuleTemplate {
 }
 
 export const RULE_TEMPLATES: RuleTemplate[] = [
+  // ── Original templates ─────────────────────────────────────────────────────
   {
     template_id: "gas-cert-due-30",
     name: "Gas safety due in 30 days → task",
@@ -100,6 +101,226 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     condition_config: {},
     action_type: "create_task",
     action_config: { title: "Renew HMO licence: {{summary}}", description: "Begin the licence renewal process.", priority: "high", due_in_days: "30" },
+    review_required: true,
+  },
+
+  // ── New templates ──────────────────────────────────────────────────────────
+
+  // Finance
+  {
+    template_id: "rent-due-soon-3",
+    name: "Rent due in 3 days → portal reminder",
+    description: "Send a friendly portal message reminder 3 days before rent is due.",
+    category: "Finance",
+    trigger_type: "rent_due_soon",
+    trigger_config: { within_days: 3 },
+    condition_config: {},
+    action_type: "send_portal_message",
+    action_config: { subject: "Rent due soon", body: "Just a friendly reminder that your rent payment is due in 3 days. Please ensure your standing order is set up. Thank you." },
+    review_required: true,
+  },
+  {
+    template_id: "arrears-escalation",
+    name: "Arrears over £500 → escalate",
+    description: "Escalate when total unpaid rent for a tenancy exceeds £500.",
+    category: "Finance",
+    trigger_type: "arrears_threshold_reached",
+    trigger_config: { min_amount: 500 },
+    condition_config: {},
+    action_type: "escalate",
+    action_config: { title: "Arrears escalation: {{summary}}", body: "Total arrears have exceeded the threshold. Immediate action required." },
+    review_required: true,
+  },
+  {
+    template_id: "payment-failed-notify",
+    name: "Payment failed → urgent notification",
+    description: "Alert immediately when a rent payment attempt fails.",
+    category: "Finance",
+    trigger_type: "payment_failed",
+    trigger_config: {},
+    condition_config: {},
+    action_type: "create_notification",
+    action_config: { title: "Payment failed: {{summary}}", body: "A rent payment has failed. Follow up with the tenant.", severity: "critical" },
+    review_required: false,
+  },
+
+  // Tenancy
+  {
+    template_id: "move-out-checklist",
+    name: "Move-out in 14 days → checkout task",
+    description: "Create a checkout checklist task when a tenant is leaving within 14 days.",
+    category: "Tenancy",
+    trigger_type: "move_out_approaching",
+    trigger_config: { within_days: 14 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Checkout checklist: {{summary}}", description: "Arrange checkout inspection, meter readings, key return, deposit deduction review.", priority: "high", due_in_days: "3" },
+    review_required: true,
+  },
+  {
+    template_id: "tenancy-started-welcome",
+    name: "Move-in day → send welcome message",
+    description: "Automatically draft a welcome portal message on the tenant's move-in day.",
+    category: "Tenancy",
+    trigger_type: "tenancy_started",
+    trigger_config: {},
+    condition_config: {},
+    action_type: "send_portal_message",
+    action_config: { subject: "Welcome to your new home!", body: "Hi there, welcome! Please don't hesitate to reach out if you need anything. Here are some useful contacts..." },
+    review_required: true,
+  },
+  {
+    template_id: "deposit-unprotected-alert",
+    name: "Deposit unprotected after 30 days → escalate",
+    description: "Escalate if a deposit has not been protected within 30 days of tenancy start (legal requirement).",
+    category: "Compliance",
+    trigger_type: "deposit_unprotected",
+    trigger_config: { after_days: 30 },
+    condition_config: {},
+    action_type: "escalate",
+    action_config: { title: "URGENT: Deposit not protected — {{summary}}", body: "Legal compliance risk: the deposit must be registered with an approved scheme within 30 days." },
+    review_required: true,
+  },
+  {
+    template_id: "deposit-return-overdue-task",
+    name: "Deposit return overdue → task",
+    description: "Create a task when a deposit has not been returned within 10 days of move-out.",
+    category: "Finance",
+    trigger_type: "deposit_return_overdue",
+    trigger_config: { after_days: 10 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Return deposit: {{summary}}", description: "Process deposit return or deductions within the statutory period.", priority: "urgent", due_in_days: "2" },
+    review_required: true,
+  },
+
+  // Maintenance
+  {
+    template_id: "job-overdue-escalate",
+    name: "Job overdue → escalate",
+    description: "Escalate when a maintenance job has passed its due date.",
+    category: "Maintenance",
+    trigger_type: "job_overdue",
+    trigger_config: {},
+    condition_config: {},
+    action_type: "escalate",
+    action_config: { title: "Job overdue: {{summary}}", body: "A maintenance job is past its due date and requires immediate attention." },
+    review_required: true,
+  },
+  {
+    template_id: "maintenance-unassigned-3",
+    name: "Maintenance unassigned 3 days → assign task",
+    description: "Create a follow-up task when a request has been open without assignment for 3 days.",
+    category: "Maintenance",
+    trigger_type: "maintenance_request_overdue",
+    trigger_config: { min_days_unassigned: 3 },
+    condition_config: {},
+    action_type: "assign_task",
+    action_config: { title: "Assign maintenance: {{summary}}", description: "This request has been unassigned for 3+ days — please allocate a contractor.", priority: "high", due_in_days: "1" },
+    review_required: true,
+  },
+
+  // Compliance
+  {
+    template_id: "gas-cert-expiring-60",
+    name: "Gas cert expiring in 60 days → task",
+    description: "Book Gas Safety Certificate renewal 60 days before expiry.",
+    category: "Compliance",
+    trigger_type: "gas_cert_expiring",
+    trigger_config: { within_days: 60 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Book gas safety renewal: {{summary}}", description: "Contact Gas Safe registered engineer to arrange annual inspection.", priority: "high", due_in_days: "14" },
+    review_required: true,
+  },
+  {
+    template_id: "eicr-expiring-60",
+    name: "EICR expiring in 60 days → task",
+    description: "Book EICR renewal 60 days before expiry.",
+    category: "Compliance",
+    trigger_type: "eicr_expiring",
+    trigger_config: { within_days: 60 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Book EICR renewal: {{summary}}", description: "Arrange Electrical Installation Condition Report with qualified electrician.", priority: "high", due_in_days: "21" },
+    review_required: true,
+  },
+
+  // Communications
+  {
+    template_id: "portal-message-unanswered-3",
+    name: "Unread message 3 days → notification",
+    description: "Notify manager when a tenant portal message has been unread for 3+ days.",
+    category: "Communications",
+    trigger_type: "portal_message_unanswered",
+    trigger_config: { min_days_unanswered: 3 },
+    condition_config: {},
+    action_type: "create_notification",
+    action_config: { title: "Unanswered tenant message: {{summary}}", body: "A tenant message has been waiting for a response for 3+ days.", severity: "warning" },
+    review_required: false,
+  },
+  {
+    template_id: "complaint-received-escalate",
+    name: "Complaint received → escalate",
+    description: "Immediately escalate any new tenant complaint for management review.",
+    category: "Communications",
+    trigger_type: "complaint_received",
+    trigger_config: { within_days: 1 },
+    condition_config: {},
+    action_type: "escalate",
+    action_config: { title: "Complaint received: {{summary}}", body: "A tenant complaint requires management review and a response within 24 hours." },
+    review_required: true,
+  },
+
+  // Lettings
+  {
+    template_id: "viewing-not-booked-7",
+    name: "Vacant 7 days, no viewing → task",
+    description: "Chase lettings when a unit has been vacant for 7 days with no viewings booked.",
+    category: "Lettings",
+    trigger_type: "viewing_not_booked",
+    trigger_config: { min_days_vacant: 7 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Book viewings: {{summary}}", description: "Unit has been vacant for 7 days with no upcoming viewings. Check marketing and contact enquiries.", priority: "high", due_in_days: "2" },
+    review_required: true,
+  },
+  {
+    template_id: "offer-accepted-referencing",
+    name: "Offer accepted → start referencing task",
+    description: "When a rental offer is accepted, create a task to begin the referencing process.",
+    category: "Lettings",
+    trigger_type: "offer_accepted",
+    trigger_config: { within_days: 1 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Begin referencing: {{summary}}", description: "Send referencing requests to applicant. Target completion within 5 working days.", priority: "high", due_in_days: "1" },
+    review_required: true,
+  },
+
+  // Stays
+  {
+    template_id: "booking-checkin-tomorrow-prep",
+    name: "Check-in tomorrow → prep task",
+    description: "Create a property preparation task the day before a guest checks in.",
+    category: "Stays",
+    trigger_type: "booking_checkin_tomorrow",
+    trigger_config: {},
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Prepare for guest: {{summary}}", description: "Ensure property is clean, keys/access codes are ready, and welcome pack is in place.", priority: "high", due_in_days: "0" },
+    review_required: false,
+  },
+  {
+    template_id: "void-period-long-14",
+    name: "Void 14+ days → list unit task",
+    description: "Chase lettings team when a unit has been vacant for more than 14 days.",
+    category: "Lettings",
+    trigger_type: "void_period_long",
+    trigger_config: { min_days: 14 },
+    condition_config: {},
+    action_type: "create_task",
+    action_config: { title: "Chase void unit: {{summary}}", description: "Unit has been vacant for 14+ days. Review marketing and pricing.", priority: "normal", due_in_days: "3" },
     review_required: true,
   },
 ]
