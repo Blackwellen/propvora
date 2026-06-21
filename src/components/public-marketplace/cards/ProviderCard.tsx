@@ -1,170 +1,145 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Clock, Heart, MapPin, Shield, Star, Zap } from 'lucide-react'
+import { BadgeCheck, Clock, Heart, MapPin, Shield, Star, Zap } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
-/* ──────────────────────────────────────────────────────────────────────────
-   ProviderCard — Airtasker/Upwork-style card for supplier/trade providers.
+/* ─────────────────────────────────────────────────────────────────────────
+   ProviderCard — Airbnb-style clean card (no box/border/buttons).
 
-   Updated design (FIX-140):
-   - 160px full-bleed banner image at top (falls back to gradient)
-   - 56px avatar circle overlapping the banner at -bottom-7 left-4
-   - Save heart in the banner top-right
-   - Provider name, trade, rating, bio snippet, meta, trust badges below
-   - No dark: classes. All interactive elements have aria-label + focus rings.
-─────────────────────────────────────────────────────────────────────────── */
+   Image (aspect-[3/2], rounded-2xl) with overlays, then minimal text below.
+   Whole card is a Link → provider profile page.
+   No dark: classes. No hardcoded hex.
+───────────────────────────────────────────────────────────────────────── */
+
+const STORAGE_KEY = 'propvora_saved_suppliers'
+
+function getSaved(): string[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') } catch { return [] }
+}
+function toggleSaved(id: string): boolean {
+  const list = getSaved(); const idx = list.indexOf(id)
+  if (idx === -1) { list.push(id) } else { list.splice(idx, 1) }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return idx === -1
+}
 
 export default function ProviderCard({
   provider,
-  basePath = '/providers',
-  bannerImage,
+  basePath = '/property-manager/marketplace/suppliers-hub',
+  featured = false,
 }: {
   provider: PublicProvider
   basePath?: string
-  /** Optional override for the banner image. Falls back to provider.heroImage,
-   *  then a slate gradient if neither is provided or both fail. */
-  bannerImage?: string
+  featured?: boolean
 }) {
   const [saved, setSaved] = useState(false)
-  const [bannerErr, setBannerErr] = useState(false)
+  const [imgErr, setImgErr] = useState(false)
 
-  const bannerSrc = bannerImage || provider.heroImage
-  const showBanner = !!bannerSrc && !bannerErr
+  useEffect(() => { setSaved(getSaved().includes(provider.slug)) }, [provider.slug])
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    setSaved(toggleSaved(provider.slug))
+  }
+
+  const showImg = !!provider.heroImage && !imgErr
 
   return (
-    <article className="border border-slate-200 rounded-2xl overflow-hidden bg-white transition-shadow duration-200 hover:shadow-md font-sans">
-      {/* ── Banner image (160px tall, full-bleed) ── */}
-      <div className="relative h-[160px] bg-slate-100 overflow-hidden">
-        {showBanner ? (
+    <Link href={`${basePath}/${provider.slug}`} className="group block font-sans">
+      {/* ── Image ─────────────────────────────────────────────────────────── */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl bg-slate-200">
+        {showImg ? (
           <Image
-            src={bannerSrc}
-            alt={`${provider.companyName} — banner`}
+            src={provider.heroImage}
+            alt={provider.companyName}
             fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-            onError={() => setBannerErr(true)}
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            onError={() => setImgErr(true)}
           />
         ) : (
-          /* Fallback gradient when no image */
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-500 to-slate-700" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-500 to-slate-800 flex items-center justify-center">
+            <span className="text-white/20 text-6xl font-black select-none">{provider.companyName.charAt(0)}</span>
+          </div>
         )}
-        {/* Subtle scrim for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
 
-        {/* Save / heart button — top-right of banner */}
+        {/* Bottom scrim */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+        {/* Featured badge — top-left */}
+        {featured && (
+          <span className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full bg-amber-400/95 px-2.5 py-1 text-[11px] font-bold text-amber-900 shadow-sm backdrop-blur-sm">
+            <Star className="h-3 w-3 fill-amber-900" /> Featured
+          </span>
+        )}
+
+        {/* Heart — top-right */}
         <button
           type="button"
-          onClick={() => setSaved((s) => !s)}
-          aria-label={saved ? `Remove ${provider.companyName} from saved` : `Save ${provider.companyName}`}
-          className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+          onClick={handleSave}
+          aria-label={saved ? 'Remove from saved' : 'Save supplier'}
+          className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
-          <Heart
-            className={`h-4 w-4 transition-colors ${saved ? 'fill-rose-500 text-rose-500' : ''}`}
-            aria-hidden="true"
-          />
+          <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
         </button>
 
-        {/* Provider avatar — overlapping bottom-left of banner */}
-        <div className="absolute -bottom-7 left-4 z-10 h-14 w-14 overflow-hidden rounded-full border-2 border-white shadow-md bg-slate-100">
-          {provider.logo ? (
-            <Image
-              src={provider.logo}
-              alt={`${provider.companyName} logo`}
-              fill
-              className="object-cover"
-              sizes="56px"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-200 text-slate-500 text-[18px] font-bold">
-              {provider.companyName.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Card body — pt-10 clears the overlapping 56px avatar ── */}
-      <div className="pt-10 px-4 pb-4">
-        {/* Provider name + Pro badge */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <h3 className="truncate text-[15px] font-bold text-slate-900">{provider.companyName}</h3>
-          {provider.proBadge && (
-            <span className="shrink-0 rounded-md bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-              Pro
-            </span>
-          )}
-        </div>
-
-        {/* Trade + rating */}
-        <p className="mt-0.5 text-[12px] text-slate-500">{provider.trade} Services</p>
-        <div className="mt-1 flex items-center gap-1 text-[13px]">
-          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
-          <span className="font-semibold text-slate-900">{provider.rating}</span>
-          <span className="text-slate-500">({provider.reviewCount})</span>
-        </div>
-
-        {/* Divider */}
-        <div className="my-3 border-t border-slate-100" />
-
-        {/* Bio snippet */}
-        <p className="line-clamp-2 text-sm text-slate-600">
-          {provider.trade} services — expert team covering residential and commercial properties.
-        </p>
-
-        {/* Meta row */}
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-slate-500">
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-            {provider.location}
+        {/* Trade badge + trust badges — bottom-left */}
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5">
+          <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-800 backdrop-blur-sm shadow-sm">
+            {provider.trade}
           </span>
-          <span className="flex items-center gap-1 text-amber-600">
-            <Zap className="h-3.5 w-3.5" aria-hidden="true" />
-            ~{provider.responseTime} response
-          </span>
-        </div>
-
-        {/* Trust badges */}
-        <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
           {provider.vetted && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              <span className="text-emerald-600">✓</span> Vetted
-            </span>
-          )}
-          {provider.insured && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
-              <Shield className="h-3 w-3" aria-hidden="true" /> Insured
+            <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 backdrop-blur-sm shadow-sm">
+              <BadgeCheck className="h-3 w-3" /> Vetted
             </span>
           )}
           {provider.emergency24h && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-              <Clock className="h-3 w-3" aria-hidden="true" /> 24/7
+            <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-red-700 backdrop-blur-sm shadow-sm">
+              <Zap className="h-3 w-3" /> 24/7
             </span>
           )}
         </div>
-
-        {/* Divider */}
-        <div className="my-3 border-t border-slate-100" />
-
-        {/* Footer: price + CTA */}
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">From</p>
-            <p className="text-[18px] font-bold text-slate-900">
-              {formatPence(provider.fromPrice)}
-              <span className="text-[13px] font-normal text-slate-500">/visit</span>
-            </p>
-          </div>
-          <Link
-            href={`${basePath}/${provider.slug}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-          >
-            Contact
-          </Link>
-        </div>
       </div>
-    </article>
+
+      {/* ── Text body ─────────────────────────────────────────────────────── */}
+      <div className="mt-2.5 space-y-0.5 px-0.5">
+        {/* Row 1: Name + rating */}
+        <div className="flex items-start justify-between gap-2">
+          <p className="truncate text-[14px] font-semibold text-slate-900">{provider.companyName}</p>
+          <span className="flex shrink-0 items-center gap-0.5 text-[13px] text-slate-800">
+            <Star className="h-3.5 w-3.5 fill-slate-800 text-slate-800" />
+            <span className="font-semibold">{provider.rating}</span>
+            <span className="text-slate-500 text-[12px]"> ({provider.reviewCount})</span>
+          </span>
+        </div>
+        {/* Row 2: Location */}
+        <p className="flex items-center gap-1 text-[13px] text-slate-500 truncate">
+          <MapPin className="h-3 w-3 shrink-0" />
+          {provider.location}
+        </p>
+        {/* Row 3: Response time */}
+        <p className="flex items-center gap-1 text-[13px] text-slate-500">
+          <Clock className="h-3 w-3 shrink-0 text-blue-500" />
+          Responds in {provider.responseTime}
+        </p>
+        {/* Row 4: Certs */}
+        {(provider.gasSafe || provider.niceic || provider.insured) && (
+          <p className="flex items-center gap-2 text-[12px] text-slate-400 flex-wrap pt-0.5">
+            {provider.gasSafe && <span>🔥 Gas Safe</span>}
+            {provider.niceic && <span>⚡ NICEIC</span>}
+            {provider.insured && <span className="flex items-center gap-0.5"><Shield className="h-3 w-3" />Insured</span>}
+          </p>
+        )}
+        {/* Row 5: Price */}
+        <p className="pt-1 text-[14px] text-slate-900">
+          <span className="font-bold">From {formatPence(provider.fromPrice)}</span>
+          <span className="text-slate-500 font-normal"> /day</span>
+        </p>
+      </div>
+    </Link>
   )
 }

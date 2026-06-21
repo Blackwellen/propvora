@@ -1,135 +1,154 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarClock, Check, Heart, Leaf, MapPin, Shield, Star } from 'lucide-react'
+import { Heart, MapPin, Shield, Star } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
 import type { PublicServiceOffer } from '@/lib/public-marketplace/types'
 
-const OFFER_FEATURES = [
-  { icon: Leaf, label: 'Eco-friendly', sub: 'Products used' },
-  { icon: CalendarClock, label: 'Flexible scheduling', sub: '7 days a week' },
-  { icon: Heart, label: 'Satisfaction', sub: '100% guarantee' },
-  { icon: Shield, label: 'Fully insured', sub: 'Up to GBP2M cover' },
-]
+/* ─────────────────────────────────────────────────────────────────────────
+   ServiceOfferCard — Airbnb/Fiverr-style clean card (no box/border).
 
-function FeaturedServiceOfferCard({ offer, basePath }: { offer: PublicServiceOffer; basePath: string }) {
-  return (
-    <div className="relative aspect-[701/432] w-full min-w-[520px] [container-type:inline-size] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.01] active:translate-y-0 active:scale-[0.995] max-sm:min-w-[calc(100vw-48px)]">
-    <article className="absolute left-0 top-0 flex h-[432px] w-[701px] origin-top-left overflow-hidden rounded-[22px] border-2 border-blue-600 bg-white font-sans shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-shadow duration-200 hover:shadow-[0_24px_58px_rgba(15,23,42,0.18)]" style={{ transform: 'scale(calc(100cqw / 701px))' }}>
-      <ServiceCardBody offer={offer} basePath={basePath} />
-    </article>
-    </div>
-  )
+   Image (aspect-[3/2], rounded-2xl) with status badge + heart, then minimal
+   text below. Whole card is a Link → service profile page.
+   No dark: classes. No hardcoded hex.
+───────────────────────────────────────────────────────────────────────── */
+
+const STORAGE_KEY = 'propvora_saved_services'
+
+function getSaved(): string[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') } catch { return [] }
 }
-
-function CompactServiceOfferCard({ offer, basePath }: { offer: PublicServiceOffer; basePath: string }) {
-  return (
-    <div className="relative aspect-[701/432] w-full [container-type:inline-size] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.01] active:translate-y-0 active:scale-[0.995]">
-    <article className="absolute left-0 top-0 flex h-[432px] w-[701px] origin-top-left overflow-hidden rounded-[22px] border-2 border-blue-600 bg-white font-sans shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-shadow duration-200 hover:shadow-[0_24px_58px_rgba(15,23,42,0.18)]" style={{ transform: 'scale(calc(100cqw / 701px))' }}>
-      <ServiceCardBody offer={offer} basePath={basePath} />
-    </article>
-    </div>
-  )
-}
-
-function ServiceCardBody({ offer, basePath }: { offer: PublicServiceOffer; basePath: string }) {
-  const description = offer.subtitle || offer.deliverables.slice(0, 2).join('. ')
-
-  return (
-    <div className="flex h-full w-full flex-col">
-      <div className="relative flex h-[58%] min-h-[250px] gap-[22px] px-[14px] pt-[16px]">
-        <div className="relative h-[232px] w-[48.5%] overflow-hidden rounded-xl">
-          <Image
-            src={offer.heroImage}
-            alt={offer.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 340px"
-          />
-          <span className="absolute left-0 top-0 inline-flex h-10 min-w-[170px] items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-[14px] font-[700] leading-5 text-blue-700 shadow-sm">
-            <Check className="h-4 w-4" />
-            Trusted service
-          </span>
-        </div>
-
-        <div className="relative min-w-0 flex-1 pr-[48px] pt-[7px]">
-          <button
-            onClick={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-            }}
-            aria-label="Save offer"
-            className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.10)] transition-colors hover:bg-slate-50"
-          >
-            <Heart className="h-5 w-5" />
-          </button>
-          <h3 className="truncate text-[20px] font-[760] leading-7 text-slate-950">{offer.title}</h3>
-          <p className="mt-[10px] truncate text-[14.5px] font-[500] leading-[21px] text-slate-500">{offer.category} & Commercial Cleaning</p>
-          <p className="mt-[7px] flex items-center gap-2 truncate text-[14.5px] font-[500] leading-[21px] text-slate-500">
-            <MapPin className="h-4 w-4 text-slate-500" />
-            {offer.location}
-          </p>
-          <div className="mt-[12px] flex items-center gap-5 text-[14px] leading-5">
-            <span className="flex items-center gap-1.5">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              <span className="font-[800] text-slate-950">{offer.rating}</span>
-              <span className="font-[500] text-slate-500">({offer.reviewCount})</span>
-            </span>
-            {offer.verified && (
-              <span className="flex items-center gap-1.5 font-[700] text-emerald-700">
-                <Shield className="h-4 w-4" />
-                Vetted
-              </span>
-            )}
-          </div>
-          <p className="mt-[11px] line-clamp-3 text-[15px] font-[500] leading-[23px] text-slate-600">{description}</p>
-        </div>
-      </div>
-
-      <div className="mx-[18px] grid h-[20%] min-h-[86px] grid-cols-4 border-y border-slate-200 py-[19px]">
-        {OFFER_FEATURES.map(({ icon: Icon, label, sub }, index) => (
-          <div key={label} className={`flex items-start gap-3 px-4 ${index > 0 ? 'border-l border-slate-200' : ''}`}>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-              <Icon className="h-4 w-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-[12.5px] font-[750] leading-4 text-slate-950">{label}</span>
-              <span className="mt-1 block truncate text-[12px] font-[500] leading-4 text-slate-500">{sub}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex h-[18%] min-h-[78px] items-center justify-between px-[21px] py-[18px]">
-        <div>
-          <p className="text-[12px] font-[700] uppercase leading-4 text-slate-500">Services from</p>
-          <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-[25px] font-[800] leading-8 text-slate-950">{formatPence(offer.basePrice)}</span>
-            <span className="text-[14px] font-[500] leading-5 text-slate-500">/ visit</span>
-          </div>
-        </div>
-        <Link
-          href={`${basePath}/${offer.slug}`}
-          className="inline-flex h-[42px] min-w-[165px] items-center justify-center gap-3 rounded-lg bg-blue-600 px-5 text-[14.5px] font-[750] leading-[18px] text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          View services
-          <span aria-hidden>{'->'}</span>
-        </Link>
-      </div>
-    </div>
-  )
+function toggleSaved(id: string): boolean {
+  const list = getSaved(); const idx = list.indexOf(id)
+  if (idx === -1) { list.push(id) } else { list.splice(idx, 1) }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return idx === -1
 }
 
 export default function ServiceOfferCard({
   offer,
-  featured,
-  basePath = '/services',
+  featured = false,
+  basePath = '/property-manager/marketplace/suppliers-hub/services',
 }: {
   offer: PublicServiceOffer
   featured?: boolean
   basePath?: string
 }) {
-  if (featured) return <FeaturedServiceOfferCard offer={offer} basePath={basePath} />
-  return <CompactServiceOfferCard offer={offer} basePath={basePath} />
+  const [saved, setSaved] = useState(false)
+  const [imgErr, setImgErr] = useState(false)
+  const [avatarErr, setAvatarErr] = useState(false)
+
+  useEffect(() => { setSaved(getSaved().includes(offer.slug)) }, [offer.slug])
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    setSaved(toggleSaved(offer.slug))
+  }
+
+  const showImg = !!offer.heroImage && !imgErr
+  const pkgs = offer.packages && offer.packages.length >= 2 ? offer.packages.slice(0, 3) : null
+
+  const topBadge = featured
+    ? { label: '⭐ Featured', cls: 'bg-amber-400/95 text-amber-900' }
+    : offer.urgent
+      ? { label: '🚨 Urgent', cls: 'bg-red-600/95 text-white' }
+      : offer.verified
+        ? { label: '✓ Verified', cls: 'bg-emerald-600/95 text-white' }
+        : null
+
+  return (
+    <Link href={`${basePath}/${offer.slug}`} className="group block font-sans">
+      {/* ── Image ─────────────────────────────────────────────────────────── */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl bg-slate-200">
+        {showImg ? (
+          <Image
+            src={offer.heroImage}
+            alt={offer.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            onError={() => setImgErr(true)}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-violet-700" />
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+        {/* Status badge — top-left */}
+        {topBadge && (
+          <span className={`absolute top-3 left-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur-sm ${topBadge.cls}`}>
+            {topBadge.label}
+          </span>
+        )}
+
+        {/* Heart — top-right */}
+        <button
+          type="button"
+          onClick={handleSave}
+          aria-label={saved ? 'Remove from saved' : 'Save service'}
+          className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
+        </button>
+
+        {/* Provider avatar + name — bottom-left */}
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
+          <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-white/60 bg-slate-300">
+            {offer.providerAvatar && !avatarErr ? (
+              <Image src={offer.providerAvatar} alt={offer.providerName} fill className="object-cover" sizes="28px" onError={() => setAvatarErr(true)} />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold">{offer.providerName.charAt(0)}</div>
+            )}
+          </div>
+          <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-slate-800 backdrop-blur-sm shadow-sm max-w-[140px] truncate">
+            {offer.providerName}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Text body ─────────────────────────────────────────────────────── */}
+      <div className="mt-2.5 space-y-0.5 px-0.5">
+        {/* Row 1: Title + rating */}
+        <div className="flex items-start justify-between gap-2">
+          <p className="line-clamp-1 text-[14px] font-semibold text-slate-900">{offer.title}</p>
+          <span className="flex shrink-0 items-center gap-0.5 text-[13px] text-slate-800">
+            <Star className="h-3.5 w-3.5 fill-slate-800 text-slate-800" />
+            <span className="font-semibold">{offer.rating}</span>
+            <span className="text-slate-500 text-[12px]"> ({offer.reviewCount})</span>
+          </span>
+        </div>
+        {/* Row 2: Category + location */}
+        <p className="flex items-center gap-2 text-[13px] text-slate-500 truncate">
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{offer.category}</span>
+          <span className="flex items-center gap-1 truncate"><MapPin className="h-3 w-3 shrink-0" />{offer.location}</span>
+        </p>
+        {/* Row 3: Insurance badge */}
+        {offer.insured && (
+          <p className="flex items-center gap-1 text-[12px] text-slate-400">
+            <Shield className="h-3 w-3" /> Fully insured
+          </p>
+        )}
+        {/* Row 4: Pricing */}
+        {pkgs ? (
+          <div className="flex gap-1.5 pt-1">
+            {pkgs.map((pkg, i) => (
+              <span
+                key={pkg.name}
+                className={`rounded-lg px-2 py-1 text-[11px] font-semibold border ${i === 1 ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 text-slate-600'}`}
+              >
+                {pkg.name} · {formatPence(pkg.price)}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="pt-1 text-[14px] text-slate-900">
+            <span className="font-bold">From {formatPence(offer.basePrice)}</span>
+          </p>
+        )}
+      </div>
+    </Link>
+  )
 }

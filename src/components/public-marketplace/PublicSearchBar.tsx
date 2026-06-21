@@ -1,6 +1,6 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { CalendarDays, Search } from 'lucide-react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -71,6 +71,35 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
   const inputClass = 'w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent'
   const dividerClass = 'flex-1 px-4 py-3 border-b md:border-b-0 md:border-r border-slate-200'
 
+  /** Premium date input with calendar icon */
+  function DateInput({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string
+    value: string
+    onChange: (v: string) => void
+  }) {
+    return (
+      <div className={dividerClass}>
+        <div className={labelClass}>{label}</div>
+        <div className="relative flex items-center">
+          <CalendarDays
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none"
+            aria-hidden="true"
+          />
+          <input
+            type="date"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="pl-6 w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent cursor-pointer focus:text-blue-600"
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-2">
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-0">
@@ -81,14 +110,8 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
               <div className={labelClass}>Where</div>
               <input type="text" value={where} onChange={e => setWhere(e.target.value)} onKeyDown={handleKeyDown} placeholder="City, area or postcode" className={inputClass} />
             </div>
-            <div className={dividerClass}>
-              <div className={labelClass}>Check in</div>
-              <input type="date" value={checkin} onChange={e => setCheckin(e.target.value)} className={inputClass} />
-            </div>
-            <div className={dividerClass}>
-              <div className={labelClass}>Check out</div>
-              <input type="date" value={checkout} onChange={e => setCheckout(e.target.value)} className={inputClass} />
-            </div>
+            <DateInput label="Check in" value={checkin} onChange={setCheckin} />
+            <DateInput label="Check out" value={checkout} onChange={setCheckout} />
             <div className={dividerClass}>
               <div className={labelClass}>Guests</div>
               <input type="number" min="1" value={guests} onChange={e => setGuests(e.target.value)} onKeyDown={handleKeyDown} placeholder="Add guests" className={inputClass} />
@@ -106,10 +129,7 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
               <div className={labelClass}>Location</div>
               <input type="text" value={where} onChange={e => setWhere(e.target.value)} onKeyDown={handleKeyDown} placeholder="City or postcode" className={inputClass} />
             </div>
-            <div className={dividerClass}>
-              <div className={labelClass}>When</div>
-              <input type="date" value={when} onChange={e => setWhen(e.target.value)} className={inputClass} />
-            </div>
+            <DateInput label="When" value={when} onChange={setWhen} />
           </>
         )}
 
@@ -155,13 +175,7 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
             className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
             <Search className="h-4 w-4" />
-            {variant === 'stays'
-              ? 'Search stays'
-              : variant === 'services'
-              ? 'Search services'
-              : variant === 'emergency'
-              ? 'Find help now'
-              : 'Search providers'}
+            Search
           </button>
         </div>
       </div>
