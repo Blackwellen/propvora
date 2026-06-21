@@ -10,19 +10,18 @@ import { getCountryProfile } from "@/lib/i18n/country-profiles"
  * what the legal framework covers (or doesn't cover).
  */
 export default function JurisdictionBanner() {
-  const { data: jurisdiction } = useWorkspaceJurisdiction()
+  const jurisdiction = useWorkspaceJurisdiction()
 
   // Don't show for GB — it's the reviewed default; no extra disclaimer needed.
   if (!jurisdiction || jurisdiction.countryCode === "GB") return null
 
   const countryCode = jurisdiction.countryCode
   const profile = getCountryProfile(countryCode)
-  const name = jurisdiction.countryName ?? profile?.displayName ?? countryCode
-  const disclaimer = profile?.legalDisclaimer ?? jurisdiction.countryName ?? null
+  const name = profile?.displayName ?? countryCode
+  const disclaimer = profile?.legalDisclaimer ?? null
 
-  // Determine badge styling based on pack status
-  const effectiveStatus = jurisdiction.effectiveStatus
-  const isResearchOnly = effectiveStatus === "research_only"
+  // Determine badge styling: non-GB jurisdictions without a GB-reviewed pack get amber
+  const isResearchOnly = !profile || countryCode !== "GB"
 
   const borderColor = isResearchOnly ? "border-amber-200" : "border-blue-100"
   const bgColor = isResearchOnly ? "bg-amber-50" : "bg-blue-50"

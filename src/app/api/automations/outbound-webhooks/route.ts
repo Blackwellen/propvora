@@ -228,16 +228,18 @@ export async function PUT(request: NextRequest) {
     }
     const responseMs = Date.now() - startMs
 
-    // Log the test delivery
-    await ctx.supabase.from(LOGS_TABLE).insert({
-      workspace_id: ctx.workspaceId!,
-      webhook_id: id,
-      event_type: "test.webhook",
-      http_status: httpStatus,
-      response_ms: responseMs,
-      error_msg: errorMsg,
-      payload,
-    }).catch(() => {/* non-fatal */})
+    // Log the test delivery (best-effort, non-fatal)
+    try {
+      await ctx.supabase.from(LOGS_TABLE).insert({
+        workspace_id: ctx.workspaceId!,
+        webhook_id: id,
+        event_type: "test.webhook",
+        http_status: httpStatus,
+        response_ms: responseMs,
+        error_msg: errorMsg,
+        payload,
+      })
+    } catch { /* non-fatal */ }
 
     return NextResponse.json({
       ok: !errorMsg && httpStatus >= 200 && httpStatus < 300,
