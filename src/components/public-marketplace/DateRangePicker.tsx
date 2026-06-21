@@ -1,390 +1,273 @@
 'use client'
 
-/**
- * DateRangePicker — pure JS date-range calendar (no external lib).
- *
- * Props:
- *   blockedDates  ISO date strings that cannot be selected (booked / unavailable)
- *   checkIn       currently selected check-in (ISO) or null
- *   checkOut      currently selected check-out (ISO) or null
- *   onSelect      called with (checkIn, checkOut) when both dates are chosen
- *   onClose       called when user clicks outside / presses Escape
- *   minNights     minimum required nights gap (default 1)
- *   singleDate    if true: only pick one date (for services), calls onSelect(date, date)
- */
+import { useState, useRef, useEffect } from 'react'
+import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
-import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-export interface DateRangePickerProps {
-  blockedDates: string[]
+interface DateRangePickerProps {
   checkIn: string | null
   checkOut: string | null
-  onSelect: (checkIn: string, checkOut: string) => void
-  onClose: () => void
-  minNights?: number
-  singleDate?: boolean
+  onChange: (checkIn: string | null, checkOut: string | null) => void
+  blockedDates?: string[]
+  minDate?: Date
 }
 
-// ── helpers ────────────────────────────────────────────────────────────────────
-
-function toISO(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+function formatDisplay(iso: string | null): string {
+  if (!iso) return 'Add date'
+  const d = new Date(iso + 'T00:00:00')
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function fromISO(s: string): Date {
-  const [y, m, d] = s.split('-').map(Number)
-  return new Date(y, m - 1, d)
+function toIso(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+function addDays(d: Date, n: number): Date {
+  const r = new Date(d)
+  r.setDate(r.getDate() + n)
+  return r
+}
+
+function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1)
 }
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate()
 }
 
-function firstDayOfMonth(year: number, month: number): number {
-  return new Date(year, month, 1).getDay() // 0=Sun
-}
-
-function addMonths(year: number, month: number, delta: number): { year: number; month: number } {
-  const d = new Date(year, month + delta, 1)
-  return { year: d.getFullYear(), month: d.getMonth() }
-}
-
-function isBefore(a: string, b: string): boolean {
-  return a < b
-}
-
-function monthLabel(year: number, month: number): string {
-  return new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-}
-
-// ── component ──────────────────────────────────────────────────────────────────
+const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 export default function DateRangePicker({
-  blockedDates,
   checkIn,
   checkOut,
-  onSelect,
-  onClose,
-  minNights = 1,
-  singleDate = false,
+  onChange,
+  blockedDates = [],
+  minDate,
 }: DateRangePickerProps) {
-  const blockedSet = new Set(blockedDates)
+  const today = minDate ?? new Date()
+  today.setHours(0, 0, 0, 0)
 
-  const today = toISO(new Date())
-  const todayDate = new Date()
-
-  // which two months are visible
-  const [leftYear, setLeftYear] = useState(() => todayDate.getFullYear())
-  const [leftMonth, setLeftMonth] = useState(() => todayDate.getMonth())
-
-  // selection state: first click = picking start, second = picking end
-  const [picking, setPicking] = useState<'start' | 'end'>('start')
+  const [open, setOpen] = useState(false)
+  const [selecting, setSelecting] = useState<'in' | 'out'>('in')
+  const [viewDate, setViewDate] = useState<Date>(
+    checkIn ? new Date(checkIn + 'T00:00:00') : new Date(today.getFullYear(), today.getMonth(), 1)
+  )
   const [hovered, setHovered] = useState<string | null>(null)
-  const [draft, setDraft] = useState<{ start: string | null; end: string | null }>({
-    start: checkIn,
-    end: checkOut,
-  })
+  const ref = useRef<HTMLDivElement>(null)
 
-  const right = addMonths(leftYear, leftMonth, 1)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Close on outside click
   useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onClose()
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [onClose])
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
 
-  // Close on Escape
-  useEffect(() => {
-    function handler(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  const blockedSet = new Set(blockedDates)
 
-  function isBlocked(iso: string): boolean {
-    return blockedSet.has(iso) || iso < today
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  const firstDay = new Date(year, month, 1)
+  // Monday-based week offset
+  const dayOfWeek = (firstDay.getDay() + 6) % 7
+  const totalDays = daysInMonth(year, month)
+
+  const cells: (Date | null)[] = []
+  for (let i = 0; i < dayOfWeek; i++) cells.push(null)
+  for (let d = 1; d <= totalDays; d++) cells.push(new Date(year, month, d))
+
+  function isBlocked(d: Date) {
+    return blockedSet.has(toIso(d))
   }
 
-  function isRangeBlocked(start: string, end: string): boolean {
-    // check if any blocked date falls in the open range (start, end)
-    const s = fromISO(start)
-    const e = fromISO(end)
-    for (const b of blockedDates) {
-      const bd = fromISO(b)
-      if (bd > s && bd < e) return true
+  function isPast(d: Date) {
+    return d < today
+  }
+
+  function isDisabled(d: Date) {
+    if (isPast(d)) return true
+    if (isBlocked(d)) return true
+    // If selecting checkout: must be after checkin
+    if (selecting === 'out' && checkIn) {
+      const ci = new Date(checkIn + 'T00:00:00')
+      if (d <= ci) return true
     }
     return false
   }
 
-  function handleDayClick(iso: string) {
-    if (isBlocked(iso)) return
+  function isInRange(d: Date) {
+    const ci = checkIn ? new Date(checkIn + 'T00:00:00') : null
+    const co = checkOut ? new Date(checkOut + 'T00:00:00') : null
+    const hov = hovered ? new Date(hovered + 'T00:00:00') : null
+    const end = co ?? (selecting === 'out' ? hov : null)
+    if (!ci || !end) return false
+    return d > ci && d < end
+  }
 
-    if (singleDate) {
-      setDraft({ start: iso, end: iso })
-      onSelect(iso, iso)
-      return
-    }
+  function isStart(d: Date) {
+    return checkIn ? toIso(d) === checkIn : false
+  }
 
-    if (picking === 'start') {
-      setDraft({ start: iso, end: null })
-      setPicking('end')
+  function isEnd(d: Date) {
+    return checkOut ? toIso(d) === checkOut : false
+  }
+
+  function handleDayClick(d: Date) {
+    if (isDisabled(d)) return
+    const iso = toIso(d)
+
+    if (selecting === 'in') {
+      onChange(iso, null)
+      setSelecting('out')
     } else {
-      // end picking
-      if (!draft.start) return
-      if (iso <= draft.start) {
-        // clicked before start → restart
-        setDraft({ start: iso, end: null })
-        setPicking('end')
-        return
+      // selecting out
+      if (checkIn && iso > checkIn) {
+        onChange(checkIn, iso)
+        setSelecting('in')
+        setOpen(false)
+      } else {
+        // clicked before or on checkin — restart
+        onChange(iso, null)
+        setSelecting('out')
       }
-      // check minNights
-      const diff = (fromISO(iso).getTime() - fromISO(draft.start).getTime()) / 86400000
-      if (diff < minNights) {
-        // auto-advance end by minNights
-        const adjustedDate = new Date(fromISO(draft.start))
-        adjustedDate.setDate(adjustedDate.getDate() + minNights)
-        const adjusted = toISO(adjustedDate)
-        if (isBlocked(adjusted) || isRangeBlocked(draft.start, adjusted)) {
-          setDraft({ start: iso, end: null })
-          setPicking('end')
-          return
-        }
-        setDraft({ start: draft.start, end: adjusted })
-        onSelect(draft.start, adjusted)
-        setPicking('start')
-        return
-      }
-      if (isRangeBlocked(draft.start, iso)) {
-        // can't select range through blocked dates — restart
-        setDraft({ start: iso, end: null })
-        setPicking('end')
-        return
-      }
-      setDraft({ start: draft.start, end: iso })
-      onSelect(draft.start, iso)
-      setPicking('start')
     }
-  }
-
-  function isInRange(iso: string): boolean {
-    const start = draft.start
-    const end = draft.end ?? hovered
-    if (!start || !end) return false
-    const a = start < end ? start : end
-    const b = start < end ? end : start
-    return iso > a && iso < b
-  }
-
-  function isStart(iso: string): boolean {
-    return draft.start === iso
-  }
-
-  function isEnd(iso: string): boolean {
-    return draft.end === iso || (draft.end == null && hovered === iso && draft.start != null && hovered > draft.start)
   }
 
   function prevMonth() {
-    const prev = addMonths(leftYear, leftMonth, -1)
-    if (prev.year < todayDate.getFullYear() || (prev.year === todayDate.getFullYear() && prev.month < todayDate.getMonth())) return
-    setLeftYear(prev.year)
-    setLeftMonth(prev.month)
+    setViewDate(new Date(year, month - 1, 1))
   }
 
   function nextMonth() {
-    const next = addMonths(leftYear, leftMonth, 1)
-    setLeftYear(next.year)
-    setLeftMonth(next.month)
+    setViewDate(new Date(year, month + 1, 1))
   }
 
-  const canGoPrev =
-    leftYear > todayDate.getFullYear() ||
-    (leftYear === todayDate.getFullYear() && leftMonth > todayDate.getMonth())
+  const monthLabel = viewDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+
+  function clearDates(e: React.MouseEvent) {
+    e.stopPropagation()
+    onChange(null, null)
+    setSelecting('in')
+  }
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-[16px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.16)] sm:w-auto"
-      role="dialog"
-      aria-label="Date picker"
-    >
-      {/* Month navigation header */}
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-        <button
-          onClick={prevMonth}
-          disabled={!canGoPrev}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label="Previous month"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        <div className="flex gap-8 sm:gap-16">
-          <span className="text-[14px] font-[700] text-slate-900">{monthLabel(leftYear, leftMonth)}</span>
-          <span className="hidden text-[14px] font-[700] text-slate-900 sm:block">
-            {monthLabel(right.year, right.month)}
-          </span>
-        </div>
-
-        <button
-          onClick={nextMonth}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100"
-          aria-label="Next month"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Calendar grids */}
-      <div className="flex flex-col gap-0 p-4 sm:flex-row sm:gap-6">
-        <MonthGrid
-          year={leftYear}
-          month={leftMonth}
-          isBlocked={isBlocked}
-          isStart={isStart}
-          isEnd={isEnd}
-          isInRange={isInRange}
-          onDayClick={handleDayClick}
-          onDayHover={setHovered}
-          draft={draft}
-        />
-        {/* Second month — hidden on mobile */}
-        <div className="hidden sm:block">
-          <MonthGrid
-            year={right.year}
-            month={right.month}
-            isBlocked={isBlocked}
-            isStart={isStart}
-            isEnd={isEnd}
-            isInRange={isInRange}
-            onDayClick={handleDayClick}
-            onDayHover={setHovered}
-            draft={draft}
-          />
-        </div>
-      </div>
-
-      {/* Footer hint */}
-      <div className="border-t border-slate-100 px-5 py-3 text-center text-[12px] text-slate-500">
-        {singleDate
-          ? 'Select a date'
-          : draft.start && !draft.end
-          ? 'Now select your check-out date'
-          : !draft.start
-          ? 'Select check-in date'
-          : minNights > 1
-          ? `Minimum stay: ${minNights} nights`
-          : 'Dates selected'}
-      </div>
-    </div>
-  )
-}
-
-// ── MonthGrid ─────────────────────────────────────────────────────────────────
-
-interface MonthGridProps {
-  year: number
-  month: number
-  isBlocked: (iso: string) => boolean
-  isStart: (iso: string) => boolean
-  isEnd: (iso: string) => boolean
-  isInRange: (iso: string) => boolean
-  onDayClick: (iso: string) => void
-  onDayHover: (iso: string | null) => void
-  draft: { start: string | null; end: string | null }
-}
-
-const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-
-function MonthGrid({
-  year, month,
-  isBlocked, isStart, isEnd, isInRange,
-  onDayClick, onDayHover,
-}: MonthGridProps) {
-  const totalDays = daysInMonth(year, month)
-  const firstDay = firstDayOfMonth(year, month) // 0=Sun
-
-  const cells: (number | null)[] = []
-  for (let i = 0; i < firstDay; i++) cells.push(null)
-  for (let d = 1; d <= totalDays; d++) cells.push(d)
-
-  return (
-    <div className="w-[248px]">
-      {/* Day-of-week header */}
-      <div className="mb-1 grid grid-cols-7">
-        {DAY_LABELS.map(l => (
-          <div key={l} className="py-1 text-center text-[11px] font-[600] text-slate-400">
-            {l}
-          </div>
-        ))}
-      </div>
-
-      {/* Day cells */}
-      <div className="grid grid-cols-7">
-        {cells.map((day, idx) => {
-          if (day === null) {
-            return <div key={`e-${idx}`} />
-          }
-          const iso = toISO(new Date(year, month, day))
-          const blocked = isBlocked(iso)
-          const start = isStart(iso)
-          const end = isEnd(iso)
-          const inRange = isInRange(iso)
-
-          let cellClass =
-            'relative flex h-9 w-9 mx-auto items-center justify-center text-[13px] rounded-full transition-colors select-none '
-
-          if (blocked) {
-            cellClass += 'text-slate-300 cursor-not-allowed line-through'
-          } else if (start || end) {
-            cellClass += 'bg-blue-600 text-white font-[700] cursor-pointer'
-          } else if (inRange) {
-            cellClass += 'bg-blue-100 text-blue-900 cursor-pointer rounded-none'
-          } else {
-            cellClass += 'text-slate-800 hover:bg-slate-100 cursor-pointer font-[500]'
-          }
-
-          // Range background spanning (round ends on start/end cells)
-          const rangeBar = inRange ? (
-            <div className="absolute inset-y-0 inset-x-0 bg-blue-100" aria-hidden="true" />
-          ) : null
-
-          return (
-            <div
-              key={iso}
-              className={
-                inRange
-                  ? 'relative flex items-center justify-center py-0.5 bg-blue-100 first:rounded-l-full last:rounded-r-full'
-                  : 'relative flex items-center justify-center py-0.5'
-              }
-              onMouseEnter={() => !blocked && onDayHover(iso)}
-              onMouseLeave={() => onDayHover(null)}
-            >
-              {rangeBar}
-              <button
-                type="button"
-                onClick={() => onDayClick(iso)}
-                disabled={blocked}
-                className={cellClass}
-                aria-label={`${iso}${blocked ? ' (unavailable)' : ''}`}
-                aria-pressed={start || end}
-              >
-                {day}
-              </button>
+    <div className="relative" ref={ref}>
+      {/* Trigger */}
+      <div
+        className="overflow-hidden rounded-[10px] border border-slate-200 cursor-pointer select-none"
+        onClick={() => {
+          setOpen(v => !v)
+          if (!open) setSelecting(checkIn ? 'out' : 'in')
+        }}
+      >
+        <div className="grid grid-cols-2 divide-x divide-slate-200">
+          <div
+            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'in' && open ? 'bg-blue-50 border-b-2 border-b-blue-500' : 'hover:bg-slate-50'}`}
+            onClick={e => {
+              e.stopPropagation()
+              setSelecting('in')
+              setOpen(true)
+            }}
+          >
+            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+            <div>
+              <div className="text-[11px] font-[800] uppercase tracking-wide text-slate-600">Check in</div>
+              <div className={`mt-0.5 text-[13px] font-[500] ${checkIn ? 'text-slate-900' : 'text-slate-400'}`}>
+                {formatDisplay(checkIn)}
+              </div>
             </div>
-          )
-        })}
+          </div>
+          <div
+            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'out' && open ? 'bg-blue-50 border-b-2 border-b-blue-500' : 'hover:bg-slate-50'}`}
+            onClick={e => {
+              e.stopPropagation()
+              if (checkIn) { setSelecting('out'); setOpen(true) }
+            }}
+          >
+            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] font-[800] uppercase tracking-wide text-slate-600">Check out</div>
+              <div className={`mt-0.5 text-[13px] font-[500] ${checkOut ? 'text-slate-900' : 'text-slate-400'}`}>
+                {formatDisplay(checkOut)}
+              </div>
+            </div>
+          </div>
+        </div>
+        {(checkIn || checkOut) && (
+          <div className="flex justify-end border-t border-slate-100 px-3 py-1.5">
+            <button
+              type="button"
+              onClick={clearDates}
+              className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-700"
+            >
+              <X className="h-3 w-3" /> Clear dates
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Calendar dropdown */}
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-[12px] border border-slate-200 bg-white p-4 shadow-xl">
+          <div className="mb-1 text-center text-[11px] font-[600] text-blue-600">
+            {selecting === 'in' ? 'Select check-in date' : 'Select check-out date'}
+          </div>
+
+          {/* Month nav */}
+          <div className="mb-3 flex items-center justify-between">
+            <button type="button" onClick={prevMonth} className="rounded-full p-1.5 hover:bg-slate-100">
+              <ChevronLeft className="h-4 w-4 text-slate-600" />
+            </button>
+            <span className="text-[14px] font-[700] text-slate-900">{monthLabel}</span>
+            <button type="button" onClick={nextMonth} className="rounded-full p-1.5 hover:bg-slate-100">
+              <ChevronRight className="h-4 w-4 text-slate-600" />
+            </button>
+          </div>
+
+          {/* Day headers */}
+          <div className="mb-1 grid grid-cols-7 gap-0">
+            {DAYS.map(d => (
+              <div key={d} className="py-1 text-center text-[11px] font-[700] text-slate-400">
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Day grid */}
+          <div className="grid grid-cols-7 gap-0">
+            {cells.map((day, idx) => {
+              if (!day) return <div key={`blank-${idx}`} />
+              const iso = toIso(day)
+              const disabled = isDisabled(day)
+              const start = isStart(day)
+              const end = isEnd(day)
+              const inRange = isInRange(day)
+              const hovEnd = hovered && selecting === 'out' && checkIn && iso === hovered && iso > checkIn
+
+              return (
+                <button
+                  key={iso}
+                  type="button"
+                  disabled={disabled}
+                  onMouseEnter={() => !disabled && setHovered(iso)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => handleDayClick(day)}
+                  className={[
+                    'relative h-9 w-full text-[13px] font-[500] transition-colors focus:outline-none',
+                    disabled ? 'cursor-not-allowed text-slate-300' : 'cursor-pointer',
+                    (start || end) ? 'rounded-full bg-blue-600 text-white font-[700] z-10' :
+                    (inRange || hovEnd) ? 'bg-blue-50 text-blue-700' :
+                    (!disabled ? 'hover:rounded-full hover:bg-slate-100 text-slate-800' : ''),
+                  ].join(' ')}
+                >
+                  {day.getDate()}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

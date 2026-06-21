@@ -1,382 +1,211 @@
 'use client'
 
-/**
- * StayBookingCard — fully interactive booking sidebar for /stays/[slug].
- *
- * - Fetches blocked dates from /api/stays/[id]/availability on mount
- * - Date-range picker via DateRangePicker component (no external date lib)
- * - Guest count stepper (min 1, max stay.guests)
- * - Dynamic price calculation: nights × pricePerNight + cleaning + service + taxes
- * - Instant book → /marketplace/checkout/[id]?checkIn=…&checkOut=…&guests=…
- * - Request to book → /marketplace/request/[id]?checkIn=…&checkOut=…&guests=…
- */
-
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Calendar,
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  Lock,
-  Minus,
-  Plus,
-  Star,
-  Users,
-  Zap,
-} from 'lucide-react'
+import { CheckCircle, Heart, Lock, Minus, Plus, Star, Zap } from 'lucide-react'
 import type { PublicStay } from '@/lib/public-marketplace/types'
+import { formatPence } from '@/lib/marketplace/money'
 import DateRangePicker from '@/components/public-marketplace/DateRangePicker'
 
-// ── helpers ────────────────────────────────────────────────────────────────────
+const SAVED_KEY = 'propvora_saved_stays'
 
-function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  const date = new Date(y, m - 1, d)
-  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+function getNights(checkIn: string | null, checkOut: string | null): number {
+  if (!checkIn || !checkOut) return 0
+  const ci = new Date(checkIn + 'T00:00:00')
+  const co = new Date(checkOut + 'T00:00:00')
+  const diff = Math.round((co.getTime() - ci.getTime()) / (1000 * 60 * 60 * 24))
+  return diff > 0 ? diff : 0
 }
 
-function nightsBetween(a: string, b: string): number {
-  const msPerDay = 86400000
-  const dateA = new Date(a)
-  const dateB = new Date(b)
-  return Math.max(0, Math.round((dateB.getTime() - dateA.getTime()) / msPerDay))
-}
-
-// ── component ──────────────────────────────────────────────────────────────────
-
-interface Props {
-  stay: PublicStay
-}
-
-export default function StayBookingCard({ stay }: Props) {
+export default function StayBookingCard({ stay }: { stay: PublicStay }) {
   const router = useRouter()
 
-  const pricePerNight = stay.pricePerNight / 100
-  const cleaning = stay.cleaningFee / 100
-  const service = stay.serviceFee / 100
-  const taxes = stay.taxes / 100
-
-  // Availability
-  const [blockedDates, setBlockedDates] = useState<string[]>([])
-  const [loadingAvail, setLoadingAvail] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch(`/api/stays/${stay.id}/availability`)
-      .then(r => r.json())
-      .then((data: { blockedDates?: string[] }) => {
-        if (!cancelled) setBlockedDates(data.blockedDates ?? [])
-      })
-      .catch(() => {
-        // silently fail — no blocked dates shown
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingAvail(false)
-      })
-    return () => { cancelled = true }
-  }, [stay.id])
-
-  // Date selection
   const [checkIn, setCheckIn] = useState<string | null>(null)
   const [checkOut, setCheckOut] = useState<string | null>(null)
-  const [calendarOpen, setCalendarOpen] = useState(false)
-  const calendarRef = useRef<HTMLDivElement>(null)
-
-  // Guest count
   const [guests, setGuests] = useState(1)
-  const [guestsOpen, setGuestsOpen] = useState(false)
-  const guestsRef = useRef<HTMLDivElement>(null)
+  const [saved, setSaved] = useState(false)
 
-  // Close guests dropdown on outside click
+  // Load saved state from localStorage
   useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (guestsRef.current && !guestsRef.current.contains(e.target as Node)) {
-        setGuestsOpen(false)
+    try {
+      const raw = localStorage.getItem(SAVED_KEY)
+      if (raw) {
+        const arr: string[] = JSON.parse(raw)
+        setSaved(arr.includes(stay.slug))
       }
+    } catch {
+      // ignore
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+  }, [stay.slug])
 
-  const handleDateSelect = useCallback((ci: string, co: string) => {
+  function toggleSaved() {
+    try {
+      const raw = localStorage.getItem(SAVED_KEY)
+      const arr: string[] = raw ? JSON.parse(raw) : []
+      const next = saved
+        ? arr.filter(s => s !== stay.slug)
+        : [...arr, stay.slug]
+      localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      setSaved(!saved)
+    } catch {
+      // ignore
+    }
+  }
+
+  function handleGuestsChange(delta: number) {
+    setGuests(g => Math.min(stay.guests, Math.max(1, g + delta)))
+  }
+
+  function handleDateChange(ci: string | null, co: string | null) {
     setCheckIn(ci)
     setCheckOut(co)
-    setCalendarOpen(false)
-  }, [])
-
-  const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0
-  const subtotal = pricePerNight * nights
-  const total = subtotal + cleaning + service + taxes
-  const hasDates = nights > 0
-
-  function openCalendar() {
-    setCalendarOpen(true)
-    setGuestsOpen(false)
   }
 
-  function clearDates() {
-    setCheckIn(null)
-    setCheckOut(null)
-    setCalendarOpen(false)
-  }
+  const nights = getNights(checkIn, checkOut)
+  const hasDateRange = nights > 0
+  const subtotal = stay.pricePerNight * nights // pence
 
   function handleBook() {
-    if (!hasDates) return
-    const params = new URLSearchParams({
-      checkIn: checkIn!,
-      checkOut: checkOut!,
-      guests: String(guests),
-    })
-    const dest = stay.instantBook
-      ? `/marketplace/checkout/${stay.id}?${params}`
-      : `/marketplace/request/${stay.id}?${params}`
-    router.push(dest)
+    if (!checkIn || !checkOut) return
+    router.push(
+      `/stays/${stay.slug}/checkout?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`
+    )
   }
 
   return (
     <div className="rounded-[14px] border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
-      {/* Price + rating header */}
-      <div className="mb-5 flex items-start justify-between gap-4">
+      {/* Price + Rating header */}
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <span className="text-[24px] font-[800] leading-none text-slate-950">
-            &pound;{pricePerNight.toFixed(0)}
+            {formatPence(stay.pricePerNight)}
           </span>
           <span className="text-[14px] font-[500] text-slate-500"> / night</span>
         </div>
-        <div className="text-right">
-          <div className="flex items-center justify-end gap-1">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            <span className="text-[14px] font-[800] text-slate-950">{stay.rating}</span>
-            <span className="text-[13px] text-slate-500">({stay.reviewCount} reviews)</span>
-          </div>
-          {hasDates && (
-            <button
-              onClick={clearDates}
-              className="mt-0.5 text-[11px] font-[600] text-blue-600 underline underline-offset-2 hover:text-blue-700"
-            >
-              Clear dates
-            </button>
-          )}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            aria-label={saved ? 'Remove from saved' : 'Save stay'}
+            onClick={toggleSaved}
+            className={`rounded-full p-2 transition-colors ${saved ? 'text-rose-500 bg-rose-50' : 'text-slate-400 hover:text-rose-400 hover:bg-rose-50'}`}
+          >
+            <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500' : ''}`} />
+          </button>
         </div>
       </div>
 
-      {/* Date + Guests selector card */}
-      <div className="relative mb-4 overflow-hidden rounded-[10px] border border-slate-200">
-        {/* Date row */}
-        <div className="grid grid-cols-2 divide-x divide-slate-200">
-          {/* Check-in */}
-          <button
-            type="button"
-            onClick={openCalendar}
-            className="flex gap-3 p-4 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-label="Select check-in date"
-          >
-            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-            <div>
-              <div className="text-[12px] font-[800] text-slate-800">Check in</div>
-              <div
-                className={`mt-0.5 text-[13px] font-[500] ${
-                  checkIn ? 'text-slate-900' : 'text-slate-500'
-                }`}
-              >
-                {checkIn ? formatDate(checkIn) : 'Add date'}
-              </div>
-            </div>
-          </button>
-
-          {/* Check-out */}
-          <button
-            type="button"
-            onClick={openCalendar}
-            className="flex gap-3 p-4 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-label="Select check-out date"
-          >
-            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-            <div>
-              <div className="text-[12px] font-[800] text-slate-800">Check out</div>
-              <div
-                className={`mt-0.5 text-[13px] font-[500] ${
-                  checkOut ? 'text-slate-900' : 'text-slate-500'
-                }`}
-              >
-                {checkOut ? formatDate(checkOut) : 'Add date'}
-              </div>
-            </div>
-          </button>
-        </div>
-
-        {/* Calendar overlay */}
-        {calendarOpen && (
-          <div ref={calendarRef} className="relative z-50">
-            <DateRangePicker
-              blockedDates={loadingAvail ? [] : blockedDates}
-              checkIn={checkIn}
-              checkOut={checkOut}
-              onSelect={handleDateSelect}
-              onClose={() => setCalendarOpen(false)}
-              minNights={stay.shortLets ? 1 : 2}
-            />
-          </div>
+      {/* Rating row */}
+      <div className="mb-4 flex items-center gap-1.5 text-sm">
+        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+        <span className="font-[700] text-slate-900">{stay.rating}</span>
+        <span className="text-slate-400">({stay.reviewCount} reviews)</span>
+        {stay.freeCancellation && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-[700] text-emerald-700 border border-emerald-100">
+            <CheckCircle className="h-3 w-3" />Free cancellation
+          </span>
         )}
+      </div>
 
-        {/* Guests selector */}
-        <div ref={guestsRef} className="relative border-t border-slate-200">
+      {/* Date range picker */}
+      <div className="mb-3">
+        <DateRangePicker
+          checkIn={checkIn}
+          checkOut={checkOut}
+          onChange={handleDateChange}
+          blockedDates={stay.blockedDates ?? []}
+        />
+      </div>
+
+      {/* Guests stepper */}
+      <div className="mb-4 flex items-center justify-between rounded-[10px] border border-slate-200 px-4 py-3">
+        <div>
+          <div className="text-[11px] font-[800] uppercase tracking-wide text-slate-600">Guests</div>
+          <div className="mt-0.5 text-[13px] font-[500] text-slate-700">
+            {guests} {guests === 1 ? 'guest' : 'guests'}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setGuestsOpen(g => !g)}
-            className="flex w-full items-center justify-between p-4 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-expanded={guestsOpen}
-            aria-label="Select number of guests"
+            onClick={() => handleGuestsChange(-1)}
+            disabled={guests <= 1}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-colors hover:border-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <div className="flex gap-3">
-              <Users className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-              <div>
-                <div className="text-[12px] font-[800] text-slate-800">Guests</div>
-                <div className="mt-0.5 text-[13px] font-[500] text-slate-900">
-                  {guests} guest{guests !== 1 ? 's' : ''}
-                </div>
-              </div>
-            </div>
-            {guestsOpen ? (
-              <ChevronUp className="h-4 w-4 text-slate-500" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-slate-500" />
-            )}
+            <Minus className="h-3 w-3" />
           </button>
-
-          {/* Guest stepper dropdown */}
-          {guestsOpen && (
-            <div className="border-t border-slate-100 bg-white px-4 pb-4 pt-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[13px] font-[700] text-slate-900">Adults</p>
-                  <p className="text-[11px] text-slate-500">Max {stay.guests} guests</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setGuests(g => Math.max(1, g - 1))}
-                    disabled={guests <= 1}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-colors hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-30"
-                    aria-label="Decrease guests"
-                  >
-                    <Minus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="w-5 text-center text-[15px] font-[700] text-slate-900">
-                    {guests}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setGuests(g => Math.min(stay.guests, g + 1))}
-                    disabled={guests >= stay.guests}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-colors hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-30"
-                    aria-label="Increase guests"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setGuestsOpen(false)}
-                className="mt-3 text-[12px] font-[700] text-slate-900 underline underline-offset-2"
-              >
-                Done
-              </button>
-            </div>
-          )}
+          <span className="w-5 text-center text-[14px] font-[700] text-slate-900">{guests}</span>
+          <button
+            type="button"
+            onClick={() => handleGuestsChange(1)}
+            disabled={guests >= stay.guests}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-colors hover:border-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
         </div>
       </div>
 
-      {/* CTA buttons */}
-      {!hasDates ? (
-        <button
-          type="button"
-          onClick={openCalendar}
-          className="mb-3 w-full rounded-[8px] bg-blue-600 py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-blue-700"
-        >
-          Check availability
-        </button>
-      ) : stay.instantBook ? (
+      {/* Price breakdown — only when dates selected */}
+      {hasDateRange && (
+        <div className="mb-4 space-y-2.5 rounded-[10px] bg-slate-50 px-4 py-3 text-[13px]">
+          <div className="flex justify-between text-slate-600">
+            <span>{formatPence(stay.pricePerNight)} &times; {nights} night{nights !== 1 ? 's' : ''}</span>
+            <span className="font-[600] text-slate-900">{formatPence(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-slate-600">
+            <span>Cleaning fee</span>
+            <span className="font-[600] text-slate-900">{formatPence(stay.cleaningFee)}</span>
+          </div>
+          <div className="flex justify-between text-slate-600">
+            <span>Service fee</span>
+            <span className="font-[600] text-slate-900">{formatPence(stay.serviceFee)}</span>
+          </div>
+          <div className="flex justify-between border-t border-slate-200 pt-2.5 text-[14px] font-[800] text-slate-950">
+            <span>Total</span>
+            <span>{formatPence(subtotal + stay.cleaningFee + stay.serviceFee)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* CTA button */}
+      {stay.instantBook ? (
         <button
           type="button"
           onClick={handleBook}
-          className="mb-3 flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-blue-700 active:scale-[0.99]"
+          disabled={!hasDateRange}
+          className="mb-2 flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Zap className="h-4 w-4" />
-          Reserve now
+          {hasDateRange ? 'Instant book' : 'Select dates to book'}
         </button>
       ) : (
         <button
           type="button"
           onClick={handleBook}
-          className="mb-3 w-full rounded-[8px] border border-blue-600 py-3.5 text-[15px] font-[800] text-blue-600 transition-colors hover:bg-blue-50"
+          disabled={!hasDateRange}
+          className="mb-2 flex w-full items-center justify-center gap-2 rounded-[8px] bg-slate-800 py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Request to book
+          {hasDateRange ? 'Request to book' : 'Select dates to book'}
         </button>
       )}
 
-      {!hasDates && (
-        <p className="mb-4 text-center text-[12px] font-[500] text-slate-500">
-          Select your dates first
-        </p>
-      )}
-      {hasDates && (
-        <p className="mb-5 text-center text-[12px] font-[500] text-slate-500">
-          You won&apos;t be charged yet
-        </p>
-      )}
+      <p className="mb-4 text-center text-[12px] font-[500] text-slate-500">You won&apos;t be charged yet</p>
 
-      {/* Price breakdown */}
-      <div className="space-y-3 text-[13px]">
-        {hasDates ? (
-          <>
-            <div className="flex justify-between">
-              <span className="text-slate-600">
-                &pound;{pricePerNight.toFixed(0)} &times; {nights} night{nights !== 1 ? 's' : ''}
-              </span>
-              <span className="font-[600] text-slate-900">&pound;{subtotal.toFixed(0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Cleaning fee</span>
-              <span className="font-[600] text-slate-900">&pound;{cleaning.toFixed(0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Service fee</span>
-              <span className="font-[600] text-slate-900">&pound;{service.toFixed(0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Taxes</span>
-              <span className="font-[600] text-slate-900">&pound;{taxes.toFixed(0)}</span>
-            </div>
-            <div className="flex justify-between border-t border-slate-200 pt-3 text-[14px] font-[800] text-slate-950">
-              <span>Total</span>
-              <span>&pound;{total.toFixed(0)} GBP</span>
-            </div>
-          </>
-        ) : (
-          <div className="rounded-[8px] bg-slate-50 px-3 py-3 text-[12px] text-slate-500">
-            Add your dates to see the total price including all fees.
-          </div>
-        )}
-      </div>
-
-      {/* Trust panel */}
-      <div className="mt-5 rounded-[10px] border border-emerald-100 bg-emerald-50/60 p-3">
+      {/* Trust badges */}
+      <div className="rounded-[10px] border border-emerald-100 bg-emerald-50/60 p-3">
         <div className="mb-2 flex items-center gap-2 text-[12px] font-[800] text-emerald-700">
           <CheckCircle className="h-4 w-4" />
-          Price match guarantee
+          Book with confidence
         </div>
-        <div className="space-y-2 text-[12px] text-slate-600">
+        <div className="space-y-1.5 text-[12px] text-slate-600">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" /> Verified stays
+            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />Verified stay
           </div>
           <div className="flex items-center gap-2">
-            <Lock className="h-3.5 w-3.5 shrink-0 text-blue-600" /> Secure payments
+            <Lock className="h-3.5 w-3.5 shrink-0 text-blue-600" />Secure payments
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" /> 24/7 guest support
+            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />24/7 guest support
           </div>
         </div>
       </div>

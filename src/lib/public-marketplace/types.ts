@@ -67,6 +67,7 @@ export interface PublicStay {
   houseRules?: string[]
   cancellationPolicy?: string
   rooms?: { name: string; description: string }[]
+  blockedDates?: string[]
 }
 
 export interface PublicProvider {
