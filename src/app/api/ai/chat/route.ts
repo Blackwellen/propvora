@@ -5,7 +5,8 @@ import { z } from "zod"
 import { getFullWorkspaceContext, renderWorkspaceContext, capabilitiesFor } from "@/lib/ai/workspace-context"
 import { parseSlashCommand } from "@/lib/ai/commands"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
-import { checkCaps } from "@/lib/ai/caps"
+import { checkCaps, checkAiCap, checkAiRateLimit } from "@/lib/ai/caps"
+import { getPlanLimits } from "@/lib/billing/gates"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
 import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
@@ -59,8 +60,28 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // 3c. HARD CAPS — fail closed. Refuse with a clear quota error if over any
-      // rolling-window request/token limit or the monthly cost budget.
+      // 3c. Monthly message cap — fail closed against known-exceeded limit.
+      const monthlyCap = await checkAiCap(supabase, workspaceId)
+      if (!monthlyCap.allowed) {
+        return NextResponse.json(
+          { error: monthlyCap.reason, quotaExceeded: true, tier: gate.tier },
+          { status: 402 }
+        )
+      }
+
+      // 3d. Per-hour rate limit — fail with 429 + Retry-After header.
+      const rateLimit = await checkAiRateLimit(supabase, workspaceId)
+      if (!rateLimit.allowed) {
+        const headers: Record<string, string> = rateLimit.retryAfterSeconds
+          ? { "Retry-After": String(rateLimit.retryAfterSeconds) }
+          : {}
+        return new Response(JSON.stringify({ error: rateLimit.reason }), {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...headers },
+        })
+      }
+
+      // 3e. HARD CAPS — rolling-window request/token limits + monthly cost budget.
       const caps = await checkCaps(supabase, workspaceId)
       if (!caps.allowed) {
         return NextResponse.json(
@@ -193,14 +214,42 @@ Guidelines:
       : message.trim()
 
     // 9. Resolve the provider/model chain and open a streamed completion.
+    // Enforce per-plan output token cap (falls back to 700 for non-AI plans/demo).
+    let planMaxTokens = 700
+    if (workspaceId && workspaceId !== "demo-workspace") {
+      try {
+        const planLimits = await getPlanLimits(supabase, workspaceId)
+        if (planLimits.aiOutputTokensPerMessage > 0) {
+          planMaxTokens = planLimits.aiOutputTokensPerMessage
+        }
+      } catch {
+        /* fall back to 700 */
+      }
+    }
+
+    // Truncate input message to the plan's per-message input token limit.
+    // Rough heuristic: 1 token ≈ 4 characters. Apply only for non-demo workspaces.
+    let effectiveUserTurn = userTurn
+    if (workspaceId && workspaceId !== "demo-workspace") {
+      try {
+        const planLimits = await getPlanLimits(supabase, workspaceId)
+        const maxInputChars = planLimits.aiInputTokensPerMessage * 4
+        if (maxInputChars > 0 && effectiveUserTurn.length > maxInputChars) {
+          effectiveUserTurn = effectiveUserTurn.slice(0, maxInputChars) + "…[truncated]"
+        }
+      } catch {
+        /* leave message as-is on error */
+      }
+    }
+
     const chain = await resolveModelChain(supabase)
     const gw = await gatewayStream(chain, {
-      maxTokens: 700,
+      maxTokens: planMaxTokens,
       temperature: 0.6,
       messages: [
         { role: "system", content: systemPrompt },
         ...history.map((h) => ({ role: h.role, content: h.content })),
-        { role: "user", content: userTurn },
+        { role: "user", content: effectiveUserTurn },
       ],
     })
 

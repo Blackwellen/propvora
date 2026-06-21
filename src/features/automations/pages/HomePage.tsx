@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
+import Link from "next/link"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
 import {
   Activity,
@@ -31,11 +32,49 @@ import type { AutomationRow } from "../data/types"
 
 type SubTab = "automations" | "inbox" | "activity" | "templates"
 
+interface AutomationUsage {
+  runsUsed: number
+  runsLimit: number
+  runsRemaining: number
+  runsUnlimited: boolean
+}
+
 export default function HomePage() {
   const router = useSectionRouter()
   const toast = useToast()
   const { automations, reviewQueue, activity } = useAutomationsHome()
   const [tab, setTab] = useState<SubTab>("automations")
+  const [automationPlanEnabled, setAutomationPlanEnabled] = useState<boolean | null>(null)
+  const [automationUsage, setAutomationUsage] = useState<AutomationUsage | null>(null)
+
+  // Check automation plan eligibility and usage on mount
+  useEffect(() => {
+    let active = true
+    fetch("/api/automations/usage")
+      .then((r) => {
+        if (r.status === 402) {
+          if (active) setAutomationPlanEnabled(false)
+          return null
+        }
+        return r.json()
+      })
+      .then((d) => {
+        if (!active || !d) return
+        setAutomationPlanEnabled(true)
+        if (d.usage) {
+          setAutomationUsage({
+            runsUsed: d.usage.runsUsed ?? 0,
+            runsLimit: d.usage.runsLimit ?? 0,
+            runsRemaining: d.usage.runsRemaining ?? 0,
+            runsUnlimited: d.usage.runsUnlimited ?? false,
+          })
+        }
+      })
+      .catch(() => {
+        if (active) setAutomationPlanEnabled(true) // fail open in the UI
+      })
+    return () => { active = false }
+  }, [])
   const [page, setPage] = useState(1)
   const [newOpen, setNewOpen] = useState(false)
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -129,6 +168,36 @@ export default function HomePage() {
     { id: "activity", label: "Activity" },
     { id: "templates", label: "Templates" },
   ]
+
+  // Plan gate: show upgrade CTA when automations are not on the plan
+  if (automationPlanEnabled === false) {
+    return (
+      <AutomationsModuleShell
+        title="Automations"
+        subtitle="Review-first portfolio automation that proposes safe, reversible next steps."
+        icon={Workflow}
+        actions={null}
+      >
+        <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center">
+            <Sparkles className="h-8 w-8 text-violet-400" />
+          </div>
+          <div>
+            <p className="text-[18px] font-[700] text-slate-900 mb-2">Automations not included on your plan</p>
+            <p className="text-[14px] text-slate-500 max-w-[400px]">
+              Upgrade to Scale or above to unlock review-first portfolio automation, recipes, the AI Builder and Canvas.
+            </p>
+          </div>
+          <Link
+            href="/property-manager/billing"
+            className="px-6 py-3 rounded-xl bg-blue-600 text-white text-[14px] font-[600] hover:bg-blue-700 transition-colors"
+          >
+            Upgrade plan
+          </Link>
+        </div>
+      </AutomationsModuleShell>
+    )
+  }
 
   return (
     <AutomationsModuleShell
@@ -262,6 +331,33 @@ export default function HomePage() {
               </div>
             </div>
           </Card>
+
+          {/* Monthly runs usage meter */}
+          {automationUsage && !automationUsage.runsUnlimited && (
+            <Card>
+              <CardHeader title="Monthly run quota" />
+              <div className="p-4">
+                <div className="flex items-baseline justify-between text-sm mb-2">
+                  <span className="font-semibold text-slate-900">{automationUsage.runsUsed.toLocaleString()}</span>
+                  <span className="text-slate-400">/ {automationUsage.runsLimit.toLocaleString()}</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-blue-500 transition-all"
+                    style={{ width: `${Math.min(100, (automationUsage.runsUsed / automationUsage.runsLimit) * 100)}%` }}
+                  />
+                </div>
+                <div className="mt-1 text-[11px] text-slate-400">
+                  {automationUsage.runsRemaining.toLocaleString()} runs remaining this month
+                </div>
+                {automationUsage.runsUsed >= automationUsage.runsLimit && (
+                  <Link href="/property-manager/billing" className="mt-2 inline-block text-[11px] font-[600] text-amber-600 hover:underline">
+                    Limit reached — upgrade plan
+                  </Link>
+                )}
+              </div>
+            </Card>
+          )}
 
           <Card>
             <CardHeader title="Top templates" action={<button onClick={() => router.push("/property-manager/automations/recipes")} className="text-xs font-medium text-blue-600 hover:underline">View all</button>} />

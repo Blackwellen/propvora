@@ -14,6 +14,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { PlanTier } from "@/lib/billing/plans"
+import { getPlanLimits } from "@/lib/billing/gates"
 
 const USAGE_TABLE = "automation_caps_usage"
 
@@ -95,6 +96,147 @@ export async function isWithinCap(
   const used = await getRunUsage(supabase, workspaceId)
   const remaining = Math.max(0, limit - used)
   return { allowed: used < limit, used, limit, remaining, unlimited: false }
+}
+
+// ── Plan-level automation gates (new, use PLAN_LIMITS) ───────────────────────
+
+export interface AutomationEnabledResult {
+  allowed: boolean
+  reason?: string
+}
+
+/**
+ * Check whether the workspace's plan includes automations at all.
+ * Returns allowed=false with a clear upgrade prompt when automations are not
+ * on the plan. Fails OPEN on store error.
+ */
+export async function checkAutomationEnabled(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<AutomationEnabledResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") return { allowed: true }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+    if (!limits.automationsEnabled) {
+      return {
+        allowed: false,
+        reason: "Automations are not available on your current plan. Upgrade to Scale or above to enable automation.",
+      }
+    }
+    return { allowed: true }
+  } catch {
+    return { allowed: true } // fail open on store error
+  }
+}
+
+export interface MonthlyAutomationCapResult {
+  allowed: boolean
+  used: number
+  limit: number
+  reason?: string
+}
+
+/**
+ * Check whether the workspace is within its monthly automation run cap.
+ * Counts real (non-skipped) runs in smart_rule_runs since the 1st of the month.
+ * Fails OPEN on store error; fails CLOSED only on a known-exceeded limit.
+ */
+export async function isWithinAutomationCap(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<MonthlyAutomationCapResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") {
+    return { allowed: true, used: 0, limit: 9999 }
+  }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+
+    if (!limits.automationsEnabled || limits.automationRunsPerMonth === 0) {
+      return { allowed: false, used: 0, limit: 0, reason: "Automations are not enabled on this plan." }
+    }
+
+    // Unlimited sentinel
+    if (limits.automationRunsPerMonth >= 9999) {
+      return { allowed: true, used: 0, limit: 9999 }
+    }
+
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+
+    const { count, error } = await supabase
+      .from("smart_rule_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .gte("triggered_at", startOfMonth.toISOString())
+      .neq("status", "skipped")
+
+    if (error) {
+      // Fail OPEN on store error
+      return { allowed: true, used: 0, limit: limits.automationRunsPerMonth }
+    }
+
+    const used = count ?? 0
+    if (used >= limits.automationRunsPerMonth) {
+      return {
+        allowed: false,
+        used,
+        limit: limits.automationRunsPerMonth,
+        reason: `Monthly automation run limit reached (${used}/${limits.automationRunsPerMonth}). This resets on the 1st. Upgrade your plan for a higher limit.`,
+      }
+    }
+
+    return { allowed: true, used, limit: limits.automationRunsPerMonth }
+  } catch {
+    return { allowed: true, used: 0, limit: 0 }
+  }
+}
+
+export interface MaxDefinitionsResult {
+  allowed: boolean
+  reason?: string
+}
+
+/**
+ * Check whether the workspace can create another active automation definition.
+ * Counts enabled rows in smart_rules for the workspace.
+ * Fails OPEN on store error.
+ */
+export async function checkMaxDefinitions(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<MaxDefinitionsResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") return { allowed: true }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+
+    if (!limits.automationsEnabled || limits.maxAutomationDefinitions === 0) {
+      return { allowed: false, reason: "Automations are not enabled on this plan." }
+    }
+
+    if (limits.maxAutomationDefinitions >= 9999) {
+      return { allowed: true }
+    }
+
+    const { count, error } = await supabase
+      .from("smart_rules")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .eq("enabled", true)
+
+    if (error) return { allowed: true } // fail open
+
+    const current = count ?? 0
+    if (current >= limits.maxAutomationDefinitions) {
+      return {
+        allowed: false,
+        reason: `Rule limit reached (${current}/${limits.maxAutomationDefinitions} active rules). Upgrade your plan to create more automations.`,
+      }
+    }
+    return { allowed: true }
+  } catch {
+    return { allowed: true }
+  }
 }
 
 /**
