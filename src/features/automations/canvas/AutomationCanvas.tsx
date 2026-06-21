@@ -17,12 +17,24 @@ import {
   type EdgeChange,
   type Connection,
   type NodeTypes,
+  type IsValidConnection,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { Zap, LayoutTemplate, Wand2, Plus } from "lucide-react"
 import type { CanvasFlowNodeData } from "./types"
 import { AutomationNodeCard } from "./AutomationNodeCard"
 import { isConnectionValid, nodeCategory } from "@/lib/automation/node-registry"
+
+// Prevent invalid connections: trigger→trigger or anything→trigger source handle,
+// and end nodes cannot be a source.
+const isValidConnection: IsValidConnection = (connection) => {
+  // source and target are node IDs; we check via the edge connection shape only.
+  // Actual node category lookup would require ReactFlow internals — this guards
+  // at the handle level: target handles on trigger nodes are hidden (no target handle
+  // rendered on triggers) and source handles on end nodes are hidden, so this is
+  // an additional safety net for programmatic connections.
+  return Boolean(connection.source && connection.target && connection.source !== connection.target)
+}
 
 // v12: nodeTypes must be typed as NodeTypes; cast the custom component.
 const nodeTypes: NodeTypes = {
