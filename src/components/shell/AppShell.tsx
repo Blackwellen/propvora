@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
-import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
-import type { OpenCopilotDetail, OpenCopilotSectionContext } from "@/lib/copilot/open"
+import { OPEN_COPILOT_EVENT, type OpenCopilotDetail } from "@/lib/copilot/open"
 import { AnimatePresence } from "framer-motion"
 import SideNavigation from "./SideNavigation"
 import TopNavigation from "./TopNavigation"
@@ -15,7 +14,6 @@ import CommandPalette from "@/components/search/CommandPalette"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
-import { useInactivityTimeout } from "@/hooks/useInactivityTimeout"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -42,14 +40,13 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
   }, [])
 
   const [chatOpen, setChatOpen] = useState(false)
-  const [copilotSectionContext, setCopilotSectionContext] = useState<OpenCopilotSectionContext | undefined>(undefined)
+  const [copilotSummaryData, setCopilotSummaryData] = useState<Record<string, unknown> | undefined>(undefined)
   // Any page can open the Copilot by dispatching OPEN_COPILOT_EVENT.
-  // Pages may include sectionContext in the event detail so the AI is aware of
-  // what section and data the user is currently viewing.
+  // Pages may include summaryData in the event detail for page-level context.
   useEffect(() => {
     const open = (e: Event) => {
       const detail = (e as CustomEvent<OpenCopilotDetail>).detail
-      if (detail?.sectionContext) setCopilotSectionContext(detail.sectionContext)
+      if (detail?.summaryData) setCopilotSummaryData(detail.summaryData)
       setChatOpen(true)
     }
     window.addEventListener(OPEN_COPILOT_EVENT, open)
@@ -57,7 +54,6 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
   }, [])
   const [unreadCount] = useState(3)
   const { workspace } = useWorkspace()
-  useInactivityTimeout()
 
   /* sidebar total footprint: width + left-margin + right-gap */
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16
@@ -117,7 +113,7 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
             isOpen={chatOpen}
             onClose={() => setChatOpen(false)}
             aiCopilotEnabled={aiCopilotEnabled}
-            sectionContext={copilotSectionContext}
+            summaryData={copilotSummaryData}
           />
         )}
       </AnimatePresence>

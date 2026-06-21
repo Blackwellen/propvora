@@ -21,6 +21,8 @@ const chatSchema = z.object({
   threadId: z.string().uuid().optional(),
   contextRoute: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(100).optional(),
+  workspaceType: z.enum(["operator", "supplier", "customer"]).optional(),
+  pageContext: z.string().max(2000).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
-    const { message, threadId, contextRoute, workspaceId } = parsed.data
+    const { message, threadId, contextRoute, workspaceId, workspaceType: clientWorkspaceType, pageContext } = parsed.data
 
     // 3. Verify workspace membership (only when a real workspace is provided)
     if (workspaceId && workspaceId !== "demo-workspace") {
@@ -153,6 +155,16 @@ export async function POST(request: NextRequest) {
       renderWorkspaceContext(profile, caps, snapshot)
     )
 
+    // Page-level context: structured data visible on screen when the copilot was opened.
+    // Fenced + injection-sanitised the same way as the workspace context.
+    const pageContextBlock = pageContext
+      ? fenceUntrusted("CURRENT PAGE DATA", pageContext)
+      : ""
+
+    // The client-supplied workspace type (operator/supplier/customer) can be used
+    // to double-check the server-resolved profile type. Prefer server-side value.
+    void clientWorkspaceType
+
     // If this is a recognised slash command the running workspace type can use,
     // run the command's structured instruction; otherwise treat it as plain chat.
     const activeCommand =
@@ -175,6 +187,16 @@ Across the platform Propvora covers: portfolio (properties, units, tenancies), w
 Current page context: ${contextRoute ?? "Main dashboard"}
 
 ${fencedContext}
+
+${pageContextBlock}
+
+CROSS-CONTEXT INTELLIGENCE:
+- When the user asks about something on screen, reference the CURRENT PAGE DATA above first.
+- When page data is missing a detail, check WORKSPACE CONTEXT for workspace-level totals.
+- You can reason across sections: if on the Money section and the user asks about a property, relate financial data to portfolio context.
+- If you see an entity (property name, tenancy ref, job ID) in the conversation, remember it for the rest of the thread.
+- When answering about counts or KPIs, always cite the source: "Based on your current page, you have..." or "Your workspace shows..."
+- If the user asks something you don't have data for, say "I don't have that specific data visible — you can find it in [section]."
 
 ${SAFETY_CLAUSES}
 

@@ -6,7 +6,6 @@ import { motion } from "framer-motion"
 import { X, Maximize2, Minimize2, LifeBuoy, BookOpen, ChevronRight } from "lucide-react"
 import type { CopilotTab, InboxScreen } from "../types"
 import type { SuggestedContact } from "../types"
-import type { SectionContext } from "../context/useCopilotPageContext"
 import CopilotChatScreen from "../screens/CopilotChatScreen"
 import CopilotInboxScreen from "../screens/CopilotInboxScreen"
 import CopilotStartConversationScreen from "../screens/CopilotStartConversationScreen"
@@ -16,8 +15,8 @@ import { zIndex } from "@/lib/ui/z-index"
 interface CopilotPanelShellProps {
   isOpen: boolean
   onClose: () => void
-  /** Optional section context from the opening page — threaded into the chat screen. */
-  sectionContext?: SectionContext
+  /** Structured page-level data injected from the page that opened the copilot. */
+  summaryData?: Record<string, unknown>
 }
 
 function PropvoraCopilotIcon() {
@@ -40,7 +39,7 @@ function PropvoraCopilotIcon() {
   )
 }
 
-export default function CopilotPanelShell({ isOpen, onClose, sectionContext }: CopilotPanelShellProps) {
+export default function CopilotPanelShell({ isOpen, onClose, summaryData }: CopilotPanelShellProps) {
   const [activeTab, setActiveTab] = useState<CopilotTab>("copilot")
   const [expanded, setExpanded] = useState(false)
   const [inboxScreen, setInboxScreen] = useState<InboxScreen>("list")
@@ -205,7 +204,7 @@ export default function CopilotPanelShell({ isOpen, onClose, sectionContext }: C
 
       {/* ── Body ───────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        {activeTab === "copilot" && <CopilotChatScreen sectionContext={sectionContext} />}
+        {activeTab === "copilot" && <CopilotChatScreen summaryData={summaryData} />}
 
         {activeTab === "inbox" && inboxScreen === "list" && (
           <CopilotInboxScreen
@@ -223,7 +222,6 @@ export default function CopilotPanelShell({ isOpen, onClose, sectionContext }: C
 
         {activeTab === "inbox" && inboxScreen === "conversation" && (
           <CopilotConversationView
-            conversationId={activeConvId}
             onBack={handleBackToList}
             isExpanded={expanded}
           />

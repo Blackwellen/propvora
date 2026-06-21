@@ -3,18 +3,17 @@
 import { useEffect, useRef } from "react"
 import CopilotPanelShell from "@/features/copilot/components/CopilotPanelShell"
 import CopilotUpgradePrompt from "@/features/copilot/components/CopilotUpgradePrompt"
-import type { OpenCopilotSectionContext } from "@/lib/copilot/open"
 
 interface ChatPanelProps {
   isOpen: boolean
   onClose: () => void
   /** Whether the workspace plan includes AI Copilot access. */
   aiCopilotEnabled?: boolean
-  /** Optional section context from the opening page — passed through to the AI. */
-  sectionContext?: OpenCopilotSectionContext
+  /** Structured page-level data injected from the page that opened the copilot. */
+  summaryData?: Record<string, unknown>
 }
 
-export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, sectionContext }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, summaryData }: ChatPanelProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
 
@@ -75,7 +74,7 @@ export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, s
   return (
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Propvora Copilot" tabIndex={-1}>
       {aiCopilotEnabled ? (
-        <CopilotPanelShell isOpen={isOpen} onClose={onClose} sectionContext={sectionContext} />
+        <CopilotPanelShell isOpen={isOpen} onClose={onClose} summaryData={summaryData} />
       ) : (
         <CopilotUpgradePrompt isOpen={isOpen} onClose={onClose} />
       )}

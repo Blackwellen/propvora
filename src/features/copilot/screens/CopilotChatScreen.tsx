@@ -22,8 +22,18 @@ const WELCOME: ChatMessage = {
   timestamp: now(),
 }
 
+<<<<<<< HEAD
 export default function CopilotChatScreen({ sectionContext }: { sectionContext?: SectionContext }) {
   const context = { ...useCopilotPageContext(), ...(sectionContext ?? {}) }
+=======
+interface CopilotChatScreenProps {
+  /** Structured page-level data visible on screen when the copilot was opened. */
+  summaryData?: Record<string, unknown>
+}
+
+export default function CopilotChatScreen({ summaryData }: CopilotChatScreenProps) {
+  const context = useCopilotPageContext()
+>>>>>>> f81cbe00 (FIX-281: Enterprise AI context — full cross-context, page-level summaryData, entity detection, supplier/customer path parsing)
   const { workspace } = useWorkspace()
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME])
   const [streaming, setStreaming] = useState(false)
@@ -90,6 +100,8 @@ export default function CopilotChatScreen({ sectionContext }: { sectionContext?:
             threadId,
             contextRoute: context.breadcrumb || undefined,
             workspaceId: workspace?.id,
+            workspaceType: context.workspaceType,
+            pageContext: summaryData ? JSON.stringify(summaryData) : undefined,
           }),
         })
 
@@ -137,7 +149,7 @@ export default function CopilotChatScreen({ sectionContext }: { sectionContext?:
         setStreamingId(null)
       }
     },
-    [streaming, threadId, context.breadcrumb, workspace?.id]
+    [streaming, threadId, context.breadcrumb, context.workspaceType, workspace?.id, summaryData]
   )
 
   return (

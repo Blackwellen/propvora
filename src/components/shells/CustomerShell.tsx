@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
+import { OPEN_COPILOT_EVENT, type OpenCopilotDetail } from "@/lib/copilot/open"
 import SkipLink from "@/components/a11y/SkipLink"
 import ChatBubble from "@/components/ai/ChatBubble"
 import ChatPanel from "@/components/ai/ChatPanel"
@@ -85,8 +85,13 @@ export default function CustomerShell({
 
   // Copilot / Inbox chat — same entry point as the operator & supplier shells.
   const [chatOpen, setChatOpen] = useState(false)
+  const [copilotSummaryData, setCopilotSummaryData] = useState<Record<string, unknown> | undefined>(undefined)
   useEffect(() => {
-    const open = () => setChatOpen(true)
+    const open = (e: Event) => {
+      const detail = (e as CustomEvent<OpenCopilotDetail>).detail
+      if (detail?.summaryData) setCopilotSummaryData(detail.summaryData)
+      setChatOpen(true)
+    }
     window.addEventListener(OPEN_COPILOT_EVENT, open)
     return () => window.removeEventListener(OPEN_COPILOT_EVENT, open)
   }, [])
@@ -291,7 +296,7 @@ export default function CustomerShell({
       {/* Copilot / Inbox chat bubble + panel — same as the workspace shells. */}
       <ChatBubble unreadCount={unreadMessages} onClick={() => setChatOpen((o) => !o)} isOpen={chatOpen} />
       <AnimatePresence>
-        {chatOpen && <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} aiCopilotEnabled />}
+        {chatOpen && <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} aiCopilotEnabled summaryData={copilotSummaryData} />}
       </AnimatePresence>
     </div>
   )

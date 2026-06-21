@@ -3,20 +3,15 @@
 //
 // An optional `prompt` can be passed to seed the composer with a starter
 // question (the copilot screen may read it from the event detail).
-// An optional `sectionContext` can be passed so the AI is immediately aware
-// of which section the user is on and what data is on screen.
+//
+// An optional `summaryData` can be passed to inject structured page-level data
+// into the AI context (KPIs, counts, status summaries visible on screen).
 
 export const OPEN_COPILOT_EVENT = "propvora:open-copilot"
 
-export interface OpenCopilotSectionContext {
-  section: string
-  pageTitle?: string
-  summaryData?: Record<string, unknown>
-}
-
 export interface OpenCopilotDetail {
   prompt?: string
-  sectionContext?: OpenCopilotSectionContext
+  summaryData?: Record<string, unknown>
 }
 
 export function openCopilot(detail: OpenCopilotDetail = {}): void {
