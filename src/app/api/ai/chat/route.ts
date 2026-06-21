@@ -16,32 +16,11 @@ import { captureException, requestIdFrom } from "@/lib/observability"
 // Authenticated, per-request streamed completion — never statically optimised.
 export const dynamic = "force-dynamic"
 
-/** Cap injected section summary JSON at 800 chars to avoid token bloat. */
-function capSectionJson(obj: Record<string, unknown>): string {
-  const raw = JSON.stringify(obj, null, 2)
-  if (raw.length <= 800) return raw
-  // Truncate and close the JSON object cleanly.
-  return raw.slice(0, 797) + "…"
-}
-
 const chatSchema = z.object({
   message: z.string().min(1, "message is required").max(4000, "message too long"),
   threadId: z.string().uuid().optional(),
   contextRoute: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(100).optional(),
-  /** Inbox: when set, the last 10 messages in this thread are injected as context. */
-  inboxThreadId: z.string().uuid().optional(),
-  /**
-   * Section context: allows any PM workspace page to pass a structured snapshot
-   * of the current section (portfolio, compliance, money, work, planning, legal,
-   * contacts, dashboard) so the AI gives contextually relevant answers instead of
-   * generic responses. summaryData values are fenced to prevent prompt injection.
-   */
-  sectionContext: z.object({
-    section: z.string().min(1).max(80),
-    pageTitle: z.string().max(120).optional(),
-    summaryData: z.record(z.string(), z.unknown()).optional(),
-  }).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -59,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
-    const { message, threadId, contextRoute, workspaceId, inboxThreadId, sectionContext } = parsed.data
+    const { message, threadId, contextRoute, workspaceId } = parsed.data
 
     // 3. Verify workspace membership (only when a real workspace is provided)
     if (workspaceId && workspaceId !== "demo-workspace") {
@@ -166,55 +145,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 7b. Inbox thread context: when the user asks AI to help with a specific
-    // message conversation, pull the last 10 messages from that thread (scoped to
-    // the workspace so RLS guarantees cross-workspace isolation). The content is
-    // fenced as untrusted so injection is sanitised. We cap at 1200 chars total
-    // to stay within the token budget.
-    let inboxContextBlock = ""
-    if (inboxThreadId && workspaceId) {
-      try {
-        const { data: inboxMsgs } = await supabase
-          .from("messages")
-          .select("content, sender_id, created_at")
-          .eq("workspace_id", workspaceId)
-          .eq("thread_id", inboxThreadId)
-          .order("created_at", { ascending: false })
-          .limit(10)
-        if (inboxMsgs && inboxMsgs.length > 0) {
-          const { data: authRow } = await supabase.auth.getUser()
-          const meId = authRow.user?.id
-          const lines = (inboxMsgs as Array<Record<string, unknown>>)
-            .slice()
-            .reverse()
-            .map((m) => {
-              const role = meId && m.sender_id === meId ? "Agent" : "Contact"
-              const ts = new Date(m.created_at as string).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
-              const body = String(m.content ?? "").slice(0, 200).replace(/[<>"'`]/g, " ")
-              return `[${ts}] ${role}: ${body}`
-            })
-          const raw = lines.join("\n").slice(0, 1200)
-          inboxContextBlock = fenceUntrusted("CONVERSATION THREAD (last 10 messages)", raw)
-        }
-      } catch {
-        /* non-fatal — inbox context is best-effort */
-      }
-    }
-
-    // 7c. Section context block: injected when a page passes sectionContext.
-    // The summaryData is JSON-stringified and capped at 800 chars to prevent
-    // token bloat. fenceUntrusted() neutralises any prompt-injection attempts
-    // embedded in property names, tenant names, or other workspace data values.
-    let sectionContextBlock = ""
-    if (sectionContext) {
-      const lines: string[] = [`Section: ${sectionContext.section}`]
-      if (sectionContext.pageTitle) lines.push(`Page: ${sectionContext.pageTitle}`)
-      if (sectionContext.summaryData && Object.keys(sectionContext.summaryData).length > 0) {
-        lines.push(`Page data summary:\n${capSectionJson(sectionContext.summaryData)}`)
-      }
-      sectionContextBlock = fenceUntrusted("CURRENT PAGE SECTION CONTEXT", lines.join("\n"))
-    }
-
     // 8. System prompt with REAL, TYPE-AWARE workspace context. The live context
     // block is untrusted-ish (may contain user-entered text) so it's fenced +
     // injection sanitised; the safety clauses override anything inside it.
@@ -238,29 +168,34 @@ export async function POST(request: NextRequest) {
         }`
       : ""
 
-    const systemPrompt = `You are the Propvora AI Copilot — a built-in expert assistant for property management operations. You serve property managers (operators), suppliers and customers. Adapt your answers to the WORKSPACE PROFILE below and only suggest actions relevant to that workspace type and its available modules.
+    const systemPrompt = `You are the Propvora AI Copilot, an expert assistant for property operations. You serve operators, suppliers and customers — adapt to the WORKSPACE PROFILE below and only offer actions relevant to that workspace type and its available modules.
 
-Propvora covers: portfolio (properties, units, tenancies), work & maintenance (tasks, jobs, suppliers), compliance & certificates, money & accounting (rent, expenses, cashflow), legal readiness, contacts (tenants, landlords, suppliers), planning & revenue modelling, automations, marketplace/listings, bookings and international country packs.
+Across the platform Propvora covers: portfolio (properties, units, tenancies), work & maintenance (tasks, jobs, suppliers), a Marketplace OS (listings, orders, disputes), Bookings & accommodation (listings, reservations, availability, pricing, calendar), a Supplier workspace (jobs, quotes, verification), Payments/holds/disputes/payouts, an Automations engine, internationalisation (country packs) and compliance/legal readiness.
 
-Current page context: ${contextRoute ?? sectionContext?.section ?? "Main dashboard"}
-${sectionContextBlock ? `\n${sectionContextBlock}\n` : ""}
+Current page context: ${contextRoute ?? "Main dashboard"}
+
 ${fencedContext}
-${inboxContextBlock ? `\n${inboxContextBlock}\n` : ""}
+
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
 
+FORMATTING RULES (strictly follow):
+- Never use markdown asterisks (* or **) for bold or bullet points
+- Never use ## or # headings
+- Use plain numbered lists (1. 2. 3.) for ordered items
+- Use plain dashes (- ) for unordered list items
+- Use short paragraphs separated by blank lines
+- Responses must be conversational and direct, not formatted like documents
+- Maximum response length: 300 words unless the user explicitly asks for more
+- For lists use: "1. First item" on its own line, NOT "* First item"
+- Never wrap words in asterisks for emphasis — just write the words plainly
+
 Guidelines:
-- You are a Propvora assistant, not a generic AI. Ground your answers in the page context and workspace data above.
-- When the CURRENT PAGE SECTION CONTEXT is provided, use those figures to give specific, data-grounded answers for that section. For example, if the user is on the compliance section and overdueCount is provided, reference it.
-- NEVER fabricate property names, tenant names, addresses, financial figures, or any specific data that is not explicitly shown in the provided context. If a figure is not available, say "I don't have that information in the current context."
-- For compliance and legal questions: always append "This is for reference only — consult a qualified solicitor for advice specific to your situation."
-- For financial projections or estimates: always append "These are estimates only and should not be relied upon without professional financial advice."
+- Use the live workspace counts above when relevant; if a figure isn't shown, say you don't have it rather than inventing one.
 - Tailor advice to the workspace TYPE and AVAILABLE MODULES above. Do not suggest actions for modules this workspace doesn't have.
-- Follow the JURISDICTION rules: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
-- Be concise (under 300 words unless asked for detail). Use clear structure for lists.
-- When a CONVERSATION THREAD is provided, base your answer on those real messages — do not invent messages, names or events not in the thread.
-- If the user asks to draft a reply or document, produce the draft text only; state clearly it is a draft and the user must review it before sending.${commandClause}`
+- Follow the JURISDICTION rules above: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
+- Be concise (under 300 words unless asked for detail). Use plain numbered or dashed lists for structure.${commandClause}`
 
     // The actual user turn: for a command, send its instruction + any trailing
     // args the user typed; otherwise the raw message.

@@ -14,6 +14,56 @@ interface CopilotMessageBubbleProps {
   streaming?: boolean
 }
 
+/**
+ * Renders AI response content as clean plain-text blocks.
+ * Handles numbered lists (1. 2. 3.), dashed lists (- item), and paragraphs.
+ * Does NOT render markdown — the AI is instructed to output plain text only.
+ */
+function AiContentRenderer({ content }: { content: string }) {
+  const paragraphs = content.split(/\n\n+/)
+
+  return (
+    <div className="space-y-2">
+      {paragraphs.map((para, i) => {
+        const lines = para.split("\n").filter((l) => l.trim() !== "")
+
+        if (lines.length === 0) return null
+
+        const isNumberedList = lines.length > 1 && lines.every((l) => /^\d+\./.test(l.trim()))
+        const isBulletList =
+          lines.length > 1 && lines.every((l) => /^[-—•]/.test(l.trim()))
+
+        if (isNumberedList) {
+          return (
+            <ol key={i} className="list-decimal list-inside space-y-1 text-[12.5px] leading-relaxed">
+              {lines.map((l, j) => (
+                <li key={j}>{l.replace(/^\d+\.\s*/, "")}</li>
+              ))}
+            </ol>
+          )
+        }
+
+        if (isBulletList) {
+          return (
+            <ul key={i} className="list-disc list-inside space-y-1 text-[12.5px] leading-relaxed">
+              {lines.map((l, j) => (
+                <li key={j}>{l.replace(/^[-—•]\s*/, "")}</li>
+              ))}
+            </ul>
+          )
+        }
+
+        // Multi-line block that isn't a list — render as a single paragraph preserving internal newlines
+        return (
+          <p key={i} className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
+            {para}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 function TypingDots() {
   return (
     <span className="inline-flex items-center gap-1 py-0.5" aria-label="Copilot is typing">
@@ -73,14 +123,18 @@ export default function CopilotMessageBubble({
       <div className={`flex flex-col gap-2 max-w-[85%] ${isUser ? "items-end" : "items-start"}`}>
         {/* Text bubble */}
         <div
-          className={`px-3.5 py-2.5 rounded-2xl text-[12.5px] leading-relaxed ${
+          className={`px-3.5 py-2.5 rounded-2xl ${
             isUser
               ? "bg-slate-100 text-slate-800 rounded-br-md"
               : "bg-white border border-slate-200 text-slate-800 rounded-bl-md shadow-sm"
           }`}
         >
           {content ? (
-            <span className="whitespace-pre-wrap">{content}</span>
+            isUser ? (
+              <span className="text-[12.5px] leading-relaxed whitespace-pre-wrap">{content}</span>
+            ) : (
+              <AiContentRenderer content={content} />
+            )
           ) : streaming ? (
             <TypingDots />
           ) : null}
