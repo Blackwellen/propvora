@@ -203,7 +203,7 @@ export default function ComplianceOverviewPage() {
           <button
             onClick={() => openCopilot({
               prompt: "What compliance items need my attention? Summarise overdue, expiring soon, and any coverage gaps.",
-              sectionContext: {
+              summaryData: {
                 section: "compliance",
                 pageTitle: "Compliance Overview",
                 summaryData: {

@@ -138,7 +138,7 @@ export default function PlanningPage() {
           <button
             onClick={() => openCopilot({
               prompt: "What does my planning data show? Summarise my planning sets, yields and any risk alerts.",
-              sectionContext: {
+              summaryData: {
                 section: "planning",
                 pageTitle: "Planning Engine",
                 summaryData: {

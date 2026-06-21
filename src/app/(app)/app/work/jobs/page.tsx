@@ -972,7 +972,7 @@ export default function JobsPage() {
           <button
             onClick={() => openCopilot({
               prompt: "Summarise my open jobs and flag any at risk of an SLA breach.",
-              sectionContext: {
+              summaryData: {
                 section: "work",
                 pageTitle: "Jobs",
                 summaryData: {

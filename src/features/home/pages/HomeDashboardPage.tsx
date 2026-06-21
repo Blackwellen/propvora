@@ -772,7 +772,7 @@ export function HomeDashboardPage() {
         workspaceName={workspace?.name ?? "Your Workspace"}
         onAskAI={() => openCopilot({
           prompt: "Summarise my property management dashboard for today — portfolio, rent, open work and compliance.",
-          sectionContext: {
+          summaryData: {
             section: "dashboard",
             pageTitle: "Home Dashboard",
             summaryData: {

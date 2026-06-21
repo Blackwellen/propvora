@@ -107,7 +107,7 @@ export default function LegalOverviewPage() {
           <button
             onClick={() => openCopilot({
               prompt: "What legal items need my attention? Summarise possession cases, HMO licences and EPC status.",
-              sectionContext: {
+              summaryData: {
                 section: "legal",
                 pageTitle: "Legal & Compliance Overview",
                 summaryData: {

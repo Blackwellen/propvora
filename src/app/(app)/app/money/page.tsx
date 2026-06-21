@@ -360,7 +360,7 @@ export default function MoneyOverviewPage() {
               <button
                 onClick={() => openCopilot({
                   prompt: "Summarise my finances for this month — income, expenses, cashflow and any outstanding items.",
-                  sectionContext: {
+                  summaryData: {
                     section: "money",
                     pageTitle: "Money Overview",
                     summaryData: {

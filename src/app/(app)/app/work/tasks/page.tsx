@@ -709,7 +709,7 @@ export default function TasksPage() {
           { label: "Export", icon: Download, onClick: exportSelected },
           { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({
               prompt: "Help me prioritise my open tasks for this week.",
-              sectionContext: {
+              summaryData: {
                 section: "work",
                 pageTitle: "Tasks",
                 summaryData: {
@@ -795,7 +795,7 @@ export default function TasksPage() {
           <button
             onClick={() => openCopilot({
               prompt: "Help me prioritise my open tasks for this week.",
-              sectionContext: {
+              summaryData: {
                 section: "work",
                 pageTitle: "Tasks",
                 summaryData: {

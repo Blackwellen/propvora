@@ -7,8 +7,6 @@ import CopilotChatInput from "../components/CopilotChatInput"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { ChatMessage } from "../types"
-import { COPILOT_COMMANDS } from "@/lib/ai/commands"
-import type { SectionContext } from "../context/useCopilotPageContext"
 
 function now() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -22,10 +20,6 @@ const WELCOME: ChatMessage = {
   timestamp: now(),
 }
 
-<<<<<<< HEAD
-export default function CopilotChatScreen({ sectionContext }: { sectionContext?: SectionContext }) {
-  const context = { ...useCopilotPageContext(), ...(sectionContext ?? {}) }
-=======
 interface CopilotChatScreenProps {
   /** Structured page-level data visible on screen when the copilot was opened. */
   summaryData?: Record<string, unknown>
@@ -33,7 +27,6 @@ interface CopilotChatScreenProps {
 
 export default function CopilotChatScreen({ summaryData }: CopilotChatScreenProps) {
   const context = useCopilotPageContext()
->>>>>>> f81cbe00 (FIX-281: Enterprise AI context — full cross-context, page-level summaryData, entity detection, supplier/customer path parsing)
   const { workspace } = useWorkspace()
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME])
   const [streaming, setStreaming] = useState(false)
@@ -50,39 +43,6 @@ export default function CopilotChatScreen({ summaryData }: CopilotChatScreenProp
     async (text: string) => {
       if (streaming) return
       setError(null)
-
-      // Client-only commands: intercept before any API call.
-      // /help renders the command catalogue inline; /clear resets the conversation.
-      if (text.trim() === "/help") {
-        const visibleCmds = COPILOT_COMMANDS
-        const grouped: Record<string, typeof visibleCmds> = {}
-        for (const cmd of visibleCmds) {
-          grouped[cmd.category] = grouped[cmd.category] ?? []
-          grouped[cmd.category].push(cmd)
-        }
-        const lines = Object.entries(grouped)
-          .map(([cat, cmds]) => `${cat}:\n` + cmds.map((c) => `${c.slug} — ${c.description}`).join("\n"))
-          .join("\n\n")
-        const helpMsg: ChatMessage = {
-          id: `help-${Date.now()}`,
-          role: "ai",
-          content: `Available commands (type / to open the palette):\n\n${lines}`,
-          timestamp: now(),
-        }
-        setMessages((prev) => [
-          ...prev,
-          { id: `u-${Date.now()}`, role: "user", content: "/help", timestamp: now() },
-          helpMsg,
-        ])
-        return
-      }
-
-      if (text.trim() === "/clear") {
-        setMessages([WELCOME])
-        setThreadId(undefined)
-        setError(null)
-        return
-      }
 
       const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: text, timestamp: now() }
       const aiId = `a-${Date.now()}`

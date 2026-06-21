@@ -261,7 +261,7 @@ export default function ContactsPage() {
                 <button
                   onClick={() => openCopilot({
                     prompt: "Summarise my contacts — how many tenants, landlords, and suppliers do I have?",
-                    sectionContext: {
+                    summaryData: {
                       section: "contacts",
                       pageTitle: "Contacts",
                       summaryData: {

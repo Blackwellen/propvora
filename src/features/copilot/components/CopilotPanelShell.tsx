@@ -224,6 +224,7 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData }: Copi
           <CopilotConversationView
             onBack={handleBackToList}
             isExpanded={expanded}
+            conversationId={null}
           />
         )}
       </div>
