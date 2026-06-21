@@ -19,7 +19,12 @@ import { MobileTabs, type MobileTabItem } from "@/components/mobile"
 
 type Tab = "rules" | "inbox" | "activity" | "templates"
 
-export default function AutomationsClient() {
+export default function AutomationsClient({
+  canvasEnabled = false,
+}: {
+  /** Whether the canvasLite flag is ON — controls Canvas shortcut button visibility. */
+  canvasEnabled?: boolean
+}) {
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
   const { rules, loading: rulesLoading, reload: reloadRules } = useRules(workspaceId)
@@ -105,9 +110,11 @@ export default function AutomationsClient() {
           <Link href="/property-manager/automations/ai-builder" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
             <Wand2 className="h-4 w-4 text-violet-500" /> AI Builder
           </Link>
-          <Link href="/property-manager/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-            <LayoutTemplate className="h-4 w-4 text-blue-500" /> Canvas
-          </Link>
+          {canvasEnabled && (
+            <Link href="/property-manager/automations/canvas" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+              <LayoutTemplate className="h-4 w-4 text-blue-500" /> Canvas
+            </Link>
+          )}
           <button onClick={() => setShowBuilder(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700">
             <Plus className="h-4 w-4" /> New automation
           </button>

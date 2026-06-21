@@ -51,14 +51,27 @@ function isActive(pathname: string, match: string[], base: string) {
   })
 }
 
-export default function AutomationsTabs() {
+export default function AutomationsTabs({
+  hiddenTabs,
+}: {
+  /**
+   * Labels of tabs to hide. Used to enforce feature-flag gating:
+   *   - "Canvas Builder"  → canvasLite flag OFF
+   *   - "Webhooks"        → automationsFull flag OFF
+   *   - "Integrations"    → automationsFull flag OFF
+   */
+  hiddenTabs?: string[]
+}) {
   const pathname = usePathname() ?? ""
   const ctx = useSectionBasePath()
   const base = ctx?.base ?? "/app/automations"
+  const visibleTabs = hiddenTabs?.length
+    ? AUTOMATIONS_TABS.filter((t) => !hiddenTabs.includes(t.label))
+    : AUTOMATIONS_TABS
   return (
     <nav className="overflow-x-auto border-b border-slate-200" aria-label="Automation sections">
       <div className="flex min-w-max items-center gap-1">
-        {AUTOMATIONS_TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const active = isActive(pathname, tab.match, base)
           return (
             <Link

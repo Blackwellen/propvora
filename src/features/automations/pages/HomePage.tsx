@@ -31,7 +31,15 @@ import type { AutomationRow } from "../data/types"
 
 type SubTab = "automations" | "inbox" | "activity" | "templates"
 
-export default function HomePage() {
+export default function HomePage({
+  hiddenTabs,
+  canvasEnabled = false,
+}: {
+  /** Tab labels to hide from the Automations tab strip (feature-flag gating). */
+  hiddenTabs?: string[]
+  /** Whether the canvasLite flag is ON — controls Canvas shortcut button visibility. */
+  canvasEnabled?: boolean
+}) {
   const router = useSectionRouter()
   const toast = useToast()
   const { automations, reviewQueue, activity } = useAutomationsHome()
@@ -114,9 +122,11 @@ export default function HomePage() {
       <Btn icon={Wand2} variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>
         AI Builder
       </Btn>
-      <Btn icon={LayoutTemplate} onClick={() => router.push("/property-manager/automations/canvas")}>
-        Canvas
-      </Btn>
+      {canvasEnabled && (
+        <Btn icon={LayoutTemplate} onClick={() => router.push("/property-manager/automations/canvas")}>
+          Canvas
+        </Btn>
+      )}
       <Btn icon={Plus} variant="primary" onClick={() => setNewOpen(true)}>
         New automation
       </Btn>
@@ -137,6 +147,7 @@ export default function HomePage() {
       icon={Workflow}
       actions={actions}
       showSafetyBanner
+      hiddenTabs={hiddenTabs}
     >
       {/* KPI row — 2 rows of 4 */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -317,12 +328,15 @@ export default function HomePage() {
         footer={
           <>
             <Btn variant="outline" onClick={() => setNewOpen(false)}>Cancel</Btn>
-            <Btn variant="primary" onClick={() => { setNewOpen(false); router.push("/property-manager/automations/canvas") }}>Open canvas</Btn>
+            {canvasEnabled && (
+              <Btn variant="primary" onClick={() => { setNewOpen(false); router.push("/property-manager/automations/canvas") }}>Open canvas</Btn>
+            )}
           </>
         }
       >
-        Start from a blank canvas, a recipe, or describe it in the AI Builder. This opens the Canvas
-        Builder where your automation is saved as a review-first draft.
+        {canvasEnabled
+          ? "Start from a blank canvas, a recipe, or describe it in the AI Builder. This opens the Canvas Builder where your automation is saved as a review-first draft."
+          : "Start from a recipe template or describe it in the AI Builder. Canvas Builder is not enabled on your current plan."}
       </Modal>
     </AutomationsModuleShell>
   )
