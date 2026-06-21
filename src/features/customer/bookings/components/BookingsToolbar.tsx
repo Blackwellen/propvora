@@ -1,0 +1,51 @@
+"use client"
+
+import { Search, Building2, Map as MapIcon, Calendar, Filter, ArrowUpDown } from "lucide-react"
+import { useCustomerToast } from "../../components/toast"
+
+interface Props {
+  checkedCount: number
+  showBulk: boolean
+  onBulkMessage: () => void
+  onBulkDownload: () => void
+  onBulkCancel: () => void
+  onBulkMore: () => void
+}
+
+function FilterBtn({ icon: Icon, children }: { icon: typeof Calendar; children: React.ReactNode }) {
+  return <button className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[13px] font-medium text-slate-600 hover:bg-slate-50"><Icon className="w-4 h-4 text-slate-400" /> {children}</button>
+}
+function BulkBtn({ children, onClick, disabled }: { children: React.ReactNode; onClick: () => void; disabled?: boolean }) {
+  return <button onClick={onClick} disabled={disabled} className={`rounded-lg px-3 py-1.5 text-[12.5px] font-semibold border ${disabled ? "border-slate-100 text-slate-300 cursor-not-allowed" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}>{children}</button>
+}
+
+export default function BookingsToolbar({ checkedCount, showBulk, onBulkMessage, onBulkDownload, onBulkCancel, onBulkMore }: Props) {
+  const { toast } = useCustomerToast()
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input placeholder="Search bookings, property or host" className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-100" />
+        </div>
+        <FilterBtn icon={Building2}>All types</FilterBtn>
+        <FilterBtn icon={MapIcon}>All locations</FilterBtn>
+        <FilterBtn icon={Calendar}>Any dates</FilterBtn>
+        <FilterBtn icon={Filter}>More filters</FilterBtn>
+        <button onClick={() => toast("Sorting options — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 ml-auto">
+          <ArrowUpDown className="w-4 h-4" /> Sort by: Upcoming
+        </button>
+      </div>
+
+      {showBulk && (
+        <div className="flex items-center gap-2">
+          <span className="text-[12.5px] text-slate-500 font-medium">{checkedCount} selected</span>
+          <BulkBtn disabled={!checkedCount} onClick={onBulkMessage}>Message</BulkBtn>
+          <BulkBtn disabled={!checkedCount} onClick={onBulkDownload}>Download</BulkBtn>
+          <BulkBtn disabled={!checkedCount} onClick={onBulkCancel}>Cancel booking</BulkBtn>
+          <BulkBtn onClick={onBulkMore}>More actions</BulkBtn>
+        </div>
+      )}
+    </>
+  )
+}
