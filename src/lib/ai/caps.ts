@@ -1,6 +1,6 @@
 import "server-only"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import { getWorkspaceTier } from "@/lib/billing/gates"
+import { getWorkspaceTier, getPlanLimits } from "@/lib/billing/gates"
 import type { PlanTier } from "@/lib/billing/plans"
 
 // ============================================================================
@@ -188,5 +188,138 @@ function zeroUsage(): CapUsage {
   return {
     requests6h: 0, requestsDay: 0, requestsWeek: 0, requestsMonth: 0,
     tokens6h: 0, tokensDay: 0, tokensWeek: 0, tokensMonth: 0, costPenceMonth: 0,
+  }
+}
+
+// ── Monthly message cap (count-based, per PLAN_LIMITS) ───────────────────────
+
+export interface MonthlyCapResult {
+  allowed: boolean
+  reason?: string
+  used: number
+  limit: number
+}
+
+/**
+ * Check whether the workspace has remaining AI messages this calendar month.
+ * Counts `role='user'` rows in ai_chat_messages since the 1st of the month.
+ * Returns allowed=false with a clear message when the limit is reached.
+ * Fails OPEN on store error (never lock a paying user out on a transient hiccup).
+ */
+export async function checkAiCap(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<MonthlyCapResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") {
+    return { allowed: true, used: 0, limit: 9999 }
+  }
+  const limits = await getPlanLimits(supabase, workspaceId)
+
+  if (!limits.aiEnabled || limits.aiMessagesPerMonth === 0) {
+    return {
+      allowed: false,
+      reason: "AI Copilot is not available on your current plan. Upgrade to Scale or above to unlock AI assistance.",
+      used: 0,
+      limit: 0,
+    }
+  }
+
+  // Unlimited sentinel — skip the count query
+  if (limits.aiMessagesPerMonth >= 9999) {
+    return { allowed: true, used: 0, limit: 9999 }
+  }
+
+  try {
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+
+    const { count, error } = await supabase
+      .from("ai_chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .eq("role", "user")
+      .gte("created_at", startOfMonth.toISOString())
+
+    if (error) {
+      // Fail OPEN on store error — allow the request
+      return { allowed: true, used: 0, limit: limits.aiMessagesPerMonth }
+    }
+
+    const used = count ?? 0
+    if (used >= limits.aiMessagesPerMonth) {
+      return {
+        allowed: false,
+        reason: `Monthly AI message limit reached (${used}/${limits.aiMessagesPerMonth}). This resets on the 1st. Upgrade your plan for a higher limit.`,
+        used,
+        limit: limits.aiMessagesPerMonth,
+      }
+    }
+
+    return { allowed: true, used, limit: limits.aiMessagesPerMonth }
+  } catch {
+    // Fail OPEN on exception
+    return { allowed: true, used: 0, limit: limits.aiMessagesPerMonth }
+  }
+}
+
+// ── Per-hour rate limit (per workspace, per PLAN_LIMITS) ─────────────────────
+
+export interface HourlyRateResult {
+  allowed: boolean
+  reason?: string
+  retryAfterSeconds?: number
+}
+
+/**
+ * Check whether the workspace has used its per-hour AI message allowance.
+ * Counts `role='user'` rows in ai_chat_messages in the last 60 minutes.
+ * Fails OPEN on store error (transient hiccup must not block a paying user).
+ */
+export async function checkAiRateLimit(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<HourlyRateResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") {
+    return { allowed: true }
+  }
+  const limits = await getPlanLimits(supabase, workspaceId)
+
+  if (!limits.aiEnabled || limits.aiRateLimitPerHour === 0) {
+    return { allowed: false, reason: "AI Copilot is not enabled on your plan." }
+  }
+
+  // Unlimited sentinel
+  if (limits.aiRateLimitPerHour >= 9999) {
+    return { allowed: true }
+  }
+
+  try {
+    const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString()
+
+    const { count, error } = await supabase
+      .from("ai_chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .eq("role", "user")
+      .gte("created_at", oneHourAgo)
+
+    if (error) {
+      // Fail OPEN — allow the call on store error
+      return { allowed: true }
+    }
+
+    const recentCount = count ?? 0
+    if (recentCount >= limits.aiRateLimitPerHour) {
+      return {
+        allowed: false,
+        reason: `Rate limit reached (${recentCount} AI messages in the last hour). Please wait before sending more.`,
+        retryAfterSeconds: 300,
+      }
+    }
+
+    return { allowed: true }
+  } catch {
+    return { allowed: true }
   }
 }

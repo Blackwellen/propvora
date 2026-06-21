@@ -1,29 +1,12 @@
-// RESPONSE QUALITY FLOW:
-// 1. User sends message → parseSlashCommand() checks for /command
-// 2. If command: use command.prompt as userTurn, add commandClause to system
-// 3. Build system prompt: IDENTITY + WORKSPACE_CONTEXT + PAGE_DATA + ENTITY_DATA + SECURITY + SAFETY + JURISDICTION + FORMATTING
-// 4. FORMATTING rules: no markdown asterisks, numbered lists only, max 300 words (customisable)
-// 5. Stream response via NVIDIA NIM → chunk to client
-// 6. Client CopilotMessageBubble renders with whitespace-pre-wrap (plain text)
-// 7. Thread persisted: ai_chat_threads + ai_chat_messages
-// 8. Cap checked: caps.aiMessagesUsed < caps.aiMessagesLimit (checkCaps)
-// 9. Audit log: every message pair logged to ai_audit_log (best-effort)
-
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
-import {
-  getFullWorkspaceContext,
-  renderWorkspaceContext,
-  capabilitiesFor,
-  fetchPropertyContext,
-  fetchTenancyContext,
-  safeParsePageContext,
-} from "@/lib/ai/workspace-context"
+import { getFullWorkspaceContext, renderWorkspaceContext, capabilitiesFor } from "@/lib/ai/workspace-context"
 import { parseSlashCommand } from "@/lib/ai/commands"
 import { checkRate, recordUsage } from "@/lib/ai/metering"
-import { checkCaps } from "@/lib/ai/caps"
+import { checkCaps, checkAiCap, checkAiRateLimit } from "@/lib/ai/caps"
+import { getPlanLimits } from "@/lib/billing/gates"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
 import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
@@ -39,14 +22,7 @@ const chatSchema = z.object({
   threadId: z.string().uuid().optional(),
   contextRoute: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(100).optional(),
-  workspaceType: z.enum(["operator", "supplier", "customer"]).optional(),
-  pageContext: z.string().max(2000).optional(),
 })
-
-/** Rough token estimator (4 chars ≈ 1 token) — used for audit log only. */
-function estimatedTokens(text: string): number {
-  return Math.ceil(text.length / 4)
-}
 
 export async function POST(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
@@ -63,7 +39,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
-    const { message, threadId, contextRoute, workspaceId, workspaceType: clientWorkspaceType, pageContext } = parsed.data
+    const { message, threadId, contextRoute, workspaceId } = parsed.data
 
     // 3. Verify workspace membership (only when a real workspace is provided)
     if (workspaceId && workspaceId !== "demo-workspace") {
@@ -84,8 +60,28 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // 3c. HARD CAPS — fail closed. Refuse with a clear quota error if over any
-      // rolling-window request/token limit or the monthly cost budget.
+      // 3c. Monthly message cap — fail closed against known-exceeded limit.
+      const monthlyCap = await checkAiCap(supabase, workspaceId)
+      if (!monthlyCap.allowed) {
+        return NextResponse.json(
+          { error: monthlyCap.reason, quotaExceeded: true, tier: gate.tier },
+          { status: 402 }
+        )
+      }
+
+      // 3d. Per-hour rate limit — fail with 429 + Retry-After header.
+      const rateLimit = await checkAiRateLimit(supabase, workspaceId)
+      if (!rateLimit.allowed) {
+        const headers: Record<string, string> = rateLimit.retryAfterSeconds
+          ? { "Retry-After": String(rateLimit.retryAfterSeconds) }
+          : {}
+        return new Response(JSON.stringify({ error: rateLimit.reason }), {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...headers },
+        })
+      }
+
+      // 3e. HARD CAPS — rolling-window request/token limits + monthly cost budget.
       const caps = await checkCaps(supabase, workspaceId)
       if (!caps.allowed) {
         return NextResponse.json(
@@ -122,10 +118,6 @@ export async function POST(request: NextRequest) {
           snapshot: {},
         }
 
-    // The client-supplied workspace type (operator/supplier/customer) can be used
-    // to double-check the server-resolved profile type. Prefer server-side value.
-    void clientWorkspaceType
-
     // 5b. Resolve the workspace jurisdiction + country-pack status (GB-safe default).
     // Drives the jurisdiction clause: GB keeps full review-only depth; non-reviewed
     // jurisdictions get a stronger disclaimer + generic-only legal/tax framing.
@@ -137,26 +129,6 @@ export async function POST(request: NextRequest) {
       currency: jurisdiction.currency,
       locale: jurisdiction.locale,
     })
-
-    // 5c. Read workspace copilot customisation settings (best-effort).
-    // Supports: copilot_instructions (custom text), copilot_response_style (concise/standard/detailed)
-    let customInstructions = ""
-    let wordLimit = 300
-    if (workspaceId) {
-      try {
-        const { data: wsSettings } = await supabase
-          .from("workspace_settings")
-          .select("settings")
-          .eq("workspace_id", workspaceId)
-          .maybeSingle()
-        const s = (wsSettings as any)?.settings as Record<string, unknown> | null | undefined
-        if (s?.copilot_instructions && typeof s.copilot_instructions === "string") {
-          customInstructions = fenceUntrusted("USER CUSTOM INSTRUCTIONS", s.copilot_instructions)
-        }
-        if (s?.copilot_response_style === "concise") wordLimit = 100
-        else if (s?.copilot_response_style === "detailed") wordLimit = 600
-      } catch { /* non-fatal */ }
-    }
 
     // 6. Get or create thread
     let thread = threadId ?? null
@@ -202,32 +174,6 @@ export async function POST(request: NextRequest) {
       renderWorkspaceContext(profile, caps, snapshot)
     )
 
-    // Page-level context: structured data visible on screen when the copilot was opened.
-    // Fenced + injection-sanitised the same way as the workspace context.
-    const pageContextBlock = pageContext
-      ? fenceUntrusted("CURRENT PAGE DATA", pageContext)
-      : ""
-
-    // Entity-level context: if pageContext contains a propertyId or tenancyId,
-    // fetch that entity's live data from the DB and fence it into the prompt.
-    let entityContextBlock = ""
-    if (pageContext && workspaceId) {
-      try {
-        const pageParsed = safeParsePageContext(pageContext)
-        if (pageParsed.propertyId) {
-          const propData = await fetchPropertyContext(supabase, pageParsed.propertyId, workspaceId)
-          if (propData) {
-            entityContextBlock = fenceUntrusted("CURRENT PROPERTY", JSON.stringify(propData))
-          }
-        } else if (pageParsed.tenancyId) {
-          const tenancyData = await fetchTenancyContext(supabase, pageParsed.tenancyId, workspaceId)
-          if (tenancyData) {
-            entityContextBlock = fenceUntrusted("CURRENT TENANCY", JSON.stringify(tenancyData))
-          }
-        }
-      } catch { /* non-fatal */ }
-    }
-
     // If this is a recognised slash command the running workspace type can use,
     // run the command's structured instruction; otherwise treat it as plain chat.
     const activeCommand =
@@ -251,40 +197,15 @@ Current page context: ${contextRoute ?? "Main dashboard"}
 
 ${fencedContext}
 
-${pageContextBlock}
-
-${entityContextBlock}
-
-${customInstructions}
-
-CROSS-CONTEXT INTELLIGENCE:
-- When the user asks about something on screen, reference the CURRENT PAGE DATA or CURRENT PROPERTY/TENANCY above first.
-- When page data is missing a detail, check WORKSPACE CONTEXT for workspace-level totals.
-- You can reason across sections: if on the Money section and the user asks about a property, relate financial data to portfolio context.
-- If you see an entity (property name, tenancy ref, job ID) in the conversation, remember it for the rest of the thread.
-- When answering about counts or KPIs, always cite the source: "Based on your current page, you have..." or "Your workspace shows..."
-- If the user asks something you don't have data for, say "I don't have that specific data visible — you can find it in [section]."
-
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
-
-FORMATTING RULES (strictly follow):
-- Never use markdown asterisks (* or **) for bold or bullet points
-- Never use ## or # headings
-- Use plain numbered lists (1. 2. 3.) for ordered items
-- Use plain dashes (- ) for unordered list items
-- Use short paragraphs separated by blank lines
-- Responses must be conversational and direct, not formatted like documents
-- Maximum response length: ${wordLimit} words unless the user explicitly asks for more
-- For lists use: "1. First item" on its own line, NOT "* First item"
-- Never wrap words in asterisks for emphasis — just write the words plainly
 
 Guidelines:
 - Use the live workspace counts above when relevant; if a figure isn't shown, say you don't have it rather than inventing one.
 - Tailor advice to the workspace TYPE and AVAILABLE MODULES above. Do not suggest actions for modules this workspace doesn't have.
 - Follow the JURISDICTION rules above: only make jurisdiction-specific legal/tax/compliance statements when the jurisdiction is fully reviewed (the United Kingdom); otherwise keep legal/tax topics generic and direct the user to a local professional.
-- Be concise (under ${wordLimit} words unless asked for detail). Use plain numbered or dashed lists for structure.${commandClause}`
+- Be concise (under 300 words unless asked for detail). Use clear structure for lists.${commandClause}`
 
     // The actual user turn: for a command, send its instruction + any trailing
     // args the user typed; otherwise the raw message.
@@ -292,28 +213,43 @@ Guidelines:
       ? `${activeCommand.prompt}${slash && slash.args ? `\n\nAdditional context from the user: ${slash.args}` : ""}`
       : message.trim()
 
-    // 9. Audit log (best-effort, non-fatal) — logged before stream to capture every request.
-    try {
-      await supabase.from("ai_audit_log").insert({
-        workspace_id: workspaceId ?? null,
-        user_id: user.id,
-        thread_id: thread,
-        prompt_tokens: estimatedTokens(userTurn),
-        command_slug: activeCommand?.slug ?? null,
-        context_route: contextRoute ?? null,
-        timestamp: new Date().toISOString(),
-      })
-    } catch { /* non-fatal — table may not be migrated */ }
+    // 9. Resolve the provider/model chain and open a streamed completion.
+    // Enforce per-plan output token cap (falls back to 700 for non-AI plans/demo).
+    let planMaxTokens = 700
+    if (workspaceId && workspaceId !== "demo-workspace") {
+      try {
+        const planLimits = await getPlanLimits(supabase, workspaceId)
+        if (planLimits.aiOutputTokensPerMessage > 0) {
+          planMaxTokens = planLimits.aiOutputTokensPerMessage
+        }
+      } catch {
+        /* fall back to 700 */
+      }
+    }
 
-    // 10. Resolve the provider/model chain and open a streamed completion.
+    // Truncate input message to the plan's per-message input token limit.
+    // Rough heuristic: 1 token ≈ 4 characters. Apply only for non-demo workspaces.
+    let effectiveUserTurn = userTurn
+    if (workspaceId && workspaceId !== "demo-workspace") {
+      try {
+        const planLimits = await getPlanLimits(supabase, workspaceId)
+        const maxInputChars = planLimits.aiInputTokensPerMessage * 4
+        if (maxInputChars > 0 && effectiveUserTurn.length > maxInputChars) {
+          effectiveUserTurn = effectiveUserTurn.slice(0, maxInputChars) + "…[truncated]"
+        }
+      } catch {
+        /* leave message as-is on error */
+      }
+    }
+
     const chain = await resolveModelChain(supabase)
     const gw = await gatewayStream(chain, {
-      maxTokens: wordLimit > 300 ? 1000 : 700,
+      maxTokens: planMaxTokens,
       temperature: 0.6,
       messages: [
         { role: "system", content: systemPrompt },
         ...history.map((h) => ({ role: h.role, content: h.content })),
-        { role: "user", content: userTurn },
+        { role: "user", content: effectiveUserTurn },
       ],
     })
 
@@ -334,7 +270,7 @@ Guidelines:
           controller.close()
         }
 
-        // 11. Persist + meter after stream closes (best-effort)
+        // 10. Persist + meter after stream closes (best-effort)
         if (thread) {
           try {
             await supabase.from("ai_chat_messages").insert([

@@ -2,6 +2,118 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { normaliseTier, PLAN_DISPLAY, PLAN_ORDER, type PlanTier } from "./plans"
 import { featuresForTier, type FeatureKey } from "./entitlements"
 
+// ── Plan-level usage limits matrix ────────────────────────────────────────────
+// Definitive per-plan quota caps consumed by AI and automation gates.
+// Tiers: starter | operator | scale | pro_agency | enterprise
+
+export interface PlanLimits {
+  // AI Copilot
+  aiEnabled: boolean
+  aiMessagesPerMonth: number       // 0 = disabled
+  aiInputTokensPerMessage: number  // max tokens per user message
+  aiOutputTokensPerMessage: number // max tokens per AI response
+  aiRateLimitPerHour: number       // max messages per hour per workspace
+
+  // Automations
+  automationsEnabled: boolean
+  automationRunsPerMonth: number   // 0 = disabled
+  maxAutomationDefinitions: number // max saved active automation rules
+  maxWebhooks: number
+
+  // General
+  maxProperties: number
+  maxUsers: number
+  maxStorageGb: number
+}
+
+const UNLIM_INT = 9999
+
+export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
+  starter: {
+    aiEnabled: false,
+    aiMessagesPerMonth: 0,
+    aiInputTokensPerMessage: 0,
+    aiOutputTokensPerMessage: 0,
+    aiRateLimitPerHour: 0,
+    automationsEnabled: false,
+    automationRunsPerMonth: 0,
+    maxAutomationDefinitions: 0,
+    maxWebhooks: 0,
+    maxProperties: 5,
+    maxUsers: 1,
+    maxStorageGb: 2,
+  },
+  operator: {
+    // Operator: no AI Copilot, no automations on V1 plan
+    aiEnabled: false,
+    aiMessagesPerMonth: 0,
+    aiInputTokensPerMessage: 0,
+    aiOutputTokensPerMessage: 0,
+    aiRateLimitPerHour: 0,
+    automationsEnabled: false,
+    automationRunsPerMonth: 0,
+    maxAutomationDefinitions: 0,
+    maxWebhooks: 0,
+    maxProperties: 25,
+    maxUsers: 3,
+    maxStorageGb: 10,
+  },
+  scale: {
+    aiEnabled: true,
+    aiMessagesPerMonth: 500,
+    aiInputTokensPerMessage: 4000,
+    aiOutputTokensPerMessage: 1500,
+    aiRateLimitPerHour: 60,
+    automationsEnabled: true,
+    automationRunsPerMonth: 1000,
+    maxAutomationDefinitions: 50,
+    maxWebhooks: 10,
+    maxProperties: 100,
+    maxUsers: 10,
+    maxStorageGb: 50,
+  },
+  pro_agency: {
+    aiEnabled: true,
+    aiMessagesPerMonth: 2000,
+    aiInputTokensPerMessage: 6000,
+    aiOutputTokensPerMessage: 2000,
+    aiRateLimitPerHour: 120,
+    automationsEnabled: true,
+    automationRunsPerMonth: 10000,
+    maxAutomationDefinitions: 200,
+    maxWebhooks: 50,
+    maxProperties: 500,
+    maxUsers: 25,
+    maxStorageGb: 200,
+  },
+  enterprise: {
+    aiEnabled: true,
+    aiMessagesPerMonth: UNLIM_INT,
+    aiInputTokensPerMessage: 8000,
+    aiOutputTokensPerMessage: 3000,
+    aiRateLimitPerHour: UNLIM_INT,
+    automationsEnabled: true,
+    automationRunsPerMonth: UNLIM_INT,
+    maxAutomationDefinitions: UNLIM_INT,
+    maxWebhooks: UNLIM_INT,
+    maxProperties: UNLIM_INT,
+    maxUsers: UNLIM_INT,
+    maxStorageGb: UNLIM_INT,
+  },
+}
+
+/**
+ * Resolve the PlanLimits for a workspace. Reads the live plan tier; falls
+ * back to `starter` limits on any store error (fail-safe / audit-safe).
+ */
+export async function getPlanLimits(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<PlanLimits> {
+  const tier = await getWorkspaceTier(supabase, workspaceId)
+  return PLAN_LIMITS[tier] ?? PLAN_LIMITS.starter
+}
+
 /**
  * Server-side plan/feature gates. Each helper reads the workspace's live plan
  * and answers a single "is this allowed?" question, returning a structured

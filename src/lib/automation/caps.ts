@@ -14,6 +14,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { PlanTier } from "@/lib/billing/plans"
+import { getPlanLimits } from "@/lib/billing/gates"
 
 const USAGE_TABLE = "automation_caps_usage"
 
@@ -97,13 +98,150 @@ export async function isWithinCap(
   return { allowed: used < limit, used, limit, remaining, unlimited: false }
 }
 
+// ── Plan-level automation gates (new, use PLAN_LIMITS) ───────────────────────
+
+export interface AutomationEnabledResult {
+  allowed: boolean
+  reason?: string
+}
+
+/**
+ * Check whether the workspace's plan includes automations at all.
+ * Returns allowed=false with a clear upgrade prompt when automations are not
+ * on the plan. Fails OPEN on store error.
+ */
+export async function checkAutomationEnabled(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<AutomationEnabledResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") return { allowed: true }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+    if (!limits.automationsEnabled) {
+      return {
+        allowed: false,
+        reason: "Automations are not available on your current plan. Upgrade to Scale or above to enable automation.",
+      }
+    }
+    return { allowed: true }
+  } catch {
+    return { allowed: true } // fail open on store error
+  }
+}
+
+export interface MonthlyAutomationCapResult {
+  allowed: boolean
+  used: number
+  limit: number
+  reason?: string
+}
+
+/**
+ * Check whether the workspace is within its monthly automation run cap.
+ * Counts real (non-skipped) runs in smart_rule_runs since the 1st of the month.
+ * Fails OPEN on store error; fails CLOSED only on a known-exceeded limit.
+ */
+export async function isWithinAutomationCap(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<MonthlyAutomationCapResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") {
+    return { allowed: true, used: 0, limit: 9999 }
+  }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+
+    if (!limits.automationsEnabled || limits.automationRunsPerMonth === 0) {
+      return { allowed: false, used: 0, limit: 0, reason: "Automations are not enabled on this plan." }
+    }
+
+    // Unlimited sentinel
+    if (limits.automationRunsPerMonth >= 9999) {
+      return { allowed: true, used: 0, limit: 9999 }
+    }
+
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+
+    const { count, error } = await supabase
+      .from("smart_rule_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .gte("triggered_at", startOfMonth.toISOString())
+      .neq("status", "skipped")
+
+    if (error) {
+      // Fail OPEN on store error
+      return { allowed: true, used: 0, limit: limits.automationRunsPerMonth }
+    }
+
+    const used = count ?? 0
+    if (used >= limits.automationRunsPerMonth) {
+      return {
+        allowed: false,
+        used,
+        limit: limits.automationRunsPerMonth,
+        reason: `Monthly automation run limit reached (${used}/${limits.automationRunsPerMonth}). This resets on the 1st. Upgrade your plan for a higher limit.`,
+      }
+    }
+
+    return { allowed: true, used, limit: limits.automationRunsPerMonth }
+  } catch {
+    return { allowed: true, used: 0, limit: 0 }
+  }
+}
+
+export interface MaxDefinitionsResult {
+  allowed: boolean
+  reason?: string
+}
+
+/**
+ * Check whether the workspace can create another active automation definition.
+ * Counts enabled rows in smart_rules for the workspace.
+ * Fails OPEN on store error.
+ */
+export async function checkMaxDefinitions(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<MaxDefinitionsResult> {
+  if (!workspaceId || workspaceId === "demo-workspace") return { allowed: true }
+  try {
+    const limits = await getPlanLimits(supabase, workspaceId)
+
+    if (!limits.automationsEnabled || limits.maxAutomationDefinitions === 0) {
+      return { allowed: false, reason: "Automations are not enabled on this plan." }
+    }
+
+    if (limits.maxAutomationDefinitions >= 9999) {
+      return { allowed: true }
+    }
+
+    const { count, error } = await supabase
+      .from("smart_rules")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .eq("enabled", true)
+
+    if (error) return { allowed: true } // fail open
+
+    const current = count ?? 0
+    if (current >= limits.maxAutomationDefinitions) {
+      return {
+        allowed: false,
+        reason: `Rule limit reached (${current}/${limits.maxAutomationDefinitions} active rules). Upgrade your plan to create more automations.`,
+      }
+    }
+    return { allowed: true }
+  } catch {
+    return { allowed: true }
+  }
+}
+
 /**
  * Increment the current period's run counter by `by` (default 1) for a REAL run.
- * Dry runs MUST NOT call this.
- *
- * Uses an INSERT … ON CONFLICT DO UPDATE with a column-level arithmetic
- * expression (`runs_count + EXCLUDED.runs_count`) so the increment is atomic at
- * the DB level and safe under concurrent executions (no read-modify-write race).
+ * Dry runs MUST NOT call this. Upserts the (workspace, period) row.
  *
  * Append-only / best-effort: never throws (a metering miss must not fail a run
  * that already succeeded). Returns the new count, or null on error.
@@ -115,34 +253,19 @@ export async function incrementRunUsage(
   period: string = currentPeriodStart(),
 ): Promise<number | null> {
   try {
-    // Atomic upsert: INSERT with runs_count=by; on conflict atomically add `by`
-    // to the existing value rather than reading first. This eliminates the
-    // read-modify-write race when 10+ concurrent runs hit the same period row.
-    const { data, error } = await supabase
+    // Read-modify-write within the RLS-scoped client. The UNIQUE(workspace,
+    // period) constraint makes the upsert idempotent on the key; we re-read the
+    // current value and write count + by.
+    const current = await getRunUsage(supabase, workspaceId, period)
+    const next = current + by
+    const { error } = await supabase
       .from(USAGE_TABLE)
       .upsert(
-        {
-          workspace_id: workspaceId,
-          period_start: period,
-          runs_count: by,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "workspace_id,period_start",
-          // ignoreDuplicates=false so the UPDATE runs; Supabase PostgREST will
-          // apply the upsert merge. For true atomic ADD we rely on the DB
-          // constraint — the upsert replaces, not adds, so we do a read-then-set
-          // only when we must, but we lock out the window with UPSERT.
-          ignoreDuplicates: false,
-        },
+        { workspace_id: workspaceId, period_start: period, runs_count: next, updated_at: new Date().toISOString() },
+        { onConflict: "workspace_id,period_start" },
       )
-      .select("runs_count")
-      .maybeSingle()
     if (error) return null
-    // Re-read in case another concurrent upsert raced us — return current value.
-    const finalCount = await getRunUsage(supabase, workspaceId, period)
-    void data // suppress unused warning
-    return finalCount
+    return next
   } catch {
     return null
   }
