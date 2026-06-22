@@ -218,8 +218,11 @@ Guidelines:
       : message.trim()
 
     // 9. Resolve the provider/model chain and open a streamed completion.
-    // Enforce per-plan output token cap (falls back to 700 for non-AI plans/demo).
-    let planMaxTokens = 700
+    // Copilot is hard-bounded at 500 input / 1000 output tokens (a request can
+    // never exceed these regardless of plan). Plans may set a LOWER cap.
+    const COPILOT_MAX_INPUT_TOKENS = 500
+    const COPILOT_MAX_OUTPUT_TOKENS = 1000
+    let planMaxTokens = COPILOT_MAX_OUTPUT_TOKENS
     if (workspaceId && workspaceId !== "demo-workspace") {
       try {
         const planLimits = await getPlanLimits(supabase, workspaceId)
@@ -227,28 +230,34 @@ Guidelines:
           planMaxTokens = planLimits.aiOutputTokensPerMessage
         }
       } catch {
-        /* fall back to 700 */
+        /* fall back to the copilot ceiling */
       }
     }
 
-    // Truncate input message to the plan's per-message input token limit.
-    // Rough heuristic: 1 token ≈ 4 characters. Apply only for non-demo workspaces.
+    // Truncate input to the copilot's 500-token ceiling (plans may set lower).
+    // Rough heuristic: 1 token ≈ 4 characters. Applied for all real workspaces.
     let effectiveUserTurn = userTurn
-    if (workspaceId && workspaceId !== "demo-workspace") {
-      try {
-        const planLimits = await getPlanLimits(supabase, workspaceId)
-        const maxInputChars = planLimits.aiInputTokensPerMessage * 4
-        if (maxInputChars > 0 && effectiveUserTurn.length > maxInputChars) {
-          effectiveUserTurn = effectiveUserTurn.slice(0, maxInputChars) + "…[truncated]"
+    {
+      let inputTokenCap = COPILOT_MAX_INPUT_TOKENS
+      if (workspaceId && workspaceId !== "demo-workspace") {
+        try {
+          const planLimits = await getPlanLimits(supabase, workspaceId)
+          if (planLimits.aiInputTokensPerMessage > 0) {
+            inputTokenCap = Math.min(planLimits.aiInputTokensPerMessage, COPILOT_MAX_INPUT_TOKENS)
+          }
+        } catch {
+          /* keep the copilot ceiling */
         }
-      } catch {
-        /* leave message as-is on error */
+      }
+      const maxInputChars = inputTokenCap * 4
+      if (maxInputChars > 0 && effectiveUserTurn.length > maxInputChars) {
+        effectiveUserTurn = effectiveUserTurn.slice(0, maxInputChars) + "…[truncated]"
       }
     }
 
     const chain = await resolveModelChain(supabase)
     const gw = await gatewayStream(chain, {
-      maxTokens: planMaxTokens,
+      maxTokens: Math.min(planMaxTokens, COPILOT_MAX_OUTPUT_TOKENS),
       temperature: 0.6,
       messages: [
         { role: "system", content: systemPrompt },
