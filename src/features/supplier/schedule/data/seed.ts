@@ -149,17 +149,27 @@ export const EMPTY_CALENDAR: CalendarData = {
 }
 
 export const EMPTY_AVAILABILITY: AvailabilityData = {
+  // Keep the time-band structure (grid columns) — that's UI scaffolding, not
+  // fabricated availability. Everything else is genuinely empty until the
+  // supplier sets their own hours, so nothing demo-looking is shown.
   bands: SEED_AVAILABILITY.bands,
-  cells: SEED_AVAILABILITY.cells,
-  daySummaries: SEED_AVAILABILITY.daySummaries.map((d) => ({ ...d, capacityUsed: 0 })),
-  rules: SEED_AVAILABILITY.rules,
+  cells: [],
+  daySummaries: Array.from({ length: 7 }, (_, day) => ({ day, bookableHours: 0, capacityUsed: 0, capacityMax: 0 })),
+  rules: {
+    recurringHoursLabel: "Not set",
+    emergency247: false,
+    responseWindowHours: 0,
+    leadTimeHours: 0,
+    maxJobsPerDay: 0,
+    travelBufferMinutes: 0,
+  },
   serviceAvailability: [],
-  instantBookEligible: SEED_AVAILABILITY.instantBookEligible,
-  weeklyBookableHours: SEED_AVAILABILITY.weeklyBookableHours,
+  instantBookEligible: false,
+  weeklyBookableHours: 0,
   kpis: {
-    availableDays: SEED_AVAILABILITY.kpis.availableDays,
-    bookableHours: SEED_AVAILABILITY.kpis.bookableHours,
-    emergencyEnabled: SEED_AVAILABILITY.kpis.emergencyEnabled,
+    availableDays: 0,
+    bookableHours: 0,
+    emergencyEnabled: false,
     avgResponse: "—",
     nextUnavailable: "—",
   },

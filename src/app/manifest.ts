@@ -18,10 +18,10 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0D1B2A",
     categories: ["business", "productivity", "finance"],
     icons: [
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      // Transparent brand mark (no background) — used for the favicon + PWA "any" icon.
+      { src: "/propvora-favicon.png", sizes: "any", type: "image/png", purpose: "any" },
+      // Maskable keeps a full-bleed background by design (Android adaptive icons need a safe zone).
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
     ],
     shortcuts: [
       { name: "Dashboard", short_name: "Home", url: "/property-manager?source=pwa-shortcut", icons: [{ src: "/icon-192.png", sizes: "192x192" }] },

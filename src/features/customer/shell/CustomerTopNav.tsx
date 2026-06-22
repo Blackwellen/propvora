@@ -128,7 +128,7 @@ export default function CustomerTopNav({
       <div className="mx-auto max-w-[1480px] h-[68px] px-4 sm:px-6 lg:px-8 flex items-center gap-3">
         {/* Logo */}
         <Link href="/customer" aria-label="Propvora home" className="shrink-0 mr-2">
-          <span className="relative block h-7 w-[124px]">
+          <span className="relative block h-10 w-[180px]">
             <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
           </span>
         </Link>

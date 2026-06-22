@@ -60,12 +60,10 @@ export const metadata: Metadata = {
     images: ["/propvora-logo-dark.png"],
   },
   icons: {
-    icon: [
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    // Transparent brand mark — no background (replaces the old favicon.ico).
+    icon: [{ url: "/propvora-favicon.png", type: "image/png" }],
+    shortcut: [{ url: "/propvora-favicon.png", type: "image/png" }],
+    apple: [{ url: "/propvora-favicon.png", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
