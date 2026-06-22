@@ -34,11 +34,12 @@ export function ComplianceTab() {
 
   const k = data.kpis
   const cur = data.payout.currency
+  const docsPct = k.documentsTotal > 0 ? Math.round((k.documentsVerified / k.documentsTotal) * 100) : 0
   const kpis: OverviewKpi[] = [
-    { id: "trust", label: "Trust score", value: `${k.trustScorePct}%`, sub: "+4% vs last 30 days", subAccent: "emerald", icon: ShieldCheck, accent: "violet" },
-    { id: "docs", label: "Documents verified", value: `${k.documentsVerified} / ${k.documentsTotal}`, sub: `${Math.round((k.documentsVerified / k.documentsTotal) * 100)}% complete`, icon: FileCheck2, accent: "blue" },
-    { id: "exp", label: "Expiring soon", value: k.expiringSoon, sub: "Next: in 12 days", subAccent: "red", icon: Clock, accent: "amber" },
-    { id: "blocked", label: "Services blocked", value: k.servicesBlocked, sub: "2 high impact", subAccent: "red", icon: Ban, accent: "red" },
+    { id: "trust", label: "Trust score", value: k.trustScorePct > 0 ? `${k.trustScorePct}%` : "—", icon: ShieldCheck, accent: "violet" },
+    { id: "docs", label: "Documents verified", value: `${k.documentsVerified} / ${k.documentsTotal}`, sub: k.documentsTotal > 0 ? `${docsPct}% complete` : undefined, icon: FileCheck2, accent: "blue" },
+    { id: "exp", label: "Expiring soon", value: k.expiringSoon, icon: Clock, accent: "amber" },
+    { id: "blocked", label: "Services blocked", value: k.servicesBlocked, icon: Ban, accent: "red" },
     { id: "vis", label: "Profile visible", value: k.profileVisible ? "Public" : "Hidden", sub: k.profileVisible ? "Visible to property managers" : "Not visible", subAccent: k.profileVisible ? "emerald" : "red", icon: Eye, accent: "emerald" },
   ]
 
@@ -50,6 +51,9 @@ export function ComplianceTab() {
         <div className="space-y-5">
           {/* Compliance alerts */}
           <Panel title="Compliance alerts" icon={AlertTriangle}>
+            {data.alerts.length === 0 && (
+              <p className="text-[12px] text-slate-400">No compliance alerts. Upload your documents to get verified.</p>
+            )}
             <ul className="space-y-2.5">
               {data.alerts.map((a) => (
                 <li key={a.id} className="flex items-start gap-3 rounded-xl border border-slate-100 p-3">
@@ -70,6 +74,9 @@ export function ComplianceTab() {
 
           {/* Required document checklist */}
           <Panel title="Required documents" icon={FileCheck2} action={<OverviewLink href="/supplier/verification" label="Manage" />}>
+            {data.requiredDocs.length === 0 && (
+              <p className="text-[12px] text-slate-400 py-1">No documents on file yet. <Link href="/supplier/compliance" className="font-semibold text-blue-600">Upload your first document</Link>.</p>
+            )}
             <ul className="divide-y divide-slate-100">
               {data.requiredDocs.map((d) => {
                 const meta = DOC_STATE[d.state]
@@ -95,6 +102,9 @@ export function ComplianceTab() {
 
           {/* Expiry timeline */}
           <Panel title="Expiry timeline" icon={Clock} action={<span className="text-[11px] text-slate-400">Next 90 days</span>}>
+            {data.expiryTimeline.length === 0 && (
+              <p className="text-[12px] text-slate-400">No upcoming document expiries.</p>
+            )}
             <ul className="space-y-3">
               {data.expiryTimeline.map((x) => {
                 const pct = Math.max(4, Math.min(100, (1 - x.daysLeft / 365) * 100))
@@ -114,6 +124,9 @@ export function ComplianceTab() {
 
           {/* Service impact matrix */}
           <Panel title="Service impact" icon={Wrench}>
+            {data.serviceImpact.length === 0 && (
+              <p className="text-[12px] text-slate-400">Add services to see how your compliance affects what you can offer.</p>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {data.serviceImpact.map((s) => (
                 <div key={s.id} className="rounded-xl border border-slate-100 p-3">
@@ -145,6 +158,9 @@ export function ComplianceTab() {
           </Panel>
 
           <Panel title="Compliance alerts" icon={ShieldCheck}>
+            {data.alerts.length === 0 && (
+              <p className="text-[12px] text-slate-400">All clear.</p>
+            )}
             <ul className="space-y-2">
               {data.alerts.map((a) => (
                 <li key={a.id} className="flex items-center gap-2">
@@ -158,13 +174,19 @@ export function ComplianceTab() {
 
           <Panel title="Trust badge preview">
             <div className="flex flex-col items-center">
-              <ScoreRing pct={data.trust.scorePct} accent="emerald" sub="Public score" />
-              <div className="mt-4 w-full space-y-2">
-                <CheckRow label="On-time" value={`${data.trust.breakdown.onTimePct}%`} done />
-                <CheckRow label="Response" value={`${data.trust.breakdown.responsePct}%`} done />
-                <CheckRow label="Quality" value={`${data.trust.breakdown.qualityPct}%`} done />
-                <CheckRow label="Communication" value={`${data.trust.breakdown.communicationPct}%`} done />
-              </div>
+              {data.trust.scorePct > 0 ? (
+                <>
+                  <ScoreRing pct={data.trust.scorePct} accent={data.trust.scorePct >= 85 ? "emerald" : "blue"} sub="Public score" />
+                  <div className="mt-4 w-full space-y-2">
+                    <CheckRow label="On-time" value={`${data.trust.breakdown.onTimePct}%`} done={data.trust.breakdown.onTimePct >= 80} />
+                    <CheckRow label="Response" value={`${data.trust.breakdown.responsePct}%`} done={data.trust.breakdown.responsePct >= 80} />
+                    <CheckRow label="Quality" value={`${data.trust.breakdown.qualityPct}%`} done={data.trust.breakdown.qualityPct >= 80} />
+                    <CheckRow label="Communication" value={`${data.trust.breakdown.communicationPct}%`} done={data.trust.breakdown.communicationPct >= 80} />
+                  </div>
+                </>
+              ) : (
+                <p className="text-[12px] text-slate-400 py-4 text-center">Your public trust score appears here once you complete jobs and earn reviews.</p>
+              )}
               <Link href="/supplier/profile" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 hover:text-blue-700"><Eye className="w-3.5 h-3.5" /> Preview public profile</Link>
             </div>
           </Panel>

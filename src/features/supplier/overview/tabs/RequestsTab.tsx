@@ -38,10 +38,10 @@ export function RequestsTab() {
   const cur = data.rows[0]?.currency ?? "GBP"
 
   const kpis: OverviewKpi[] = [
-    { id: "open", label: "Open requests", value: k.openRequests, sub: "+3 vs yesterday", subAccent: "emerald", icon: Inbox, accent: "blue" },
+    { id: "open", label: "Open requests", value: k.openRequests, icon: Inbox, accent: "blue" },
     { id: "due", label: "Response due today", value: k.responseDueToday, sub: "Due within 24h", subAccent: "amber", icon: Clock, accent: "amber" },
     { id: "val", label: "Potential value", value: formatPence(k.potentialValuePence, cur), sub: "Total pipeline", icon: TrendingUp, accent: "emerald" },
-    { id: "win", label: "Avg win chance", value: `${k.avgWinChancePct}%`, sub: "+5% vs last 7 days", subAccent: "emerald", icon: Target, accent: "violet" },
+    { id: "win", label: "Avg win chance", value: k.avgWinChancePct > 0 ? `${k.avgWinChancePct}%` : "—", icon: Target, accent: "violet" },
     { id: "q", label: "Questions awaiting", value: k.questionsAwaiting, sub: "Needs your input", icon: HelpCircle, accent: "sky" },
   ]
 

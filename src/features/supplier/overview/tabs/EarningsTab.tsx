@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Wallet, Lock, Clock, FileText, TrendingUp, PieChart, Landmark,
-  Download, FilePlus2, ArrowRight, AlertTriangle, ArrowUpRight,
+  Download, FilePlus2, ArrowRight, AlertTriangle,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import {
@@ -36,11 +36,11 @@ export function EarningsTab() {
   const k = data.kpis
   const cur = data.currency
   const kpis: OverviewKpi[] = [
-    { id: "month", label: "This month earnings", value: formatPence(k.thisMonthPence, cur), sub: "+18.7% vs last month", subAccent: "emerald", icon: Wallet, accent: "emerald" },
-    { id: "escrow", label: "In escrow", value: formatPence(k.inEscrowPence, cur), sub: "2 jobs", icon: Lock, accent: "amber" },
-    { id: "await", label: "Awaiting payout", value: formatPence(k.awaitingPayoutPence, cur), sub: "2 payments", icon: Clock, accent: "violet" },
-    { id: "paid", label: "Paid out", value: formatPence(k.paidOutPence, cur), sub: "This month", icon: Landmark, accent: "blue" },
-    { id: "unpaid", label: "Unpaid invoices", value: formatPence(k.unpaidInvoicesPence, cur), sub: "2 invoices", subAccent: "red", icon: FileText, accent: "red" },
+    { id: "month", label: "This month earnings", value: formatPence(k.thisMonthPence, cur), icon: Wallet, accent: "emerald" },
+    { id: "escrow", label: "In escrow", value: formatPence(k.inEscrowPence, cur), icon: Lock, accent: "amber" },
+    { id: "await", label: "Awaiting payout", value: formatPence(k.awaitingPayoutPence, cur), icon: Clock, accent: "violet" },
+    { id: "paid", label: "Paid out", value: formatPence(k.paidOutPence, cur), icon: Landmark, accent: "blue" },
+    { id: "unpaid", label: "Unpaid invoices", value: formatPence(k.unpaidInvoicesPence, cur), icon: FileText, accent: "red" },
   ]
 
   const trendData = trend === "daily" ? data.trendDaily : data.trendMonthly
@@ -57,9 +57,12 @@ export function EarningsTab() {
             <div className="flex items-end gap-3 mb-3">
               <p className="text-2xl font-bold text-slate-900 leading-none">{formatPence(k.thisMonthPence, cur)}</p>
               <span className="text-[12px] font-medium text-slate-400 pb-0.5">This month</span>
-              <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-emerald-600 pb-0.5"><ArrowUpRight className="w-3.5 h-3.5" /> 18.7% vs last month</span>
             </div>
-            <SupplierAreaChart data={trendData} height={220} color="#2563EB" format={(v) => formatPence(v, cur)} />
+            {trendData.length === 0 ? (
+              <p className="text-[12px] text-slate-400 py-8 text-center">No earnings data yet — completed, paid jobs will chart here.</p>
+            ) : (
+              <SupplierAreaChart data={trendData} height={220} color="#2563EB" format={(v) => formatPence(v, cur)} />
+            )}
             <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
               <OverviewLink href="/supplier?tab=earnings" label="View full earnings report" />
               <button onClick={() => toast("CSV export coming soon", "info")} className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 hover:text-slate-700"><Download className="w-3.5 h-3.5" /> Export earnings</button>
@@ -68,6 +71,9 @@ export function EarningsTab() {
 
           {/* Payout timeline */}
           <Panel title="Payout timeline" icon={Clock}>
+            {data.payoutTimeline.length === 0 && (
+              <p className="text-[12px] text-slate-400 py-2">No payouts yet.</p>
+            )}
             <ol className="relative pl-5">
               <span className="absolute left-[7px] top-1 bottom-1 w-px bg-slate-100" aria-hidden />
               {data.payoutTimeline.map((p) => (
@@ -90,6 +96,9 @@ export function EarningsTab() {
 
           {/* Invoice summary */}
           <Panel title="Invoice summary" icon={FileText} action={<OverviewLink href="/supplier/invoices" label="All invoices" />} pad={false}>
+            {data.invoices.length === 0 ? (
+              <p className="text-[12px] text-slate-400 px-5 py-4">No invoices yet.</p>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="text-left text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
@@ -108,11 +117,15 @@ export function EarningsTab() {
                 </tbody>
               </table>
             </div>
+            )}
           </Panel>
 
           {/* Revenue by service + blocked payouts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <Panel title="Revenue by service" icon={PieChart}>
+              {data.revenueByService.length === 0 ? (
+                <p className="text-[12px] text-slate-400 py-6 text-center">No revenue recorded yet.</p>
+              ) : (
               <div className="flex items-center gap-4">
                 <div className="w-[120px] h-[120px] shrink-0"><Donut data={donutSlices} /></div>
                 <ul className="flex-1 min-w-0 space-y-1.5">
@@ -125,6 +138,7 @@ export function EarningsTab() {
                   ))}
                 </ul>
               </div>
+              )}
             </Panel>
 
             <Panel title="Blocked payouts" icon={AlertTriangle}>
@@ -177,17 +191,23 @@ export function EarningsTab() {
             </button>
           </Panel>
 
-          <Panel title="Finance health" action={<Pill accent="emerald">Excellent</Pill>}>
-            <div className="flex items-center gap-4">
-              <ScoreRing pct={data.financeHealthPct} size={86} stroke={9} accent="emerald" sub={undefined} />
-              <p className="text-[12px] text-slate-500 min-w-0">You&apos;re in great shape! Keep it up.</p>
-            </div>
-            <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
-              <CheckRow label="Invoices up to date" done />
-              <CheckRow label="Payouts on track" done />
-              <CheckRow label="Low unpaid balance" done />
-              <CheckRow label="Evidence compliance high" done />
-            </div>
+          <Panel title="Finance health" action={data.financeHealthPct > 0 ? <Pill accent={data.financeHealthPct >= 85 ? "emerald" : data.financeHealthPct >= 60 ? "blue" : "amber"}>{data.financeHealthPct >= 85 ? "Excellent" : data.financeHealthPct >= 60 ? "Strong" : "Building"}</Pill> : undefined}>
+            {data.financeHealthPct > 0 ? (
+              <>
+                <div className="flex items-center gap-4">
+                  <ScoreRing pct={data.financeHealthPct} size={86} stroke={9} accent={data.financeHealthPct >= 85 ? "emerald" : "blue"} sub={undefined} />
+                  <p className="text-[12px] text-slate-500 min-w-0">Based on invoicing, payouts, unpaid balance and evidence compliance.</p>
+                </div>
+                <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+                  <CheckRow label="Invoices up to date" done={k.unpaidInvoicesPence === 0} />
+                  <CheckRow label="Payouts on track" done={data.blockedPayouts.length === 0} />
+                  <CheckRow label="Low unpaid balance" done={k.unpaidInvoicesPence === 0} />
+                  <CheckRow label="No blocked payouts" done={data.blockedPayouts.length === 0} />
+                </div>
+              </>
+            ) : (
+              <p className="text-[12px] text-slate-400 py-2">Your finance health score builds as you invoice and get paid.</p>
+            )}
           </Panel>
         </aside>
       </div>

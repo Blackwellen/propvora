@@ -44,11 +44,11 @@ export function JobsTab() {
 
   const k = data.kpis
   const kpis: OverviewKpi[] = [
-    { id: "active", label: "Active jobs", value: k.activeJobs, sub: "+1 vs yesterday", subAccent: "emerald", icon: Wrench, accent: "blue" },
-    { id: "due", label: "Due today", value: k.dueToday, sub: "2 due", subAccent: "amber", icon: Clock, accent: "amber" },
-    { id: "risk", label: "At risk", value: k.atRisk, sub: "1 overdue", subAccent: "red", icon: AlertTriangle, accent: "red" },
-    { id: "ev", label: "Evidence missing", value: k.evidenceMissing, sub: "2 jobs", subAccent: "violet", icon: Upload, accent: "violet" },
-    { id: "escrow", label: "Escrow waiting", value: formatPence(k.escrowWaitingPence, "GBP"), sub: "2 jobs", subAccent: "emerald", icon: Wallet, accent: "emerald" },
+    { id: "active", label: "Active jobs", value: k.activeJobs, icon: Wrench, accent: "blue" },
+    { id: "due", label: "Due today", value: k.dueToday, icon: Clock, accent: "amber" },
+    { id: "risk", label: "At risk", value: k.atRisk, icon: AlertTriangle, accent: "red" },
+    { id: "ev", label: "Evidence missing", value: k.evidenceMissing, icon: Upload, accent: "violet" },
+    { id: "escrow", label: "Escrow waiting", value: formatPence(k.escrowWaitingPence, "GBP"), icon: Wallet, accent: "emerald" },
   ]
 
   return (
@@ -85,10 +85,17 @@ export function JobsTab() {
         {/* Right rail */}
         <aside className="space-y-5">
           <Panel title="Earnings by service" icon={Wallet}>
-            <SupplierBarChart data={data.earningsByService} height={160} format={(v) => formatPence(v, "GBP")} />
+            {data.earningsByService.length === 0 ? (
+              <p className="text-[12px] text-slate-400 py-2">No earnings yet.</p>
+            ) : (
+              <SupplierBarChart data={data.earningsByService} height={160} format={(v) => formatPence(v, "GBP")} />
+            )}
           </Panel>
 
           <Panel title="Recent invoices" icon={FileCheck2} action={<OverviewLink href="/supplier?tab=earnings" label="All" />}>
+            {data.recentInvoices.length === 0 && (
+              <p className="text-[12px] text-slate-400 py-1">No invoices yet.</p>
+            )}
             <ul className="divide-y divide-slate-100">
               {data.recentInvoices.map((iv) => (
                 <li key={iv.id} className="flex items-center gap-2 py-2.5">
@@ -110,6 +117,9 @@ export function JobsTab() {
           </Panel>
 
           <Panel title="Compliance status" icon={ShieldCheck} action={<OverviewLink href="/supplier?tab=compliance" label="All" />}>
+            {data.complianceStatus.length === 0 && (
+              <p className="text-[12px] text-slate-400">No compliance documents yet.</p>
+            )}
             <ul className="space-y-2">
               {data.complianceStatus.map((c) => (
                 <li key={c.document} className="flex items-center justify-between">
