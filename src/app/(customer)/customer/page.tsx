@@ -12,7 +12,7 @@ import {
   Clock,
   Users,
   Moon,
-  PoundSterling,
+  Wallet,
   Sparkles,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
@@ -239,7 +239,7 @@ export default async function CustomerHomePage() {
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
         <Figure icon={CalendarCheck} tint="bg-blue-50 text-blue-600" value={String(summary.total_stays)} label="Stays booked" />
         <Figure icon={Moon} tint="bg-violet-50 text-violet-600" value={String(summary.total_nights)} label="Nights away" />
-        <Figure icon={PoundSterling} tint="bg-emerald-50 text-emerald-600" value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
+        <Figure icon={Wallet} tint="bg-emerald-50 text-emerald-600" value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
       </div>
 
       {/* ── Two-column: upcoming + activity ──────────────────────────────── */}
