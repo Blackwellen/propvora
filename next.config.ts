@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["isomorphic-dompurify", "jsdom", "dompurify", "@sentry/nextjs"],
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    // Static-generation worker count. Defaults to one-per-core (~27 on this
+    // 28-core box), which OOMs a RAM-constrained machine on a 700+ route app.
+    // Set BUILD_CPUS=2 (or 4) locally to cap peak memory; unset on CI/Vercel so
+    // production builds run at full speed.
+    ...(process.env.BUILD_CPUS ? { cpus: Number(process.env.BUILD_CPUS) } : {}),
   },
   images: {
     remotePatterns: [
