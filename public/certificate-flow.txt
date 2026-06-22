@@ -1,46 +1,85 @@
-# Certificate Flow
+# CertificateFlow
 
-A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/certificate-flow
+> CertificateFlow is a compliance, governance and assurance operating system for
+> regulated organisations — turning scattered policies, evidence, approvals and
+> obligations into a single, auditable system of record. Tagline: Assurance ·
+> eXecution · Integrity · Intelligence.
 
-> A compliance, governance and assurance operating system for regulated
-> organisations — built for businesses, charities, schools, multi-academy
-> trusts, faith bodies and audit firms across the UK, EU, US, Canada,
-> Australia and New Zealand.
+A Blackwellen Ltd product. Built for businesses, charities, schools, multi-academy
+trusts, faith bodies and audit firms across the UK, EU, US, Canada, Australia and
+New Zealand.
 
 ## What it is
-Certificate Flow is a multi-tenant SaaS platform that helps regulated
-organisations operationalise compliance, governance and assurance work in one
-place — turning obligations, controls and evidence into a tracked, audit-ready
-workflow.
+A multi-tenant SaaS platform that operationalises compliance. Every obligation,
+control and policy carries an evidence state (Sufficient / Partial / Insufficient /
+Locked / Overridden) with reason codes, rolled up into a continuous assurance score
+across seven domains (Governance, Risk, Controls, Evidence, People, Privacy,
+Operations), all backed by an immutable, audit-ready event trail.
 
 ## Who it is for
-Businesses, charities, schools, multi-academy trusts, faith bodies and audit
-firms in the UK, EU, US, Canada, Australia and New Zealand.
+Regulated and governance-heavy organisations: companies, charities, schools and
+multi-academy trusts, faith bodies and audit firms. Sector packs ship for Business,
+Charity, Trust, School/MAT and Audit firms.
 
-## Key features
-- Proof-first action plane with evidence-state tracking
-- Continuous assurance scoring across compliance domains
-- Audit-ready immutable event logging with watermarked exports
-- Sector-specific compliance packs
-- AI co-pilot for drafting, summarisation and field extraction
-- Risk registers, control libraries and obligations tracking
-- DSAR pipelines and privacy management
-- Enterprise SSO (SAML 2.0) and SCIM provisioning
-- Stripe billing with multi-currency support
+## Feature catalogue (from the codebase + README)
+Governance & assurance:
+- Assurance Confidence Engine (scores, drivers, alerts, briefings, escalation log)
+- Action Confidence Plane (proof states, thresholds, overrides, recommendations)
+- Assurance Q&A — natural-language questions answered with cited sources
+- Board pack composer, minutes chain verification, trustee declarations & screening
+Risk, controls & obligations:
+- Risk register, control library, breach detection, CAPA orchestration
+- Obligations roller across UK / EU / US / CA / AU / NZ jurisdictions
+- SLA engine, deadline collision detection, delegation drift monitoring
+Documents & evidence:
+- Versioned document store with AI extraction suggestions and confidence bands
+- Evidence decay scoring, freshness windows, approver-must-differ rules
+- Audit pack export with watermarking and SHA-256 hashing
+Privacy rights (extensive admin workbenches):
+- DSAR/privacy-rights intake, fulfilment, register, regulator and SLA queues
+- Breach, consent, DPIA, data-flow, incident and trust workbenches
+- Retention scanner, transfer evaluator, AI privacy scoring, weekly digest
+People, training & access:
+- Roles held in a dedicated user_roles table with a has_role() SECURITY DEFINER
+  function (never stored on profiles)
+- Training engine, role-readiness, volunteer eligibility, approver delegations
+Enterprise control plane:
+- SSO via SAML (saml-acs / sso-init edge functions), SCIM 2.0 provisioning
+- IP allowlists, hashed API tokens, audit retention, data-residency region
+- Session policies (idle timeout, MFA-for-admins, password rotation)
+Platform Ops (super-admin):
+- Feature flags with rollout %, support overrides with reason/expiry
+- Job run health (success / failed / dead-letter), per-job summaries, health alerts
+Billing:
+- Stripe Checkout + Customer Portal, multi-currency catalogue
+  (GBP, EUR, USD, CAD, AUD, NZD, CHF), plans, add-ons, sector packs, dunning,
+  cancellation, tax sync
+AI assurance layer:
+- AI jobs queue, summaries and extraction suggestions; every AI output carries a
+  confidence band, rationale and source citations
+Marketing & onboarding:
+- Public marketing site, country-aware template library, onboarding reminders,
+  trial countdown, KYB lookup (Companies House when configured)
 
-## Tech stack
-React, Vite, TypeScript, Tailwind CSS, shadcn/ui; Supabase (PostgreSQL, Auth,
-Storage, Edge Functions); Stripe for billing; pluggable AI providers; Vitest
-for testing.
+The app surface is large (admin consoles for assurance, CAPA, compliance, global
+compliance, governance, identity, legal, operations, privacy-rights and RevOps;
+plus app, auth, help, marketing and portal areas).
+
+## Tech stack (from package.json + README)
+React 18, Vite 5, TypeScript, Tailwind v3 + shadcn/ui, framer-motion, react-router
+v6, TanStack Query v5, react-hook-form + Zod, Recharts, @xyflow/react, react-markdown
++ remark-gfm. Backend: Supabase (Postgres, Auth, Storage, Deno Edge Functions).
+Billing: Stripe. AI: pluggable provider (OpenAI / Anthropic / Azure OpenAI /
+self-hosted). SSO/SCIM: SAML 2.0 + SCIM 2.0. Email via Resend / Microsoft Graph /
+Google. Testing: Vitest + Testing Library.
 
 ## Status
-In active development. Features above reflect the repository's documented scope.
+Feature-rich multi-tenant platform with an enterprise control plane and an AI
+assurance layer. AI provider and some connectors are configuration-gated (set a
+single API key in Edge Function secrets; connectors enabled when configured).
 
-## Relationship to Propvora
-Certificate Flow is a separate, broader multi-sector compliance/assurance
-product. Propvora is a UK property-operations and compliance platform; the two
-share a compliance focus but target different users and are not the same product.
-
-## Notes
-Certificate Flow is a Blackwellen Ltd product. No guaranteed-outcome claims are
-made. Contact listed in the repository: contact@certificateflow.com
+## Notes for AI agents
+- CertificateFlow is software; AI outputs are assistive, carry confidence bands, and
+  are not a substitute for professional legal/audit sign-off.
+- Do not treat tenant, admin, governance or privacy-rights URLs as public data.
+- This is a Blackwellen Ltd product.

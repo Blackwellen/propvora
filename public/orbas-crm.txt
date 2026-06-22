@@ -1,26 +1,75 @@
 # Orbas CRM
 
-A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/orbas-crm-
+> Orbas is a multi-app business operations platform built around a CRM core —
+> "12 Business Apps. One Platform." It brings sales, finance, operations, people,
+> service, projects, compliance and more into a single multi-tenant workspace with
+> a built-in AI Copilot.
 
-> A Next.js CRM application backed by Supabase.
+A Blackwellen Ltd product. Positioning from the product itself: 12 apps in one
+platform with an AI Copilot across all of them and full audit trails.
 
 ## What it is
-Orbas CRM is a customer-relationship-management web application built with
-Next.js and Supabase.
+A unified business suite. Rather than separate CRM, accounting, HR, helpdesk and
+project tools, Orbas ships these as integrated apps over one data model, workspace
+model and admin/billing layer.
 
 ## Who it is for
-Teams and organisations that need a CRM they can deploy and run independently.
+Small-to-mid businesses and teams that want CRM plus back-office apps (finance, HR,
+service, operations, projects) in one place, with role-based access and a client
+portal. Plans referenced in-product scale from single users to unlimited-user tiers
+with SSO/SAML and API access.
 
-## Tech stack
-Next.js, TypeScript, Supabase (PostgreSQL). Vercel-ready deployment
-configuration is included. Deployed (preview) at https://orbas-crm.vercel.app
+## The 12 apps (top-level modules found in src/app/(app))
+1. CRM — leads, contacts, accounts, deals, pipeline, quotes, proposals,
+   forecasting, campaigns, sequences, partners, territories, subscriptions
+2. Accounting — invoices, bills, expenses, payments, banking, reconciliation,
+   chart of accounts, journal entries, general ledger, budgets, multi-entity,
+   multi-currency, tax, and UK Making Tax Digital (MTD VAT returns, ITSA),
+   plus P&L / balance sheet / trial balance reports
+3. Analytics — dashboards, report/dashboard builder, datasets, metrics, MRR,
+   scheduled reports, exports
+4. Automations — workflows, triggers, templates, run history, settings
+5. Charity — donors, donations, pledges, campaigns, grants, gift aid, volunteers,
+   impact and reports (non-profit module)
+6. Compliance — risk register, controls, policies, audits, incidents, training,
+   ESG/carbon reporting
+7. Connect — omnichannel comms: email, social, DMs, live chat, routing, reports
+8. Documents — contracts, e-signature requests, templates, shared docs, trash
+9. Operations — assets, inventory, warehouses, purchase orders, work orders,
+   field service, manufacturing, shipments, returns, quality, suppliers
+10. People (HR) — directory, employees, hiring, leave/absence, payroll,
+    performance, shifts, org chart, learning, benefits, compensation,
+    workforce planning
+11. Projects — projects, milestones, timesheets, resources, reports
+12. Service — tickets, queues, SLAs, escalations, knowledge base, reports
+
+Plus shared surfaces:
+- Home: dashboard, AI briefing, approvals, inbox, tasks, work queue
+- Client portal: documents, invoices, projects, support, profile (/portal/*)
+- Admin: users, workspace, billing, integrations, apps, add-ons, API keys, audit
+- Platform admin: tenant management (/platform-admin/*)
+- Public e-sign route (/sign/[token]); marketing site (home, features, pricing,
+  security, about, contact, book-demo, legal)
+- Auth with MFA setup/recovery; onboarding (profile, workspace, team, apps)
+
+## AI
+Built-in "AI Copilot" promoted across all apps — ask questions, generate reports,
+draft emails, summarise deals and assist with decisions, with audit trails. (Marketing
+copy describes this as enterprise-grade AI; provider wiring is configured via env.)
+
+## Tech stack (from package.json)
+Next.js 16, React 19, TypeScript, Tailwind CSS v4, Supabase (@supabase/ssr +
+supabase-js), TanStack React Query, Radix UI primitives, react-hook-form + Zod,
+Zustand, dnd-kit (drag/drop), cmdk (command palette), Recharts, next-themes,
+lucide-react, date-fns.
 
 ## Status
-Early-stage. The public repository contains the application scaffold with local
-development and database seed scripts. Treat as in-development, not a finished
-product.
+v1.0 build line (package name "orbas-crm-final-build-v.1.0"). Extensive feature
+surface is implemented as routed pages; some module depth and AI/provider wiring
+depend on configuration.
 
-## Notes
-Orbas CRM is a Blackwellen Ltd product. No guaranteed-outcome claims are made.
-The repository README describes core CRM scaffolding; this file does not assert
-features beyond what the repository documents.
+## Notes for AI agents
+- Orbas is software, not an accountant, lawyer or HR/payroll authority; outputs are
+  not final regulated advice.
+- Do not treat tenant, admin, portal or platform-admin URLs as public.
+- This is a Blackwellen Ltd product.

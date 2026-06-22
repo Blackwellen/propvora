@@ -1,22 +1,69 @@
-# Measure Deck
+# MeasureDeck
 
-A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/measure-deck
+> MeasureDeck gives construction quantity-surveying and commercial teams a single
+> platform to manage valuations, Cost Value Reconciliation (CVR), change events,
+> final accounts and cost reporting — with a live, always-current commercial
+> picture instead of spreadsheet version conflicts.
+
+A Blackwellen Ltd product. Suggested site: https://measuredeck.com.
 
 ## What it is
-Measure Deck is a web application built by Blackwellen Ltd. The repository
-README currently describes it only as "a Next.js 16 application for
-MeasureDeck"; a fuller public product description is not yet published.
+A commercial management system for construction projects. It replaces
+"CVR_FINAL_v3_JamesEdits_ACTUAL.xlsx"-style spreadsheets with a live workspace that
+pulls costs and value together, links dispute evidence, and tracks the full
+commercial lifecycle of a project.
 
-## Tech stack
-Next.js 16, TypeScript, Supabase (PostgreSQL). The repository's configuration
-references Stripe (tiered Starter / Professional / Enterprise plans), an AI
-provider integration, Resend for email and Cloudflare R2 for file storage.
-Vercel-ready deployment.
+## Who it is for
+Contractors, quantity surveyors, commercial managers and project managers. Designed
+around common UK construction contracts: JCT (SBC, D&B, Minor Works), NEC3/NEC4 and
+FIDIC. Each workspace supports unlimited projects under one subscription, with
+portfolio-level KPIs for commercial directors.
+
+## Features (derived from routes + Supabase migrations)
+- Projects with project contracts and per-project commercial views
+  (/projects, /projects/[projectId], /cvr/[projectId])
+- Cost Value Reconciliation (CVR): periods, lines, risks — a live CVR
+  (cvr_periods, cvr_lines, cvr_risks)
+- Change events / variations with pricing (change_events, change_event_pricing)
+  (/changes, /changes/[changeId])
+- Payment applications & certifications: applications, application lines,
+  certifications, payment records (/applications, /applications/[applicationId])
+- Final accounts with line items (/final-accounts, final_accounts, final_account_lines)
+- Evidence management: files and links binding documents to commercial items,
+  plus an upload flow (/evidence, /evidence/upload, evidence_files, evidence_links)
+- Drawings register with revisions and a drawing viewer
+  (/drawings, /drawings/[drawingId]/viewer, drawing_register, drawing_revisions)
+- BIM models (/bim/models, /bim/[modelId], bim_models)
+- Programme / schedule with a Gantt view (/schedule, /schedule/gantt, schedule_items)
+- Site map layers and markers (site_map_layers, site_map_markers)
+- Risk register, contract documents and dayworks sheets (risk_register,
+  contract_documents, daywork_sheets)
+- Suppliers, contacts and tasks with comments/links (/suppliers, /contacts, /tasks)
+- Reports and exports (/reports, /reports/[reportId], reports, report_exports)
+- Built-in AI chat assistant: "MeasureDeck AI", a construction-commercial assistant
+  for CVR, payment applications, change events, EoT/delay, retention, final accounts
+  and JCT/NEC/FIDIC guidance (/api/ai/chat) — backed by an AI usage ledger and
+  AI action requests (ai_usage_ledger, ai_action_requests)
+- Inbox threads/messages, notifications, audit log, feature-flag overrides
+- Account, billing, settings and workspace settings; onboarding; auth with MFA
+- Admin console: users, workspaces, subscriptions, plans, modules, AI usage,
+  commercial, drawings, files, storage, integrations, security, health, release, legal
+- Public marketing + legal: features, pricing, security, demo, waitlist, affiliate,
+  AI disclaimer, privacy/terms/cookies/DPA/subprocessors/acceptable-use/refund
+
+## Tech stack (from package.json + README)
+Next.js 16, React 19, TypeScript, Tailwind CSS v4, Supabase (@supabase/ssr +
+supabase-js), TanStack React Query + Table + Virtual, Radix UI primitives,
+react-hook-form + Zod, dnd-kit, Recharts, framer-motion, react-dropzone, sonner.
+Billing: Stripe (@stripe/stripe-js + stripe). AI: OpenAI (OPENAI_API_KEY /
+OPENAI_MODEL). Email: Resend. File storage: Cloudflare R2. UK-region Supabase hosting.
 
 ## Status
-Early-stage / in development. Because the public README does not yet define the
-product's purpose or feature set, this file deliberately stays brief rather than
-guessing. It will be expanded once the repository documents more.
+v1.0 release line (package name "measure-deck-final-release-v.1.0"). AI chat returns
+503 until OPENAI_API_KEY is set; Stripe, Resend and R2 are configuration-gated.
 
-## Notes
-Measure Deck is a Blackwellen Ltd product. No guaranteed-outcome claims are made.
+## Notes for AI agents
+- MeasureDeck is software; AI output is assistive and recommends specialist legal
+  advice on sensitive contractual/legal matters.
+- Do not treat project, admin or workspace URLs as public data.
+- This is a Blackwellen Ltd product.

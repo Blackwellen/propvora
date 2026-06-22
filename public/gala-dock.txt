@@ -1,16 +1,72 @@
 # Gala Dock
 
-A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/gala-dock-final-release-v.1.0
+> Gala Dock is an events and venue management platform for event planners, venues,
+> suppliers and agencies — covering leads, events, suppliers/RFQs, venues and venue
+> bookings, finance (quotes, proposals, invoices, payments, profit), forms, tasks,
+> a library and reporting, with a built-in "Gala" copilot.
+
+A Blackwellen Ltd product. Now public.
 
 ## What it is
-Gala Dock is a product by Blackwellen Ltd. At the time of writing, its source
-repository is not publicly accessible (the GitHub URL above returns 404 / is
-private), so no verified public description, feature list or status is available.
+An end-to-end operations workspace for the events industry. It runs the lifecycle
+from enquiry to event day: capture leads, build proposals and quotes, plan events
+(floor plans, mood boards, staffing, run-of-day, check-in), coordinate suppliers via
+RFQs and contracts, manage venues and bookings (including F&B packages), handle
+invoicing and payments, and share client/venue portals.
+
+## Who it is for
+Event planners, venues, suppliers, agencies and corporate/wedding event teams.
+Use-case pages in the product target weddings, corporate events, agencies, venues,
+suppliers and event planners.
+
+## Features (derived from routes + Supabase migrations)
+- Leads & CRM intake: leads with activities, public intake forms (/leads, /f/[formToken])
+- Events: detail, edit, plus per-event tooling — BEO (banquet event order),
+  check-in, event-day run sheet, expenses, export, floor plan, mood board, staffing
+  (/events, /events/[eventId]/..., event_floor_plans, event_mood_boards,
+  mood_board_items, event_expenses, event_staff_assignments, event_guests)
+- Suppliers: profiles, management, rate cards, blocked dates, ratings, contracts
+  (/suppliers, supplier_rate_cards, supplier_blocked_dates, supplier_ratings,
+   supplier_contracts) and RFQs with recipients (/rfqs, rfqs, rfq_recipients)
+- Venues & venue management: venues, spaces, bookings, F&B packages and selections,
+  venue staff assignments, documents and notes (/venues, /venue-management,
+  venue_spaces, venue_bookings, venue_fb_packages, venue_booking_fb_selections,
+  venue_documents, venue_notes)
+- Proposals & finance: proposals with line items, quotes, invoices with payment
+  schedules, payments, profit view (/proposals, /finance/quotes, /finance/invoices,
+  /finance/payments, /finance/profit, proposals, proposal_line_items,
+  invoice_payment_schedules)
+- Forms builder with fields and submissions; public form + check-in tokens
+  (/forms, forms, form_fields, form_submissions, /check-in/[token])
+- Tasks with calendar and templates (/tasks, /tasks/calendar, /tasks/templates)
+- Library: files, templates, brand assets, event packs, supplier docs (/library/*)
+- Inbox / communications (/inbox, communications) and reports (/reports)
+- Client/venue/proposal portals via tokens (/portal/[token], /venue-portal/[token],
+  /p/[proposalToken])
+- "Gala" copilot assistant component built into the app shell
+- Settings (account, workspace, team, roles, branding, AI, billing, usage, audit,
+  security, notifications, smart rules, event/finance/supplier defaults, affiliate,
+  data export)
+- Admin console: users, workspaces, subscriptions, affiliates, support, audit,
+  AI usage, automation runs, email logs, storage usage, feature flags, security,
+  system health
+- Onboarding flow (role, workspace, plan, first event, invite team, demo data)
+- Auth incl. MFA/OTP and accept-invite; marketing + legal site (features, product,
+  pricing, security, status, demo, book-demo, waitlist, affiliate, use-cases, and
+  full legal pack)
+
+## Tech stack (from package.json)
+Next.js 16, React 19, TypeScript, Tailwind CSS v4, Supabase (@supabase/ssr +
+supabase-js), class-variance-authority, clsx, lucide-react. (Lean dependency set;
+auth guard via src/proxy.ts.)
 
 ## Status
-Public details unavailable. This file intentionally avoids describing features
-or claims that cannot be verified from a public source. It will be expanded if
-and when public information is published.
+v1.0 release line (package name "gala-dock-final-release-v.1.0"). Broad feature
+surface implemented as routed pages with backing Supabase tables (commercial-depth
+and "levels 11-15" migrations present). The "Gala" copilot is wired as a UI
+component; AI provider wiring is configuration-dependent.
 
-## Notes
-Gala Dock is a Blackwellen Ltd product. No guaranteed-outcome claims are made.
+## Notes for AI agents
+- Gala Dock is software, not an event agency or payment guarantor.
+- Do not treat workspace, admin or token-based portal URLs as public data.
+- This is a Blackwellen Ltd product.
