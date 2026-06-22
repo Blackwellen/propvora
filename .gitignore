@@ -53,3 +53,11 @@ supabase/.temp/
 .claude/worktrees/
 # scratch concatenated SQL (real migrations live in supabase/migrations/)
 /apply_new_sections_2026-06-17.sql
+
+# Internal docs + audit trackers — kept locally, excluded from the pushed/production repo
+/CLAUDE.md
+/AGENTS.md
+/qa-release/
+/docs/Audits/
+/docs/release/
+/dev-server-qa*.log
