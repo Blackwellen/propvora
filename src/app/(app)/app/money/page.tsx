@@ -280,7 +280,7 @@ export default function MoneyOverviewPage() {
           title: "Overdue invoices",
           subtitle: "Receivables past due",
           amount: fmtGBP(overview.invoices.overdue),
-          href: "/app/money/invoices",
+          href: "/property-manager/money/invoices",
         },
         overview.arrears.totalArrears > 0 && {
           id: "att-arr",
@@ -289,7 +289,7 @@ export default function MoneyOverviewPage() {
           title: "Rent arrears",
           subtitle: `${overview.arrears.openCases} open case${overview.arrears.openCases === 1 ? "" : "s"}`,
           amount: fmtGBP(overview.arrears.totalArrears),
-          href: "/app/money/arrears",
+          href: "/property-manager/money/arrears",
         },
         overview.bills.awaitingReview > 0 && {
           id: "att-bill",
@@ -297,7 +297,7 @@ export default function MoneyOverviewPage() {
           iconBg: "bg-blue-50",
           title: "Bills awaiting review",
           subtitle: `${overview.bills.awaitingReview} pending approval`,
-          href: "/app/money/bills",
+          href: "/property-manager/money/bills",
         },
         overview.deposits.disputed > 0 && {
           id: "att-dep",
@@ -306,7 +306,7 @@ export default function MoneyOverviewPage() {
           title: "Disputed deposits",
           subtitle: "Action required",
           amount: fmtGBP(overview.deposits.disputed),
-          href: "/app/money/deposits",
+          href: "/property-manager/money/deposits",
         },
       ].filter(Boolean) as {
         id: string; icon: React.ReactNode; iconBg: string; title: string; subtitle: string; amount?: string; href: string
@@ -329,8 +329,8 @@ export default function MoneyOverviewPage() {
         subtitle="Financial control centre"
         primaryAction={{ label: "Add Income", icon: Plus, onClick: () => setShowAddModal(true) }}
         overflowActions={[
-          { label: "Create Invoice", icon: FileText, href: "/app/money/invoices/new" },
-          { label: "Add Bill", icon: Receipt, href: "/app/money/bills/new" },
+          { label: "Create Invoice", icon: FileText, href: "/property-manager/money/invoices/new" },
+          { label: "Add Bill", icon: Receipt, href: "/property-manager/money/bills/new" },
         ]}
       />
 
@@ -348,10 +348,10 @@ export default function MoneyOverviewPage() {
               >
                 <Plus className="w-4 h-4" /> Add Income
               </button>
-              <Link href="/app/money/invoices/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
+              <Link href="/property-manager/money/invoices/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                 <FileText className="w-4 h-4" /> Create Invoice
               </Link>
-              <Link href="/app/money/bills/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
+              <Link href="/property-manager/money/bills/new" className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                 <Receipt className="w-4 h-4" /> Add Bill
               </Link>
             </>
@@ -380,7 +380,7 @@ export default function MoneyOverviewPage() {
             icon={<TrendingUp className="w-5 h-5" />}
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
-            href="/app/money/income"
+            href="/property-manager/money/income"
           />
           <MoneyKpiCard
             label="Expenses Paid"
@@ -389,7 +389,7 @@ export default function MoneyOverviewPage() {
             icon={<TrendingDown className="w-5 h-5" />}
             iconBg="bg-red-50"
             iconColor="text-red-500"
-            href="/app/money/expenses"
+            href="/property-manager/money/expenses"
           />
           <MoneyKpiCard
             label="Net Cashflow"
@@ -406,7 +406,7 @@ export default function MoneyOverviewPage() {
             icon={<FileText className="w-5 h-5" />}
             iconBg="bg-amber-50"
             iconColor="text-amber-600"
-            href="/app/money/invoices"
+            href="/property-manager/money/invoices"
           />
           <MoneyKpiCard
             label="Arrears Exposure"
@@ -417,7 +417,7 @@ export default function MoneyOverviewPage() {
             iconColor="text-orange-600"
             alert={openCases > 0 ? String(openCases) : undefined}
             alertColor="bg-orange-100 text-orange-700"
-            href="/app/money/arrears"
+            href="/property-manager/money/arrears"
           />
           <MoneyKpiCard
             label="Collection Rate"
@@ -443,9 +443,9 @@ export default function MoneyOverviewPage() {
                 </div>
                 <ActionMenu
                   items={[
-                    { label: "View Income", icon: TrendingUp, onClick: () => { window.location.href = "/app/money/income" } },
-                    { label: "View Expenses", icon: TrendingDown, onClick: () => { window.location.href = "/app/money/expenses" } },
-                    { label: "Open Accounting Ledger", icon: BarChart3, onClick: () => { window.location.href = "/app/accounting" } },
+                    { label: "View Income", icon: TrendingUp, onClick: () => { window.location.href = "/property-manager/money/income" } },
+                    { label: "View Expenses", icon: TrendingDown, onClick: () => { window.location.href = "/property-manager/money/expenses" } },
+                    { label: "Open Accounting Ledger", icon: BarChart3, onClick: () => { window.location.href = "/property-manager/accounting" } },
                   ]}
                 />
               </div>
@@ -470,7 +470,7 @@ export default function MoneyOverviewPage() {
 
               <p className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">
                 For full ledgers, journals and reports, see{" "}
-                <Link href="/app/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
+                <Link href="/property-manager/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
               </p>
             </div>
 
@@ -483,8 +483,8 @@ export default function MoneyOverviewPage() {
                 </div>
                 <ActionMenu
                   items={[
-                    { label: "View Invoices", icon: FileText, onClick: () => { window.location.href = "/app/money/invoices" } },
-                    { label: "View Bills", icon: Receipt, onClick: () => { window.location.href = "/app/money/bills" } },
+                    { label: "View Invoices", icon: FileText, onClick: () => { window.location.href = "/property-manager/money/invoices" } },
+                    { label: "View Bills", icon: Receipt, onClick: () => { window.location.href = "/property-manager/money/bills" } },
                   ]}
                 />
               </div>
@@ -527,7 +527,7 @@ export default function MoneyOverviewPage() {
                   <h2 className="text-base font-semibold text-slate-900">Recent Financial Activity</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Latest events across Money</p>
                 </div>
-                <Link href="/app/money/activity" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                <Link href="/property-manager/money/activity" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
                   View all activity <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -604,12 +604,12 @@ export default function MoneyOverviewPage() {
               <h3 className="text-sm font-semibold text-slate-900 mb-4">Money Sections</h3>
               <div className="flex flex-col gap-1">
                 {[
-                  { label: "Income", href: "/app/money/income", icon: <TrendingUp className="w-4 h-4 text-emerald-600" /> },
-                  { label: "Expenses", href: "/app/money/expenses", icon: <TrendingDown className="w-4 h-4 text-red-500" /> },
-                  { label: "Invoices", href: "/app/money/invoices", icon: <FileText className="w-4 h-4 text-blue-600" /> },
-                  { label: "Bills & Supplier Pay", href: "/app/money/bills", icon: <Receipt className="w-4 h-4 text-amber-600" /> },
-                  { label: "Arrears", href: "/app/money/arrears", icon: <AlertTriangle className="w-4 h-4 text-orange-600" /> },
-                  { label: "Deposits", href: "/app/money/deposits", icon: <Home className="w-4 h-4 text-violet-600" /> },
+                  { label: "Income", href: "/property-manager/money/income", icon: <TrendingUp className="w-4 h-4 text-emerald-600" /> },
+                  { label: "Expenses", href: "/property-manager/money/expenses", icon: <TrendingDown className="w-4 h-4 text-red-500" /> },
+                  { label: "Invoices", href: "/property-manager/money/invoices", icon: <FileText className="w-4 h-4 text-blue-600" /> },
+                  { label: "Bills & Supplier Pay", href: "/property-manager/money/bills", icon: <Receipt className="w-4 h-4 text-amber-600" /> },
+                  { label: "Arrears", href: "/property-manager/money/arrears", icon: <AlertTriangle className="w-4 h-4 text-orange-600" /> },
+                  { label: "Deposits", href: "/property-manager/money/deposits", icon: <Home className="w-4 h-4 text-violet-600" /> },
                 ].map((s) => (
                   <Link
                     key={s.href}
@@ -628,7 +628,7 @@ export default function MoneyOverviewPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
               <h3 className="text-sm font-semibold text-slate-900 mb-1">Accounting</h3>
               <p className="text-xs text-slate-500 mb-3">Ledger, journals, P&amp;L and tax reporting live in Accounting.</p>
-              <Link href="/app/accounting" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+              <Link href="/property-manager/accounting" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
                 Open Accounting <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

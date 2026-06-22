@@ -166,7 +166,7 @@ export default function MoneyEscrowPage() {
                           <td className="px-4 py-3 text-xs text-slate-500">{e.releaseRule}</td>
                           <td className="px-4 py-3"><StatusBadge tone={toneForRisk(e.risk)}>{humanise(e.risk)}</StatusBadge></td>
                           <td className="px-4 py-3 text-right">
-                            <Link href={`/app/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
+                            <Link href={`/property-manager/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
                           </td>
                         </tr>
                       )
@@ -265,7 +265,7 @@ function EscrowPanel({ row, onAction }: { row: ManagedEscrowRow; onAction: (k: s
           <ActBtn icon={Ban} label="Hold" onClick={() => onAction("hold")} />
           <ActBtn icon={FileQuestion} label="Evidence" onClick={() => onAction("evidence")} />
           <ActBtn icon={Flag} label="Dispute" onClick={() => onAction("dispute")} tone="red" />
-          <Link href={`/app/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
+          <Link href={`/property-manager/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
         </div>
       </div>
     </div>

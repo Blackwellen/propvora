@@ -317,12 +317,12 @@ export default function EditCertificatePage() {
 
   async function handleArchive() {
     await supabase.from("compliance_items").update({ deleted_at: new Date().toISOString() }).eq("id", id)
-    router.push("/app/compliance/certificates")
+    router.push("/property-manager/compliance/certificates")
   }
 
   async function handleDelete() {
     await supabase.from("compliance_items").update({ deleted_at: new Date().toISOString() }).eq("id", id)
-    router.push("/app/compliance/certificates")
+    router.push("/property-manager/compliance/certificates")
   }
 
   if (loading) {
@@ -335,7 +335,7 @@ export default function EditCertificatePage() {
         <h2 className="text-lg font-semibold text-slate-900 mb-1">Certificate not found</h2>
         <p className="text-sm text-slate-500 mb-5">This compliance record may have been removed.</p>
         <Button variant="primary" size="sm" asChild>
-          <Link href="/app/compliance/certificates">Back to Certificates</Link>
+          <Link href="/property-manager/compliance/certificates">Back to Certificates</Link>
         </Button>
       </div>
     )
@@ -348,11 +348,11 @@ export default function EditCertificatePage() {
       {/* Breadcrumb */}
       <div className="px-4 sm:px-6 py-3 border-b border-slate-100 bg-white">
         <nav className="flex items-center gap-2 text-sm flex-wrap">
-          <Link href="/app/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
+          <Link href="/property-manager/compliance" className="text-slate-400 hover:text-slate-600">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <Link href="/app/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
+          <Link href="/property-manager/compliance/certificates" className="text-slate-400 hover:text-slate-600">Certificates</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <Link href={`/app/compliance/certificates/${id}`} className="text-slate-400 hover:text-slate-600">{typeLabel}</Link>
+          <Link href={`/property-manager/compliance/certificates/${id}`} className="text-slate-400 hover:text-slate-600">{typeLabel}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-slate-700 font-medium">Edit</span>
         </nav>
@@ -469,7 +469,7 @@ export default function EditCertificatePage() {
         </p>
         <div className="flex gap-2 sm:gap-3">
           <Button variant="outline" size="md" asChild>
-            <Link href={`/app/compliance/certificates/${id}`}>Cancel</Link>
+            <Link href={`/property-manager/compliance/certificates/${id}`}>Cancel</Link>
           </Button>
           <Button variant="primary" size="md" onClick={handleSave} loading={saving}>
             <Save className="w-4 h-4" />

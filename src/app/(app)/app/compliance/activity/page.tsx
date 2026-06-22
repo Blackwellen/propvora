@@ -22,12 +22,12 @@ const SEVERITY_FILTERS = ["", "low", "medium", "high", "critical"]
 
 function linkedRecordHref(linkedType: string | null) {
   const t = (linkedType ?? "").toLowerCase()
-  if (t.includes("certificate")) return "/app/compliance/certificates"
-  if (t.includes("inspection")) return "/app/compliance/inspections"
-  if (t.includes("document")) return "/app/compliance/documents"
-  if (t.includes("evidence")) return "/app/compliance/evidence"
-  if (t.includes("supplier")) return "/app/compliance/supplier-docs"
-  return "/app/compliance/overview"
+  if (t.includes("certificate")) return "/property-manager/compliance/certificates"
+  if (t.includes("inspection")) return "/property-manager/compliance/inspections"
+  if (t.includes("document")) return "/property-manager/compliance/documents"
+  if (t.includes("evidence")) return "/property-manager/compliance/evidence"
+  if (t.includes("supplier")) return "/property-manager/compliance/supplier-docs"
+  return "/property-manager/compliance/overview"
 }
 
 function SeverityBadge({ severity }: { severity: string }) {
@@ -103,8 +103,8 @@ export default function ComplianceActivityPage() {
             <ActionMenu
               items={[
                 { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-                { label: "Open Overview", icon: Activity, onClick: () => router.push("/app/compliance/overview") },
-                { label: "Open Reports", icon: Download, onClick: () => router.push("/app/compliance/reports") },
+                { label: "Open Overview", icon: Activity, onClick: () => router.push("/property-manager/compliance/overview") },
+                { label: "Open Reports", icon: Download, onClick: () => router.push("/property-manager/compliance/reports") },
               ]}
             />
           </>

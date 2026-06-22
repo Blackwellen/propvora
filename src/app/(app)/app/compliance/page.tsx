@@ -3,5 +3,5 @@ import { redirect } from "next/navigation"
 export const dynamic = "force-dynamic"
 
 export default function CompliancePage() {
-  redirect("/app/compliance/overview")
+  redirect("/property-manager/compliance/overview")
 }

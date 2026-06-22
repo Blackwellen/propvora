@@ -391,10 +391,10 @@ function ArrearCard({
                 Record Payment
               </button>
               <div className="flex gap-1">
-                <Link href="/app/money/invoices" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
+                <Link href="/property-manager/money/invoices" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
                   <FileText className="w-3 h-3" /> Invoice
                 </Link>
-                <Link href="/app/contacts" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
+                <Link href="/property-manager/contacts" className="flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 flex items-center justify-center gap-1 transition-colors">
                   <Phone className="w-3 h-3" /> Contact
                 </Link>
               </div>
@@ -558,9 +558,9 @@ export default function ArrearsPage() {
       <MobileTopBar
         title="Arrears"
         subtitle={`${filtered.length} case${filtered.length === 1 ? "" : "s"}`}
-        primaryAction={{ label: "Create Invoice", icon: Plus, href: "/app/money/invoices/new" }}
+        primaryAction={{ label: "Create Invoice", icon: Plus, href: "/property-manager/money/invoices/new" }}
         overflowActions={[
-          { label: "Rent Chase", icon: Phone, href: "/app/money/rent-chase" },
+          { label: "Rent Chase", icon: Phone, href: "/property-manager/money/rent-chase" },
           { label: "Export CSV", icon: Download, onClick: handleExportCSV },
         ]}
       />
@@ -575,11 +575,11 @@ export default function ArrearsPage() {
           subtitle="Monitor, chase and resolve overdue balances with speed and precision."
           actions={
             <>
-              <Link href="/app/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
+              <Link href="/property-manager/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
                 <Plus className="w-4 h-4" />
                 Create Invoice
               </Link>
-              <Link href="/app/money/rent-chase" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
+              <Link href="/property-manager/money/rent-chase" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
                 Rent Chase
               </Link>
               <button onClick={handleExportCSV} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">

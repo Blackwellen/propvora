@@ -603,7 +603,7 @@ export default function NewInvoicePage() {
                 <p className="text-sm font-semibold text-amber-800">Stripe not connected</p>
                 <p className="text-xs text-amber-700 mt-0.5">
                   Connect your Stripe account in{" "}
-                  <Link href="/app/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
+                  <Link href="/property-manager/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
                   to enable online payment links.
                 </p>
               </div>
@@ -784,7 +784,7 @@ export default function NewInvoicePage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
-                onClick={() => { if (createdId) router.push(`/app/money/invoices/${createdId}`) }}
+                onClick={() => { if (createdId) router.push(`/property-manager/money/invoices/${createdId}`) }}
                 disabled={!createdId}
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-60"
               >
@@ -802,7 +802,7 @@ export default function NewInvoicePage() {
                 <Plus className="w-4 h-4" /> Create Another
               </button>
               <Link
-                href="/app/money"
+                href="/property-manager/money"
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Money
@@ -818,10 +818,10 @@ export default function NewInvoicePage() {
 
   return (
     <div className="space-y-0">
-      <MobileTopBar title="New Invoice" subtitle={`Step ${currentStep} of ${STEPS.length}`} showBack backHref="/app/money/invoices" />
+      <MobileTopBar title="New Invoice" subtitle={`Step ${currentStep} of ${STEPS.length}`} showBack backHref="/property-manager/money/invoices" />
       {/* Header */}
       <div className="hidden md:flex items-center gap-3 mb-6">
-        <Link href="/app/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+        <Link href="/property-manager/money/invoices" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Invoices
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-slate-400" />

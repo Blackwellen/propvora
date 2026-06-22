@@ -138,7 +138,7 @@ export default function EvidencePage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-              { label: "Open Documents", icon: FileText, onClick: () => router.push("/app/compliance/documents") },
+              { label: "Open Documents", icon: FileText, onClick: () => router.push("/property-manager/compliance/documents") },
             ]}
           />
         </div>

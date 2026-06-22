@@ -178,21 +178,21 @@ export default function ComplianceOverviewPage() {
       <div className="px-6 pt-4 pb-1 flex items-center justify-end">
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => router.push("/app/compliance/certificates/new")}
+            onClick={() => router.push("/property-manager/compliance/certificates/new")}
             className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add certificate
           </button>
           <button
-            onClick={() => router.push("/app/compliance/inspections/new")}
+            onClick={() => router.push("/property-manager/compliance/inspections/new")}
             className="inline-flex items-center gap-1.5 border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <CalendarDays className="w-3.5 h-3.5" />
             Schedule inspection
           </button>
           <button
-            onClick={() => router.push("/app/compliance/documents/new")}
+            onClick={() => router.push("/property-manager/compliance/documents/new")}
             className="inline-flex items-center gap-1.5 border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Upload className="w-3.5 h-3.5" />
@@ -200,10 +200,10 @@ export default function ComplianceOverviewPage() {
           </button>
           <ActionMenu
             items={[
-              { label: "Open Certificates", icon: ShieldCheck, onClick: () => router.push("/app/compliance/certificates") },
-              { label: "Open Inspections", icon: CalendarDays, onClick: () => router.push("/app/compliance/inspections") },
-              { label: "Open Coverage", icon: Building2, onClick: () => router.push("/app/compliance/coverage") },
-              { label: "Open Reports", icon: BarChart3, onClick: () => router.push("/app/compliance/reports") },
+              { label: "Open Certificates", icon: ShieldCheck, onClick: () => router.push("/property-manager/compliance/certificates") },
+              { label: "Open Inspections", icon: CalendarDays, onClick: () => router.push("/property-manager/compliance/inspections") },
+              { label: "Open Coverage", icon: Building2, onClick: () => router.push("/property-manager/compliance/coverage") },
+              { label: "Open Reports", icon: BarChart3, onClick: () => router.push("/property-manager/compliance/reports") },
             ]}
           />
         </div>
@@ -286,14 +286,14 @@ export default function ComplianceOverviewPage() {
             </p>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => router.push("/app/compliance/certificates/new")}
+                onClick={() => router.push("/property-manager/compliance/certificates/new")}
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add certificate
               </button>
               <button
-                onClick={() => router.push("/app/compliance/inspections/new")}
+                onClick={() => router.push("/property-manager/compliance/inspections/new")}
                 className="inline-flex items-center gap-2 border border-slate-200 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
               >
                 <CalendarDays className="w-4 h-4" />
@@ -309,7 +309,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Expiring soon</h2>
-              <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <a href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
                 View coverage <ArrowUpRight className="w-3 h-3" />
               </a>
             </div>
@@ -320,7 +320,7 @@ export default function ComplianceOverviewPage() {
                 {expiringList.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => router.push("/app/compliance/coverage")}
+                    onClick={() => router.push("/property-manager/compliance/coverage")}
                     className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
                   >
                     <div className="mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-amber-50">
@@ -344,7 +344,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Overdue & expired</h2>
-              <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <a href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
                 View all <ArrowUpRight className="w-3 h-3" />
               </a>
             </div>
@@ -355,7 +355,7 @@ export default function ComplianceOverviewPage() {
                 {overdueList.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => router.push("/app/compliance/coverage")}
+                    onClick={() => router.push("/property-manager/compliance/coverage")}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
                   >
                     <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
@@ -419,7 +419,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Coverage gaps by requirement</h2>
-              <a href="/app/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <a href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
                 View matrix <ArrowUpRight className="w-3 h-3" />
               </a>
             </div>
@@ -465,28 +465,28 @@ export default function ComplianceOverviewPage() {
                 stats.expired > 0 && {
                   title: `Resolve ${stats.expired} overdue compliance item${stats.expired > 1 ? "s" : ""}`,
                   detail: "Avoid fines and enforcement",
-                  href: "/app/compliance/coverage",
+                  href: "/property-manager/compliance/coverage",
                   btn: "Review",
                   priority: "High" as const,
                 },
                 stats.expiring > 0 && {
                   title: `Renew ${stats.expiring} item${stats.expiring > 1 ? "s" : ""} expiring soon`,
                   detail: "Due within 30 days",
-                  href: "/app/compliance/certificates/new",
+                  href: "/property-manager/compliance/certificates/new",
                   btn: "Start",
                   priority: "High" as const,
                 },
                 extra.inspectionOverdue > 0 && {
                   title: `Address ${extra.inspectionOverdue} overdue inspection${extra.inspectionOverdue > 1 ? "s" : ""}`,
                   detail: "Schedule and complete",
-                  href: "/app/compliance/inspections",
+                  href: "/property-manager/compliance/inspections",
                   btn: "Review",
                   priority: "Medium" as const,
                 },
                 {
                   title: "Generate a compliance report",
                   detail: "Portfolio compliance summary",
-                  href: "/app/compliance/reports",
+                  href: "/property-manager/compliance/reports",
                   btn: "Generate",
                   priority: "Low" as const,
                 },

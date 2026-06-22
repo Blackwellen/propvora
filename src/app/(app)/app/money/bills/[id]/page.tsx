@@ -482,7 +482,7 @@ export default function BillDetailPage() {
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
                 {bill.job && (
-                  <Link href={`/app/jobs/${bill.job}`}>
+                  <Link href={`/property-manager/work/jobs/${bill.job}`}>
                     <Button variant="outline" size="sm">
                       <ExternalLink className="w-4 h-4" /> Open Linked Job
                     </Button>
@@ -652,14 +652,14 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Related</h3>
               <div className="space-y-2">
-                <Link href={`/app/contacts`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                <Link href={`/property-manager/contacts`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                   <User className="w-3.5 h-3.5" /> {bill.supplier}
                 </Link>
-                <Link href={`/app/properties`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                <Link href={`/property-manager/portfolio/properties`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                   <Building2 className="w-3.5 h-3.5" /> {bill.property}
                 </Link>
                 {bill.job && (
-                  <Link href={`/app/jobs/${bill.job}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                  <Link href={`/property-manager/work/jobs/${bill.job}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                     <Briefcase className="w-3.5 h-3.5" /> {bill.job}
                   </Link>
                 )}
@@ -930,7 +930,7 @@ function LinkedJobTab({ bill }: { bill: BillDetail }) {
             <p className="font-medium text-slate-900">£{bill.amount.toLocaleString()}</p>
           </div>
         </div>
-        <Link href={`/app/jobs/${bill.job}`}>
+        <Link href={`/property-manager/work/jobs/${bill.job}`}>
           <Button variant="outline" size="sm">
             <ExternalLink className="w-4 h-4" /> Open Job Detail
           </Button>

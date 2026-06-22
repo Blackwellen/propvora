@@ -356,12 +356,12 @@ export default function NewInspectionPage() {
             </p>
             <div className="flex gap-3 justify-center">
               {newId ? (
-                <Button variant="primary" onClick={() => router.push(`/app/compliance/inspections/${newId}`)}>
+                <Button variant="primary" onClick={() => router.push(`/property-manager/compliance/inspections/${newId}`)}>
                   View Inspection
                 </Button>
               ) : (
                 <Button variant="primary" asChild>
-                  <Link href="/app/compliance/inspections">View Inspections</Link>
+                  <Link href="/property-manager/compliance/inspections">View Inspections</Link>
                 </Button>
               )}
               <Button variant="outline" onClick={() => { setSaved(false); setNewId(null); setStep(1) }}>
@@ -379,9 +379,9 @@ export default function NewInspectionPage() {
       {/* Breadcrumb */}
       <div className="px-6 pt-4">
         <nav className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/app/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/app/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">Schedule Inspection</span>
         </nav>
@@ -840,7 +840,7 @@ export default function NewInspectionPage() {
               </Button>
               <div className="flex gap-2">
                 <Button variant="ghost" size="md" asChild>
-                  <Link href="/app/compliance/inspections">Cancel</Link>
+                  <Link href="/property-manager/compliance/inspections">Cancel</Link>
                 </Button>
                 {step < 7 && (
                   <Button

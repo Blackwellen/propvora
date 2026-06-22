@@ -143,14 +143,14 @@ export default function CertificatesPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => router.push("/app/compliance/certificates/new")}
+            onClick={() => router.push("/property-manager/compliance/certificates/new")}
             className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add certificate
           </button>
           <button
-            onClick={() => router.push("/app/compliance/documents/new")}
+            onClick={() => router.push("/property-manager/compliance/documents/new")}
             className="inline-flex items-center gap-1.5 border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Upload className="w-3.5 h-3.5" />
@@ -168,7 +168,7 @@ export default function CertificatesPage() {
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
               { label: "Export CSV", icon: Download, onClick: exportCsv },
-              { label: "Open Coverage", icon: CheckCircle, onClick: () => router.push("/app/compliance/coverage") },
+              { label: "Open Coverage", icon: CheckCircle, onClick: () => router.push("/property-manager/compliance/coverage") },
             ]}
           />
         </div>
@@ -235,7 +235,7 @@ export default function CertificatesPage() {
               <p className="text-sm font-medium text-slate-700">{certs.length === 0 ? "No certificates yet" : "No certificates match your filters"}</p>
               <p className="text-xs text-slate-400 mt-1 mb-4">{certs.length === 0 ? "Add your first compliance certificate to get started." : "Try adjusting your search or filters."}</p>
               {certs.length === 0 && (
-                <button onClick={() => router.push("/app/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
                   <Plus className="w-3.5 h-3.5" /> Add certificate
                 </button>
               )}
@@ -248,7 +248,7 @@ export default function CertificatesPage() {
                 title: (c) => humaniseType(c.certificate_type),
                 subtitle: (c) => c.property_name ?? c.reference_number ?? undefined,
                 badge: (c) => <ComplianceStatusBadge status={c.status} />,
-                onRowClick: (c) => router.push(`/app/compliance/certificates/${c.id}`),
+                onRowClick: (c) => router.push(`/property-manager/compliance/certificates/${c.id}`),
                 fields: [
                   { label: "Expiry", render: (c) => { const e = expiryLabel(c.expiry_date); return <span className={e.cls}>{fmtDate(c.expiry_date)} · {e.text}</span> } },
                   { label: "Issued", render: (c) => fmtDate(c.issue_date) },
@@ -272,7 +272,7 @@ export default function CertificatesPage() {
                   return (
                     <tr
                       key={cert.id}
-                      onClick={() => router.push(`/app/compliance/certificates/${cert.id}`)}
+                      onClick={() => router.push(`/property-manager/compliance/certificates/${cert.id}`)}
                       className="hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       <td className="px-3 py-3">
@@ -313,17 +313,17 @@ export default function CertificatesPage() {
                       <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="inline-flex items-center gap-1">
                           <button
-                            onClick={() => router.push(`/app/compliance/certificates/${cert.id}`)}
+                            onClick={() => router.push(`/property-manager/compliance/certificates/${cert.id}`)}
                             className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors"
                           >
                             <Eye className="w-3 h-3" /> View
                           </button>
                           <ActionMenu
                             items={[
-                              { label: "View", icon: Eye, onClick: () => router.push(`/app/compliance/certificates/${cert.id}`) },
-                              { label: "Edit", icon: Pencil, onClick: () => router.push(`/app/compliance/certificates/${cert.id}/edit`) },
-                              { label: "Renew", icon: RefreshCw, onClick: () => router.push("/app/compliance/certificates/new") },
-                              { label: "Upload Evidence", icon: Upload, onClick: () => router.push("/app/compliance/documents/new") },
+                              { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/compliance/certificates/${cert.id}`) },
+                              { label: "Edit", icon: Pencil, onClick: () => router.push(`/property-manager/compliance/certificates/${cert.id}/edit`) },
+                              { label: "Renew", icon: RefreshCw, onClick: () => router.push("/property-manager/compliance/certificates/new") },
+                              { label: "Upload Evidence", icon: Upload, onClick: () => router.push("/property-manager/compliance/documents/new") },
                             ]}
                           />
                           <ConfirmDialog

@@ -538,7 +538,7 @@ export default function BillsPage() {
       { label: "Property", render: (b) => b.property },
       { label: "Payment", render: (b) => b.paymentMethod },
     ],
-    onRowClick: (b) => router.push(`/app/money/bills/${b.id}`),
+    onRowClick: (b) => router.push(`/property-manager/money/bills/${b.id}`),
   }
   const supplierPaymentCardMapping: MobileCardMapping<SupplierPayment> = {
     getKey: (sp) => sp.id,
@@ -552,7 +552,7 @@ export default function BillsPage() {
       { label: "Amount", render: (sp) => formatCurrency(sp.amount) },
       { label: "Scheduled", render: (sp) => sp.scheduledDate },
     ],
-    onRowClick: (sp) => router.push(`/app/money/bills/${sp.id}`),
+    onRowClick: (sp) => router.push(`/property-manager/money/bills/${sp.id}`),
   }
 
   return (
@@ -922,7 +922,7 @@ export default function BillsPage() {
                             </td>
                             <td className="px-3 py-3.5">
                               <div
-                                onClick={() => router.push(`/app/money/bills/${bill.id}`)}
+                                onClick={() => router.push(`/property-manager/money/bills/${bill.id}`)}
                                 className="text-[13px] font-semibold text-blue-600 hover:underline cursor-pointer"
                               >
                                 {bill.billNumber}
@@ -1004,7 +1004,7 @@ export default function BillsPage() {
                                 {(open) => (
                                   <ActionMenu
                                     items={[
-                                      { label: "View", icon: Eye, onClick: () => router.push(`/app/money/bills/${bill.id}`) },
+                                      { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/money/bills/${bill.id}`) },
                                       { label: "Approve", icon: CheckSquare, onClick: () => approveBillRow(bill.id) },
                                       { label: "Mark as Paid", icon: CheckCircle, onClick: () => markBillPaidRow(bill.id) },
                                       { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
@@ -1131,7 +1131,7 @@ export default function BillsPage() {
                             <td className="px-3 py-3.5">
                               <ActionMenu
                                 items={[
-                                  { label: "View Bill", icon: Eye, onClick: () => router.push(`/app/money/bills/${sp.id}`) },
+                                  { label: "View Bill", icon: Eye, onClick: () => router.push(`/property-manager/money/bills/${sp.id}`) },
                                   { label: "Mark as Paid", icon: CheckCircle, onClick: () => markBillPaidRow(sp.id) },
                                 ]}
                               />

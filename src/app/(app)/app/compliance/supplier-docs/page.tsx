@@ -94,7 +94,7 @@ export default function SupplierDocsPage() {
           <p className="text-sm text-slate-500 mt-0.5">Track supplier insurance, accreditations and compliance documents.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push("/app/contacts")} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => router.push("/property-manager/contacts")} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Send className="w-4 h-4" />
             Manage suppliers
           </button>
@@ -105,8 +105,8 @@ export default function SupplierDocsPage() {
           <ActionMenu
             items={[
               { label: "Refresh", icon: RefreshCw, onClick: () => refetch() },
-              { label: "Open Contacts", icon: Users, onClick: () => router.push("/app/contacts") },
-              { label: "Open Coverage", icon: ShieldCheck, onClick: () => router.push("/app/compliance/coverage") },
+              { label: "Open Contacts", icon: Users, onClick: () => router.push("/property-manager/contacts") },
+              { label: "Open Coverage", icon: ShieldCheck, onClick: () => router.push("/property-manager/compliance/coverage") },
             ]}
           />
         </div>
@@ -168,7 +168,7 @@ export default function SupplierDocsPage() {
                 <p className="text-sm font-medium text-slate-700">{docs.length === 0 ? "No supplier documents yet" : "No documents match your filters"}</p>
                 <p className="text-xs text-slate-400 mt-1 mb-4">{docs.length === 0 ? "Supplier insurance and accreditation documents will appear here." : "Try adjusting your search or filters."}</p>
                 {docs.length === 0 && (
-                  <button onClick={() => router.push("/app/contacts")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                  <button onClick={() => router.push("/property-manager/contacts")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
                     <Users className="w-3.5 h-3.5" /> Manage suppliers
                   </button>
                 )}
@@ -194,8 +194,8 @@ export default function SupplierDocsPage() {
                   actions: (r) => (
                     <ActionMenu
                       items={[
-                        { label: "View Supplier", icon: Eye, onClick: () => router.push("/app/contacts") },
-                        { label: "Open Contacts", icon: Users, onClick: () => router.push("/app/contacts") },
+                        { label: "View Supplier", icon: Eye, onClick: () => router.push("/property-manager/contacts") },
+                        { label: "Open Contacts", icon: Users, onClick: () => router.push("/property-manager/contacts") },
                       ]}
                     />
                   ),
@@ -236,8 +236,8 @@ export default function SupplierDocsPage() {
                           <td className="px-4 py-3 text-center">
                             <ActionMenu
                               items={[
-                                { label: "View Supplier", icon: Eye, onClick: () => router.push("/app/contacts") },
-                                { label: "Open Contacts", icon: Users, onClick: () => router.push("/app/contacts") },
+                                { label: "View Supplier", icon: Eye, onClick: () => router.push("/property-manager/contacts") },
+                                { label: "Open Contacts", icon: Users, onClick: () => router.push("/property-manager/contacts") },
                               ]}
                             />
                           </td>

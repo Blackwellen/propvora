@@ -320,7 +320,7 @@ export default function InvoicesPage() {
       { label: "Property", render: (inv) => inv.propertyAddress },
       { label: "Due", render: (inv) => inv.dueDate },
     ],
-    onRowClick: (inv) => router.push(`/app/money/invoices/${inv.id}`),
+    onRowClick: (inv) => router.push(`/property-manager/money/invoices/${inv.id}`),
   }
 
   return (
@@ -328,7 +328,7 @@ export default function InvoicesPage() {
       <MobileTopBar
         title="Invoices"
         subtitle={`${filtered.length} invoice${filtered.length === 1 ? "" : "s"}`}
-        primaryAction={{ label: "New Invoice", icon: Plus, href: "/app/money/invoices/new" }}
+        primaryAction={{ label: "New Invoice", icon: Plus, href: "/property-manager/money/invoices/new" }}
         overflowActions={[{ label: "Export CSV", icon: Download, onClick: handleExportCSV }]}
       />
       {toastMsg && (
@@ -348,7 +348,7 @@ export default function InvoicesPage() {
           subtitle="Create, manage and track all customer invoices in one place."
           actions={
             <>
-              <Link href="/app/money/invoices/new">
+              <Link href="/property-manager/money/invoices/new">
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
                   <Plus className="w-4 h-4" />
                   New Invoice
@@ -582,7 +582,7 @@ export default function InvoicesPage() {
                             />
                           </td>
                           <td className="px-3 py-3.5">
-                            <Link href={`/app/money/invoices/${inv.id}`} className="text-blue-600 font-semibold hover:underline text-[13px]">
+                            <Link href={`/property-manager/money/invoices/${inv.id}`} className="text-blue-600 font-semibold hover:underline text-[13px]">
                               {inv.invoiceNumber}
                             </Link>
                             <div className="text-[11px] text-slate-500 mt-0.5">
@@ -674,7 +674,7 @@ export default function InvoicesPage() {
                               {(open) => (
                                 <ActionMenu
                                   items={[
-                                    { label: "View", icon: Eye, onClick: () => router.push(`/app/money/invoices/${inv.id}`) },
+                                    { label: "View", icon: Eye, onClick: () => router.push(`/property-manager/money/invoices/${inv.id}`) },
                                     { label: "Mark as Paid", icon: CreditCard, onClick: () => markInvoicePaid(inv.id, inv.amount), disabled: inv.status === "paid" },
                                     { label: "Export Row (CSV)", icon: Download, onClick: () => downloadCSV([inv as unknown as Record<string, unknown>], `${inv.invoiceNumber}.csv`) },
                                     { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
@@ -731,7 +731,7 @@ export default function InvoicesPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/app/accounting" className="mt-4 inline-block text-[12px] text-blue-600 font-medium hover:underline">
+              <Link href="/property-manager/accounting" className="mt-4 inline-block text-[12px] text-blue-600 font-medium hover:underline">
                 View in Accounting &gt;
               </Link>
             </div>

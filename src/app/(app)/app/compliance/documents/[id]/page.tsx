@@ -175,7 +175,7 @@ export default function DocumentDetailPage() {
       .eq("id", id)
     if (error && error.code !== "42P01") throw new Error(error.message)
     qc.invalidateQueries({ queryKey: ["compliance-documents"] })
-    router.push("/app/compliance/documents")
+    router.push("/property-manager/compliance/documents")
   }
 
   function downloadDoc() {
@@ -231,7 +231,7 @@ export default function DocumentDetailPage() {
             {verified ? <RotateCcw className="w-4 h-4 text-slate-400" /> : <CheckCircle className="w-4 h-4 text-slate-400" />}
             {verified ? "Unverify" : "Mark Verified"}
           </button>
-          <Link href="/app/tasks/new" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left">
+          <Link href="/property-manager/work/tasks/new" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left">
             <Calendar className="w-4 h-4 text-slate-400" />Create Renewal Task
           </Link>
         </div>
@@ -239,7 +239,7 @@ export default function DocumentDetailPage() {
         {row.linked_certificate_id && (
           <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Linked Certificate</h3>
-            <Link href={`/app/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
               Open Certificate <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -326,9 +326,9 @@ export default function DocumentDetailPage() {
 
   function LinksTab() {
     const items = [
-      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-blue-600", bg: "bg-blue-50", href: `/app/properties/${row.property_id}`, link: "Open Property" },
-      row.linked_certificate_id && { title: "Certificate Record", subtitle: "Linked certificate", icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", href: `/app/compliance/certificates/${row.linked_certificate_id}`, link: "Open Certificate" },
-      row.linked_inspection_id && { title: "Inspection", subtitle: "Linked inspection", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50", href: `/app/compliance/inspections/${row.linked_inspection_id}`, link: "Open Inspection" },
+      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-blue-600", bg: "bg-blue-50", href: `/property-manager/portfolio/properties/${row.property_id}`, link: "Open Property" },
+      row.linked_certificate_id && { title: "Certificate Record", subtitle: "Linked certificate", icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", href: `/property-manager/compliance/certificates/${row.linked_certificate_id}`, link: "Open Certificate" },
+      row.linked_inspection_id && { title: "Inspection", subtitle: "Linked inspection", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50", href: `/property-manager/compliance/inspections/${row.linked_inspection_id}`, link: "Open Inspection" },
     ].filter(Boolean) as any[]
 
     if (!items.length) {
@@ -373,7 +373,7 @@ export default function DocumentDetailPage() {
             </div>
           </div>
         </div>
-        <Link href="/app/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+        <Link href="/property-manager/work/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
           <Calendar className="w-4 h-4" />Schedule Renewal Task
         </Link>
       </div>
@@ -457,7 +457,7 @@ export default function DocumentDetailPage() {
           </div>
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Document not found</h2>
           <p className="text-sm text-slate-500 mb-5">This document may have been archived or removed.</p>
-          <Link href="/app/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Link href="/property-manager/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
             Back to Documents
           </Link>
         </div>
@@ -511,7 +511,7 @@ export default function DocumentDetailPage() {
                   { label: "Mark Pending", icon: Clock, onClick: () => setStatus("pending"), disabled: isSeed },
                   { label: "Mark Rejected", icon: RotateCcw, onClick: () => setStatus("rejected"), disabled: isSeed },
                   { label: "Download", icon: Download, onClick: downloadDoc },
-                  { label: "Create Renewal Task", icon: Calendar, onClick: () => router.push("/app/tasks/new") },
+                  { label: "Create Renewal Task", icon: Calendar, onClick: () => router.push("/property-manager/work/tasks/new") },
                 ]}
               />
               <ConfirmDialog
