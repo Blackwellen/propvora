@@ -1,13 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
-import { HardDrive, Database, CheckSquare, Square } from "lucide-react"
-
-const BREAKDOWN = [
-  { type: "Documents", size: "1.2 GB", colour: "#2563EB", pct: 57 },
-  { type: "Images",    size: "0.6 GB", colour: "#7C3AED", pct: 29 },
-  { type: "Other",     size: "0.3 GB", colour: "#D97706", pct: 14 },
-]
+import React, { useState, useEffect } from "react"
+import { HardDrive, Database, CheckSquare, Square, Loader2, Check, Info } from "lucide-react"
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 const FILE_TYPES = [
   { key: "pdf",   label: "PDF documents" },
@@ -21,12 +16,58 @@ export default function StoragePage() {
   const [allowedTypes, setAllowedTypes]         = useState<string[]>(["pdf", "image", "word", "excel"])
   const [retentionPolicy, setRetentionPolicy]   = useState("forever")
   const [isDirty, setIsDirty]                   = useState(false)
+  const [loading, setLoading]                   = useState(true)
+  const [saving, setSaving]                     = useState(false)
+  const [saved, setSaved]                       = useState(false)
+  const [unavailable, setUnavailable]           = useState(false)
+  const [saveError, setSaveError]               = useState<string | null>(null)
+
+  // Hydrate storage policy from workspace_settings.documents bucket.
+  useEffect(() => {
+    getWorkspaceSettings().then(({ settings: s, unavailable }) => {
+      if (unavailable) setUnavailable(true)
+      if (s) {
+        if (typeof s.storage_file_size_limit === "string") setFileSizeLimit(s.storage_file_size_limit as string)
+        if (Array.isArray(s.storage_allowed_types)) setAllowedTypes(s.storage_allowed_types as string[])
+        if (typeof s.storage_retention === "string") setRetentionPolicy(s.storage_retention as string)
+      }
+      setLoading(false)
+    })
+  }, [])
 
   function toggleFileType(key: string) {
     setAllowedTypes((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     )
     setIsDirty(true)
+    setSaved(false)
+    setSaveError(null)
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    setSaveError(null)
+    const res = await saveWorkspaceSettings(
+      {
+        storage_file_size_limit: fileSizeLimit,
+        storage_allowed_types: allowedTypes,
+        storage_retention: retentionPolicy,
+      },
+      "documents"
+    )
+    setSaving(false)
+    if (res.unavailable) {
+      setUnavailable(true)
+      setSaveError("Settings storage is not configured yet — changes can't be persisted.")
+      return
+    }
+    if (!res.ok) {
+      setSaveError(res.error ?? "Failed to save storage policy.")
+      return
+    }
+    setSaved(true)
+    setIsDirty(false)
+    setTimeout(() => setSaved(false), 3000)
   }
 
   return (
@@ -39,29 +80,29 @@ export default function StoragePage() {
         </p>
       </div>
 
+      {unavailable && (
+        <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-700">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          Settings storage is not provisioned in this environment yet. Policy values show defaults and can&apos;t be persisted until the <code className="font-mono">workspace_settings</code> table exists.
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
+        </div>
+      )}
+
       {/* Storage Usage */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <HardDrive className="w-4 h-4 text-slate-400" />
           <h3 className="text-[14px] font-bold text-slate-900">Storage Usage</h3>
-          <span className="text-[12px] font-semibold text-slate-500">2.1 GB / 10 GB used</span>
         </div>
-        <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-4">
-          <div className="h-full bg-[#2563EB] rounded-full" style={{ width: "21%" }} />
-        </div>
-        {BREAKDOWN.map((item) => (
-          <div
-            key={item.type}
-            className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"
-          >
-            <div
-              className="w-3 h-3 rounded-full shrink-0"
-              style={{ backgroundColor: item.colour }}
-            />
-            <p className="text-[12.5px] text-slate-700 flex-1">{item.type}</p>
-            <p className="text-[12px] text-slate-500">{item.size}</p>
-            <p className="text-[11px] text-slate-400 w-8 text-right">{item.pct}%</p>
-          </div>
-        ))}
+        <p className="text-[12.5px] text-slate-400">
+          Per-workspace storage usage and breakdown by file type will appear here once usage metering is
+          enabled. Files are stored securely in Supabase Storage.
+        </p>
       </div>
 
       {/* Storage providers */}
@@ -183,20 +224,25 @@ export default function StoragePage() {
         <p className="text-[11.5px] text-slate-400 mt-4">
           Note: Destructive data operations require owner permission and are audit logged.
         </p>
-        {isDirty && (
-          <div className="flex items-center gap-3 mt-5 pt-4 border-t border-slate-100">
-            <button
-              onClick={() => setIsDirty(false)}
-              className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
-            >
-              Save changes
-            </button>
-            <button
-              onClick={() => setIsDirty(false)}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </button>
+        {isDirty && !unavailable && (
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              >
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
+                {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}
+              </button>
+              <button
+                onClick={() => { setIsDirty(false); setSaveError(null) }}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+            {saveError && <p className="text-[12px] text-red-500 mt-2">{saveError}</p>}
           </div>
         )}
       </div>
