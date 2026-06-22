@@ -120,12 +120,16 @@ export async function POST(request: NextRequest) {
           })
           .eq("stripe_customer_id", customerId)
 
+        // Reconcile the per-workspace Billing-section subscription row so the
+        // Billing control centre reflects the canonical Stripe state.
+        await syncWorkspaceSubscription(supabase, sub, customerId, plan, planStatus)
+
         await recordAudit(supabase, {
           workspaceId: await workspaceIdForCustomer(customerId),
           action: AUDIT_ACTIONS.BILLING_SUBSCRIPTION_UPDATED,
           resourceType: "subscription",
           resourceId: sub.id,
-          metadata: { plan, planStatus, eventId: event.id },
+          metadata: { plan, planStatus, cancelAtPeriodEnd: !!sub.cancel_at_period_end, eventId: event.id },
         })
 
         break
@@ -144,6 +148,11 @@ export async function POST(request: NextRequest) {
             stripe_subscription_id: null,
           })
           .eq("stripe_customer_id", customerId)
+
+        // Reconcile the Billing-section row to cancelled + complete any open
+        // cancellation request for this workspace.
+        await syncWorkspaceSubscription(supabase, sub, customerId, "starter", "canceled")
+        await completeCancellationRequest(supabase, sub.id, customerId)
 
         // Affiliate: stop future commission accrual for this referred customer.
         await stopReferralAccrual(supabase, { customerId })
@@ -172,6 +181,8 @@ export async function POST(request: NextRequest) {
             invoiceId: invoice.id,
           })
         }
+        // Record a Billing-history row + payment event for this workspace.
+        await recordBillingHistory(supabase, invoice, customerId, "paid")
         break
       }
 
@@ -199,6 +210,9 @@ export async function POST(request: NextRequest) {
             .update({ plan_status: "past_due" })
             .eq("stripe_customer_id", customerId)
         }
+
+        // Record a Billing-history "failed" row for this workspace.
+        await recordBillingHistory(supabase, invoice, customerId, "failed")
 
         await recordAudit(supabase, {
           workspaceId: await workspaceIdForCustomer(customerId),
@@ -372,5 +386,227 @@ function stripeStatusToPlanStatus(
       return "suspended"
     default:
       return "active"
+  }
+}
+
+// ── Billing-section reconciliation helpers ──────────────────────────────────
+//
+// These keep the per-workspace Billing control-centre tables in sync with the
+// canonical Stripe state. ALL are best-effort and 42P01-tolerant: a missing
+// table (before the billing migration is applied) is swallowed so the webhook
+// still acknowledges and the affiliate/workspace updates above still take
+// effect. They NEVER fabricate data — they only mirror what Stripe sent.
+
+type AdminLike = ReturnType<typeof createAdminClient>
+
+function isoFromUnixSeconds(seconds: number | null | undefined): string | null {
+  if (seconds == null) return null
+  const ms = seconds * 1000
+  return Number.isFinite(ms) ? new Date(ms).toISOString() : null
+}
+
+/** Resolve the workspace id for a subscription via metadata, then customer. */
+async function resolveWorkspaceId(
+  supabase: AdminLike,
+  sub: import("stripe").Stripe.Subscription | null,
+  customerId: string | null,
+): Promise<string | null> {
+  const metaWs = (sub?.metadata?.workspace_id as string | undefined) ?? null
+  if (metaWs) return metaWs
+  if (!customerId) return null
+  try {
+    const { data } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle()
+    return (data?.id as string | null) ?? null
+  } catch {
+    return null
+  }
+}
+
+const SECTION_STATUS: Record<string, string> = {
+  active: "active",
+  trialing: "trialing",
+  past_due: "past_due",
+  canceled: "cancelled",
+  suspended: "paused",
+}
+
+/**
+ * Upsert the workspace_subscriptions row for a Stripe subscription. Keyed by
+ * stripe_subscription_id (then the most recent row for the workspace). Mirrors
+ * status, current_period_end, cancel_at_period_end and the base price.
+ */
+async function syncWorkspaceSubscription(
+  supabase: AdminLike,
+  sub: import("stripe").Stripe.Subscription,
+  customerId: string | null,
+  plan: string,
+  planStatus: string,
+): Promise<void> {
+  try {
+    const workspaceId = await resolveWorkspaceId(supabase, sub, customerId)
+    if (!workspaceId) return
+
+    const item = sub.items?.data?.[0]
+    const basePricePence = item?.price?.unit_amount ?? 0
+    const billingCycle = item?.price?.recurring?.interval === "year" ? "annual" : "monthly"
+    const sectionStatus = SECTION_STATUS[planStatus] ?? "active"
+    // The billing period lives on the subscription ITEM in this API version.
+    const periodStart = item?.current_period_start ?? null
+    const periodEnd = item?.current_period_end ?? null
+
+    const patch = {
+      status: sectionStatus,
+      plan_code: plan,
+      billing_cycle: billingCycle,
+      base_price_pence: basePricePence,
+      current_period_start: isoFromUnixSeconds(periodStart),
+      current_period_end: isoFromUnixSeconds(periodEnd),
+      cancel_at_period_end: !!sub.cancel_at_period_end,
+      cancelled_at: sub.canceled_at ? isoFromUnixSeconds(sub.canceled_at) : null,
+      stripe_subscription_id: sub.id,
+      stripe_customer_id: customerId,
+      auto_renew: !sub.cancel_at_period_end,
+      updated_at: new Date().toISOString(),
+    }
+
+    // Prefer an existing row for this stripe subscription id.
+    const { data: bySubId } = await supabase
+      .from("workspace_subscriptions")
+      .select("id")
+      .eq("stripe_subscription_id", sub.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (bySubId) {
+      await supabase.from("workspace_subscriptions").update(patch).eq("id", bySubId.id)
+      return
+    }
+
+    // Else the latest non-archived row for the workspace (e.g. created at
+    // checkout before the sub id was known), otherwise insert a fresh row.
+    const { data: latest } = await supabase
+      .from("workspace_subscriptions")
+      .select("id")
+      .eq("workspace_id", workspaceId)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (latest) {
+      await supabase.from("workspace_subscriptions").update(patch).eq("id", latest.id)
+    } else {
+      await supabase.from("workspace_subscriptions").insert({ workspace_id: workspaceId, ...patch })
+    }
+  } catch {
+    /* table missing / RLS — non-fatal */
+  }
+}
+
+/** Mark any open cancellation request completed once the sub is deleted. */
+async function completeCancellationRequest(
+  supabase: AdminLike,
+  subId: string,
+  customerId: string | null,
+): Promise<void> {
+  try {
+    const workspaceId = await resolveWorkspaceId(supabase, null, customerId)
+    if (!workspaceId) return
+    await supabase
+      .from("workspace_cancellation_requests")
+      .update({ status: "completed", updated_at: new Date().toISOString() })
+      .eq("workspace_id", workspaceId)
+      .in("status", ["scheduled", "paused"])
+  } catch {
+    /* table missing — non-fatal */
+  }
+}
+
+/**
+ * Insert a workspace_billing_history row for a Stripe invoice. Idempotent on
+ * the (workspace_id, reference) pair so a webhook replay does not duplicate.
+ * Also records a payment event. Money is integer pence (Stripe minor units).
+ */
+async function recordBillingHistory(
+  supabase: AdminLike,
+  invoice: import("stripe").Stripe.Invoice,
+  customerId: string | null,
+  status: "paid" | "failed",
+): Promise<void> {
+  try {
+    // The subscription link moved under invoice.parent.subscription_details in
+    // this API version.
+    const subDetails = invoice.parent?.subscription_details?.subscription ?? null
+    const subId = typeof subDetails === "string" ? subDetails : subDetails?.id ?? null
+    const workspaceId = await resolveWorkspaceId(
+      supabase,
+      null,
+      customerId,
+    )
+    if (!workspaceId) return
+
+    const reference = invoice.number ?? invoice.id ?? `inv_${Date.now()}`
+
+    // Idempotency: skip if we already logged this invoice reference.
+    const { data: seen } = await supabase
+      .from("workspace_billing_history")
+      .select("id")
+      .eq("workspace_id", workspaceId)
+      .eq("reference", reference)
+      .limit(1)
+      .maybeSingle()
+    if (seen) return
+
+    const amountPence = status === "paid" ? invoice.amount_paid ?? 0 : invoice.amount_due ?? 0
+    // total_taxes is an array of tax amounts in this API version.
+    const taxPence = (invoice.total_taxes ?? []).reduce(
+      (sum, t) => sum + (t.amount ?? 0),
+      0,
+    )
+    const issuedAt = isoFromUnixSeconds(invoice.created) ?? new Date().toISOString()
+
+    // Resolve the section subscription row id for the FK, if present.
+    let sectionSubId: string | null = null
+    if (subId) {
+      const { data: row } = await supabase
+        .from("workspace_subscriptions")
+        .select("id")
+        .eq("stripe_subscription_id", subId)
+        .limit(1)
+        .maybeSingle()
+      sectionSubId = (row?.id as string | null) ?? null
+    }
+
+    await supabase.from("workspace_billing_history").insert({
+      workspace_id: workspaceId,
+      subscription_id: sectionSubId,
+      doc_type: "invoice",
+      reference,
+      description: invoice.description ?? (status === "paid" ? "Subscription payment" : "Payment failed"),
+      amount_pence: amountPence,
+      tax_pence: taxPence,
+      currency: (invoice.currency ?? "gbp").toUpperCase(),
+      status: status === "paid" ? "paid" : "failed",
+      period_label: null,
+      issued_at: issuedAt,
+    })
+
+    await supabase.from("workspace_subscription_events").insert({
+      workspace_id: workspaceId,
+      subscription_id: sectionSubId,
+      event_type: "payment",
+      summary:
+        status === "paid"
+          ? `Payment received for ${reference}.`
+          : `Payment failed for ${reference}.`,
+      actor: "System",
+      metadata_json: { reference, amountPence },
+    })
+  } catch {
+    /* table missing — non-fatal */
   }
 }

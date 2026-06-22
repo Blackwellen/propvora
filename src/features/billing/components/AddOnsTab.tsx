@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState } from "react"
-import { Puzzle, ExternalLink } from "lucide-react"
+import { Puzzle, CheckCircle2 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import { useActiveAddons, useAddonFeatureFlags, useBillingRole, useSubscription } from "../data/hooks"
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { addonMonthlyPence } from "../data/calc"
 import { addonAvailableForPlan, type SubscriptionAddon } from "../data/types"
-import { openBillingPortal } from "../data/stripe-link"
+import { applyAddonChange, catalogKeyForAddon } from "../data/stripe-link"
 import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, PermissionNotice } from "./ui"
 
 const UNIT_SUFFIX: Record<string, string> = {
@@ -16,15 +16,6 @@ const UNIT_SUFFIX: Record<string, string> = {
   per_gb: "× 100GB",
   flat: "",
   credit_pack: "",
-}
-
-// Plain-English pricing basis shown under the unit price for clarity.
-const UNIT_BASIS: Record<string, string> = {
-  per_property: "per extra property / unit, per month",
-  per_seat: "per additional team seat, per month",
-  per_gb: "per 100 GB of storage, per month",
-  flat: "flat monthly fee",
-  credit_pack: "one-off credit pack",
 }
 
 export function AddOnsTab() {
@@ -43,23 +34,33 @@ export function AddOnsTab() {
       }
     }),
   )
+  const [confirmedCode, setConfirmedCode] = useState<string | null>(null)
   const [pendingCode, setPendingCode] = useState<string | null>(null)
-  const [portalError, setPortalError] = useState<string | null>(null)
+  const [errorByCode, setErrorByCode] = useState<Record<string, string>>({})
 
   function setAddon(code: string, patch: Partial<SubscriptionAddon>) {
     setAddons((prev) => prev.map((a) => (a.code === code ? { ...a, ...patch } : a)))
+    setConfirmedCode(null)
   }
 
-  // Add-on changes are applied as Stripe subscription-item changes. There is no
-  // bespoke add-on mutation endpoint yet (see report), so the honest path is the
-  // Stripe billing portal, which applies the change with real Stripe proration.
+  // Apply the add-on change through the real /api/billing/addons endpoint.
+  // The route validates the catalogue key, mutates the Stripe subscription item
+  // (Stripe handles proration) and writes the DB + event rows. Add-ons without a
+  // configured Stripe price surface an honest message rather than silently no-op.
   async function confirmAddon(code: string) {
-    setPortalError(null)
+    const a = addons.find((x) => x.code === code)
+    if (!a) return
+    setErrorByCode((prev) => ({ ...prev, [code]: "" }))
     setPendingCode(code)
     try {
-      await openBillingPortal()
+      const action = !a.enabled ? "remove" : "set_quantity"
+      await applyAddonChange({ code: a.code, action, quantity: a.quantity })
+      setConfirmedCode(code)
     } catch (e) {
-      setPortalError(e instanceof Error ? e.message : "Add-on changes need an active subscription. They open in the Stripe portal once billing is connected.")
+      setErrorByCode((prev) => ({
+        ...prev,
+        [code]: e instanceof Error ? e.message : "Could not apply the change.",
+      }))
     } finally {
       setPendingCode(null)
     }
@@ -82,12 +83,9 @@ export function AddOnsTab() {
               action={<Toggle label={`Toggle ${item.name}`} checked={a.enabled} disabled={!canManageBilling} onChange={(v) => setAddon(item.code, { enabled: v })} />}
             >
               <div className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[12px] text-slate-500">Unit price</span>
-                    <p className="text-[11px] text-slate-400">{UNIT_BASIS[item.unit]}</p>
-                  </div>
-                  <span className="text-[13px] font-semibold text-slate-800 whitespace-nowrap">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] text-slate-500">Unit price</span>
+                  <span className="text-[13px] font-semibold text-slate-800">
                     {item.unit === "credit_pack" ? `from ${formatPence(item.unitPricePence)}` : `${formatPence(item.unitPricePence)}${item.unit === "flat" ? "/mo" : ""}`}
                   </span>
                 </div>
@@ -122,20 +120,26 @@ export function AddOnsTab() {
                   </span>
                 </div>
 
-                {a.enabled && (
-                  <p className="text-[11px] text-slate-400">Changes are prorated by Stripe for the remainder of your billing period.</p>
+                {!catalogKeyForAddon(item.code) && (
+                  <p className="text-[11px] text-amber-600">Not yet available for self-serve purchase — contact billing to enable.</p>
+                )}
+                {errorByCode[item.code] && (
+                  <p className="text-[11px] text-red-600">{errorByCode[item.code]}</p>
                 )}
 
                 <div className="flex items-center justify-between">
-                  {a.enabled ? <StatusBadge tone="emerald">Selected</StatusBadge> : <StatusBadge tone="slate">Off</StatusBadge>}
+                  {a.enabled ? <StatusBadge tone="emerald">Active</StatusBadge> : <StatusBadge tone="slate">Off</StatusBadge>}
                   <BillingButton
                     variant="secondary"
-                    icon={ExternalLink}
                     className="text-[12px] px-3 py-1.5"
-                    disabled={!canManageBilling || pendingCode === item.code}
-                    onClick={() => confirmAddon(item.code)}
+                    disabled={!canManageBilling || pendingCode === item.code || !catalogKeyForAddon(item.code)}
+                    onClick={() => void confirmAddon(item.code)}
                   >
-                    {pendingCode === item.code ? "Opening Stripe…" : "Confirm change"}
+                    {pendingCode === item.code
+                      ? "Saving…"
+                      : confirmedCode === item.code
+                        ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Saved</span>
+                        : "Confirm change"}
                   </BillingButton>
                 </div>
               </div>
@@ -143,10 +147,6 @@ export function AddOnsTab() {
           )
         })}
       </div>
-
-      {portalError && (
-        <p className="text-[12px] text-amber-600">{portalError}</p>
-      )}
 
       {gated.length > 0 && (
         <BillingCard title="Plan or release gated">
