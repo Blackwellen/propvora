@@ -9,31 +9,45 @@ import {
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill } from "../components/StatusPill"
-import { propertyImages as IMG } from "../data/mock"
 
 const TABS = ["To write", "Submitted", "Responses", "Saved stays"]
-const KPIS = [
-  { id: "pending", label: "Reviews pending", value: "2", sub: "Next: 24 May 2025", icon: PencilLine, bg: "bg-violet-50 text-violet-600" },
-  { id: "submitted", label: "Submitted reviews", value: "18", sub: "View all", icon: FileText, bg: "bg-emerald-50 text-emerald-600", link: "#submitted" },
-  { id: "rating", label: "Average stay rating", value: "4.7", sub: "From 18 reviews", icon: Star, bg: "bg-amber-50 text-amber-600" },
-  { id: "responses", label: "Host responses", value: "10", sub: "Last 30 days", icon: MessagesSquare, bg: "bg-blue-50 text-blue-600" },
-  { id: "trust", label: "Trust score", value: "Excellent", sub: "View details", icon: ShieldCheck, bg: "bg-emerald-50 text-emerald-600" },
-]
-const AWAITING = [
-  { id: "riverside-apartment", title: "Riverside Apartment", location: "Manchester, M1", image: IMG.cityLoft, dates: "24 – 28 May 2025", guests: 2, completed: "28 May 2025" },
-  { id: "lakeside-cottage", title: "Lakeside Cottage", location: "Windermere, LA23", image: IMG.lakeside, dates: "6 – 9 Jun 2025", guests: 4, completed: "9 Jun 2025" },
-]
-const SUBMITTED = [
-  { id: "city-view", stay: "City View Flat", loc: "MediaCity, M50", image: IMG.cityLoft, rating: 5.0, when: "5 May 2025", responded: true, respWhen: "6 May 2025" },
-  { id: "green-quarter", stay: "Green Quarter House", loc: "Salford, M6", image: IMG.greenQuarter, rating: 4.0, when: "14 Apr 2025", responded: true, respWhen: "15 Apr 2025" },
-  { id: "dockside", stay: "Dockside Apartment", loc: "Ancoats, M4", image: IMG.dockside, rating: 5.0, when: "26 Mar 2025", responded: false },
-  { id: "meadow", stay: "Meadow Cottage", loc: "Bakewell, DE45 1QY", image: IMG.meadow, rating: 4.0, when: "9 Mar 2025", responded: true, respWhen: "11 Mar 2025" },
-]
 const RATING_CATS = ["Cleanliness", "Communication", "Location", "Value for money", "Overall"]
 
-export default function ReviewsClient() {
+export interface AwaitingReview {
+  id: string
+  title: string
+  location: string
+  image: string
+  dates: string
+  guests: number
+  completed: string
+}
+export interface SubmittedReview {
+  id: string
+  stay: string
+  loc: string
+  image: string
+  rating: number
+  when: string
+  responded: boolean
+  respWhen?: string
+}
+
+export default function ReviewsClient({ awaiting = [], submitted = [] }: { awaiting?: AwaitingReview[]; submitted?: SubmittedReview[] }) {
   const { toast } = useCustomerToast()
   const [tab, setTab] = useState("To write")
+
+  const AWAITING = awaiting
+  const SUBMITTED = submitted
+  const avgRating = SUBMITTED.length ? (SUBMITTED.reduce((s, r) => s + r.rating, 0) / SUBMITTED.length) : 0
+  const responses = SUBMITTED.filter((s) => s.responded).length
+  const KPIS = [
+    { id: "pending", label: "Reviews pending", value: String(AWAITING.length), sub: AWAITING.length ? "Awaiting your review" : "All caught up", icon: PencilLine, bg: "bg-violet-50 text-violet-600" },
+    { id: "submitted", label: "Submitted reviews", value: String(SUBMITTED.length), sub: "View all", icon: FileText, bg: "bg-emerald-50 text-emerald-600", link: "#submitted" },
+    { id: "rating", label: "Average stay rating", value: avgRating ? avgRating.toFixed(1) : "—", sub: SUBMITTED.length ? `From ${SUBMITTED.length} review${SUBMITTED.length === 1 ? "" : "s"}` : "No reviews yet", icon: Star, bg: "bg-amber-50 text-amber-600" },
+    { id: "responses", label: "Host responses", value: String(responses), sub: "From your hosts", icon: MessagesSquare, bg: "bg-blue-50 text-blue-600" },
+    { id: "trust", label: "Reviewer", value: SUBMITTED.length >= 3 ? "Trusted" : "New", sub: "Based on your activity", icon: ShieldCheck, bg: "bg-emerald-50 text-emerald-600" },
+  ]
 
   return (
     <div className="space-y-5">
@@ -79,8 +93,9 @@ export default function ReviewsClient() {
         <div className="space-y-5">
           {/* Awaiting review */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-center gap-2 mb-1"><h3 className="text-[15px] font-bold text-slate-900">Stays awaiting your review</h3><span className="min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">2</span></div>
+            <div className="flex items-center gap-2 mb-1"><h3 className="text-[15px] font-bold text-slate-900">Stays awaiting your review</h3>{AWAITING.length > 0 && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">{AWAITING.length}</span>}</div>
             <p className="text-[12.5px] text-slate-500 mb-3">Share your feedback to help other guests and hosts.</p>
+            {AWAITING.length === 0 && <p className="py-6 text-center text-[13px] text-slate-400">No stays are awaiting a review right now.</p>}
             <div className="divide-y divide-slate-100">
               {AWAITING.map((a) => (
                 <div key={a.id} className="flex flex-col lg:flex-row gap-4 py-4 first:pt-0">
@@ -110,6 +125,7 @@ export default function ReviewsClient() {
           {/* Submitted reviews table */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5" id="submitted">
             <h3 className="text-[15px] font-bold text-slate-900 mb-3">Your submitted reviews</h3>
+            {SUBMITTED.length === 0 && <p className="py-6 text-center text-[13px] text-slate-400">You haven&apos;t submitted any reviews yet.</p>}
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
@@ -154,38 +170,25 @@ export default function ReviewsClient() {
           </div>
         </div>
 
-        {/* Right rail: review details */}
+        {/* Right rail: how reviews work + tips (no fabricated example) */}
         <aside className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sticky top-[84px]">
-          <div className="flex items-center justify-between"><h3 className="text-[14px] font-bold text-slate-900">Review details</h3><button onClick={() => toast("Editing draft…", "info")} className="text-[11.5px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1">Edit draft</button></div>
-          <div className="flex gap-2.5 mt-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG.cityLoft} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" />
-            <div><p className="text-[12.5px] font-semibold text-slate-800">Riverside Apartment</p><p className="text-[11px] text-slate-400">Manchester, M1</p><p className="text-[11px] text-slate-400 mt-0.5">24 – 28 May 2025 · 2 guests</p></div>
-          </div>
+          <h3 className="text-[14px] font-bold text-slate-900">Writing a great review</h3>
+          <p className="text-[12px] text-slate-500 mt-1">Honest, specific reviews help other guests and hosts. You can review a stay once it&apos;s completed.</p>
           <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-2">Your ratings</p>
-            {[["Cleanliness", 5], ["Communication", 5], ["Location", 4], ["Value for money", 5], ["Overall", 5]].map(([c, v]) => (
-              <div key={c as string} className="flex items-center justify-between py-0.5"><span className="text-[12px] text-slate-500">{c as string}</span><span className="flex items-center gap-1"><Stars value={v as number} /><span className="text-[11px] text-slate-400 ml-1">{(v as number).toFixed(1)}</span></span></div>
+            <p className="text-[12px] font-semibold text-slate-700 mb-2">What to rate</p>
+            {RATING_CATS.map((c) => (
+              <p key={c} className="text-[11.5px] text-slate-500 flex items-center gap-1.5 py-0.5"><Star className="w-3.5 h-3.5 text-amber-400" /> {c}</p>
             ))}
           </div>
           <div className="mt-3 pt-3 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-1"><p className="text-[12px] font-semibold text-slate-700">Your review</p><StatusPill tone="emerald">Example review</StatusPill></div>
-            <p className="text-[12px] text-slate-600">Fantastic stay! The apartment was spotless, modern and in a perfect location. The host was really responsive and check-in was smooth. Would definitely stay here again and highly recommend it!</p>
-            <p className="text-[10.5px] text-slate-400 mt-1">Written 28 May 2025</p>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-1"><p className="text-[12px] font-semibold text-slate-700">Host response</p><StatusPill tone="emerald">Responded 29 May 2025</StatusPill></div>
-            <div className="flex items-center gap-2 mb-1"><span className="w-7 h-7 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">Alex Morgan</p><p className="text-[10.5px] text-slate-400">Host</p></div></div>
-            <p className="text-[12px] text-slate-600">Thank you so much for your kind words, Sarah! We're thrilled you enjoyed your stay and truly appreciate the recommendation. You're welcome back anytime!</p>
-            <button onClick={() => toast("Replying…", "info")} className="mt-2 text-[11.5px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1">Reply</button>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100">
-            <p className="text-[12px] font-semibold text-slate-700 mb-2">Stay information</p>
-            <div className="grid grid-cols-2 gap-2"><Mini l="Check-in" v="24 May 2025" /><Mini l="Check-out" v="28 May 2025" /><Mini l="Guests" v="2 adults" /><Mini l="Booking ID" v="PR-4X7D2F" /></div>
+            <p className="text-[12px] font-semibold text-slate-700 mb-2">Tips</p>
+            {["Be specific about what stood out", "Keep it fair and factual", "Mention anything the host could improve"].map((t) => (
+              <p key={t} className="text-[11.5px] text-slate-500 flex items-center gap-1.5 py-0.5"><Lightbulb className="w-3.5 h-3.5 text-blue-500" /> {t}</p>
+            ))}
           </div>
           <div className="mt-3 pt-3 border-t border-slate-100">
             <p className="text-[12px] font-semibold text-slate-700 mb-2 flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-blue-500" /> Trust &amp; safety</p>
-            {["Verified stay", "Completed booking", "No policy violations"].map((t) => <p key={t} className="text-[11.5px] text-slate-500 flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> {t}</p>)}
+            <p className="text-[11.5px] text-slate-500">Reviews are tied to completed bookings, so they reflect real stays.</p>
             <Link href="/customer/help" className="mt-2 inline-block text-[12px] font-semibold text-blue-600">Learn more about reviews →</Link>
           </div>
         </aside>

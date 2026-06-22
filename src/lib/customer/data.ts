@@ -330,6 +330,33 @@ export async function getCustomerBookingReview(
   }
 }
 
+/**
+ * The customer's submitted reviews, scoped to their own bookings (pass the
+ * booking ids from listCustomerBookings so scoping is correct regardless of
+ * booking_reviews.workspace_id semantics). Tolerant → [].
+ */
+export async function listCustomerReviews(
+  supabase: SupabaseClient,
+  bookingIds: string[]
+): Promise<Array<{ id: string; booking_id: string; rating: number; title: string | null; body: string | null; created_at: string }>> {
+  if (!bookingIds.length) return []
+  try {
+    const { data, error } = await supabase
+      .from("booking_reviews")
+      .select("id, booking_id, rating, title, body, created_at")
+      .in("booking_id", bookingIds)
+      .order("created_at", { ascending: false })
+    if (error) {
+      if (tolerable(error)) return []
+      throw error
+    }
+    return (data ?? []) as Array<{ id: string; booking_id: string; rating: number; title: string | null; body: string | null; created_at: string }>
+  } catch (e) {
+    if (tolerable(e)) return []
+    throw e
+  }
+}
+
 // ── Orders (buyer side of marketplace_transactions) ──────────────────────────
 
 export async function listCustomerOrders(
