@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/utils"
 import { createWorkspace } from "@/lib/actions/workspace"
+import { getPlans, gbp } from "@/lib/billing/plans"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,7 @@ type BusinessType =
 
 type PortfolioChoice = "import" | "manual" | "demo"
 type DemoVariant = "full" | "rent_to_rent" | "hmo" | "serviced"
-type PlanId = "starter" | "pro" | "business"
+type PlanId = "starter" | "operator" | "scale" | "pro_agency"
 
 interface WizardState {
   // Step 2
@@ -140,26 +141,20 @@ const DEMO_VARIANTS: { value: DemoVariant; label: string; description: string }[
   { value: "serviced", label: "Serviced accommodation", description: "SA units, channel bookings and occupancy data" },
 ]
 
-const PLANS: { id: PlanId; name: string; price: string; features: string[] }[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "£29",
-    features: ["Up to 5 properties", "Basic financials", "Maintenance tracking", "Email support"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "£79",
-    features: ["Up to 50 properties", "Full financials & reports", "Tenant portal", "Automation workflows", "Priority support"],
-  },
-  {
-    id: "business",
-    name: "Business",
-    price: "£149",
-    features: ["Unlimited properties", "Multi-workspace", "Advanced analytics", "API access", "Dedicated account manager"],
-  },
-]
+// Canonical plans — derived from src/lib/billing/plans.ts (single source of
+// truth, same as the marketing pricing page). Names, highlights and prices are
+// never duplicated/invented here; price shows "Custom" until a Stripe amount is
+// set. Onboarding offers the four operator tiers (Enterprise is sales-led).
+const ONBOARDING_TIERS: PlanId[] = ["starter", "operator", "scale", "pro_agency"]
+const PLANS: { id: PlanId; name: string; price: string; popular: boolean; features: string[] }[] = getPlans()
+  .filter((p) => (ONBOARDING_TIERS as string[]).includes(p.tier))
+  .map((p) => ({
+    id: p.tier as PlanId,
+    name: p.name,
+    price: p.monthlyAmount != null ? `${gbp(p.monthlyAmount)}/mo` : "Custom",
+    popular: Boolean(p.popular),
+    features: p.highlights,
+  }))
 
 const PROGRESS_MESSAGES = [
   "Creating your workspace…",
@@ -272,7 +267,7 @@ export default function OnboardingPage() {
     operationInterests: [],
     portfolioChoice: "",
     demoVariant: "",
-    planId: "pro",
+    planId: "operator",
   })
 
   const STORAGE_KEY = "propvora_onboarding_progress"
@@ -845,7 +840,7 @@ export default function OnboardingPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-slate-800">{plan.name}</span>
-                            {plan.id === "pro" && (
+                            {plan.popular && (
                               <span className="rounded-full bg-[#2563EB] px-2 py-0.5 text-xs text-white">
                                 Most popular
                               </span>
