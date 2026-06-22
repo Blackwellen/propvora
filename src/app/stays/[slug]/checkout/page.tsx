@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getPublicStayBySlug } from "@/lib/public-marketplace/queries"
-import MarketplaceCheckout, {
-  type MarketplaceCheckoutConfig,
-} from "@/components/checkout/MarketplaceCheckout"
+import StayCheckoutFlow from "@/components/checkout/StayCheckoutFlow"
 
 export const dynamic = "force-dynamic"
 
@@ -25,19 +23,6 @@ function nightsBetween(checkIn?: string, checkOut?: string): number {
   return diff > 0 ? diff : 0
 }
 
-function fmtDate(d?: string): string {
-  if (!d) return "—"
-  try {
-    return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })
-  } catch {
-    return d
-  }
-}
-
 export default async function StayCheckoutPage({
   params,
   searchParams,
@@ -54,51 +39,39 @@ export default async function StayCheckoutPage({
   const guestCount = Math.max(1, Number(guests) || 1)
   const subtotal = stay.pricePerNight * nights
 
-  const config: MarketplaceCheckoutConfig = {
-    kind: "stay",
-    title: "Complete your booking",
-    heading: stay.title,
-    subheading: stay.location,
-    thumbUrl: stay.heroImage,
-    metaRows: [
-      { label: "Check-in", value: fmtDate(checkIn) },
-      { label: "Check-out", value: fmtDate(checkOut) },
-      { label: "Guests", value: `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` },
-    ],
-    lineItems: [
-      { label: `${(stay.pricePerNight / 100).toLocaleString("en-GB", { style: "currency", currency: "GBP" })} × ${nights} night${nights !== 1 ? "s" : ""}`, pence: subtotal },
-      { label: "Cleaning fee", pence: stay.cleaningFee },
-      { label: "Service fee", pence: stay.serviceFee },
-    ],
-    depositPence: undefined,
-    currency: "GBP",
-    included: [
-      `Self check-in${stay.instantBook ? " · instant confirmation" : ""}`,
-      ...(stay.amenities ?? []).slice(0, 4),
-      `Hosted by ${stay.hostName}${stay.hostProBadge ? " (Pro host)" : ""}`,
-    ].filter(Boolean),
-    trustChips: [
-      ...(stay.verified ? ["Verified stay"] : []),
-      ...(stay.freeCancellation ? ["Free cancellation"] : []),
-      `${stay.rating.toFixed(1)}★ (${stay.reviewCount})`,
-    ],
-    policyNotes: [
-      stay.freeCancellation
-        ? "Free cancellation up to 48 hours before check-in."
-        : "Cancellation terms follow the host's policy.",
-      "You won't be charged until your booking is confirmed.",
-      "Your payment is protected by Propvora secure checkout.",
-    ],
-    whatNext: [
-      "Confirm and pay securely — your card is charged once.",
-      "The host receives your booking and confirms instantly.",
-      "Check-in details and the host's contact are sent to your email.",
-    ],
-    backHref: `/stays/${slug}`,
-    backLabel: "Back to stay",
-    successHref: "/customer/bookings",
-    successHrefLabel: "View my bookings",
-  }
+  const checkInIso = checkIn || ""
+  const checkOutIso = checkOut || ""
 
-  return <MarketplaceCheckout config={config} />
+  return (
+    <StayCheckoutFlow
+      listingId={stay.id}
+      heading={stay.title}
+      subheading={stay.location}
+      thumbUrl={stay.heroImage}
+      checkIn={checkInIso}
+      checkOut={checkOutIso}
+      guests={guestCount}
+      nights={nights}
+      lineItems={[
+        { label: `${(stay.pricePerNight / 100).toLocaleString("en-GB", { style: "currency", currency: "GBP" })} × ${nights} night${nights !== 1 ? "s" : ""}`, pence: subtotal },
+        { label: "Cleaning fee", pence: stay.cleaningFee },
+        { label: "Service fee", pence: stay.serviceFee },
+      ]}
+      currency="GBP"
+      included={[
+        `Self check-in${stay.instantBook ? " · instant confirmation" : ""}`,
+        ...(stay.amenities ?? []).slice(0, 4),
+        `Hosted by ${stay.hostName}${stay.hostProBadge ? " (Pro host)" : ""}`,
+      ].filter(Boolean)}
+      trustChips={[
+        ...(stay.verified ? ["Verified stay"] : []),
+        ...(stay.freeCancellation ? ["Free cancellation"] : []),
+        `${stay.rating.toFixed(1)}★ (${stay.reviewCount})`,
+      ]}
+      backHref={`/stays/${slug}`}
+      backLabel="Back to stay"
+      successHref="/customer/bookings"
+      successHrefLabel="View my bookings"
+    />
+  )
 }
