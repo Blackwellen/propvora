@@ -55,7 +55,7 @@ function appBase(): string {
   const base =
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://staging.propvora.com"
+    "https://propvora.com"
   return base.replace(/\/$/, "")
 }
 
