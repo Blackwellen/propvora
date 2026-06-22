@@ -24,24 +24,40 @@ export const metadata: Metadata = {
     template: "%s | Propvora",
   },
   description:
-    "Propvora helps landlords and letting agents manage properties, tenants, maintenance, compliance and finances.",
+    "Propvora is UK property-operations & compliance software for landlords and letting agents — manage properties, tenancies, maintenance, compliance and finances in one place.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://propvora.com"),
-  keywords: ["property management", "landlord software", "tenancy management", "proptech"],
-  authors: [{ name: "Propvora Ltd" }],
-  creator: "Propvora Ltd",
+  applicationName: "Propvora",
+  keywords: [
+    "property management software", "landlord software", "letting agent software",
+    "tenancy management", "property compliance software", "proptech", "UK property software",
+    "maintenance management", "rent management",
+  ],
+  authors: [{ name: "Blackwellen Ltd", url: "https://propvora.com" }],
+  creator: "Blackwellen Ltd",
+  publisher: "Blackwellen Ltd t/a Propvora",
+  category: "Property management software",
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
   openGraph: {
     type: "website",
     locale: "en_GB",
     siteName: "Propvora",
-    title: "Propvora — Property Management Software",
+    url: "/",
+    title: "Propvora — UK Property Management & Compliance Software",
     description:
-      "Propvora helps landlords and letting agents manage properties, tenants, maintenance, compliance and finances.",
+      "Manage properties, tenancies, maintenance, compliance and finances in one place. Built for UK landlords and letting agents.",
+    images: [{ url: "/propvora-logo-dark.png", width: 1200, height: 630, alt: "Propvora" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Propvora — Property Management Software",
+    title: "Propvora — UK Property Management & Compliance Software",
     description:
-      "Propvora helps landlords and letting agents manage properties, tenants, maintenance, compliance and finances.",
+      "Manage properties, tenancies, maintenance, compliance and finances in one place. Built for UK landlords and letting agents.",
+    images: ["/propvora-logo-dark.png"],
   },
   icons: {
     icon: [
@@ -75,6 +91,43 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://propvora.com"
+
+// Structured data (JSON-LD) for rich results + AI-search understanding.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Propvora",
+      legalName: "Blackwellen Ltd",
+      url: SITE_URL,
+      logo: `${SITE_URL}/propvora-logo-dark.png`,
+      description: "UK property-operations & compliance software for landlords and letting agents.",
+      areaServed: "GB",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Propvora",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en-GB",
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "Propvora",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: SITE_URL,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      description: "Manage properties, tenancies, maintenance, compliance and finances in one place.",
+      offers: { "@type": "Offer", category: "SaaS subscription", priceCurrency: "GBP" },
+    },
+  ],
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -87,6 +140,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full" style={{ fontFamily: "var(--font-inter, var(--font-sans))" }}>
+          <script
+            type="application/ld+json"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+          />
           <QueryProvider>
             <AuthProvider>
               <Suspense fallback={null}>
