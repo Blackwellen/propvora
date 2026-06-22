@@ -55,6 +55,7 @@ export const FLAG_META: Record<V2FlagKey, FlagMeta> = {
   registrationCustomer: { stage: "V2",   module: "Auth",        risk: "medium", parent: "customerWorkspace" },
   registrationSupplier: { stage: "V2",   module: "Auth",        risk: "medium", parent: "supplierWorkspace" },
   affiliateEnabled:     { stage: "V1",   module: "Platform",    risk: "low" },
+  sellerVerificationRequired: { stage: "V2", module: "Marketplace", risk: "high", parent: "marketplaceEnabled" },
 }
 
 export function flagMeta(key: V2FlagKey): FlagMeta {

@@ -40,6 +40,7 @@ export const V2_FLAG_KEYS = [
   "registrationCustomer",
   "registrationSupplier",
   "affiliateEnabled",
+  "sellerVerificationRequired",
 ] as const
 
 /** A v2 feature flag identifier (camelCase). */
@@ -244,6 +245,13 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     dbKey: toDbKey("affiliateEnabled"),
     label: "Affiliate Programme",
     description: "Show the Affiliate nav item for workspaces enrolled in the referral programme. Off by default — enabled per workspace on enrolment.",
+    defaultEnabled: false,
+  },
+  sellerVerificationRequired: {
+    key: "sellerVerificationRequired",
+    dbKey: toDbKey("sellerVerificationRequired"),
+    label: "Seller verification gate",
+    description: "Enforce identity/KYC (+ supplier insurance) before a seller can go live or receive payouts. OFF until marketplace launch so pre-launch listings aren't blocked; turn ON at launch.",
     defaultEnabled: false,
   },
 }

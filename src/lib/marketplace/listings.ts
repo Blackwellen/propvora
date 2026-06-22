@@ -285,11 +285,31 @@ async function setStatus(
  * GATING: the caller MUST first pass `gateMarketplacePublishing` from
  * `@/lib/billing/gates` — this helper does not re-check entitlement.
  */
-export function publishListing(
+export async function publishListing(
   supabase: SupabaseClient,
   workspaceId: string,
   listingId: string
 ): Promise<Result<MarketplaceListing>> {
+  // Flag-gated seller verification gate (identity/KYC + supplier insurance).
+  // Inert until `sellerVerificationRequired` is enabled at marketplace launch.
+  try {
+    const { data: row } = await supabase
+      .from("marketplace_listings")
+      .select("transaction_type")
+      .eq("id", listingId)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+    const txType = (row as { transaction_type?: string } | null)?.transaction_type ?? ""
+    const kind = /supplier|emergency|service/i.test(txType) ? "supplier" : "host"
+    const { sellerGoLiveGate } = await import("@/lib/marketplace/seller-gate")
+    const gate = await sellerGoLiveGate(supabase, workspaceId, kind)
+    if (gate.enforced && !gate.allowed) {
+      return { data: null, error: gate.reason }
+    }
+  } catch {
+    // Gate subsystem unavailable → do not block publishing (fail-open pre-launch).
+  }
+
   return setStatus(supabase, workspaceId, listingId, "published", {
     published_at: new Date().toISOString(),
   })
