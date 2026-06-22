@@ -6,12 +6,15 @@ import { getStripe, type StripeLike, type StripeElementsLike, type StripeElement
 import { formatPence } from "./status"
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Guest card form (Stripe Elements, PUBLISHABLE KEY ONLY).
+   Guest payment form (Stripe PAYMENT ELEMENT, PUBLISHABLE KEY ONLY).
 
    Flow:
      1. POST /api/payments/intent → { clientSecret, amountPence, currency }
-     2. mount a Stripe Card Element
-     3. on submit, stripe.confirmCardPayment(clientSecret, { card })
+     2. mount a Stripe PAYMENT Element (cards + Google Pay + Apple Pay + any
+        saved cards on the intent's customer — Stripe is primary, Google Pay
+        appears automatically when supported; no Google dev account needed).
+     3. on submit, stripe.confirmPayment({ elements, redirect: "if_required" })
+        — authorises + HOLDS funds (manual-capture escrow intent).
      4. report the resulting PaymentIntent status up via onResult — the parent
         polls /api/payments/status and shows HONEST copy (processing / held /
         confirmed). We NEVER assert the booking is confirmed here.
@@ -95,18 +98,26 @@ export default function PaymentForm({
         if (typeof data.amountPence === "number") setServerAmount(data.amountPence)
         if (typeof data.currency === "string") setServerCurrency(data.currency)
 
-        const elements = stripe.elements()
-        elementsRef.current = elements
-        const card = elements.create("card", {
-          style: {
-            base: {
-              fontSize: "16px",
-              color: "#0B1B3F",
+        // Payment Element: created against the intent client_secret so it can
+        // render cards + Google Pay/Apple Pay + saved cards in one widget.
+        const elements = stripe.elements({
+          clientSecret: data.clientSecret,
+          appearance: {
+            theme: "stripe",
+            variables: {
+              colorPrimary: "#2563EB",
+              colorText: "#0B1B3F",
               fontFamily: "system-ui, -apple-system, sans-serif",
-              "::placeholder": { color: "#94A3B8" },
+              borderRadius: "12px",
             },
-            invalid: { color: "#DC2626" },
           },
+        })
+        elementsRef.current = elements
+        const card = elements.create("payment", {
+          layout: { type: "tabs", defaultCollapsed: false },
+          // Google Pay / Apple Pay surface automatically via the intent's
+          // automatic_payment_methods; Stripe stays the primary method.
+          wallets: { applePay: "auto", googlePay: "auto" },
         })
         cardRef.current = card
         // Defer mount until the node exists.
@@ -141,14 +152,20 @@ export default function PaymentForm({
 
   async function handleSubmit() {
     const stripe = stripeRef.current
-    const card = cardRef.current
+    const elements = elementsRef.current
     const clientSecret = clientSecretRef.current
-    if (!stripe || !card || !clientSecret) return
+    if (!stripe || !elements || !clientSecret) return
     setPhase("submitting")
     setError(null)
     try {
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card },
+      // Payment Element confirm — stays on-page unless a method needs a redirect
+      // (e.g. 3DS / some wallets), in which case Stripe redirects to return_url.
+      const result = await stripe.confirmPayment({
+        elements,
+        redirect: "if_required",
+        confirmParams: {
+          return_url: typeof window !== "undefined" ? window.location.href : undefined,
+        },
       })
       if (result.error) {
         setError(

@@ -85,12 +85,91 @@ export interface FeeBreakdown {
   appliedRuleId: string | null
 }
 
+// ── Propvora fee policy (founder-set 2026-06-22) ────────────────────────────
+// We never charge SELLERS (property suppliers / service suppliers) more than
+// 6.5% commission, on top of which the Stripe fee is passed through to the
+// BUYER. The buyer also pays a 1% platform surcharge. Net Propvora margin is
+// therefore ~7.5% all-in (6.5% seller + 1% buyer) — e.g. a £1,000 booking earns
+// Propvora £75, with Stripe's fee washed through to the buyer.
+//
+// Seller commission can be tuned DOWN per rule in `marketplace_fee_rules`, but
+// is HARD-CAPPED at MAX_SELLER_FEE_PERCENT in computeFee so a misconfigured rule
+// can never overcharge a seller.
+export const MAX_SELLER_FEE_PERCENT = 6.5
+
+// Seller commission scales DOWN with the property manager's subscription tier
+// (founder-set 2026-06-22): better plans pay lower marketplace commission.
+//   lower tiers 6.5% · mid 5.5% · highest 4.5% · enterprise 3.5%
+export const SELLER_FEE_BY_TIER: Record<string, number> = {
+  starter: 6.5,
+  operator: 6.5,
+  scale: 5.5,
+  pro_agency: 4.5,
+  enterprise: 3.5,
+}
+
+/** Resolve the seller commission % for a plan tier (defaults to the 6.5% cap). */
+export function sellerFeePercentForTier(tier?: string | null): number {
+  if (!tier) return MAX_SELLER_FEE_PERCENT
+  return SELLER_FEE_BY_TIER[tier] ?? MAX_SELLER_FEE_PERCENT
+}
+
+/** Buyer-side platform surcharge, added on top of the price the buyer pays. */
+export const BUYER_FEE_PERCENT = 1.0
+// Estimated UK Stripe cost for QUOTING the buyer's all-in total (the authoritative
+// fee is read from the Stripe balance transaction at settlement). Connect
+// domestic card ≈ 1.5% + 20p.
+export const STRIPE_EST_PERCENT = 1.5
+export const STRIPE_EST_FIXED_PENCE = 20
+
 /**
- * Last-resort fallback commission, used ONLY when the rule table is missing or
- * empty. This is the single hardcoded percent in the system and exists purely so
- * a fee can always be computed. The authoritative 2.5% lives in the DB seed.
+ * Last-resort fallback SELLER commission, used ONLY when the rule table is
+ * missing or empty, so a fee can always be computed. Defaults to the 6.5% cap.
  */
-export const FALLBACK_FEE_PERCENT = 2.5
+export const FALLBACK_FEE_PERCENT = MAX_SELLER_FEE_PERCENT
+
+/** All-in fee breakdown for quoting (buyer total + seller payout + platform net). */
+export interface AllInFees {
+  grossPence: number
+  /** Seller commission (≤6.5% of gross), deducted from the seller payout. */
+  sellerCommissionPence: number
+  /** Buyer surcharge (1% of gross), added to what the buyer pays. */
+  buyerSurchargePence: number
+  /** Estimated Stripe fee, passed through to the buyer. */
+  stripeFeePence: number
+  /** What the buyer is actually charged: gross + buyer surcharge + Stripe fee. */
+  buyerTotalPence: number
+  /** What the seller receives: gross − seller commission. */
+  sellerPayoutPence: number
+  /** Propvora net margin: seller commission + buyer surcharge (~7.5%). */
+  platformNetPence: number
+}
+
+/**
+ * Compute the all-in fee breakdown for a gross transaction. Pure + integer
+ * pence. `sellerFeePercent` is clamped to MAX_SELLER_FEE_PERCENT.
+ */
+export function computeAllInFees(
+  grossPence: number,
+  sellerFeePercent: number = MAX_SELLER_FEE_PERCENT
+): AllInFees {
+  const gross = Math.max(0, Math.trunc(grossPence))
+  const sellerPct = Math.min(Math.max(0, sellerFeePercent), MAX_SELLER_FEE_PERCENT)
+  const sellerCommissionPence = roundPence((gross * sellerPct) / 100)
+  const buyerSurchargePence = roundPence((gross * BUYER_FEE_PERCENT) / 100)
+  // Stripe fee is charged on the full amount the buyer pays (gross + surcharge).
+  const stripeBase = gross + buyerSurchargePence
+  const stripeFeePence = roundPence((stripeBase * STRIPE_EST_PERCENT) / 100) + STRIPE_EST_FIXED_PENCE
+  return {
+    grossPence: gross,
+    sellerCommissionPence,
+    buyerSurchargePence,
+    stripeFeePence,
+    buyerTotalPence: gross + buyerSurchargePence + stripeFeePence,
+    sellerPayoutPence: Math.max(0, gross - sellerCommissionPence),
+    platformNetPence: sellerCommissionPence + buyerSurchargePence,
+  }
+}
 
 /** A synthetic rule built from {@link FALLBACK_FEE_PERCENT}; appliedRuleId null. */
 function fallbackRule(): MarketplaceFeeRule {
@@ -185,7 +264,10 @@ export function computeFee(
   const gross = Math.max(0, Math.trunc(grossPence))
   const provider = Math.max(0, Math.trunc(providerFeePence))
 
-  let platformFeePence = roundPence((gross * rule.fee_percent) / 100)
+  // Hard-cap the seller commission at the policy maximum (6.5%) so a
+  // misconfigured DB rule can never overcharge a seller.
+  const effectivePercent = Math.min(rule.fee_percent, MAX_SELLER_FEE_PERCENT)
+  let platformFeePence = roundPence((gross * effectivePercent) / 100)
 
   // Clamp to the rule's min/max (each independently optional).
   if (rule.minimum_fee_pence !== null) {
@@ -209,7 +291,7 @@ export function computeFee(
     platformFeePence - (rule.provider_fee_pass_through ? 0 : provider)
 
   return {
-    platformFeePercent: rule.fee_percent,
+    platformFeePercent: effectivePercent,
     platformFeePence,
     providerFeePence: provider,
     sellerPayoutPence,

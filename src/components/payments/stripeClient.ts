@@ -24,6 +24,14 @@ export interface StripeLike {
     clientSecret: string,
     data?: Record<string, unknown>
   ) => Promise<{ error?: { message?: string }; paymentIntent?: { status?: string } }>
+  /**
+   * Payment Element confirmation — supports cards, Google Pay, Apple Pay and
+   * saved cards in one widget. Pass the Elements instance (created with the
+   * intent client_secret) + `redirect: "if_required"` to stay on-page.
+   */
+  confirmPayment: (
+    opts: Record<string, unknown>
+  ) => Promise<{ error?: { message?: string }; paymentIntent?: { status?: string } }>
 }
 export interface StripeElementsLike {
   create: (type: string, opts?: Record<string, unknown>) => StripeElementLike
