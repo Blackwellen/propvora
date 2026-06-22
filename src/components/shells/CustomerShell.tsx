@@ -144,7 +144,7 @@ export default function CustomerShell({
         >
           {/* Logo */}
           <Link href="/user" aria-label="Propvora home" className="shrink-0 mr-1">
-            <span className="relative block h-8 w-[136px]">
+            <span className="relative block h-11 w-[188px]">
               <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
             </span>
           </Link>

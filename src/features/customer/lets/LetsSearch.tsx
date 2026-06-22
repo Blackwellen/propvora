@@ -72,9 +72,9 @@ export default function LetsSearch() {
       {/* Results */}
       <div className={cn("grid gap-5 items-start", view === "map" ? "grid-cols-1 lg:grid-cols-[1fr_420px]" : "")}>
         <div className={cn(
-          "grid gap-5",
-          view === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-          view === "map" && "lg:grid-cols-2",
+          "grid gap-5 items-stretch",
+          view === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+          view === "map" && "lg:grid-cols-2 xl:grid-cols-2",
         )}>
           {rentals.map((rental) => (
             <LetsCard key={rental.id} rental={rental} />

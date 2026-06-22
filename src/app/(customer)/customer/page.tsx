@@ -74,39 +74,31 @@ function daysLabel(days: number | null): string {
 const QUICK_ACTIONS = [
   {
     label: "Find a stay",
+    description: "Search verified homes",
     href: "/stay/search",
     icon: Search,
-    bg: "bg-blue-50",
-    border: "border-blue-100",
-    iconColor: "text-blue-600",
-    accent: "#2563EB",
+    gradient: "from-[#2563EB] to-[#0EA5E9]",
   },
   {
     label: "My bookings",
+    description: "Trips & stays",
     href: "/user/bookings",
     icon: CalendarCheck,
-    bg: "bg-emerald-50",
-    border: "border-emerald-100",
-    iconColor: "text-emerald-600",
-    accent: "#059669",
+    gradient: "from-[#059669] to-[#10B981]",
   },
   {
     label: "Saved",
+    description: "Your favourites",
     href: "/user/saved",
     icon: Heart,
-    bg: "bg-rose-50",
-    border: "border-rose-100",
-    iconColor: "text-rose-600",
-    accent: "#e11d48",
+    gradient: "from-[#e11d48] to-[#fb7185]",
   },
   {
     label: "Messages",
+    description: "Hosts & support",
     href: "/user/messages",
     icon: MessageSquare,
-    bg: "bg-violet-50",
-    border: "border-violet-100",
-    iconColor: "text-violet-600",
-    accent: "#7c3aed",
+    gradient: "from-[#7c3aed] to-[#a78bfa]",
   },
 ]
 
@@ -253,15 +245,16 @@ export default async function CustomerHomePage() {
             <Link
               key={a.label}
               href={a.href}
-              className={`group relative flex flex-col justify-between p-4 rounded-2xl border ${a.bg} ${a.border} hover:shadow-md transition-all min-h-[88px]`}
+              className="group relative flex items-center gap-3.5 p-4 rounded-2xl border border-[#E7EDF6] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:border-[#CFE0F7] hover:shadow-[0_10px_28px_-12px_rgba(37,99,235,0.35)]"
             >
-              <div className="flex items-start justify-between">
-                <div className={`w-9 h-9 rounded-xl bg-white/70 flex items-center justify-center shadow-sm`}>
-                  <Icon className={`w-4.5 h-4.5 ${a.iconColor}`} />
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-500 transition-colors" />
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${a.gradient} text-white shadow-sm`}>
+                <Icon className="h-5 w-5" />
               </div>
-              <p className="text-sm font-semibold text-slate-800 mt-2 leading-tight">{a.label}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-semibold text-slate-900 leading-tight truncate">{a.label}</p>
+                <p className="text-[12px] text-slate-500 truncate mt-0.5">{a.description}</p>
+              </div>
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#2563EB]" />
             </Link>
           )
         })}
