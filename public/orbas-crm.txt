@@ -1,0 +1,26 @@
+# Orbas CRM
+
+A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/orbas-crm-
+
+> A Next.js CRM application backed by Supabase.
+
+## What it is
+Orbas CRM is a customer-relationship-management web application built with
+Next.js and Supabase.
+
+## Who it is for
+Teams and organisations that need a CRM they can deploy and run independently.
+
+## Tech stack
+Next.js, TypeScript, Supabase (PostgreSQL). Vercel-ready deployment
+configuration is included. Deployed (preview) at https://orbas-crm.vercel.app
+
+## Status
+Early-stage. The public repository contains the application scaffold with local
+development and database seed scripts. Treat as in-development, not a finished
+product.
+
+## Notes
+Orbas CRM is a Blackwellen Ltd product. No guaranteed-outcome claims are made.
+The repository README describes core CRM scaffolding; this file does not assert
+features beyond what the repository documents.

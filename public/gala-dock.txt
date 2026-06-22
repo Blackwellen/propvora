@@ -1,0 +1,16 @@
+# Gala Dock
+
+A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/gala-dock-final-release-v.1.0
+
+## What it is
+Gala Dock is a product by Blackwellen Ltd. At the time of writing, its source
+repository is not publicly accessible (the GitHub URL above returns 404 / is
+private), so no verified public description, feature list or status is available.
+
+## Status
+Public details unavailable. This file intentionally avoids describing features
+or claims that cannot be verified from a public source. It will be expanded if
+and when public information is published.
+
+## Notes
+Gala Dock is a Blackwellen Ltd product. No guaranteed-outcome claims are made.

@@ -1,0 +1,40 @@
+# Caption Fox
+
+A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/caption-fox
+
+> Caption Fox is a social media management platform designed to streamline
+> content creation, campaign management and brand monitoring for creators,
+> small businesses, agencies and enterprises.
+
+## What it is
+A single-dashboard tool that aims to centralise social media workflows —
+content planning, AI-assisted creation, scheduling/publishing, analytics and
+team collaboration — so teams don't need several disconnected tools.
+
+## Who it is for
+- Creators managing multiple platforms
+- Small businesses and brands running campaigns and monitoring brand presence
+- Agencies managing multiple clients (with white-label/client-portal needs)
+- Enterprise teams with approval workflows and compliance requirements
+
+## Key features (planned/in development)
+- AI-assisted caption generation and content creation
+- Content calendar with scheduling and post-approval workflows
+- Stock media library and image generation integrations
+- Social listening / brand-mention tracking with sentiment analysis
+- Campaign and giveaway management with ROI tracking
+- Unified inbox across messaging and social channels
+- Analytics, custom dashboards and report generation
+- Role-based permissions, multi-workspace and agency/white-label features
+- Link-in-bio landing pages
+
+## Tech stack
+Next.js, TypeScript, Supabase. Deployed (preview) at https://caption-fox.vercel.app
+
+## Status
+Early-stage / in active development. The feature set above is drawn from the
+project's implementation plan and should be treated as planned scope, not a
+list of shipped, production-ready features.
+
+## Notes
+Caption Fox is a Blackwellen Ltd product. No guaranteed-outcome claims are made.
