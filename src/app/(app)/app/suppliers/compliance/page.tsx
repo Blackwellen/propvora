@@ -36,7 +36,8 @@ const COMPLIANCE_CATEGORIES = [
 function statusConfig(status: string) {
   if (status === "compliant")   return { label: "Compliant",     icon: CheckCircle2,   cls: "text-emerald-600 bg-emerald-50 border-emerald-200", dot: "bg-emerald-400" }
   if (status === "expiring")    return { label: "Expiring soon", icon: AlertTriangle,  cls: "text-amber-600 bg-amber-50 border-amber-200",       dot: "bg-amber-400"   }
-  return                               { label: "Non-compliant", icon: XCircle,        cls: "text-red-600 bg-red-50 border-red-200",              dot: "bg-red-400"     }
+  if (status === "non_comply")  return { label: "Non-compliant", icon: XCircle,        cls: "text-red-600 bg-red-50 border-red-200",              dot: "bg-red-400"     }
+  return                               { label: "Not tracked",   icon: ShieldCheck,    cls: "text-slate-500 bg-slate-50 border-slate-200",        dot: "bg-slate-300"   }
 }
 
 function ComplianceBar({ value }: { value: number }) {
@@ -59,13 +60,11 @@ export default function SuppliersCompliancePage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "compliant" | "expiring" | "non_comply">("all")
 
+  // No live supplier-compliance source yet — never fabricate a compliance
+  // verdict (which could wrongly brand a real supplier "non-compliant").
+  // Every supplier shows an honest "not tracked" status until documents exist.
   const supplierCompliance = useMemo(() => {
-    return suppliers.map((s, i) => {
-      const seed = (s.id.charCodeAt(0) + i) % 3
-      const status = seed === 0 ? "compliant" : seed === 1 ? "expiring" : "non_comply"
-      const score = status === "compliant" ? 95 + (i % 5) : status === "expiring" ? 75 + (i % 15) : 40 + (i % 30)
-      return { ...s, complianceStatus: status, complianceScore: score }
-    })
+    return suppliers.map((s) => ({ ...s, complianceStatus: "untracked", complianceScore: null as number | null }))
   }, [suppliers])
 
   const filtered = useMemo(() => {
@@ -77,16 +76,13 @@ export default function SuppliersCompliancePage() {
     })
   }, [supplierCompliance, search, statusFilter])
 
-  const compliantCount  = supplierCompliance.filter((s) => s.complianceStatus === "compliant").length
-  const expiringCount   = supplierCompliance.filter((s) => s.complianceStatus === "expiring").length
-  const nonComplyCount  = supplierCompliance.filter((s) => s.complianceStatus === "non_comply").length
-  const overallScore    = suppliers.length > 0
-    ? Math.round(supplierCompliance.reduce((acc, s) => acc + s.complianceScore, 0) / suppliers.length)
-    : 96
+  const compliantCount  = 0
+  const expiringCount   = 0
+  const nonComplyCount   = 0
 
   function exportCsv() {
-    const rows = filtered.map((s) => [s.id, s.name, s.trade, s.complianceStatus, String(s.complianceScore)].map((v) => `"${v}"`).join(","))
-    const csv = ["ID,Name,Trade,Status,Score", ...rows].join("\n")
+    const rows = filtered.map((s) => [s.id, s.name, s.trade, s.complianceStatus].map((v) => `"${v}"`).join(","))
+    const csv = ["ID,Name,Trade,Status", ...rows].join("\n")
     const a = document.createElement("a")
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }))
     a.download = "suppliers-compliance.csv"
@@ -126,7 +122,7 @@ export default function SuppliersCompliancePage() {
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Overall score",    value: `${overallScore}%`,      icon: ShieldCheck,   bg: "bg-emerald-50", color: "text-emerald-600" },
+          { label: "Overall score",    value: "—",                     icon: ShieldCheck,   bg: "bg-emerald-50", color: "text-emerald-600" },
           { label: "Compliant",        value: String(compliantCount),  icon: CheckCircle2,  bg: "bg-emerald-50", color: "text-emerald-600" },
           { label: "Expiring soon",    value: String(expiringCount),   icon: AlertTriangle, bg: "bg-amber-50",   color: "text-amber-600"   },
           { label: "Non-compliant",    value: String(nonComplyCount),  icon: XCircle,       bg: "bg-red-50",     color: "text-red-600"     },
@@ -203,7 +199,7 @@ export default function SuppliersCompliancePage() {
                           </Link>
                           <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">{s.trade}</span>
                         </div>
-                        <ComplianceBar value={s.complianceScore} />
+                        <p className="text-[11.5px] text-slate-400">No compliance documents on file yet.</p>
                       </div>
                       <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold border shrink-0", cfg.cls)}>
                         <div className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
@@ -231,44 +227,18 @@ export default function SuppliersCompliancePage() {
               <span className="text-[11px] text-slate-500 font-medium">Per supplier</span>
             </div>
             <div className="space-y-3">
-              {COMPLIANCE_CATEGORIES.map((doc) => {
-                const cfg = statusConfig(doc.status)
-                const Icon = cfg.icon
-                return (
-                  <div key={doc.label} className="flex items-start gap-3">
-                    <Icon className={cn("w-4 h-4 shrink-0 mt-0.5", cfg.cls.split(" ")[0])} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12.5px] font-medium text-slate-800 truncate">{doc.label}</p>
-                      <p className="text-[11px] text-slate-500">
-                        {doc.status === "non_comply" ? "Expired" : `Expires ${doc.expiry}`}
-                      </p>
-                    </div>
-                    <span className={cn("text-[10.5px] font-semibold px-2 py-0.5 rounded-full border", cfg.cls)}>
-                      {cfg.label}
-                    </span>
+              {COMPLIANCE_CATEGORIES.map((doc) => (
+                <div key={doc.label} className="flex items-start gap-3">
+                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-slate-400" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12.5px] font-medium text-slate-800 truncate">{doc.label}</p>
+                    <p className="text-[11px] text-slate-400">Recommended for suppliers</p>
                   </div>
-                )
-              })}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Alerts */}
-          {(expiringCount > 0 || nonComplyCount > 0) && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <span className="text-[12.5px] font-semibold text-amber-800">Action required</span>
-              </div>
-              <div className="space-y-2 text-[12px] text-amber-700">
-                {expiringCount > 0 && (
-                  <p>{expiringCount} supplier{expiringCount !== 1 ? "s have" : " has"} documents expiring soon.</p>
-                )}
-                {nonComplyCount > 0 && (
-                  <p>{nonComplyCount} supplier{nonComplyCount !== 1 ? "s are" : " is"} non-compliant and require attention.</p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

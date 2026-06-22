@@ -32,21 +32,6 @@ import { SuppliersHubTabNav } from "@/components/suppliers/SuppliersHubTabNav"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useSuppliers } from "@/features/suppliers/useSuppliers"
 
-// ─── Static seed data ─────────────────────────────────────────────────────────
-
-const PERF_METRICS = [
-  { label: "On-Time Response", value: 98, color: "bg-emerald-500" },
-  { label: "Job Completion",   value: 95, color: "bg-blue-500"    },
-  { label: "SLA Compliance",   value: 96, color: "bg-violet-500"  },
-  { label: "Quality Score",    value: 94, color: "bg-amber-500"   },
-]
-
-const COMPLIANCE_DATA = [
-  { name: "Compliant",       value: 149, pct: 96,  fill: "#10b981" },
-  { name: "Expiring Soon",   value: 4,   pct: 2.5, fill: "#f59e0b" },
-  { name: "Non-Compliant",   value: 3,   pct: 1.5, fill: "#ef4444" },
-]
-
 const QUICK_ACTIONS = [
   { icon: UserPlus,     label: "Add Supplier",   href: "/app/contacts/new?type=supplier" },
   { icon: FilePlus,     label: "Create Job",     href: "/app/work/jobs/new"              },
@@ -70,37 +55,25 @@ function BookUser(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function PerformanceBar({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[12px] text-slate-600">{label}</span>
-        <span className="text-[12px] font-bold text-slate-800">{value}%</span>
-      </div>
-      <div className="w-full h-1.5 rounded-full bg-slate-100">
-        <div className={cn("h-1.5 rounded-full", color)} style={{ width: `${value}%` }} />
-      </div>
-    </div>
-  )
-}
-
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function SuppliersHubPage() {
   const workspaceId = useWorkspaceId()
-  const { suppliers, isSeed } = useSuppliers(workspaceId)
+  const { suppliers } = useSuppliers(workspaceId)
   const [search, setSearch] = useState("")
 
   const preferred = useMemo(() => suppliers.filter((s) => s.preferred), [suppliers])
   const recentlyActive = useMemo(() => suppliers.slice(0, 5), [suppliers])
 
+  // Total/Preferred are live-derived. The remaining KPIs have no live source in
+  // this hub yet, so they show an honest "—" instead of fabricated numbers.
   const KPIS = [
     { label: "Total Suppliers",      value: String(suppliers.length), sub: `${preferred.length} preferred`,  icon: Users,        bg: "bg-blue-50",    color: "text-blue-600"    },
-    { label: "Pending Requests",     value: "18",                     sub: "5 urgent",                       icon: Clock,        bg: "bg-amber-50",   color: "text-amber-600"   },
-    { label: "Quotes Received",      value: "64",                     sub: "+12 this week",                  icon: FileText,     bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "SLA Compliance",       value: "96%",                    sub: "+4% vs last month",              icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Outstanding Invoices", value: "£42,560",                sub: "12 invoices",                    icon: Receipt,      bg: "bg-violet-50",  color: "text-violet-600"  },
-    { label: "Avg Response Time",    value: "2.4 hrs",                sub: "Industry avg: 2.8 hrs",          icon: Zap,          bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Pending Requests",     value: "—",                      sub: "No requests yet",                icon: Clock,        bg: "bg-amber-50",   color: "text-amber-600"   },
+    { label: "Quotes Received",      value: "—",                      sub: "No quotes yet",                  icon: FileText,     bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "SLA Compliance",       value: "—",                      sub: "Awaiting data",                  icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Outstanding Invoices", value: "—",                      sub: "No invoices yet",                icon: Receipt,      bg: "bg-violet-50",  color: "text-violet-600"  },
+    { label: "Avg Response Time",    value: "—",                      sub: "Awaiting data",                  icon: Zap,          bg: "bg-blue-50",    color: "text-blue-600"    },
   ]
 
   function exportCsv() {
@@ -288,38 +261,18 @@ export default function SuppliersHubPage() {
 
         {/* Right rail */}
         <div className="space-y-4">
-          {/* Compliance donut */}
+          {/* Compliance + performance insights — these need a live telemetry
+              source that isn't wired yet, so we show an honest placeholder
+              rather than fabricated percentages. */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[13px] font-semibold text-slate-800">Compliance Status</h3>
               <Link href="/app/suppliers/compliance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
             </div>
-            <div className="h-36">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={COMPLIANCE_DATA} cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value" strokeWidth={0}>
-                    {COMPLIANCE_DATA.map((d, i) => (
-                      <Cell key={i} fill={d.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(val: any) => [`${val} suppliers`]}
-                    contentStyle={{ borderRadius: 10, fontSize: 12, border: "1px solid #e2e8f0" }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-1.5 mt-2">
-              {COMPLIANCE_DATA.map((d) => (
-                <div key={d.name} className="flex items-center justify-between text-[12px]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.fill }} />
-                    <span className="text-slate-600">{d.name}</span>
-                  </div>
-                  <span className="font-semibold text-slate-800">{d.pct}%</span>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Shield className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-[12.5px] font-semibold text-slate-600">No compliance data yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Add supplier documents to track compliance.</p>
             </div>
           </div>
 
@@ -329,32 +282,10 @@ export default function SuppliersHubPage() {
               <h3 className="text-[13px] font-semibold text-slate-800">Performance</h3>
               <Link href="/app/suppliers/performance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
             </div>
-            <div className="space-y-3">
-              {PERF_METRICS.map((m) => (
-                <PerformanceBar key={m.label} label={m.label} value={m.value} color={m.color} />
-              ))}
-            </div>
-          </div>
-
-          {/* Alerts */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span className="text-[12.5px] font-semibold text-amber-800">Attention needed</span>
-            </div>
-            <div className="text-[12px] text-amber-700 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span>4 docs expiring soon</span>
-                <Link href="/app/suppliers/compliance" className="font-medium hover:underline">Review</Link>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>3 non-compliant suppliers</span>
-                <Link href="/app/suppliers/compliance" className="font-medium hover:underline">Review</Link>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>18 pending quote requests</span>
-                <Link href="/app/suppliers/directory" className="font-medium hover:underline">View</Link>
-              </div>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-[12.5px] font-semibold text-slate-600">No performance data yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Performance builds up as jobs complete.</p>
             </div>
           </div>
         </div>

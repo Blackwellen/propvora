@@ -230,12 +230,15 @@ export function useSuppliers(workspaceId: string | undefined): UseSuppliersResul
     },
   })
 
+  // Live data only — never present fabricated suppliers as real. When the
+  // workspace has no supplier contacts the consuming pages render their own
+  // honest empty state (e.g. "Add your first supplier"). SEED_SUPPLIERS is kept
+  // for reference/storybook use but is no longer a runtime fallback.
   const live = query.data ?? []
-  const hasLive = live.length > 0
 
   return {
-    suppliers: hasLive ? live : SEED_SUPPLIERS,
-    isSeed: !hasLive,
+    suppliers: live,
+    isSeed: false,
     loading: query.isLoading,
   }
 }
@@ -283,13 +286,8 @@ export function useSupplier(
     },
   })
 
+  // Live data only — a missing/unknown supplier returns null so the detail page
+  // can show an honest "not found" state instead of a fabricated profile.
   const live = query.data ?? null
-  if (live) {
-    return { supplier: live, isSeed: false, loading: query.isLoading }
-  }
-
-  // Seed fallback when the contact / table is missing.
-  const seed =
-    SEED_SUPPLIERS.find((s) => s.id === supplierId) ?? SEED_SUPPLIERS[0] ?? null
-  return { supplier: seed, isSeed: true, loading: query.isLoading }
+  return { supplier: live, isSeed: false, loading: query.isLoading }
 }

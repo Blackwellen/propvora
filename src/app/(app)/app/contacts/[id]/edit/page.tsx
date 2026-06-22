@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { MobileTopBar } from "@/components/mobile"
 import { useWorkspace } from "@/hooks/useWorkspace"
-import { useContact, useUpdateContact } from "@/hooks/useContacts"
+import { useContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription } from "@/components/ui/Toast"
 import type { ContactType, ContactStatus } from "@/types/database"
 
@@ -61,6 +61,7 @@ export default function ContactEditPage() {
   const { data: workspace } = useWorkspace()
   const { data: liveContact, isLoading } = useContact(workspace?.id, id)
   const updateMutation = useUpdateContact()
+  const deleteMutation = useDeleteContact()
 
   const [toastOpen, setToastOpen] = useState(false)
   const [toastVariant, setToastVariant] = useState<"success" | "error">("success")
@@ -160,12 +161,16 @@ export default function ContactEditPage() {
   }
 
   async function handleDelete() {
+    if (!workspace) return
     setDeletingContact(true)
     try {
-      await new Promise(r => setTimeout(r, 800))
-      router.push("/app/contacts")
+      await deleteMutation.mutateAsync({ id, workspaceId: workspace.id })
+      router.push("/property-manager/contacts")
+    } catch {
+      setToastVariant("error"); setToastMsg("Failed to delete contact. Please try again."); setToastOpen(true)
+      setShowDeleteDialog(false)
     } finally {
-      setDeletingContact(false); setShowDeleteDialog(false)
+      setDeletingContact(false)
     }
   }
 

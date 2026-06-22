@@ -97,33 +97,30 @@ export default function SuppliersPerformancePage() {
   const workspaceId = useWorkspaceId()
   const { suppliers } = useSuppliers(workspaceId)
 
+  // No live performance telemetry yet — list real suppliers without fabricating
+  // ratings/response/completion figures.
   const topPerformers = useMemo(() => {
     return suppliers
-      .map((s) => ({
-        ...s,
-        rating:         4.3 + ((s.id.charCodeAt(0) % 7) / 10),
-        responseTime:   (1 + (s.id.charCodeAt(Math.min(1, s.id.length - 1)) % 30) / 10).toFixed(1) + " hrs",
-        completionRate: 90 + (s.id.charCodeAt(0) % 10),
-        jobs:           10 + (s.id.charCodeAt(0) % 40),
-      }))
-      .sort((a, b) => b.rating - a.rating)
       .slice(0, 5)
+      .map((s) => ({ ...s, rating: null as number | null, responseTime: "—", completionRate: null as number | null }))
   }, [suppliers])
 
   function exportCsv() {
-    const rows = topPerformers.map((s) => [s.id, s.name, s.trade, String(s.rating), s.responseTime].map((v) => `"${v}"`).join(","))
-    const csv = ["ID,Name,Trade,Rating,ResponseTime", ...rows].join("\n")
+    const rows = topPerformers.map((s) => [s.id, s.name, s.trade].map((v) => `"${v}"`).join(","))
+    const csv = ["ID,Name,Trade", ...rows].join("\n")
     const a = document.createElement("a")
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }))
     a.download = "suppliers-performance.csv"
     a.click()
   }
 
+  // No live performance telemetry source yet — headline metrics show an honest
+  // "—" rather than fabricated figures. Supplier count is live.
   const KPIS = [
-    { label: "Avg Rating",     value: "4.7",    sub: "Across all suppliers", icon: Star,         bg: "bg-amber-50",   color: "text-amber-600"   },
-    { label: "Avg Response",   value: "2.4 hrs", sub: "vs 2.8 hr industry",  icon: Clock,        bg: "bg-blue-50",    color: "text-blue-600"    },
-    { label: "Completion Rate",value: "95%",     sub: "+2% vs last month",   icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Top Performers", value: String(Math.min(5, suppliers.length)), sub: "Above 4.5 rating", icon: Award, bg: "bg-violet-50",  color: "text-violet-600"  },
+    { label: "Avg Rating",     value: "—",      sub: "Awaiting reviews",     icon: Star,         bg: "bg-amber-50",   color: "text-amber-600"   },
+    { label: "Avg Response",   value: "—",      sub: "Awaiting data",        icon: Clock,        bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Completion Rate",value: "—",      sub: "Awaiting data",        icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Suppliers",      value: String(suppliers.length), sub: "In your network", icon: Award, bg: "bg-violet-50",  color: "text-violet-600"  },
   ]
 
   return (
@@ -176,22 +173,13 @@ export default function SuppliersPerformancePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left: top performers + bar chart */}
         <div className="lg:col-span-2 space-y-5">
-          {/* Monthly jobs chart */}
+          {/* Monthly jobs chart — no live job-history source yet */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <h3 className="text-[13px] font-semibold text-slate-800 mb-4">Jobs Completed Monthly</h3>
-            <div className="h-44">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={MONTHLY_JOBS} barSize={28}>
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={28} />
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(v: any) => [`${v} jobs`]}
-                    contentStyle={{ borderRadius: 10, fontSize: 12, border: "1px solid #e2e8f0" }}
-                  />
-                  <Bar dataKey="jobs" fill="#2563EB" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="h-44 flex flex-col items-center justify-center text-center">
+              <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-[12.5px] font-semibold text-slate-600">No job history yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">This chart fills in as supplier jobs complete.</p>
             </div>
           </div>
 
@@ -228,16 +216,15 @@ export default function SuppliersPerformancePage() {
                         {s.preferred && <BadgeCheck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />}
                       </div>
                       <div className="flex items-center gap-2">
-                        <StarRating rating={s.rating} />
-                        <span className="text-[11px] text-slate-400">· {s.trade}</span>
+                        <span className="text-[11px] text-slate-400">{s.trade}</span>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-[12px] font-semibold text-slate-800">{s.completionRate}%</p>
+                      <p className="text-[12px] font-semibold text-slate-400">—</p>
                       <p className="text-[10.5px] text-slate-500">completion</p>
                     </div>
-                    <div className="flex items-center gap-2 text-[11.5px] text-slate-500 shrink-0 w-20 text-right">
-                      <Zap className="w-3 h-3 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-2 text-[11.5px] text-slate-400 shrink-0 w-20 text-right">
+                      <Zap className="w-3 h-3 text-slate-300 shrink-0" />
                       {s.responseTime}
                     </div>
                   </div>
@@ -249,28 +236,13 @@ export default function SuppliersPerformancePage() {
 
         {/* Right rail */}
         <div className="space-y-4">
-          {/* Radar chart */}
+          {/* Network overview + key metrics — no live telemetry source yet */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <h3 className="text-[13px] font-semibold text-slate-800 mb-3">Network Overview</h3>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={RADAR_DATA}>
-                  <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                  <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar dataKey="A" stroke="#2563EB" fill="#2563EB" fillOpacity={0.15} strokeWidth={2} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Metric bars */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <h3 className="text-[13px] font-semibold text-slate-800 mb-4">Key Metrics</h3>
-            <div className="space-y-4">
-              {PERF_METRICS.map((m) => (
-                <PerformanceBar key={m.label} label={m.label} value={m.value} color={m.color} />
-              ))}
+            <div className="h-48 flex flex-col items-center justify-center text-center">
+              <Award className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-[12.5px] font-semibold text-slate-600">No metrics yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Performance metrics appear as suppliers complete jobs.</p>
             </div>
           </div>
         </div>

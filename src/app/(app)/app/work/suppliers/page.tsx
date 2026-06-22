@@ -195,13 +195,15 @@ export default function SuppliersPage() {
     a.click()
   }
 
+  // Supplier/preferred counts are live. The rest have no live source yet — show
+  // an honest "—" rather than fabricated numbers.
   const KPIS = [
     { label: "Suppliers", value: String(suppliers.length), sub: `${preferred.length} preferred`, icon: Users, bg: "bg-blue-50", color: "text-blue-600" },
-    { label: "Pending Requests", value: "18", sub: "5 urgent", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
-    { label: "Quotes Received", value: "64", sub: "+12 this week", icon: FileText, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Supplier SLA", value: "96%", sub: "+4% vs last month", icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Outstanding Invoices", value: "£42,560", sub: "12 invoices", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
-    { label: "Avg Response Time", value: "2.4 hrs", sub: "+18% vs last month", icon: Zap, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Pending Requests", value: "—", sub: "No requests yet", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
+    { label: "Quotes Received", value: "—", sub: "No quotes yet", icon: FileText, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Supplier SLA", value: "—", sub: "Awaiting data", icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Outstanding Invoices", value: "—", sub: "No invoices yet", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
+    { label: "Avg Response Time", value: "—", sub: "Awaiting data", icon: Zap, bg: "bg-blue-50", color: "text-blue-600" },
   ]
 
   const mobileFilterGroups: FilterGroup[] = [
@@ -422,7 +424,7 @@ export default function SuppliersPage() {
                   { label: "Trade", render: (s) => s.trade },
                   { label: "Category", render: (s) => s.category, hideWhenEmpty: true },
                   { label: "Location", render: (s) => s.location, hideWhenEmpty: true },
-                  { label: "Response", render: (s) => seededResponse(s.id) },
+                  { label: "Response", render: () => "—" },
                 ],
               }}
               className="px-3 pb-3"
@@ -510,10 +512,10 @@ export default function SuppliersPage() {
                             <span className="text-[12px] text-slate-600">{s.location}</span>
                           </td>
                           <td className="px-4 py-3.5 hidden xl:table-cell">
-                            <p className="text-[12.5px] font-semibold text-slate-800">{seededResponse(s.id)}</p>
+                            <p className="text-[12.5px] font-semibold text-slate-400">—</p>
                           </td>
                           <td className="px-4 py-3.5 hidden lg:table-cell">
-                            <ComplianceBar value={96} />
+                            <span className="text-[12px] text-slate-400">—</span>
                           </td>
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-1">
@@ -658,35 +660,10 @@ export default function SuppliersPage() {
                 </div>
               </div>
               <div className="p-4">
-                <div className="relative h-40">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={COMPLIANCE_DATA} cx="50%" cy="50%" innerRadius={48} outerRadius={70} paddingAngle={2} dataKey="value">
-                        {COMPLIANCE_DATA.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => [`${value} suppliers`]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-xl font-bold text-slate-900">96%</p>
-                    <p className="text-[10px] text-slate-500">Compliant</p>
-                  </div>
-                </div>
-                <div className="space-y-2 mt-1">
-                  {COMPLIANCE_DATA.map((d) => (
-                    <div key={d.name} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.fill }} />
-                        <span className="text-[12px] text-slate-600">{d.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[12px] font-semibold text-slate-800">{d.value}</span>
-                        <span className="text-[11px] text-slate-400">({d.pct}%)</span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Shield className="w-8 h-8 text-slate-200 mb-2" />
+                  <p className="text-[12.5px] font-semibold text-slate-600">No compliance data yet</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Add supplier documents to track compliance.</p>
                 </div>
               </div>
             </div>
@@ -703,16 +680,7 @@ export default function SuppliersPage() {
                 View All
               </Link>
             </div>
-            {RFQS.map((rfq, i) => (
-              <div key={i} className="flex items-start gap-2.5 mb-3 pb-3 border-b border-slate-100 last:border-0 last:mb-0 last:pb-0">
-                <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 mt-0.5", rfq.priorColor)}>{rfq.priority}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12.5px] font-semibold text-slate-800 truncate">{rfq.title}</p>
-                  <p className="text-[11px] text-slate-500">{rfq.quotes} quotes received</p>
-                  <p className="text-[11px] text-slate-400">{rfq.due}</p>
-                </div>
-              </div>
-            ))}
+            <p className="text-[12px] text-slate-400 text-center py-4">No open requests. Create one to source quotes from suppliers.</p>
             <Link href="/app/work/jobs/new" className="w-full mt-2 text-[12px] font-semibold text-[#2563EB] hover:underline block text-center">
               Create New Request →
             </Link>
@@ -725,20 +693,11 @@ export default function SuppliersPage() {
                 <TrendingUp className="w-4 h-4 text-blue-600" />
                 <h3 className="text-sm font-semibold text-slate-900">Supplier Performance</h3>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">96% Overall</span>
             </div>
-            <div className="space-y-3">
-              {PERF_METRICS.map((m) => (
-                <div key={m.label}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] text-slate-600">{m.label}</span>
-                    <span className="text-[11px] font-semibold text-slate-800">{m.value}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-100">
-                    <div className={cn("h-1.5 rounded-full", m.color)} style={{ width: `${m.value}%` }} />
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-[12px] font-semibold text-slate-600">No performance data yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Builds up as jobs complete.</p>
             </div>
           </div>
 
