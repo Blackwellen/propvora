@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
-import { Lock } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { Lock, Loader2, Check, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/actions/settings"
 
 interface SecurityPolicy {
   requireMfaAdmins: boolean
@@ -15,23 +16,74 @@ interface SecurityPolicy {
   roleChangeApproval: boolean
 }
 
+const DEFAULT_POLICY: SecurityPolicy = {
+  requireMfaAdmins: false,
+  requireMfaAll: false,
+  sessionTimeoutMinutes: 1440,
+  inviteExpiryHours: 72,
+  magicLinkExpiryHours: 24,
+  supplierLinkExpiryDays: 30,
+  dataExportRestricted: false,
+  roleChangeApproval: false,
+}
+
 export default function SecurityPage() {
-  const [policy, setPolicy] = useState<SecurityPolicy>({
-    requireMfaAdmins: false,
-    requireMfaAll: false,
-    sessionTimeoutMinutes: 1440,
-    inviteExpiryHours: 72,
-    magicLinkExpiryHours: 24,
-    supplierLinkExpiryDays: 30,
-    dataExportRestricted: false,
-    roleChangeApproval: false,
-  })
+  const [policy, setPolicy] = useState<SecurityPolicy>(DEFAULT_POLICY)
   const [isDirty, setIsDirty] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [unavailable, setUnavailable] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  // Hydrate from workspace_settings.security bucket.
+  useEffect(() => {
+    getWorkspaceSettings().then(({ settings: s, unavailable }) => {
+      if (unavailable) setUnavailable(true)
+      const sp = s?.security_policy as Partial<SecurityPolicy> | undefined
+      if (sp && typeof sp === "object") setPolicy((prev) => ({ ...prev, ...sp }))
+      setLoading(false)
+    })
+  }, [])
 
   function updatePolicy<K extends keyof SecurityPolicy>(key: K, value: SecurityPolicy[K]) {
     setPolicy((prev) => ({ ...prev, [key]: value }))
     setIsDirty(true)
+    setSaved(false)
+    setSaveError(null)
   }
+
+  async function handleSave() {
+    setSaving(true)
+    setSaveError(null)
+    const res = await saveWorkspaceSettings({ security_policy: policy }, "team")
+    setSaving(false)
+    if (res.unavailable) {
+      setUnavailable(true)
+      setSaveError("Settings storage is not configured yet — changes can't be persisted.")
+      return
+    }
+    if (!res.ok) {
+      setSaveError(res.error ?? "Failed to save security policy.")
+      return
+    }
+    setSaved(true)
+    setIsDirty(false)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  // Status widget derives from the live policy values.
+  const mfaStatus = policy.requireMfaAll
+    ? "All users"
+    : policy.requireMfaAdmins
+      ? "Admins only"
+      : "Not enforced"
+  const sessionHours = Math.round(policy.sessionTimeoutMinutes / 60)
+  const statusItems = [
+    { label: "MFA Policy", status: mfaStatus, ok: policy.requireMfaAdmins || policy.requireMfaAll },
+    { label: "Session Timeout", status: `${sessionHours} hour${sessionHours === 1 ? "" : "s"}`, ok: true },
+    { label: "Invite Expiry", status: `${policy.inviteExpiryHours} hours`, ok: true },
+  ]
 
   function ToggleRow({
     label,
@@ -51,6 +103,9 @@ export default function SecurityPage() {
         </div>
         <button
           onClick={() => updatePolicy(field, !value)}
+          role="switch"
+          aria-checked={value}
+          aria-label={label}
           className={cn(
             "w-10 h-6 rounded-full transition-colors shrink-0 mt-0.5",
             value ? "bg-[#2563EB]" : "bg-slate-200"
@@ -77,15 +132,24 @@ export default function SecurityPage() {
         </p>
       </div>
 
-      {/* Security status widget */}
+      {unavailable && (
+        <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-700">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          Settings storage is not provisioned in this environment yet. Policy values show defaults and can&apos;t be persisted until the <code className="font-mono">workspace_settings</code> table exists.
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
+        </div>
+      )}
+
+      {/* Security status widget — derived from the live policy */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <h3 className="text-[14px] font-bold text-slate-900 mb-4">Workspace Security Status</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          {[
-            { label: "MFA Policy",       status: "Not enforced", ok: false },
-            { label: "Session Timeout",  status: "24 hours",     ok: true },
-            { label: "Invite Expiry",    status: "72 hours",     ok: true },
-          ].map((item) => (
+          {statusItems.map((item) => (
             <div
               key={item.label}
               className={cn(
@@ -202,27 +266,35 @@ export default function SecurityPage() {
             <p className="text-[12.5px] text-slate-700">{f}</p>
           </div>
         ))}
-        <button className="mt-4 w-full py-2.5 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 text-[12.5px] font-semibold hover:bg-violet-100 transition-colors">
+        <a
+          href="/property-manager/workspace-settings/subscription"
+          className="mt-4 block w-full text-center py-2.5 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 text-[12.5px] font-semibold hover:bg-violet-100 transition-colors"
+        >
           Upgrade to Enterprise
-        </button>
+        </a>
       </div>
 
       {/* Sticky save bar */}
-      {isDirty && (
+      {isDirty && !unavailable && (
         <div className="app-save-bar fixed left-0 right-0 flex items-center justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 bg-white border-t border-slate-200 shadow-lg">
-          <p className="text-[13px] text-slate-600 truncate min-w-0"><span className="hidden sm:inline">You have unsaved security policy changes</span><span className="sm:hidden">Unsaved changes</span></p>
+          <div className="min-w-0">
+            <p className="text-[13px] text-slate-600 truncate"><span className="hidden sm:inline">You have unsaved security policy changes</span><span className="sm:hidden">Unsaved changes</span></p>
+            {saveError && <p className="text-[12px] text-red-500 mt-0.5">{saveError}</p>}
+          </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsDirty(false)}
+              onClick={() => { setIsDirty(false); setSaveError(null) }}
               className="px-4 py-2 rounded-xl border border-slate-200 text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Discard
             </button>
             <button
-              onClick={() => setIsDirty(false)}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
             >
-              Save policy
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
+              {saving ? "Saving…" : saved ? "Saved!" : "Save policy"}
             </button>
           </div>
         </div>

@@ -84,7 +84,6 @@ export default function PortalsOverviewPage() {
                   {isLoading ? "—" : k.value}
                 </p>
                 <p className="text-xs font-medium text-slate-500 mt-0.5">{k.label}</p>
-                {k.note && <p className="text-[10px] text-slate-400 mt-1">{k.note}</p>}
               </div>
             )
           })}
