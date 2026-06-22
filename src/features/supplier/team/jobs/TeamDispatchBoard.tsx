@@ -52,7 +52,7 @@ export function TeamDispatchBoard() {
         <Mini label="Emergency" value={String(unassigned.filter((j) => j.priority === "emergency").length)} tone="red" icon={Zap} />
         <Mini label="Available workers" value={String(DISPATCH_WORKERS.filter((w) => w.status === "available").length)} tone="emerald" icon={MapPin} />
         <Mini label="On a job" value={String(DISPATCH_WORKERS.filter((w) => w.status === "on_job").length)} tone="blue" icon={Navigation} />
-        <Mini label="Avg SLA" value="3h" tone="slate" icon={Clock} />
+        <Mini label="Avg SLA" value="—" tone="slate" icon={Clock} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
@@ -80,7 +80,7 @@ export function TeamDispatchBoard() {
                           {j.travelMins != null && <span className="text-[11px] text-slate-400">{j.travelMins}m away</span>}
                         </div>
                         <div className="mt-2">
-                          <SupplierButton size="sm" onClick={() => assign(j, match?.id ?? DISPATCH_WORKERS[0].id)} className="w-full justify-center">
+                          <SupplierButton size="sm" onClick={() => assign(j, match?.id ?? DISPATCH_WORKERS[0]?.id ?? "")} className="w-full justify-center">
                             <Truck className="w-3.5 h-3.5" /> {match ? `Assign ${match.name.split(" ")[0]}` : "Assign"}
                           </SupplierButton>
                         </div>
@@ -93,6 +93,9 @@ export function TeamDispatchBoard() {
           </SupplierCard>
 
           {/* Worker columns */}
+          {DISPATCH_WORKERS.length === 0 && (
+            <SupplierCard className="p-8 text-center"><Truck className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No team members yet</p><p className="text-xs text-slate-400 mt-1">Invite your team to assign and dispatch jobs.</p></SupplierCard>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {DISPATCH_WORKERS.map((w) => {
               const jobs = assigned[w.id] ?? []
@@ -130,16 +133,12 @@ export function TeamDispatchBoard() {
         {/* Route map preview + quick actions */}
         <div className="space-y-4">
           <SupplierCard className="p-4">
-            <div className="flex items-center justify-between mb-2"><h2 className="text-sm font-semibold text-slate-900">Route preview</h2><span className="text-[11px] text-slate-400">Manchester</span></div>
-            <div className="relative aspect-square rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-              {/* stylised route map */}
+            <div className="flex items-center justify-between mb-2"><h2 className="text-sm font-semibold text-slate-900">Route preview</h2></div>
+            <div className="relative aspect-square rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "linear-gradient(0deg,transparent 24%,rgba(0,0,0,.04) 25%,rgba(0,0,0,.04) 26%,transparent 27%),linear-gradient(90deg,transparent 24%,rgba(0,0,0,.04) 25%,rgba(0,0,0,.04) 26%,transparent 27%)", backgroundSize: "28px 28px" }} />
-              {[["20%", "30%", "bg-red-500"], ["55%", "45%", "bg-amber-500"], ["40%", "70%", "bg-blue-500"], ["72%", "62%", "bg-emerald-500"]].map(([l, t, c], i) => (
-                <span key={i} className={cn("absolute w-3 h-3 rounded-full ring-2 ring-white", c)} style={{ left: l, top: t }} />
-              ))}
-              <svg className="absolute inset-0 w-full h-full" fill="none"><path d="M 20% 30% L 55% 45% L 72% 62% L 40% 70%" stroke="#2563EB" strokeWidth="2" strokeDasharray="4 4" /></svg>
+              <p className="relative text-xs text-slate-400 text-center px-4">Route preview appears once jobs are assigned</p>
             </div>
-            <p className="text-[11px] text-slate-400 mt-2">4 stops · ~38 min total travel</p>
+            <p className="text-[11px] text-slate-400 mt-2">No route planned yet.</p>
           </SupplierCard>
 
           <SupplierCard className="p-4">

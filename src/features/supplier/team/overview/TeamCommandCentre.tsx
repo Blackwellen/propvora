@@ -88,6 +88,7 @@ export function TeamCommandCentre() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
               <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Team workload</h2><Link href="/supplier/schedule" className="text-xs font-semibold text-blue-600">Capacity</Link></div>
+              {TEAM_WORKER_LOAD.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No team members yet. Invite your team to see workload here.</p>}
               <div className="space-y-2.5">
                 {TEAM_WORKER_LOAD.map((w) => {
                   const st = WORKER_STATUS[w.status]
@@ -109,6 +110,7 @@ export function TeamCommandCentre() {
 
             <SupplierCard className="p-5">
               <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Dispatch queue</h2><Link href="/supplier/jobs?tab=dispatch" className="text-xs font-semibold text-blue-600">Open board</Link></div>
+              {TEAM_DISPATCH_QUEUE.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">Nothing waiting to dispatch.</p>}
               <div className="space-y-2">
                 {TEAM_DISPATCH_QUEUE.map((d) => (
                   <div key={d.id} className="flex items-center gap-2.5 rounded-xl border border-slate-100 p-2.5">
@@ -128,6 +130,7 @@ export function TeamCommandCentre() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
               <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Quote approvals</h2><Link href="/supplier/requests?tab=quotes&view=approvals" className="text-xs font-semibold text-blue-600">Review all</Link></div>
+              {TEAM_QUOTE_APPROVALS.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No quotes awaiting approval.</p>}
               <div className="space-y-2">
                 {TEAM_QUOTE_APPROVALS.map((q) => (
                   <div key={q.id} className="flex items-center gap-2.5">
@@ -143,9 +146,10 @@ export function TeamCommandCentre() {
 
             <SupplierCard className="p-5">
               <h2 className="text-sm font-semibold text-slate-900 mb-3">Revenue by team member</h2>
+              {TEAM_REVENUE_BY_MEMBER.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No team revenue yet.</p>}
               <div className="space-y-2.5">
                 {TEAM_REVENUE_BY_MEMBER.map((m, i) => {
-                  const max = TEAM_REVENUE_BY_MEMBER[0].revenuePence
+                  const max = TEAM_REVENUE_BY_MEMBER[0]?.revenuePence || 1
                   return (
                     <div key={m.name} className="flex items-center gap-2.5">
                       <span className="text-xs text-slate-400 w-4">{i + 1}</span>
@@ -165,6 +169,7 @@ export function TeamCommandCentre() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
               <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-amber-500" /> Compliance blockers</h2><Link href="/supplier/compliance?tab=expiry-tracker" className="text-xs font-semibold text-blue-600">Resolve</Link></div>
+              {TEAM_COMPLIANCE_BLOCKERS.length === 0 && <p className="text-sm text-slate-400 py-2">No compliance blockers.</p>}
               <ul className="space-y-2">
                 {TEAM_COMPLIANCE_BLOCKERS.map((c) => (
                   <li key={c.id} className="flex items-start gap-2 text-sm">
@@ -177,6 +182,7 @@ export function TeamCommandCentre() {
 
             <SupplierCard className="p-5">
               <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><MessageSquare className="w-4 h-4 text-slate-400" /> Recent messages</h2><Link href="/supplier/inbox" className="text-xs font-semibold text-blue-600">Inbox</Link></div>
+              {TEAM_RECENT_MESSAGES.length === 0 && <p className="text-sm text-slate-400 py-2">No recent messages.</p>}
               <ul className="space-y-2.5">
                 {TEAM_RECENT_MESSAGES.map((m) => (
                   <li key={m.id} className="flex items-start gap-2">
@@ -257,12 +263,12 @@ function CapacityRisk({ toast, setToast, act }: { toast: string | null; setToast
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
-        <Mini label="Utilisation" value="78%" icon={Gauge} tone="blue" />
+        <Mini label="Utilisation" value="—" icon={Gauge} tone="blue" />
         <Mini label="Available" value={String(available)} icon={Users} tone="emerald" />
         <Mini label="Overbooked" value={String(overbooked)} icon={AlertTriangle} tone="red" />
         <Mini label="Jobs at risk" value={String(TEAM_JOBS_AT_RISK.length)} icon={AlertTriangle} tone="amber" />
-        <Mini label="Route conflicts" value="2" icon={MapPin} tone="amber" />
-        <Mini label="Evidence overdue" value="5" icon={ImagesIcon} tone="amber" />
+        <Mini label="Route conflicts" value="0" icon={MapPin} tone="amber" />
+        <Mini label="Evidence overdue" value="0" icon={ImagesIcon} tone="amber" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 items-start">
@@ -270,6 +276,7 @@ function CapacityRisk({ toast, setToast, act }: { toast: string | null; setToast
           {/* Capacity heatmap */}
           <SupplierCard className="p-5 overflow-x-auto">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Team booking heatmap</h2>
+            {TEAM_CAPACITY_HEATMAP.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No capacity data yet. Add team members and bookings to see the heatmap.</p>}
             <div className="min-w-[520px]">
               <div className="grid grid-cols-[120px_repeat(8,1fr)] gap-1 mb-1">
                 <span />
@@ -289,6 +296,7 @@ function CapacityRisk({ toast, setToast, act }: { toast: string | null; setToast
           {/* Jobs at risk */}
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Jobs at risk</h2>
+            {TEAM_JOBS_AT_RISK.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No jobs currently at risk.</p>}
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[480px]">
                 <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100"><th className="py-2 pr-3">Job</th><th className="py-2 px-3">Worker</th><th className="py-2 px-3">Reason</th><th className="py-2 px-3">SLA</th><th className="py-2 pl-3" /></tr></thead>
@@ -312,6 +320,7 @@ function CapacityRisk({ toast, setToast, act }: { toast: string | null; setToast
         <div className="space-y-4">
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Workers</h2>
+            {TEAM_WORKER_LOAD.length === 0 && <p className="text-sm text-slate-400 py-2">No team members yet.</p>}
             <div className="space-y-2.5">
               {TEAM_WORKER_LOAD.map((w) => {
                 const st = WORKER_STATUS[w.status]

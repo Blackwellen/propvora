@@ -25,16 +25,13 @@ interface ServiceSLA {
   breaches30d: number
 }
 
-const SERVICES: ServiceSLA[] = [
-  { id: "s1", name: "Boiler service", trade: "Gas", responseSlaMins: 240, completionSlaHours: 48, minChargePence: 8500, emergencyPremiumPct: 50, assignmentRule: "Gas engineers · area match", requiredQual: "Gas Safe", breaches30d: 1 },
-  { id: "s2", name: "Emergency no-heat", trade: "Gas", responseSlaMins: 60, completionSlaHours: 4, minChargePence: 12000, emergencyPremiumPct: 75, assignmentRule: "Nearest on-call gas engineer", requiredQual: "Gas Safe", breaches30d: 0 },
-  { id: "s3", name: "Electrical EICR", trade: "Electrical", responseSlaMins: 480, completionSlaHours: 72, minChargePence: 15000, emergencyPremiumPct: 0, assignmentRule: "Qualified electrician", requiredQual: "NICEIC/NAPIT", breaches30d: 2 },
-  { id: "s4", name: "General plumbing", trade: "Plumbing", responseSlaMins: 360, completionSlaHours: 48, minChargePence: 6000, emergencyPremiumPct: 40, assignmentRule: "Any plumber · area match", requiredQual: null, breaches30d: 0 },
-]
+// Honest empty — no live service-SLA loader exists yet. Add SLA rules to populate.
+const SERVICES: ServiceSLA[] = []
 
 export function TeamServiceSLAs() {
   const [toast, setToast] = useState<string | null>(null)
-  const [selected, setSelected] = useState<ServiceSLA>(SERVICES[0])
+  const [selId, setSelId] = useState<string | null>(null)
+  const selected: ServiceSLA | null = SERVICES.find((s) => s.id === selId) ?? SERVICES[0] ?? null
 
   return (
     <div className="space-y-4">
@@ -50,12 +47,15 @@ export function TeamServiceSLAs() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 items-start">
         <SupplierCard className="p-0 overflow-hidden min-w-0">
+          {SERVICES.length === 0 ? (
+            <div className="p-10 text-center"><Wrench className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No SLA rules yet</p><p className="text-xs text-slate-400 mt-1">Add SLA and assignment rules for your services.</p></div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[680px]">
               <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><Th>Service</Th><Th>Response SLA</Th><Th>Completion</Th><Th>Min charge</Th><Th>Emergency</Th><Th>Breaches</Th></tr></thead>
               <tbody className="divide-y divide-slate-50">
                 {SERVICES.map((s) => (
-                  <tr key={s.id} onClick={() => setSelected(s)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected.id === s.id && "bg-blue-50/40")}>
+                  <tr key={s.id} onClick={() => setSelId(s.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === s.id && "bg-blue-50/40")}>
                     <td className="px-4 py-3"><p className="font-semibold text-slate-800">{s.name}</p><p className="text-[11px] text-slate-400">{s.trade}</p></td>
                     <td className="px-4 py-3 text-slate-600">{s.responseSlaMins < 60 ? `${s.responseSlaMins}m` : `${Math.round(s.responseSlaMins / 60)}h`}</td>
                     <td className="px-4 py-3 text-slate-600">{s.completionSlaHours}h</td>
@@ -67,10 +67,13 @@ export function TeamServiceSLAs() {
               </tbody>
             </table>
           </div>
+          )}
         </SupplierCard>
 
         <SupplierCard className="p-5">
           <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Service rules</p>
+          {selected ? (
+          <>
           <h2 className="text-base font-semibold text-slate-900 mt-1">{selected.name}</h2>
           <dl className="mt-3 space-y-2.5 text-sm">
             <RuleRow icon={Clock} k="Response SLA" v={`${selected.responseSlaMins < 60 ? `${selected.responseSlaMins}m` : `${Math.round(selected.responseSlaMins / 60)}h`}`} />
@@ -83,6 +86,10 @@ export function TeamServiceSLAs() {
             <SupplierButton className="w-full justify-center" onClick={() => setToast("Assignment rule updated.")}><Users className="w-4 h-4" /> Set assignment rule</SupplierButton>
             <SupplierButton variant="outline" className="w-full justify-center" onClick={() => setToast("Opening customer preview…")}>Preview customer rules <ChevronRight className="w-4 h-4" /></SupplierButton>
           </div>
+          </>
+          ) : (
+            <p className="text-sm text-slate-400 text-center py-4 mt-1">Select a service to view its rules.</p>
+          )}
         </SupplierCard>
       </div>
     </div>
