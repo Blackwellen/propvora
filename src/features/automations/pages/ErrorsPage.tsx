@@ -11,14 +11,6 @@ import { Btn, Card, useToast } from "../components/primitives"
 import { useAutomationErrors } from "../data/hooks"
 import type { ErrorRow } from "../data/types"
 
-const TABS = [
-  { id: "queue", label: "Error queue", count: 48 },
-  { id: "incidents", label: "Incidents", count: 7 },
-  { id: "muted", label: "Muted", count: 5 },
-  { id: "resolved", label: "Resolved", count: 186 },
-  { id: "all", label: "All errors" },
-]
-
 const STATUS_LABEL: Record<ErrorRow["status"], { label: string; status: string }> = {
   active: { label: "Active", status: "active" },
   needs_config: { label: "Needs config", status: "review" },
@@ -31,7 +23,17 @@ export default function ErrorsPage() {
   const { data: errors, loading } = useAutomationErrors()
   const [tab, setTab] = useState("queue")
   const [page, setPage] = useState(1)
-  const [active, setActive] = useState<ErrorRow>(errors[0])
+  const [active, setActive] = useState<ErrorRow | undefined>(errors[0])
+
+  const openCount = errors.filter((e) => e.status === "active").length
+  const needsConfig = errors.filter((e) => e.status === "needs_config").length
+  const resolvedCount = errors.filter((e) => e.status === "resolved").length
+  const TABS = [
+    { id: "queue", label: "Error queue", count: openCount },
+    { id: "needs_config", label: "Needs config", count: needsConfig },
+    { id: "resolved", label: "Resolved", count: resolvedCount },
+    { id: "all", label: "All errors", count: errors.length },
+  ]
   const [detailTab, setDetailTab] = useState<"details" | "remediation">("details")
   const [selected, setSelected] = useState<string[]>([])
 
@@ -71,12 +73,11 @@ export default function ErrorsPage() {
       iconTone="red"
       actions={actions}
     >
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <AutomationsKpiCard label="Open errors" value={48} trend="12%" icon={Bug} tone="red" />
-        <AutomationsKpiCard label="Critical incidents" value={7} trend="75%" icon={AlertTriangle} tone="red" />
-        <AutomationsKpiCard label="Muted alerts" value={5} trend="17%" trendDir="down" icon={BellOff} tone="slate" />
-        <AutomationsKpiCard label="Retries pending" value={23} trend="5" icon={RefreshCw} tone="amber" />
-        <AutomationsKpiCard label="Mean time to resolution" value="1h 42m" sub="-18m vs last week" icon={Clock} tone="violet" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <AutomationsKpiCard label="Open errors" value={openCount} icon={Bug} tone="red" />
+        <AutomationsKpiCard label="Critical" value={errors.filter((e) => e.severity === "critical").length} icon={AlertTriangle} tone="red" />
+        <AutomationsKpiCard label="Needs config" value={needsConfig} icon={BellOff} tone="slate" />
+        <AutomationsKpiCard label="Resolved" value={resolvedCount} icon={Clock} tone="violet" />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
@@ -109,7 +110,7 @@ export default function ErrorsPage() {
               onToggleAll={(c) => setSelected(c ? errors.map((r) => r.id) : [])}
               page={page}
               pageSize={8}
-              total={48}
+              total={errors.length}
               onPageChange={setPage}
               onRowClick={(r) => setActive(r)}
               activeRowId={active?.id}

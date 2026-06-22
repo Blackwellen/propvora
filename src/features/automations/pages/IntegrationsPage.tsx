@@ -36,10 +36,10 @@ export default function IntegrationsPage() {
       actions={actions}
     >
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Connected apps" value={22} trend="10%" icon={Plug} tone="blue" />
-        <AutomationsKpiCard label="Healthy connections" value={20} trend="5%" sub="90.9%" icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Expiring credentials" value={3} trend="25%" trendDir="down" icon={KeyRound} tone="amber" />
-        <AutomationsKpiCard label="Webhook-capable" value={14} trend="8%" icon={Zap} tone="violet" />
+        <AutomationsKpiCard label="Connected apps" value={integrations.length} icon={Plug} tone="blue" />
+        <AutomationsKpiCard label="Healthy connections" value={integrations.filter((i) => i.health === "healthy").length} icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Expiring credentials" value={alerts.filter((a) => a.tone === "warning").length} icon={KeyRound} tone="amber" />
+        <AutomationsKpiCard label="Webhook-capable" value={integrations.filter((i) => (i.capabilities ?? "").toLowerCase().includes("webhook")).length} icon={Zap} tone="violet" />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
@@ -61,6 +61,12 @@ export default function IntegrationsPage() {
       {/* Cards grid */}
       {loading ? (
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">{Array.from({ length: 10 }).map((_, i) => <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />)}</div>
+      ) : integrations.length === 0 ? (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-10 text-center">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-slate-100 text-slate-400"><Plug className="h-5 w-5" /></span>
+          <p className="mt-3 text-sm font-semibold text-slate-700">No integrations connected</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500">Connect third-party apps to power your automations. Connected services and their health will appear here.</p>
+        </div>
       ) : (
         <div className={`mt-4 grid gap-3 ${view === "grid" ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-5" : "grid-cols-1"}`}>
           {integrations.map((it) => (
@@ -89,21 +95,31 @@ export default function IntegrationsPage() {
 
       {/* Bottom 3 panels */}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card>
-          <CardHeader title="Connection health" />
-          <div className="flex items-center gap-4 p-4">
-            <Donut size={120} centerLabel="22" centerSub="total" slices={[
-              { label: "Healthy", value: 20, color: "#10b981" },
-              { label: "Warning", value: 1, color: "#f59e0b" },
-              { label: "Error", value: 1, color: "#ef4444" },
-            ]} />
-            <div className="space-y-1 text-xs">
-              {[["Healthy", 20, "bg-emerald-500"], ["Warning", 1, "bg-amber-500"], ["Error", 1, "bg-red-500"], ["Disconnected", 0, "bg-slate-300"]].map(([l, v, c]) => (
-                <div key={l as string} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
-              ))}
-            </div>
-          </div>
-        </Card>
+        {(() => {
+          const healthy = integrations.filter((i) => i.health === "healthy").length
+          const warning = integrations.filter((i) => i.health === "warning").length
+          const error = integrations.filter((i) => i.health === "error").length
+          const disconnected = integrations.filter((i) => i.health === "disconnected").length
+          const total = integrations.length
+          return (
+            <Card>
+              <CardHeader title="Connection health" />
+              <div className="flex items-center gap-4 p-4">
+                <Donut size={120} centerLabel={`${total}`} centerSub="total" slices={[
+                  { label: "Healthy", value: healthy || 0, color: "#10b981" },
+                  { label: "Warning", value: warning || 0, color: "#f59e0b" },
+                  { label: "Error", value: error || 0, color: "#ef4444" },
+                  { label: "Disconnected", value: disconnected || (total === 0 ? 1 : 0), color: "#cbd5e1" },
+                ]} />
+                <div className="space-y-1 text-xs">
+                  {([["Healthy", healthy, "bg-emerald-500"], ["Warning", warning, "bg-amber-500"], ["Error", error, "bg-red-500"], ["Disconnected", disconnected, "bg-slate-300"]] as [string, number, string][]).map(([l, v, c]) => (
+                    <div key={l} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          )
+        })()}
         <Card>
           <CardHeader title="Credential renewal alerts" />
           <div className="p-3 space-y-2">

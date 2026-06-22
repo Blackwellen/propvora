@@ -19,7 +19,7 @@ const ENV_CLS: Record<string, string> = {
 export default function WebhooksPage() {
   const toast = useToast()
   const { data, loading } = useAutomationWebhooks()
-  const [active, setActive] = useState<WebhookEndpoint>(data.endpoints[0])
+  const [active, setActive] = useState<WebhookEndpoint | undefined>(data.endpoints[0])
   const [detailTab, setDetailTab] = useState<"overview" | "deliveries" | "attempts" | "logs">("overview")
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => Object.fromEntries(data.endpoints.map((e) => [e.id, e.enabled])))
   const [showSecret, setShowSecret] = useState(false)
@@ -70,10 +70,10 @@ export default function WebhooksPage() {
       actions={actions}
     >
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Active endpoints" value={12} trend="20%" icon={Webhook} tone="blue" />
-        <AutomationsKpiCard label="Deliveries today" value="4,892" trend="18.4%" icon={Activity} tone="emerald" />
-        <AutomationsKpiCard label="Failed deliveries" value={37} trend="12.5%" icon={Zap} tone="red" />
-        <AutomationsKpiCard label="Avg response time" value="245 ms" trend="18%" trendDir="down" icon={Clock} tone="violet" />
+        <AutomationsKpiCard label="Active endpoints" value={data.endpoints.filter((e) => e.enabled).length} icon={Webhook} tone="blue" />
+        <AutomationsKpiCard label="Total endpoints" value={data.endpoints.length} icon={Activity} tone="emerald" />
+        <AutomationsKpiCard label="Failed deliveries" value={data.deliveries.filter((d) => d.status === "failed").length} icon={Zap} tone="red" />
+        <AutomationsKpiCard label="Recent deliveries" value={data.deliveries.length} icon={Clock} tone="violet" />
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
@@ -81,12 +81,12 @@ export default function WebhooksPage() {
           <Card>
             <CardHeader title="Webhook endpoints" />
             {loading ? <div className="h-48 animate-pulse bg-slate-100" /> : (
-              <AutomationsDataTable columns={endpointCols} rows={data.endpoints} selectable page={epPage} pageSize={5} total={12} onPageChange={setEpPage} onRowClick={(r) => setActive(r)} activeRowId={active?.id} />
+              <AutomationsDataTable columns={endpointCols} rows={data.endpoints} selectable page={epPage} pageSize={5} total={data.endpoints.length} onPageChange={setEpPage} onRowClick={(r) => setActive(r)} activeRowId={active?.id} />
             )}
           </Card>
           <Card>
             <CardHeader title="Recent event deliveries" action={<button className="text-xs font-medium text-blue-600 hover:underline">View all deliveries →</button>} />
-            <AutomationsDataTable columns={deliveryCols} rows={data.deliveries} selectable pageSize={5} total={5} />
+            <AutomationsDataTable columns={deliveryCols} rows={data.deliveries} selectable pageSize={5} total={data.deliveries.length} />
           </Card>
         </div>
 
