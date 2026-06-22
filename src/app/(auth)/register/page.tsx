@@ -124,7 +124,7 @@ const PANEL_CONTENT: Record<
       "Secure checkout & payments",
       "Manage trips & messages",
       "Save favourite properties",
-      "24/7 guest support",
+      "Support & dispute resolution",
     ],
   },
   supplier: {

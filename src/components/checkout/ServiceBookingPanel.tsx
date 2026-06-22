@@ -115,8 +115,8 @@ export default function ServiceBookingPanel({
       <div className="border-t border-slate-100 pt-4 space-y-2">
         {[
           { icon: Lock, text: "Protected by Propvora escrow" },
-          { icon: BadgeCheck, text: "Vetted & DBS-checked provider" },
-          { icon: Shield, text: "Satisfaction guaranteed" },
+          { icon: BadgeCheck, text: "Vetted provider" },
+          { icon: Shield, text: "Funds held until the job is confirmed done" },
         ].map(({ icon: Icon, text }) => (
           <div key={text} className="flex items-center gap-2 text-xs text-slate-500">
             <Icon className="h-3.5 w-3.5 text-emerald-500 shrink-0" />

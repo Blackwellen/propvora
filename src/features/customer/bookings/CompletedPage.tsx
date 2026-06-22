@@ -116,7 +116,7 @@ export default function CompletedPage() {
           <ul className="space-y-3">
             <Safe icon={Shield} title="Secure payments" sub="Your payments are protected" />
             <Safe icon={Settings2} title="Verified hosts" sub="All hosts are checked and verified" />
-            <Safe icon={Headphones} title="24/7 support" sub="We're here when you need us" />
+            <Safe icon={Headphones} title="Support when you need it" sub="Message our team any time" />
           </ul>
           <Link href="/customer/help" className="mt-3 inline-block text-[12px] font-semibold text-blue-600">Learn more about safety →</Link>
         </div>

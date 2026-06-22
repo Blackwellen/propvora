@@ -88,7 +88,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
             </div>
             <div className="text-right text-sm text-slate-500">
               <div className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />Replies {stay.hostResponseTime}</div>
-              <div className="text-xs mt-0.5">Professional management · 24/7 guest support</div>
+              <div className="text-xs mt-0.5">Professionally managed</div>
             </div>
           </div>
 
@@ -171,7 +171,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-slate-600"><CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />Verified stays</div>
                 <div className="flex items-center gap-1.5 text-xs text-slate-600"><CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />Secure payments</div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-600"><CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />24/7 support</div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-600"><CheckCircle className="h-3 w-3 text-emerald-500 shrink-0" />Dispute support</div>
               </div>
             </div>
           </div>

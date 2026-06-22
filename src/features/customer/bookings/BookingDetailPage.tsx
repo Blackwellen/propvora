@@ -38,8 +38,8 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
 
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2"><h1 className="text-[24px] font-bold text-slate-900">{b.property}</h1><StatusPill tone={bookingStatusTone(b.status === "Upcoming" ? "Confirmed" : b.status)}>Confirmed</StatusPill></div>
-        <p className="text-[12.5px] text-slate-400 mt-1 flex items-center gap-1.5">Booking ID: {b.ref} <button onClick={() => toast("Booking ID copied", "success")}><Copy className="w-3.5 h-3.5" /></button> · Booked on 24 May 2025</p>
+        <div className="flex items-center gap-2"><h1 className="text-[24px] font-bold text-slate-900">{b.property}</h1><StatusPill tone={bookingStatusTone(b.status)}>{b.status}</StatusPill></div>
+        <p className="text-[12.5px] text-slate-400 mt-1 flex items-center gap-1.5">Booking ID: {b.ref} <button onClick={() => { void navigator.clipboard?.writeText(b.ref); toast("Booking ID copied", "success") }}><Copy className="w-3.5 h-3.5" /></button>{b.dateRange ? ` · ${b.dateRange}` : ""}</p>
       </div>
 
       {/* Tabs */}
@@ -61,13 +61,11 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
             <Card title="Guest details" icon={Users}>
               <p className="text-[12.5px] font-semibold text-slate-800 flex items-center gap-1.5">You <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /></p>
               <p className="text-[11.5px] text-slate-400">See your profile for contact details</p>
-              <button onClick={() => toast("Manage guests — coming soon", "info")} className="mt-2 text-[12px] font-semibold text-blue-600">Manage guests</button>
+              <Link href={`/customer/bookings/${b.id}/modify`} className="mt-2 inline-block text-[12px] font-semibold text-blue-600">Manage guests</Link>
             </Card>
             <Card title="Check-in instructions" icon={KeyRound}>
-              <Tiny l="Check-in time" r="From 15:00 on 24 May" />
-              <Tiny l="Key collection" r="Keypad — code sent 1 day before" />
-              <Tiny l="Parking" r="1 free space on premises" />
-              <Link href="#" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">View full instructions →</Link>
+              <p className="text-[11.5px] text-slate-500">Your host will share check-in details (arrival time, key collection and parking) before your stay.</p>
+              <Link href="/customer/messages" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">Message host →</Link>
             </Card>
             <Card title="House rules" icon={Shield}>
               {["No smoking", "No pets", "No parties or events", "Quiet hours: 22:00 – 08:00", "Maximum 2 guests"].map((r) => (
@@ -82,7 +80,6 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
               <div className="grid grid-cols-2 gap-1.5">
                 {AMENITIES.map((a) => { const I = a.icon; return <p key={a.label} className="text-[11.5px] text-slate-600 flex items-center gap-1.5"><I className="w-3.5 h-3.5 text-slate-400" /> {a.label}</p> })}
               </div>
-              <Link href="#" className="mt-2 inline-block text-[12px] font-semibold text-blue-600">View all amenities →</Link>
             </Card>
             <Card title="Important documents" icon={FileText}>
               {[["House manual", "PDF · 2.4 MB"], ["Wi-Fi details", "PDF · 0.6 MB"], ["Local guide", "PDF · 3.1 MB"]].map(([n, s]) => (
