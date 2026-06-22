@@ -112,7 +112,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
         <div className="min-w-0">
           {view === "map" ? (
             <SupplierCard className="p-4">
-              <StaticMap label="Day route" className="h-[360px]" pins={jobs.map((j, i) => ({ id: j.id, n: i + 1, tone: j.appointmentConfirmed ? "blue" : "amber" }))} />
+              <StaticMap label="Day route" className="h-[360px]" markers={jobs.map((j) => ({ id: j.id, address: `${j.address.line1}, ${j.address.postcode}`, label: j.address.line1, sublabel: j.address.postcode, color: j.appointmentConfirmed ? "#2563EB" : "#F59E0B" }))} />
             </SupplierCard>
           ) : view === "calendar" ? (
             <SupplierCard className="p-4 space-y-3">
@@ -220,7 +220,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
             </PanelSection>
 
             <PanelSection title="Route & location">
-              <StaticMap label={`${selected.address.line1}`} className="h-32" pins={[{ id: selected.id, n: selected.routePosition ?? 1, tone: "blue" }]} />
+              <StaticMap label={`${selected.address.line1}`} className="h-32" markers={[{ id: selected.id, address: `${selected.address.line1}, ${selected.address.postcode}`, label: selected.address.line1, sublabel: selected.address.postcode, color: "#2563EB" }]} />
             </PanelSection>
 
             <PanelSection title="Route optimisation" action={<KeyRound className="w-3.5 h-3.5 text-slate-300" />}>

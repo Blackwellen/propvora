@@ -2,9 +2,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CheckCircle, ChevronRight, MapPin, Share2, Star } from 'lucide-react'
+import { CheckCircle, ChevronRight, Star } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import StayBookingCard from '@/components/public-marketplace/profiles/StayBookingCard'
+import ShareSaveButtons from '@/components/checkout/ShareSaveButtons'
+import LocationMap from '@/components/maps/LocationMap'
 import { getPublicStayBySlug } from '@/lib/public-marketplace/queries'
 import { SEED_STAYS } from '@/lib/public-marketplace/seed-fallback'
 
@@ -50,11 +52,7 @@ export default async function StayDetailPage({ params }: { params: Promise<{ slu
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Share2 className="h-4 w-4" />Share
-            </button>
-          </div>
+          <ShareSaveButtons slug={stay.slug} storageKey="propvora_saved_stays" title={stay.title} />
         </div>
 
         {/* Title */}
@@ -213,13 +211,12 @@ export default async function StayDetailPage({ params }: { params: Promise<{ slu
             {/* Location */}
             <div className="rounded-[12px] border border-slate-200 bg-white p-4">
               <h2 className="mb-4 text-[18px] font-[800] text-slate-950">Location overview</h2>
-              <div className="flex h-40 items-center justify-center rounded-[10px] border border-slate-200 bg-slate-100">
-                <div className="text-center">
-                  <MapPin className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-600">{stay.location}</p>
-                  <p className="text-xs text-slate-400 mt-1">{stay.lat.toFixed(4)}, {stay.lng.toFixed(4)}</p>
-                </div>
-              </div>
+              <LocationMap
+                markers={[{ id: stay.slug, lat: stay.lat, lng: stay.lng, label: stay.title, sublabel: stay.location }]}
+                height={224}
+                zoom={14}
+                title={stay.location}
+              />
             </div>
 
             {/* Reviews */}

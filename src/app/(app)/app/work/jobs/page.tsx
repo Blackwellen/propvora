@@ -911,7 +911,7 @@ export default function JobsPage() {
           { label: "Export", icon: Download, onClick: exportSelected },
         ]}
       />
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Jobs"
         count={`${displayJobs.length} job${displayJobs.length === 1 ? "" : "s"}`}
         search={search}

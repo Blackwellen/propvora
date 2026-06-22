@@ -364,7 +364,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Mobile header — search (desktop search field gated below) */}
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Invoices"
           count={`${filtered.length} invoice${filtered.length === 1 ? "" : "s"}`}
           search={searchQuery}

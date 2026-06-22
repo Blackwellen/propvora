@@ -126,8 +126,14 @@ export async function uploadFile(
   file: File,
   workspaceId: string,
   folder: string,
-  opts: { onProgress?: (pct: number) => void; signal?: AbortSignal } = {}
+  opts: { onProgress?: (pct: number) => void; signal?: AbortSignal; imagesOnly?: boolean } = {}
 ): Promise<UploadedFile> {
+  // Pre-flight validation — fail fast with a friendly message BEFORE the network
+  // call, so a bad/empty/oversized/wrong-type file never round-trips to a 400.
+  // Every caller gets this for free; image uploaders pass `imagesOnly: true`.
+  const invalid = validateUploadFile(file, { imagesOnly: opts.imagesOnly })
+  if (invalid) return Promise.reject(new Error(invalid))
+
   const fd = new FormData()
   fd.append("file", file)
   fd.append("workspaceId", workspaceId)

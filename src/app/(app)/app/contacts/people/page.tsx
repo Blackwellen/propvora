@@ -691,7 +691,7 @@ export default function PeoplePage() {
         <div className="md:hidden -mx-4 mb-4">
           <ContactsTabNav />
         </div>
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="People"
           count={`${filtered.length} ${filtered.length === 1 ? "person" : "people"}`}
           search={searchQuery}

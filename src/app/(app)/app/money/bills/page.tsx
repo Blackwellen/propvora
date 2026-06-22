@@ -605,7 +605,7 @@ export default function BillsPage() {
         </div>
 
         {/* Mobile header — search (desktop search field gated below) */}
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Bills"
           count={`${filteredBills.length} bill${filteredBills.length === 1 ? "" : "s"}`}
           search={searchQuery}

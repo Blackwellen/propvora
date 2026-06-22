@@ -1,6 +1,9 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { Maximize2, X } from "lucide-react"
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/maps/tiles"
 
 /* ------------------------------------------------------------------ */
 /* LocationMap — one reusable OpenStreetMap (Leaflet) used everywhere   */
@@ -42,6 +45,10 @@ interface LocationMapProps {
   title?: string
   /** Optional small caption under the title chip (e.g. the full address). */
   caption?: string
+  /** Mini-map: clicking opens a large pop-over map. Default true. */
+  enlargeable?: boolean
+  /** Full interaction (scroll-zoom + zoom controls). Default false (mini preview). */
+  interactive?: boolean
 }
 
 const PROPVORA_BLUE = "#2563EB"
@@ -103,30 +110,46 @@ function ssSet(key: string, val: { lat: number; lng: number } | null) {
   try { sessionStorage.setItem("pv_geo_" + key, JSON.stringify(val)) } catch { /* quota */ }
 }
 
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
+
 async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
   const key = address.trim().toLowerCase()
   if (!key) return null
   if (geocodeCache.has(key)) return geocodeCache.get(key)!
   const cached = ssGet(key)
   if (cached !== undefined) { geocodeCache.set(key, cached); return cached }
+
+  let result: { lat: number; lng: number } | null = null
+  // Prefer MapTiler (reliable CDN, same key as the basemap) — falls back to OSM Nominatim.
   try {
-    const url =
-      "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=" +
-      encodeURIComponent(address)
-    const res = await fetch(url, {
-      headers: { Accept: "application/json", "User-Agent": "Propvora/1.0 (propvora.com)" },
-    })
-    if (!res.ok) throw new Error(String(res.status))
-    const data: Array<{ lat: string; lon: string }> = await res.json()
-    const hit = data[0]
-    const result = hit ? { lat: parseFloat(hit.lat), lng: parseFloat(hit.lon) } : null
-    geocodeCache.set(key, result)
-    ssSet(key, result)
-    return result
-  } catch {
-    geocodeCache.set(key, null)
-    return null
+    if (MAPTILER_KEY) {
+      const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(address)}.json?key=${MAPTILER_KEY}&country=gb&limit=1`
+      const res = await fetch(url)
+      if (res.ok) {
+        const data = (await res.json()) as { features?: Array<{ center: [number, number] }> }
+        const c = data.features?.[0]?.center
+        if (c && c.length === 2) result = { lng: c[0], lat: c[1] }
+      }
+    }
+  } catch { /* fall through to Nominatim */ }
+
+  if (!result) {
+    try {
+      const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=" + encodeURIComponent(address)
+      const res = await fetch(url, { headers: { Accept: "application/json" } })
+      if (res.ok) {
+        const data = (await res.json()) as Array<{ lat: string; lon: string }>
+        const hit = data[0]
+        if (hit) result = { lat: parseFloat(hit.lat), lng: parseFloat(hit.lon) }
+      }
+    } catch { /* ignore */ }
   }
+
+  geocodeCache.set(key, result)
+  // Only persist successful hits — never cache a null, so a transient failure
+  // (offline, rate-limit, CSP) doesn't permanently stop the pin from showing.
+  if (result) ssSet(key, result)
+  return result
 }
 
 export default function LocationMap({
@@ -138,7 +161,10 @@ export default function LocationMap({
   selectedId,
   title,
   caption,
+  enlargeable = true,
+  interactive = false,
 }: LocationMapProps) {
+  const [expanded, setExpanded] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<import("leaflet").Map | null>(null)
   const layerRef = useRef<import("leaflet").LayerGroup | null>(null)
@@ -190,15 +216,14 @@ export default function LocationMap({
         document.head.appendChild(link)
       }
 
-      const map = L.map(mapRef.current, { zoomControl: false, attributionControl: true, scrollWheelZoom: false }).setView(
+      const map = L.map(mapRef.current, { zoomControl: interactive, attributionControl: true, scrollWheelZoom: interactive, dragging: interactive }).setView(
         [53.0, -1.5],
         6,
       )
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        attribution:
-          '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+      L.tileLayer(MAP_TILE_URL, {
+        attribution: MAP_TILE_ATTRIBUTION,
         maxZoom: 19,
-        subdomains: "abcd",
+        subdomains: "abc",
       }).addTo(map)
       L.control.zoom({ position: "bottomright" }).addTo(map)
       layerRef.current = L.layerGroup().addTo(map)
@@ -244,8 +269,12 @@ export default function LocationMap({
         latlngs.push([m.lat, m.lng])
       }
 
+      const sel = resolved.find((m) => m.id === selectedId)
       if (latlngs.length === 1) {
         map.setView(latlngs[0], zoom, { animate: true })
+      } else if (sel) {
+        // A marker was selected/clicked — centre on it.
+        map.setView([sel.lat, sel.lng], Math.max(map.getZoom() || 0, 13), { animate: true })
       } else {
         map.fitBounds(latlngs as [number, number][], { padding: [40, 40], maxZoom: 14 })
       }
@@ -269,6 +298,21 @@ export default function LocationMap({
         @keyframes pvPulse{0%{transform:scale(0.6);opacity:0.5;}70%{transform:scale(1.9);opacity:0;}100%{opacity:0;}}
       `}</style>
       <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" style={{ background: "var(--bg-map-placeholder)" }} />
+
+      {/* Mini-map → click anywhere (or the expand icon) to open the large pop-over. */}
+      {enlargeable && hasAny && !interactive && (
+        <>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            aria-label="Enlarge map"
+            className="absolute inset-0 z-[5] cursor-zoom-in rounded-2xl"
+          />
+          <span className="pointer-events-none absolute top-3 right-3 z-[6] flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-slate-700 shadow-md backdrop-blur-sm">
+            <Maximize2 className="h-4 w-4" />
+          </span>
+        </>
+      )}
 
       {/* Premium frame: crisp inset ring + soft top/bottom vignette for depth. */}
       <div
@@ -306,6 +350,50 @@ export default function LocationMap({
           )}
         </div>
       )}
+
+      {/* Enlarged pop-over map — portalled to <body> so it can't be trapped by an
+          ancestor's transform (which broke centring) and won't overlap the page. */}
+      {expanded && typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm sm:p-6"
+            onClick={() => setExpanded(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="relative flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-bold text-slate-900">{title ?? "Location"}</p>
+                  {caption && <p className="truncate text-[12px] text-slate-500">{caption}</p>}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  aria-label="Close map"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="relative flex-1">
+                <LocationMap
+                  markers={markers}
+                  height="100%"
+                  zoom={zoom}
+                  selectedId={selectedId}
+                  onSelect={onSelect}
+                  interactive
+                  enlargeable={false}
+                />
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

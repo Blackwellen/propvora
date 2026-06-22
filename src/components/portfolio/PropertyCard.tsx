@@ -167,6 +167,8 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, 400px"
+              // Authed /api/files URLs can't be optimised server-side (no cookie) — load directly.
+              unoptimized={(property.coverImageUrl ?? "").includes("/api/files")}
               onError={() => setImgError(true)}
             />
           ) : (

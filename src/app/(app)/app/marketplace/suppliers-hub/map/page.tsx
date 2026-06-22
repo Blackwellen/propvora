@@ -4,7 +4,7 @@ import SuppliersHubNav from "@/components/marketplace/SuppliersHubNav"
 import PublicSearchBar from "@/components/public-marketplace/PublicSearchBar"
 import PublicFilterChips from "@/components/public-marketplace/PublicFilterChips"
 import PublicResultsToolbar from "@/components/public-marketplace/PublicResultsToolbar"
-import ProviderCard from "@/components/public-marketplace/cards/ProviderCard"
+import ProviderMapCard from "@/components/public-marketplace/cards/ProviderMapCard"
 import MapAreaChips from "@/components/public-marketplace/maps/MapAreaChips"
 import MapSearchToggle from "@/components/public-marketplace/maps/MapSearchToggle"
 import ProvidersMap from "@/components/public-marketplace/maps/ProvidersMap"
@@ -35,7 +35,27 @@ export default async function SuppliersHubMapPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const params = await searchParams ?? {}
-  const providers = await getPublicProviders()
+  const allProviders = await getPublicProviders()
+
+  // Data-driven area chips — distinct cities present in the data, most common first.
+  const areaCounts = new Map<string, number>()
+  for (const p of allProviders) {
+    const city = (p.city || "").trim()
+    if (city) areaCounts.set(city, (areaCounts.get(city) ?? 0) + 1)
+  }
+  const areas = Array.from(areaCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([city]) => city)
+
+  // Filter by the active area (?where=) so the chips actually drive the results.
+  const where = (typeof params.where === "string" ? params.where : "").toLowerCase().trim()
+  const providers = where
+    ? allProviders.filter(
+        (p) =>
+          p.city.toLowerCase().includes(where) ||
+          p.location.toLowerCase().includes(where),
+      )
+    : allProviders
 
   return (
     <div className="flex flex-col">
@@ -68,7 +88,7 @@ export default async function SuppliersHubMapPage({
       <div className="px-4 py-2 bg-white border-b border-slate-100">
         <div className="flex items-center justify-between gap-4">
           <Suspense>
-            <MapAreaChips variant="providers" />
+            <MapAreaChips areas={areas} />
           </Suspense>
           <Suspense>
             <MapSearchToggle />
@@ -78,10 +98,25 @@ export default async function SuppliersHubMapPage({
 
       <div className="flex overflow-hidden" style={{ height: "calc(100vh - 320px)" }}>
         {/* Left rail — scrollable card list */}
-        <div className="w-96 shrink-0 overflow-y-auto border-r border-slate-200 p-3 space-y-3">
-          {providers.map((p) => (
-            <ProviderCard key={p.id} provider={p} basePath={HUB} />
-          ))}
+        <div className="flex w-[380px] shrink-0 flex-col border-r border-slate-200 bg-slate-50/60">
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5">
+            <p className="text-[13px] font-semibold text-slate-900">
+              {providers.length} supplier{providers.length !== 1 ? "s" : ""} in this area
+            </p>
+            <span className="text-[12px] text-slate-400">Sorted by relevance</span>
+          </div>
+          <div className="flex-1 space-y-2.5 overflow-y-auto p-3">
+            {providers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <p className="text-sm font-semibold text-slate-600">No suppliers in view</p>
+                <p className="mt-1 text-xs text-slate-400">Zoom out or move the map to see more.</p>
+              </div>
+            ) : (
+              providers.map((p) => (
+                <ProviderMapCard key={p.id} provider={p} basePath={HUB} />
+              ))
+            )}
+          </div>
         </div>
 
         {/* Map */}

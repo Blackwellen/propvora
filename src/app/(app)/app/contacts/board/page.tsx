@@ -395,7 +395,7 @@ export default function ContactsBoardPage() {
           onChange={(id) => setBoardMode(id as BoardMode)}
           aria-label="Board grouping"
         />
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Contact Board"
           search={search}
           onSearchChange={setSearch}

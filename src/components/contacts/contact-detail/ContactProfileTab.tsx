@@ -8,6 +8,7 @@ import {
   MessageCircle, MessageSquare, Zap, User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import LocationMap from "@/components/maps/LocationMap"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import {
@@ -72,6 +73,20 @@ export function ProfileTab({ contact }: { contact: ContactDetail }) {
           <InlineEditField value={contact.address_line1} type="text" label="address" readOnly={!editable} readOnlyReason={lockReason} placeholder="—" displayClassName="text-sm text-slate-800" onSave={(v) => save("address_line1", v)} />
         </div>
       </div>
+      {(contact.address_line1 || contact.city || contact.postcode) && (
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Location</p>
+          <LocationMap
+            markers={[{
+              id: contact.id,
+              address: [contact.address_line1, contact.city, contact.postcode].filter(Boolean).join(", ") || null,
+              label: contact.company_name || "Contact",
+              sublabel: [contact.city, contact.postcode].filter(Boolean).join(" ") || undefined,
+            }]}
+            height={200}
+          />
+        </div>
+      )}
       {contact.tags.length > 0 && (
         <div>
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Tags</p>

@@ -137,7 +137,7 @@ export default function UnitsListPage() {
       />
 
       {/* Mobile page header — search + filter sheet trigger */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Units & Rooms"
         count={`${filtered.length} total · ${vacantCount} vacant`}
         search={search}

@@ -10,7 +10,8 @@ import { useJobs } from "@/hooks/useJobs"
 import { useTasks } from "@/hooks/useTasks"
 import { useContacts } from "@/hooks/useContacts"
 import { createClient } from "@/lib/supabase/client"
-import { uploadFile } from "@/lib/upload"
+import { uploadFile, validateUploadFile } from "@/lib/upload"
+import ImageCropModal from "@/components/upload/ImageCropModal"
 import { cn } from "@/lib/utils"
 import MobileTabs from "@/components/mobile/MobileTabs"
 import { Building2, ChevronLeft, RefreshCw } from "lucide-react"
@@ -46,6 +47,7 @@ export default function PropertyDetailPage() {
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null)
   const [uploadingCover, setUploadingCover] = useState(false)
   const [coverError, setCoverError] = useState<string | null>(null)
+  const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null)
   const coverInputRef = useRef<HTMLInputElement | null>(null)
 
   const { data: property, isLoading: propLoading } = useProperty(workspace?.id, propertyId)
@@ -74,19 +76,26 @@ export default function PropertyDetailPage() {
     await updateProperty.mutateAsync({ id: propertyId, workspaceId: workspace.id, payload: { [field]: value } })
   }
 
+  // A file was chosen — validate, then open the cropper (16:9 cover, no squash).
   async function handleCoverUpload(file: File) {
+    const err = validateUploadFile(file, { imagesOnly: true })
+    if (err) { setCoverError(err); return }
+    setCoverError(null)
+    setPendingCoverFile(file)
+  }
+
+  // The cropped result is what actually uploads.
+  async function doCoverUpload(file: File) {
+    setPendingCoverFile(null)
     if (!workspace?.id || !propertyId) return
     setUploadingCover(true)
     setCoverError(null)
     try {
-      const { url: publicUrl } = await uploadFile(file, workspace.id, "property-covers")
-      const supabase = createClient()
-      const { error } = await supabase
-        .from("properties")
-        .update({ cover_image_url: publicUrl })
-        .eq("id", propertyId)
-        .eq("workspace_id", workspace.id)
-      if (error) throw new Error(error.message)
+      const { url: publicUrl } = await uploadFile(file, workspace.id, "property-covers", { imagesOnly: true })
+      // Persist via the same validated mutation other edits use — it invalidates
+      // the property cache so the new cover renders immediately (the raw client
+      // .update() did neither reliably).
+      await updateProperty.mutateAsync({ id: propertyId, workspaceId: workspace.id, payload: { cover_image_url: publicUrl } })
       setCoverImageUrl(publicUrl)
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Cover upload failed"
@@ -229,6 +238,14 @@ export default function PropertyDetailPage() {
           )}
         </div>
       </div>
+
+      <ImageCropModal
+        file={pendingCoverFile}
+        aspect={16 / 9}
+        title="Crop cover image"
+        onCancel={() => setPendingCoverFile(null)}
+        onCropped={doCoverUpload}
+      />
     </div>
   )
 }

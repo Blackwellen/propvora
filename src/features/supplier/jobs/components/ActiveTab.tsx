@@ -130,7 +130,13 @@ export function ActiveTab({ jobs }: { jobs: SupplierJob[] }) {
               <StaticMap
                 label="Active jobs route"
                 className="h-[360px]"
-                pins={jobs.map((j, i) => ({ id: j.id, n: j.routePosition ?? i + 1, tone: j.onTrack ? "blue" : "amber" }))}
+                markers={jobs.map((j) => ({
+                  id: j.id,
+                  address: `${j.address.line1}, ${j.address.postcode}`,
+                  label: j.address.line1,
+                  sublabel: j.address.postcode,
+                  color: j.onTrack ? "#2563EB" : "#F59E0B",
+                }))}
               />
               <div className="mt-3 space-y-1.5">
                 {jobs.map((j) => (

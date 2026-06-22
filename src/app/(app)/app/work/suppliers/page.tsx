@@ -213,7 +213,7 @@ export default function SuppliersPage() {
           { label: "Preferred", icon: Star, href: "/property-manager/work/suppliers/preferred" },
         ]}
       />
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Suppliers"
         count={`${filtered.length} supplier${filtered.length === 1 ? "" : "s"}`}
         search={search}

@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils"
 
 interface MobilePageHeaderProps {
   title: string
+  /** When the page already shows the title in a <MobileTopBar>, set this to
+   *  avoid a duplicate heading — the count becomes the visible line instead. */
+  hideTitle?: boolean
   /** e.g. "12 properties". */
   count?: string
   /** Controlled search value. Omit to hide the search field. */
@@ -27,6 +30,7 @@ interface MobilePageHeaderProps {
  */
 export default function MobilePageHeader({
   title,
+  hideTitle = false,
   count,
   search,
   onSearchChange,
@@ -37,16 +41,29 @@ export default function MobilePageHeader({
   className,
 }: MobilePageHeaderProps) {
   const showSearch = search !== undefined && !!onSearchChange
+  // When the MobileTopBar already shows the title, don't repeat it — surface the
+  // count as the line instead, so phones/PWA don't show a duplicate heading.
+  const showTopRow = !hideTitle || !!count || !!actions
 
   return (
     <div className={cn("md:hidden mb-4", className)}>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="min-w-0">
-          <h1 className="text-[19px] font-bold text-[#071B4D] leading-tight truncate">{title}</h1>
-          {count && <p className="text-[12.5px] text-slate-500 leading-tight">{count}</p>}
+      {showTopRow && (
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            {hideTitle ? (
+              count ? (
+                <p className="text-[15px] font-bold text-[#071B4D] leading-tight truncate">{count}</p>
+              ) : null
+            ) : (
+              <>
+                <h1 className="text-[19px] font-bold text-[#071B4D] leading-tight truncate">{title}</h1>
+                {count && <p className="text-[12.5px] text-slate-500 leading-tight">{count}</p>}
+              </>
+            )}
+          </div>
+          {actions && <div className="shrink-0">{actions}</div>}
         </div>
-        {actions && <div className="shrink-0">{actions}</div>}
-      </div>
+      )}
 
       {(showSearch || onOpenFilters) && (
         <div className="flex items-center gap-2">

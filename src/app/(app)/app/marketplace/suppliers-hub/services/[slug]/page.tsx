@@ -7,16 +7,13 @@ import {
   X,
   Clock,
   Zap,
-  Share2,
-  Heart,
-  Lock,
-  MessageCircle,
   BadgeCheck,
-  Shield,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import SuppliersHubNav from "@/components/marketplace/SuppliersHubNav"
+import ShareSaveButtons from "@/components/checkout/ShareSaveButtons"
+import ServiceBookingPanel from "@/components/checkout/ServiceBookingPanel"
 import { getPublicServiceOfferBySlug } from "@/lib/public-marketplace/queries"
 
 export const dynamic = "force-dynamic"
@@ -220,14 +217,13 @@ export default async function ServiceDetailPage({
         </div>
 
         {/* Top right actions */}
-        <div className="absolute top-4 right-4 flex gap-2">
-          <button className="w-8 h-8 flex items-center justify-center bg-black/30 rounded-full text-white hover:bg-black/50 transition-colors">
-            <Heart className="h-4 w-4" />
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center bg-black/30 rounded-full text-white hover:bg-black/50 transition-colors">
-            <Share2 className="h-4 w-4" />
-          </button>
-        </div>
+        <ShareSaveButtons
+          slug={slug}
+          storageKey="propvora_saved_services"
+          title={offer.title}
+          variant="compact"
+          className="absolute top-4 right-4"
+        />
       </div>
 
       {/* ── Trust strip ──────────────────────────────────────────── */}
@@ -372,7 +368,7 @@ export default async function ServiceDetailPage({
                     ))}
                   </div>
                   <Link
-                    href={`/property-manager/work/jobs/new?service=${slug}&package=${pkg.name.toLowerCase()}&from=marketplace`}
+                    href={`/property-manager/marketplace/suppliers-hub/services/${slug}/book?package=${pkg.name.toLowerCase()}`}
                     className={`block w-full py-2.5 text-center text-sm font-bold rounded-xl transition-colors ${
                       i === 1
                         ? "bg-blue-600 hover:bg-blue-700 text-white"
@@ -404,9 +400,12 @@ export default async function ServiceDetailPage({
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-slate-900 text-sm">+£{(addon.price / 100).toFixed(0)}</span>
-                      <button className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-semibold transition-colors">
+                      <Link
+                        href={`/property-manager/marketplace/suppliers-hub/services/${slug}/book?package=standard`}
+                        className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-semibold transition-colors"
+                      >
                         Add
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 ))}
@@ -488,65 +487,9 @@ export default async function ServiceDetailPage({
           </div>
         </div>
 
-        {/* ── Right sidebar ────────────────────────────────────────── */}
+        {/* ── Right sidebar (reactive tier selection) ──────────────── */}
         <div>
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sticky top-24">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Starting from</p>
-            <div className="flex items-baseline gap-1 mb-4">
-              <span className="text-4xl font-extrabold text-slate-900">
-                £{(offer.standardPrice / 100).toFixed(0)}
-              </span>
-              <span className="text-slate-500 text-sm font-medium">Standard</span>
-            </div>
-
-            {/* Meta */}
-            <div className="space-y-2 mb-5 text-sm">
-              <div className="flex items-center gap-2 text-slate-600">
-                <Clock className="h-4 w-4 text-blue-500 shrink-0" />
-                <span>Responds in <strong className="text-slate-900">{offer.responseTime}</strong></span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <Zap className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Next available: <strong className="text-slate-900">{offer.nextAvailable}</strong></span>
-              </div>
-              {offer.insured && (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Shield className="h-4 w-4 text-violet-500 shrink-0" />
-                  <span>Fully insured</span>
-                </div>
-              )}
-            </div>
-
-            {/* Primary CTA */}
-            <Link
-              href={`/property-manager/work/jobs/new?service=${slug}&package=standard&from=marketplace`}
-              className="block w-full py-3.5 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mb-3"
-            >
-              Book Standard →
-            </Link>
-
-            {/* Secondary CTA */}
-            <Link
-              href={`/property-manager/messages?service=${slug}`}
-              className="flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors mb-4"
-            >
-              <MessageCircle className="h-4 w-4" /> Get Custom Quote
-            </Link>
-
-            {/* Trust */}
-            <div className="border-t border-slate-100 pt-4 space-y-2">
-              {[
-                { icon: Lock, text: "Protected by Propvora escrow" },
-                { icon: BadgeCheck, text: "Vetted & DBS-checked provider" },
-                { icon: Shield, text: "Satisfaction guaranteed" },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-2 text-xs text-slate-500">
-                  <Icon className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  {text}
-                </div>
-              ))}
-            </div>
-          </div>
+          <ServiceBookingPanel offer={offer} slug={slug} />
         </div>
       </div>
     </div>

@@ -15,7 +15,7 @@ import {
   getPublicEmergencyServices,
 } from "@/lib/public-marketplace/queries"
 import type { PublicProvider, PublicServiceOffer, PublicEmergencyService } from "@/lib/public-marketplace/types"
-import { CheckCircle, Shield, Star, AlertTriangle, Clock, Phone, Siren } from "lucide-react"
+import { Shield, Star, AlertTriangle, Clock, Phone, Siren } from "lucide-react"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Unified PM suppliers marketplace — the three tab bodies.
@@ -200,24 +200,6 @@ const SUPPLIER_CHIPS = [
   { id: "fast-response", label: "Fast response" },
 ]
 
-const WHY_PROPVORA = [
-  {
-    icon: CheckCircle,
-    title: "All suppliers vetted",
-    desc: "Every supplier goes through our rigorous DBS, insurance and certification check.",
-  },
-  {
-    icon: Shield,
-    title: "Protected payments",
-    desc: "Escrow-backed payments mean you only pay when work is complete.",
-  },
-  {
-    icon: Star,
-    title: "Genuine reviews",
-    desc: "Reviews from confirmed customers only — no fake ratings.",
-  },
-]
-
 export async function SuppliersSection({
   searchParams = {},
 }: {
@@ -305,30 +287,6 @@ export async function SuppliersSection({
         </>
       )}
 
-      {/* Why verified */}
-      <section className="py-8 px-4 bg-slate-50 border-t border-slate-100 rounded-2xl">
-        <h2 className="text-lg font-bold text-slate-900 mb-5">Why choose verified suppliers?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {WHY_PROPVORA.map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="flex gap-4 p-4 bg-white rounded-2xl border border-slate-200"
-            >
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-900 text-sm">{title}</p>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="mt-6">
-        <MarketplaceTrustStrip />
-      </div>
     </div>
   )
 }
@@ -362,6 +320,18 @@ export async function ServicesSection({
 }: {
   searchParams?: SearchParamsMap
 }) {
+  const SERVICES_BASE = `${HUB}/services`
+  const EMERGENCY_BASE = `${HUB}/emergency`
+
+  // Emergency is folded into Services as a view, toggled by the "Emergency"
+  // chip (?filters=emergency) or legacy ?tab=emergency links.
+  const activeFilters = sp(searchParams, "filters").split(",").filter(Boolean)
+  const emergencyMode = activeFilters.includes("emergency") || sp(searchParams, "tab") === "emergency"
+
+  if (emergencyMode) {
+    return <EmergencyView searchParams={searchParams} basePath={EMERGENCY_BASE} />
+  }
+
   const [allOffers, allFeatured] = await Promise.all([
     getPublicServiceOffers(),
     getFeaturedServiceOffers(),
@@ -379,8 +349,6 @@ export async function ServicesSection({
       : allOffers.filter(o => o.category.toLowerCase().includes(cat.id)).length
     return acc
   }, {})
-
-  const SERVICES_BASE = `${HUB}/services`
 
   return (
     <div>
@@ -443,6 +411,23 @@ export async function ServicesSection({
           })}
         </div>
       </div>
+
+      {/* Emergency promo — folds the old Emergency tab into a Services view */}
+      <a
+        href={`${HUB}?tab=services&filters=emergency`}
+        className="mx-4 mb-6 flex items-center justify-between gap-3 rounded-2xl border border-red-100 bg-gradient-to-r from-red-50 to-white px-4 py-3 transition-colors hover:border-red-200"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white">
+            <Siren className="h-4 w-4" />
+          </span>
+          <span>
+            <span className="block text-sm font-bold text-slate-900">Need it urgently?</span>
+            <span className="block text-xs text-slate-500">24/7 emergency call-outs — police-vetted, fast dispatch.</span>
+          </span>
+        </span>
+        <span className="shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white">Emergency call-outs →</span>
+      </a>
 
       {offers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center px-4">
@@ -519,10 +504,16 @@ const EMERGENCY_SORT_OPTIONS = [
   "Rating",
 ]
 
-export async function EmergencySection({
+/**
+ * EmergencyView — the emergency call-out discovery surface, rendered INSIDE the
+ * Services tab when the "Emergency" filter is active (one discovery surface).
+ */
+async function EmergencyView({
   searchParams = {},
+  basePath,
 }: {
   searchParams?: SearchParamsMap
+  basePath: string
 }) {
   let allServices: PublicEmergencyService[] = []
   try {
@@ -533,10 +524,17 @@ export async function EmergencySection({
 
   const services = filterEmergencyServices(allServices, searchParams)
   const location  = locationLabel(searchParams, "Your area")
-  const EMERGENCY_BASE = `${HUB}/emergency`
 
   return (
     <div>
+      {/* Back to all services */}
+      <a
+        href={`${HUB}?tab=services`}
+        className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
+      >
+        ← Back to all services
+      </a>
+
       {/* Hero — H1 above search, always */}
       <section className="bg-gradient-to-b from-red-50 to-white pt-8 pb-6 px-4 rounded-2xl mb-4 border border-red-100">
         <div className="inline-flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-3">
@@ -610,7 +608,7 @@ export async function EmergencySection({
               <EmergencyServiceCard
                 key={service.id}
                 service={service}
-                basePath={EMERGENCY_BASE}
+                basePath={basePath}
               />
             ))}
           </div>

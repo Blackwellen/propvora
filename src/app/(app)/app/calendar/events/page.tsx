@@ -112,7 +112,7 @@ export default function EventsPage() {
 
       <div className="p-4 md:p-6 space-y-6">
         <div className="md:hidden">
-          <MobilePageHeader
+          <MobilePageHeader hideTitle
             title="Events"
             count={`${filtered.length} item${filtered.length === 1 ? "" : "s"}`}
             search={search}

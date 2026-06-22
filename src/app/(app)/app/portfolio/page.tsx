@@ -35,6 +35,7 @@ import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls, resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
 import { openCopilot } from "@/lib/copilot/open"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { mapPreviewTile } from "@/lib/maps/tiles"
 
 /* ------------------------------------------------------------------ */
 /* 13 Operational Profiles                                              */
@@ -819,7 +820,7 @@ export default function PortfolioPage() {
                   </div>
                   <Link href="/app/portfolio/map"
                     className="relative block h-52 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group">
-                    <div className="absolute inset-0" style={{ backgroundImage: "url(https://a.basemaps.cartocdn.com/light_all/6/31/20.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
+                    <div className="absolute inset-0" style={{ backgroundImage: `url(${mapPreviewTile()})`, backgroundSize: "cover", backgroundPosition: "center" }} />
                     <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-slate-900/5 transition-colors" />
                     {properties.length === 0 ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">

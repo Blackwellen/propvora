@@ -6,7 +6,6 @@ import {
   Clock,
   CheckCircle,
   MessageCircle,
-  Heart,
   Phone,
   Shield,
   Briefcase,
@@ -17,6 +16,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import SuppliersHubNav from "@/components/marketplace/SuppliersHubNav"
+import ShareSaveButtons from "@/components/checkout/ShareSaveButtons"
 import { getPublicProviderBySlug, getPublicProviders } from "@/lib/public-marketplace/queries"
 
 export const dynamic = "force-dynamic"
@@ -204,9 +204,11 @@ export default async function SupplierDetailPage({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 transition-colors">
-              <Heart className="h-4 w-4" />
-            </button>
+            <ShareSaveButtons
+              slug={slug}
+              storageKey="propvora_saved_suppliers"
+              title={provider.companyName}
+            />
             <Link
               href={`/property-manager/messages?contact=${slug}`}
               className="flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl hover:bg-slate-50 transition-colors"
@@ -215,7 +217,7 @@ export default async function SupplierDetailPage({
               Message
             </Link>
             <Link
-              href={`/property-manager/work/jobs/new?supplier=${slug}&from=marketplace`}
+              href={`/property-manager/marketplace/suppliers-hub/${slug}/book`}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-colors"
             >
               Book Now
@@ -535,10 +537,10 @@ export default async function SupplierDetailPage({
 
             {/* Primary CTA */}
             <Link
-              href={`/property-manager/work/jobs/new?supplier=${slug}&from=marketplace`}
+              href={`/property-manager/marketplace/suppliers-hub/${slug}/book`}
               className="block w-full py-3.5 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mb-3"
             >
-              Request a Quote →
+              Book this supplier →
             </Link>
 
             {/* Secondary CTA */}

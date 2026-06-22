@@ -241,7 +241,7 @@ export default function PortfolioGalleryPage() {
       />
 
       {/* Mobile page header — search + filter sheet trigger */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Portfolio Gallery"
         count={`${filtered.length} images · ${propCount} property · ${unitCount} unit`}
         search={search}

@@ -221,7 +221,7 @@ export default async function EmergencyDetailPage({
               Call Now
             </a>
             <Link
-              href={`/property-manager/work/jobs/new?type=emergency&supplier=${slug}&from=marketplace`}
+              href={`/property-manager/marketplace/suppliers-hub/emergency/${slug}/book`}
               className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 font-semibold text-sm rounded-xl hover:bg-red-100 transition-colors"
             >
               Book Emergency
@@ -550,7 +550,7 @@ export default async function EmergencyDetailPage({
 
             {/* Primary CTA */}
             <Link
-              href={`/property-manager/work/jobs/new?type=emergency&supplier=${slug}&from=marketplace`}
+              href={`/property-manager/marketplace/suppliers-hub/emergency/${slug}/book`}
               className="block w-full py-4 text-center bg-red-600 hover:bg-red-700 text-white font-extrabold text-base rounded-xl transition-colors"
             >
               Book Emergency Now →

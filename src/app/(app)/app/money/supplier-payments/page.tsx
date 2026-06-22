@@ -211,7 +211,7 @@ export default function SupplierPaymentsPage() {
       <MoneyTabNav />
 
       {/* Mobile header — search (desktop filters gated below) */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Supplier Payments"
         count={`${filtered.length} payment${filtered.length === 1 ? "" : "s"}`}
         search={supplierFilter}

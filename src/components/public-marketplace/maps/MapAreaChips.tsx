@@ -1,35 +1,75 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useCallback } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const STAYS_AREAS = ['All areas', 'City Centre', 'Spinningfields', 'Northern Quarter', 'Salford Quays', 'Didsbury', 'Chorlton']
-const SERVICES_AREAS = ['All areas', 'City Centre', 'Salford', 'Northern Quarter', 'Didsbury', 'Chorlton', 'Stockport']
-const PROVIDERS_AREAS = ['All areas', 'City Centre', 'Salford', 'Trafford', 'Stockport', 'Bury', 'Oldham']
+/**
+ * Area chips for the map view. Areas are DATA-DRIVEN — the page derives them
+ * from the locations actually present in the result set (most-common first) and
+ * passes them in via `areas`. Clicking an area writes `?where=` to the URL so
+ * the server re-filters the list + map. "All areas" clears the filter.
+ *
+ * Falls back to a small fixed set only if no areas are supplied (empty data).
+ */
+const FALLBACK = ['City Centre', 'Salford', 'Trafford', 'Stockport']
 
-export default function MapAreaChips({ variant = 'stays' }: { variant?: 'stays' | 'services' | 'providers' }) {
-  const [active, setActive] = useState('All areas')
-  const areas = variant === 'stays' ? STAYS_AREAS : variant === 'services' ? SERVICES_AREAS : PROVIDERS_AREAS
+export default function MapAreaChips({
+  areas,
+  // legacy prop kept so existing call sites don't break
+  variant: _variant,
+}: {
+  areas?: string[]
+  variant?: 'stays' | 'services' | 'providers'
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const list = (areas && areas.length > 0 ? areas : FALLBACK).slice(0, 7)
+  const active = (searchParams?.get('where') ?? '').trim()
+
+  const select = useCallback((area: string | null) => {
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    params.delete('page')
+    if (area) params.set('where', area)
+    else params.delete('where')
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [router, pathname, searchParams])
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-      {areas.map(area => (
-        <button
-          key={area}
-          onClick={() => setActive(area)}
-          className={cn(
-            'shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap',
-            active === area
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
-          )}
-        >
-          {area}
-        </button>
-      ))}
-      <button className="shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border bg-white text-slate-600 border-slate-200 hover:border-slate-300 whitespace-nowrap">
-        More…
+      <button
+        onClick={() => select(null)}
+        className={cn(
+          'flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
+          !active
+            ? 'bg-blue-600 text-white border-blue-600'
+            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
+        )}
+      >
+        <MapPin className="h-3.5 w-3.5" />
+        All areas
       </button>
+      {list.map(area => {
+        const isActive = active.toLowerCase() === area.toLowerCase()
+        return (
+          <button
+            key={area}
+            onClick={() => select(isActive ? null : area)}
+            aria-pressed={isActive}
+            className={cn(
+              'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
+              isActive
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
+            )}
+          >
+            {area}
+          </button>
+        )
+      })}
     </div>
   )
 }

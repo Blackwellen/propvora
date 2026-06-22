@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import React, { useEffect, useRef } from "react"
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/maps/tiles"
 import type { MapProperty } from "@/app/(app)/app/portfolio/map/page"
 import { HEALTH_CONFIG, STATUS_LABELS, formatCurrency } from "@/app/(app)/app/portfolio/map/page"
 
@@ -104,10 +105,10 @@ export default function LeafletMap({ properties, selectedId, onSelect }: Leaflet
       }).setView([53.0, -1.5], 6)
 
       // Premium styled tile layer (CartoDB Positron — clean light style)
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+      L.tileLayer(MAP_TILE_URL, {
+        attribution: MAP_TILE_ATTRIBUTION,
         maxZoom: 19,
-        subdomains: "abcd",
+        subdomains: "abc",
       }).addTo(map)
 
       // Custom zoom control (bottom-right)

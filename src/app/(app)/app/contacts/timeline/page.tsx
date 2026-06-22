@@ -458,7 +458,7 @@ export default function TimelinePage() {
         <ContactsTabNav />
       </div>
       <div className="md:hidden px-4 pt-4">
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Contact Timeline"
           search={search}
           onSearchChange={setSearch}

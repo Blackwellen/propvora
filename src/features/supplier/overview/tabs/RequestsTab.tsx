@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import LocationMap from "@/components/maps/LocationMap"
 import {
   Inbox, Clock, TrendingUp, Target, HelpCircle, MapPin, LayoutGrid, List,
   Map as MapIcon, Columns3, Send, FileText, CalendarDays, Building2, X,
@@ -197,9 +198,12 @@ function KanbanView({ rows, onSelect, selectedId }: { rows: RequestRow[]; onSele
 function MapView({ rows, onSelect, selectedId }: { rows: RequestRow[]; onSelect: (r: RequestRow) => void; selectedId?: string }) {
   return (
     <Panel pad={false} className="overflow-hidden">
-      <div className="relative h-72 bg-[linear-gradient(135deg,#f1f5f9_25%,#e2e8f0_25%,#e2e8f0_50%,#f1f5f9_50%,#f1f5f9_75%,#e2e8f0_75%)] bg-[length:24px_24px] flex items-center justify-center">
-        <span className="text-[12px] text-slate-400 inline-flex items-center gap-1.5"><MapIcon className="w-4 h-4" /> Map preview — pins below</span>
-      </div>
+      <LocationMap
+        markers={rows.map((r) => ({ id: r.id, address: r.address, label: r.property, sublabel: r.address }))}
+        height={288}
+        selectedId={selectedId}
+        onSelect={(id) => { const r = rows.find((x) => x.id === id); if (r) onSelect(r) }}
+      />
       <ul className="divide-y divide-slate-100">
         {rows.map((r) => (
           <li key={r.id}>

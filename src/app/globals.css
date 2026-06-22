@@ -428,3 +428,61 @@ img, picture, video, canvas, svg {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+
+/* ── Premium marketplace map popup ────────────────────────────────────────
+   Zeroes Leaflet's default popup chrome so our card can render edge-to-edge
+   (flush hero image, rounded corners, soft shadow). Scoped to the
+   `propvora-map-popup` class so other Leaflet popups are unaffected. */
+.leaflet-popup.propvora-map-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  box-shadow: 0 16px 40px rgba(2, 6, 23, 0.22), 0 0 0 1px rgba(37, 99, 235, 0.06);
+}
+.leaflet-popup.propvora-map-popup .leaflet-popup-content {
+  margin: 0;
+  width: 232px !important;
+  line-height: 1.35;
+}
+.leaflet-popup.propvora-map-popup .leaflet-popup-close-button {
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: rgb(51, 65, 85);
+  box-shadow: 0 1px 4px rgba(2, 6, 23, 0.18);
+  font-size: 16px;
+  font-weight: 600;
+}
+.leaflet-popup.propvora-map-popup .leaflet-popup-tip {
+  box-shadow: 0 18px 50px rgba(2, 6, 23, 0.22);
+}
+/* Leaflet's `.leaflet-container a` colour rule outranks utility text-* classes,
+   which hid the popup button labels. Strip the underline; button labels carry
+   their own colour on an inner <span> (unaffected by the `a` colour rule). */
+.leaflet-popup.propvora-map-popup .leaflet-popup-content a {
+  text-decoration: none;
+}
+
+/* Discreet map attribution — keeps OSM/CARTO credit (licence-compliant) while
+   removing the prominent "Leaflet" branding and shrinking the strip so it sits
+   quietly in the corner. */
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(100, 116, 139, 0.7) !important;
+  font-size: 9px !important;
+  line-height: 1.4 !important;
+  padding: 0 5px !important;
+  border-radius: 6px 0 0 0 !important;
+  box-shadow: none !important;
+}
+.leaflet-control-attribution a {
+  color: rgba(71, 85, 105, 0.85) !important;
+  text-decoration: none !important;
+}

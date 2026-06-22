@@ -561,7 +561,7 @@ export default function OrganisationsPage() {
         <div className="md:hidden -mx-4 mb-4">
           <ContactsTabNav />
         </div>
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Organisations"
           count={`${filtered.length} ${filtered.length === 1 ? "organisation" : "organisations"}`}
           search={searchQuery}

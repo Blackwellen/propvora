@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, MessageCircle } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
+import LocationMap from '@/components/maps/LocationMap'
 import { getPublicProviderBySlug, getPublicProviders } from '@/lib/public-marketplace/queries'
 import { formatPence } from '@/lib/marketplace/money'
 
@@ -306,15 +307,16 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
 
           {/* RIGHT (1/3) */}
           <div className="space-y-4">
-            {/* Coverage map placeholder */}
+            {/* Coverage map */}
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-              <div className="bg-slate-100 h-48 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-600">Primary area: Greater Manchester</p>
-                  <p className="text-xs text-slate-400 mt-1">Within {provider.coverageRadius} miles</p>
-                </div>
-              </div>
+              <LocationMap
+                markers={[{ id: provider.slug, lat: provider.lat, lng: provider.lng, label: provider.companyName, sublabel: provider.trade }]}
+                height={192}
+                zoom={11}
+                title={provider.location}
+                caption={`Within ${provider.coverageRadius} miles`}
+              />
+              <div className="h-px" />
               <div className="p-4">
                 <p className="text-sm font-semibold text-slate-900 mb-2">Coverage areas</p>
                 <div className="flex flex-wrap gap-1.5">

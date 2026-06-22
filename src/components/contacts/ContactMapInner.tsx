@@ -3,10 +3,10 @@
 import { useMemo } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/lib/maps/tiles'
 
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-const TILE_ATTRIBUTION =
-  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+const TILE_URL = MAP_TILE_URL
+const TILE_ATTRIBUTION = MAP_TILE_ATTRIBUTION
 
 // UK city / postcode-area → approximate centre [lat, lng]
 const CITY_COORDS: Record<string, [number, number]> = {
@@ -194,7 +194,7 @@ export default function ContactMapInner({ cityData, selectedId, onSelectCity }: 
       style={{ height: '100%', width: '100%' }}
       zoomControl={false}
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={19} />
+      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abc" maxZoom={19} />
 
       {plotted.map(entry => {
         const isSelected = entry.city === selectedCity

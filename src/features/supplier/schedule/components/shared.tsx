@@ -6,6 +6,7 @@
 
 import React, { createContext, useCallback, useContext, useState } from "react"
 import { cn } from "@/lib/utils"
+import LocationMap, { type MapMarker } from "@/components/maps/LocationMap"
 import { CheckCircle2, Info, X } from "lucide-react"
 
 // ── Toast ───────────────────────────────────────────────────────────────────────
@@ -103,8 +104,23 @@ export function LegendDot({ color, label }: { color: string; label: string }) {
   )
 }
 
-// ── Static map placeholder ─────────────────────────────────────────────────────
-export function MapPlaceholder({ label, className }: { label?: string; className?: string }) {
+// ── Map (live when markers supplied, decorative fallback otherwise) ─────────────
+export function MapPlaceholder({
+  label,
+  markers,
+  className,
+}: {
+  label?: string
+  markers?: MapMarker[]
+  className?: string
+}) {
+  if (markers && markers.length > 0) {
+    return (
+      <div className={cn("relative overflow-hidden rounded-xl border border-slate-200", className)}>
+        <LocationMap markers={markers} height="100%" title={label} zoom={12} />
+      </div>
+    )
+  }
   return (
     <div
       className={cn(

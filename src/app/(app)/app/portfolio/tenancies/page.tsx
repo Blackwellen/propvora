@@ -212,7 +212,7 @@ export default function TenanciesListPage() {
       />
 
       {/* Mobile page header — search + filter sheet trigger */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Tenancies"
         count={`${filtered.length} shown · ${endingSoonCount} ending soon`}
         search={search}

@@ -442,7 +442,7 @@ export default function DocumentsPage() {
       <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
         {/* Mobile search */}
         <div className="md:hidden">
-          <MobilePageHeader
+          <MobilePageHeader hideTitle
             title="Documents"
             count={`${filtered.length} document${filtered.length === 1 ? "" : "s"}`}
             search={search}

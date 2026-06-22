@@ -490,7 +490,7 @@ function MoneyIncomePageInner() {
       <DashboardContainer className="py-6 flex flex-col gap-6">
 
         {/* Mobile header — search (replaces desktop controls toolbar on phones) */}
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Income"
           count={`${filtered.length} record${filtered.length === 1 ? "" : "s"}`}
           search={searchQuery}

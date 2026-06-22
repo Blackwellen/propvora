@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 import { Camera, Loader2 } from "lucide-react"
 import { uploadFile, validateUploadFile } from "@/lib/upload"
+import ImageCropModal from "@/components/upload/ImageCropModal"
 
 /** Resolve a stored R2 key (or legacy absolute URL) to a viewable URL. */
 export function avatarKeyToUrl(key: string | null | undefined): string | null {
@@ -37,10 +38,12 @@ export default function AvatarUploader({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previewKey, setPreviewKey] = useState<string | null>(currentKey)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
 
   const url = avatarKeyToUrl(previewKey ?? currentKey)
 
-  async function handleFile(file: File | undefined) {
+  // Choose a file → validate → open the 1:1 cropper (avatars are square).
+  function handleFile(file: File | undefined) {
     if (!file) return
     if (!workspaceId) {
       setError("No active workspace — cannot store the photo yet.")
@@ -49,9 +52,15 @@ export default function AvatarUploader({
     const invalid = validateUploadFile(file, { imagesOnly: true })
     if (invalid) { setError(invalid); return }
     setError(null)
+    setPendingFile(file)
+  }
+
+  async function doUpload(file: File) {
+    setPendingFile(null)
+    if (!workspaceId) return
     setUploading(true)
     try {
-      const { key } = await uploadFile(file, workspaceId, "avatars")
+      const { key } = await uploadFile(file, workspaceId, "avatars", { imagesOnly: true })
       setPreviewKey(key)
       onUploaded(key)
     } catch (e) {
@@ -108,6 +117,14 @@ export default function AvatarUploader({
         </button>
         {error && <p className="text-xs text-red-600 mt-1.5">{error}</p>}
       </div>
+
+      <ImageCropModal
+        file={pendingFile}
+        aspect={1}
+        title="Crop profile photo"
+        onCancel={() => setPendingFile(null)}
+        onCropped={doUpload}
+      />
     </div>
   )
 }

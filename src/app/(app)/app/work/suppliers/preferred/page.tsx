@@ -291,7 +291,7 @@ export default function PreferredSuppliersPage() {
         subtitle="Preferred network"
         primaryAction={{ label: "Add supplier", icon: Plus, href: "/property-manager/contacts/new?type=supplier" }}
       />
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Preferred Suppliers"
         count={`${filtered.length} supplier${filtered.length === 1 ? "" : "s"}`}
         search={search}

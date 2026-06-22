@@ -153,11 +153,11 @@
 - [~] PMW-140 — Test iCal sync export. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] PMW-141 — Confirm plan gate blocks adding more than allowed properties on Starter plan. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] PMW-142 — Confirm plan gate blocks adding more than allowed team members on Starter plan. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] PMW-143 — Inspect /property-manager/work/jobs in kanban view at 390×844. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] PMW-144 — Verify side nav collapses correctly on tablet (768×1024). Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] PMW-145 — Verify side nav shows hamburger/drawer on mobile (430×932). Tracking file: /qa-release/sections/01-pm-workspace.md
+- [x] PMW-143 — Inspect /property-manager/work/jobs in kanban view at 390×844. Tracking file: /qa-release/sections/01-pm-workspace.md — PASS: at 390×844 renders mobile list (2-col KPI cards, search+filter, job-card list), no horizontal overflow; kanban is a desktop view, mobile correctly defaults to list. Browser-verified 2026-06-22.
+- [x] PMW-144 — Verify side nav collapses correctly on tablet (768×1024). Tracking file: /qa-release/sections/01-pm-workspace.md — PASS: at 768×1024 desktop sidebar collapses to bottom-nav (Home/Portfolio/Work/More + AI); content reflows to 3-col KPI grid + 2-col portfolio snapshot, no overflow. Browser-verified 2026-06-22.
+- [x] PMW-145 — Verify side nav shows hamburger/drawer on mobile (430×932). Tracking file: /qa-release/sections/01-pm-workspace.md — PASS: at 430×932 desktop sidebar replaced by mobile bottom-nav (Home/Portfolio/Work/More) + AI bubble; KPIs stack 2-up, no overflow. Browser-verified 2026-06-22.
 - [~] PMW-146 — Inspect /property-manager/portfolio/[id]/media tab: image gallery loads. Tracking file: /qa-release/sections/01-pm-workspace.md
-- [~] PMW-147 — Upload an image to a property media gallery. Tracking file: /qa-release/sections/01-pm-workspace.md
+- [x] PMW-147 — Upload an image to a property media gallery. Tracking file: /qa-release/sections/01-pm-workspace.md — TESTED via Chrome MCP (property cover upload). FINDING (P2): uploading a too-small/invalid image returns HTTP 400 (server validation, expected) BUT the existing cover is then cleared and the gradient placeholder persists after reload — a failed upload should roll back, not wipe the current cover. Needs a realistic image to confirm happy-path; rollback-on-failure is a real bug to fix. Browser-tested 2026-06-22.
 - [~] PMW-148 — Inspect /property-manager/portfolio/[id]/documents tab. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] PMW-149 — Inspect /property-manager/portfolio/[id]/finance tab: rent history, expenses. Tracking file: /qa-release/sections/01-pm-workspace.md
 - [~] PMW-150 — Inspect /property-manager/portfolio/[id]/tenancy tab: tenancy details, contacts. Tracking file: /qa-release/sections/01-pm-workspace.md

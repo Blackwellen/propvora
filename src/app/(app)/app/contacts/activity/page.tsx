@@ -259,7 +259,7 @@ export default function ActivityPage() {
       <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 space-y-6">
         {/* Mobile search */}
         <div className="md:hidden">
-          <MobilePageHeader
+          <MobilePageHeader hideTitle
             title="Contact Activity"
             search={search}
             onSearchChange={setSearch}

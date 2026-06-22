@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import { UploadCloud, MapPin } from "lucide-react"
+import LocationMap, { type MapMarker } from "@/components/maps/LocationMap"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Feature-local primitives for the Supplier Jobs surface. These live in the
@@ -204,13 +205,25 @@ export function EvidenceDropzone({
 
 export function StaticMap({
   label,
+  markers,
   pins,
   className,
 }: {
   label?: string
+  /** Real geographic markers — when provided, renders a live map. */
+  markers?: MapMarker[]
   pins?: { id: string; n: number; tone?: "blue" | "emerald" | "amber" }[]
   className?: string
 }) {
+  // Live map when we have real markers (address or coords).
+  if (markers && markers.length > 0) {
+    return (
+      <div className={cn("relative rounded-2xl border border-slate-200 overflow-hidden", className)}>
+        <LocationMap markers={markers} height="100%" title={label} zoom={13} />
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(

@@ -69,7 +69,8 @@ export function useActivityLog(workspaceId: string | undefined, entityIds: strin
           .from("activity_logs")
           .select("id, action, entity_type:resource_type, entity_id:resource_id, description, created_at")
           .eq("workspace_id", workspaceId)
-          .in("entity_id", entityIds)
+          // Filter on the REAL column, not the select alias (PostgREST 400s on aliases).
+          .in("resource_id", entityIds)
           .order("created_at", { ascending: false })
           .limit(40)
         if (error) { if (active) setLoaded(true); return }

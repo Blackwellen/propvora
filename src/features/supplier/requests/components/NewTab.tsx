@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo, useState } from "react"
+import LocationMap from "@/components/maps/LocationMap"
 import {
   Inbox, Table2, LayoutGrid, Map as MapIcon, Columns3, FileText, Building2,
   BadgeCheck, MapPin, CheckCircle2,
@@ -111,14 +112,18 @@ export function NewTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
               />
             ) : view === "map" ? (
               <SupplierCard className="p-0 overflow-hidden">
-                <div className="relative h-[280px] bg-gradient-to-br from-sky-50 to-slate-100 flex items-center justify-center">
-                  <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle, var(--color-slate-600, #475569) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
-                  <div className="text-center">
-                    <MapIcon className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-slate-600">Map view</p>
-                    <p className="text-xs text-slate-400 max-w-xs">Requests plotted by property location. Pins reflect coverage match.</p>
-                  </div>
-                </div>
+                <LocationMap
+                  markers={rows.map((r) => ({
+                    id: r.id,
+                    address: r.property.address ?? null,
+                    label: r.requesterCompany,
+                    sublabel: r.property.address ?? undefined,
+                    color: r.withinCoverage ? "#10B981" : "#94A3B8",
+                  }))}
+                  height={280}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                />
                 <div className="divide-y divide-slate-100">
                   {rows.slice(0, 5).map((r) => (
                     <button key={r.id} onClick={() => setSelectedId(r.id)} className="flex items-center gap-3 w-full text-left px-4 py-2.5 hover:bg-slate-50">

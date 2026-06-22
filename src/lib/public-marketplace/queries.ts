@@ -14,6 +14,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { SEED_EMERGENCY_SERVICES } from './seed-fallback'
 import { EXPANDED_STAYS, EXPANDED_PROVIDERS, EXPANDED_SERVICE_OFFERS, EXPANDED_LONG_TERM_RENTALS } from './seed-expander'
+import { withProviderMedia, withServiceMedia, withEmergencyMedia } from './media-fallback'
 import type { PublicStay, PublicProvider, PublicServiceOffer, PublicEmergencyService, PublicLongTermRental } from './types'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -334,8 +335,8 @@ export async function getPublicStayBySlug(slug: string): Promise<PublicStay | nu
 
 export async function getPublicProviders(): Promise<PublicProvider[]> {
   const live = await loadLiveData()
-  if (live && live.providers.length > 0) return live.providers
-  return EXPANDED_PROVIDERS
+  const providers = live && live.providers.length > 0 ? live.providers : EXPANDED_PROVIDERS
+  return providers.map(withProviderMedia)
 }
 
 export async function getPublicProviderBySlug(slug: string): Promise<PublicProvider | null> {
@@ -354,8 +355,8 @@ export async function getFeaturedProviders(): Promise<PublicProvider[]> {
 
 export async function getPublicServiceOffers(): Promise<PublicServiceOffer[]> {
   const live = await loadLiveData()
-  if (live && live.offers.length > 0) return live.offers
-  return EXPANDED_SERVICE_OFFERS
+  const offers = live && live.offers.length > 0 ? live.offers : EXPANDED_SERVICE_OFFERS
+  return offers.map(withServiceMedia)
 }
 
 export async function getPublicServiceOfferBySlug(slug: string): Promise<PublicServiceOffer | null> {
@@ -373,8 +374,8 @@ export async function getFeaturedServiceOffers(): Promise<PublicServiceOffer[]> 
 
 export async function getPublicEmergencyServices(): Promise<PublicEmergencyService[]> {
   const live = await loadLiveData()
-  if (live && live.emergencyServices.length > 0) return live.emergencyServices
-  return SEED_EMERGENCY_SERVICES
+  const services = live && live.emergencyServices.length > 0 ? live.emergencyServices : SEED_EMERGENCY_SERVICES
+  return services.map(withEmergencyMedia)
 }
 
 export async function getPublicEmergencyServiceBySlug(slug: string): Promise<PublicEmergencyService | null> {

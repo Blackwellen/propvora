@@ -2,16 +2,18 @@
 
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Store, Wrench, AlertTriangle } from "lucide-react"
+import { Store, Wrench } from "lucide-react"
 
 const BASE = "/property-manager/marketplace/suppliers-hub"
 
 export type HubTab = "suppliers" | "services" | "emergency"
 
+// Emergency is no longer its own tab — it's an "Emergency" filter inside Services
+// (one discovery surface). The `emergency` HubTab type is kept for back-compat
+// with old ?tab=emergency links, which resolve into the Services tab.
 const TABS: { key: HubTab; label: string; icon: typeof Store }[] = [
   { key: "suppliers", label: "Suppliers", icon: Store },
   { key: "services", label: "Services", icon: Wrench },
-  { key: "emergency", label: "Emergency", icon: AlertTriangle },
 ]
 
 /**
@@ -21,7 +23,9 @@ const TABS: { key: HubTab; label: string; icon: typeof Store }[] = [
  */
 export default function SuppliersHubTabs() {
   const searchParams = useSearchParams()
-  const current = (searchParams?.get("tab") as HubTab | null) ?? "suppliers"
+  const raw = searchParams?.get("tab")
+  // Emergency links fold into the Services tab.
+  const current: HubTab = raw === "services" || raw === "emergency" ? "services" : "suppliers"
 
   return (
     <div className="flex items-center gap-1 border-b border-slate-200 mb-6 px-1">

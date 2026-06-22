@@ -97,7 +97,7 @@ export function OverviewTab({
         <div className="lg:col-span-2 flex flex-col gap-4">
           {/* Hero */}
           <div
-            className="relative h-[220px] shrink-0 rounded-2xl overflow-hidden group"
+            className="relative flex-1 min-h-[300px] rounded-2xl overflow-hidden group"
             style={!showCoverImage ? { background: getPropertyGradient(prop.property_type) } : undefined}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
             onDragLeave={() => setDragOver(false)}
@@ -115,6 +115,10 @@ export function OverviewTab({
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 1024px) 100vw, 800px"
+                // Authed /api/files URLs must be fetched by the browser (with the
+                // session cookie), NOT the next/image optimizer (which fetches
+                // server-side without the cookie → 401 → broken cover).
+                unoptimized={(coverImageUrl ?? "").includes("/api/files")}
                 onError={() => setHeroCoverError(true)}
               />
             ) : (
@@ -160,23 +164,6 @@ export function OverviewTab({
             )}
           </div>
 
-          {/* Financial & occupancy snapshot */}
-          <Card className="p-4 flex-1 flex flex-col justify-center">
-            <SectionHeader title="Financial & Occupancy" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: "Monthly Rent", value: prop.target_rent != null ? `£${Number(prop.target_rent).toLocaleString()}` : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
-                { label: "Units", value: String(totalUnits), color: "text-slate-900" },
-                { label: "Occupied", value: String(occupied), color: "text-emerald-600" },
-                { label: "Occupancy", value: totalUnits > 0 ? `${Math.round((occupied / totalUnits) * 100)}%` : "0%", color: "text-[#2563EB]" },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
-                  <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{item.label}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
         </div>
 
         {/* Right col */}
@@ -246,8 +233,8 @@ export function OverviewTab({
                 <p className="text-[12px] text-slate-500">{activityLoaded ? "No activity recorded yet" : "Loading…"}</p>
               </div>
             ) : (
-              <div className="space-y-2.5">
-                {activity.slice(0, 4).map((item) => (
+              <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
+                {activity.map((item) => (
                   <div key={item.id} className="flex gap-2.5">
                     <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-blue-500" />
                     <div>
@@ -262,8 +249,8 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* KPI strip */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+      {/* KPI strip — uniform grid (was a flex scroll with inconsistent widths) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         <KpiCard icon={Users} iconColor="#2563EB" value={occupancyPct != null ? `${occupancyPct}%` : "0%"} label="Occupancy" sub={`${occupied} of ${totalUnits} units`} />
         <KpiCard icon={PoundSterling} iconColor="#10B981" value={monthlyRent > 0 ? fmt(monthlyRent) : "£0"} label="Monthly Rent" sub="From active tenancies" />
         <KpiCard icon={Home} iconColor="#7C3AED" value={String(totalUnits)} label="Units" sub={`${occupied} occupied`} />
@@ -431,33 +418,6 @@ export function OverviewTab({
               />
             </div>
           </Card>
-
-          {/* Financial summary */}
-          <Card className="p-5">
-            <SectionHeader
-              title="Financial Summary"
-              action={
-                <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
-                  Open Money <ArrowUpRight size={12} />
-                </Link>
-              }
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {[
-                { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "£0", color: "text-slate-900" },
-                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
-                { label: "Annualised", value: monthlyRent > 0 ? fmt(monthlyRent * 12) : "£0", color: "text-emerald-600" },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
-                  <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{item.label}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-slate-500 mt-3">
-              Full income, expenses and yield tracking lives in the Money section.
-            </p>
-          </Card>
         </div>
 
         {/* Location */}
@@ -482,26 +442,37 @@ export function OverviewTab({
                 ]}
               />
             </div>
-            <p className="text-[12px] text-slate-600 font-medium mb-2">
+            <p className="text-[12px] text-slate-600 font-medium">
               {prop.address_line1 ?? "Address not set"}
               {[prop.city, prop.postcode].filter(Boolean).length > 0 && <><br />{[prop.city, prop.postcode].filter(Boolean).join(" ")}</>}
             </p>
-            {prop.address_line1 || (Number.isFinite(prop.latitude) && Number.isFinite(prop.longitude)) ? (
-              <a
-                href={
-                  Number.isFinite(prop.latitude) && Number.isFinite(prop.longitude)
-                    ? `https://www.openstreetmap.org/?mlat=${prop.latitude}&mlon=${prop.longitude}#map=17/${prop.latitude}/${prop.longitude}`
-                    : `https://www.openstreetmap.org/search?query=${encodeURIComponent([prop.address_line1, prop.city, prop.postcode].filter(Boolean).join(", "))}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[12px] text-blue-600 font-medium flex items-center gap-1 hover:underline"
-              >
-                View on OpenStreetMap <ArrowUpRight size={12} />
-              </a>
-            ) : (
-              <span className="text-[12px] text-slate-500">Add address to enable maps</span>
-            )}
+          </Card>
+
+          {/* Financial summary — moved into the right column to balance the layout */}
+          <Card className="p-5">
+            <SectionHeader
+              title="Financial Summary"
+              action={
+                <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+                  Open Money <ArrowUpRight size={12} />
+                </Link>
+              }
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "£0", color: "text-slate-900" },
+                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
+                { label: "Annualised", value: monthlyRent > 0 ? fmt(monthlyRent * 12) : "£0", color: "text-emerald-600" },
+              ].map((item) => (
+                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
+                  <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{item.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-3">
+              Full income, expenses and yield tracking lives in the Money section.
+            </p>
           </Card>
         </div>
       </div>

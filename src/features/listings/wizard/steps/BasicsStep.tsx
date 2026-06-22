@@ -6,10 +6,10 @@ import {
   CalendarRange,
   Globe,
   Building2,
-  MapPin,
   Sparkles,
   Map as MapIcon,
 } from "lucide-react"
+import LocationMap from "@/components/maps/LocationMap"
 import { cn } from "@/lib/utils"
 import { useListingDraft } from "../data/useListingDraft"
 import { useProperties } from "../data/useProperties"
@@ -253,17 +253,19 @@ export function BasicsStep() {
               <TextInput value={draft.postcode} onChange={(v) => update({ postcode: v })} />
             </div>
           </div>
-          {/* Static map placeholder with pin */}
-          <div className="relative flex h-36 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-[linear-gradient(135deg,#EFF6FF_25%,#F8FAFC_25%,#F8FAFC_50%,#EFF6FF_50%,#EFF6FF_75%,#F8FAFC_75%)] bg-[length:24px_24px]">
-            <div className="flex flex-col items-center">
-              <MapPin className="h-7 w-7 text-blue-600" />
-              <span className="mt-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-slate-600">
-                {draft.lat && draft.lng
-                  ? `${draft.lat.toFixed(4)}, ${draft.lng.toFixed(4)}`
-                  : "Pin not set"}
-              </span>
-            </div>
-          </div>
+          {/* Live location map — uses stored coordinates, geocodes the postcode otherwise */}
+          <LocationMap
+            markers={[{
+              id: "pin",
+              lat: draft.lat,
+              lng: draft.lng,
+              address: !draft.lat && draft.postcode ? draft.postcode : null,
+              label: "Property location",
+              sublabel: draft.postcode || undefined,
+            }]}
+            height={144}
+            zoom={15}
+          />
         </div>
       </Card>
 

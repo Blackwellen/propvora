@@ -226,7 +226,7 @@ export default function PropertiesListPage() {
       />
 
       {/* Mobile page header — search + filter sheet trigger (replaces desktop toolbar on phones) */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Properties"
         count={`${filtered.length} shown`}
         search={search}

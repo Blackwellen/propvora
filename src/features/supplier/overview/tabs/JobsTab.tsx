@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import LocationMap from "@/components/maps/LocationMap"
 import Link from "next/link"
 import {
   Wrench, Clock, AlertTriangle, Upload, Wallet, LayoutGrid, Table2, GitBranch,
@@ -211,9 +212,12 @@ function TimelineView({ rows, onSelect, selectedId }: { rows: JobRow[]; onSelect
 function MapView({ rows, onSelect, selectedId }: { rows: JobRow[]; onSelect: (j: JobRow) => void; selectedId?: string }) {
   return (
     <Panel pad={false} className="overflow-hidden">
-      <div className="relative h-64 bg-[linear-gradient(135deg,#f1f5f9_25%,#e2e8f0_25%,#e2e8f0_50%,#f1f5f9_50%,#f1f5f9_75%,#e2e8f0_75%)] bg-[length:24px_24px] flex items-center justify-center">
-        <span className="text-[12px] text-slate-400 inline-flex items-center gap-1.5"><MapIcon className="w-4 h-4" /> Route map preview</span>
-      </div>
+      <LocationMap
+        markers={rows.map((j) => ({ id: j.id, address: j.address, label: j.title, sublabel: j.address }))}
+        height={256}
+        selectedId={selectedId}
+        onSelect={(id) => { const j = rows.find((r) => r.id === id); if (j) onSelect(j) }}
+      />
       <ul className="divide-y divide-slate-100">
         {rows.map((j) => (
           <li key={j.id}><button onClick={() => onSelect(j)} className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 ${selectedId === j.id ? "bg-blue-50/50" : ""}`}>

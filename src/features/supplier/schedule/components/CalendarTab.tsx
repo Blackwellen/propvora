@@ -125,7 +125,11 @@ export function CalendarTab() {
           {view === "map" ? (
             <div className="p-5 space-y-3">
               <h3 className="text-sm font-semibold text-slate-900">Route for the week</h3>
-              <MapPlaceholder label="Optimised driving route · 7 stops" className="h-[420px]" />
+              <MapPlaceholder
+                label="Optimised driving route"
+                className="h-[420px]"
+                markers={agenda.filter((e) => e.address).map((e) => ({ id: e.id, address: e.address ?? null, label: e.title, sublabel: e.address }))}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -231,7 +235,11 @@ export function CalendarTab() {
               </div>
             ) : (
               <div className="p-4 space-y-3">
-                <MapPlaceholder label="Today · 4 stops · 38 mi" className="h-44" />
+                <MapPlaceholder
+                  label="Today's route"
+                  className="h-44"
+                  markers={agenda.filter((e) => e.day === 0 && e.address).map((e) => ({ id: e.id, address: e.address ?? null, label: e.title, sublabel: e.address }))}
+                />
                 <ol className="space-y-2">
                   {agenda.filter((e) => e.day === 0 && e.address).map((e, i) => (
                     <li key={e.id} className="flex items-center gap-2 text-sm">
@@ -261,7 +269,7 @@ export function CalendarTab() {
                   {selected.customerName && <Row icon={User} label={selected.customerName} />}
                   {selected.customerPhone && <Row icon={Phone} label={selected.customerPhone} />}
                 </dl>
-                {selected.address && <MapPlaceholder label="Route to next stop" className="h-28" />}
+                {selected.address && <MapPlaceholder label="Route to next stop" className="h-28" markers={[{ id: selected.id, address: selected.address ?? null, label: selected.title, sublabel: selected.address }]} />}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <SupplierButton variant="outline" size="sm" onClick={() => push("Reschedule job (TODO)")}>
                     <RefreshCw className="w-4 h-4" /> Reschedule

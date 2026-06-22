@@ -722,7 +722,7 @@ export default function TasksPage() {
             }) },
         ]}
       />
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Tasks"
         count={`${displayTasks.length} task${displayTasks.length === 1 ? "" : "s"}`}
         search={search}

@@ -1005,7 +1005,7 @@ export default function DepositsPage() {
       <MoneyTabNav />
 
       {/* Mobile header — search (desktop controls gated below) */}
-      <MobilePageHeader
+      <MobilePageHeader hideTitle
         title="Deposits"
         count={`${filtered.length} deposit${filtered.length === 1 ? "" : "s"}`}
         search={searchQuery}

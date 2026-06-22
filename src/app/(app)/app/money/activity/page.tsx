@@ -225,7 +225,7 @@ export default function ActivityPage() {
         </div>
 
         {/* Mobile header â€” search */}
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Financial Activity"
           search={searchQuery}
           onSearchChange={setSearchQuery}

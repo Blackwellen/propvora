@@ -8,10 +8,10 @@ import {
   Upload,
   FileText,
   X,
-  ExternalLink,
   Calendar as CalendarIcon,
   Copy,
 } from "lucide-react"
+import LocationMap from "@/components/maps/LocationMap"
 import { useWizard } from "@/components/planning/wizard/WizardContext"
 import { getProfileByKey } from "@/lib/planning/profiles"
 
@@ -330,21 +330,16 @@ export default function Step02Basics() {
             </div>
           </div>
 
-          {/* Map placeholder */}
-          <div className="rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative min-h-[180px] flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
-            <div className="relative z-10 flex flex-col items-center gap-2 text-slate-400">
-              <MapPin className="w-8 h-8" />
-              <p className="text-[12px] font-medium">Map preview</p>
-              {state.address && state.postcode && (
-                <p className="text-[11px] text-slate-500">{state.address}</p>
-              )}
-            </div>
-            <button className="absolute bottom-3 right-3 flex items-center gap-1.5 text-[11.5px] font-semibold text-[#2563EB] bg-white rounded-lg px-2.5 py-1.5 shadow-sm hover:shadow-md transition-all">
-              <ExternalLink className="w-3 h-3" />
-              View on map →
-            </button>
-          </div>
+          {/* Live location map — geocodes the address once both address + postcode are set */}
+          <LocationMap
+            markers={[{
+              id: "pin",
+              address: state.address && state.postcode ? `${state.address}, ${state.postcode}` : null,
+              label: state.address || "Location",
+              sublabel: state.postcode || undefined,
+            }]}
+            height={180}
+          />
         </div>
       </div>
 

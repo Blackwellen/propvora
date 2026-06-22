@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/maps/tiles"
 import type { ServiceZone, LngLat } from "@/lib/supplier/zones"
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -84,11 +85,10 @@ export default function ZoneEditorMap({
 
       const map = L.map(containerRef.current, { scrollWheelZoom: true }).setView([54.5, -3], 5)
       mapRef.current = map
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      L.tileLayer(MAP_TILE_URL, {
         maxZoom: 19,
-        subdomains: "abcd",
-        attribution:
-          '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abc",
+        attribution: MAP_TILE_ATTRIBUTION,
       }).addTo(map)
       layerRef.current = L.layerGroup().addTo(map)
 

@@ -3,6 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/lib/maps/tiles'
 import type { PublicLongTermRental } from '@/lib/public-marketplace/types'
 
 // Fix Leaflet default icon paths (Next.js bundler breaks the default resolution)
@@ -13,9 +14,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-const TILE_ATTRIBUTION =
-  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+const TILE_URL = MAP_TILE_URL
+const TILE_ATTRIBUTION = MAP_TILE_ATTRIBUTION
 
 function createRentPin(monthlyPence: number) {
   const label = `£${Math.round(monthlyPence / 100).toLocaleString('en-GB')}/mo`
@@ -46,7 +46,7 @@ export default function LongTermRentalMapInner({
       style={{ height: '100%', width: '100%' }}
       zoomControl
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={19} />
+      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abc" maxZoom={19} />
 
       {rentals.map((rental) => (
         <Marker

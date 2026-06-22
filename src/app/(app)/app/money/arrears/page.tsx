@@ -592,7 +592,7 @@ export default function ArrearsPage() {
         </div>
 
         {/* Mobile header — search (desktop search field gated below) */}
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Arrears"
           count={`${filtered.length} case${filtered.length === 1 ? "" : "s"}`}
           search={searchQuery}

@@ -1,8 +1,9 @@
 'use client'
 
-import { MapContainer, TileLayer, Marker, Circle } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Circle, AttributionControl } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/lib/maps/tiles'
 
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -11,8 +12,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-const TILE_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+const TILE_URL = MAP_TILE_URL
+const TILE_ATTRIBUTION = MAP_TILE_ATTRIBUTION
 
 interface EmergencyCoverageMapInnerProps {
   lat: number
@@ -35,8 +36,10 @@ export default function EmergencyCoverageMapInner({ lat, lng, radiusMiles = 15 }
       zoom={12}
       style={{ height: '100%', width: '100%' }}
       zoomControl={false}
+      attributionControl={false}
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abcd" maxZoom={19} />
+      <AttributionControl prefix={false} position="bottomright" />
+      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} subdomains="abc" maxZoom={19} />
       <Circle
         center={[lat, lng]}
         radius={radiusMiles * 1609}

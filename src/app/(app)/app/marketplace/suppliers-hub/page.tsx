@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import SuppliersHubTabs, { type HubTab } from "@/components/marketplace/SuppliersHubTabs"
-import { SuppliersSection, ServicesSection, EmergencySection } from "./sections"
+import { SuppliersSection, ServicesSection } from "./sections"
 
 export const dynamic = "force-dynamic"
 
@@ -25,8 +25,10 @@ export default async function SuppliersHubPage({
 }) {
   const params = await searchParams
   const tab = typeof params.tab === "string" ? params.tab : undefined
+  // Emergency folded into Services — ?tab=emergency resolves into the Services
+  // tab with the emergency view active (handled inside ServicesSection).
   const active: HubTab =
-    tab === "services" ? "services" : tab === "emergency" ? "emergency" : "suppliers"
+    tab === "services" || tab === "emergency" ? "services" : "suppliers"
 
   return (
     <div>
@@ -35,7 +37,6 @@ export default async function SuppliersHubPage({
       </Suspense>
       {active === "suppliers" && <SuppliersSection searchParams={params} />}
       {active === "services"  && <ServicesSection  searchParams={params} />}
-      {active === "emergency" && <EmergencySection  searchParams={params} />}
     </div>
   )
 }

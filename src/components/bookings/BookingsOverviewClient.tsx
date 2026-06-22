@@ -338,7 +338,7 @@ export function BookingsOverviewClient({
       <div className="px-4 md:px-6 py-4 md:py-6 space-y-5">
         <div className="hidden md:block">{header}</div>
 
-        <MobilePageHeader
+        <MobilePageHeader hideTitle
           title="Bookings"
           count={`${bookings.length} reservation${bookings.length === 1 ? "" : "s"}`}
           search={view === "list" ? search : undefined}
