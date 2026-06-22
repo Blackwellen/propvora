@@ -8,21 +8,22 @@ import {
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { CustomerPropertyCard, type PropertyCardData } from "../components/PropertyCard"
-import { propertyImages as IMG } from "../data/mock"
 
-/* Favourites (image 2 has no design — built to the written spec: saved stays &
-   lets, collections, filters, card grid, map toggle, compare, recommended). */
+/* Favourites — saved stays & lets, collections, filters, card grid, map toggle,
+   compare, recommended. Saved items are real (customer_saved_listings). */
 
 type Tab = "all" | "stays" | "lets" | "collections"
 
-const SAVED: (PropertyCardData & { kind: "stay" | "let"; available: string })[] = []
+export type SavedFavourite = PropertyCardData & { kind: "stay" | "let"; available: string }
+
 const COLLECTIONS: { id: string; name: string; count: number; image: string }[] = []
 const RECOMMENDED: PropertyCardData[] = []
 
-export default function FavouritesClient() {
+export default function FavouritesClient({ savedItems = [] }: { savedItems?: SavedFavourite[] }) {
   const { toast } = useCustomerToast()
   const [tab, setTab] = useState<Tab>("all")
-  const [saved, setSaved] = useState<Record<string, boolean>>(() => Object.fromEntries(SAVED.map((s) => [s.id, true])))
+  const SAVED = savedItems
+  const [saved, setSaved] = useState<Record<string, boolean>>(() => Object.fromEntries(savedItems.map((s) => [s.id, true])))
   const [compare, setCompare] = useState<string[]>([])
 
   const rows = SAVED.filter((s) => saved[s.id]).filter((s) => (tab === "stays" ? s.kind === "stay" : tab === "lets" ? s.kind === "let" : true))
