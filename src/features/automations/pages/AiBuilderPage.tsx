@@ -6,19 +6,16 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
-  GitBranch,
   LayoutTemplate,
   Send,
   ShieldCheck,
   Sparkles,
   Workflow,
-  Zap,
 } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import { AutomationsStatusBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, useToast } from "../components/primitives"
-import { Donut } from "../components/charts"
 import { useAutomationAiBuilder } from "../data/hooks"
 import { SEED_AI_EXAMPLES } from "../data/seed"
 
@@ -37,7 +34,9 @@ export default function AiBuilderPage() {
   const toast = useToast()
   const { data: builds } = useAutomationAiBuilder()
   const [prompt, setPrompt] = useState("")
-  const [generated, setGenerated] = useState(true)
+  // Nothing is "generated" until the user actually asks for it — never show a
+  // pre-baked fake workflow on load.
+  const [generated, setGenerated] = useState(false)
 
   const actions = (
     <>
@@ -135,7 +134,9 @@ export default function AiBuilderPage() {
             <Card>
               <CardHeader title="Recent AI builds" />
               <div className="p-2">
-                {builds.map((b) => (
+                {builds.length === 0 ? (
+                  <p className="px-2.5 py-3 text-xs text-slate-400">Your AI-generated automations will appear here.</p>
+                ) : builds.map((b) => (
                   <button key={b.id} onClick={() => router.push("/property-manager/automations/canvas")} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left hover:bg-slate-50">
                     <span className="text-sm text-slate-700">{b.name}</span>
                     <AutomationsStatusBadge status={b.status === "Deployed" ? "live" : "draft"} label={b.status} />
@@ -153,12 +154,8 @@ export default function AiBuilderPage() {
             </Card>
             <Card>
               <CardHeader title="Model usage" />
-              <div className="flex items-center gap-4 p-4">
-                <Donut size={110} centerLabel="72%" centerSub="Assistant" slices={[{ label: "Assistant", value: 72, color: "#7c3aed" }, { label: "Other", value: 28, color: "#e2e8f0" }]} />
-                <div className="space-y-1 text-xs text-slate-600">
-                  <div className="flex justify-between gap-4"><span>Total AI runs</span><span className="font-medium text-slate-800">60</span></div>
-                  <div className="flex justify-between gap-4"><span>Avg time</span><span className="font-medium text-slate-800">18.4s</span></div>
-                </div>
+              <div className="p-4 text-xs text-slate-400">
+                AI build usage and timings appear here once you generate automations with the AI Builder.
               </div>
             </Card>
           </div>
@@ -168,39 +165,8 @@ export default function AiBuilderPage() {
         <AutomationsRightRail>
           <Card className="border-violet-200 bg-violet-50/40">
             <div className="p-4">
-              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-violet-900"><Sparkles className="h-4 w-4" />AI suggestions <span className="rounded bg-violet-200 px-1.5 py-0.5 text-[9px] font-semibold text-violet-800">Beta</span></h3>
-              <p className="mt-1 text-xs text-violet-800">Auto-approve low-risk supplier invoices under £250 to save ~3h/week.</p>
-              <Btn variant="violet" className="mt-2.5" onClick={() => toast("Reviewing suggestion")}>Review suggestion</Btn>
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Automation score" />
-            <div className="flex items-center gap-4 p-4">
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-lg font-semibold text-emerald-700">87</div>
-              <div className="flex-1 space-y-1.5 text-xs">
-                {[["Safety", 92], ["Efficiency", 88], ["Maintainability", 83], ["Coverage", 85]].map(([l, v]) => (
-                  <div key={l as string}><div className="flex justify-between"><span className="text-slate-600">{l}</span><span className="font-medium text-slate-800">{v}</span></div><div className="mt-0.5 h-1 w-full rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${v}%` }} /></div></div>
-                ))}
-              </div>
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Required approvals" action={<button onClick={() => toast("Edit approvals")} className="text-xs font-medium text-blue-600 hover:underline">Edit</button>} />
-            <div className="p-3 space-y-1.5 text-sm">
-              {[["Finance Manager", "Required"], ["Operations Manager", "Required"], ["Compliance Officer", "If amount > £1,000"]].map(([r, c]) => (
-                <div key={r} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2"><span className="text-slate-700">{r}</span><span className="text-xs text-slate-500">{c}</span></div>
-              ))}
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Alternative versions" action={<button onClick={() => toast("All versions")} className="text-xs font-medium text-blue-600 hover:underline">View all</button>} />
-            <div className="p-3 space-y-1.5">
-              {[["Version B · Optimized", 91, GitBranch], ["Version C · Minimal", 76, Zap]].map(([n, s, Icon]) => (
-                <button key={n as string} onClick={() => toast(`Loaded ${n}`)} className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left hover:bg-slate-50">
-                  <span className="inline-flex items-center gap-2 text-sm text-slate-700">{(() => { const I = Icon as typeof GitBranch; return <I className="h-4 w-4 text-slate-400" /> })()}{n as string}</span>
-                  <span className="text-xs font-medium text-emerald-600">{s as number}</span>
-                </button>
-              ))}
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-violet-900"><Sparkles className="h-4 w-4" />Tips</h3>
+              <p className="mt-1 text-xs text-violet-800">Describe the trigger, the steps, and what should happen if there is no response. The AI Builder always produces a review-first draft you can refine before it runs.</p>
             </div>
           </Card>
           <Card className="border-emerald-200 bg-emerald-50/40">
