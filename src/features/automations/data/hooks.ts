@@ -94,7 +94,32 @@ export function useAutomationsHome() {
   const automations = useSeedFallback([] as AutomationRow[], async (sb, wid) => {
     const { data, error } = await sb.from("automation_definitions").select("*").eq("workspace_id", wid).limit(25)
     if (error) throw error
-    return data && data.length ? (data as unknown as AutomationRow[]) : null
+    if (!data || !data.length) return null
+    // Map the real row (trigger/actions are jsonb; many display fields don't
+    // exist) into the UI AutomationRow shape — rendering a jsonb object directly
+    // as a React child crashes the page, so everything is coerced to safe values.
+    return (data as Record<string, unknown>[]).map((d): AutomationRow => {
+      const trig = d.trigger as { type?: string; label?: string } | string | null
+      const actions = Array.isArray(d.actions) ? (d.actions as unknown[]) : []
+      const id = String(d.id ?? "")
+      return {
+        id,
+        ref: `AUT-${id.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
+        name: (d.name as string) || "Automation",
+        category: "Workflow",
+        trigger: typeof trig === "string" ? trig : (trig?.label ?? trig?.type ?? "Manual"),
+        actionsSummary: actions.length ? `${actions.length} action${actions.length === 1 ? "" : "s"}` : "—",
+        actionCount: actions.length,
+        status: d.enabled ? "live" : "paused",
+        lastChecked: (d.updated_at as string) || (d.created_at as string) || "",
+        owner: "—",
+        modules: [],
+        frequency: "—",
+        reviewFirst: true,
+        enabled: Boolean(d.enabled),
+        version: d.version != null ? String(d.version) : undefined,
+      }
+    })
   })
   return {
     automations,
