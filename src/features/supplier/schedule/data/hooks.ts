@@ -8,7 +8,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { SEED_CALENDAR, SEED_AVAILABILITY, SEED_TIME_OFF, weekStart } from "./seed"
+import {
+  EMPTY_CALENDAR, EMPTY_AVAILABILITY, EMPTY_TIME_OFF, weekStart,
+} from "./seed"
 import type {
   CalendarData,
   AvailabilityData,
@@ -112,7 +114,7 @@ function dayIndex(iso: string, weekStartMs: number): number {
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
 export function useScheduleCalendar(): ScheduleHookState<CalendarData> {
-  return useScheduleResource<CalendarData>(SEED_CALENDAR, async (supabase, workspaceId) => {
+  return useScheduleResource<CalendarData>(EMPTY_CALENDAR, async (supabase, workspaceId) => {
     const ws = weekStart()
     const end = new Date(ws)
     end.setDate(end.getDate() + 7)
@@ -166,22 +168,23 @@ export function useScheduleCalendar(): ScheduleHookState<CalendarData> {
 
 // ── Availability ────────────────────────────────────────────────────────────────
 export function useScheduleAvailability(): ScheduleHookState<AvailabilityData> {
-  return useScheduleResource<AvailabilityData>(SEED_AVAILABILITY, async (supabase, workspaceId) => {
+  return useScheduleResource<AvailabilityData>(EMPTY_AVAILABILITY, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_availability_rules")
       .select("id,day_of_week,start_minute,end_minute,kind")
       .eq("workspace_id", workspaceId)
     if (error) return { data: null, denied: isDenied(error) }
-    // We have rules but compose the full UI shape from seed defaults + live
-    // recurring hours when present. Keep seed as the base when no rows.
+    // Availability is a configurable template (hour bands + recurring rules), not
+    // fabricated bookings. We render the neutral default grid until the live
+    // rule→grid mapping is wired, rather than inventing capacity/response data.
     if (!data || data.length === 0) return { data: null }
-    return { data: SEED_AVAILABILITY }
+    return { data: EMPTY_AVAILABILITY }
   })
 }
 
 // ── Time Off ──────────────────────────────────────────────────────────────────
 export function useScheduleTimeOff(): ScheduleHookState<TimeOffData> {
-  return useScheduleResource<TimeOffData>(SEED_TIME_OFF, async (supabase, workspaceId) => {
+  return useScheduleResource<TimeOffData>(EMPTY_TIME_OFF, async (supabase, workspaceId) => {
     const { data, error } = await supabase
       .from("supplier_time_off")
       .select("id,reason_code,title,note,starts_at,ends_at,all_day,recurring_rule,auto_decline,notify_customers,affected_jobs")
@@ -206,10 +209,11 @@ export function useScheduleTimeOff(): ScheduleHookState<TimeOffData> {
     }))
     return {
       data: {
-        ...SEED_TIME_OFF,
+        ...EMPTY_TIME_OFF,
         blocks,
         kpis: {
-          ...SEED_TIME_OFF.kpis,
+          ...EMPTY_TIME_OFF.kpis,
+          timeOffBooked: blocks.length,
           upcomingBlockedDays: blocks.filter((b) => new Date(b.starts_at) >= new Date()).length,
           affectedJobs: blocks.reduce((n, b) => n + b.affectedJobs, 0),
         },

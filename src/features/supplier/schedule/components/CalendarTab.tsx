@@ -36,7 +36,7 @@ function fmtTime(min: number): string {
 }
 
 export function CalendarTab() {
-  const { data, loading, source, denied } = useScheduleCalendar()
+  const { data, loading, denied } = useScheduleCalendar()
   const { push } = useScheduleToast()
   const [view, setView] = useState("week")
   const [rightTab, setRightTab] = useState<"agenda" | "route">("agenda")
@@ -115,8 +115,8 @@ export function CalendarTab() {
         </div>
       </div>
 
-      {source === "seed" && (
-        <p className="text-xs text-slate-400">Showing example schedule — your live calendar appears here once jobs are booked.</p>
+      {data.events.length === 0 && (
+        <p className="text-xs text-slate-400">No bookings this week — your jobs and site visits appear here once scheduled.</p>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
@@ -125,7 +125,7 @@ export function CalendarTab() {
           {view === "map" ? (
             <div className="p-5 space-y-3">
               <h3 className="text-sm font-semibold text-slate-900">Route for the week</h3>
-              <MapPlaceholder label="Optimised driving route · 7 stops" className="h-[420px]" />
+              <MapPlaceholder label={data.events.filter((e) => e.kind === "job" || e.kind === "visit").length > 0 ? `Optimised driving route · ${data.events.filter((e) => e.kind === "job" || e.kind === "visit").length} stops` : "No stops scheduled this week"} className="h-[420px]" />
             </div>
           ) : (
             <div className="overflow-x-auto">

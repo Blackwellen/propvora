@@ -28,7 +28,7 @@ function priceLabel(s: CatalogueService): string {
 }
 
 export function CatalogueTab() {
-  const { data, loading, source, denied } = useServicesCatalogue()
+  const { data, loading, denied } = useServicesCatalogue()
   const { push } = useScheduleToast()
   const [view, setView] = useState("cards")
   const [cat, setCat] = useState<ServiceCategory | "all">("all")
@@ -117,8 +117,8 @@ export function CatalogueTab() {
         </select>
       </div>
 
-      {source === "seed" && (
-        <p className="text-xs text-slate-400">Showing example catalogue — add your own services to replace this.</p>
+      {data.services.length === 0 && (
+        <p className="text-xs text-slate-400">No services yet — add your first service to start receiving requests.</p>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
@@ -214,7 +214,11 @@ export function CatalogueTab() {
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center font-bold">{data.supplier.name[0]}</div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900 flex items-center gap-1">{data.supplier.name}{data.supplier.verified && <SupplierStatusBadge tone="emerald">Verified</SupplierStatusBadge>}</p>
-                  <p className="text-xs text-slate-400 flex items-center gap-1"><Star className="w-3 h-3 text-amber-400" /> {data.supplier.rating} · {data.supplier.reviews} reviews</p>
+                  {data.supplier.reviews > 0 ? (
+                    <p className="text-xs text-slate-400 flex items-center gap-1"><Star className="w-3 h-3 text-amber-400" /> {data.supplier.rating} · {data.supplier.reviews} reviews</p>
+                  ) : (
+                    <p className="text-xs text-slate-400">No reviews yet</p>
+                  )}
                 </div>
               </div>
               <div>

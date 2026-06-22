@@ -136,6 +136,45 @@ export const SEED_AVAILABILITY: AvailabilityData = {
   },
 }
 
+/* ── Honest EMPTY fallbacks ──────────────────────────────────────────────────
+   Served when the workspace has no live schedule rows. The calendar and time-off
+   surfaces show nothing fabricated; availability keeps a neutral default
+   hour-band grid + recurring-hours rules (a starting template the supplier
+   edits, not fabricated bookings) but with no fake services / response times. */
+
+export const EMPTY_CALENDAR: CalendarData = {
+  events: [],
+  weekStartIso: weekStart().toISOString(),
+  kpis: { jobsThisWeek: 0, freeSlots: 0, conflicts: 0, siteVisits: 0, outOfHoursJobs: 0 },
+}
+
+export const EMPTY_AVAILABILITY: AvailabilityData = {
+  bands: SEED_AVAILABILITY.bands,
+  cells: SEED_AVAILABILITY.cells,
+  daySummaries: SEED_AVAILABILITY.daySummaries.map((d) => ({ ...d, capacityUsed: 0 })),
+  rules: SEED_AVAILABILITY.rules,
+  serviceAvailability: [],
+  instantBookEligible: SEED_AVAILABILITY.instantBookEligible,
+  weeklyBookableHours: SEED_AVAILABILITY.weeklyBookableHours,
+  kpis: {
+    availableDays: SEED_AVAILABILITY.kpis.availableDays,
+    bookableHours: SEED_AVAILABILITY.kpis.bookableHours,
+    emergencyEnabled: SEED_AVAILABILITY.kpis.emergencyEnabled,
+    avgResponse: "—",
+    nextUnavailable: "—",
+  },
+}
+
+export const EMPTY_TIME_OFF: TimeOffData = {
+  blocks: [],
+  affectedJobs: [],
+  affectedRequests: [],
+  settings: { autoDecline: true, notifyCustomers: true },
+  recurringRules: [],
+  reasonCounts: [],
+  kpis: { timeOffBooked: 0, upcomingBlockedDays: 0, affectedJobs: 0, availableThisMonth: 0 },
+}
+
 function isoDay(offset: number): string {
   const d = new Date()
   d.setDate(d.getDate() + offset)

@@ -30,7 +30,7 @@ const REASON_LABEL: Record<TimeOffReason, string> = {
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 export function TimeOffTab() {
-  const { data, loading, source, denied } = useScheduleTimeOff()
+  const { data, loading, denied } = useScheduleTimeOff()
   const { push } = useScheduleToast()
   const [view, setView] = useState("calendar")
   const [autoDecline, setAutoDecline] = useState(data.settings.autoDecline)
@@ -83,8 +83,8 @@ export function TimeOffTab() {
         </div>
       </div>
 
-      {source === "seed" && (
-        <p className="text-xs text-slate-400">Showing example time off — your real bookings appear here.</p>
+      {data.blocks.length === 0 && (
+        <p className="text-xs text-slate-400">No time off booked — add leave or block days to stop new requests during those dates.</p>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
