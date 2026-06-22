@@ -10,6 +10,7 @@ import {
   approveAffiliatePayout,
   rejectAffiliatePayout,
   markAffiliatePayoutPaid,
+  payAffiliatePayoutViaStripe,
 } from "@/lib/affiliate/payouts"
 
 export interface PayoutReviewRow {
@@ -97,13 +98,24 @@ export default function PayoutReview({ payouts }: { payouts: PayoutReviewRow[] }
                       </>
                     )}
                     {p.status === "approved" && (
-                      <button
-                        onClick={() => run(p.id, () => markAffiliatePayoutPaid(p.id))}
-                        disabled={busy}
-                        className="inline-flex items-center gap-1 rounded-md bg-[#2563EB] text-white text-xs font-medium px-2.5 py-1.5 hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        <Banknote className="w-3.5 h-3.5" /> Mark paid
-                      </button>
+                      <>
+                        <button
+                          onClick={() => run(p.id, () => payAffiliatePayoutViaStripe(p.id))}
+                          disabled={busy}
+                          className="inline-flex items-center gap-1 rounded-md bg-[#2563EB] text-white text-xs font-medium px-2.5 py-1.5 hover:bg-blue-700 disabled:opacity-50"
+                          title="Pay automatically via Stripe Connect transfer to the affiliate's connected account"
+                        >
+                          <Banknote className="w-3.5 h-3.5" /> Pay via Stripe
+                        </button>
+                        <button
+                          onClick={() => run(p.id, () => markAffiliatePayoutPaid(p.id))}
+                          disabled={busy}
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 text-slate-600 text-xs font-medium px-2.5 py-1.5 hover:bg-slate-50 disabled:opacity-50"
+                          title="Record a manual/off-Stripe payment"
+                        >
+                          Mark paid (manual)
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

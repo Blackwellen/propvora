@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { MIN_PAYOUT_PENCE } from "@/lib/affiliate/levels"
 import { isAffiliatePayoutsEnabled } from "@/lib/affiliate/payout-flag"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
 // ============================================================================
 // Affiliate payout workflow — request → review → mark-paid.
@@ -281,4 +282,70 @@ export async function markAffiliatePayoutPaid(payoutId: string, reference?: stri
   revalidatePath("/property-manager/affiliates/earnings")
   revalidatePath("/user/affiliate/earnings")
   return { ok: true, id: payoutId }
+}
+
+/**
+ * Admin pays an APPROVED payout via a real Stripe Connect transfer to the
+ * affiliate's connected account, then marks it paid (recording the transfer id
+ * as the reference). Requires the affiliate to have completed Connect
+ * onboarding (a row in stripe_connect_accounts). Funds move from the platform
+ * balance to the affiliate's connected account.
+ */
+export async function payAffiliatePayoutViaStripe(payoutId: string): Promise<PayoutResult> {
+  const auth = await requireAdminUser()
+  if ("error" in auth) return { ok: false, error: auth.error }
+  if (!payoutId) return { ok: false, error: "Missing payout id." }
+
+  const secretKey = stripeSecretKey()
+  if (!secretKey) return { ok: false, error: "Stripe is not configured." }
+
+  const admin = createAdminClient()
+  const { data: row } = await admin
+    .from("affiliate_payouts")
+    .select("id, affiliate_workspace_id, status, amount_pence")
+    .eq("id", payoutId)
+    .maybeSingle()
+  if (!row) return { ok: false, error: "Payout not found." }
+  if (row.status !== "approved") {
+    return { ok: false, error: `Only an approved payout can be paid (currently "${row.status}").` }
+  }
+
+  const wsId = row.affiliate_workspace_id as string
+  const amount = Number(row.amount_pence ?? 0)
+  if (amount <= 0) return { ok: false, error: "Payout has no payable amount." }
+
+  // The affiliate must have a connected account to receive the transfer.
+  const { data: acct } = await admin
+    .from("stripe_connect_accounts")
+    .select("stripe_account_id")
+    .eq("workspace_id", wsId)
+    .maybeSingle()
+  const destination = acct?.stripe_account_id as string | undefined
+  if (!destination) {
+    return { ok: false, error: "This affiliate hasn't connected a Stripe account to receive payouts yet." }
+  }
+
+  // Execute the Connect transfer (platform balance → affiliate's connected acct).
+  let transferId: string
+  try {
+    const Stripe = (await import("stripe")).default
+    const stripe = new Stripe(secretKey, { apiVersion: "2026-05-27.dahlia" as const })
+    const transfer = await stripe.transfers.create({
+      amount,
+      currency: "gbp",
+      destination,
+      description: `Propvora affiliate payout ${payoutId.slice(0, 8)}`,
+      metadata: { affiliate_payout_id: payoutId, affiliate_workspace_id: wsId },
+    })
+    transferId = transfer.id
+  } catch (e) {
+    const msg = (e as { message?: string })?.message ?? ""
+    if (/insufficient|balance/i.test(msg)) {
+      return { ok: false, error: "Insufficient platform balance to pay this affiliate yet." }
+    }
+    return { ok: false, error: "The Stripe transfer could not be completed." }
+  }
+
+  // Record the transfer id + flip to paid (shifts cleared → paid).
+  return markAffiliatePayoutPaid(payoutId, transferId)
 }
