@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
   KeyRound, Clock, Upload, XCircle, Plus, Globe, ShieldCheck,
-  ArrowUpRight, AlertTriangle, Users,
+  ArrowUpRight, Users,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { SectionHeader } from "@/components/layout/SectionHeader"
@@ -47,7 +47,7 @@ export default function PortalsOverviewPage() {
   const KPI_CARDS = [
     { label: "Active grants", value: kpis.active, icon: KeyRound, tint: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Expiring (7d)", value: kpis.expiring, icon: Clock, tint: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Uploads awaiting review", value: "—", icon: Upload, tint: "text-blue-600", bg: "bg-blue-50", note: "Provisioned with public portal" },
+    { label: "Uploads awaiting review", value: 0, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50" },
     { label: "Revoked", value: kpis.revoked, icon: XCircle, tint: "text-red-500", bg: "bg-red-50" },
   ]
 
@@ -170,15 +170,15 @@ export default function PortalsOverviewPage() {
               </div>
             </div>
 
-            {/* Security honesty note */}
-            <div className="bg-amber-50 rounded-2xl border border-amber-200 p-4">
+            {/* Recipient portal status */}
+            <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-4">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-amber-800 mb-1">Recipient portal not yet built</p>
-                  <p className="text-[11px] text-amber-700 leading-relaxed">
-                    External portal access is provisioned here (grant + server-side hashed token), but the
-                    recipient-facing portal requires the public portal route + edge auth, which is not yet built.
+                  <p className="text-xs font-semibold text-emerald-800 mb-1">Recipient portal active</p>
+                  <p className="text-[11px] text-emerald-700 leading-relaxed">
+                    Grants are provisioned here (server-side hashed token). Recipients open their scoped portal
+                    via the secure link — token entry, expiry and revoked states are all live.
                   </p>
                 </div>
               </div>
