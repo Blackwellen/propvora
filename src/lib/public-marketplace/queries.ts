@@ -335,8 +335,12 @@ export async function getPublicStayBySlug(slug: string): Promise<PublicStay | nu
 
 export async function getPublicProviders(): Promise<PublicProvider[]> {
   const live = await loadLiveData()
-  const providers = live && live.providers.length > 0 ? live.providers : EXPANDED_PROVIDERS
-  return providers.map(withProviderMedia)
+  // Merge live + seed (deduped by slug) so the public + PM marketplace stay rich
+  // even when only a few real suppliers exist (was either/or → 1-card sparse page).
+  const liveRows = live?.providers ?? []
+  const seen = new Set(liveRows.map(p => p.slug))
+  const merged = [...liveRows, ...EXPANDED_PROVIDERS.filter(p => !seen.has(p.slug))]
+  return merged.map(withProviderMedia)
 }
 
 export async function getPublicProviderBySlug(slug: string): Promise<PublicProvider | null> {
@@ -355,8 +359,10 @@ export async function getFeaturedProviders(): Promise<PublicProvider[]> {
 
 export async function getPublicServiceOffers(): Promise<PublicServiceOffer[]> {
   const live = await loadLiveData()
-  const offers = live && live.offers.length > 0 ? live.offers : EXPANDED_SERVICE_OFFERS
-  return offers.map(withServiceMedia)
+  const liveRows = live?.offers ?? []
+  const seen = new Set(liveRows.map(s => s.slug))
+  const merged = [...liveRows, ...EXPANDED_SERVICE_OFFERS.filter(s => !seen.has(s.slug))]
+  return merged.map(withServiceMedia)
 }
 
 export async function getPublicServiceOfferBySlug(slug: string): Promise<PublicServiceOffer | null> {
@@ -374,8 +380,10 @@ export async function getFeaturedServiceOffers(): Promise<PublicServiceOffer[]> 
 
 export async function getPublicEmergencyServices(): Promise<PublicEmergencyService[]> {
   const live = await loadLiveData()
-  const services = live && live.emergencyServices.length > 0 ? live.emergencyServices : SEED_EMERGENCY_SERVICES
-  return services.map(withEmergencyMedia)
+  const liveRows = live?.emergencyServices ?? []
+  const seen = new Set(liveRows.map(s => s.slug))
+  const merged = [...liveRows, ...SEED_EMERGENCY_SERVICES.filter(s => !seen.has(s.slug))]
+  return merged.map(withEmergencyMedia)
 }
 
 export async function getPublicEmergencyServiceBySlug(slug: string): Promise<PublicEmergencyService | null> {

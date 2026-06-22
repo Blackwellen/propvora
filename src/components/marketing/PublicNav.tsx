@@ -20,8 +20,8 @@ const legalLinks = [
 
 const navLinks: { label: string; href: string; marketplace?: boolean }[] = [
   { label: "Stays", href: "/stays", marketplace: true },
-  { label: "Suppliers", href: "/suppliers", marketplace: true },
-  { label: "Services", href: "/services", marketplace: true },
+  // Suppliers + Services are one merged marketplace surface (/suppliers → /services).
+  { label: "Suppliers & Services", href: "/services", marketplace: true },
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
   { label: "Roadmap", href: "/roadmap" },

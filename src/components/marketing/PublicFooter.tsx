@@ -7,8 +7,7 @@ import NewsletterSignup from "@/components/marketing/NewsletterSignup"
 const footerLinks = {
   product: [
     { label: "Stays", href: "/stays", mk: true },
-    { label: "Suppliers", href: "/suppliers", mk: true },
-    { label: "Services", href: "/services", mk: true },
+    { label: "Suppliers & Services", href: "/services", mk: true },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Partner Programme", href: "/affiliate-programme" },
