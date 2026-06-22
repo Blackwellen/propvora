@@ -70,12 +70,22 @@ export default function MyAutomationsPage() {
       { key: "version", header: "Version", render: (r) => <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500">{r.version}</span> },
       {
         key: "enabled", header: "Enabled", render: (r) => (
-          <Toggle on={enabled[r.id] ?? r.enabled} onChange={(v) => { setEnabled((s) => ({ ...s, [r.id]: v })); toast(v ? `${r.name} enabled` : `${r.name} paused`) }} />
+          <Toggle on={enabled[r.id] ?? r.enabled} onChange={(v) => { setEnabled((s) => ({ ...s, [r.id]: v })); toast(v ? "Open the automation to publish this change" : "Open the automation to pause it") }} />
         ),
       },
-      { key: "menu", header: "", render: () => <button className="text-slate-400 hover:text-slate-700">⋯</button> },
+      {
+        key: "menu", header: "", render: (r) => (
+          <button
+            aria-label={`Open ${r.name}`}
+            onClick={() => router.push(`/property-manager/automations/canvas/${r.id}`)}
+            className="text-slate-400 hover:text-slate-700"
+          >
+            ⋯
+          </button>
+        ),
+      },
     ],
-    [enabled, toast],
+    [enabled, toast, router],
   )
 
   function toggleRow(id: string) {
@@ -101,13 +111,23 @@ export default function MyAutomationsPage() {
       icon={Bot}
       actions={actions}
     >
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <AutomationsKpiCard label="Live automations" value={128} trend="18%" icon={Power} tone="emerald" />
-        <AutomationsKpiCard label="Paused" value={24} trend="9%" trendDir="down" icon={Pause} tone="slate" />
-        <AutomationsKpiCard label="Review-first" value={36} trend="5%" icon={Bot} tone="violet" />
-        <AutomationsKpiCard label="Failed" value={7} trend="22%" trendDir="down" icon={Trash2} tone="red" />
-        <AutomationsKpiCard label="Draft" value={15} trend="7%" icon={FileEdit} tone="blue" />
-      </div>
+      {/* KPIs derived from loaded automations (honest 0 when empty) */}
+      {(() => {
+        const liveCount = rows.filter((r) => r.status === "live" && r.enabled).length
+        const pausedCount = rows.filter((r) => r.status === "paused" || !r.enabled).length
+        const reviewFirstCount = rows.filter((r) => r.reviewFirst).length
+        const failedCount = rows.filter((r) => r.health === "poor").length
+        const draftCount = rows.filter((r) => r.status === "draft").length
+        return (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+            <AutomationsKpiCard label="Live automations" value={liveCount} icon={Power} tone="emerald" />
+            <AutomationsKpiCard label="Paused" value={pausedCount} icon={Pause} tone="slate" />
+            <AutomationsKpiCard label="Review-first" value={reviewFirstCount} icon={Bot} tone="violet" />
+            <AutomationsKpiCard label="Poor health" value={failedCount} icon={Trash2} tone="red" />
+            <AutomationsKpiCard label="Draft" value={draftCount} icon={FileEdit} tone="blue" />
+          </div>
+        )
+      })()}
 
       {/* Filters */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -132,7 +152,7 @@ export default function MyAutomationsPage() {
               onToggleAll={toggleAll}
               page={page}
               pageSize={8}
-              total={128}
+              total={rows.length}
               onPageChange={setPage}
             />
           )}
@@ -152,52 +172,57 @@ export default function MyAutomationsPage() {
         </div>
 
         <AutomationsRightRail>
-          <Card>
-            <CardHeader title="Automation health" />
-            <div className="flex items-center gap-4 p-4">
-              <Donut
-                size={130}
-                centerLabel="128"
-                centerSub="total"
-                slices={[
-                  { label: "Excellent", value: 68, color: "#10b981" },
-                  { label: "Good", value: 32, color: "#3b82f6" },
-                  { label: "Fair", value: 14, color: "#f59e0b" },
-                  { label: "Poor", value: 7, color: "#ef4444" },
-                  { label: "Unknown", value: 7, color: "#cbd5e1" },
-                ]}
-              />
-              <div className="space-y-1 text-xs">
-                {[["Excellent", 68, "bg-emerald-500"], ["Good", 32, "bg-blue-500"], ["Fair", 14, "bg-amber-500"], ["Poor", 7, "bg-red-500"], ["Unknown", 7, "bg-slate-300"]].map(([l, v, c]) => (
-                  <div key={l as string} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
-                ))}
-              </div>
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Top performers" />
-            <div className="p-3 space-y-1">
-              {[["Rent overdue → draft chase", "99.2%"], ["Lead enquiry → auto response", "99.0%"], ["New maintenance → triage", "98.4%"]].map(([n, p]) => (
-                <div key={n} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50"><span className="text-slate-700">{n}</span><span className="font-medium text-emerald-600">{p}</span></div>
-              ))}
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Needs review (18)" action={<button onClick={() => router.push("/property-manager/automations/approvals")} className="text-xs font-medium text-blue-600 hover:underline">Open</button>} />
-            <div className="p-3 space-y-1">
-              {["Supplier invoice → coding check", "Arrears threshold → alert", "Job completion → invoice"].map((n) => (
-                <button key={n} onClick={() => router.push("/property-manager/automations/approvals")} className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50">{n}</button>
-              ))}
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Automation usage" />
-            <div className="p-4">
-              <div className="flex items-baseline justify-between text-sm"><span className="font-semibold text-slate-900">24,391</span><span className="text-slate-400">/ 50,000</span></div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-blue-500" style={{ width: "48.8%" }} /></div>
-              <div className="mt-1 text-xs text-slate-400">48.8% of monthly executions used</div>
-            </div>
-          </Card>
+          {(() => {
+            const excellent = rows.filter((r) => r.health === "excellent").length
+            const good = rows.filter((r) => r.health === "good").length
+            const fair = rows.filter((r) => r.health === "fair").length
+            const poor = rows.filter((r) => r.health === "poor").length
+            const unknown = rows.filter((r) => !r.health || r.health === "unknown").length
+            const total = rows.length
+            const reviewRows = rows.filter((r) => r.status === "review")
+            return (
+              <>
+                <Card>
+                  <CardHeader title="Automation health" />
+                  <div className="flex items-center gap-4 p-4">
+                    <Donut
+                      size={130}
+                      centerLabel={`${total}`}
+                      centerSub="total"
+                      slices={[
+                        { label: "Excellent", value: excellent || 0, color: "#10b981" },
+                        { label: "Good", value: good || 0, color: "#3b82f6" },
+                        { label: "Fair", value: fair || 0, color: "#f59e0b" },
+                        { label: "Poor", value: poor || 0, color: "#ef4444" },
+                        { label: "Unknown", value: unknown || 1, color: "#cbd5e1" },
+                      ]}
+                    />
+                    <div className="space-y-1 text-xs">
+                      {([["Excellent", excellent, "bg-emerald-500"], ["Good", good, "bg-blue-500"], ["Fair", fair, "bg-amber-500"], ["Poor", poor, "bg-red-500"], ["Unknown", unknown, "bg-slate-300"]] as [string, number, string][]).map(([l, v, c]) => (
+                        <div key={l} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+                {reviewRows.length > 0 && (
+                  <Card>
+                    <CardHeader title={`Needs review (${reviewRows.length})`} action={<button onClick={() => router.push("/property-manager/automations/approvals")} className="text-xs font-medium text-blue-600 hover:underline">Open</button>} />
+                    <div className="p-3 space-y-1">
+                      {reviewRows.slice(0, 3).map((r) => (
+                        <button key={r.id} onClick={() => router.push("/property-manager/automations/approvals")} className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50">{r.name}</button>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+                <Card>
+                  <CardHeader title="Automation usage" />
+                  <div className="p-4">
+                    <div className="text-xs text-slate-400">Execution usage appears here once your automations start running.</div>
+                  </div>
+                </Card>
+              </>
+            )
+          })()}
         </AutomationsRightRail>
       </div>
     </AutomationsModuleShell>

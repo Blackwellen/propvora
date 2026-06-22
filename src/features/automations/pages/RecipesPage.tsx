@@ -109,8 +109,23 @@ export default function RecipesPage() {
         </div>
       </div>
 
+      {/* Empty-state: no recipe library provisioned for this workspace yet. */}
+      {!loading && allRecipes.length === 0 && featured.length === 0 && (
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-10 text-center">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-slate-100 text-slate-400"><Sparkles className="h-5 w-5" /></span>
+          <p className="mt-3 text-sm font-semibold text-slate-700">No recipes yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500">
+            Prebuilt workflow templates will appear here. You can build your own automation from scratch with the AI Builder or the canvas.
+          </p>
+          <div className="mt-4 flex justify-center gap-2">
+            <Btn variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>Open AI Builder</Btn>
+            <Btn variant="outline" onClick={() => router.push("/property-manager/automations/canvas")}>Open canvas</Btn>
+          </div>
+        </div>
+      )}
+
       {/* Featured */}
-      <h2 className="mt-6 text-sm font-semibold text-slate-900">Featured recipes</h2>
+      {featured.length > 0 && <h2 className="mt-6 text-sm font-semibold text-slate-900">Featured recipes</h2>}
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {featured.map((r) => (
           <Card key={r.id} className="flex flex-col p-4">
@@ -171,7 +186,7 @@ export default function RecipesPage() {
               ))}
             </div>
           )}
-          <div className="text-center text-xs text-slate-400">Showing 1 to {filtered.length} of 128 recipes</div>
+          <div className="text-center text-xs text-slate-400">Showing {filtered.length} recipe{filtered.length === 1 ? "" : "s"}</div>
         </div>
 
         {/* Right rail */}

@@ -10,20 +10,18 @@ import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives
 import { useAutomationApprovals } from "../data/hooks"
 import type { ApprovalRow } from "../data/types"
 
-const TABS = [
-  { id: "all", label: "All", count: 24 },
-  { id: "pending", label: "Pending", count: 18 },
-  { id: "high", label: "High risk", count: 7, dot: true },
-  { id: "scheduled", label: "Scheduled", count: 4 },
-  { id: "completed", label: "Completed", count: 142 },
-]
-
 export default function ApprovalsPage() {
   const toast = useToast()
   const { data: approvals, loading } = useAutomationApprovals()
   const [tab, setTab] = useState("all")
   const [page, setPage] = useState(1)
-  const [active, setActive] = useState<ApprovalRow>(approvals[0])
+  const [active, setActive] = useState<ApprovalRow | undefined>(approvals[0])
+  // Tab counts derive from the live approvals queue (honest 0 when empty).
+  const highCount = approvals.filter((a) => a.risk === "high" || a.risk === "critical").length
+  const TABS = [
+    { id: "all", label: "All", count: approvals.length },
+    { id: "high", label: "High risk", count: highCount, dot: highCount > 0 },
+  ]
   const [selected, setSelected] = useState<string[]>([])
   const [rejectOpen, setRejectOpen] = useState(false)
 
@@ -69,12 +67,11 @@ export default function ApprovalsPage() {
       icon={ShieldCheck}
       actions={actions}
     >
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <AutomationsKpiCard label="Pending approvals" value={24} trend="14%" icon={Clock} tone="amber" />
-        <AutomationsKpiCard label="High-risk approvals" value={7} trend="40%" sub="Requires attention" icon={ShieldCheck} tone="red" />
-        <AutomationsKpiCard label="Approved today" value={36} trend="28%" icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Rejected today" value={4} trend="20%" trendDir="down" icon={XCircle} tone="slate" />
-        <AutomationsKpiCard label="Avg review SLA" value="2h 18m" trend="18%" trendDir="down" sub="Target < 4h" icon={Clock} tone="violet" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <AutomationsKpiCard label="Pending approvals" value={approvals.length} icon={Clock} tone="amber" />
+        <AutomationsKpiCard label="High-risk approvals" value={highCount} sub={highCount > 0 ? "Requires attention" : undefined} icon={ShieldCheck} tone="red" />
+        <AutomationsKpiCard label="Approved today" value={0} icon={CheckCircle2} tone="emerald" />
+        <AutomationsKpiCard label="Rejected today" value={0} icon={XCircle} tone="slate" />
       </div>
 
       {/* Tabs */}
@@ -100,7 +97,7 @@ export default function ApprovalsPage() {
               onToggleAll={(c) => setSelected(c ? rows.map((r) => r.id) : [])}
               page={page}
               pageSize={8}
-              total={24}
+              total={rows.length}
               onPageChange={setPage}
               onRowClick={(r) => setActive(r)}
               activeRowId={active?.id}
