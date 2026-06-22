@@ -231,6 +231,39 @@ function LoginForm() {
     window.location.assign(destination)
   }
 
+  // Google OAuth via Supabase. The chosen persona is carried into the auth
+  // callback as `intent` so the post-login routing matches (customer →
+  // /customer, supplier → onboarding, operator → workspace check). Supabase
+  // redirects to Google, then back to /auth/callback which exchanges the code.
+  const handleGoogle = async () => {
+    setIsLoading(true)
+    setAuthError(null)
+    try {
+      localStorage.setItem(LOGIN_PERSONA_KEY, persona)
+    } catch {
+      /* non-fatal */
+    }
+    const intent = persona === "customer" ? "customer" : persona === "supplier" ? "supplier" : "operator"
+    const callback = new URL("/auth/callback", window.location.origin)
+    callback.searchParams.set("intent", intent)
+    if (isAllowedRedirect(explicitRedirect) && !redirectConflictsWithPersona(explicitRedirect, persona)) {
+      callback.searchParams.set("next", explicitRedirect)
+    }
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: callback.toString(),
+        queryParams: { access_type: "offline", prompt: "consent" },
+      },
+    })
+    if (error) {
+      setAuthError("Couldn’t start Google sign-in. Please try again or use email.")
+      setIsLoading(false)
+    }
+    // On success the browser is redirected to Google — no further action here.
+  }
+
   return (
     <div
       className="min-h-screen flex"
@@ -411,8 +444,9 @@ function LoginForm() {
 
                 <button
                   type="button"
-                  disabled
-                  className="w-full flex items-center justify-center gap-3 h-11 rounded-xl border border-slate-200 bg-white text-[13.5px] font-medium text-slate-400 cursor-not-allowed opacity-70"
+                  onClick={handleGoogle}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-3 h-11 rounded-xl border border-slate-200 bg-white text-[13.5px] font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -421,7 +455,6 @@ function LoginForm() {
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
                   Continue with Google
-                  <span className="text-[11px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">Soon</span>
                 </button>
               </form>
 
