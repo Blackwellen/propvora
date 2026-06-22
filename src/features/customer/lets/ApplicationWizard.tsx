@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, Save, ChevronRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Save, ChevronRight, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import type { Application } from "../data/lets"
@@ -70,6 +70,16 @@ export default function ApplicationWizard({ app, appId }: { app: Application; ap
             {step === STEPS.length - 1 ? "Submit" : "Next"} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+        <p className="text-[12.5px] leading-relaxed text-slate-600">
+          <strong className="text-slate-700">Why we ask for these documents.</strong> Your letting agent or
+          landlord is legally required to carry out a <strong>Right to Rent</strong> check (Immigration Act 2014,
+          England) and referencing before granting a tenancy. You supply your ID and documents here; the
+          property manager performs and records the check — Propvora only provides the secure workflow.
+        </p>
       </div>
 
       <WizardStepper steps={STEPS} currentStep={step} onStepClick={persist} />
