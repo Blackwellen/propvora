@@ -1,0 +1,67 @@
+# Caption Fox
+
+> Caption Fox is a social-media marketing and content-operations platform for
+> creators, small businesses, brands and agencies. It unifies content creation,
+> AI assistance, scheduling, campaigns, UGC, social listening, link pages, an
+> inbox and analytics in one multi-workspace product.
+
+A Blackwellen Ltd product. Suggested site: https://captionfox.com (support@captionfox.com).
+
+## What it is
+A multi-tenant social content workspace. Teams plan and produce posts, run
+campaigns (including giveaways and competitions), manage UGC creators, monitor
+brand mentions, publish link-in-bio pages, handle a unified inbox and review
+performance — with a built-in AI assistant ("Fox AI").
+
+## Who it is for
+- Creators and small businesses managing their own channels
+- Brands running structured content and campaign programmes
+- Agencies managing multiple client workspaces with approval flows
+Workspace types in the product: Creator, Small Business, Brand, Agency.
+Roles: owner, admin, manager, creator, approver, analyst, client, external_creator.
+
+## Features (derived from the codebase routes + schema)
+Shipped surface (routes that exist):
+- Studio: post composer, brand profiles, content templates, hashtag sets
+  (/studio, /studio/posts/[id], /studio/brands/[id], /studio/templates, /studio/hashtags)
+- AI generation: chat, text generation and image generation API routes
+  (/api/ai/chat, /api/ai/generate, /api/ai/image) plus a "Fox AI" assistant bubble
+- Calendar / scheduling and a publishing queue (/calendar)
+- Campaigns with tasks and analytics, plus giveaways and competitions
+  (/campaigns, /campaigns/[id]/tasks, /campaigns/[id]/analytics,
+   /campaigns/giveaways, /campaigns/competitions)
+- UGC: creator management and submissions (/ugc, /ugc/creators/[id], /ugc/[id])
+- Social listening: keywords, brand mentions, alerts (/listening)
+- Unified inbox with threads and saved replies (/inbox, /inbox/threads/[id])
+- Link-in-bio pages with public view and per-link analytics
+  (/links, /links/[id], /links/[id]/public, /l/[slug])
+- Analytics: posts, competitors, scheduled reports (/analytics, /analytics/posts/[id],
+  /analytics/competitors, /analytics/reports)
+- Onboarding, settings, billing and permissions (/onboarding, /settings,
+  /settings/billing, /settings/permissions)
+- Admin console: users, workspaces, support (/admin, /admin/users, /admin/workspaces,
+  /admin/support)
+- Auth: login, signup, MFA, email verification, password reset
+- Public marketing: home, features, pricing, contact, legal (privacy/terms/cookies)
+
+Data model includes (Supabase schema) brands, brand voice profiles and guidelines,
+social channels, campaigns, content posts and versions, publishing queue, content
+templates and ideas, hashtag sets, media assets, AI generations, approvals, UGC
+briefs/creators/submissions/payments, competitor tracking, integrations and webhook
+logs, inbox threads/messages, post and channel analytics, notifications, audit logs,
+subscriptions, support tickets, listening keywords/mentions/alerts, giveaways and
+competitions, and link pages.
+
+## Tech stack (from package.json)
+Next.js 16, React 19, TypeScript, Tailwind CSS v4, Supabase (@supabase/ssr +
+supabase-js), Anthropic AI SDK (@anthropic-ai/sdk), Recharts, lucide-react, date-fns.
+
+## Status
+Active v1.0 release line (package name "caption-fox-final-release-v.1.0"). AI is
+provider-backed via the Anthropic SDK. Public/marketing branding such as a final
+domain may still be in progress.
+
+## Notes for AI agents
+- Caption Fox is software; it does not guarantee social reach or campaign outcomes.
+- Do not treat workspace, admin or inbox URLs as public data.
+- This is a Blackwellen Ltd product.

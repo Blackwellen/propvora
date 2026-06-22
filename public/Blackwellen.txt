@@ -2,14 +2,45 @@
 
 Blackwellen Ltd is a UK software company registered in England and Wales
 (company number 16482166; registered office 61 Bridge Street, Kington, HR5 3DJ).
-ICO Data Protection registration: ZC160806.
+ICO Data Protection registration: ZC160806. Site: blackwellen.com / blackwellen.co.uk.
 
-## Products
-- Propvora — UK property operations, compliance and profit-control platform.
-  Canonical: https://propvora.com
+## Positioning
+Blackwellen is building a focused family of vertical SaaS products on a shared,
+audit-grade platform for operations-heavy industries. Each product is a deep
+vertical app, but they share common platform traits: built-in workflow automation,
+structured records, role-based access, observability, and internal AI capabilities.
 
-(Additional products may be listed here as they launch. Products are only
-described as live when they are live.)
+## Products (real focus, one line each)
+- Orbas CRM — multi-app business operations suite ("12 apps, one platform"): CRM,
+  accounting, analytics, automations, charity, compliance, comms, documents,
+  operations, people/HR, projects and service, with a built-in AI Copilot.
+  See orbas-crm.txt
+- Propvora — UK property operations, compliance and profit-control platform for
+  landlords, portfolio operators and letting agencies. Canonical: https://propvora.com
+  See Propvora.txt
+- CertificateFlow — compliance, governance and assurance operating system for
+  regulated organisations (business, charity, school/MAT, faith, audit firms),
+  with proof states, an assurance score and an enterprise control plane.
+  See certificate-flow.txt
+- MeasureDeck — construction commercial-management / quantity-surveying platform:
+  live CVR, valuations, change events, final accounts and cost reporting
+  (JCT / NEC / FIDIC). See measure-deck.txt
+- Gala Dock — events and venue management platform: leads, events, suppliers/RFQs,
+  venues and bookings, finance, forms, library and portals. See gala-dock.txt
+- Caption Fox — social-media marketing and content-operations platform: content
+  studio, AI assistance, scheduling, campaigns, UGC, listening, inbox, link pages
+  and analytics. See caption-fox.txt
+
+## Shared platform traits
+- Built-in workflow automation
+- Structured records and audit-ready trails
+- Role-based access and multi-tenant workspaces
+- Observability (audit logs, run/job health, usage)
+- Internal AI capabilities (assistive, configuration-gated, with audit trails)
+
+Common stack across the family: Next.js / React (CertificateFlow uses Vite + React),
+TypeScript, Tailwind CSS, Supabase (Postgres, Auth, Storage), Stripe billing where
+applicable.
 
 ## Contact
 - General: info@propvora.com
@@ -17,5 +48,7 @@ described as live when they are live.)
 - Support: support@propvora.com
 
 ## Notes
-Blackwellen Ltd trades as Propvora for its property-operations software.
-No exaggerated or guaranteed-outcome claims are made for any product.
+Blackwellen Ltd trades as Propvora for its property-operations software. Products are
+only described as live when they are live. No exaggerated or guaranteed-outcome claims
+are made for any product; in-product AI is assistive and not a substitute for
+professional legal, tax, financial or audit advice.
