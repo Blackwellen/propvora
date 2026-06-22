@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { useAffiliate } from "@/components/affiliate/useAffiliate"
 import { updateAffiliateProfile } from "@/lib/actions/affiliate"
+import AffiliatePayoutCard from "@/components/affiliate/AffiliatePayoutCard"
 
 const NOTIF_KEY = "propvora.affiliate.notifications"
 
@@ -88,13 +89,15 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
           <Input label="Public display handle" placeholder="e.g. propertypete" value={handle} onChange={(e) => setHandle(e.target.value)} />
           <Input label="Payout email" type="email" placeholder="where to send payout notifications" value={payoutEmail} onChange={(e) => setPayoutEmail(e.target.value)} />
           <p className="text-xs text-slate-400">
-            We store only non-sensitive payout preferences. Bank details are collected securely at payout time, not here.
+            We store only non-sensitive payout preferences. Set up how you get paid below.
           </p>
           <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save changes"}
           </Button>
         </CardContent>
       </Card>
+
+      <AffiliatePayoutCard />
 
       <Card>
         <CardHeader><CardTitle>Notifications</CardTitle></CardHeader>
