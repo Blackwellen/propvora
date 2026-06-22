@@ -14,6 +14,7 @@
 // ============================================================================
 
 import Link from "next/link"
+import Image from "next/image"
 import type { ReactNode } from "react"
 import { ShieldCheck, Lock, Check } from "lucide-react"
 import { TrustBar, SecurityNote } from "./primitives"
@@ -109,8 +110,8 @@ export function CheckoutShell({
     <div className="flex min-h-screen flex-col bg-[#F7F9FC] text-[#0B1B3F] antialiased">
       <header className="sticky top-0 z-30 border-b border-[#E2EAF6] bg-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
-            <span className="text-[18px] font-bold tracking-tight text-[#1D4ED8]">Propvora</span>
+          <Link href="/" className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
+            <Image src="/propvora-logo-dark.png" alt="Propvora" width={420} height={105} className="h-7 w-auto" priority />
             <span className="hidden h-4 w-px bg-[#E2EAF6] sm:inline-block" />
             <span className="hidden text-[12.5px] font-medium text-slate-500 sm:inline">Secure checkout</span>
           </Link>

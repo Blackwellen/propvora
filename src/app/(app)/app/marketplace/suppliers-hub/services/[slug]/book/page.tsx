@@ -63,6 +63,26 @@ export default async function ServiceBookPage({
     })),
     vatRateBps: 2000,
     currency: "GBP",
+    included: [
+      ...(pkg.includes ?? []).slice(0, 5),
+      ...(offer.deliverables ?? []).slice(0, 3),
+    ].filter(Boolean),
+    trustChips: [
+      ...(offer.verified ? ["Verified"] : []),
+      ...(offer.insured ? ["Fully insured"] : []),
+      `${offer.rating.toFixed(1)}★ (${offer.reviewCount})`,
+      `${offer.jobsDone}+ jobs done`,
+    ],
+    policyNotes: [
+      "Fixed price agreed upfront — no surprise charges.",
+      "Reschedule free of charge up to 24 hours before the visit.",
+      "Work is covered by the provider's insurance and Propvora protection.",
+    ],
+    whatNext: [
+      "Confirm and pay — funds are held securely until the job is done.",
+      `${offer.providerName} confirms the appointment and arrives ${offer.responseTime ? `within ${offer.responseTime}` : "as scheduled"}.`,
+      "Approve completion to release payment and leave a review.",
+    ],
     backHref: `/property-manager/marketplace/suppliers-hub/services/${slug}`,
     backLabel: "Back to service",
     messageHref: `/property-manager/messages?service=${slug}`,

@@ -42,6 +42,29 @@ export default async function EmergencyBookPage({
     ],
     vatRateBps: 2000,
     currency: "GBP",
+    included: [
+      "Immediate dispatch of the nearest available pro",
+      "On-site diagnosis & make-safe",
+      ...(service.priceItems ?? []).slice(0, 3).map((p) => p.service),
+    ].filter(Boolean),
+    trustChips: [
+      ...(service.available24h ? ["24/7 available"] : []),
+      ...(service.policeVetted ? ["Police vetted"] : []),
+      ...(service.insured ? [`Insured ${service.insuranceAmount}`] : []),
+      `${service.rating.toFixed(1)}★ (${service.reviewCount})`,
+    ],
+    policyNotes: [
+      service.noCalloutFee
+        ? "No call-out fee — you only pay for the work carried out."
+        : "The call-out covers dispatch and make-safe; further work is quoted on site.",
+      `Typical arrival ${service.responseTimeMin}–${service.responseTimeMax} minutes from dispatch.`,
+      "For life-threatening emergencies, always call 999 first.",
+    ],
+    whatNext: [
+      "Confirm and pay to dispatch — the nearest pro is alerted instantly.",
+      `${service.leadTechnicianName ?? "A technician"} is en route within ${service.responseTimeMin}–${service.responseTimeMax} minutes.`,
+      "They make the situation safe on site and agree any further work before starting.",
+    ],
     backHref: `/property-manager/marketplace/suppliers-hub/emergency/${slug}`,
     backLabel: "Back to service",
     messageHref: `/property-manager/messages?contact=${service.providerSlug}`,

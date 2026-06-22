@@ -20,12 +20,13 @@ import Image from "next/image"
 import {
   ArrowLeft,
   ArrowRight,
-  CalendarDays,
   CheckCircle2,
   CreditCard,
   Lock,
   MapPin,
   MessageCircle,
+  ShieldCheck,
+  Sparkles,
   Tag,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
@@ -81,6 +82,14 @@ export interface MarketplaceCheckoutConfig {
   /** VAT rate in basis points (e.g. 2000 = 20%). Applied to subtotal. */
   vatRateBps?: number
   currency?: string
+  /** "What's included" bullets shown on the details step + summary. */
+  included?: string[]
+  /** Trust signals (verified, insured, rating) shown under the summary. */
+  trustChips?: string[]
+  /** "Good to know" / cancellation policy lines. */
+  policyNotes?: string[]
+  /** "What happens next" steps (reassurance timeline on the details step). */
+  whatNext?: string[]
   /** Where the "back" link / breadcrumb returns to. */
   backHref: string
   backLabel?: string
@@ -239,9 +248,9 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
       {config.metaRows.length > 0 ? (
         <div className="space-y-1.5 border-b border-[#EEF2F9] px-4 py-3">
           {config.metaRows.map((m) => (
-            <div key={m.label} className="flex items-center justify-between gap-3 text-[12.5px]">
-              <span className="text-slate-500">{m.label}</span>
-              <span className="font-medium text-[#0B1B3F]">{m.value}</span>
+            <div key={m.label} className="flex items-start justify-between gap-3 text-[12.5px]">
+              <span className="shrink-0 text-slate-500">{m.label}</span>
+              <span className="min-w-0 break-words text-right font-medium text-[#0B1B3F]">{m.value}</span>
             </div>
           ))}
         </div>
@@ -249,17 +258,17 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
 
       <div className="space-y-2 px-4 py-3 text-[13px]">
         {config.lineItems.map((l) => (
-          <div key={l.label} className="flex items-center justify-between gap-3 text-slate-600">
-            <span>{l.label}</span>
-            <span className="font-medium tabular-nums text-[#0B1B3F]">{formatPence(l.pence, currency)}</span>
+          <div key={l.label} className="flex items-start justify-between gap-3 text-slate-600">
+            <span className="min-w-0 break-words">{l.label}</span>
+            <span className="shrink-0 font-medium tabular-nums text-[#0B1B3F]">{formatPence(l.pence, currency)}</span>
           </div>
         ))}
         {(config.extras ?? [])
           .filter((e) => extras[e.id])
           .map((e) => (
-            <div key={e.id} className="flex items-center justify-between gap-3 text-slate-600">
-              <span>{e.label}</span>
-              <span className="font-medium tabular-nums text-[#0B1B3F]">+ {formatPence(e.pence, currency)}</span>
+            <div key={e.id} className="flex items-start justify-between gap-3 text-slate-600">
+              <span className="min-w-0 break-words">{e.label}</span>
+              <span className="shrink-0 font-medium tabular-nums text-[#0B1B3F]">+ {formatPence(e.pence, currency)}</span>
             </div>
           ))}
         {appliedPromo ? (
@@ -288,6 +297,32 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
           A refundable deposit of {formatPence(config.depositPence, currency)} is held separately and
           released after completion.
         </p>
+      ) : null}
+
+      {config.included && config.included.length > 0 ? (
+        <div className="border-t border-[#EEF2F9] px-4 py-3">
+          <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+            <Sparkles className="h-3 w-3" /> What's included
+          </p>
+          <ul className="space-y-1">
+            {config.included.map((item) => (
+              <li key={item} className="flex items-start gap-1.5 text-[12px] text-slate-600">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                <span className="min-w-0 break-words">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {config.trustChips && config.trustChips.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 border-t border-[#EEF2F9] px-4 py-3">
+          {config.trustChips.map((chip) => (
+            <span key={chip} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[#1D4ED8]">
+              <ShieldCheck className="h-3 w-3" /> {chip}
+            </span>
+          ))}
+        </div>
       ) : null}
     </div>
   )
@@ -456,6 +491,36 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
               ) : null}
             </Field>
           </SectionCard>
+
+          {/* What happens next */}
+          {config.whatNext && config.whatNext.length > 0 ? (
+            <SectionCard title="What happens next">
+              <ol className="flex flex-col gap-3">
+                {config.whatNext.map((stepText, i) => (
+                  <li key={stepText} className="flex items-start gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF5FF] text-[12px] font-bold text-[#2563EB]">
+                      {i + 1}
+                    </span>
+                    <span className="min-w-0 break-words pt-0.5 text-[13px] text-slate-600">{stepText}</span>
+                  </li>
+                ))}
+              </ol>
+            </SectionCard>
+          ) : null}
+
+          {/* Good to know */}
+          {config.policyNotes && config.policyNotes.length > 0 ? (
+            <SectionCard title="Good to know">
+              <ul className="flex flex-col gap-2">
+                {config.policyNotes.map((note) => (
+                  <li key={note} className="flex items-start gap-2 text-[13px] text-slate-600">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <span className="min-w-0 break-words">{note}</span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          ) : null}
 
           <PrimaryButton onClick={goToPayment}>
             Continue to payment <ArrowRight className="h-4 w-4" />

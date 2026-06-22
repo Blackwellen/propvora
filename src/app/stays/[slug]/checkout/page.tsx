@@ -72,6 +72,28 @@ export default async function StayCheckoutPage({
     ],
     depositPence: undefined,
     currency: "GBP",
+    included: [
+      `Self check-in${stay.instantBook ? " · instant confirmation" : ""}`,
+      ...(stay.amenities ?? []).slice(0, 4),
+      `Hosted by ${stay.hostName}${stay.hostProBadge ? " (Pro host)" : ""}`,
+    ].filter(Boolean),
+    trustChips: [
+      ...(stay.verified ? ["Verified stay"] : []),
+      ...(stay.freeCancellation ? ["Free cancellation"] : []),
+      `${stay.rating.toFixed(1)}★ (${stay.reviewCount})`,
+    ],
+    policyNotes: [
+      stay.freeCancellation
+        ? "Free cancellation up to 48 hours before check-in."
+        : "Cancellation terms follow the host's policy.",
+      "You won't be charged until your booking is confirmed.",
+      "Your payment is protected by Propvora secure checkout.",
+    ],
+    whatNext: [
+      "Confirm and pay securely — your card is charged once.",
+      "The host receives your booking and confirms instantly.",
+      "Check-in details and the host's contact are sent to your email.",
+    ],
     backHref: `/stays/${slug}`,
     backLabel: "Back to stay",
     successHref: "/customer/bookings",

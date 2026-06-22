@@ -43,6 +43,28 @@ export default async function SupplierBookPage({
     lineItems: [{ label: "Call-out & first hour", pence: callOut }],
     vatRateBps: 2000,
     currency: "GBP",
+    included: [
+      "Call-out & diagnosis",
+      "First hour of labour",
+      ...(provider.certifications ?? []).slice(0, 2).map((c) => `${c} certified`),
+      ...(provider.services ?? []).slice(0, 2),
+    ].filter(Boolean),
+    trustChips: [
+      ...(provider.vetted ? ["Vetted"] : []),
+      ...(provider.insured ? [`Insured ${provider.insuranceAmount}`] : []),
+      ...(provider.gasSafe ? ["Gas Safe"] : []),
+      `${provider.rating.toFixed(1)}★ (${provider.reviewCount})`,
+    ],
+    policyNotes: [
+      "The call-out covers diagnosis and the first hour — further work is quoted on site before it starts.",
+      "No charge if you cancel before the supplier is dispatched.",
+      `${provider.companyName} is insured up to ${provider.insuranceAmount}.`,
+    ],
+    whatNext: [
+      "Confirm the call-out and pay securely.",
+      `${provider.companyName} is notified and responds within ${provider.responseTime}.`,
+      "They diagnose on site, agree any further work, then complete the job.",
+    ],
     backHref: `/property-manager/marketplace/suppliers-hub/${slug}`,
     backLabel: "Back to supplier",
     messageHref: `/property-manager/messages?contact=${slug}`,
