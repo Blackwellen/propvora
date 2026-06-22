@@ -6,6 +6,7 @@ import { formatPence } from "@/lib/marketplace/money"
 import { useBillingHistory, useSubscriptionEvents, useBillingRole } from "../data/hooks"
 import { formatBillingDate } from "../data/calc"
 import type { BillingDocType, BillingHistoryRow } from "../data/types"
+import { openBillingPortal } from "../data/stripe-link"
 import { BillingCard, StatusBadge, BillingButton, SeedNotice, PermissionNotice } from "./ui"
 
 const DOC_LABEL: Record<BillingDocType, string> = {
@@ -62,6 +63,14 @@ export function BillingHistoryTab() {
   const { data: events } = useSubscriptionEvents()
   const { canManageBilling } = useBillingRole()
   const [filter, setFilter] = useState<"all" | BillingDocType>("all")
+  const [portalError, setPortalError] = useState<string | null>(null)
+
+  async function openPortal() {
+    setPortalError(null)
+    try { await openBillingPortal() } catch (e) {
+      setPortalError(e instanceof Error ? e.message : "The Stripe billing portal opens once your subscription is connected.")
+    }
+  }
 
   const filtered = useMemo(
     () => (filter === "all" ? rows : rows.filter((r) => r.docType === filter)),
@@ -90,7 +99,7 @@ export function BillingHistoryTab() {
         title="Billing history"
         icon={History}
         description="Invoices, receipts, payments, refunds, credits and VAT documents."
-        action={<BillingButton variant="ghost" icon={Download} className="text-[12px] px-3 py-1.5" onClick={exportAll}>Export</BillingButton>}
+        action={<BillingButton variant="ghost" icon={Download} className="text-[12px] px-3 py-1.5" disabled={rows.length === 0} onClick={exportAll}>Export CSV</BillingButton>}
       >
         <div className="flex flex-wrap gap-1.5 mb-4">
           {FILTERS.map((f) => (
@@ -139,7 +148,7 @@ export function BillingHistoryTab() {
                           {r.docType === "receipt" ? "Receipt" : "Invoice"}
                         </button>
                         {r.status === "failed" && canManageBilling && (
-                          <button title="Retry payment" onClick={() => alert("Retrying payment via the secure Stripe portal.")} className="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 text-[12px] font-medium">
+                          <button title="Retry payment" onClick={openPortal} className="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 text-[12px] font-medium">
                             <RotateCcw className="w-3.5 h-3.5" /> Retry
                           </button>
                         )}
@@ -151,13 +160,17 @@ export function BillingHistoryTab() {
             </table>
           </div>
         )}
+        {portalError && <p className="text-[11px] text-amber-600 mt-3">{portalError}</p>}
         <div className="mt-3 flex items-center justify-between">
           <SeedNotice source={source} />
-          <BillingButton variant="ghost" icon={CreditCard} className="text-[12px] px-3 py-1.5" disabled={!canManageBilling} onClick={() => alert("Update your card in the secure Stripe portal.")}>Update card</BillingButton>
+          <BillingButton variant="ghost" icon={CreditCard} className="text-[12px] px-3 py-1.5" disabled={!canManageBilling} onClick={openPortal}>Manage payment methods</BillingButton>
         </div>
       </BillingCard>
 
       <BillingCard title="Subscription events" icon={History} description="Plan changes, add-on changes and lifecycle events.">
+        {events.length === 0 ? (
+          <p className="text-[12.5px] text-slate-400 py-2">No subscription events yet. Plan changes, add-on changes, renewals and payments appear here once your subscription is active.</p>
+        ) : (
         <ol className="relative border-l border-slate-200 ml-2 space-y-4">
           {events.map((e) => (
             <li key={e.id} className="ml-4">
@@ -170,6 +183,7 @@ export function BillingHistoryTab() {
             </li>
           ))}
         </ol>
+        )}
       </BillingCard>
     </div>
   )
