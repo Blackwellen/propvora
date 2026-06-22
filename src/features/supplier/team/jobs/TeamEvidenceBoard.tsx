@@ -22,7 +22,8 @@ import { EVIDENCE_JOBS, type EvidenceJob } from "@/features/supplier/team/data/j
 export function TeamEvidenceBoard() {
   const [toast, setToast] = useState<string | null>(null)
   const [filter, setFilter] = useState<"all" | "awaiting_evidence" | "awaiting_signoff">("all")
-  const [selected, setSelected] = useState<EvidenceJob>(EVIDENCE_JOBS[0])
+  const [selId, setSelId] = useState<string | null>(null)
+  const selected: EvidenceJob | null = EVIDENCE_JOBS.find((j) => j.id === selId) ?? EVIDENCE_JOBS[0] ?? null
 
   const rows = useMemo(() => (filter === "all" ? EVIDENCE_JOBS : EVIDENCE_JOBS.filter((j) => j.stage === filter)), [filter])
   const awaitingEvidence = EVIDENCE_JOBS.filter((j) => j.stage === "awaiting_evidence").length
@@ -37,7 +38,7 @@ export function TeamEvidenceBoard() {
         <Mini label="Awaiting evidence" value={String(awaitingEvidence)} tone="amber" />
         <Mini label="Awaiting sign-off" value={String(awaitingSignoff)} tone="blue" />
         <Mini label="Payout blocked" value={String(payoutBlocked)} tone="red" />
-        <Mini label="Avg quality" value="89" tone="emerald" />
+        <Mini label="Avg quality" value="—" tone="emerald" />
       </div>
 
       {/* Filter chips */}
@@ -50,12 +51,15 @@ export function TeamEvidenceBoard() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 items-start">
         {/* Evidence table */}
         <SupplierCard className="p-0 overflow-hidden min-w-0">
+          {rows.length === 0 ? (
+            <div className="p-10 text-center"><Images className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No evidence outstanding</p><p className="text-xs text-slate-400 mt-1">Jobs awaiting evidence or customer sign-off appear here.</p></div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[640px]">
               <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><Th>Job</Th><Th>Worker</Th><Th>Completeness</Th><Th>Before/After/Cert</Th><Th>Quality</Th><Th>Status</Th><Th /></tr></thead>
               <tbody className="divide-y divide-slate-50">
                 {rows.map((j) => (
-                  <tr key={j.id} onClick={() => setSelected(j)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected.id === j.id && "bg-blue-50/40")}>
+                  <tr key={j.id} onClick={() => setSelId(j.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === j.id && "bg-blue-50/40")}>
                     <td className="px-4 py-3"><p className="font-semibold text-slate-800">{j.title}</p><p className="text-[11px] text-slate-400">{j.ref}</p></td>
                     <td className="px-4 py-3"><span className="inline-flex items-center gap-1.5"><span className="w-6 h-6 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{j.workerInitials}</span><span className="text-slate-600 text-xs">{j.worker.split(" ")[0]}</span></span></td>
                     <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className={cn("h-full rounded-full", j.completenessPct === 100 ? "bg-emerald-500" : "bg-amber-500")} style={{ width: `${j.completenessPct}%` }} /></div><span className="text-[11px] text-slate-400">{j.completenessPct}%</span></div></td>
@@ -68,10 +72,13 @@ export function TeamEvidenceBoard() {
               </tbody>
             </table>
           </div>
+          )}
         </SupplierCard>
 
         {/* Detail panel */}
         <SupplierCard className="p-5">
+          {selected ? (
+          <>
           <div className="flex items-center justify-between mb-1"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{selected.stage === "awaiting_evidence" ? "Awaiting evidence" : "Awaiting sign-off"}</p>{selected.qualityScore != null && <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500"><Gauge className="w-3.5 h-3.5" />{selected.qualityScore}</span>}</div>
           <h2 className="text-base font-semibold text-slate-900">{selected.title}</h2>
           <p className="text-xs text-slate-400">{selected.ref} · {selected.worker}</p>
@@ -95,6 +102,10 @@ export function TeamEvidenceBoard() {
             )}
             <SupplierButton variant="ghost" className="w-full justify-center" onClick={() => setToast("Evidence approved.")} disabled={selected.payoutBlocked}><CheckCircle2 className="w-4 h-4" /> Approve evidence</SupplierButton>
           </div>
+          </>
+          ) : (
+            <p className="text-sm text-slate-400 text-center py-4">Select a job to review its evidence.</p>
+          )}
         </SupplierCard>
       </div>
     </div>

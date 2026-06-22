@@ -23,13 +23,9 @@ function Mini({ label, value, tone = "slate" }: { label: string; value: string; 
 }
 
 interface Member { id: string; name: string; initials: string; email: string; role: string; status: "active" | "invited"; lastActive: string }
-const MEMBERS: Member[] = [
-  { id: "m1", name: "Alex Morgan", initials: "AM", email: "alex@morganheating.co.uk", role: "Owner", status: "active", lastActive: new Date().toISOString() },
-  { id: "m2", name: "Mike Thompson", initials: "MT", email: "mike@morganheating.co.uk", role: "Dispatcher", status: "active", lastActive: new Date(Date.now() - 3600000).toISOString() },
-  { id: "m3", name: "Emma Collins", initials: "EC", email: "emma@morganheating.co.uk", role: "Estimator", status: "active", lastActive: new Date(Date.now() - 7200000).toISOString() },
-  { id: "m4", name: "Sarah Ahmed", initials: "SA", email: "sarah@morganheating.co.uk", role: "Worker", status: "active", lastActive: new Date(Date.now() - 86400000).toISOString() },
-  { id: "m5", name: "Priya Shah", initials: "PS", email: "priya@morganheating.co.uk", role: "Finance", status: "invited", lastActive: "" },
-]
+// Honest empty — live team comes from /api/supplier/team (workspace_members).
+// Team management is wired in Settings > Team; this view starts empty (no fake members).
+const MEMBERS: Member[] = []
 const ROLE_CAPS = [
   { role: "Owner", finance: true, dispatch: true, account: true, jobs: true },
   { role: "Team Admin", finance: true, dispatch: true, account: true, jobs: true },
@@ -117,11 +113,8 @@ function Cap({ ok }: { ok: boolean }) { return ok ? <CheckCircle2 className="w-4
 
 /* ── 30. Enterprise security / marketplace / admin ──────────────────────────── */
 
-const AUDIT = [
-  { id: "a1", actor: "Alex Morgan", action: "Updated role: Emma → Estimator", at: new Date(Date.now() - 2 * 3600000).toISOString() },
-  { id: "a2", actor: "System", action: "Insurance certificate approved", at: new Date(Date.now() - 26 * 3600000).toISOString() },
-  { id: "a3", actor: "Mike Thompson", action: "Exported finance report", at: new Date(Date.now() - 50 * 3600000).toISOString() },
-]
+// Honest empty — real audit events come from the audit log once wired.
+const AUDIT: { id: string; actor: string; action: string; at: string }[] = []
 
 export function EnterpriseSettings() {
   const [toast, setToast] = useState<string | null>(null)

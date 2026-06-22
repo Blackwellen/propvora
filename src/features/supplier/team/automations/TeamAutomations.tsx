@@ -18,27 +18,18 @@ import { timeAgo } from "@/components/supplier-workspace/format"
 type Tab = "rules" | "templates" | "logs" | "approvals"
 
 interface Rule { id: string; name: string; trigger: string; status: "active" | "paused"; approvalRequired: boolean; customerImpacting: boolean; runs7d: number; errors: number }
-const RULES: Rule[] = [
-  { id: "r1", name: "Auto-assign by trade & area", trigger: "New job assigned", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 142, errors: 0 },
-  { id: "r2", name: "Remind worker to upload evidence", trigger: "Job complete + 2h, no evidence", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 38, errors: 1 },
-  { id: "r3", name: "Notify customer after completion", trigger: "Job marked complete", status: "active", approvalRequired: true, customerImpacting: true, runs7d: 64, errors: 0 },
-  { id: "r4", name: "Flag invoice overdue", trigger: "Invoice unpaid 14d", status: "paused", approvalRequired: false, customerImpacting: false, runs7d: 0, errors: 0 },
-  { id: "r5", name: "Insurance renewal reminder", trigger: "Policy expiry − 30d", status: "active", approvalRequired: false, customerImpacting: false, runs7d: 3, errors: 0 },
-]
+// Empty — real rules come from the automation engine (smart_rules / automation_definitions).
+const RULES: Rule[] = []
 const TEMPLATES = [
   { id: "t1", name: "Auto-assign jobs by trade/area", desc: "Route new jobs to the nearest qualified worker.", customerImpacting: false },
   { id: "t2", name: "Notify team on new request", desc: "Ping the team channel when an RFQ lands.", customerImpacting: false },
   { id: "t3", name: "Customer completion message", desc: "Send a thank-you + review request after sign-off.", customerImpacting: true },
   { id: "t4", name: "SLA breach warning", desc: "Internal alert when a job is near its SLA.", customerImpacting: false },
 ]
-const LOGS = [
-  { id: "l1", rule: "Auto-assign by trade & area", at: new Date(Date.now() - 0.2 * 3600000).toISOString(), status: "ok" as const, detail: "JOB-0461 → Jake Foster" },
-  { id: "l2", rule: "Remind worker to upload evidence", at: new Date(Date.now() - 1.5 * 3600000).toISOString(), status: "error" as const, detail: "Worker notification failed (retry queued)" },
-  { id: "l3", rule: "Notify customer after completion", at: new Date(Date.now() - 3 * 3600000).toISOString(), status: "ok" as const, detail: "Sent to Priya Nair" },
-]
-const APPROVALS = [
-  { id: "ap1", name: "Notify customer after completion", reason: "Customer-facing message", requestedBy: "Mike Thompson", at: new Date(Date.now() - 4 * 3600000).toISOString() },
-]
+// Empty — real run logs come from automation_node_runs / automation_run_events.
+const LOGS: Array<{ id: string; rule: string; at: string; status: "ok" | "error"; detail: string }> = []
+// Empty — real approval requests come from automation_approvals.
+const APPROVALS: Array<{ id: string; name: string; reason: string; requestedBy: string; at: string }> = []
 
 export function TeamAutomations() {
   const [tab, setTab] = useState<Tab>("rules")

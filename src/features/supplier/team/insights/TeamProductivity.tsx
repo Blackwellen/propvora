@@ -14,36 +14,25 @@ import { SupplierCard, SupplierButton, SupplierBanner } from "@/components/suppl
 import { moneyPence } from "@/components/supplier-workspace/format"
 
 interface WorkerProd { id: string; name: string; initials: string; jobs: number; revenuePence: number; avgCompletionH: number; routeEff: number; overdueEvidence: number; slaPct: number }
-const WORKERS: WorkerProd[] = [
-  { id: "w1", name: "Jake Foster", initials: "JF", jobs: 38, revenuePence: 4210000, avgCompletionH: 3.2, routeEff: 92, overdueEvidence: 1, slaPct: 96 },
-  { id: "w2", name: "Mike Thompson", initials: "MT", jobs: 29, revenuePence: 3180000, avgCompletionH: 4.1, routeEff: 84, overdueEvidence: 2, slaPct: 90 },
-  { id: "w3", name: "Emma Collins", initials: "EC", jobs: 24, revenuePence: 2740000, avgCompletionH: 3.8, routeEff: 88, overdueEvidence: 0, slaPct: 94 },
-  { id: "w4", name: "Sarah Ahmed", initials: "SA", jobs: 17, revenuePence: 1810000, avgCompletionH: 4.6, routeEff: 79, overdueEvidence: 1, slaPct: 88 },
-]
+const WORKERS: WorkerProd[] = []
 
-const AREAS = [
-  { name: "Manchester N", demand: "High", covered: true, jobs: 42 },
-  { name: "Manchester C", demand: "High", covered: true, jobs: 38 },
-  { name: "Manchester S", demand: "Medium", covered: false, jobs: 19 },
-  { name: "Stockport", demand: "Medium", covered: true, jobs: 14 },
-  { name: "Bolton", demand: "Low", covered: false, jobs: 6 },
-]
+const AREAS: { name: string; demand: string; covered: boolean; jobs: number }[] = []
 
 function heat(v: number) { return v >= 90 ? "bg-emerald-500" : v >= 80 ? "bg-emerald-400" : v >= 70 ? "bg-amber-400" : "bg-red-400" }
 
 export function TeamProductivity() {
   const [toast, setToast] = useState<string | null>(null)
-  const maxRev = WORKERS[0].revenuePence
+  const maxRev = WORKERS[0]?.revenuePence ?? 1
 
   return (
     <div className="space-y-4">
       {toast && <SupplierBanner tone="emerald" onDismiss={() => setToast(null)}>{toast}</SupplierBanner>}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1">
-          <Mini label="Coverage gaps" value="2" tone="red" />
-          <Mini label="Jobs / worker" value="27" tone="blue" />
-          <Mini label="Avg completion" value="3.9h" tone="slate" />
-          <Mini label="Route efficiency" value="86%" tone="emerald" />
+          <Mini label="Coverage gaps" value={String(AREAS.filter((a) => !a.covered).length)} tone="red" />
+          <Mini label="Jobs / worker" value={WORKERS.length > 0 ? String(Math.round(WORKERS.reduce((s, w) => s + w.jobs, 0) / WORKERS.length)) : "—"} tone="blue" />
+          <Mini label="Avg completion" value={WORKERS.length > 0 ? `${(WORKERS.reduce((s, w) => s + w.avgCompletionH, 0) / WORKERS.length).toFixed(1)}h` : "—"} tone="slate" />
+          <Mini label="Route efficiency" value={WORKERS.length > 0 ? `${Math.round(WORKERS.reduce((s, w) => s + w.routeEff, 0) / WORKERS.length)}%` : "—"} tone="emerald" />
         </div>
         <SupplierButton variant="outline" onClick={() => setToast("Productivity report exported.")}><Download className="w-4 h-4" /> Export</SupplierButton>
       </div>
@@ -53,27 +42,37 @@ export function TeamProductivity() {
           {/* Coverage map */}
           <SupplierCard className="p-4">
             <h2 className="text-sm font-semibold text-slate-900 mb-2">Coverage &amp; demand</h2>
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-4">
-              <div className="relative aspect-[16/10] rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-                <span className="absolute left-[28%] top-[30%] w-16 h-16 rounded-full bg-emerald-400/30 ring-2 ring-emerald-400" />
-                <span className="absolute left-[48%] top-[48%] w-14 h-14 rounded-full bg-emerald-400/30 ring-2 ring-emerald-400" />
-                <span className="absolute left-[62%] top-[68%] w-12 h-12 rounded-full bg-red-400/20 ring-2 ring-red-400 border-dashed" />
-                <span className="absolute left-[30%] top-[36%] text-[10px] font-semibold text-slate-600">Manchester</span>
+            {AREAS.length === 0 ? (
+              <div className="py-8 text-center">
+                <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-slate-700">No coverage areas configured</p>
+                <p className="text-xs text-slate-400 mt-1">Add your service areas to track coverage and demand.</p>
               </div>
-              <ul className="space-y-1.5">
-                {AREAS.map((a) => (
-                  <li key={a.name} className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-1.5"><span className={cn("w-2 h-2 rounded-full", a.covered ? "bg-emerald-500" : "bg-red-500")} /><span className="text-slate-700">{a.name}</span></span>
-                    <span className="text-[11px] text-slate-400">{a.demand} · {a.jobs}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <p className="text-[11px] text-amber-600 mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> 2 high/medium-demand areas uncovered — consider expanding coverage.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-4">
+                <div className="relative aspect-[16/10] rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center">
+                  <p className="text-xs text-slate-400">Coverage map — {AREAS.length} area{AREAS.length === 1 ? "" : "s"}</p>
+                </div>
+                <ul className="space-y-1.5">
+                  {AREAS.map((a) => (
+                    <li key={a.name} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1.5"><span className={cn("w-2 h-2 rounded-full", a.covered ? "bg-emerald-500" : "bg-red-500")} /><span className="text-slate-700">{a.name}</span></span>
+                      <span className="text-[11px] text-slate-400">{a.demand} · {a.jobs}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {AREAS.filter((a) => !a.covered).length > 0 && (
+              <p className="text-[11px] text-amber-600 mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> {AREAS.filter((a) => !a.covered).length} area{AREAS.filter((a) => !a.covered).length === 1 ? "" : "s"} uncovered — consider expanding coverage.</p>
+            )}
           </SupplierCard>
 
           {/* Worker productivity table */}
           <SupplierCard className="p-0 overflow-hidden">
+            {WORKERS.length === 0 ? (
+              <div className="p-10 text-center"><TrendingUp className="w-8 h-8 text-slate-300 mx-auto mb-2" /><p className="text-sm font-semibold text-slate-700">No productivity data yet</p><p className="text-xs text-slate-400 mt-1">Worker performance data will appear here as jobs are completed.</p></div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[620px]">
                 <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Worker</th><th className="px-4 py-3 font-semibold text-right">Jobs</th><th className="px-4 py-3 font-semibold text-right">Revenue</th><th className="px-4 py-3 font-semibold text-right">Avg time</th><th className="px-4 py-3 font-semibold text-right">Route eff.</th><th className="px-4 py-3 font-semibold text-right">SLA</th><th className="px-4 py-3 font-semibold text-right">Overdue ev.</th></tr></thead>
@@ -92,6 +91,7 @@ export function TeamProductivity() {
                 </tbody>
               </table>
             </div>
+            )}
           </SupplierCard>
         </div>
 
@@ -99,6 +99,7 @@ export function TeamProductivity() {
         <div className="space-y-4">
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Revenue leaderboard</h2>
+            {WORKERS.length === 0 && <p className="text-sm text-slate-400 text-center py-4">No data yet.</p>}
             <div className="space-y-2.5">
               {WORKERS.map((w, i) => (
                 <div key={w.id} className="flex items-center gap-2.5">
@@ -114,10 +115,16 @@ export function TeamProductivity() {
           </SupplierCard>
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-2">Recommendations</h2>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li className="flex gap-2"><TrendingUp className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />Add coverage in Manchester S to capture 19 unserved jobs/mo.</li>
-              <li className="flex gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Sarah's route efficiency is below target — review scheduling.</li>
-            </ul>
+            {WORKERS.length === 0 && AREAS.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Recommendations appear once workers and coverage areas are configured.</p>
+            ) : (
+              <ul className="space-y-2 text-sm text-slate-600">
+                {AREAS.filter((a) => !a.covered).length > 0 && (
+                  <li className="flex gap-2"><TrendingUp className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />{AREAS.filter((a) => !a.covered).length} uncovered area{AREAS.filter((a) => !a.covered).length === 1 ? "" : "s"} — consider expanding your coverage.</li>
+                )}
+                <li className="flex gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Review worker route efficiency regularly to optimise scheduling.</li>
+              </ul>
+            )}
             <button onClick={() => setToast("Opening coverage planner…")} className="mt-3 text-[12px] font-semibold text-blue-600 inline-flex items-center gap-0.5">Adjust coverage <ChevronRight className="w-3.5 h-3.5" /></button>
           </SupplierCard>
         </div>
