@@ -33,6 +33,10 @@ export default function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
   const [authed, setAuthed] = useState<boolean | null>(null)
+  // Persona awareness: only show "Open app" when the user has a PM/supplier
+  // workspace; a customer-only login shows their avatar (→ /customer) instead.
+  const [hasApp, setHasApp] = useState(false)
+  const [account, setAccount] = useState<{ avatarUrl: string | null; initial: string } | null>(null)
   // Staged platform: marketplace links are only advertised when the global
   // marketplace flag is on. Defaults hidden (off) until the endpoint confirms.
   const [marketplaceOn, setMarketplaceOn] = useState(false)
@@ -57,18 +61,47 @@ export default function PublicNav() {
   useEffect(() => {
     let mounted = true
     const supabase = createClient()
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted) setAuthed(!!data.session)
-    })
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (mounted) setAuthed(!!session)
-    })
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
+
+    async function loadPersona() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!mounted) return
+      if (!user) { setAuthed(false); setHasApp(false); setAccount(null); return }
+      setAuthed(true)
+      // Avatar + name for the customer chip.
+      let avatarUrl: string | null = null
+      let initial = (user.email ?? "U").charAt(0).toUpperCase()
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("display_name, first_name, avatar_url")
+          .eq("id", user.id)
+          .maybeSingle()
+        if (p) {
+          const key = p.avatar_url as string | null
+          if (key) avatarUrl = key.startsWith("http") || key.startsWith("/api/") ? key : `/api/files/${key}`
+          const nm = (p.display_name as string) || (p.first_name as string) || ""
+          if (nm) initial = nm.charAt(0).toUpperCase()
+        }
+      } catch { /* ignore */ }
+      // Does the user belong to any PM/supplier workspace? → show "Open app".
+      let appAccess = false
+      try {
+        const { data: members } = await supabase
+          .from("workspace_members")
+          .select("workspaces(type)")
+          .eq("user_id", user.id)
+        appAccess = (members ?? []).some((m) => {
+          const w = (m as { workspaces?: { type?: string } | { type?: string }[] }).workspaces
+          const t = Array.isArray(w) ? w[0]?.type : w?.type
+          return t === "operator" || t === "supplier"
+        })
+      } catch { /* ignore */ }
+      if (mounted) { setHasApp(appAccess); setAccount({ avatarUrl, initial }) }
     }
+
+    loadPersona()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { loadPersona() })
+    return () => { mounted = false; subscription.unsubscribe() }
   }, [])
 
   return (
@@ -149,13 +182,26 @@ export default function PublicNav() {
 
           {/* Desktop CTA buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {authed ? (
+            {hasApp ? (
               <Link
                 href="/property-manager"
                 className="inline-flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
               >
                 Open app
                 <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : authed ? (
+              <Link
+                href="/customer"
+                aria-label="My account"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm overflow-hidden ring-2 ring-white transition-transform hover:scale-105"
+              >
+                {account?.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={account.avatarUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  account?.initial ?? "U"
+                )}
               </Link>
             ) : (
               <>
@@ -231,13 +277,21 @@ export default function PublicNav() {
             </div>
 
             <div className="pt-3 border-t border-slate-100 space-y-2">
-              {authed ? (
+              {hasApp ? (
                 <Link
                   href="/property-manager"
                   onClick={() => setMobileOpen(false)}
                   className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                 >
                   Open app
+                </Link>
+              ) : authed ? (
+                <Link
+                  href="/customer"
+                  onClick={() => setMobileOpen(false)}
+                  className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  My account
                 </Link>
               ) : (
                 <>

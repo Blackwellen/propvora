@@ -197,14 +197,15 @@ const TRUST = [
 
 export function TrustBar() {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    // 2×2 in the narrow checkout rail (4-up cramped + wrapped the labels).
+    <div className="grid grid-cols-2 gap-2">
       {TRUST.map((t) => (
         <div
           key={t.label}
           className="flex items-center gap-2 rounded-xl border border-[#E2EAF6] bg-white px-3 py-2.5 shadow-sm"
         >
           <t.icon className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
-          <span className="text-[11.5px] font-medium leading-tight text-slate-600">{t.label}</span>
+          <span className="text-[11.5px] font-medium leading-snug text-slate-600">{t.label}</span>
         </div>
       ))}
     </div>

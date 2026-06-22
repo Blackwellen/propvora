@@ -149,9 +149,9 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
     : null
 
   return (
-    <Link href={`/property-manager/portfolio/properties/${property.id}`} className="block group">
+    <Link href={`/property-manager/portfolio/properties/${property.id}`} className="block group h-full">
       <article className={cn(
-        "relative bg-white rounded-2xl overflow-hidden",
+        "relative bg-white rounded-2xl overflow-hidden h-full flex flex-col",
         "border border-slate-200/80",
         "shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]",
         "hover:shadow-[0_8px_24px_rgba(0,0,0,0.10),0_2px_6px_rgba(0,0,0,0.06)]",
@@ -232,7 +232,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         </div>
 
         {/* ── Body — compressed to claw back ~30% card height ── */}
-        <div className="px-3.5 pt-1.5 pb-2">
+        <div className="px-3.5 pt-1.5 pb-2 flex-1">
           {/* Name + address */}
           <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug truncate group-hover:text-[#2563EB] transition-colors">
             {property.name}

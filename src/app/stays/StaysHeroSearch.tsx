@@ -92,12 +92,12 @@ function StaysHeroSearchInner() {
         {guestsOpen && (
           <>
             <button
-              className="fixed inset-0 z-10 cursor-default"
+              className="fixed inset-0 z-40 cursor-default"
               onClick={() => setGuestsOpen(false)}
               aria-hidden
               tabIndex={-1}
             />
-            <div className="absolute left-0 top-full z-20 mt-1.5 w-48 rounded-2xl border border-slate-200 bg-white shadow-xl p-4">
+            <div className="absolute left-0 top-full z-50 mt-1.5 w-48 rounded-2xl border border-slate-200 bg-white shadow-xl p-4">
               <p className="text-[12px] font-semibold text-slate-500 mb-3">Number of guests</p>
               <div className="flex items-center justify-between gap-3">
                 <button
