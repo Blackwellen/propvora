@@ -42,7 +42,6 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <input
                 type="date"
-                defaultValue="2026-04-28"
                 className="w-full h-9 px-3 pr-9 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
               <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -54,9 +53,7 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <select className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
-                <option>Maple Avenue</option>
-                <option>Oakwood House</option>
-                <option>Riverside Court</option>
+                <option value="">Select a property…</option>
               </select>
             </div>
           </div>
@@ -67,7 +64,7 @@ export default function ManualTransactionPage() {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                defaultValue="Oakwood Supplies Ltd"
+                placeholder="Contact or supplier name"
                 className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
             </div>
@@ -152,12 +149,12 @@ export default function ManualTransactionPage() {
         <h3 className="text-sm font-semibold text-slate-900 mb-3">Transaction Overview</h3>
         <div className="space-y-2.5">
           {[
-            { icon: "✦", label: "Transaction Type", value: "Expense" },
-            { icon: "🏠", label: "Property", value: "Maple Avenue" },
-            { icon: "👤", label: "Contact / Supplier", value: "Oakwood Supplies Ltd" },
-            { icon: "📅", label: "Transaction Date", value: "28 Apr 2026" },
-            { icon: "📄", label: "Reference", value: "EXP-2026-04-0001" },
-            { icon: "🏷", label: "Tax Code", value: "20% (Standard Rate)" },
+            { icon: "✦", label: "Transaction Type", value: "—" },
+            { icon: "🏠", label: "Property", value: "—" },
+            { icon: "👤", label: "Contact / Supplier", value: "—" },
+            { icon: "📅", label: "Transaction Date", value: "—" },
+            { icon: "📄", label: "Reference", value: "—" },
+            { icon: "🏷", label: "Tax Code", value: "—" },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-2.5">
               <span className="text-sm shrink-0">{item.icon}</span>
@@ -207,7 +204,7 @@ export default function ManualTransactionPage() {
 
   const footer = (
     <>
-      <Button variant="outline" size="sm" onClick={() => router.push("/app/accounting/accounts/journal-ledger")}>Cancel</Button>
+      <Button variant="outline" size="sm" onClick={() => router.push("/property-manager/accounting/accounts/journal-ledger")}>Cancel</Button>
       {step < 4 ? (
         <Button variant="primary" size="sm" onClick={() => setStep(Math.min(step + 1, 4))}>Next →</Button>
       ) : (
@@ -215,7 +212,7 @@ export default function ManualTransactionPage() {
           variant="primary"
           size="sm"
           disabled={!isBalanced}
-          onClick={() => router.push("/app/accounting/accounts/journal-ledger")}
+          onClick={() => router.push("/property-manager/accounting/accounts/journal-ledger")}
         >
           Post in Journal Ledger →
         </Button>
@@ -225,7 +222,7 @@ export default function ManualTransactionPage() {
 
   return (
     <>
-    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref={sectionLink("/app/accounting/reconciliation")} />
+    <MobileTopBar title="Manual Transaction" subtitle="Reconciliation" showBack backHref={sectionLink("/property-manager/accounting/reconciliation")} />
     <AccountingWizardShell
       breadcrumbNumber="09"
       breadcrumbLabel="Create Manual Transaction"

@@ -39,6 +39,7 @@ export default function ReportGeneratePage() {
   const [recipients, setRecipients] = useState<string[]>([])
   const [recipientInput, setRecipientInput] = useState("")
   const [scheduleRepeat, setScheduleRepeat] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
 
   function toggleReport(id: string) {
     setSelectedReports((prev) => {
@@ -135,8 +136,6 @@ export default function ReportGeneratePage() {
             <label className="text-sm font-medium text-slate-700">Property Scope</label>
             <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
               <option>All Portfolios</option>
-              <option>Maple Avenue</option>
-              <option>Oakwood House</option>
             </select>
           </div>
           <div className="space-y-1.5">
@@ -253,12 +252,25 @@ export default function ReportGeneratePage() {
               </div>
             ))}
           </div>
+          {notice && (
+            <div className="px-3.5 py-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">{notice}</div>
+          )}
           <div className="flex gap-4">
-            <Button variant="primary" size="md" className="flex-1">
+            <Button
+              variant="primary"
+              size="md"
+              className="flex-1"
+              onClick={() => setNotice("Report-pack generation isn't provisioned in this workspace yet. Use the per-report Export action on the Reports page to download individual statements.")}
+            >
               <FileDown className="w-4 h-4 mr-2" />
               Generate Pack Now
             </Button>
-            <Button variant="outline" size="md" className="flex-1">
+            <Button
+              variant="outline"
+              size="md"
+              className="flex-1"
+              onClick={() => setNotice("Scheduled report packs require the reporting scheduler, which isn't enabled in this workspace yet.")}
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Schedule Pack
             </Button>
@@ -275,7 +287,7 @@ export default function ReportGeneratePage() {
           <Button variant="outline" size="sm" onClick={() => setStep(step - 1)}>← Back</Button>
         )}
         <Button variant="ghost" size="sm" asChild>
-          <Link href={sectionLink("/app/accounting/reports")}>Cancel</Link>
+          <Link href={sectionLink("/property-manager/accounting/reports")}>Cancel</Link>
         </Button>
       </div>
       {step < 4 && (
@@ -288,7 +300,7 @@ export default function ReportGeneratePage() {
 
   return (
     <>
-    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref={sectionLink("/app/accounting/reports")} />
+    <MobileTopBar title="Generate Report Pack" subtitle="Reports" showBack backHref={sectionLink("/property-manager/accounting/reports")} />
     <AccountingWizardShell
       breadcrumbNumber="12"
       breadcrumbLabel="Generate Report Pack"
