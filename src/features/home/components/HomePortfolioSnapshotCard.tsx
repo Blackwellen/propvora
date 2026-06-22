@@ -95,7 +95,7 @@ export function HomePortfolioSnapshotCard({ properties }: HomePortfolioSnapshotC
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 auto-rows-min content-start">
           {properties.map((p) => (
             <PropertyMiniCard key={p.id} property={p} />
           ))}
