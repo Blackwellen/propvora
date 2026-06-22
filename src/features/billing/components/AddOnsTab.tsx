@@ -7,6 +7,7 @@ import { useActiveAddons, useAddonFeatureFlags, useBillingRole, useSubscription 
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { addonMonthlyPence } from "../data/calc"
 import { addonAvailableForPlan, type SubscriptionAddon } from "../data/types"
+import { applyAddonChange, catalogKeyForAddon } from "../data/stripe-link"
 import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, PermissionNotice } from "./ui"
 
 const UNIT_SUFFIX: Record<string, string> = {
@@ -34,10 +35,35 @@ export function AddOnsTab() {
     }),
   )
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null)
+  const [pendingCode, setPendingCode] = useState<string | null>(null)
+  const [errorByCode, setErrorByCode] = useState<Record<string, string>>({})
 
   function setAddon(code: string, patch: Partial<SubscriptionAddon>) {
     setAddons((prev) => prev.map((a) => (a.code === code ? { ...a, ...patch } : a)))
     setConfirmedCode(null)
+  }
+
+  // Apply the add-on change through the real /api/billing/addons endpoint.
+  // The route validates the catalogue key, mutates the Stripe subscription item
+  // (Stripe handles proration) and writes the DB + event rows. Add-ons without a
+  // configured Stripe price surface an honest message rather than silently no-op.
+  async function confirmAddon(code: string) {
+    const a = addons.find((x) => x.code === code)
+    if (!a) return
+    setErrorByCode((prev) => ({ ...prev, [code]: "" }))
+    setPendingCode(code)
+    try {
+      const action = !a.enabled ? "remove" : "set_quantity"
+      await applyAddonChange({ code: a.code, action, quantity: a.quantity })
+      setConfirmedCode(code)
+    } catch (e) {
+      setErrorByCode((prev) => ({
+        ...prev,
+        [code]: e instanceof Error ? e.message : "Could not apply the change.",
+      }))
+    } finally {
+      setPendingCode(null)
+    }
   }
 
   const available = SEED_ADDON_CATALOG.filter((c) => addonAvailableForPlan(c, subscription.planCode, "V1.5", addonFlags))
@@ -94,15 +120,26 @@ export function AddOnsTab() {
                   </span>
                 </div>
 
+                {!catalogKeyForAddon(item.code) && (
+                  <p className="text-[11px] text-amber-600">Not yet available for self-serve purchase — contact billing to enable.</p>
+                )}
+                {errorByCode[item.code] && (
+                  <p className="text-[11px] text-red-600">{errorByCode[item.code]}</p>
+                )}
+
                 <div className="flex items-center justify-between">
                   {a.enabled ? <StatusBadge tone="emerald">Active</StatusBadge> : <StatusBadge tone="slate">Off</StatusBadge>}
                   <BillingButton
                     variant="secondary"
                     className="text-[12px] px-3 py-1.5"
-                    disabled={!canManageBilling}
-                    onClick={() => setConfirmedCode(item.code)}
+                    disabled={!canManageBilling || pendingCode === item.code || !catalogKeyForAddon(item.code)}
+                    onClick={() => void confirmAddon(item.code)}
                   >
-                    {confirmedCode === item.code ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Saved</span> : "Confirm change"}
+                    {pendingCode === item.code
+                      ? "Saving…"
+                      : confirmedCode === item.code
+                        ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Saved</span>
+                        : "Confirm change"}
                   </BillingButton>
                 </div>
               </div>

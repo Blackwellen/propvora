@@ -6,8 +6,9 @@ import {
   Phone, Heart, LifeBuoy, ChevronRight, ShieldX,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
-import { useSubscription, useRenewalEvents, useCancellation, useBillingProfile } from "../data/hooks"
+import { useSubscription, useRenewalEvents, useBillingProfile } from "../data/hooks"
 import { formatBillingDate } from "../data/calc"
+import { useCancellationState } from "../data/cancellation-context"
 import { BillingCard, Row, StatusBadge, BillingButton } from "./ui"
 
 const STATUS_TONE: Record<string, "blue" | "emerald" | "amber" | "red" | "slate"> = {
@@ -24,8 +25,9 @@ const BASE = "/property-manager/workspace/billing"
 export function BillingSummaryRail({ basePath = BASE }: { basePath?: string }) {
   const { data: sub } = useSubscription()
   const { data: renewals } = useRenewalEvents()
-  const { data: cancellation } = useCancellation()
   const { data: profile } = useBillingProfile()
+  // SAME shared source of truth as the Cancellation panel so they never disagree.
+  const { view: cancellationView } = useCancellationState()
   const [showBreakdown, setShowBreakdown] = useState(false)
 
   const estimate = renewals.find((r) => r.kind === "estimate") ?? null
@@ -96,11 +98,14 @@ export function BillingSummaryRail({ basePath = BASE }: { basePath?: string }) {
 
       {/* Cancellation summary */}
       <BillingCard title="Cancellation" icon={ShieldX}>
-        {cancellation ? (
+        {cancellationView.scheduled ? (
           <div className="space-y-0.5">
             <Row label="Status" value={<StatusBadge tone="amber">Scheduled</StatusBadge>} />
-            <Row label="Access until" value={formatBillingDate(cancellation.accessUntil)} />
-            <Row label="Data retained" value={`${cancellation.dataRetentionDays} days`} />
+            <Row label="Access until" value={formatBillingDate(cancellationView.accessUntil)} />
+            <Row label="Data retained" value={`${cancellationView.dataRetentionDays} days`} />
+            <BillingButton href={`${basePath}/cancellation`} variant="ghost" className="w-full mt-3 text-[12px]">
+              Manage cancellation
+            </BillingButton>
           </div>
         ) : (
           <>
