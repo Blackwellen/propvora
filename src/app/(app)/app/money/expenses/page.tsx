@@ -29,6 +29,7 @@ import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/Res
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyExpenses, useCreateMoneyExpense, useMoneyExpensesSummary } from "@/hooks/useMoneyData"
+import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -124,15 +125,6 @@ const EXPENSE_TYPE_OPTIONS = [
   "Other",
 ]
 
-const PROPERTIES_LIST = [
-  "12 Maple Avenue",
-  "7 Elm Close",
-  "Riverside Lofts",
-  "Oakwood House",
-  "3 Bridge Street",
-  "14 Birchwood Rd",
-]
-
 // ─── Donut Chart ─────────────────────────────────────────────────────────────
 
 function ExpenseDonut({ segments, total }: { segments: DonutSeg[]; total: number }) {
@@ -193,6 +185,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const createExpense = useCreateMoneyExpense(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -219,7 +212,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
         status: (form.status as InsertMoneyExpense["status"]) || "planned",
         cost_behaviour: (form.cost_behaviour as InsertMoneyExpense["cost_behaviour"]) || null,
         description: form.description || null,
-        property_id: null,
+        property_id: form.property || null,
         supplier_id: null,
       })
       onClose()
@@ -273,7 +266,9 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
               <select id="exp-property" name="property" value={form.property} onChange={handleChange}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
-                {PROPERTIES_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
+                ))}
               </select>
             </div>
           </div>

@@ -29,6 +29,7 @@ import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/Res
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyIncome, useCreateMoneyIncome, useMoneyIncomeSummary } from "@/hooks/useMoneyData"
+import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -113,15 +114,6 @@ const INCOME_TYPE_OPTIONS = [
 
 const STATUS_OPTIONS = ["received", "expected", "overdue", "planned", "reconciled"]
 
-const PROPERTIES_LIST = [
-  "Waterfront House",
-  "Exchange Building",
-  "Riverside Plaza",
-  "City Centre Mall",
-  "Logistics Park",
-  "Harbour View",
-]
-
 // ─── SVG Donut ────────────────────────────────────────────────────────────────
 
 function DonutChart({ segments, total }: { segments: DonutSegment[]; total: number }) {
@@ -181,6 +173,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const createIncome = useCreateMoneyIncome(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -202,7 +195,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
         received_date: form.received_date || null,
         status: (form.status as InsertMoneyIncome["status"]) || "expected",
         description: form.description || null,
-        property_id: null,
+        property_id: form.property || null,
         tenant_id: null,
         tenancy_id: null,
       })
@@ -242,7 +235,9 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
               <select id="inc-property" name="property" value={form.property} onChange={handleChange}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
-                {PROPERTIES_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
+                ))}
               </select>
             </div>
           </div>

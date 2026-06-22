@@ -250,15 +250,37 @@ export default function BillDetailPage() {
             : liveStatus === "approved" ? "approved"
             : "awaiting_review"
           const total = (r.total as number | null) ?? undefined
+          const subtotalLive = (r.subtotal as number | null) ?? undefined
+          const taxLive = (r.tax_amount as number | null) ?? undefined
+          // Map a live bill onto the UI shape. Crucially, clear the mock
+          // supplier/property/job/line-item fields so a REAL bill never shows
+          // fabricated demo details ("Example Supplier Ltd", "14 Birchwood Rd"…).
           setBill((prev) => ({
             ...prev,
             id: r.id as string,
             amount: total ?? prev.amount,
+            subtotal: subtotalLive ?? total ?? prev.subtotal,
+            tax: taxLive ?? prev.tax,
             due_date: (r.due_date as string) ?? prev.due_date,
+            issue_date: (r.issue_date as string) ?? prev.issue_date,
             status,
-            notes: (r.notes as string | null) ?? prev.notes,
+            notes: (r.notes as string | null) ?? "",
             bill_number: (r.bill_number as string | null) ?? prev.bill_number,
             paid: liveStatus === "paid" ? (total ?? prev.amount) : 0,
+            // Real records have no demo supplier/property/job context columns here:
+            supplier: "Supplier",
+            supplier_email: "",
+            supplier_phone: "",
+            property: "—",
+            unit: "—",
+            job: null,
+            job_title: null,
+            job_estimated_cost: null,
+            line_items: [],
+            created_by: "—",
+            created_at: (r.created_at as string) ?? prev.created_at,
+            updated_at: (r.updated_at as string) ?? prev.updated_at,
+            has_invoice_pdf: false,
           }))
           setIsLive(true)
         }
@@ -308,12 +330,12 @@ export default function BillDetailPage() {
   }
 
   async function deleteBill() {
-    if (!isLive) { router.push("/app/money/bills"); return }
+    if (!isLive) { router.push("/property-manager/money/bills"); return }
     const supabase = createClient()
     try {
       const { error } = await supabase.from("bills").delete().eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
-      router.push("/app/money/bills")
+      router.push("/property-manager/money/bills")
     } catch {
       showToast("Could not delete bill")
     }
@@ -342,7 +364,7 @@ export default function BillDetailPage() {
         title={bill.bill_number}
         subtitle={bill.supplier}
         showBack
-        backHref="/app/money/bills"
+        backHref="/property-manager/money/bills"
         overflowActions={[
           ...(bill.status === "awaiting_review"
             ? [{ label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved") }]
@@ -370,7 +392,7 @@ export default function BillDetailPage() {
       <div className="px-5 md:px-7 lg:px-8 py-6 lg:py-7 max-w-[1600px] mx-auto space-y-6">
         {/* Breadcrumb */}
         <div className="hidden md:flex items-center gap-1.5 text-sm text-slate-500">
-          <Link href="/app/money/bills" className="hover:text-slate-700 flex items-center gap-1">
+          <Link href="/property-manager/money/bills" className="hover:text-slate-700 flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Bills
           </Link>
           <ChevronRight className="w-3 h-3 text-slate-300" />
@@ -648,7 +670,7 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Supplier History</p>
               <p className="text-xs text-slate-500">3 previous bills from {bill.supplier.split(" ")[0]}</p>
-              <Link href="/app/money/bills" className="text-xs text-[#2563EB] hover:underline mt-1 block">
+              <Link href="/property-manager/money/bills" className="text-xs text-[#2563EB] hover:underline mt-1 block">
                 View all supplier bills →
               </Link>
             </div>
