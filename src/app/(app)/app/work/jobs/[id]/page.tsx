@@ -45,6 +45,7 @@ import { StatusChangeDropdown } from "@/components/work/StatusChangeDropdown"
 import { ConfirmDeleteDialog } from "@/components/work/ConfirmDeleteDialog"
 import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
+import DirectPaymentPanel from "@/components/payments/DirectPaymentPanel"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
 import type { Job, UpdateJob } from "@/types/database"
@@ -93,6 +94,8 @@ interface JobView {
   property: string
   propertyId: string | null
   supplier: string
+  supplierDisplay: string
+  paymentRecord: { status?: string; amount_pence?: number; method?: string; reference?: string | null; paid_at?: string } | null
   assignee: string
   assigneeRole: string
   assigneeInitials: string
@@ -156,6 +159,10 @@ function buildJobView(job: Job): JobView {
     property: job.property_id ? "View Property" : "—",
     propertyId: job.property_id,
     supplier: "—",
+    supplierDisplay:
+      (job as unknown as { supplier_contact?: { display_name?: string } }).supplier_contact?.display_name ?? "your supplier",
+    paymentRecord:
+      ((job as unknown as { metadata?: { payment?: JobView["paymentRecord"] } }).metadata?.payment) ?? null,
     assignee: job.assigned_to ? "Assigned" : "Unassigned",
     assigneeRole: "",
     assigneeInitials: "—",
@@ -588,6 +595,19 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
             </tbody>
           </table>
         </div>
+
+        {/* FCA-safe supplier payment recording (directory/contact suppliers) */}
+        <DirectPaymentPanel
+          table="supplier_jobs"
+          id={job.id}
+          mode="single"
+          title="Supplier payment"
+          payeeNoun="your supplier"
+          payeeName={job.supplierDisplay}
+          defaultAmountPence={Math.round((job.approvedCost || job.plannedCost) * 100)}
+          payment={job.paymentRecord}
+          revalidate={`/property-manager/work/jobs/${job.id}`}
+        />
 
         {/* Documents */}
         <div className="bg-white border border-slate-200 rounded-xl p-4">
