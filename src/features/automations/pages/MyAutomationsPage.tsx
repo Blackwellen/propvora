@@ -9,6 +9,7 @@ import AutomationsDataTable, { type DataColumn } from "../components/Automations
 import { AutomationsReviewFirstBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, Toggle, useToast } from "../components/primitives"
+import { setAutomationEnabled } from "@/lib/automation/toggle"
 import { Donut } from "../components/charts"
 import { useMyAutomations } from "../data/hooks"
 import type { AutomationRow, Health } from "../data/types"
@@ -70,7 +71,12 @@ export default function MyAutomationsPage() {
       { key: "version", header: "Version", render: (r) => <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500">{r.version}</span> },
       {
         key: "enabled", header: "Enabled", render: (r) => (
-          <Toggle on={enabled[r.id] ?? r.enabled} onChange={(v) => { setEnabled((s) => ({ ...s, [r.id]: v })); toast(v ? "Open the automation to publish this change" : "Open the automation to pause it") }} />
+          <Toggle on={enabled[r.id] ?? r.enabled} onChange={async (v) => {
+            setEnabled((s) => ({ ...s, [r.id]: v }))
+            const res = await setAutomationEnabled(r.id, v)
+            if (!res.ok) { setEnabled((s) => ({ ...s, [r.id]: !v })); toast("Couldn’t update — please try again.") }
+            else toast(v ? `${r.name} enabled` : `${r.name} paused`)
+          }} />
         ),
       },
       {

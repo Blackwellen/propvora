@@ -24,6 +24,7 @@ import { AutomationsStatusBadge, AutomationsReviewFirstBadge, AutomationsRiskBad
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
 import { useAutomationsHome } from "../data/hooks"
+import { setAutomationEnabled } from "@/lib/automation/toggle"
 import type { AutomationRow } from "../data/types"
 
 type SubTab = "automations" | "inbox" | "activity" | "templates"
@@ -99,9 +100,15 @@ export default function HomePage({
         render: (r) => (
           <Toggle
             on={enabled[r.id] ?? r.enabled}
-            onChange={(v) => {
+            onChange={async (v) => {
               setEnabled((s) => ({ ...s, [r.id]: v }))
-              toast(v ? `${r.name} enabled` : `${r.name} paused`)
+              const res = await setAutomationEnabled(r.id, v)
+              if (!res.ok) {
+                setEnabled((s) => ({ ...s, [r.id]: !v }))
+                toast("Couldn’t update — please try again.")
+              } else {
+                toast(v ? `${r.name} enabled` : `${r.name} paused`)
+              }
             }}
             label="Enabled"
           />
