@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic"
  */
 export default async function AdminRiskPage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const supabase = createAdminClient()
   const [rowsRes, eventsRes] = await Promise.all([

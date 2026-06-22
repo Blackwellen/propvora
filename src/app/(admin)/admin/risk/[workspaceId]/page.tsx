@@ -36,7 +36,7 @@ export default async function AdminRiskDetailPage({
   params: Promise<{ workspaceId: string }>
 }) {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const { workspaceId } = await params
   const supabase = createAdminClient()

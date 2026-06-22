@@ -33,7 +33,7 @@ const STATUS_OPTIONS = [
  */
 export default async function MarketplaceDisputesPage({ searchParams }: PageProps) {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const sp = await searchParams
   const { available, rows } = await listDisputesForAdmin({ status: sp.status })

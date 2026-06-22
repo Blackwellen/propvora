@@ -378,7 +378,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/admin-login")
+    router.push("/bw-console-x9f3")
   }
 
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16

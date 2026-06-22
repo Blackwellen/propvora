@@ -48,7 +48,7 @@ function SectionHeader({ icon: Icon, title, hint }: { icon: typeof FileText; tit
 
 export default async function AdminVerificationDetailPage({ params }: PageProps) {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const { id } = await params
   const { available, detail } = await getVerificationDetail(id)

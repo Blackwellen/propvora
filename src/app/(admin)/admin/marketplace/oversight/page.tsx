@@ -61,7 +61,7 @@ function GmvLineChart({ data }: { data: Array<{ label: string; value: number }> 
 
 export default async function MarketplaceOverviewPage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const [o, trend, recentTxns, payouts, disputes] = await Promise.all([
     getMarketplaceOverview(),

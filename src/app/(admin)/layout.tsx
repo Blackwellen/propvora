@@ -8,7 +8,7 @@ import AdminShell from "@/components/shells/AdminShell"
  * Fails CLOSED on role: only a verified platform admin (platform_role = 'admin'
  * OR core role = 'platform_admin', checked server-side via the service-role
  * client) reaches the console. Any unauthenticated user, non-admin, or
- * verification error is redirected to /admin-login. No try/catch fall-through.
+ * verification error is redirected to /bw-console-x9f3. No try/catch fall-through.
  *
  * MFA step-up: once role is confirmed, the console additionally requires that an
  * admin who has enrolled a TOTP factor has satisfied it on this session (AAL2).
@@ -19,7 +19,7 @@ import AdminShell from "@/components/shells/AdminShell"
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const identity = await getAdminIdentity()
   if (!identity) {
-    redirect("/admin-login")
+    redirect("/bw-console-x9f3")
   }
 
   const mfa = await getAdminMfaState()

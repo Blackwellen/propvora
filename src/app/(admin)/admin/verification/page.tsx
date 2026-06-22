@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
  */
 export default async function AdminVerificationQueuePage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const { available, rows } = await listVerificationQueue(200)
 

@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic"
  */
 export default async function AdminAutomationsPage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const supabase = createAdminClient()
   const [overview, runs, errors, abuse, registry, limits] = await Promise.all([

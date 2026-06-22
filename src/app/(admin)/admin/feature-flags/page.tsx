@@ -17,7 +17,7 @@ const RISK_TONE: Record<FlagRisk, AdminTone> = { low: "slate", medium: "amber", 
 
 export default async function FeatureFlagsPage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const { states, available, total, enabledCount, overriddenCount } = await getFlagStates()
   const groups = groupFlagsByStage()

@@ -39,7 +39,7 @@ export interface ModerationKpis {
 
 export default async function MarketplaceModerationPage() {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const adminDb = createAdminClient()
 

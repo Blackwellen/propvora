@@ -42,7 +42,7 @@ function fmtDate(d: string | null) {
 
 export default async function MarketplaceTransactionsPage({ searchParams }: PageProps) {
   const identity = await getAdminIdentity()
-  if (!identity) redirect("/admin-login")
+  if (!identity) redirect("/bw-console-x9f3")
 
   const sp = await searchParams
   const status = sp.status ?? "all"

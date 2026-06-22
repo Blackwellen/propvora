@@ -156,7 +156,7 @@ export async function proxy(request: NextRequest) {
     const maintenanceAllowlist = [
       "/maintenance",
       "/api/health",
-      "/admin-login",
+      "/bw-console-x9f3",
     ]
     const isAllowlisted =
       maintenanceAllowlist.some(
@@ -178,7 +178,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Public admin paths that must not be auth-guarded (login page itself)
-  const publicAdminPaths = ["/admin-login"]
+  const publicAdminPaths = ["/bw-console-x9f3"]
 
   // Protected route prefixes — require authentication.
   // The affiliate experience now lives as internal-tabbed sections under the
