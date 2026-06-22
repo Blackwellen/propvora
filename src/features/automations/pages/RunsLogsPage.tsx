@@ -8,7 +8,6 @@ import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsStatusBadge } from "../components/AutomationsBadges"
 import { Btn, Card, CardHeader, useToast } from "../components/primitives"
-import { BarList, MiniArea, MiniBars } from "../components/charts"
 import { useAutomationRunsLogs } from "../data/hooks"
 import type { RunRow } from "../data/types"
 
@@ -53,31 +52,22 @@ export default function RunsLogsPage() {
 
   return (
     <AutomationsModuleShell
-      title="Runs & Logs"
-      subtitle="Full observability for every automation run — step timings, outputs, approvals and audit trail."
+      title="Automations"
+      subtitle="Review-first portfolio automation that proposes safe, reversible next steps."
       icon={Activity}
       actions={actions}
     >
-      {/* KPIs derived from seed/live data */}
       {(() => {
-        const totalRuns = runs.length
-        const successRuns = runs.filter((r) => r.status === "success").length
-        const failedRuns = runs.filter((r) => r.status === "failed").length
-        const successRate = totalRuns > 0 ? Math.round((successRuns / totalRuns) * 1000) / 10 : 0
+        const total = runs.length
+        const failed = runs.filter((r) => r.status === "failed").length
+        const succeeded = runs.filter((r) => r.status === "success").length
+        const successRate = total > 0 ? `${Math.round((succeeded / total) * 100)}%` : "—"
         return (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <AutomationsKpiCard label="Runs (loaded)" value={totalRuns} sub="Live backend needed for totals" icon={Activity} tone="blue">
-              <MiniBars data={[18, 22, 20, 26, 24, 30, 28]} />
-            </AutomationsKpiCard>
-            <AutomationsKpiCard label="Success rate" value={`${successRate}%`} icon={CheckCircle2} tone="emerald">
-              <MiniArea data={[96, 97, 97, 98, 98, 98]} color="#10b981" />
-            </AutomationsKpiCard>
-            <AutomationsKpiCard label="Failed runs" value={failedRuns} icon={XCircle} tone="red">
-              <MiniArea data={[30, 28, 26, 25, 24, 23]} color="#ef4444" />
-            </AutomationsKpiCard>
-            <AutomationsKpiCard label="Average duration" value="—" sub="Requires live data" icon={Clock} tone="violet">
-              <MiniArea data={[120, 115, 110, 108, 104, 102]} color="#7c3aed" />
-            </AutomationsKpiCard>
+            <AutomationsKpiCard label="Total runs" value={total} icon={Activity} tone="blue" />
+            <AutomationsKpiCard label="Success rate" value={successRate} icon={CheckCircle2} tone="emerald" />
+            <AutomationsKpiCard label="Failed runs" value={failed} icon={XCircle} tone="red" />
+            <AutomationsKpiCard label="Logged runs" value={total} icon={Clock} tone="violet" />
           </div>
         )
       })()}
@@ -105,28 +95,22 @@ export default function RunsLogsPage() {
 
         <div className="space-y-4">
           <Card>
-            <CardHeader title="Run volume" />
-            <div className="h-28 p-3"><MiniBars data={[120, 180, 140, 220, 200, 260, 240]} /></div>
-          </Card>
-          <Card>
-            <CardHeader title="Error trend" />
-            <div className="h-28 p-3"><MiniArea data={[8, 6, 9, 5, 7, 4, 5]} color="#ef4444" /></div>
-          </Card>
-          <Card>
-            <CardHeader title="Queue backlog" action={<button className="text-xs font-medium text-blue-600 hover:underline">View queue</button>} />
+            <CardHeader title="Queue backlog" />
             <div className="p-3 space-y-1.5 text-sm">
-              {[
+              {([
+                ["Failed runs", runs.filter((r) => r.status === "failed").length],
                 ["Skipped runs", runs.filter((r) => r.status === "skipped").length],
-                ["Errored", runs.filter((r) => r.status === "failed").length],
-              ].map(([l, v]) => (
-                <div key={l as string} className="flex justify-between"><span className="text-slate-600">{l}</span><span className="font-medium text-slate-900">{v}</span></div>
+                ["Successful runs", runs.filter((r) => r.status === "success").length],
+              ] as [string, number][]).map(([l, v]) => (
+                <div key={l} className="flex justify-between"><span className="text-slate-600">{l}</span><span className="font-medium text-slate-900">{v}</span></div>
               ))}
-              <div className="flex justify-between"><span className="text-slate-600">Waiting approvals</span><span className="text-slate-400 text-xs">Requires live data</span></div>
             </div>
           </Card>
           <Card>
-            <CardHeader title="Recent failed steps" />
-            <div className="p-4 text-[12.5px] text-slate-400">No failed steps recorded.</div>
+            <CardHeader title="Run history" />
+            <div className="p-4 text-xs text-slate-400">
+              Run-volume and error trends appear here once your automations have execution history.
+            </div>
           </Card>
         </div>
       </div>

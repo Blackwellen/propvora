@@ -64,9 +64,12 @@ export default function AddonsPage() {
               <p className="text-[11.5px] text-[#3b82f6]">Total addition: £{totalMonthly.toFixed(0)}/mo</p>
             </div>
           </div>
-          <button className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors">
-            Confirm & subscribe
-          </button>
+          <a
+            href="/property-manager/workspace-settings/subscription"
+            className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+          >
+            Continue to billing
+          </a>
         </div>
       )}
 

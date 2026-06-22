@@ -7,12 +7,10 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronRight,
-  Clock,
   History,
   LayoutTemplate,
   Play,
   Plus,
-  PoundSterling,
   Sparkles,
   TrendingUp,
   Wand2,
@@ -25,7 +23,6 @@ import AutomationsDataTable, { type DataColumn } from "../components/Automations
 import { AutomationsStatusBadge, AutomationsReviewFirstBadge, AutomationsRiskBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
 import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
-import { MiniLine } from "../components/charts"
 import { useAutomationsHome } from "../data/hooks"
 import type { AutomationRow } from "../data/types"
 
@@ -135,7 +132,7 @@ export default function HomePage({
 
   const subTabs: { id: SubTab; label: string; badge?: number }[] = [
     { id: "automations", label: "Automations" },
-    { id: "inbox", label: "Review inbox", badge: reviewQueue.length + 15 },
+    { id: "inbox", label: "Review inbox", badge: reviewQueue.length },
     { id: "activity", label: "Activity" },
     { id: "templates", label: "Templates" },
   ]
@@ -149,17 +146,20 @@ export default function HomePage({
       showSafetyBanner
       hiddenTabs={hiddenTabs}
     >
-      {/* KPI row — 2 rows of 4 */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <AutomationsKpiCard label="Active automations" value={24} trend="14%" icon={Zap} tone="blue" />
-        <AutomationsKpiCard label="Pending review" value={18} trend="6" sub="Requires your approval" icon={AlertCircle} tone="amber" />
-        <AutomationsKpiCard label="Actions executed" value="1,248" trend="22%" icon={CheckCircle2} tone="emerald" />
-        <AutomationsKpiCard label="Runs (recent)" value={312} sub="Last 200 runs" icon={History} tone="slate" />
-        <AutomationsKpiCard label="Approval SLA (≤24h)" value="92%" trend="8%" sub="Target ≥ 90%" icon={Clock} tone="violet" />
-        <AutomationsKpiCard label="Error rate" value="0.6%" trend="0.2%" trendDir="down" icon={AlertCircle} tone="red" />
-        <AutomationsKpiCard label="Templates used" value={36} sub="76% of library" icon={LayoutTemplate} tone="blue" />
-        <AutomationsKpiCard label="Automations ROI (est.)" value="£18.2k" trend="34%" icon={PoundSterling} tone="emerald" />
-      </div>
+      {/* KPI row — derives from loaded automations (honest 0 when empty) */}
+      {(() => {
+        const activeCount = rows.filter((r) => r.status === "live" && r.enabled).length
+        const pausedCount = rows.filter((r) => r.status === "paused" || !r.enabled).length
+        const reviewFirstCount = rows.filter((r) => r.reviewFirst).length
+        return (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <AutomationsKpiCard label="Active automations" value={activeCount} icon={Zap} tone="blue" />
+            <AutomationsKpiCard label="Pending review" value={reviewQueue.length} sub={reviewQueue.length > 0 ? "Requires your approval" : undefined} icon={AlertCircle} tone="amber" />
+            <AutomationsKpiCard label="Paused" value={pausedCount} icon={History} tone="slate" />
+            <AutomationsKpiCard label="Review-first" value={reviewFirstCount} icon={CheckCircle2} tone="emerald" />
+          </div>
+        )
+      })()}
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_340px]">
         {/* Main column */}
@@ -183,7 +183,7 @@ export default function HomePage({
               rows={rows}
               page={page}
               pageSize={5}
-              total={24}
+              total={rows.length}
               onPageChange={setPage}
             />
           )}
@@ -236,7 +236,7 @@ export default function HomePage({
         {/* Right rail */}
         <AutomationsRightRail>
           <Card>
-            <CardHeader title={`Review queue (${reviewQueue.length + 15})`} />
+            <CardHeader title={`Review queue (${reviewQueue.length})`} />
             <div className="space-y-1 p-2">
               {reviewQueue.map((q) => (
                 <button
@@ -256,37 +256,19 @@ export default function HomePage({
             <div className="p-4">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <div className="text-lg font-semibold text-slate-900">312</div>
-                  <div className="text-[11px] text-slate-400">Runs</div>
+                  <div className="text-lg font-semibold text-slate-900">{rows.length}</div>
+                  <div className="text-[11px] text-slate-400">Automations</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-emerald-600">98.1%</div>
-                  <div className="text-[11px] text-slate-400">Success</div>
+                  <div className="text-lg font-semibold text-emerald-600">{rows.filter((r) => r.status === "live" && r.enabled).length}</div>
+                  <div className="text-[11px] text-slate-400">Live</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-red-500">1.9%</div>
-                  <div className="text-[11px] text-slate-400">Errors</div>
+                  <div className="text-lg font-semibold text-slate-500">{rows.filter((r) => r.status === "paused" || !r.enabled).length}</div>
+                  <div className="text-[11px] text-slate-400">Paused</div>
                 </div>
               </div>
-              <div className="mt-3 h-12">
-                <MiniLine data={[20, 28, 24, 32, 30, 38, 36, 42]} color="#6366f1" />
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <CardHeader title="Top templates" action={<button onClick={() => router.push("/property-manager/automations/recipes")} className="text-xs font-medium text-blue-600 hover:underline">View all</button>} />
-            <div className="p-2">
-              {[
-                ["Rent overdue → draft chase", "Used 124 times"],
-                ["Lease expiry → renewal", "Used 112 times"],
-                ["New maintenance → triage", "Used 98 times"],
-              ].map(([name, sub]) => (
-                <button key={name} onClick={() => router.push("/property-manager/automations/recipes")} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left hover:bg-slate-50">
-                  <span className="text-sm text-slate-700">{name}</span>
-                  <span className="text-xs text-slate-400">{sub}</span>
-                </button>
-              ))}
+              <p className="mt-3 text-[11px] text-slate-400">Run success rate appears here once your automations start executing.</p>
             </div>
           </Card>
 
@@ -294,10 +276,10 @@ export default function HomePage({
             <div className="flex items-start gap-2.5 p-4">
               <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
               <div>
-                <h3 className="text-sm font-semibold text-violet-900">AI suggestion</h3>
-                <p className="mt-1 text-xs text-violet-800">Auto-approve low-risk supplier invoices under £250 to save ~3h/week.</p>
+                <h3 className="text-sm font-semibold text-violet-900">Build with AI</h3>
+                <p className="mt-1 text-xs text-violet-800">Describe what you want to automate and the AI Builder will draft a review-first automation for you.</p>
                 <button onClick={() => router.push("/property-manager/automations/ai-builder")} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-violet-700 hover:underline">
-                  Review suggestion <ChevronRight className="h-3 w-3" />
+                  Open AI Builder <ChevronRight className="h-3 w-3" />
                 </button>
               </div>
             </div>

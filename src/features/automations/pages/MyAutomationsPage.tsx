@@ -70,12 +70,22 @@ export default function MyAutomationsPage() {
       { key: "version", header: "Version", render: (r) => <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500">{r.version}</span> },
       {
         key: "enabled", header: "Enabled", render: (r) => (
-          <Toggle on={enabled[r.id] ?? r.enabled} onChange={(v) => { setEnabled((s) => ({ ...s, [r.id]: v })); toast(v ? `${r.name} enabled` : `${r.name} paused`) }} />
+          <Toggle on={enabled[r.id] ?? r.enabled} onChange={(v) => { setEnabled((s) => ({ ...s, [r.id]: v })); toast(v ? "Open the automation to publish this change" : "Open the automation to pause it") }} />
         ),
       },
-      { key: "menu", header: "", render: () => <button className="text-slate-400 hover:text-slate-700">⋯</button> },
+      {
+        key: "menu", header: "", render: (r) => (
+          <button
+            aria-label={`Open ${r.name}`}
+            onClick={() => router.push(`/property-manager/automations/canvas/${r.id}`)}
+            className="text-slate-400 hover:text-slate-700"
+          >
+            ⋯
+          </button>
+        ),
+      },
     ],
-    [enabled, toast],
+    [enabled, toast, router],
   )
 
   function toggleRow(id: string) {
@@ -101,7 +111,7 @@ export default function MyAutomationsPage() {
       icon={Bot}
       actions={actions}
     >
-      {/* KPIs derived from loaded data */}
+      {/* KPIs derived from loaded automations (honest 0 when empty) */}
       {(() => {
         const liveCount = rows.filter((r) => r.status === "live" && r.enabled).length
         const pausedCount = rows.filter((r) => r.status === "paused" || !r.enabled).length
@@ -121,7 +131,7 @@ export default function MyAutomationsPage() {
 
       {/* Filters */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30" />
+        <input placeholder="Search…" className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
         {["Status", "Owner", "Module", "Frequency", "Last run", "Category"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}: All</span>
         ))}
@@ -180,11 +190,11 @@ export default function MyAutomationsPage() {
                       centerLabel={`${total}`}
                       centerSub="total"
                       slices={[
-                        { label: "Excellent", value: excellent || 1, color: "#10b981" },
+                        { label: "Excellent", value: excellent || 0, color: "#10b981" },
                         { label: "Good", value: good || 0, color: "#3b82f6" },
                         { label: "Fair", value: fair || 0, color: "#f59e0b" },
                         { label: "Poor", value: poor || 0, color: "#ef4444" },
-                        { label: "Unknown", value: unknown || 0, color: "#cbd5e1" },
+                        { label: "Unknown", value: unknown || 1, color: "#cbd5e1" },
                       ]}
                     />
                     <div className="space-y-1 text-xs">
@@ -207,7 +217,7 @@ export default function MyAutomationsPage() {
                 <Card>
                   <CardHeader title="Automation usage" />
                   <div className="p-4">
-                    <div className="text-xs text-slate-400">Usage data requires live backend connection.</div>
+                    <div className="text-xs text-slate-400">Execution usage appears here once your automations start running.</div>
                   </div>
                 </Card>
               </>

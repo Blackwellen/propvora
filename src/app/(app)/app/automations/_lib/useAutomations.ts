@@ -17,15 +17,21 @@ export function useRules(workspaceId: string | undefined) {
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
-    if (!workspaceId) return
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("smart_rules")
-      .select("*")
-      .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: false })
-    setRules((data as SmartRule[]) ?? [])
-    setLoading(false)
+    if (!workspaceId) { setLoading(false); return }
+    try {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("smart_rules")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false })
+      setRules((data as SmartRule[]) ?? [])
+    } catch {
+      // 42P01 / RLS — honest empty.
+      setRules([])
+    } finally {
+      setLoading(false)
+    }
   }, [workspaceId])
 
   useEffect(() => { void load() }, [load])
@@ -37,19 +43,24 @@ export function useRuns(workspaceId: string | undefined) {
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
-    if (!workspaceId) return
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("smart_rule_runs")
-      .select("*, rule:smart_rules(id, name, trigger_type, action_type), action:smart_rule_actions(action_type, payload, status, result)")
-      .eq("workspace_id", workspaceId)
-      .order("triggered_at", { ascending: false })
-      .limit(200)
-    const rows = (data as unknown as Array<RunWithRule & { action: RunWithRule["action"][] }>) ?? []
-    setRuns(
-      rows.map((r) => ({ ...r, action: Array.isArray(r.action) ? (r.action[0] ?? null) : r.action })) as RunWithRule[],
-    )
-    setLoading(false)
+    if (!workspaceId) { setLoading(false); return }
+    try {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("smart_rule_runs")
+        .select("*, rule:smart_rules(id, name, trigger_type, action_type), action:smart_rule_actions(action_type, payload, status, result)")
+        .eq("workspace_id", workspaceId)
+        .order("triggered_at", { ascending: false })
+        .limit(200)
+      const rows = (data as unknown as Array<RunWithRule & { action: RunWithRule["action"][] }>) ?? []
+      setRuns(
+        rows.map((r) => ({ ...r, action: Array.isArray(r.action) ? (r.action[0] ?? null) : r.action })) as RunWithRule[],
+      )
+    } catch {
+      setRuns([])
+    } finally {
+      setLoading(false)
+    }
   }, [workspaceId])
 
   useEffect(() => { void load() }, [load])

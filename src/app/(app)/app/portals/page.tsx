@@ -1,11 +1,11 @@
-﻿"use client"
+"use client"
 
-import { useMemo, useState, useEffect, Suspense } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
   KeyRound, Clock, Upload, XCircle, Plus, Globe, ShieldCheck,
-  ArrowUpRight, AlertTriangle, Users,
+  ArrowUpRight, Users,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { SectionHeader } from "@/components/layout/SectionHeader"
@@ -23,21 +23,15 @@ function isExpiringSoon(expiresAt: string | null): boolean {
   return t > now && t - now < 7 * 24 * 60 * 60 * 1000
 }
 
-// Isolated component to safely consume useSearchParams inside a Suspense boundary.
-// Next.js requires components using useSearchParams to be wrapped in <Suspense>
-// to avoid breaking static prerendering in the production build.
-function SearchParamInit({ onNew }: { onNew: () => void }) {
-  const searchParams = useSearchParams()
-  useEffect(() => {
-    if (searchParams.get("new") === "1") onNew()
-  }, [searchParams, onNew])
-  return null
-}
-
-function PortalsOverviewInner() {
+export default function PortalsOverviewPage() {
   const { workspace } = useWorkspace()
   const { data: grants = [], isLoading } = usePortalGrants(workspace?.id)
   const [showGrant, setShowGrant] = useState(false)
+  // Open the grant modal when arrived via the global "New" quick-create (?new=1).
+  const _searchParams = useSearchParams()
+  useEffect(() => {
+    if (_searchParams.get("new") === "1") setShowGrant(true)
+  }, [_searchParams])
 
   const kpis = useMemo(() => {
     const active = grants.filter((g) => ["active", "opened", "email_sent", "created"].includes(g.status) && g.status !== "revoked").length
@@ -53,7 +47,7 @@ function PortalsOverviewInner() {
   const KPI_CARDS = [
     { label: "Active grants", value: kpis.active, icon: KeyRound, tint: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Expiring (7d)", value: kpis.expiring, icon: Clock, tint: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Uploads awaiting review", value: 0, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50", note: "Provisioned with public portal" },
+    { label: "Uploads awaiting review", value: 0, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50" },
     { label: "Revoked", value: kpis.revoked, icon: XCircle, tint: "text-red-500", bg: "bg-red-50" },
   ]
 
@@ -90,7 +84,6 @@ function PortalsOverviewInner() {
                   {isLoading ? "—" : k.value}
                 </p>
                 <p className="text-xs font-medium text-slate-500 mt-0.5">{k.label}</p>
-                {k.note && <p className="text-[10px] text-slate-400 mt-1">{k.note}</p>}
               </div>
             )
           })}
@@ -101,7 +94,7 @@ function PortalsOverviewInner() {
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">Recent portal grants</h3>
-              <Link href="/property-manager/portals/access" className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+              <Link href="/app/portals/access" className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
                 View all <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -131,7 +124,7 @@ function PortalsOverviewInner() {
                   return (
                     <Link
                       key={g.id}
-                      href={`/property-manager/portals/access/${g.id}`}
+                      href={`/app/portals/access/${g.id}`}
                       className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/60 transition-colors"
                     >
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
@@ -168,7 +161,7 @@ function PortalsOverviewInner() {
                   <Plus className="w-4 h-4" /> Grant portal access
                 </button>
                 <Link
-                  href="/property-manager/portals/profiles"
+                  href="/app/portals/profiles"
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 transition-colors"
                 >
                   Manage profiles
@@ -176,16 +169,15 @@ function PortalsOverviewInner() {
               </div>
             </div>
 
-            {/* Portal link info */}
+            {/* Recipient portal status */}
             <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-4">
               <div className="flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-emerald-800 mb-1">Secure recipient portal active</p>
+                  <p className="text-xs font-semibold text-emerald-800 mb-1">Recipient portal active</p>
                   <p className="text-[11px] text-emerald-700 leading-relaxed">
-                    Tokens are hashed server-side. Recipients access documents, invoices and jobs at
-                    <span className="font-mono text-[10px] ml-1">/portal?token=…</span>.
-                    Revoke any grant instantly from the Access Grants page.
+                    Grants are provisioned here (server-side hashed token). Recipients open their scoped portal
+                    via the secure link — token entry, expiry and revoked states are all live.
                   </p>
                 </div>
               </div>
@@ -213,15 +205,6 @@ function PortalsOverviewInner() {
           onClose={() => setShowGrant(false)}
         />
       )}
-
-      {/* useSearchParams must be inside a Suspense boundary for prod build */}
-      <Suspense fallback={null}>
-        <SearchParamInit onNew={() => setShowGrant(true)} />
-      </Suspense>
     </DashboardContainer>
   )
-}
-
-export default function PortalsOverviewPage() {
-  return <PortalsOverviewInner />
 }

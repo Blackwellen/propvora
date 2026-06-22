@@ -16,7 +16,10 @@ interface Invoice {
   pdf: string
 }
 
-const INVOICES: Invoice[] = []
+// Invoices are issued and stored by Stripe — they are retrieved through the
+// billing portal, not fabricated here. Until that integration surfaces them in
+// the app we show an honest empty state rather than placeholder invoices.
+const LIVE_INVOICES: Invoice[] = []
 
 const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
   paid:    { bg: "bg-emerald-50", text: "text-emerald-700", label: "Paid"    },
@@ -27,12 +30,12 @@ const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: st
 export default function InvoicesPage() {
   const [search, setSearch] = useState("")
 
-  const filtered = INVOICES.filter(inv =>
+  const filtered = LIVE_INVOICES.filter(inv =>
     inv.description.toLowerCase().includes(search.toLowerCase()) ||
     inv.id.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalPaid = INVOICES
+  const totalPaid = LIVE_INVOICES
     .filter(i => i.status === "paid")
     .reduce((sum, i) => sum + parseFloat(i.amount.replace("£", "")), 0)
 
@@ -47,9 +50,9 @@ export default function InvoicesPage() {
       {/* Summary row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total invoices", value: `${INVOICES.length}`, sub: "All time" },
+          { label: "Total invoices", value: `${LIVE_INVOICES.length}`, sub: "All time" },
           { label: "Total paid",     value: `£${totalPaid.toFixed(2)}`, sub: "This year" },
-          { label: "Next invoice",   value: "—", sub: "No upcoming invoice" },
+          { label: "Next invoice",   value: "—", sub: "Managed in Stripe" },
         ].map(stat => (
           <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">{stat.label}</p>
@@ -73,10 +76,13 @@ export default function InvoicesPage() {
               className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-[12.5px] text-slate-700 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
             />
           </div>
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+          <a
+            href="/property-manager/workspace-settings/subscription"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          >
             <Download className="w-3.5 h-3.5" />
-            Export all
-          </button>
+            Billing portal
+          </a>
         </div>
 
         {/* Table (desktop) / card list (mobile) */}
@@ -111,7 +117,8 @@ export default function InvoicesPage() {
           emptyState={
             <div className="px-5 py-10 text-center">
               <FileText className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-              <p className="text-[13px] text-slate-400">No invoices found</p>
+              <p className="text-[13px] text-slate-500 font-medium">No invoices yet</p>
+              <p className="text-[12px] text-slate-400 mt-1 max-w-xs mx-auto">Your billing invoices are issued by Stripe. Open the billing portal to view and download them.</p>
             </div>
           }
         >

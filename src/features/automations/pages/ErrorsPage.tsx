@@ -11,14 +11,6 @@ import { Btn, Card, useToast } from "../components/primitives"
 import { useAutomationErrors } from "../data/hooks"
 import type { ErrorRow } from "../data/types"
 
-const TABS = [
-  { id: "queue", label: "Error queue" },
-  { id: "incidents", label: "Incidents" },
-  { id: "muted", label: "Muted" },
-  { id: "resolved", label: "Resolved" },
-  { id: "all", label: "All errors" },
-]
-
 const STATUS_LABEL: Record<ErrorRow["status"], { label: string; status: string }> = {
   active: { label: "Active", status: "active" },
   needs_config: { label: "Needs config", status: "review" },
@@ -31,7 +23,17 @@ export default function ErrorsPage() {
   const { data: errors, loading } = useAutomationErrors()
   const [tab, setTab] = useState("queue")
   const [page, setPage] = useState(1)
-  const [active, setActive] = useState<ErrorRow>(errors[0])
+  const [active, setActive] = useState<ErrorRow | undefined>(errors[0])
+
+  const openCount = errors.filter((e) => e.status === "active").length
+  const needsConfig = errors.filter((e) => e.status === "needs_config").length
+  const resolvedCount = errors.filter((e) => e.status === "resolved").length
+  const TABS = [
+    { id: "queue", label: "Error queue", count: openCount },
+    { id: "needs_config", label: "Needs config", count: needsConfig },
+    { id: "resolved", label: "Resolved", count: resolvedCount },
+    { id: "all", label: "All errors", count: errors.length },
+  ]
   const [detailTab, setDetailTab] = useState<"details" | "remediation">("details")
   const [selected, setSelected] = useState<string[]>([])
 
@@ -71,42 +73,23 @@ export default function ErrorsPage() {
       iconTone="red"
       actions={actions}
     >
-      {(() => {
-        const openCount = errors.filter((e) => e.status !== "resolved").length
-        const criticalCount = errors.filter((e) => e.severity === "critical").length
-        const retriesCount = errors.filter((e) => e.safeToRetry && (e.retriesRemaining ?? 0) > 0).length
-        return (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <AutomationsKpiCard label="Open errors" value={openCount} icon={Bug} tone="red" />
-            <AutomationsKpiCard label="Critical incidents" value={criticalCount} icon={AlertTriangle} tone="red" />
-            <AutomationsKpiCard label="Muted alerts" value={0} sub="No muted alerts" icon={BellOff} tone="slate" />
-            <AutomationsKpiCard label="Retries pending" value={retriesCount} icon={RefreshCw} tone="amber" />
-            <AutomationsKpiCard label="Mean time to resolution" value="—" sub="Requires live data" icon={Clock} tone="violet" />
-          </div>
-        )
-      })()}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <AutomationsKpiCard label="Open errors" value={openCount} icon={Bug} tone="red" />
+        <AutomationsKpiCard label="Critical" value={errors.filter((e) => e.severity === "critical").length} icon={AlertTriangle} tone="red" />
+        <AutomationsKpiCard label="Needs config" value={needsConfig} icon={BellOff} tone="slate" />
+        <AutomationsKpiCard label="Resolved" value={resolvedCount} icon={Clock} tone="violet" />
+      </div>
 
-      {(() => {
-        const tabCounts: Record<string, number | undefined> = {
-          queue: errors.filter((e) => e.status === "active").length,
-          incidents: errors.filter((e) => e.severity === "critical").length,
-          muted: 0,
-          resolved: errors.filter((e) => e.status === "resolved").length,
-          all: undefined,
-        }
-        return (
-          <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
-                {t.label}{tabCounts[t.id] != null && <span className="ml-1 text-slate-400">{tabCounts[t.id]}</span>}
-              </button>
-            ))}
-          </div>
-        )
-      })()}
+      <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
+        {TABS.map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
+            {t.label}{t.count != null && <span className="ml-1 text-slate-400">{t.count}</span>}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30" />
+        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
         {["Critical", "Active", "Resolved", "Needs config", "External integration", "More filters"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>
         ))}
