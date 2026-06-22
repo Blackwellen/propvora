@@ -1,0 +1,46 @@
+# Certificate Flow
+
+A Blackwellen Ltd product. Repository: https://github.com/Blackwellen/certificate-flow
+
+> A compliance, governance and assurance operating system for regulated
+> organisations — built for businesses, charities, schools, multi-academy
+> trusts, faith bodies and audit firms across the UK, EU, US, Canada,
+> Australia and New Zealand.
+
+## What it is
+Certificate Flow is a multi-tenant SaaS platform that helps regulated
+organisations operationalise compliance, governance and assurance work in one
+place — turning obligations, controls and evidence into a tracked, audit-ready
+workflow.
+
+## Who it is for
+Businesses, charities, schools, multi-academy trusts, faith bodies and audit
+firms in the UK, EU, US, Canada, Australia and New Zealand.
+
+## Key features
+- Proof-first action plane with evidence-state tracking
+- Continuous assurance scoring across compliance domains
+- Audit-ready immutable event logging with watermarked exports
+- Sector-specific compliance packs
+- AI co-pilot for drafting, summarisation and field extraction
+- Risk registers, control libraries and obligations tracking
+- DSAR pipelines and privacy management
+- Enterprise SSO (SAML 2.0) and SCIM provisioning
+- Stripe billing with multi-currency support
+
+## Tech stack
+React, Vite, TypeScript, Tailwind CSS, shadcn/ui; Supabase (PostgreSQL, Auth,
+Storage, Edge Functions); Stripe for billing; pluggable AI providers; Vitest
+for testing.
+
+## Status
+In active development. Features above reflect the repository's documented scope.
+
+## Relationship to Propvora
+Certificate Flow is a separate, broader multi-sector compliance/assurance
+product. Propvora is a UK property-operations and compliance platform; the two
+share a compliance focus but target different users and are not the same product.
+
+## Notes
+Certificate Flow is a Blackwellen Ltd product. No guaranteed-outcome claims are
+made. Contact listed in the repository: contact@certificateflow.com

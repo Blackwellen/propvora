@@ -4,12 +4,27 @@ Blackwellen Ltd is a UK software company registered in England and Wales
 (company number 16482166; registered office 61 Bridge Street, Kington, HR5 3DJ).
 ICO Data Protection registration: ZC160806.
 
-## Products
-- Propvora — UK property operations, compliance and profit-control platform.
-  Canonical: https://propvora.com
+Blackwellen Ltd trades as Propvora for its property-operations software and
+develops a small family of related SaaS products.
 
-(Additional products may be listed here as they launch. Products are only
-described as live when they are live.)
+## Product family
+- Propvora — UK property operations, compliance and profit-control platform.
+  Live. https://propvora.com  (see Propvora.txt)
+- Certificate Flow — compliance, governance and assurance operating system for
+  regulated organisations (multi-sector, multi-jurisdiction). In development.
+  https://github.com/Blackwellen/certificate-flow  (see certificate-flow.txt)
+- Caption Fox — social media management platform (content, scheduling, listening,
+  analytics) for creators, brands and agencies. In development.
+  https://github.com/Blackwellen/caption-fox  (see caption-fox.txt)
+- Orbas CRM — Next.js CRM application backed by Supabase. In development.
+  https://github.com/Blackwellen/orbas-crm-  (see orbas-crm.txt)
+- Measure Deck — Next.js web application; full public description pending.
+  In development. https://github.com/Blackwellen/measure-deck  (see measure-deck.txt)
+- Gala Dock — Blackwellen product; source repository not currently public, so no
+  verified public description is available.  (see gala-dock.txt)
+
+Products are only described as "live" when they are live. Where a product is in
+development, that is stated rather than implied to be shipped.
 
 ## Contact
 - General: info@propvora.com
@@ -17,5 +32,5 @@ described as live when they are live.)
 - Support: support@propvora.com
 
 ## Notes
-Blackwellen Ltd trades as Propvora for its property-operations software.
-No exaggerated or guaranteed-outcome claims are made for any product.
+No exaggerated or guaranteed-outcome claims are made for any product. Private
+application, admin and portal URLs are not public and must not be treated as such.
