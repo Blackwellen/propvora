@@ -10,24 +10,25 @@ import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill, disputeTone } from "../components/StatusPill"
-import type { Dispute } from "../data/bookings"
+import type { CustomerDisputeLive } from "../data/disputes-map"
 
-const disputes: Dispute[] = []
+type Dispute = CustomerDisputeLive
 
-const KPIS = [
-  { id: "open", label: "Open disputes", value: "0", sub: "Require attention", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
-  { id: "await", label: "Awaiting response", value: "0", sub: "From host or Propvora", icon: Clock, bg: "bg-violet-50 text-violet-600" },
-  { id: "evidence", label: "Evidence submitted", value: "0", sub: "Across all disputes", icon: FileText, bg: "bg-blue-50 text-blue-600" },
-  { id: "refund", label: "Refund in progress", value: "—", sub: "No active refunds", icon: PoundSterling, bg: "bg-emerald-50 text-emerald-600" },
-  { id: "resolved", label: "Resolved cases", value: "0", sub: "Last 12 months", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
-]
-
-export default function DisputesClient() {
+export default function DisputesClient({ disputes = [] }: { disputes?: CustomerDisputeLive[] }) {
   const { toast } = useCustomerToast()
   const open = disputes.filter((d) => !d.past)
   const past = disputes.filter((d) => d.past)
   const [selectedId, setSelectedId] = useState(open[0]?.id ?? "")
   const selected = disputes.find((d) => d.id === selectedId) ?? open[0]
+
+  const refundInProgress = disputes.filter((d) => d.status === "Refund in progress")
+  const KPIS = [
+    { id: "open", label: "Open disputes", value: String(open.length), sub: "Require attention", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
+    { id: "await", label: "Awaiting response", value: String(disputes.filter((d) => d.status.startsWith("Awaiting")).length), sub: "From host or Propvora", icon: Clock, bg: "bg-violet-50 text-violet-600" },
+    { id: "evidence", label: "Evidence submitted", value: String(disputes.reduce((s, d) => s + d.evidenceCount, 0)), sub: "Across all disputes", icon: FileText, bg: "bg-blue-50 text-blue-600" },
+    { id: "refund", label: "Refund in progress", value: refundInProgress.length ? formatPence(refundInProgress.reduce((s, d) => s + d.claimedPence, 0), "GBP") : "—", sub: refundInProgress.length ? "Across active refunds" : "No active refunds", icon: PoundSterling, bg: "bg-emerald-50 text-emerald-600" },
+    { id: "resolved", label: "Resolved cases", value: String(past.length), sub: "Last 12 months", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
+  ]
 
   return (
     <div className="space-y-5">
@@ -171,37 +172,43 @@ function DisputePanel({ d, toast }: { d: Dispute; toast: (m: string, k?: "succes
 
       <div className="mt-4 pt-4 border-t border-slate-100">
         <p className="text-[12.5px] font-semibold text-slate-700 mb-2">Timeline</p>
-        <ol className="space-y-3">
-          <TL icon={PoundSterling} tone="emerald" title="Dispute raised" sub={`${d.raised}, 14:32`} detail="You raised a dispute and provided initial details." />
-          <TL icon={FileText} tone="blue" title="Evidence submitted" sub="You submitted 4 photos and a video.">
-            <div className="flex gap-1.5 mt-1.5">
-              {[d.image, "/property-types/sa.jpg", "/property-types/holiday.jpg", "/property-types/mixed.jpg"].map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={src} alt="" className="w-12 h-10 rounded-md object-cover" />
-              ))}
-            </div>
-          </TL>
-          <TL icon={Clock} tone="amber" title="Awaiting host response" detail="The host has 48 hours to respond to your dispute." />
-          <TL icon={CheckCircle2} tone="slate" title="If unresolved" detail="We'll step in to review and help resolve this case." last />
-        </ol>
+        {d.timeline.length === 0 ? (
+          <p className="text-[12px] text-slate-400 py-2">No activity recorded yet.</p>
+        ) : (
+          <ol className="space-y-3">
+            {d.timeline.map((t, i) => (
+              <TL
+                key={t.id}
+                icon={TL_ICON[t.kind] ?? Clock}
+                tone={TL_KIND_TONE[t.kind] ?? "slate"}
+                title={t.title}
+                sub={t.at}
+                detail={t.sub}
+                last={i === d.timeline.length - 1}
+              />
+            ))}
+          </ol>
+        )}
       </div>
 
       <div className="mt-4 pt-4 border-t border-slate-100">
-        <div className="flex items-center justify-between mb-2"><p className="text-[12.5px] font-semibold text-slate-700">Messages</p><button className="text-[11.5px] font-semibold text-blue-600">View all</button></div>
-        <div className="space-y-2">
-          <Msg who="You" when={`${d.raised}, 14:32`} text="The hot tub was a key reason for booking this property and it was unavailable throughout our stay." />
-          <Msg who="Propvora Support" when={`${d.raised}, 15:10`} support text="Thank you for raising this. We've notified the host and will update you shortly." />
-        </div>
+        <div className="flex items-center justify-between mb-2"><p className="text-[12.5px] font-semibold text-slate-700">Messages</p></div>
+        {d.messages.length === 0 ? (
+          <p className="text-[12px] text-slate-400 py-2">No messages yet. Use “Message support” to start the conversation.</p>
+        ) : (
+          <div className="space-y-2">
+            {d.messages.map((m) => <Msg key={m.id} who={m.who} when={m.when} text={m.text} support={m.support} />)}
+          </div>
+        )}
       </div>
 
       <div className="mt-4 pt-4 border-t border-slate-100">
-        <div className="flex items-center justify-between mb-2"><p className="text-[12.5px] font-semibold text-slate-700">Evidence (5)</p><button className="text-[11.5px] font-semibold text-blue-600">View all</button></div>
-        <div className="grid grid-cols-4 gap-1.5">
-          {[d.image, "/property-types/sa.jpg", "/property-types/holiday.jpg", "/property-types/mixed.jpg"].map((src, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={src} alt="" className="w-full h-14 rounded-md object-cover" />
-          ))}
-        </div>
+        <div className="flex items-center justify-between mb-2"><p className="text-[12.5px] font-semibold text-slate-700">Evidence ({d.evidenceCount})</p></div>
+        {d.evidenceCount === 0 ? (
+          <p className="text-[12px] text-slate-400 py-2">No evidence submitted yet.</p>
+        ) : (
+          <p className="text-[12px] text-slate-500 py-1">{d.evidenceCount} item{d.evidenceCount === 1 ? "" : "s"} on file.</p>
+        )}
       </div>
     </aside>
   )
@@ -223,6 +230,8 @@ function Mini({ label, value }: { label: string; value: string }) {
   return <div><p className="text-[10px] text-slate-400 leading-tight">{label}</p><p className="text-[12px] font-semibold text-slate-800 mt-0.5">{value}</p></div>
 }
 const TL_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", blue: "bg-blue-100 text-blue-600", amber: "bg-amber-100 text-amber-600", slate: "bg-slate-100 text-slate-400" }
+const TL_KIND_TONE: Record<string, string> = { info: "slate", action: "blue", evidence: "blue", decision: "emerald", warning: "amber" }
+const TL_ICON: Record<string, typeof Clock> = { info: Clock, action: ArrowUpRight, evidence: FileText, decision: CheckCircle2, warning: AlertTriangle }
 function TL({ icon: Icon, tone, title, sub, detail, children, last }: { icon: typeof Clock; tone: string; title: string; sub?: string; detail?: string; children?: React.ReactNode; last?: boolean }) {
   return (
     <li className="relative flex gap-3">

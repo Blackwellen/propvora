@@ -1,7 +1,10 @@
+import { notFound } from "next/navigation"
 import DisputeStagesPage from "@/features/customer/bookings/DisputeStagesPage"
-import { findDispute, disputes } from "@/features/customer/data/bookings"
+import { loadDisputesForUser } from "@/lib/disputes/load"
+import { mapToCustomerDispute } from "@/features/customer/data/disputes-map"
 
 export const metadata = { title: "Dispute · Propvora" }
+export const dynamic = "force-dynamic"
 
 export default async function CustomerDisputeStagesRoute({
   params,
@@ -9,6 +12,15 @@ export default async function CustomerDisputeStagesRoute({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const dispute = findDispute(id) ?? disputes[0]
-  return <DisputeStagesPage d={dispute} bookingId={id} />
+  const { items } = await loadDisputesForUser()
+  const key = id.toLowerCase()
+  const rich = items.find(
+    (d) =>
+      d.id.toLowerCase() === key ||
+      d.reference.toLowerCase() === key ||
+      d.booking_reference.toLowerCase() === key ||
+      d.booking_id.toLowerCase() === key,
+  )
+  if (!rich) notFound()
+  return <DisputeStagesPage d={mapToCustomerDispute(rich)} bookingId={rich.booking_reference} />
 }

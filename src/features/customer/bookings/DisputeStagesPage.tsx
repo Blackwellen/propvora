@@ -7,13 +7,19 @@ import {
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { useCustomerToast } from "../components/toast"
-import { StatusPill } from "../components/StatusPill"
-import { disputeStages, type Dispute } from "../data/bookings"
+import { StatusPill, disputeTone } from "../components/StatusPill"
+import { disputeStages } from "../data/bookings"
+import type { CustomerDisputeLive } from "../data/disputes-map"
 
-export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookingId: string }) {
+export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDisputeLive; bookingId: string }) {
   const { toast } = useCustomerToast()
-  const stageDates = ["7 Jun 2025", "7 Jun 2025", "Due by 12 Jun 2025", "Starts after host response", "Pending decision", "Case closed"]
-  const caseId = `DP-${bookingId.replace(/[^A-Z0-9]/gi, "").slice(-5)}`
+  // Stage dates derived from the real audit timeline where one exists, else neutral.
+  const stageDates = disputeStages.map((_, i) => {
+    if (i < d.stageIndex) return d.timeline[Math.min(i, d.timeline.length - 1)]?.at ?? "Completed"
+    if (i === d.stageIndex) return "In progress"
+    return "Pending"
+  })
+  const caseId = d.id
 
   return (
     <div className="space-y-5">
@@ -27,9 +33,9 @@ export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookin
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2"><h1 className="text-[24px] font-bold text-slate-900">Dispute {caseId}</h1><StatusPill tone="amber">In progress</StatusPill></div>
-          <p className="text-[13px] text-slate-500 mt-1">Booking {d.bookingRef} · {d.property} · {d.dateRange}</p>
-          <p className="text-[12.5px] text-slate-400 mt-1">You raised a dispute on {d.raised} regarding your stay experience. We're working to resolve this fairly.</p>
+          <div className="flex items-center gap-2"><h1 className="text-[24px] font-bold text-slate-900">Dispute {caseId}</h1><StatusPill tone={disputeTone(d.status)}>{d.status}</StatusPill></div>
+          <p className="text-[13px] text-slate-500 mt-1">Booking {d.bookingRef} · {d.property}</p>
+          <p className="text-[12.5px] text-slate-400 mt-1">You raised a dispute on {d.raised} regarding “{d.reason}”. We're working to resolve this fairly.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/customer/bookings/${bookingId}`} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><ExternalLink className="w-4 h-4" /> View booking</Link>
@@ -61,7 +67,7 @@ export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookin
 
       <div className="bg-blue-50/70 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-2.5">
         <Info className="w-4 h-4 text-blue-500 shrink-0" />
-        <p className="text-[12.5px] text-slate-600">The host has been notified and has until 12 Jun 2025 to respond.</p>
+        <p className="text-[12.5px] text-slate-600">{d.past ? "This case has been resolved. See the timeline for the outcome." : "The host and Propvora have been notified. We’ll update you as the case progresses."}</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr_300px] gap-5 items-start">
@@ -71,11 +77,10 @@ export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookin
             <p className="text-[13px] font-bold text-slate-900 mb-3">Case summary</p>
             <dl className="space-y-2">
               <SumRow l="Dispute reason" r={d.reason} />
-              <SumRow l="Dispute raised" r={`${d.raised}, 10:24`} />
+              <SumRow l="Dispute raised" r={d.raised} />
               <SumRow l="Booking" r={d.bookingRef} link />
-              <SumRow l="Stay dates" r={d.dateRange} />
-              <SumRow l="Total paid" r={formatPence(d.bookingTotalPence, "GBP")} />
-              <SumRow l="Refund requested" r={formatPence(d.claimedPence, "GBP")} />
+              <SumRow l="Amount held" r={formatPence(d.bookingTotalPence, "GBP")} />
+              <SumRow l="Amount disputed" r={formatPence(d.claimedPence, "GBP")} />
               <SumRow l="Case ID" r={caseId} />
             </dl>
             <Link href={`/customer/bookings/${bookingId}`} className="mt-3 flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><ExternalLink className="w-4 h-4" /> View booking details</Link>
@@ -84,56 +89,64 @@ export default function DisputeStagesPage({ d, bookingId }: { d: Dispute; bookin
             <p className="text-[13px] font-bold text-slate-900">Need help?</p>
             <p className="text-[12px] text-slate-500 mt-1">Our support team is here to help you get a fair resolution.</p>
             <button onClick={() => toast("Messaging support…", "info")} className="mt-3 w-full flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><MessageSquare className="w-4 h-4" /> Message support</button>
-            <p className="text-[11px] text-slate-400 mt-2">Average response time: 2h 15m</p>
+            <p className="text-[11px] text-slate-400 mt-2">We aim to respond as quickly as we can.</p>
           </div>
         </div>
 
         {/* Middle: evidence + thread */}
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Evidence submitted (5)</p><button className="text-[12px] font-semibold text-blue-600">View all</button></div>
-            <div className="grid grid-cols-6 gap-2">
-              {[d.image, "/property-types/sa.jpg", "/property-types/holiday.jpg", "/property-types/mixed.jpg", "/property-types/development.jpg"].map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={src} alt="" className="w-full h-16 rounded-lg object-cover" />
-              ))}
-              <button onClick={() => toast("Evidence uploader — coming soon", "info")} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-[10px] text-slate-400 hover:border-blue-300 hover:text-blue-500"><Upload className="w-4 h-4 mb-0.5" /> Upload more</button>
-            </div>
+            <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Evidence submitted ({d.evidenceCount})</p></div>
+            {d.evidenceCount === 0 ? (
+              <button onClick={() => toast("Evidence uploader — coming soon", "info")} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-[11px] text-slate-400 hover:border-blue-300 hover:text-blue-500"><Upload className="w-4 h-4 mb-0.5" /> Upload evidence</button>
+            ) : (
+              <p className="text-[12.5px] text-slate-500">{d.evidenceCount} item{d.evidenceCount === 1 ? "" : "s"} submitted to this case.</p>
+            )}
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Message thread</p><button className="text-[12px] font-semibold text-blue-600 inline-flex items-center gap-1">View full conversation <ChevronRight className="w-3.5 h-3.5" /></button></div>
-            <div className="space-y-3">
-              <ThreadMsg who="You" when={`${d.raised}, 10:24`} text="The property was not as described and was not clean on arrival. There were maintenance issues, mould in the bathroom, and broken furniture." />
-              <ThreadMsg who="Propvora Support" when={`${d.raised}, 10:35`} support text="Thanks for raising this dispute. We've sent the details to your host and they have until 12 Jun 2025 to respond. We'll be in touch." />
-              <div className="flex items-center gap-2 text-[11.5px] text-slate-400 pl-1"><Info className="w-3.5 h-3.5" /> Host notified · {d.raised}, 10:40</div>
-            </div>
+            <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Message thread</p></div>
+            {d.messages.length === 0 ? (
+              <p className="text-[12.5px] text-slate-400 py-2">No messages yet. Use “Message support” to start the conversation.</p>
+            ) : (
+              <div className="space-y-3">
+                {d.messages.map((m) => <ThreadMsg key={m.id} who={m.who} when={m.when} text={m.text} support={m.support} />)}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right: refund + timeline */}
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between"><p className="text-[12.5px] font-semibold text-slate-700">Refund requested</p><StatusPill tone="amber">Pending</StatusPill></div>
+            <div className="flex items-center justify-between"><p className="text-[12.5px] font-semibold text-slate-700">Amount disputed</p><StatusPill tone={disputeTone(d.status)}>{d.status}</StatusPill></div>
             <p className="text-[26px] font-bold text-slate-900 mt-1">{formatPence(d.claimedPence, "GBP")}</p>
-            <p className="text-[11.5px] text-slate-400">Total refund requested</p>
+            <p className="text-[11.5px] text-slate-400">Under review by Propvora</p>
             <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
-              <p className="text-[12px] font-semibold text-slate-700">Breakdown</p>
-              <RowLR l={`${d.nights} nights × £55`} r={formatPence(d.claimedPence, "GBP")} />
-              <RowLR l="Service fee" r="£0.00" />
-              <div className="flex items-center justify-between pt-1.5 border-t border-slate-100"><span className="text-[12.5px] font-semibold text-slate-700">Total</span><span className="text-[13px] font-bold text-slate-900">{formatPence(d.claimedPence, "GBP")}</span></div>
+              <RowLR l="Amount held in escrow" r={formatPence(d.bookingTotalPence, "GBP")} />
+              <RowLR l="Amount disputed" r={formatPence(d.claimedPence, "GBP")} />
+              {d.resolvedNote && <p className="text-[11.5px] text-emerald-600 pt-1">{d.resolvedNote}</p>}
             </div>
-            <button onClick={() => toast("Update refund amount — coming soon", "info")} className="mt-3 w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl py-2.5 text-[13px] font-semibold">Update refund amount</button>
+            <button onClick={() => toast("Messaging support…", "info")} className="mt-3 w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl py-2.5 text-[13px] font-semibold">Message support</button>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
             <p className="text-[13px] font-bold text-slate-900 mb-3">Case timeline</p>
-            <ol className="space-y-3">
-              <Stage icon={CheckCircle2} tone="emerald" title="Dispute opened" sub={`${d.raised}, 10:24`} detail="You raised a dispute" />
-              <Stage icon={CheckCircle2} tone="emerald" title="Evidence submitted" sub={`${d.raised}, 10:30`} detail="You uploaded 5 items of evidence" />
-              <Stage icon={Clock} tone="blue" title="Host response due" sub="12 Jun 2025" detail="Waiting for the host to respond" />
-              <Stage icon={Shield} tone="slate" title="Review / mediation" detail="Starts after host response" />
-              <Stage icon={Shield} tone="slate" title="Resolution" detail="Pending decision" />
-              <Stage icon={Shield} tone="slate" title="Refund / closure" detail="Case closed" last />
-            </ol>
+            {d.timeline.length === 0 ? (
+              <p className="text-[12px] text-slate-400 py-2">No activity recorded yet.</p>
+            ) : (
+              <ol className="space-y-3">
+                {d.timeline.map((t, i) => (
+                  <Stage
+                    key={t.id}
+                    icon={t.kind === "decision" ? CheckCircle2 : t.kind === "warning" ? Clock : Shield}
+                    tone={t.kind === "decision" ? "emerald" : t.kind === "warning" ? "blue" : "slate"}
+                    title={t.title}
+                    sub={t.at}
+                    detail={t.sub}
+                    last={i === d.timeline.length - 1}
+                  />
+                ))}
+              </ol>
+            )}
           </div>
         </div>
       </div>

@@ -147,44 +147,9 @@ export interface Dispute {
   resolvedNote?: string
 }
 
-export const disputes: Dispute[] = [
-  {
-    id: "DP-7K3L9M2N", bookingRef: "BK-9G3H7K2L", property: "Riverside Cottage", location: "Bakewell, DE45 1QY", image: IMG.riverside,
-    dateRange: "6 Jun – 9 Jun 2025", nights: 4, bookingTotalPence: 72000, claimedPence: 18000, refundRequestedPct: 100,
-    reason: "Property not as described", reasonDetail: "The property was advertised as having a private hot tub, which was not available during our stay.",
-    raised: "16 May 2025", status: "Awaiting host response", since: "16 May 2025", stageIndex: 2,
-  },
-  {
-    id: "DP-8J2K1L0M", bookingRef: "BK-J8M2P5Q9", property: "City Loft Apartment", location: "Manchester, M1 2EW", image: IMG.cityLoft,
-    dateRange: "24 Apr – 27 Apr 2025", nights: 3, bookingTotalPence: 48000, claimedPence: 12000, refundRequestedPct: 100,
-    reason: "Cleanliness issue", reasonDetail: "Apartment was not cleaned to standard on arrival.",
-    raised: "10 May 2025", status: "Awaiting Propvora", since: "10 May 2025", stageIndex: 3,
-  },
-  {
-    id: "DP-4X6N9B1D", bookingRef: "BK-4X6N9B1D", property: "Lakeside Cabin", location: "Coniston, LA21", image: IMG.lakeside,
-    dateRange: "1 May – 5 May 2025", nights: 4, bookingTotalPence: 76000, claimedPence: 20000, refundRequestedPct: 100,
-    reason: "Maintenance issue", reasonDetail: "Heating did not work for two nights.",
-    raised: "8 May 2025", status: "Evidence submitted", since: "8 May 2025", stageIndex: 1,
-  },
-  {
-    id: "DP-V7R3T8W5", bookingRef: "BK-V7R3T8W5", property: "Seaside Cottage", location: "Whitby, YO21", image: IMG.seaside,
-    dateRange: "12 Apr – 15 Apr 2025", nights: 3, bookingTotalPence: 51000, claimedPence: 12000, refundRequestedPct: 100,
-    reason: "Service issue", reasonDetail: "Check-in instructions were never sent.",
-    raised: "2 May 2025", status: "Refund in progress", since: "2 May 2025", stageIndex: 4,
-  },
-  {
-    id: "DP-L2K6D4P9", bookingRef: "BK-L2K6D4P9", property: "Meadow View Cottage", location: "Ambleside, LA22", image: IMG.meadow,
-    dateRange: "10 Mar – 13 Mar 2025", nights: 3, bookingTotalPence: 45000, claimedPence: 9000, refundRequestedPct: 100,
-    reason: "Property not as described", reasonDetail: "Resolved in your favour.",
-    raised: "5 Mar 2025", status: "Resolved", since: "28 Mar 2025", stageIndex: 5, past: true, resolvedNote: "Resolved on 28 Mar 2025 · £90 refunded",
-  },
-  {
-    id: "DP-M9H1J3K2", bookingRef: "BK-M9H1J3K2", property: "Harbour Side Apartment", location: "Liverpool, L3 4FP", image: IMG.harbour,
-    dateRange: "18 Feb – 21 Feb 2025", nights: 3, bookingTotalPence: 42000, claimedPence: 0, refundRequestedPct: 0,
-    reason: "Billing query", reasonDetail: "Closed — no refund due.",
-    raised: "20 Feb 2025", status: "Closed", since: "5 Mar 2025", stageIndex: 5, past: true, resolvedNote: "Closed on 5 Mar 2025 · No refund",
-  },
-]
+// Disputes are loaded live from `marketplace_disputes` via @/lib/disputes/load
+// and mapped in @/features/customer/data/disputes-map. No mock rows.
+export const disputes: Dispute[] = []
 
 export const disputeStages: DisputeStage[] = [
   "Opened", "Evidence submitted", "Host response", "Review / mediation", "Resolution", "Refund / closure",
