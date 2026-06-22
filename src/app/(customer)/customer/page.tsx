@@ -384,32 +384,31 @@ export default async function CustomerHomePage() {
       {/* ── Travel summary chart ─────────────────────────────────────────── */}
       <StaysSummaryChart summary={summary} />
 
-      {/* ── Discover banner (branded) ────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0B1B3F] via-[#15294f] to-[#2563EB] p-6 sm:p-9 shadow-[0_24px_48px_-24px_rgba(11,27,63,0.6)]">
-        {/* decorative brand glows */}
-        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#3b82f6]/25 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#0EA5E9]/20 blur-3xl" aria-hidden />
+      {/* ── Discover banner (branded, light) ─────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-[28px] border border-[#E7EDF6] bg-white p-6 sm:p-9 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_40px_-24px_rgba(15,23,42,0.16)]">
+        {/* faint brand accent in the corner */}
+        <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#2563EB]/[0.06] blur-3xl" aria-hidden />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Image
-              src="/propvora-logo-white.png"
+              src="/propvora-logo-dark.png"
               alt="Propvora"
               width={420}
               height={105}
               className="mb-4 h-7 w-auto"
             />
-            <p className="text-[20px] sm:text-[22px] font-bold leading-tight text-white">
+            <p className="text-[20px] sm:text-[22px] font-bold leading-tight text-slate-900">
               Everything you need, in one place
             </p>
-            <p className="mt-1.5 max-w-md text-[14px] text-white/70">
+            <p className="mt-1.5 max-w-md text-[14px] text-slate-500">
               Verified stays, long lets and trusted services across the UK — booked securely with escrow protection.
             </p>
           </div>
           <Link
             href="/stays"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-[14px] font-bold text-[#0B1B3F] shadow-sm transition-transform hover:scale-[1.02]"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-[14px] font-bold text-white shadow-sm transition-colors hover:bg-[#1d4ed8]"
           >
-            <Sparkles className="h-4 w-4 text-[#2563EB]" /> Explore the marketplace <ArrowUpRight className="h-4 w-4" />
+            <Sparkles className="h-4 w-4" /> Explore the marketplace <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
