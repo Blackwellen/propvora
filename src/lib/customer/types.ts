@@ -71,6 +71,8 @@ export interface CustomerBooking {
   /** Joined stay title, when the booking is backed by a booking_listing. */
   listing_title?: string | null
   listing_slug?: string | null
+  listing_type?: string | null
+  let_type?: string | null
 }
 
 /** A marketplace order — the BUYER side of a marketplace_transaction. */

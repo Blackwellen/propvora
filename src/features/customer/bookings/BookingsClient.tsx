@@ -7,8 +7,6 @@ import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import type { Booking } from "../data/bookings"
 import BookingsKpiStrip from "./components/BookingsKpiStrip"
-
-const bookings: Booking[] = []
 import BookingsTabBar from "./components/BookingsTabBar"
 import BookingsToolbar from "./components/BookingsToolbar"
 import BookingsTableView from "./components/BookingsTableView"
@@ -25,7 +23,7 @@ function PageBtn({ children, active }: { children: React.ReactNode; active?: boo
   return <button className={cn("min-w-[30px] h-[30px] rounded-lg text-[12.5px] font-semibold inline-flex items-center justify-center", active ? "bg-blue-600 text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50")}>{children}</button>
 }
 
-export default function BookingsClient({ initialView = "overview" }: { initialView?: View }) {
+export default function BookingsClient({ initialView = "overview", bookings = [] }: { initialView?: View; bookings?: Booking[] }) {
   const router = useRouter()
   const { toast } = useCustomerToast()
   const [view, setView] = useState<View>(initialView)
@@ -37,7 +35,7 @@ export default function BookingsClient({ initialView = "overview" }: { initialVi
     if (tab === "stays") return bookings.filter((b) => b.type === "Stay")
     if (tab === "lets") return bookings.filter((b) => b.type === "Let")
     return bookings
-  }, [tab])
+  }, [tab, bookings])
 
   const selected = bookings.find((b) => b.id === selectedId) ?? rows[0]
   const checkedCount = Object.values(checked).filter(Boolean).length

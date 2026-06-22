@@ -212,16 +212,18 @@ const BOOKING_COLS =
   "id, listing_id, booking_listing_id, property_id, booking_ref, guest_name, guest_email, " +
   "check_in, check_out, nights, guests_count, currency, subtotal_pence, fees_pence, " +
   "deposit_pence, total_pence, status, payment_status, arrival_time, source, created_at, " +
-  "booking_listing:booking_listings(title, slug)"
+  "booking_listing:booking_listings(title, slug, listing_type, let_type)"
 
-/** Flatten the embedded booking_listing join into listing_title/slug. */
+/** Flatten the embedded booking_listing join into listing_title/slug/type. */
 function mapBooking(row: unknown): CustomerBooking {
   const r = (row ?? {}) as Record<string, unknown>
-  const bl = r.booking_listing as { title?: string; slug?: string } | null
+  const bl = r.booking_listing as { title?: string; slug?: string; listing_type?: string; let_type?: string } | null
   return {
     ...(r as unknown as CustomerBooking),
     listing_title: bl?.title ?? null,
     listing_slug: bl?.slug ?? null,
+    listing_type: bl?.listing_type ?? null,
+    let_type: bl?.let_type ?? null,
   }
 }
 
