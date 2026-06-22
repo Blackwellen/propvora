@@ -3,27 +3,17 @@
 import { Suspense, useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Filter, Map, Loader2, X, MapPin, Calendar, Users } from 'lucide-react'
+import { Map, Loader2, X, MapPin, Calendar, Users } from 'lucide-react'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
+import FilterBar, { type FilterDef, type FilterState, rangeOf, selectedOf, countOf, toggleOf } from '@/components/public-marketplace/FilterBar'
 import type { PublicStay } from '@/lib/public-marketplace/types'
 
 const PAGE_SIZE = 12
 
-type FilterKey = 'price' | 'type' | 'beds' | 'pets' | 'instant' | 'verified' | 'short' | 'long'
-
-const CHIPS: { label: string; value: FilterKey }[] = [
-  { label: 'Price ↑', value: 'price' },
-  { label: 'Type ↓', value: 'type' },
-  { label: 'Bedrooms ↓', value: 'beds' },
-  { label: 'Pets', value: 'pets' },
-  { label: 'Instant book', value: 'instant' },
-  { label: 'Verified', value: 'verified' },
-  { label: 'Short lets', value: 'short' },
-  { label: 'Long stays', value: 'long' },
-]
+const STAY_TYPES = ['Entire home', 'Private room', 'Shared room', 'Studio', 'Penthouse']
 
 const SORT_OPTIONS = [
-  { label: 'Sort: Recommended ↓', value: '' },
+  { label: 'Sort: Recommended', value: '' },
   { label: 'Price: Low to high', value: 'price_asc' },
   { label: 'Price: High to low', value: 'price_desc' },
   { label: 'Rating: Highest first', value: 'rating_desc' },
@@ -42,18 +32,29 @@ function StaysFilterInner({ stays }: { stays: PublicStay[] }) {
   const checkOutParam = searchParams?.get('checkOut') ?? ''
   const guestsParam = Number(searchParams?.get('guests') ?? 0)
 
-  const [active, setActive] = useState<Set<FilterKey>>(new Set())
+  const [filterState, setFilterState] = useState<FilterState>({})
   const [sortBy, setSortBy] = useState('')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  function toggle(key: FilterKey) {
-    setActive(prev => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key); else next.add(key)
-      return next
-    })
-  }
+  // Build filter schema from the actual data (price bounds + present types).
+  const filterDefs = useMemo<FilterDef[]>(() => {
+    const prices = stays.map(s => Math.round(s.pricePerNight / 100)).filter(n => n > 0)
+    const minP = prices.length ? Math.max(0, Math.floor(Math.min(...prices) / 10) * 10) : 0
+    const maxP = prices.length ? Math.ceil(Math.max(...prices) / 50) * 50 : 1000
+    const presentTypes = STAY_TYPES.filter(t => stays.some(s => s.stayType === t))
+    return [
+      { id: 'price', label: 'Price', kind: 'range', min: minP, max: maxP, step: 10, prefix: '£' },
+      { id: 'type', label: 'Type', kind: 'multi', options: presentTypes.map(t => ({ value: t, label: t })) },
+      { id: 'beds', label: 'Bedrooms', kind: 'stepper', min: 0, max: 8, suffix: 'beds' },
+      { id: 'baths', label: 'Bathrooms', kind: 'stepper', min: 0, max: 6, suffix: 'baths' },
+      { id: 'pets', label: 'Pets', kind: 'toggle' },
+      { id: 'instant', label: 'Instant book', kind: 'toggle' },
+      { id: 'verified', label: 'Verified', kind: 'toggle' },
+      { id: 'short', label: 'Short lets', kind: 'toggle' },
+      { id: 'long', label: 'Long stays', kind: 'toggle' },
+    ]
+  }, [stays])
 
   const filtered = useMemo(() => {
     let result = [...stays]
@@ -69,26 +70,48 @@ function StaysFilterInner({ stays }: { stays: PublicStay[] }) {
     if (guestsParam > 0) {
       result = result.filter(s => (s.guests ?? 1) >= guestsParam)
     }
-    // Chip filters
-    if (active.has('pets')) result = result.filter(s => s.petsAllowed)
-    if (active.has('instant')) result = result.filter(s => s.instantBook)
-    if (active.has('verified')) result = result.filter(s => s.verified)
-    if (active.has('short')) result = result.filter(s => s.shortLets)
-    if (active.has('long')) result = result.filter(s => s.longStays)
-    if (active.has('beds')) result = result.filter(s => s.beds >= 2)
-    if (active.has('type')) result = result.filter(s => s.stayType === 'Entire home' || s.stayType === 'Studio')
+    // Filter-bar values
+    const priceRange = rangeOf(filterState, 'price')
+    if (priceRange) {
+      const [lo, hi] = priceRange
+      const max = filterDefs.find(d => d.id === 'price')
+      const hiBound = max && max.kind === 'range' ? max.max : hi
+      result = result.filter(s => {
+        const p = s.pricePerNight / 100
+        return p >= lo && (hi >= hiBound ? true : p <= hi)
+      })
+    }
+    const types = selectedOf(filterState, 'type')
+    if (types.length) result = result.filter(s => types.includes(s.stayType))
+    const beds = countOf(filterState, 'beds')
+    if (beds > 0) result = result.filter(s => (s.bedrooms ?? s.beds) >= beds)
+    const baths = countOf(filterState, 'baths')
+    if (baths > 0) result = result.filter(s => s.bathrooms >= baths)
+    if (toggleOf(filterState, 'pets')) result = result.filter(s => s.petsAllowed)
+    if (toggleOf(filterState, 'instant')) result = result.filter(s => s.instantBook)
+    if (toggleOf(filterState, 'verified')) result = result.filter(s => s.verified)
+    if (toggleOf(filterState, 'short')) result = result.filter(s => s.shortLets)
+    if (toggleOf(filterState, 'long')) result = result.filter(s => s.longStays)
+    // Sort
     if (sortBy === 'price_asc') result = [...result].sort((a, b) => a.pricePerNight - b.pricePerNight)
     else if (sortBy === 'price_desc') result = [...result].sort((a, b) => b.pricePerNight - a.pricePerNight)
     else if (sortBy === 'rating_desc') result = [...result].sort((a, b) => b.rating - a.rating)
-    else if (active.has('price')) result = [...result].sort((a, b) => a.pricePerNight - b.pricePerNight)
     return result
-  }, [stays, active, sortBy, locationParam, guestsParam])
+  }, [stays, filterState, filterDefs, sortBy, locationParam, guestsParam])
 
-  const activeCount = active.size + (locationParam ? 1 : 0) + (checkInParam ? 1 : 0) + (guestsParam > 0 ? 1 : 0)
+  const chipActiveCount = filterDefs.reduce((n, d) => {
+    const v = filterState[d.id]
+    if (!v) return n
+    if (d.kind === 'range') return n + (v.range && (v.range[0] > d.min || v.range[1] < d.max) ? 1 : 0)
+    if (d.kind === 'multi') return n + ((v.selected?.length ?? 0) > 0 ? 1 : 0)
+    if (d.kind === 'stepper') return n + ((v.count ?? 0) > (d.min ?? 0) ? 1 : 0)
+    return n + (v.on ? 1 : 0)
+  }, 0)
+  const activeCount = chipActiveCount + (locationParam ? 1 : 0) + (checkInParam ? 1 : 0) + (guestsParam > 0 ? 1 : 0)
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
 
-  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [filtered.length, active, sortBy, locationParam, guestsParam])
+  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [filtered.length, filterState, sortBy, locationParam, guestsParam])
 
   const loadMore = useCallback(() => {
     setVisibleCount(c => Math.min(c + PAGE_SIZE, filtered.length))
@@ -110,38 +133,7 @@ function StaysFilterInner({ stays }: { stays: PublicStay[] }) {
       {/* FILTER CHIPS ROW — sticky */}
       <div className="border-b border-slate-100 bg-white sticky top-20 z-30 py-3">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-            <button className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 relative">
-              <Filter className="h-3.5 w-3.5" />
-              {activeCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{activeCount}</span>
-              )}
-            </button>
-            {CHIPS.map(chip => (
-              <button
-                key={chip.value}
-                onClick={() => toggle(chip.value)}
-                className={[
-                  'shrink-0 px-4 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap',
-                  active.has(chip.value)
-                    ? 'bg-slate-900 text-white border-slate-900'
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50',
-                ].join(' ')}
-              >
-                {chip.label}
-              </button>
-            ))}
-            {activeCount > 0 && (
-              <div className="ml-auto shrink-0">
-                <button
-                  onClick={() => setActive(new Set())}
-                  className="text-blue-600 text-sm font-medium hover:text-blue-700 whitespace-nowrap"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
-          </div>
+          <FilterBar filters={filterDefs} value={filterState} onChange={setFilterState} />
         </div>
       </div>
 
@@ -210,7 +202,7 @@ function StaysFilterInner({ stays }: { stays: PublicStay[] }) {
           <div className="text-center py-24">
             <p className="text-slate-500 text-lg">No stays match your filters.</p>
             <button
-              onClick={() => setActive(new Set())}
+              onClick={() => setFilterState({})}
               className="mt-4 text-blue-600 font-medium hover:text-blue-700 text-sm"
             >
               Clear all filters

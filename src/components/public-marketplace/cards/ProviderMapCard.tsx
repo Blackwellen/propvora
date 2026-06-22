@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, ChevronRight, Clock, Heart, MapPin, Star, Zap } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
+import { guardSave } from '@/lib/public-marketplace/save-guard'
 import type { PublicProvider } from '@/lib/public-marketplace/types'
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -37,8 +38,9 @@ export default function ProviderMapCard({
 
   useEffect(() => { setSaved(getSaved().includes(provider.slug)) }, [provider.slug])
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
+    if (!(await guardSave())) return
     setSaved(toggleSaved(provider.slug))
   }
 

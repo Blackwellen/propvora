@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, MapPin, Shield, Star } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
+import { guardSave } from '@/lib/public-marketplace/save-guard'
 import type { PublicServiceOffer } from '@/lib/public-marketplace/types'
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -42,8 +43,9 @@ export default function ServiceOfferCard({
 
   useEffect(() => { setSaved(getSaved().includes(offer.slug)) }, [offer.slug])
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
+    if (!(await guardSave())) return
     setSaved(toggleSaved(offer.slug))
   }
 

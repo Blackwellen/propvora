@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Bath, BedDouble, Check, Heart, MapPin, Shield, Star, Users, Zap } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
+import { guardSave } from '@/lib/public-marketplace/save-guard'
 import type { PublicStay } from '@/lib/public-marketplace/types'
 
 interface StayCardProps {
@@ -12,8 +13,21 @@ interface StayCardProps {
   basePath?: string
 }
 
+const STORAGE_KEY = 'propvora_saved_stays'
+function getSaved(): string[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') } catch { return [] }
+}
+function toggleSaved(id: string): boolean {
+  const list = getSaved(); const idx = list.indexOf(id)
+  if (idx === -1) { list.push(id) } else { list.splice(idx, 1) }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return idx === -1
+}
+
 export default function StayCard({ stay, basePath = '/stays' }: StayCardProps) {
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => { setSaved(getSaved().includes(stay.slug)) }, [stay.slug])
 
   return (
     <Link href={`${basePath}/${stay.slug}`} className="group block">
@@ -30,10 +44,11 @@ export default function StayCard({ stay, basePath = '/stays' }: StayCardProps) {
           {/* Heart / save button — top right on image */}
           <button
             type="button"
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault()
               e.stopPropagation()
-              setSaved((s) => !s)
+              if (!(await guardSave())) return
+              setSaved(toggleSaved(stay.slug))
             }}
             aria-label={saved ? 'Remove from saved' : 'Save stay'}
             className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-slate-800 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"

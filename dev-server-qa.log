@@ -1,0 +1,13 @@
+
+> propvora-final-release-v.1.0@0.1.0 dev
+> next dev --turbopack -p 3001
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.181:3001
+- Environments: .env.local, .env
+✓ Ready in 1751ms
+- Experiments (use with caution):
+  · optimizePackageImports
+
+○ Compiling / ...

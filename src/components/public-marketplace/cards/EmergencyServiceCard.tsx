@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, Phone, Shield, Siren, Star, Zap } from 'lucide-react'
 import { formatPence } from '@/lib/marketplace/money'
+import { guardSave } from '@/lib/public-marketplace/save-guard'
 import type { PublicEmergencyService } from '@/lib/public-marketplace/types'
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -39,8 +40,9 @@ export default function EmergencyServiceCard({
 
   useEffect(() => { setSaved(getSaved().includes(service.slug)) }, [service.slug])
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
+    if (!(await guardSave())) return
     setSaved(toggleSaved(service.slug))
   }
 

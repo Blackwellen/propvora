@@ -6,49 +6,87 @@ import {
   Search, MapPin, Calendar, Users, ChevronDown,
   List, Map, Star, Zap, Check, Heart, BedDouble, Bath,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import StaysMap from '@/components/public-marketplace/maps/StaysMap'
+import FilterBar, { type FilterDef, type FilterState, rangeOf, selectedOf, countOf, toggleOf } from '@/components/public-marketplace/FilterBar'
 import { SEED_STAYS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
 
-const AREA_CHIPS = ['All areas', 'City Centre', 'Spinningfields', 'Northern Quarter', 'Salford Quays', 'Didsbury', 'Chorlton']
+const STAY_TYPES = ['Entire home', 'Private room', 'Shared room', 'Studio', 'Penthouse']
 
-const FILTER_CHIPS = [
-  { label: 'Price ↓', value: 'price' },
-  { label: 'Type ↓', value: 'type' },
-  { label: 'Bedrooms ↓', value: 'beds' },
-  { label: 'Pets', value: 'pets' },
-  { label: 'Instant book', value: 'instant' },
-  { label: 'Verified', value: 'verified' },
-  { label: 'Short lets', value: 'short' },
-  { label: 'Long stays', value: 'long' },
-  { label: '••• More filters', value: 'more' },
-]
+// Areas are derived from the data — not a fixed list — so they always reflect
+// the stays actually on the map.
+function deriveAreas(): string[] {
+  const counts: Record<string, number> = {}
+  for (const s of SEED_STAYS) {
+    const area = (s.location ?? '').split(',')[0].trim() || s.city
+    if (area) counts[area] = (counts[area] ?? 0) + 1
+  }
+  return ['All areas', ...Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 7).map(([a]) => a)]
+}
 
 export default function StaysMapPage() {
+  const AREA_CHIPS = useMemo(deriveAreas, [])
   const [activeArea, setActiveArea] = useState('All areas')
   const [searchAsMove, setSearchAsMove] = useState(false)
   const [query, setQuery] = useState('')
+  const [filterState, setFilterState] = useState<FilterState>({})
+  const [sortBy, setSortBy] = useState('')
 
-  const AREA_LOCATION_MAP: Record<string, string[]> = {
-    'City Centre': ['city centre', 'central', 'deansgate', 'spinningfields'],
-    'Spinningfields': ['spinningfields'],
-    'Northern Quarter': ['northern quarter', 'nq'],
-    'Salford Quays': ['salford quays', 'salford'],
-    'Didsbury': ['didsbury'],
-    'Chorlton': ['chorlton'],
-  }
+  const filterDefs = useMemo<FilterDef[]>(() => {
+    const prices = SEED_STAYS.map(s => Math.round(s.pricePerNight / 100)).filter(n => n > 0)
+    const minP = prices.length ? Math.max(0, Math.floor(Math.min(...prices) / 10) * 10) : 0
+    const maxP = prices.length ? Math.ceil(Math.max(...prices) / 50) * 50 : 1000
+    const presentTypes = STAY_TYPES.filter(t => SEED_STAYS.some(s => s.stayType === t))
+    return [
+      { id: 'price', label: 'Price', kind: 'range', min: minP, max: maxP, step: 10, prefix: '£' },
+      { id: 'type', label: 'Type', kind: 'multi', options: presentTypes.map(t => ({ value: t, label: t })) },
+      { id: 'beds', label: 'Bedrooms', kind: 'stepper', min: 0, max: 8, suffix: 'beds' },
+      { id: 'baths', label: 'Bathrooms', kind: 'stepper', min: 0, max: 6, suffix: 'baths' },
+      { id: 'pets', label: 'Pets', kind: 'toggle' },
+      { id: 'instant', label: 'Instant book', kind: 'toggle' },
+      { id: 'verified', label: 'Verified', kind: 'toggle' },
+      { id: 'short', label: 'Short lets', kind: 'toggle' },
+      { id: 'long', label: 'Long stays', kind: 'toggle' },
+    ]
+  }, [])
 
-  const filtered = SEED_STAYS.filter(s => {
-    if (query && !s.title.toLowerCase().includes(query.toLowerCase()) && !s.location.toLowerCase().includes(query.toLowerCase())) return false
-    if (activeArea !== 'All areas') {
-      const keywords = AREA_LOCATION_MAP[activeArea] ?? [activeArea.toLowerCase()]
-      const haystack = (s.location + ' ' + s.city).toLowerCase()
-      if (!keywords.some(kw => haystack.includes(kw))) return false
+  const filtered = useMemo(() => {
+    let result = SEED_STAYS.filter(s => {
+      if (query && !s.title.toLowerCase().includes(query.toLowerCase()) && !s.location.toLowerCase().includes(query.toLowerCase())) return false
+      if (activeArea !== 'All areas') {
+        const haystack = (s.location + ' ' + s.city).toLowerCase()
+        if (!haystack.includes(activeArea.toLowerCase())) return false
+      }
+      return true
+    })
+    const priceRange = rangeOf(filterState, 'price')
+    if (priceRange) {
+      const [lo, hi] = priceRange
+      const def = filterDefs.find(d => d.id === 'price')
+      const hiBound = def && def.kind === 'range' ? def.max : hi
+      result = result.filter(s => {
+        const p = s.pricePerNight / 100
+        return p >= lo && (hi >= hiBound ? true : p <= hi)
+      })
     }
-    return true
-  })
+    const types = selectedOf(filterState, 'type')
+    if (types.length) result = result.filter(s => types.includes(s.stayType))
+    const beds = countOf(filterState, 'beds')
+    if (beds > 0) result = result.filter(s => (s.bedrooms ?? s.beds) >= beds)
+    const baths = countOf(filterState, 'baths')
+    if (baths > 0) result = result.filter(s => s.bathrooms >= baths)
+    if (toggleOf(filterState, 'pets')) result = result.filter(s => s.petsAllowed)
+    if (toggleOf(filterState, 'instant')) result = result.filter(s => s.instantBook)
+    if (toggleOf(filterState, 'verified')) result = result.filter(s => s.verified)
+    if (toggleOf(filterState, 'short')) result = result.filter(s => s.shortLets)
+    if (toggleOf(filterState, 'long')) result = result.filter(s => s.longStays)
+    if (sortBy === 'price_asc') result = [...result].sort((a, b) => a.pricePerNight - b.pricePerNight)
+    else if (sortBy === 'price_desc') result = [...result].sort((a, b) => b.pricePerNight - a.pricePerNight)
+    else if (sortBy === 'rating_desc') result = [...result].sort((a, b) => b.rating - a.rating)
+    return result
+  }, [query, activeArea, filterState, filterDefs, sortBy])
 
   return (
     <div className="h-dvh bg-white flex flex-col overflow-hidden">
@@ -104,15 +142,8 @@ export default function StaysMapPage() {
 
       {/* FILTER CHIPS ROW */}
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
-        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-          {FILTER_CHIPS.map(chip => (
-            <button key={chip.value} className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap">
-              {chip.label}
-            </button>
-          ))}
-          <div className="ml-auto shrink-0">
-            <button className="text-blue-600 text-sm font-semibold whitespace-nowrap">Clear all</button>
-          </div>
+        <div className="max-w-[1400px] mx-auto">
+          <FilterBar filters={filterDefs} value={filterState} onChange={setFilterState} />
         </div>
       </div>
 
@@ -120,8 +151,8 @@ export default function StaysMapPage() {
       <div className="bg-white px-6 lg:px-10 py-4 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div>
-            <span className="text-lg font-bold text-slate-900">1,248 stays</span>
-            <span className="text-slate-500 text-sm ml-2">Across Greater Manchester</span>
+            <span className="text-lg font-bold text-slate-900">{filtered.length.toLocaleString()} stays</span>
+            <span className="text-slate-500 text-sm ml-2">{activeArea === 'All areas' ? 'Across the UK' : activeArea}</span>
           </div>
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
@@ -136,8 +167,16 @@ export default function StaysMapPage() {
                 <Map className="h-3.5 w-3.5" />Map
               </button>
             </div>
-            <select aria-label="Sort stays" className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-1.5 bg-white outline-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
-              <option>Sort: Recommended ↓</option>
+            <select
+              aria-label="Sort stays"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="text-sm text-slate-600 border border-slate-200 rounded-xl px-3 py-1.5 bg-white outline-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            >
+              <option value="">Sort: Recommended</option>
+              <option value="price_asc">Price: Low to high</option>
+              <option value="price_desc">Price: High to low</option>
+              <option value="rating_desc">Rating: Highest first</option>
             </select>
           </div>
         </div>
@@ -249,7 +288,7 @@ export default function StaysMapPage() {
 
           {/* Bottom left card */}
           <div className="absolute bottom-8 left-8 z-[1000] bg-white rounded-xl shadow-md px-5 py-3 text-xs text-slate-600 pointer-events-none">
-            Showing 1,248 stays • Tap on a pin to view stay
+            Showing {filtered.length.toLocaleString()} stays • Tap a pin to view stay
           </div>
 
           {/* Map / Satellite toggle */}

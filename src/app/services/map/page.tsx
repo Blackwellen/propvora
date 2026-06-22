@@ -3,49 +3,68 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, MapPin, Calendar, List, Map, Star, Check, Heart, Clock, Shield } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import ServicesMap from '@/components/public-marketplace/maps/ServicesMap'
+import FilterBar, { type FilterDef, type FilterState, rangeOf, selectedOf, countOf, toggleOf } from '@/components/public-marketplace/FilterBar'
 import { SEED_SERVICE_OFFERS } from '@/lib/public-marketplace/seed-fallback'
 import { formatPence } from '@/lib/marketplace/money'
 
-const AREA_CHIPS = ['All areas', 'City Centre', 'Salford', 'Northern Quarter', 'Didsbury', 'Chorlton', 'Stockport']
-const FILTER_CHIPS = [
-  { label: 'Response time', value: 'response' },
-  { label: 'Price range', value: 'price' },
-  { label: 'Verified only', value: 'verified' },
-  { label: 'Property type', value: 'proptype' },
-  { label: 'Emergency', value: 'emergency' },
-  { label: 'More filters', value: 'more' },
-]
+function deriveAreas(): string[] {
+  const counts: Record<string, number> = {}
+  for (const o of SEED_SERVICE_OFFERS) {
+    const area = (o.location ?? '').split(',')[0].trim() || o.city
+    if (area) counts[area] = (counts[area] ?? 0) + 1
+  }
+  return ['All areas', ...Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([a]) => a)]
+}
 
 export default function ServicesMapPage() {
+  const AREA_CHIPS = useMemo(deriveAreas, [])
   const [activeArea, setActiveArea] = useState('All areas')
   const [searchAsMove, setSearchAsMove] = useState(false)
   const [query, setQuery] = useState('')
+  const [filterState, setFilterState] = useState<FilterState>({})
+  const [sortBy, setSortBy] = useState('')
 
-  const [activeFilter, setActiveFilter] = useState('')
+  const filterDefs = useMemo<FilterDef[]>(() => {
+    const pounds = SEED_SERVICE_OFFERS.map(o => Math.round(o.basePrice / 100)).filter(n => n > 0)
+    const minP = pounds.length ? Math.max(0, Math.floor(Math.min(...pounds) / 10) * 10) : 0
+    const maxP = pounds.length ? Math.ceil(Math.max(...pounds) / 50) * 50 : 1000
+    const cats = [...new Set(SEED_SERVICE_OFFERS.map(o => o.category).filter(Boolean))].sort()
+    return [
+      { id: 'price', label: 'Price', kind: 'range', min: minP, max: Math.max(maxP, minP + 50), step: 10, prefix: '£' },
+      { id: 'category', label: 'Category', kind: 'multi', options: cats.map(c => ({ value: c, label: c })) },
+      { id: 'rating', label: 'Rating', kind: 'stepper', min: 0, max: 5, suffix: '★' },
+      { id: 'verified', label: 'Verified', kind: 'toggle' },
+      { id: 'insured', label: 'Insured', kind: 'toggle' },
+      { id: 'urgent', label: 'Urgent', kind: 'toggle' },
+    ]
+  }, [])
 
-  const AREA_LOCATION_MAP: Record<string, string[]> = {
-    'City Centre': ['city centre', 'central', 'deansgate'],
-    'Salford': ['salford'],
-    'Northern Quarter': ['northern quarter', 'nq'],
-    'Didsbury': ['didsbury'],
-    'Chorlton': ['chorlton'],
-    'Stockport': ['stockport'],
-  }
-
-  const filtered = SEED_SERVICE_OFFERS.filter(o => {
-    if (query && !o.title.toLowerCase().includes(query.toLowerCase()) && !o.providerName.toLowerCase().includes(query.toLowerCase())) return false
-    if (activeFilter === 'verified' && !o.verified) return false
-    if (activeFilter === 'emergency' && !o.urgent) return false
-    if (activeArea !== 'All areas') {
-      const keywords = AREA_LOCATION_MAP[activeArea] ?? [activeArea.toLowerCase()]
-      const haystack = (o.location + ' ' + o.city).toLowerCase()
-      if (!keywords.some(kw => haystack.includes(kw))) return false
-    }
-    return true
-  })
+  const filtered = useMemo(() => {
+    let result = SEED_SERVICE_OFFERS.filter(o => {
+      if (query && !o.title.toLowerCase().includes(query.toLowerCase()) && !o.providerName.toLowerCase().includes(query.toLowerCase())) return false
+      if (activeArea !== 'All areas') {
+        const haystack = (o.location + ' ' + o.city).toLowerCase()
+        if (!haystack.includes(activeArea.toLowerCase())) return false
+      }
+      return true
+    })
+    const pr = rangeOf(filterState, 'price')
+    if (pr) { const def = filterDefs.find(d => d.id === 'price'); const hb = def && def.kind === 'range' ? def.max : pr[1]; result = result.filter(o => { const v = o.basePrice / 100; return v >= pr[0] && (pr[1] >= hb ? true : v <= pr[1]) }) }
+    const cats = selectedOf(filterState, 'category')
+    if (cats.length) result = result.filter(o => cats.includes(o.category))
+    const minR = countOf(filterState, 'rating')
+    if (minR > 0) result = result.filter(o => o.rating >= minR)
+    if (toggleOf(filterState, 'verified')) result = result.filter(o => o.verified)
+    if (toggleOf(filterState, 'insured')) result = result.filter(o => o.insured)
+    if (toggleOf(filterState, 'urgent')) result = result.filter(o => o.urgent)
+    if (sortBy === 'price_asc') result = [...result].sort((a, b) => a.basePrice - b.basePrice)
+    else if (sortBy === 'price_desc') result = [...result].sort((a, b) => b.basePrice - a.basePrice)
+    else if (sortBy === 'rating_desc') result = [...result].sort((a, b) => b.rating - a.rating)
+    return result
+  }, [query, activeArea, filterState, filterDefs, sortBy])
 
   return (
     <div className="h-dvh bg-white flex flex-col overflow-hidden">
@@ -76,16 +95,8 @@ export default function ServicesMapPage() {
 
       {/* FILTER CHIPS */}
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
-        <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-          {FILTER_CHIPS.map(chip => (
-            <button
-              key={chip.value}
-              onClick={() => setActiveFilter(chip.value === activeFilter ? '' : chip.value)}
-              className={["shrink-0 px-4 py-2 rounded-xl border text-sm font-medium whitespace-nowrap transition-colors", activeFilter === chip.value ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'].join(' ')}
-            >
-              {chip.label}
-            </button>
-          ))}
+        <div className="max-w-[1400px] mx-auto">
+          <FilterBar filters={filterDefs} value={filterState} onChange={setFilterState} />
         </div>
       </div>
 
@@ -99,8 +110,11 @@ export default function ServicesMapPage() {
               <span className="text-slate-500 text-sm ml-2">Across Greater Manchester</span>
             </div>
             <div className="flex items-center gap-2">
-              <select className="text-xs text-slate-600 border border-slate-200 rounded-lg px-2 py-1 bg-white outline-none">
-                <option>Sort: Recommended</option>
+              <select value={sortBy} onChange={e => setSortBy(e.target.value)} aria-label="Sort services" className="text-xs text-slate-600 border border-slate-200 rounded-lg px-2 py-1 bg-white outline-none">
+                <option value="">Sort: Recommended</option>
+                <option value="price_asc">Price: Low to high</option>
+                <option value="price_desc">Price: High to low</option>
+                <option value="rating_desc">Rating: Highest first</option>
               </select>
               <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
                 <Link href="/services" className="flex items-center gap-0.5 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"><List className="h-3 w-3" />List</Link>
