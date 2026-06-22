@@ -15,6 +15,10 @@ import { createClient } from "@/lib/supabase/server"
 import { SEED_EMERGENCY_SERVICES } from './seed-fallback'
 import { EXPANDED_STAYS, EXPANDED_PROVIDERS, EXPANDED_SERVICE_OFFERS, EXPANDED_LONG_TERM_RENTALS } from './seed-expander'
 import { withProviderMedia, withServiceMedia, withEmergencyMedia } from './media-fallback'
+import {
+  rotatingFeatured, similarItems,
+  scoreStay, scoreRental, scoreProvider, scoreOffer, scoreEmergency,
+} from './ranking'
 import type { PublicStay, PublicProvider, PublicServiceOffer, PublicEmergencyService, PublicLongTermRental } from './types'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -350,9 +354,8 @@ export async function getPublicProviderBySlug(slug: string): Promise<PublicProvi
 
 export async function getFeaturedProviders(): Promise<PublicProvider[]> {
   const providers = await getPublicProviders()
-  const featured = providers.filter(p => p.featured)
-  // If no providers are marked featured (likely on live data), return first 4
-  return featured.length > 0 ? featured : providers.slice(0, 4)
+  // Rotate the featured set daily so the top of the page isn't always identical.
+  return rotatingFeatured(providers, 4, "providers")
 }
 
 // ─── Service Offers ───────────────────────────────────────────────────────────
@@ -372,8 +375,7 @@ export async function getPublicServiceOfferBySlug(slug: string): Promise<PublicS
 
 export async function getFeaturedServiceOffers(): Promise<PublicServiceOffer[]> {
   const offers = await getPublicServiceOffers()
-  const featured = offers.filter(s => s.featured)
-  return featured.length > 0 ? featured : offers.slice(0, 4)
+  return rotatingFeatured(offers, 4, "services")
 }
 
 // ─── Emergency Services ───────────────────────────────────────────────────────
@@ -450,4 +452,42 @@ export async function getPublicLongTermRentalMapData(
   filters?: LongTermRentalFilters,
 ): Promise<PublicLongTermRental[]> {
   return getPublicLongTermRentals(filters)
+}
+
+// ─── Similar / "you might also like" ──────────────────────────────────────────
+// Score-ranked + daily-jittered so the related rail isn't always identical.
+
+export async function getSimilarStays(slug: string, count = 4): Promise<PublicStay[]> {
+  const stays = await getPublicStays()
+  const target = stays.find(s => s.slug === slug)
+  if (!target) return stays.slice(0, count)
+  return similarItems(target, stays, count, scoreStay)
+}
+
+export async function getSimilarLongTermRentals(slug: string, count = 4): Promise<PublicLongTermRental[]> {
+  const rentals = await getPublicLongTermRentals()
+  const target = rentals.find(r => r.slug === slug)
+  if (!target) return rentals.slice(0, count)
+  return similarItems(target, rentals, count, scoreRental)
+}
+
+export async function getSimilarProviders(slug: string, count = 4): Promise<PublicProvider[]> {
+  const providers = await getPublicProviders()
+  const target = providers.find(p => p.slug === slug)
+  if (!target) return rotatingFeatured(providers, count, "providers")
+  return similarItems(target, providers, count, scoreProvider)
+}
+
+export async function getSimilarServiceOffers(slug: string, count = 4): Promise<PublicServiceOffer[]> {
+  const offers = await getPublicServiceOffers()
+  const target = offers.find(o => o.slug === slug)
+  if (!target) return rotatingFeatured(offers, count, "services")
+  return similarItems(target, offers, count, scoreOffer)
+}
+
+export async function getSimilarEmergencyServices(slug: string, count = 4): Promise<PublicEmergencyService[]> {
+  const services = await getPublicEmergencyServices()
+  const target = services.find(s => s.slug === slug)
+  if (!target) return services.slice(0, count)
+  return similarItems(target, services, count, scoreEmergency)
 }

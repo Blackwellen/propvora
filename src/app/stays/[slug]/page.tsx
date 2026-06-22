@@ -5,9 +5,10 @@ import Image from 'next/image'
 import { CheckCircle, ChevronRight, Star } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import StayBookingCard from '@/components/public-marketplace/profiles/StayBookingCard'
+import StayCard from '@/components/public-marketplace/cards/StayCard'
 import ShareSaveButtons from '@/components/checkout/ShareSaveButtons'
 import LocationMap from '@/components/maps/LocationMap'
-import { getPublicStayBySlug } from '@/lib/public-marketplace/queries'
+import { getPublicStayBySlug, getSimilarStays } from '@/lib/public-marketplace/queries'
 import { SEED_STAYS } from '@/lib/public-marketplace/seed-fallback'
 
 export async function generateStaticParams() {
@@ -29,6 +30,7 @@ export default async function StayDetailPage({ params }: { params: Promise<{ slu
   const stay = await getPublicStayBySlug(slug)
   if (!stay) notFound()
 
+  const similar = await getSimilarStays(slug, 4)
   const galleryImages = [stay.heroImage, ...stay.gallery].filter(Boolean)
 
   return (
@@ -264,6 +266,18 @@ export default async function StayDetailPage({ params }: { params: Promise<{ slu
             </div>
           </div>
         </div>
+
+        {/* Similar stays */}
+        {similar.length > 0 && (
+          <section className="mt-12 border-t border-slate-100 pt-10">
+            <h2 className="mb-5 text-xl font-bold text-slate-900">More places you might like</h2>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+              {similar.map((s) => (
+                <StayCard key={s.id} stay={s} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </PublicPageShell>
   )
