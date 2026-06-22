@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 import { rateLimit, clientKey } from "@/lib/rate-limit"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -198,7 +199,8 @@ export async function POST(request: NextRequest) {
   }
 
   // No secret key → payments not provisioned. NEVER attempt a Stripe call.
-  if (!process.env.STRIPE_SECRET_KEY) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey) {
     return NextResponse.json({ error: "Payments are not available yet.", ready: false }, { status: 503 })
   }
 
@@ -238,7 +240,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
 

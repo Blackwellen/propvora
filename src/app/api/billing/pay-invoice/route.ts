@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 import { createClient } from "@/lib/supabase/server"
 
 export const runtime = "nodejs"
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic"
  * workspace may create it.
  */
 export async function POST(request: Request) {
-  if (!process.env.STRIPE_SECRET_KEY) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey) {
     return NextResponse.json({ error: "Billing not configured" }, { status: 503 })
   }
 
@@ -59,7 +61,7 @@ export async function POST(request: Request) {
 
   try {
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
     const session = await stripe.checkout.sessions.create({

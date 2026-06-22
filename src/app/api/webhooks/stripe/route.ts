@@ -8,12 +8,14 @@ import {
 } from "@/lib/affiliate/commission"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 })
   }
 
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)

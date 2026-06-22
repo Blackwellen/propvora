@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 import { createClient } from "@/lib/supabase/server"
 
 // No request body required for this endpoint — auth is via session cookie only.
 export async function POST() {
-  if (!process.env.STRIPE_SECRET_KEY) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey) {
     return NextResponse.json(
       { error: "Stripe is not configured. Set STRIPE_SECRET_KEY to enable billing portal." },
       { status: 503 }
@@ -22,7 +24,7 @@ export async function POST() {
 
     // Dynamically import Stripe so it doesn't break when env var is missing
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
 

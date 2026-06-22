@@ -54,7 +54,12 @@ function windowStripe(): StripeGlobal | undefined {
 }
 
 export function publishableKey(): string | null {
-  const k = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  // Support both the standard and *_TEST publishable keys; outside production we
+  // prefer the test key so local/staging never loads a live key. Both are
+  // referenced literally so Next inlines them into the client bundle.
+  const test = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST
+  const std = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  const k = process.env.NODE_ENV !== "production" && test ? test : std || test
   return k && k.trim().length > 0 ? k.trim() : null
 }
 

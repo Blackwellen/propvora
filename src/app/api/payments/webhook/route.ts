@@ -20,6 +20,7 @@ import type { NextRequest } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { handlePaymentEvent } from "@/lib/payments/webhooks"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -29,7 +30,8 @@ export async function POST(request: NextRequest) {
 
   const webhookSecret =
     process.env.STRIPE_PAYMENTS_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET
-  if (!process.env.STRIPE_SECRET_KEY || !webhookSecret) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey || !webhookSecret) {
     return NextResponse.json({ error: "Stripe payments webhook is not configured." }, { status: 503 })
   }
 
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
   let event: import("stripe").Stripe.Event
   try {
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)

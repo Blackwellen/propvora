@@ -4,6 +4,7 @@ import type Stripe from "stripe"
 import { flagGate } from "@/lib/flags/api-gate"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 import { createMarketplaceTransaction } from "@/lib/marketplace/transactions"
 import { transactionTypeForListing, type ListingType } from "@/lib/marketplace/types"
 import type { MarketplaceTransactionType } from "@/lib/marketplace/fees"
@@ -196,7 +197,8 @@ export async function POST(request: NextRequest) {
     // ── Payments: build the escrow record + manual-capture intent ───────────
     // If Stripe isn't configured the order/transaction still exist (escrow can be
     // attached later) — we return without a clientSecret rather than charging.
-    if (!process.env.STRIPE_SECRET_KEY) {
+    const secretKey = stripeSecretKey()
+    if (!secretKey) {
       return NextResponse.json({
         orderId,
         transactionId,
@@ -240,7 +242,7 @@ export async function POST(request: NextRequest) {
     }
 
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
 

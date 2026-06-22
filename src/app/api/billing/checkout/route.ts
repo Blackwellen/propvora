@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -6,7 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin"
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
-  if (!process.env.STRIPE_SECRET_KEY) {
+  const secretKey = stripeSecretKey()
+  if (!secretKey) {
     return NextResponse.json(
       { error: "Billing not configured" },
       { status: 503 }
@@ -66,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     // Lazy-import Stripe to avoid breaking the app when the env var is absent
     const Stripe = (await import("stripe")).default
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
 
