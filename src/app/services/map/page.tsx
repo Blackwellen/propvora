@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, MapPin, Calendar, List, Map, Star, Check, Heart, Clock, Shield } from 'lucide-react'
+import { Search, MapPin, List, Map, Star, Check, Clock, Shield } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import ServicesMap from '@/components/public-marketplace/maps/ServicesMap'
@@ -76,20 +76,12 @@ export default function ServicesMapPage() {
             <Search className="h-4 w-4 text-slate-400 shrink-0" />
             <input type="text" aria-label="Service type or keyword" placeholder="Plumbing and Heating" value={query} onChange={e => setQuery(e.target.value)} className="w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
           </div>
-          <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
-            <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
-            <input type="text" aria-label="Location" placeholder="Manchester, M15 4GB" className="w-36 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
-          </div>
-          <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
-            <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-            <input type="text" aria-label="Date" placeholder="Fri, 23 May" className="w-28 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
-          </div>
-          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 transition-colors shrink-0 font-semibold text-sm">
+          <Link
+            href={`/services${query ? `?q=${encodeURIComponent(query)}` : ''}`}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 transition-colors shrink-0 font-semibold text-sm"
+          >
             <Search className="h-4 w-4" />Search services
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 border-l border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors shrink-0">
-            <Heart className="h-4 w-4" />Save search
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -157,7 +149,12 @@ export default function ServicesMapPage() {
                 </div>
               </Link>
             ))}
-            <button className="w-full py-4 text-sm font-medium text-blue-600 hover:bg-slate-50 border-t border-slate-100">Load more services</button>
+            {filtered.length === 0 && (
+              <div className="px-4 py-16 text-center">
+                <p className="text-sm font-medium text-slate-600">No services match your filters</p>
+                <p className="text-xs text-slate-400 mt-1">Try widening your price range or clearing a filter.</p>
+              </div>
+            )}
           </div>
         </aside>
 

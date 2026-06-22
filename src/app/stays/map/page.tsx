@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  Search, MapPin, Calendar, Users, ChevronDown,
+  Search, MapPin, ChevronDown,
   List, Map, Star, Zap, Check, Heart, BedDouble, Bath,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -109,34 +109,13 @@ export default function StaysMapPage() {
               />
             </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
-            <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-            <div>
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Check in</div>
-              <input type="text" aria-label="Check-in date" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
-            <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-            <div>
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Check out</div>
-              <input type="text" aria-label="Check-out date" placeholder="Add dates" className="w-24 text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-3 border-r border-slate-200">
-            <Users className="h-4 w-4 text-slate-400 shrink-0" />
-            <div>
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Guests</div>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-slate-700">1 guest</span>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-              </div>
-            </div>
-          </div>
-          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 transition-colors shrink-0 font-semibold text-sm">
+          <Link
+            href={`/stays${query ? `?location=${encodeURIComponent(query)}` : ""}`}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 transition-colors shrink-0 font-semibold text-sm"
+          >
             <Search className="h-4 w-4" />
             Search stays
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -155,10 +134,6 @@ export default function StaysMapPage() {
             <span className="text-slate-500 text-sm ml-2">{activeArea === 'All areas' ? 'Across the UK' : activeArea}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Heart className="h-3.5 w-3.5" />
-              Save search
-            </button>
             <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
               <Link href="/stays" className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
                 <List className="h-3.5 w-3.5" />List
@@ -251,9 +226,12 @@ export default function StaysMapPage() {
                 </Link>
               )
             })}
-            <button className="w-full py-4 text-sm font-medium text-blue-600 hover:bg-slate-50 transition-colors border-t border-slate-100">
-              Load more stays ↓
-            </button>
+            {filtered.length === 0 && (
+              <div className="px-4 py-16 text-center">
+                <p className="text-sm font-medium text-slate-600">No stays match your filters</p>
+                <p className="text-xs text-slate-400 mt-1">Try widening your price range or clearing a filter.</p>
+              </div>
+            )}
           </div>
         </aside>
 

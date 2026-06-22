@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Building2, Clock, Heart, List, Map, MapPin, Search, Shield, SlidersHorizontal, Star, Users } from 'lucide-react'
+import { Building2, List, Map, MapPin, Search, Shield, SlidersHorizontal, Star, Users } from 'lucide-react'
 import { useState } from 'react'
 import PublicMarketplaceNav from '@/components/public-marketplace/PublicMarketplaceNav'
 import ProvidersMap from '@/components/public-marketplace/maps/ProvidersMap'
@@ -78,36 +78,44 @@ export default function ProvidersMapPage() {
                 <p className="text-sm text-slate-500">Manchester, UK</p>
               </div>
             </div>
-            <button className="m-3 inline-flex min-w-[170px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white hover:bg-blue-700">
+            <Link
+              href={`/providers${query ? `?q=${encodeURIComponent(query)}` : ''}`}
+              className="m-3 inline-flex min-w-[170px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white hover:bg-blue-700"
+            >
               Search providers
               <Search className="h-4 w-4" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-          <button className="relative shrink-0 rounded-xl border border-slate-200 p-2 text-blue-600">
+          <span className="relative shrink-0 rounded-xl border border-slate-200 p-2 text-blue-600" aria-hidden>
             <SlidersHorizontal className="h-5 w-5" />
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">2</span>
-          </button>
-          {[
-            ['Vetted', Shield],
-            ['Fully insured', Shield],
-            ['Certified', Shield],
-            ['Commercial', Building2],
-            ['Residential', Building2],
-            ['Fast response', Clock],
-            ['24/7 service', Clock],
-            ['Top rated', Star],
-          ].map(([label, Icon]) => (
-            <button key={label as string} className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
-              <Icon className="h-4 w-4" />
-              {label as string}
-            </button>
-          ))}
-          <button className="ml-auto shrink-0 text-sm font-semibold text-blue-600">Clear all</button>
+            {activeFilter && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">1</span>
+            )}
+          </span>
+          {FILTER_CHIPS.map(({ label, value }) => {
+            const active = activeFilter === value
+            return (
+              <button
+                key={value}
+                onClick={() => setActiveFilter(active ? '' : value)}
+                aria-pressed={active}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition-colors ${
+                  active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <Shield className="h-4 w-4" />
+                {label}
+              </button>
+            )
+          })}
+          {activeFilter && (
+            <button onClick={() => setActiveFilter('')} className="ml-auto shrink-0 text-sm font-semibold text-blue-600">Clear all</button>
+          )}
         </div>
       </div>
 
@@ -115,13 +123,9 @@ export default function ProvidersMapPage() {
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div>
             <p className="text-lg font-extrabold text-slate-950">{filtered.length} providers match your criteria</p>
-            <p className="text-sm text-slate-500">Showing results for Manchester, within 15 miles</p>
+            <p className="text-sm text-slate-500">{activeArea === 'All areas' ? 'Across all areas' : activeArea}</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600">
-              <Heart className="h-4 w-4" />
-              Save search
-            </button>
             <div className="flex items-center overflow-hidden rounded-xl border border-slate-200">
               <Link href="/providers" className="inline-flex items-center gap-2 px-7 py-2 text-sm font-bold text-slate-600"><List className="h-4 w-4" />List</Link>
               <button className="inline-flex items-center gap-2 bg-blue-600 px-7 py-2 text-sm font-bold text-white"><Map className="h-4 w-4" />Map</button>
@@ -140,7 +144,7 @@ export default function ProvidersMapPage() {
           {/* Header */}
           <div className="px-4 py-3 border-b border-slate-100 shrink-0">
             <p className="font-bold text-slate-900 text-base">{filtered.length} providers match your criteria</p>
-            <p className="text-slate-500 text-xs mt-0.5">Showing results for Manchester, within 15 miles</p>
+            <p className="text-slate-500 text-xs mt-0.5">{activeArea === 'All areas' ? 'Across all areas' : activeArea}</p>
           </div>
 
           {/* Search + filters */}
@@ -231,7 +235,12 @@ export default function ProvidersMapPage() {
                 </div>
               </Link>
             ))}
-            <button className="w-full py-4 text-sm font-medium text-blue-600 hover:bg-slate-50 border-t border-slate-100">Load more providers</button>
+            {filtered.length === 0 && (
+              <div className="px-4 py-16 text-center">
+                <p className="text-sm font-medium text-slate-600">No providers match your filters</p>
+                <p className="text-xs text-slate-400 mt-1">Try clearing a filter or searching a different area.</p>
+              </div>
+            )}
           </div>
         </aside>
 
