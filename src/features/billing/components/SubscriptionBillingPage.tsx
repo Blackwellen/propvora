@@ -11,6 +11,7 @@ import { AddOnsTab } from "./AddOnsTab"
 import { CancellationTab } from "./CancellationTab"
 import { BillingHistoryTab } from "./BillingHistoryTab"
 import { BillingSummaryRail } from "./BillingSummaryRail"
+import { CancellationProvider } from "../data/cancellation-context"
 
 export type BillingTabId = "checkout" | "renewals" | "add-ons" | "cancellation" | "history"
 
@@ -70,6 +71,7 @@ export function SubscriptionBillingPage({ tab }: { tab: BillingTabId }) {
         })}
       </nav>
 
+      <CancellationProvider>
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 min-w-0">
           {tab === "checkout" && <PlanCheckoutTab />}
@@ -80,6 +82,7 @@ export function SubscriptionBillingPage({ tab }: { tab: BillingTabId }) {
         </div>
         <BillingSummaryRail />
       </div>
+      </CancellationProvider>
     </div>
   )
 }

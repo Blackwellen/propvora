@@ -2,13 +2,14 @@
 
 import React, { useMemo, useState } from "react"
 import { Check, CreditCard, MapPin, Sparkles, ShoppingCart } from "lucide-react"
+import { startPlanCheckout, openBillingPortal } from "../data/stripe-link"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { usePlans, useActiveAddons, useAddonFeatureFlags, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { computeTotals, planCyclePence, planAnnualPence, taxRatePercent } from "../data/calc"
 import { addonAvailableForPlan, type BillingCycle, type PlanCode, type SubscriptionAddon } from "../data/types"
-import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, SeedNotice, PermissionNotice } from "./ui"
+import { BillingCard, BillingButton, Toggle, QtyStepper, SeedNotice, PermissionNotice } from "./ui"
 
 export function PlanCheckoutTab() {
   const { data: plans, source } = usePlans()
@@ -26,7 +27,9 @@ export function PlanCheckoutTab() {
       return { code: c.code, enabled: existing?.enabled ?? false, quantity: existing?.quantity ?? (c.unit === "credit_pack" ? 0 : c.defaultQty) }
     }),
   )
-  const [submitState, setSubmitState] = useState<"idle" | "processing" | "done">("idle")
+  const [submitState, setSubmitState] = useState<"idle" | "processing">("idle")
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  const [portalError, setPortalError] = useState<string | null>(null)
   const [editingAddress, setEditingAddress] = useState(false)
 
   const checkoutAddons = SEED_ADDON_CATALOG.filter((c) =>
@@ -43,10 +46,26 @@ export function PlanCheckoutTab() {
     setAddons((prev) => prev.map((a) => (a.code === code ? { ...a, ...patch } : a)))
   }
 
-  function proceed() {
+  async function proceed() {
+    setCheckoutError(null)
     setSubmitState("processing")
-    // Modelled checkout — NO live Stripe calls. A webhook would confirm later.
-    setTimeout(() => setSubmitState("done"), 700)
+    try {
+      // Real Stripe Checkout via /api/billing/checkout for the selected tier.
+      await startPlanCheckout(selected, cycle)
+      // On success the browser is redirected to Stripe; this line is unreached.
+    } catch (e) {
+      setCheckoutError(e instanceof Error ? e.message : "Could not start checkout")
+      setSubmitState("idle")
+    }
+  }
+
+  async function manageCard() {
+    setPortalError(null)
+    try {
+      await openBillingPortal()
+    } catch (e) {
+      setPortalError(e instanceof Error ? e.message : "Card management is unavailable until billing is provisioned.")
+    }
   }
 
   return (
@@ -189,10 +208,9 @@ export function PlanCheckoutTab() {
               ) : (
                 <span className="text-[13px] text-slate-400">No payment method on file</span>
               )}
-              <BillingButton variant="ghost" className="text-[12px] px-3 py-1.5" onClick={() => alert("Card changes are made in the secure Stripe portal.")}>
-                {card ? "Change card" : "Add card"}
-              </BillingButton>
+              <BillingButton variant="ghost" className="text-[12px] px-3 py-1.5" disabled={!canManageBilling} onClick={manageCard}>{card ? "Change card" : "Add card"}</BillingButton>
             </div>
+            {portalError && <p className="text-[11px] text-amber-600 mt-1.5">{portalError}</p>}
 
             <p className="text-[12px] font-semibold text-slate-700 mb-2 mt-4 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Invoice address</p>
             <div className="rounded-xl border border-slate-200 px-3.5 py-3">
@@ -218,17 +236,17 @@ export function PlanCheckoutTab() {
               )}
             </div>
             <BillingButton
-              variant={submitState === "done" ? "secondary" : "primary"}
+              variant="primary"
               className="w-full mt-4"
               disabled={!canManageBilling || submitState === "processing"}
               onClick={proceed}
             >
-              {submitState === "processing" ? "Processing…" : submitState === "done" ? "Checkout ready ✓" : "Proceed to checkout"}
+              {submitState === "processing" ? "Redirecting to Stripe…" : "Proceed to checkout"}
             </BillingButton>
-            {submitState === "done" && (
-              <p className="text-[11.5px] text-emerald-700 mt-2 text-center">Order modelled. Payment is confirmed by webhook once Stripe is connected.</p>
+            {checkoutError && (
+              <p className="text-[11.5px] text-amber-600 mt-2 text-center">{checkoutError}</p>
             )}
-            <p className="text-[11px] text-slate-400 mt-2 text-center">No charge is made during this build.</p>
+            <p className="text-[11px] text-slate-400 mt-2 text-center">Secure payment is handled by Stripe. Includes a 7-day trial.</p>
           </div>
         </div>
       </BillingCard>
