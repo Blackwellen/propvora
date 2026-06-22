@@ -724,85 +724,21 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Recent properties */}
-            {(() => {
-              const STATUS_CHIP: Record<string, { label: string; dot: string; chip: string }> = {
-                Active:        { label: "Occupied",    dot: "bg-emerald-400", chip: "bg-emerald-500/90 text-white" },
-                Vacant:        { label: "Vacant",      dot: "bg-amber-400",   chip: "bg-amber-500/90 text-white" },
-                "Under Works": { label: "Under Works", dot: "bg-blue-400",    chip: "bg-blue-500/90 text-white" },
-              }
-              const BADGE_COLOR: Record<string, string> = {
-                "HMO": "#1D4ED8", "Long-Term Let": "#059669", "Serviced Accommodation": "#7C3AED",
-                "Co-Living": "#DB2777", "Student Let": "#0891B2", "Rent-to-Rent": "#EA580C",
-                "Holiday Let": "#D97706", "Social Housing": "#16A34A", "Supported Living": "#0369A1",
-                "Commercial": "#374151", "Mixed Use": "#6B21A8", "Development": "#B45309", "Buy-to-Sell": "#BE123C",
-              }
-              const recent = properties.slice(0, 4)
-              return (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-[14px] font-bold text-slate-900">Recent properties</h3>
-                    <button onClick={() => setActiveTab("properties")}
-                      className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
-                      View all <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-                    {recent.map(p => {
-                      const occ = p.units > 0 ? Math.round(((p.occupied ?? 0) / p.units) * 100) : 0
-                      const statusChip = STATUS_CHIP[p.status] ?? STATUS_CHIP.Active
-                      const badgeColor = BADGE_COLOR[p.operationProfile ?? ""] ?? "#475569"
-                      const badgeLabel = p.operationProfile === "Serviced Accommodation" ? "SA" : p.operationProfile ?? p.type
-                      return (
-                        <Link key={p.id} href={`/app/portfolio/properties/${p.id}`}
-                          className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
-                          <div className="relative h-[110px] shrink-0" style={{ background: BADGE_COLOR[p.operationProfile ?? ""] ? `linear-gradient(135deg, ${BADGE_COLOR[p.operationProfile ?? ""]}cc 0%, ${BADGE_COLOR[p.operationProfile ?? ""]} 100%)` : "linear-gradient(135deg, #475569 0%, #64748B 100%)" }}>
-                            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                              <Building2 className="w-12 h-12 text-white" />
-                            </div>
-                            <div className="absolute top-2 left-2">
-                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white shadow-sm" style={{ background: badgeColor }}>{badgeLabel}</span>
-                            </div>
-                            <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.preventDefault()}>
-                              <ActionMenu
-                                align="right"
-                                items={[
-                                  { label: "View property", icon: Eye, onClick: () => router.push(`/app/portfolio/properties/${p.id}`) },
-                                  { label: "Add unit", icon: Plus, onClick: () => router.push(`/app/portfolio/units/new?propertyId=${p.id}`) },
-                                  { label: "Create tenancy", icon: Users, onClick: () => router.push(`/app/portfolio/tenancies/new?propertyId=${p.id}`) },
-                                  ...(isLive ? [{ label: "Delete", icon: Trash2, variant: "danger" as const, onClick: () => setConfirmDelete({ id: p.id, name: p.name }) }] : []),
-                                ]}
-                              />
-                            </div>
-                            <div className="absolute bottom-2 left-2">
-                              <span className={cn("inline-flex items-center gap-1 text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full", statusChip.chip)}>
-                                <span className={cn("w-1.5 h-1.5 rounded-full", statusChip.dot)} />{statusChip.label}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-3 flex flex-col gap-1.5 flex-1">
-                            <div>
-                              <p className="text-[12.5px] font-bold text-slate-900 leading-tight truncate">{p.name}</p>
-                              <p className="text-[10.5px] text-slate-500 truncate mt-0.5">{p.address}</p>
-                            </div>
-                            <p className="text-[15px] font-black text-slate-900 tabular-nums leading-none">
-                              {p.monthlyRent > 0 ? <>{fmtGBP(p.monthlyRent)}<span className="text-[11px] text-slate-500 font-medium">/mo</span></> : <span className="text-slate-300">—</span>}
-                            </p>
-                            <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
-                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.units}</p><p className="text-[9px] text-slate-500">Units</p></div>
-                              <div className="w-px h-5 bg-slate-100" />
-                              <div className="flex flex-col items-center flex-1"><p className="text-[11px] font-bold text-slate-800 tabular-nums">{p.bedrooms ?? p.units}</p><p className="text-[9px] text-slate-500">Beds</p></div>
-                              <div className="w-px h-5 bg-slate-100" />
-                              <div className="flex flex-col items-center flex-1"><p className={cn("text-[11px] font-bold tabular-nums", occ >= 90 ? "text-emerald-600" : occ >= 70 ? "text-amber-600" : "text-red-600")}>{occ}%</p><p className="text-[9px] text-slate-500">Occ.</p></div>
-                            </div>
-                          </div>
-                        </Link>
-                      )
-                    })}
-                  </div>
+            {/* Recent properties — same canonical PropertyCard as the Properties tab (consistent). */}
+            {properties.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[14px] font-bold text-slate-900">Recent properties</h3>
+                  <button onClick={() => setActiveTab("properties")}
+                    className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
+                    View all <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-              )
-            })()}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                  {properties.slice(0, 4).map(p => <PropertyCard key={p.id} property={p} />)}
+                </div>
+              </div>
+            )}
 
             {/* Map preview — honest: real property/city counts, links to live Leaflet map */}
             {(() => {
