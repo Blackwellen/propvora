@@ -8,7 +8,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import { weekStart } from "./seed"
+import {
+  EMPTY_CALENDAR, EMPTY_AVAILABILITY, EMPTY_TIME_OFF, weekStart,
+} from "./seed"
 import type {
   CalendarData,
   AvailabilityData,
@@ -17,33 +19,6 @@ import type {
   TimeOffBlock,
   TimeOffReason,
 } from "./types"
-
-const EMPTY_CALENDAR: CalendarData = {
-  events: [],
-  weekStartIso: "",
-  kpis: { jobsThisWeek: 0, freeSlots: 35, conflicts: 0, siteVisits: 0, outOfHoursJobs: 0 },
-}
-
-const EMPTY_AVAILABILITY: AvailabilityData = {
-  bands: [],
-  cells: [],
-  daySummaries: [],
-  rules: { recurringHoursLabel: "—", emergency247: false, responseWindowHours: 0, leadTimeHours: 0, maxJobsPerDay: 0, travelBufferMinutes: 0 },
-  serviceAvailability: [],
-  instantBookEligible: false,
-  weeklyBookableHours: 0,
-  kpis: { availableDays: 0, bookableHours: 0, emergencyEnabled: false, avgResponse: "—", nextUnavailable: "—" },
-}
-
-const EMPTY_TIME_OFF: TimeOffData = {
-  blocks: [],
-  affectedJobs: [],
-  affectedRequests: [],
-  settings: { autoDecline: false, notifyCustomers: false },
-  recurringRules: [],
-  reasonCounts: [],
-  kpis: { timeOffBooked: 0, upcomingBlockedDays: 0, affectedJobs: 0, availableThisMonth: 0 },
-}
 
 export interface ScheduleHookState<T> {
   data: T
@@ -199,10 +174,11 @@ export function useScheduleAvailability(): ScheduleHookState<AvailabilityData> {
       .select("id,day_of_week,start_minute,end_minute,kind")
       .eq("workspace_id", workspaceId)
     if (error) return { data: null, denied: isDenied(error) }
+    // Availability is a configurable template (hour bands + recurring rules), not
+    // fabricated bookings. We render the neutral default grid until the live
+    // rule→grid mapping is wired, rather than inventing capacity/response data.
     if (!data || data.length === 0) return { data: null }
-    // Live rules exist but full UI shape (bands, cells) requires richer mapping —
-    // return null so empty state shows rather than fake seed data.
-    return { data: null }
+    return { data: EMPTY_AVAILABILITY }
   })
 }
 
@@ -233,17 +209,13 @@ export function useScheduleTimeOff(): ScheduleHookState<TimeOffData> {
     }))
     return {
       data: {
+        ...EMPTY_TIME_OFF,
         blocks,
-        affectedJobs: [],
-        affectedRequests: [],
-        settings: { autoDecline: false, notifyCustomers: false },
-        recurringRules: [],
-        reasonCounts: [],
         kpis: {
+          ...EMPTY_TIME_OFF.kpis,
           timeOffBooked: blocks.length,
           upcomingBlockedDays: blocks.filter((b) => new Date(b.starts_at) >= new Date()).length,
           affectedJobs: blocks.reduce((n, b) => n + b.affectedJobs, 0),
-          availableThisMonth: 0,
         },
       },
     }

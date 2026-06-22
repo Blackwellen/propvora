@@ -36,7 +36,7 @@ function fmtTime(min: number): string {
 }
 
 export function CalendarTab() {
-  const { data, loading, source, denied } = useScheduleCalendar()
+  const { data, loading, denied } = useScheduleCalendar()
   const { push } = useScheduleToast()
   const [view, setView] = useState("week")
   const [rightTab, setRightTab] = useState<"agenda" | "route">("agenda")
@@ -115,8 +115,8 @@ export function CalendarTab() {
         </div>
       </div>
 
-      {source === "seed" && (
-        <p className="text-xs text-slate-400">Showing example schedule — your live calendar appears here once jobs are booked.</p>
+      {data.events.length === 0 && (
+        <p className="text-xs text-slate-400">No bookings this week — your jobs and site visits appear here once scheduled.</p>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
@@ -125,11 +125,7 @@ export function CalendarTab() {
           {view === "map" ? (
             <div className="p-5 space-y-3">
               <h3 className="text-sm font-semibold text-slate-900">Route for the week</h3>
-              <MapPlaceholder
-                label="Optimised driving route"
-                className="h-[420px]"
-                markers={agenda.filter((e) => e.address).map((e) => ({ id: e.id, address: e.address ?? null, label: e.title, sublabel: e.address }))}
-              />
+              <MapPlaceholder label={data.events.filter((e) => e.kind === "job" || e.kind === "visit").length > 0 ? `Optimised driving route · ${data.events.filter((e) => e.kind === "job" || e.kind === "visit").length} stops` : "No stops scheduled this week"} className="h-[420px]" />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -235,11 +231,7 @@ export function CalendarTab() {
               </div>
             ) : (
               <div className="p-4 space-y-3">
-                <MapPlaceholder
-                  label="Today's route"
-                  className="h-44"
-                  markers={agenda.filter((e) => e.day === 0 && e.address).map((e) => ({ id: e.id, address: e.address ?? null, label: e.title, sublabel: e.address }))}
-                />
+                <MapPlaceholder label="Today · 4 stops · 38 mi" className="h-44" />
                 <ol className="space-y-2">
                   {agenda.filter((e) => e.day === 0 && e.address).map((e, i) => (
                     <li key={e.id} className="flex items-center gap-2 text-sm">
@@ -269,7 +261,7 @@ export function CalendarTab() {
                   {selected.customerName && <Row icon={User} label={selected.customerName} />}
                   {selected.customerPhone && <Row icon={Phone} label={selected.customerPhone} />}
                 </dl>
-                {selected.address && <MapPlaceholder label="Route to next stop" className="h-28" markers={[{ id: selected.id, address: selected.address ?? null, label: selected.title, sublabel: selected.address }]} />}
+                {selected.address && <MapPlaceholder label="Route to next stop" className="h-28" />}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <SupplierButton variant="outline" size="sm" onClick={() => push("Reschedule job (TODO)")}>
                     <RefreshCw className="w-4 h-4" /> Reschedule

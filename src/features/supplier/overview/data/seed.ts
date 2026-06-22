@@ -32,6 +32,75 @@ function dateInDays(days: number): string {
   return inDays(days).slice(0, 10)
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   HONEST EMPTY datasets.
+
+   Served when the supplier workspace genuinely has no live records (or the
+   underlying tables aren't provisioned yet). They render the page structure
+   with zeroed KPIs and empty lists so the supplier sees an honest "nothing
+   here yet" surface — never fabricated jobs, customers or money.
+
+   The rich `seed*` exports below remain available for design previews but are
+   NO LONGER the live fallback (see ./hooks.ts).
+─────────────────────────────────────────────────────────────────────────── */
+
+export const emptyToday: TodayData = {
+  kpis: { newRequests: 0, jobsToday: 0, awaitingEvidence: 0, awaitingPayoutPence: 0, responseScorePct: 0 },
+  agenda: [],
+  nextAppointment: null,
+  priorityAlerts: [],
+  quickActions: [
+    { id: "q1", label: "Update availability", href: "/supplier/availability", icon: "calendar" },
+    { id: "q2", label: "View requests", href: "/supplier/requests", icon: "inbox" },
+    { id: "q3", label: "Add service", href: "/supplier/services", icon: "plus" },
+    { id: "q4", label: "Upload compliance", href: "/supplier/compliance", icon: "shield" },
+    { id: "q5", label: "Profile preview", href: "/supplier/profile", icon: "user" },
+  ],
+  earnings: { todayPence: 0, weekPence: 0, currency: GBP },
+  unread: [],
+  availability: { available: true, hours: "—" },
+  payout: { thisWeekPence: 0, nextPayoutPence: 0, nextPayoutDate: dateInDays(0), currency: GBP },
+  complianceAlerts: [],
+  trust: { scorePct: 0, breakdown: { onTimePct: 0, responsePct: 0, qualityPct: 0, communicationPct: 0 } },
+}
+
+export const emptyRequests: RequestsData = {
+  kpis: { openRequests: 0, responseDueToday: 0, potentialValuePence: 0, avgWinChancePct: 0, questionsAwaiting: 0 },
+  rows: [],
+}
+
+export const emptyJobs: JobsData = {
+  kpis: { activeJobs: 0, dueToday: 0, atRisk: 0, evidenceMissing: 0, escrowWaitingPence: 0 },
+  rows: [],
+  earningsByService: [],
+  recentInvoices: [],
+  complianceStatus: [],
+}
+
+export const emptyEarnings: EarningsData = {
+  kpis: { thisMonthPence: 0, inEscrowPence: 0, awaitingPayoutPence: 0, paidOutPence: 0, unpaidInvoicesPence: 0 },
+  currency: GBP,
+  trendMonthly: [],
+  trendDaily: [],
+  payoutTimeline: [],
+  invoices: [],
+  revenueByService: [],
+  blockedPayouts: [],
+  availableBalancePence: 0,
+  financeHealthPct: 0,
+}
+
+export const emptyCompliance: ComplianceData = {
+  kpis: { trustScorePct: 0, documentsVerified: 0, documentsTotal: 0, expiringSoon: 0, servicesBlocked: 0, profileVisible: false },
+  alerts: [],
+  requiredDocs: [],
+  expiryTimeline: [],
+  serviceImpact: [],
+  availability: { available: true, hours: "—" },
+  payout: { thisWeekPence: 0, nextPayoutPence: 0, nextPayoutDate: dateInDays(0), currency: GBP },
+  trust: { scorePct: 0, breakdown: { onTimePct: 0, responsePct: 0, qualityPct: 0, communicationPct: 0 } },
+}
+
 export const seedToday: TodayData = {
   kpis: {
     newRequests: 8,

@@ -57,11 +57,11 @@ export function useSupplierJobs(): JobsData {
       setLoading(true)
       setError(null)
 
-      // No workspace resolved yet → seed so the surface is never blank.
+      // No workspace resolved yet → honest empty, never fabricated jobs.
       if (!workspaceId) {
         if (!cancelled) {
           setData([])
-          setSource("seed")
+          setSource("empty")
           setLoading(false)
         }
         return
@@ -79,7 +79,7 @@ export function useSupplierJobs(): JobsData {
           // 42P01 (table missing) / permission / anything → tolerant seed.
           if (!cancelled) {
             setData([])
-            setSource("seed")
+            setSource("empty")
             setLoading(false)
           }
           return
@@ -90,7 +90,7 @@ export function useSupplierJobs(): JobsData {
           // Populated demo guarantee for V1.
           if (!cancelled) {
             setData([])
-            setSource("seed")
+            setSource("empty")
             setLoading(false)
           }
           return
@@ -168,7 +168,7 @@ export function useSupplierJobs(): JobsData {
       } catch {
         if (!cancelled) {
           setData([])
-          setSource("seed")
+          setSource("empty")
           setLoading(false)
         }
       }

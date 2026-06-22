@@ -18,6 +18,19 @@ const QUICK_ICON: Record<string, React.ElementType> = {
   calendar: Calendar, inbox: Inbox, plus: PlusCircle, shield: Upload, user: User,
 }
 
+function trustAccent(pct: number): Accent {
+  if (pct >= 85) return "emerald"
+  if (pct >= 60) return "blue"
+  if (pct >= 40) return "amber"
+  return "slate"
+}
+function trustBand(pct: number): string {
+  if (pct >= 85) return "Excellent"
+  if (pct >= 60) return "Strong"
+  if (pct >= 40) return "Building"
+  return "Getting started"
+}
+
 const AGENDA_TONE: Record<string, { dot: string; pill: Accent; label: string }> = {
   done: { dot: "bg-emerald-500", pill: "emerald", label: "Done" },
   in_progress: { dot: "bg-blue-500", pill: "blue", label: "On site" },
@@ -37,11 +50,11 @@ export function TodayTab() {
   const cur = data.earnings.currency
 
   const kpis: OverviewKpi[] = [
-    { id: "new", label: "New requests", value: k.newRequests, sub: "+3 vs yesterday", subAccent: "emerald", icon: FileText, accent: "blue", href: "/supplier?tab=requests" },
-    { id: "jobs", label: "Jobs today", value: k.jobsToday, sub: "2 completed", subAccent: "emerald", icon: CalendarClock, accent: "sky", href: "/supplier?tab=jobs" },
-    { id: "ev", label: "Awaiting evidence", value: k.awaitingEvidence, sub: "2 urgent", subAccent: "red", icon: ClipboardCheck, accent: "amber", href: "/supplier?tab=jobs" },
-    { id: "pay", label: "Awaiting payout", value: formatPence(k.awaitingPayoutPence, cur), sub: "2 payments", subAccent: "emerald", icon: Wallet, accent: "emerald", href: "/supplier?tab=earnings" },
-    { id: "score", label: "Response score", value: `${k.responseScorePct}%`, sub: "Excellent", subAccent: "emerald", icon: Star, accent: "violet", href: "/supplier?tab=compliance" },
+    { id: "new", label: "New requests", value: k.newRequests, icon: FileText, accent: "blue", href: "/supplier?tab=requests" },
+    { id: "jobs", label: "Jobs today", value: k.jobsToday, icon: CalendarClock, accent: "sky", href: "/supplier?tab=jobs" },
+    { id: "ev", label: "Awaiting evidence", value: k.awaitingEvidence, icon: ClipboardCheck, accent: "amber", href: "/supplier?tab=jobs" },
+    { id: "pay", label: "Awaiting payout", value: formatPence(k.awaitingPayoutPence, cur), icon: Wallet, accent: "emerald", href: "/supplier?tab=earnings" },
+    { id: "score", label: "Response score", value: k.responseScorePct > 0 ? `${k.responseScorePct}%` : "—", icon: Star, accent: "violet", href: "/supplier?tab=compliance" },
   ]
 
   const next = data.nextAppointment
@@ -57,6 +70,9 @@ export function TodayTab() {
         {/* ── Left column: agenda + earnings ──────────────────────────────── */}
         <div className="space-y-5 order-2 xl:order-1">
           <Panel title="Today's agenda" icon={CalendarClock} action={<span className="text-[12px] font-medium text-slate-400">Today</span>}>
+            {data.agenda.length === 0 ? (
+              <p className="text-[12px] text-slate-400 py-2">No appointments scheduled for today.</p>
+            ) : (
             <ol className="relative pl-5">
               <span className="absolute left-[7px] top-1 bottom-1 w-px bg-slate-100" aria-hidden />
               {data.agenda.map((a) => {
@@ -78,6 +94,7 @@ export function TodayTab() {
                 )
               })}
             </ol>
+            )}
             <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-3">
               <OverviewLink href="/supplier/schedule" label="View full schedule" />
               <Link href="/supplier/schedule" className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 hover:text-slate-700">
@@ -91,12 +108,10 @@ export function TodayTab() {
               <div>
                 <p className="text-[11px] font-medium text-slate-500">Today</p>
                 <p className="mt-1 text-2xl font-bold text-slate-900 leading-none">{formatPence(data.earnings.todayPence, cur)}</p>
-                <p className="mt-1 text-[11px] text-slate-400">2 jobs completed</p>
               </div>
               <div>
                 <p className="text-[11px] font-medium text-slate-500">This week</p>
                 <p className="mt-1 text-2xl font-bold text-slate-900 leading-none">{formatPence(data.earnings.weekPence, cur)}</p>
-                <p className="mt-1 text-[11px] text-slate-400">4 jobs completed</p>
               </div>
             </div>
             <Link href="/supplier?tab=earnings" className="mt-3 inline-block text-[12px] font-semibold text-blue-600 hover:text-blue-700">View full earnings →</Link>
@@ -152,6 +167,9 @@ export function TodayTab() {
           {/* Priority alerts + Quick actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Panel title="Priority alerts" icon={AlertTriangle}>
+              {data.priorityAlerts.length === 0 && (
+                <p className="text-[12px] text-slate-400">No priority alerts right now.</p>
+              )}
               <ul className="space-y-2.5">
                 {data.priorityAlerts.map((al) => (
                   <li key={al.id} className="flex items-start gap-2.5">
@@ -206,6 +224,9 @@ export function TodayTab() {
 
           {/* Unread messages */}
           <Panel title="Unread messages" icon={MessageSquare} action={<OverviewLink href="/supplier/messages" label="View all messages" />}>
+            {data.unread.length === 0 && (
+              <p className="text-[12px] text-slate-400 py-1">No unread messages.</p>
+            )}
             <ul className="divide-y divide-slate-100">
               {data.unread.map((m) => (
                 <li key={m.id}>
@@ -241,8 +262,8 @@ export function TodayTab() {
                 <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${data.availability.available ? "left-[22px]" : "left-0.5"}`} />
               </button>
             </div>
-            <p className="text-[13px] font-semibold text-emerald-600">{data.availability.available ? "Online and available" : "Unavailable"}</p>
-            <p className="text-[12px] text-slate-500 mt-0.5">You&apos;re visible to property managers and receiving requests.</p>
+            <p className={`text-[13px] font-semibold ${data.availability.available ? "text-emerald-600" : "text-slate-500"}`}>{data.availability.available ? "Online and available" : "Unavailable"}</p>
+            <p className="text-[12px] text-slate-500 mt-0.5">{data.availability.available ? "You're visible to property managers and receiving requests." : "You're hidden from new requests while unavailable."}</p>
             <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] text-slate-500">Today&apos;s hours</span>
@@ -257,7 +278,6 @@ export function TodayTab() {
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Payout snapshot</h2>
             <p className="text-[12px] text-slate-500">This week</p>
             <p className="text-2xl font-bold text-emerald-600 leading-none mt-0.5">{formatPence(data.payout.thisWeekPence, data.payout.currency)}</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">2 payments</p>
             <div className="mt-3 border-t border-slate-100 pt-3 flex items-end justify-between">
               <div>
                 <p className="text-[12px] text-slate-500">Next payout</p>
@@ -270,6 +290,9 @@ export function TodayTab() {
 
           {/* Compliance alerts */}
           <Panel title="Compliance alerts" action={<span className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-50 text-red-600 text-[11px] font-bold inline-flex items-center justify-center">{data.complianceAlerts.length}</span>}>
+            {data.complianceAlerts.length === 0 && (
+              <p className="text-[12px] text-slate-400">No compliance alerts.</p>
+            )}
             <ul className="space-y-3">
               {data.complianceAlerts.map((c) => (
                 <li key={c.id} className="flex items-start gap-2.5">
@@ -286,19 +309,25 @@ export function TodayTab() {
 
           {/* Profile & trust ring */}
           <Panel title="Profile & trust score" action={<Link href="/supplier/profile" className="text-[12px] font-semibold text-blue-600 hover:text-blue-700">View public profile</Link>}>
-            <div className="flex items-center gap-4">
-              <ScoreRing pct={data.trust.scorePct} size={86} stroke={9} accent="emerald" sub={undefined} />
-              <div className="min-w-0">
-                <Pill accent="emerald">Excellent</Pill>
-                <p className="text-[12px] text-slate-500 mt-1.5">You&apos;re a top performing supplier. Keep it up!</p>
-              </div>
-            </div>
-            <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
-              <CheckRow label="On-time completion" done />
-              <CheckRow label="Response time" done />
-              <CheckRow label="Quality of work" done />
-              <CheckRow label="Communication" done />
-            </div>
+            {data.trust.scorePct > 0 ? (
+              <>
+                <div className="flex items-center gap-4">
+                  <ScoreRing pct={data.trust.scorePct} size={86} stroke={9} accent={trustAccent(data.trust.scorePct)} sub={undefined} />
+                  <div className="min-w-0">
+                    <Pill accent={trustAccent(data.trust.scorePct)}>{trustBand(data.trust.scorePct)}</Pill>
+                    <p className="text-[12px] text-slate-500 mt-1.5">Based on your on-time, response, quality and communication scores.</p>
+                  </div>
+                </div>
+                <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+                  <CheckRow label="On-time completion" done={data.trust.breakdown.onTimePct >= 80} value={`${data.trust.breakdown.onTimePct}%`} />
+                  <CheckRow label="Response time" done={data.trust.breakdown.responsePct >= 80} value={`${data.trust.breakdown.responsePct}%`} />
+                  <CheckRow label="Quality of work" done={data.trust.breakdown.qualityPct >= 80} value={`${data.trust.breakdown.qualityPct}%`} />
+                  <CheckRow label="Communication" done={data.trust.breakdown.communicationPct >= 80} value={`${data.trust.breakdown.communicationPct}%`} />
+                </div>
+              </>
+            ) : (
+              <p className="text-[12px] text-slate-400 py-2">Your trust score builds as you complete jobs and earn verified reviews.</p>
+            )}
           </Panel>
         </aside>
       </div>

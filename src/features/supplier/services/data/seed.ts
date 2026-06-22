@@ -1,7 +1,33 @@
 /* Rich demo seed for the supplier Services surfaces (Catalogue + Packages).
-   42P01-safe fallback. Money is integer pence. */
+   Retained for design previews only — the live data hooks fall back to the
+   HONEST EMPTY datasets below, never this fabricated catalogue. Money is
+   integer pence. */
 
 import type { CatalogueData, PackagesData } from "./types"
+
+/* ── Honest empty fallbacks (no fabricated supplier / services / packages) ── */
+export const EMPTY_CATALOGUE: CatalogueData = {
+  supplier: { name: "Your business", verified: false, rating: 0, reviews: 0 },
+  services: [],
+  kpis: {
+    activeServices: 0,
+    quoteOnlyServices: 0,
+    instantPayServices: 0,
+    emergencyServices: 0,
+    topRevenueServiceName: "—",
+    topRevenuePence: 0,
+  },
+}
+
+export const EMPTY_PACKAGES: PackagesData = {
+  packages: [],
+  kpis: {
+    activePackages: 0,
+    mostBookedPackage: "—",
+    packageRevenuePence: 0,
+    addOnAttachRate: 0,
+  },
+}
 
 export const SEED_CATALOGUE: CatalogueData = {
   supplier: { name: "Bristol Heat & Power", verified: true, rating: 4.8, reviews: 212 },

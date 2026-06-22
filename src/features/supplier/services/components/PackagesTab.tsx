@@ -21,7 +21,7 @@ function pkgPrice(p: ServicePackage): string {
 }
 
 export function PackagesTab() {
-  const { data, loading, source, denied } = useServicesPackages()
+  const { data, loading, denied } = useServicesPackages()
   const { push } = useScheduleToast()
   const [view, setView] = useState("cards")
   const [packages, setPackages] = useState(data.packages)
@@ -97,8 +97,8 @@ export function PackagesTab() {
         </SupplierButton>
       </div>
 
-      {source === "seed" && (
-        <p className="text-xs text-slate-400">Showing example packages — build your own bundles to replace these.</p>
+      {packages.length === 0 && (
+        <p className="text-xs text-slate-400">No packages yet — bundle your services into a package to upsell customers.</p>
       )}
 
       {view === "matrix" ? (

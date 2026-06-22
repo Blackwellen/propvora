@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-
 import type {
   PipelineRequest,
   RequestTab,
@@ -24,6 +23,10 @@ import type {
 
    Returns `{ data, loading, error, source, permissionDenied, reload }`.
 ─────────────────────────────────────────────────────────────────────────── */
+
+/* Honest empty fallback — when the workspace has no live requests (or the table
+   isn't provisioned), we show an empty pipeline rather than fabricated leads. */
+const EMPTY_REQUESTS: PipelineRequest[] = []
 
 function classifyTab(row: Record<string, unknown>): RequestTab {
   const status = String(row.status ?? "").toLowerCase()
@@ -109,10 +112,10 @@ function mapRow(row: Record<string, unknown>): PipelineRequest {
 
 export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
   const { workspaceId, ready } = useSupplierWorkspace()
-  const [data, setData] = useState<PipelineRequest[]>([])
+  const [data, setData] = useState<PipelineRequest[]>(EMPTY_REQUESTS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [source, setSource] = useState<"live" | "seed">("seed")
+  const [source, setSource] = useState<"live" | "seed">("live")
   const [permissionDenied, setPermissionDenied] = useState(false)
   const [nonce, setNonce] = useState(0)
 
@@ -124,11 +127,11 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
     setLoading(true)
     setError(null)
     ;(async () => {
-      // No workspace resolved yet → seed, but not an error.
+      // No workspace resolved yet → empty, not an error.
       if (!workspaceId) {
         if (!cancelled) {
-          setData([])
-          setSource("seed")
+          setData(EMPTY_REQUESTS)
+          setSource("live")
           setPermissionDenied(false)
           setLoading(false)
         }
@@ -146,11 +149,11 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
         if (cancelled) return
 
         if (err) {
-          // 42P01 (relation missing) / 42703 (column missing) / RLS → seed.
+          // 42P01 (relation missing) / 42703 (column missing) / RLS → honest empty.
           const code = (err as { code?: string }).code
           const denied = code === "42501" || /permission|rls/i.test(err.message ?? "")
-          setData([])
-          setSource("seed")
+          setData(EMPTY_REQUESTS)
+          setSource("live")
           setPermissionDenied(denied)
           setError(null)
           setLoading(false)
@@ -158,9 +161,9 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
         }
 
         if (!rows || rows.length === 0) {
-          // Table exists but empty — show seed so the pipeline isn't a blank shell.
-          setData([])
-          setSource("seed")
+          // Table exists but empty — show an honest empty pipeline, not fake leads.
+          setData(EMPTY_REQUESTS)
+          setSource("live")
           setPermissionDenied(false)
           setLoading(false)
           return
@@ -172,8 +175,8 @@ export function useSupplierRequests(): RequestsEnvelope<PipelineRequest[]> {
         setLoading(false)
       } catch {
         if (!cancelled) {
-          setData([])
-          setSource("seed")
+          setData(EMPTY_REQUESTS)
+          setSource("live")
           setPermissionDenied(false)
           setError(null)
           setLoading(false)

@@ -7,17 +7,10 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
-import type {
-  CatalogueData,
-  PackagesData,
-  CatalogueService,
-  ServiceCategory,
-  PricingModel,
-  PackageLine,
-  PackageAddon,
-} from "./types"
+import { EMPTY_CATALOGUE, EMPTY_PACKAGES } from "./seed"
 
-const IMAGE_PALETTE = [
+/* Gradient palette for live service cards (purely cosmetic — not data). */
+const CARD_HUES = [
   "from-rose-400 to-orange-400",
   "from-sky-400 to-blue-500",
   "from-emerald-400 to-teal-500",
@@ -25,20 +18,14 @@ const IMAGE_PALETTE = [
   "from-violet-400 to-indigo-500",
   "from-cyan-400 to-sky-500",
 ]
-
-const EMPTY_CATALOGUE: CatalogueData = {
-  supplier: { name: "", verified: false, rating: 0, reviews: 0 },
-  services: [],
-  kpis: {
-    activeServices: 0, quoteOnlyServices: 0, instantPayServices: 0,
-    emergencyServices: 0, topRevenueServiceName: "—", topRevenuePence: 0,
-  },
-}
-
-const EMPTY_PACKAGES: PackagesData = {
-  packages: [],
-  kpis: { activePackages: 0, mostBookedPackage: "—", packageRevenuePence: 0, addOnAttachRate: 0 },
-}
+import type {
+  CatalogueData,
+  PackagesData,
+  CatalogueService,
+  ServicePackage,
+  ServiceCategory,
+  PricingModel,
+} from "./types"
 
 export interface ServicesHookState<T> {
   data: T
@@ -134,6 +121,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
     if (error) return { data: null, denied: isDenied(error) }
     if (!data || data.length === 0) return { data: null }
 
+    const hues = CARD_HUES
     const services: CatalogueService[] = data.map((r, i) => {
       const model = mapPricingModel(r.pricing_model)
       const cat = (r.category as ServiceCategory) ?? "general"
@@ -142,7 +130,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
         name: r.name ?? "Service",
         category: cat,
         categories: [cat],
-        imageHue: IMAGE_PALETTE[i % IMAGE_PALETTE.length],
+        imageHue: hues[i % hues.length],
         pricingModel: model,
         pricePence: model === "fixed" ? r.rate_pence ?? null : null,
         priceMinPence: model === "range" ? r.rate_pence ?? null : null,
@@ -163,7 +151,7 @@ export function useServicesCatalogue(): ServicesHookState<CatalogueData> {
     )
     return {
       data: {
-        supplier: { name: "", verified: false, rating: 0, reviews: 0 },
+        ...EMPTY_CATALOGUE,
         services,
         kpis: {
           activeServices: services.filter((s) => s.visible).length,
@@ -189,11 +177,14 @@ export function useServicesPackages(): ServicesHookState<PackagesData> {
     if (error) return { data: null, denied: isDenied(error) }
     if (!data || data.length === 0) return { data: null }
 
-    const packages = data.map((r, i) => ({
+    // Build packages from REAL fields only. Metrics we don't yet have a truthful
+    // source for (margin, bookings, attach rate, rating) stay zeroed and the
+    // line/addon/upsell detail is empty until those tables are wired.
+    const packages = data.map((r, i): ServicePackage => ({
       id: r.id,
       name: r.name ?? "Package",
       description: r.description ?? "",
-      imageHue: IMAGE_PALETTE[i % IMAGE_PALETTE.length],
+      imageHue: CARD_HUES[i % CARD_HUES.length],
       pricingModel: "fixed" as PricingModel,
       pricePence: r.price_pence ?? null,
       priceMinPence: null,
@@ -202,24 +193,23 @@ export function useServicesPackages(): ServicesHookState<PackagesData> {
       attachRate: 0,
       bookings: 0,
       rating: 0,
-      health: "on_track" as const,
+      health: "on_track",
       mostPopular: false,
       active: Boolean(r.active),
       recurring: false,
-      lines: [] as PackageLine[],
-      addons: [] as PackageAddon[],
-      materialsIncluded: [] as string[],
-      materialsExcluded: [] as string[],
-      upsells: [] as { id: string; label: string; attachPct: number }[],
+      lines: [],
+      addons: [],
+      materialsIncluded: [],
+      materialsExcluded: [],
+      upsells: [],
     }))
     return {
       data: {
+        ...EMPTY_PACKAGES,
         packages,
         kpis: {
+          ...EMPTY_PACKAGES.kpis,
           activePackages: packages.filter((p) => p.active).length,
-          mostBookedPackage: packages.length > 0 ? packages[0].name : "—",
-          packageRevenuePence: 0,
-          addOnAttachRate: 0,
         },
       },
     }

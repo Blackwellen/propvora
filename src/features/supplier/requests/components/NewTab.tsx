@@ -52,11 +52,11 @@ export function NewTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
     const covPct = rows.length > 0 ? Math.round((withinCov / rows.length) * 100) : 0
     const highUrg = rows.filter((r) => r.urgency === "high" || r.urgency === "emergency").length
     return [
-      { label: "New requests", value: String(rows.length), sub: "+3 vs yesterday", icon: Inbox },
-      { label: "Due today", value: String(dueToday), sub: "vs yesterday" },
-      { label: "Potential value", value: formatPence(potential), sub: "+£2,120 vs yesterday" },
+      { label: "New requests", value: String(rows.length), icon: Inbox },
+      { label: "Due today", value: String(dueToday) },
+      { label: "Potential value", value: formatPence(potential) },
       { label: "Within coverage", value: `${covPct}%`, sub: `${withinCov} of ${rows.length} requests` },
-      { label: "High urgency", value: String(highUrg), sub: "vs yesterday" },
+      { label: "High urgency", value: String(highUrg) },
     ]
   }, [rows])
 

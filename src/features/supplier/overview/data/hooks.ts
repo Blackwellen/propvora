@@ -17,7 +17,7 @@ import {
   emptyJobs,
   emptyEarnings,
   emptyCompliance,
-} from "./empty"
+} from "./seed"
 
 /* ──────────────────────────────────────────────────────────────────────────
    Supplier Overview data hooks.
@@ -131,45 +131,49 @@ function useOverviewResource<T>(
   return { data, loading, error, source, reload }
 }
 
-/* ── Per-tab hooks. Fallback is honest empty state (zeros, empty arrays).
-   Replace the builder with a real mapper when live aggregate endpoints land. */
+/* ── Per-tab hooks. HONEST EMPTY by default.
+
+   These Overview tabs render aggregate view-models (agenda, next appointment,
+   earnings trends, trust breakdown) that have no truthful 1:1 mapping from the
+   raw workspace tables yet. Rather than fabricate rich demo rows, each hook
+   serves an honest EMPTY dataset so the supplier sees real structure with
+   zeroed figures and empty lists until the live aggregate endpoints land.
+
+   This is the clean extension point: when a real aggregate endpoint exists,
+   pass a `build` mapper that shapes live rows into the view-model. Until then
+   we never present fake jobs/customers/money. */
 
 export function useTodayData(): OverviewState<TodayData> {
   return useOverviewResource<TodayData>(
     ["supplier_schedule_events", "supplier_requests"],
-    emptyToday,
-    () => emptyToday
+    emptyToday
   )
 }
 
 export function useRequestsData(): OverviewState<RequestsData> {
   return useOverviewResource<RequestsData>(
     ["supplier_requests"],
-    emptyRequests,
-    () => emptyRequests
+    emptyRequests
   )
 }
 
 export function useJobsData(): OverviewState<JobsData> {
   return useOverviewResource<JobsData>(
     ["supplier_job_assignments", "supplier_invoices"],
-    emptyJobs,
-    () => emptyJobs
+    emptyJobs
   )
 }
 
 export function useEarningsData(): OverviewState<EarningsData> {
   return useOverviewResource<EarningsData>(
     ["supplier_invoices", "supplier_payouts", "supplier_escrow_items", "supplier_finance_summaries"],
-    emptyEarnings,
-    () => emptyEarnings
+    emptyEarnings
   )
 }
 
 export function useComplianceData(): OverviewState<ComplianceData> {
   return useOverviewResource<ComplianceData>(
     ["supplier_compliance_documents"],
-    emptyCompliance,
-    () => emptyCompliance
+    emptyCompliance
   )
 }
