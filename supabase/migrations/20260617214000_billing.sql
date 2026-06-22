@@ -27,6 +27,30 @@
 -- (see workspace_billing_history.document_path).
 -- ============================================================
 
+-- ─────────────── Legacy-table reconciliation (safe + guarded) ───────────────
+-- A prior migration created an EARLIER `workspace_subscriptions` with a
+-- different shape (no `created_at`), which makes the CREATE TABLE IF NOT EXISTS
+-- below silently skip it and the created_at index then fail. We drop it ONLY
+-- when it is unmistakably that legacy stub: it exists, lacks `created_at`, AND
+-- holds zero rows. This can NEVER drop a populated table or one already on the
+-- new schema, so it is safe on every environment (local / staging / prod).
+DO $$
+BEGIN
+  IF EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'workspace_subscriptions'
+      )
+     AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'workspace_subscriptions'
+          AND column_name = 'created_at'
+      )
+     AND NOT EXISTS (SELECT 1 FROM public.workspace_subscriptions LIMIT 1)
+  THEN
+    DROP TABLE public.workspace_subscriptions CASCADE;
+  END IF;
+END $$;
+
 -- ──────────────────────────── Plans catalogue ────────────────────────────
 CREATE TABLE IF NOT EXISTS public.workspace_plans (
   id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
