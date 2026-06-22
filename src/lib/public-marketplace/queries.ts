@@ -419,14 +419,68 @@ export async function getPublicStayBySlug(slug: string): Promise<PublicStay | nu
 }
 
 // ─── Providers ───────────────────────────────────────────────────────────────
+// Real published marketplace_listings (supplier_job) are merged FIRST so an
+// operator can hire a REGISTERED marketplace supplier through real escrow
+// (/api/marketplace/checkout) — their `id` is the real listing id.
+
+const PROVIDER_PIN_COLORS = ["#2563EB", "#7C3AED", "#059669", "#D97706", "#DC2626", "#0891B2"]
+
+function dbRowToProvider(r: Record<string, unknown>): PublicProvider {
+  const g = (k: string) => r[k]
+  const id = String(g("id"))
+  const name = String(g("company_name") ?? g("title") ?? "Propvora Supplier")
+  const slug = `${slugify(name, id)}-${id.slice(0, 4)}`
+  const trades = (g("trades") as string[] | null) ?? []
+  const trade = trades[0] ?? String(g("category") ?? "General Maintenance")
+  const priceMajor = Number(g("price") ?? 0)
+  const fromPence = Number(g("base_price_pence") ?? 0) || (priceMajor > 0 ? Math.round(priceMajor * 100) : 0)
+  const images = (g("images") as string[] | null) ?? []
+  const city = String(g("location_city") ?? "United Kingdom")
+  const initials = name.split(" ").slice(0, 2).map((w) => w[0] ?? "").join("").toUpperCase()
+  return {
+    id, slug, companyName: name, trade,
+    location: String(g("location") ?? city), city,
+    rating: Number(g("rating") ?? 4.7), reviewCount: Number(g("review_count") ?? 0),
+    proBadge: Boolean(g("verified")), vetted: Boolean(g("verified")), insured: Boolean(g("verified")),
+    insuranceAmount: "£2M", teamSize: 1, jobsDone: 0, yearsActive: 0, responseTime: "Within 24 hours",
+    fromPrice: fromPence, heroImage: images[0] || "", logo: "",
+    certifications: ((g("features") as string[] | null) ?? []).slice(0, 4),
+    coverageRadius: 10, coverageCities: [city], featured: Boolean(g("is_featured")), emergency24h: false,
+    description: String(g("description") ?? ""), services: trades,
+    lat: Number(g("latitude") ?? 51.5), lng: Number(g("longitude") ?? -0.12),
+    initials, pinColor: PROVIDER_PIN_COLORS[Math.abs(hashStr(id)) % PROVIDER_PIN_COLORS.length],
+  }
+}
+
+let _provCache: PublicProvider[] | null = null
+let _provCacheTs = 0
+
+async function loadLiveSupplierListings(): Promise<PublicProvider[]> {
+  const now = Date.now()
+  if (_provCache && now - _provCacheTs < CACHE_TTL_MS) return _provCache
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("marketplace_listings")
+      .select("id, title, company_name, trades, description, rating, review_count, verified, base_price_pence, price, category, location, location_city, latitude, longitude, is_featured, features, images")
+      .eq("transaction_type", "supplier_job")
+      .eq("status", "published")
+    if (error || !data) return []
+    const provs = (data as unknown as Record<string, unknown>[]).map(dbRowToProvider)
+    _provCache = provs
+    _provCacheTs = now
+    return provs
+  } catch {
+    return []
+  }
+}
 
 export async function getPublicProviders(): Promise<PublicProvider[]> {
+  const dbListings = await loadLiveSupplierListings()
   const live = await loadLiveData()
-  // Merge live + seed (deduped by slug) so the public + PM marketplace stay rich
-  // even when only a few real suppliers exist (was either/or → 1-card sparse page).
   const liveRows = live?.providers ?? []
-  const seen = new Set(liveRows.map(p => p.slug))
-  const merged = [...liveRows, ...EXPANDED_PROVIDERS.filter(p => !seen.has(p.slug))]
+  const seen = new Set([...dbListings.map(p => p.slug), ...liveRows.map(p => p.slug)])
+  const merged = [...dbListings, ...liveRows, ...EXPANDED_PROVIDERS.filter(p => !seen.has(p.slug))]
   return merged.map(withProviderMedia)
 }
 

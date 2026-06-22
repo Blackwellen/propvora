@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getPublicProviderBySlug } from "@/lib/public-marketplace/queries"
+import { createClient } from "@/lib/supabase/server"
+import { resolveOperatorBuyerWorkspace } from "@/lib/marketplace/buyer-workspace"
 import MarketplaceCheckout, {
   type MarketplaceCheckoutConfig,
 } from "@/components/checkout/MarketplaceCheckout"
+import MarketplaceEscrowCheckout from "@/components/checkout/MarketplaceEscrowCheckout"
+
+const isRealListing = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(id)
 
 export const dynamic = "force-dynamic"
 
@@ -28,6 +33,38 @@ export default async function SupplierBookPage({
 
   // POA suppliers still book — call-out is confirmed, final quote agreed on site.
   const callOut = provider.fromPrice > 0 ? provider.fromPrice : 6000
+
+  // ── REAL escrow path: registered marketplace supplier (real listing) ────────
+  if (isRealListing(provider.id)) {
+    const supabase = await createClient()
+    const buyerWorkspaceId = await resolveOperatorBuyerWorkspace(supabase)
+    if (buyerWorkspaceId) {
+      return (
+        <MarketplaceEscrowCheckout
+          listingId={provider.id}
+          buyerWorkspaceId={buyerWorkspaceId}
+          heading={provider.companyName}
+          subheading={`${provider.trade} · ${provider.location}`}
+          thumbUrl={provider.heroImage}
+          metaRows={[
+            { label: "Trade", value: provider.trade },
+            { label: "Response time", value: provider.responseTime },
+          ]}
+          lineItems={[{ label: "Call-out & first hour", pence: callOut }]}
+          currency="GBP"
+          trustChips={[
+            ...(provider.vetted ? ["Vetted"] : []),
+            ...(provider.insured ? [`Insured ${provider.insuranceAmount}`] : []),
+            `${provider.rating.toFixed(1)}★ (${provider.reviewCount})`,
+          ]}
+          backHref={`/property-manager/marketplace/suppliers-hub/${slug}`}
+          backLabel="Back to supplier"
+          successHref="/property-manager/work/jobs"
+          successHrefLabel="View in Work"
+        />
+      )
+    }
+  }
 
   const config: MarketplaceCheckoutConfig = {
     kind: "supplier",
