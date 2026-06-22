@@ -525,11 +525,60 @@ export async function getFeaturedServiceOffers(): Promise<PublicServiceOffer[]> 
 
 // ─── Emergency Services ───────────────────────────────────────────────────────
 
+function dbRowToEmergency(r: Record<string, unknown>): PublicEmergencyService {
+  const g = (k: string) => r[k]
+  const id = String(g("id"))
+  const title = String(g("title") ?? "Emergency call-out")
+  const slug = `${slugify(title, id)}-${id.slice(0, 4)}`
+  const priceMajor = Number(g("price") ?? 0)
+  const basePence = Number(g("base_price_pence") ?? 0) || (priceMajor > 0 ? Math.round(priceMajor * 100) : 0)
+  const provider = String(g("company_name") ?? "Propvora Emergency")
+  const images = (g("images") as string[] | null) ?? []
+  return {
+    id, slug, title, subtitle: String(g("description") ?? "").slice(0, 120),
+    category: String(g("category") ?? "Emergency"),
+    providerName: provider, providerSlug: slugify(provider, id), providerAvatar: "",
+    leadTechnicianName: provider, leadTechnicianRole: "Lead technician", phone: "",
+    rating: Number(g("rating") ?? 4.7), reviewCount: Number(g("review_count") ?? 0),
+    responseTimeMin: 30, responseTimeMax: 90,
+    heroImage: images[0] || "", location: String(g("location") ?? g("location_city") ?? "United Kingdom"),
+    coveragePostcodes: [], available24h: true, policeVetted: Boolean(g("verified")),
+    insured: Boolean(g("verified")), insuranceAmount: "£2M",
+    baseCalloutPrice: basePence, noCalloutFee: false,
+    description: String(g("description") ?? ""),
+    coverageLat: Number(g("latitude") ?? 51.5), coverageLng: Number(g("longitude") ?? -0.12),
+  }
+}
+
+let _emgCache: PublicEmergencyService[] | null = null
+let _emgCacheTs = 0
+
+async function loadLiveEmergencyListings(): Promise<PublicEmergencyService[]> {
+  const now = Date.now()
+  if (_emgCache && now - _emgCacheTs < CACHE_TTL_MS) return _emgCache
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("marketplace_listings")
+      .select("id, title, description, company_name, rating, review_count, verified, base_price_pence, price, category, location, location_city, latitude, longitude, images")
+      .eq("transaction_type", "emergency_job")
+      .eq("status", "published")
+    if (error || !data) return []
+    const list = (data as unknown as Record<string, unknown>[]).map(dbRowToEmergency)
+    _emgCache = list
+    _emgCacheTs = now
+    return list
+  } catch {
+    return []
+  }
+}
+
 export async function getPublicEmergencyServices(): Promise<PublicEmergencyService[]> {
+  const dbListings = await loadLiveEmergencyListings()
   const live = await loadLiveData()
   const liveRows = live?.emergencyServices ?? []
-  const seen = new Set(liveRows.map(s => s.slug))
-  const merged = [...liveRows, ...SEED_EMERGENCY_SERVICES.filter(s => !seen.has(s.slug))]
+  const seen = new Set([...dbListings.map(s => s.slug), ...liveRows.map(s => s.slug)])
+  const merged = [...dbListings, ...liveRows, ...SEED_EMERGENCY_SERVICES.filter(s => !seen.has(s.slug))]
   return merged.map(withEmergencyMedia)
 }
 

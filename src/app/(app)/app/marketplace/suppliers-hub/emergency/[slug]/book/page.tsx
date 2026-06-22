@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getPublicEmergencyServiceBySlug } from "@/lib/public-marketplace/queries"
+import { createClient } from "@/lib/supabase/server"
+import { resolveOperatorBuyerWorkspace } from "@/lib/marketplace/buyer-workspace"
 import MarketplaceCheckout, {
   type MarketplaceCheckoutConfig,
 } from "@/components/checkout/MarketplaceCheckout"
+import MarketplaceEscrowCheckout from "@/components/checkout/MarketplaceEscrowCheckout"
+
+const isRealListing = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(id)
 
 export const dynamic = "force-dynamic"
 
@@ -25,6 +30,38 @@ export default async function EmergencyBookPage({
   const { slug } = await params
   const service = await getPublicEmergencyServiceBySlug(slug)
   if (!service) notFound()
+
+  // ── REAL escrow path: real listing + operator buyer workspace ───────────────
+  if (isRealListing(service.id)) {
+    const supabase = await createClient()
+    const buyerWorkspaceId = await resolveOperatorBuyerWorkspace(supabase)
+    if (buyerWorkspaceId) {
+      return (
+        <MarketplaceEscrowCheckout
+          listingId={service.id}
+          buyerWorkspaceId={buyerWorkspaceId}
+          heading={service.title}
+          subheading={`${service.providerName} · ${service.location}`}
+          thumbUrl={service.heroImage}
+          metaRows={[
+            { label: "Response time", value: `${service.responseTimeMin}–${service.responseTimeMax} min` },
+            { label: "Availability", value: service.available24h ? "24/7" : "Daytime" },
+          ]}
+          lineItems={[{ label: service.noCalloutFee ? "Call-out (waived)" : "Emergency call-out", pence: service.baseCalloutPrice }]}
+          currency="GBP"
+          trustChips={[
+            ...(service.available24h ? ["24/7"] : []),
+            ...(service.policeVetted ? ["Police vetted"] : []),
+            `${service.rating.toFixed(1)}★ (${service.reviewCount})`,
+          ]}
+          backHref={`/property-manager/marketplace/suppliers-hub/emergency/${slug}`}
+          backLabel="Back to service"
+          successHref="/property-manager/work/jobs"
+          successHrefLabel="View in Work"
+        />
+      )
+    }
+  }
 
   const config: MarketplaceCheckoutConfig = {
     kind: "emergency",
