@@ -30,7 +30,7 @@ import LongTermRentalCostBreakdown from '@/components/marketplace/stays/LongTerm
 import LongTermRentalCompliance from '@/components/marketplace/stays/LongTermRentalCompliance'
 import {
   getPublicLongTermRentalBySlug,
-  getPublicLongTermRentals,
+  getSimilarLongTermRentals,
 } from '@/lib/public-marketplace/queries'
 import { SEED_LONG_TERM_RENTALS } from '@/lib/public-marketplace/seed-fallback'
 
@@ -60,15 +60,11 @@ export default async function LongTermRentalDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const [rental, allRentals] = await Promise.all([
+  const [rental, similar] = await Promise.all([
     getPublicLongTermRentalBySlug(slug),
-    getPublicLongTermRentals(),
+    getSimilarLongTermRentals(slug, 3),
   ])
   if (!rental) notFound()
-
-  const similar = allRentals
-    .filter((r) => r.id !== rental.id && r.city === rental.city)
-    .slice(0, 3)
 
   const isVerified =
     rental.licenceVerified || rental.landlordVerified || rental.agentVerified

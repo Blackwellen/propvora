@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { CheckCircle, Star, MapPin, ChevronRight, Clock, Shield, Briefcase, Users, Heart, MessageCircle } from 'lucide-react'
 import PublicPageShell from '@/components/public-marketplace/PublicPageShell'
 import LocationMap from '@/components/maps/LocationMap'
-import { getPublicProviderBySlug, getPublicProviders } from '@/lib/public-marketplace/queries'
+import { getPublicProviderBySlug, getSimilarProviders } from '@/lib/public-marketplace/queries'
 import { formatPence } from '@/lib/marketplace/money'
 
 export const dynamic = 'force-dynamic'
@@ -24,13 +24,11 @@ const TABS = ['Overview', 'Services', 'Reviews', 'Portfolio', 'Certifications', 
 
 export default async function ProviderDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [provider, allProviders] = await Promise.all([
+  const [provider, relatedProviders] = await Promise.all([
     getPublicProviderBySlug(slug),
-    getPublicProviders(),
+    getSimilarProviders(slug, 3),
   ])
   if (!provider) notFound()
-
-  const relatedProviders = allProviders.filter(p => p.slug !== slug).slice(0, 3)
 
   return (
     <PublicPageShell marketplaceNav hideFooter>
