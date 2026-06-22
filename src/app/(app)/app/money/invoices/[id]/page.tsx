@@ -512,8 +512,15 @@ export default function InvoiceDetailPage() {
                 </div>
                 <div className="space-y-1 text-sm">
                   <p className="font-semibold text-slate-900">{recipient}</p>
-                  <p className="text-slate-500">tenant@example.com</p>
-                  <p className="text-slate-500">14 Birchwood Road, London, E1 7PL</p>
+                  {property !== "—" && <p className="text-slate-500">{property}</p>}
+                  {inv.contact_id && (
+                    <Link
+                      href={`/property-manager/contacts/${inv.contact_id}`}
+                      className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1"
+                    >
+                      View contact <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  )}
                 </div>
               </div>
             </SectionCard>
@@ -610,8 +617,17 @@ export default function InvoiceDetailPage() {
           <div className="space-y-4">
             <div className="flex justify-end">
               <button
-                onClick={() => showToast("Record Payment — full payment recording requires invoices module extension")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                onClick={async () => {
+                  if (inv.status === "paid") { showToast("Invoice is already fully paid"); return }
+                  try {
+                    await updateStatus.mutateAsync({ id: inv.id, status: "paid", paid_at: new Date().toISOString(), paid_amount: inv.amount })
+                    showToast("Payment recorded — invoice marked as Paid")
+                  } catch (e: unknown) {
+                    showToast((e as { code?: string })?.code === "42P01" ? "Invoices table not provisioned yet" : "Could not record payment")
+                  }
+                }}
+                disabled={inv.status === "paid" || updateStatus.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
               >
                 <CreditCard className="w-4 h-4" /> Record Payment
               </button>
@@ -658,9 +674,11 @@ export default function InvoiceDetailPage() {
               {property !== "—" && property !== "All Properties" ? (
                 <div>
                   <p className="font-semibold text-slate-900 text-sm">{property}</p>
-                  <Link href="#" className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
-                    View Property <ChevronRight className="w-3 h-3" />
-                  </Link>
+                  {inv.property_id ? (
+                    <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
+                      View Property <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  ) : null}
                 </div>
               ) : (
                 <p className="text-sm text-slate-500">Not linked</p>
@@ -680,9 +698,13 @@ export default function InvoiceDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-slate-900 text-sm">{recipient}</p>
-                <Link href="#" className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
-                  View Contact <ChevronRight className="w-3 h-3" />
-                </Link>
+                {inv.contact_id ? (
+                  <Link href={`/property-manager/contacts/${inv.contact_id}`} className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
+                    View Contact <ChevronRight className="w-3 h-3" />
+                  </Link>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-0.5">Not linked</p>
+                )}
               </div>
             </div>
           </div>
@@ -955,15 +977,20 @@ export default function InvoiceDetailPage() {
         {/* Related */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Related</p>
-          <Link href="#" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
-            <Building2 className="w-3.5 h-3.5" /> {property}
-          </Link>
-          <Link href="#" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
-            <User className="w-3.5 h-3.5" /> {recipient}
-          </Link>
-          <Link href="#" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">
-            <Link2 className="w-3.5 h-3.5" /> View Tenancy
-          </Link>
+          {inv.property_id ? (
+            <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+              <Building2 className="w-3.5 h-3.5" /> {property}
+            </Link>
+          ) : (
+            <p className="flex items-center gap-2 text-sm text-slate-500"><Building2 className="w-3.5 h-3.5" /> {property}</p>
+          )}
+          {inv.contact_id ? (
+            <Link href={`/property-manager/contacts/${inv.contact_id}`} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+              <User className="w-3.5 h-3.5" /> {recipient}
+            </Link>
+          ) : (
+            <p className="flex items-center gap-2 text-sm text-slate-500"><User className="w-3.5 h-3.5" /> {recipient}</p>
+          )}
         </div>
 
         {/* AI insight */}

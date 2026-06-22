@@ -381,12 +381,41 @@ export default function EditInvoicePage() {
     setLineItems(prev => [...prev, { id: `li-${Date.now()}`, description: "", quantity: 1, unit_price: 0, tax_rate: 0 }])
   }
 
+  const [saveError, setSaveError] = useState<string | null>(null)
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
+    if (!workspace?.id || !id) { setSaveError("Workspace not loaded — please refresh."); return }
     setIsSaving(true)
-    await new Promise(r => setTimeout(r, 1200))
-    setIsSaving(false)
-    router.push(`/property-manager/money/invoices/${id}`)
+    setSaveError(null)
+    try {
+      const supabase = createClient()
+      // Map page-facing status onto the live invoices enum (void -> cancelled).
+      const liveStatus = status === "void" ? "cancelled" : status
+      const { error } = await supabase
+        .from("invoices")
+        .update({
+          status: liveStatus,
+          issue_date: issueDate || null,
+          due_date: dueDate || null,
+          notes: notes || lineItems[0]?.description || null,
+          subtotal,
+          tax_amount: taxTotal,
+          total: grandTotal,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .eq("workspace_id", workspace.id)
+      if (error) {
+        setSaveError(error.code === "42P01" ? "Invoices table not provisioned yet — change not saved." : "Could not save changes.")
+        return
+      }
+      router.push(`/property-manager/money/invoices/${id}`)
+    } catch {
+      setSaveError("Could not save changes.")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   if (loadingInvoice) {
@@ -409,7 +438,16 @@ export default function EditInvoicePage() {
         <DeleteConfirmModal
           invoiceNumber={source.invoice_number}
           onClose={() => setShowDeleteModal(false)}
-          onConfirm={() => { setShowDeleteModal(false); router.push("/property-manager/money/invoices") }}
+          onConfirm={async () => {
+            setShowDeleteModal(false)
+            if (workspace?.id && id) {
+              try {
+                const supabase = createClient()
+                await supabase.from("invoices").delete().eq("id", id).eq("workspace_id", workspace.id)
+              } catch { /* 42P01 / RLS — still navigate away */ }
+            }
+            router.push("/property-manager/money/invoices")
+          }}
         />
       )}
 
@@ -577,7 +615,7 @@ export default function EditInvoicePage() {
           <SectionCard title="Stripe & Payment">
             <div className="space-y-4">
               <div className="p-3 rounded-xl border border-amber-200 bg-amber-50 flex items-start gap-2.5">
-                <div style={{ color: "var(--color-warning)" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
+                <div style={{ color: "#D97706" }}><AlertTriangle className="w-4 h-4 mt-0.5" /></div>
                 <p className="text-xs text-amber-700">
                   Stripe is not connected. Connect at{" "}
                   <Link href="/property-manager/money/stripe" className="underline font-medium">Money › Stripe</Link>{" "}
@@ -663,7 +701,7 @@ export default function EditInvoicePage() {
               className="w-full flex items-center justify-between px-5 py-4 bg-red-50 hover:bg-red-100 transition-colors text-left"
             >
               <div className="flex items-center gap-2.5">
-                <div style={{ color: "var(--color-error)" }}><AlertTriangle className="w-4 h-4" /></div>
+                <div style={{ color: "#DC2626" }}><AlertTriangle className="w-4 h-4" /></div>
                 <span className="text-sm font-semibold text-red-700">Dangerous Actions</span>
                 <span className="text-xs text-red-500">Irreversible or disruptive operations</span>
               </div>
@@ -708,9 +746,15 @@ export default function EditInvoicePage() {
         <div className="app-save-bar fixed left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
           <div className="px-5 md:px-7 lg:px-8 py-3.5 max-w-[1600px] mx-auto flex items-center justify-between gap-4">
             <div className="text-sm text-slate-500">
-              Editing <span className="font-semibold text-slate-800">{source.invoice_number}</span>
-              <span className="mx-2 text-slate-300">·</span>
-              Total: <span className="font-bold text-slate-900">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              {saveError ? (
+                <span className="text-red-600 font-medium">{saveError}</span>
+              ) : (
+                <>
+                  Editing <span className="font-semibold text-slate-800">{source.invoice_number}</span>
+                  <span className="mx-2 text-slate-300">·</span>
+                  Total: <span className="font-bold text-slate-900">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <Link

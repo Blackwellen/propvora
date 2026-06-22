@@ -333,7 +333,7 @@ export default function InspectionDetailPage() {
                       { label: "Mark In Progress", icon: Clock, onClick: () => setStatus("in_progress"), disabled: isSeed },
                       { label: "Mark Complete", icon: CheckCircle2, onClick: () => setStatus("completed", { completed_date: new Date().toISOString().slice(0, 10) }), disabled: isSeed },
                       { label: "Reschedule", icon: RefreshCw, onClick: () => setRescheduleOpen(true), disabled: isSeed },
-                      { label: "Create Work Job", icon: Briefcase, onClick: () => router.push("/property-manager/jobs/new") },
+                      { label: "Create Work Job", icon: Briefcase, onClick: () => router.push("/property-manager/work/jobs/new") },
                     ]}
                   />
                   <ConfirmDialog
@@ -366,21 +366,7 @@ export default function InspectionDetailPage() {
         <div className="flex flex-col lg:flex-row gap-4 items-start">
           <div className="flex-1 min-w-0 w-full">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              {/* Mobile dropdown — shown only below md breakpoint */}
-              <div className="md:hidden border-b border-slate-100 px-4 py-2.5">
-                <select
-                  value={activeTab}
-                  onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  aria-label="Navigate section"
-                >
-                  {DETAIL_TABS.map((tab) => (
-                    <option key={tab.key} value={tab.key}>{tab.label}</option>
-                  ))}
-                </select>
-              </div>
-              {/* Desktop tab strip — hidden below md */}
-              <div className="hidden md:block border-b border-slate-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div className="border-b border-slate-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <div className="flex">
                   {DETAIL_TABS.map((tab) => {
                     const Icon = tab.icon
@@ -433,7 +419,7 @@ export default function InspectionDetailPage() {
                         <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl">
                           <Briefcase className="w-4 h-4 text-slate-500" />
                           <p className="text-sm text-slate-700 font-medium flex-1">Create a work task to track completion</p>
-                          <Button variant="outline" size="sm" asChild><Link href="/property-manager/jobs/new">Create Job</Link></Button>
+                          <Button variant="outline" size="sm" asChild><Link href="/property-manager/work/jobs/new">Create Job</Link></Button>
                         </div>
                       </div>
                     </div>
@@ -551,7 +537,7 @@ export default function InspectionDetailPage() {
               <div className="space-y-2">
                 <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setRescheduleOpen(true)} disabled={isSeed}><RefreshCw className="w-4 h-4" />Reschedule</Button>
                 <Button variant="success" size="sm" className="w-full justify-start" onClick={() => setStatus("completed", { completed_date: new Date().toISOString().slice(0, 10) })} disabled={isSeed}><CheckCircle2 className="w-4 h-4" />Mark Complete</Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild><Link href="/property-manager/jobs/new"><Briefcase className="w-4 h-4" />Create Job</Link></Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild><Link href="/property-manager/work/jobs/new"><Briefcase className="w-4 h-4" />Create Job</Link></Button>
               </div>
             </Card>
 

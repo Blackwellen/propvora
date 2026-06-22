@@ -221,6 +221,8 @@ export default function NewBillPage() {
   const subtotal = form.line_items.reduce((s, li) => s + li.qty * li.unit_price, 0)
   const totalTax = form.line_items.reduce((s, li) => s + li.qty * li.unit_price * (li.tax_rate / 100), 0)
   const grandTotal = subtotal + totalTax
+  // form.property holds the selected property id; resolve its address for display.
+  const selectedPropertyLabel = dbProperties.find((p) => p.id === form.property)?.address || ""
 
   async function handleSubmit() {
     setSubmitError(null)
@@ -231,15 +233,16 @@ export default function NewBillPage() {
 
     setSubmitting(true)
     try {
+      const propertyLabel = dbProperties.find((p) => p.id === form.property)?.address || ""
       const description = [
         BILL_TYPES.find((t) => t.value === form.bill_type)?.label,
         form.supplier && `from ${form.supplier}`,
-        form.property && `(${form.property})`,
+        propertyLabel && `(${propertyLabel})`,
       ].filter(Boolean).join(" ")
 
       const payload: InsertMoneyBill = {
         workspace_id: workspace.id,
-        property_id: null,
+        property_id: form.property || null,
         supplier_id: form.supplier || null,
         amount: Math.round(grandTotal * 100) / 100,
         due_date: form.due_date,
@@ -352,7 +355,7 @@ export default function NewBillPage() {
               <select value={form.property} onChange={(e) => setField("property", e.target.value)} className={selectCls}>
                 <option value="">No property linked</option>
                 {dbProperties.map((p) => (
-                  <option key={p.id} value={p.address}>{p.address}</option>
+                  <option key={p.id} value={p.id}>{p.address || "Unnamed property"}</option>
                 ))}
               </select>
             </Field>
@@ -596,7 +599,7 @@ export default function NewBillPage() {
             <ReviewRow label="Due Date" value={form.due_date || "—"} />
             <ReviewRow label="Supplier" value={form.supplier || "—"} />
             <ReviewRow label="Supplier Reference" value={form.supplier_reference || "—"} />
-            <ReviewRow label="Property" value={form.property || "None"} />
+            <ReviewRow label="Property" value={selectedPropertyLabel || "None"} />
             <ReviewRow label="Linked Job" value={form.job || "None"} />
             <ReviewRow label="Line Items" value={`${form.line_items.length} items`} />
             <ReviewRow label="Subtotal" value={`£${subtotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`} />
@@ -713,7 +716,7 @@ export default function NewBillPage() {
                 <SummaryRow label="Bill #" value={form.bill_number} mono />
                 <SummaryRow label="Type" value={BILL_TYPES.find((t) => t.value === form.bill_type)?.label ?? "—"} />
                 <SummaryRow label="Supplier" value={form.supplier || "—"} />
-                <SummaryRow label="Property" value={form.property || "—"} />
+                <SummaryRow label="Property" value={selectedPropertyLabel || "—"} />
                 <SummaryRow label="Job" value={form.job || "—"} mono />
                 <SummaryRow label="Due Date" value={form.due_date || "—"} />
                 <SummaryRow label="Lines" value={`${form.line_items.length} item${form.line_items.length !== 1 ? "s" : ""}`} />

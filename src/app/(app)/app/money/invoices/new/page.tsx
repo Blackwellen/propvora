@@ -315,6 +315,8 @@ export default function NewInvoicePage() {
   const subtotal = lineItems.reduce((s, li) => s + li.quantity * li.unit_price, 0)
   const taxTotal = lineItems.reduce((s, li) => s + li.quantity * li.unit_price * (li.tax_rate / 100), 0)
   const grandTotal = subtotal + taxTotal
+  // formData.property holds the selected property id; resolve its address for display.
+  const selectedPropertyLabel = dbProperties.find((p) => p.id === formData.property)?.address || ""
 
   async function handleSubmit() {
     setSubmitError(null)
@@ -336,7 +338,7 @@ export default function NewInvoicePage() {
 
       const payload: InsertMoneyInvoice = {
         workspace_id: workspace.id,
-        property_id: null,
+        property_id: formData.property || null,
         invoice_type: mapInvoiceType(formData.invoice_type),
         status: formData.email_on_send ? "sent" : "draft",
         amount: Math.round(grandTotal * 100) / 100,
@@ -449,7 +451,7 @@ export default function NewInvoicePage() {
             <Field label="Property (optional)">
               <Select value={formData.property} onChange={e => updateForm({ property: e.target.value })}>
                 <option value="">— None —</option>
-                {dbProperties.map(p => <option key={p.id} value={p.address}>{p.address}</option>)}
+                {dbProperties.map(p => <option key={p.id} value={p.id}>{p.address || "Unnamed property"}</option>)}
               </Select>
             </Field>
             <Field label="Unit (optional)">
@@ -725,7 +727,7 @@ export default function NewInvoicePage() {
                   <div><p className="text-xs text-slate-500">Type</p><p className="font-medium text-slate-800">{formData.invoice_type}</p></div>
                   <div><p className="text-xs text-slate-500">Number</p><p className="font-mono font-semibold text-blue-600">{formData.invoice_number}</p></div>
                   <div><p className="text-xs text-slate-500">Recipient</p><p className="font-medium text-slate-800">{formData.recipient_name || "—"}</p></div>
-                  <div><p className="text-xs text-slate-500">Property</p><p className="font-medium text-slate-800">{formData.property || "—"}</p></div>
+                  <div><p className="text-xs text-slate-500">Property</p><p className="font-medium text-slate-800">{selectedPropertyLabel || "—"}</p></div>
                   <div><p className="text-xs text-slate-500">Issue Date</p><p className="font-medium text-slate-800">{formData.issue_date}</p></div>
                   <div><p className="text-xs text-slate-500">Due Date</p><p className="font-medium text-slate-800">{formData.due_date}</p></div>
                 </div>

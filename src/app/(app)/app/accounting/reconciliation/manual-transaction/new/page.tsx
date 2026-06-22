@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState } from "react"
 import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
@@ -42,7 +42,6 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <input
                 type="date"
-                defaultValue={new Date().toISOString().slice(0, 10)}
                 className="w-full h-9 px-3 pr-9 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
               <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -54,7 +53,7 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <select className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
-                <option value="">— Select property —</option>
+                <option value="">Select a property…</option>
               </select>
             </div>
           </div>
@@ -65,7 +64,7 @@ export default function ManualTransactionPage() {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                defaultValue=""
+                placeholder="Contact or supplier name"
                 className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
               />
             </div>
@@ -85,7 +84,7 @@ export default function ManualTransactionPage() {
             <label className="text-sm font-medium text-slate-700">Reference</label>
             <input
               type="text"
-              placeholder="Auto-generated on save"
+              defaultValue="EXP-2026-04-0001"
               className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
             />
           </div>
@@ -106,14 +105,14 @@ export default function ManualTransactionPage() {
             <label className="text-sm font-medium text-slate-700">Description <span className="text-[#EF4444]">*</span></label>
             <input
               type="text"
-              placeholder="Enter transaction description"
+              defaultValue="Repairs & maintenance materials for common areas"
               className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
             />
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Notes</label>
             <textarea
-              placeholder="Add any supporting notes"
+              defaultValue="Replacement of lighting fixtures in main lobby and corridors. Invoice INV-38492."
               rows={3}
               className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
             />
@@ -132,9 +131,9 @@ export default function ManualTransactionPage() {
         <div className="space-y-2">
           {[
             { label: "Status", value: <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">Draft</span> },
-            { label: "Created By", value: "You" },
-            { label: "Created On", value: "Not saved yet" },
-            { label: "Last Updated", value: "—" },
+            { label: "Created By", value: "James Taylor" },
+            { label: "Created On", value: "28 Apr 2026, 13:58" },
+            { label: "Last Updated", value: "Just now" },
           ].map((item) => (
             <div key={item.label} className="flex items-center justify-between gap-2">
               <span className="text-xs text-slate-500">{item.label}</span>
@@ -150,12 +149,12 @@ export default function ManualTransactionPage() {
         <h3 className="text-sm font-semibold text-slate-900 mb-3">Transaction Overview</h3>
         <div className="space-y-2.5">
           {[
-            { icon: "✦", label: "Transaction Type", value: "Expense" },
+            { icon: "✦", label: "Transaction Type", value: "—" },
             { icon: "🏠", label: "Property", value: "—" },
             { icon: "👤", label: "Contact / Supplier", value: "—" },
             { icon: "📅", label: "Transaction Date", value: "—" },
-            { icon: "📄", label: "Reference", value: "Auto-generated on save" },
-            { icon: "🏷", label: "Tax Code", value: "20% (Standard Rate)" },
+            { icon: "📄", label: "Reference", value: "—" },
+            { icon: "🏷", label: "Tax Code", value: "—" },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-2.5">
               <span className="text-sm shrink-0">{item.icon}</span>

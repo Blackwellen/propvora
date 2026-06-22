@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, Suspense } from "react"
+import React, { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import {
   TrendingUp,
@@ -114,10 +114,6 @@ const INCOME_TYPE_OPTIONS = [
 
 const STATUS_OPTIONS = ["received", "expected", "overdue", "planned", "reconciled"]
 
-// Property association is optional — property_id is resolved by the server hook.
-// List is intentionally empty; the form field is hidden until live property FK is wired.
-const PROPERTIES_LIST: string[] = []
-
 // ─── SVG Donut ────────────────────────────────────────────────────────────────
 
 function DonutChart({ segments, total }: { segments: DonutSegment[]; total: number }) {
@@ -177,7 +173,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const createIncome = useCreateMoneyIncome(workspaceId)
-  const { data: propertiesList = [] } = useProperties(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -239,7 +235,9 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
               <select id="inc-property" name="property" value={form.property} onChange={handleChange}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                 <option value="">Select property…</option>
-                {propertiesList.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -308,7 +306,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-function MoneyIncomePageInner() {
+export default function MoneyIncomePage() {
   const { workspace } = useWorkspace()
   const { data: liveIncome, isLoading } = useMoneyIncome(workspace?.id)
   const { data: summary } = useMoneyIncomeSummary(workspace?.id)
@@ -460,37 +458,43 @@ function MoneyIncomePageInner() {
         </div>
       )}
 
-      {/* Desktop: H1 header above tabs (ordering rule: title before tabs) */}
-      <div className="hidden md:block bg-white border-b border-slate-200 px-6 pt-6 pb-0">
+      <MoneyTabNav
+        actions={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Income
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <Download className="w-3.5 h-3.5" />
+              Export CSV
+            </button>
+            <ActionMenu
+              items={[
+                { label: "Export CSV", icon: Download, onClick: handleExportCSV },
+                { label: "Add Income", icon: Plus, onClick: () => setShowAddModal(true) },
+              ]}
+            />
+          </div>
+        }
+      />
+
+      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+        <div className="hidden md:block">
         <MoneyPageHeader
           breadcrumb="Income"
           title="Income"
           subtitle="Track, manage and forecast all incoming payments across your portfolio."
-          actions={
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add Income
-              </button>
-              <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                <Download className="w-3.5 h-3.5" />
-                Export CSV
-              </button>
-            </div>
-          }
+          actions={<></>}
         />
-        <div className="mt-4">
-          <MoneyTabNav />
         </div>
-      </div>
-
-      <DashboardContainer className="py-6 flex flex-col gap-6">
 
         {/* Mobile header — search (replaces desktop controls toolbar on phones) */}
-        <MobilePageHeader hideTitle
+        <MobilePageHeader
           title="Income"
           count={`${filtered.length} record${filtered.length === 1 ? "" : "s"}`}
           search={searchQuery}
@@ -901,13 +905,5 @@ function MoneyIncomePageInner() {
         </div>
       </DashboardContainer>
     </div>
-  )
-}
-
-export default function MoneyIncomePage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-sm text-slate-500">Loading…</div>}>
-      <MoneyIncomePageInner />
-    </Suspense>
   )
 }

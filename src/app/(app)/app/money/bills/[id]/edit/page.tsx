@@ -150,25 +150,64 @@ export default function BillEditPage() {
   const [rejectConfirm, setRejectConfirm] = useState(false)
   const [deleteInput, setDeleteInput] = useState("")
   const [deleting, setDeleting] = useState(false)
+  const [isLive, setIsLive] = useState(false)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
+  function showToast(m: string) { setToastMsg(m); setTimeout(() => setToastMsg(null), 3500) }
 
   const [form, setForm] = useState<EditForm>({
     bill_type: "maintenance_bill",
     bill_number: `BILL-${id.slice(-3).toUpperCase()}`,
     status: "awaiting_review",
-    issue_date: "",
-    due_date: "",
+    issue_date: new Date().toISOString().slice(0, 10),
+    due_date: new Date().toISOString().slice(0, 10),
     notes: "",
     supplier: "",
     property: "",
     job: "",
-    line_items: [
-      newLineItem(),
-    ],
+    line_items: [],
     approval_status: "pending",
     payment_method: "Bank Transfer (BACS)",
     paid_amount: 0,
     paid_date: "",
   })
+
+  // Load the real bill into the form (42P01-tolerant). Maps the live single
+  // `status` column onto the UI BillStatus and pulls real dates/number/notes.
+  useEffect(() => {
+    if (!id || !workspace?.id) return
+    const supabase = createClient()
+    ;(async () => {
+      try {
+        const { data, error } = await supabase
+          .from("bills")
+          .select("*")
+          .eq("id", id)
+          .eq("workspace_id", workspace.id)
+          .maybeSingle()
+        if (error || !data) return // keep blank form; save disabled until live
+        const r = data as Record<string, unknown>
+        const liveStatus = (r.status as string) ?? "awaiting_review"
+        const status: BillStatus =
+          liveStatus === "paid" || liveStatus === "part_paid" || liveStatus === "reconciled" ? "paid"
+          : liveStatus === "overdue" ? "overdue"
+          : liveStatus === "scheduled_for_payment" ? "scheduled_for_payment"
+          : liveStatus === "disputed" ? "disputed"
+          : liveStatus === "approved" ? "approved"
+          : "awaiting_review"
+        setForm((prev) => ({
+          ...prev,
+          bill_number: (r.bill_number as string | null) ?? prev.bill_number,
+          status,
+          issue_date: ((r.issue_date as string | null) ?? prev.issue_date)?.slice(0, 10),
+          due_date: ((r.due_date as string | null) ?? prev.due_date)?.slice(0, 10),
+          notes: (r.notes as string | null) ?? "",
+          approval_status: status === "approved" ? "approved" : "pending",
+          paid_amount: liveStatus === "paid" ? Number(r.total ?? 0) : 0,
+        }))
+        setIsLive(true)
+      } catch { /* table may not exist — keep blank form */ }
+    })()
+  }, [id, workspace?.id])
 
   function setField<K extends keyof EditForm>(key: K, value: EditForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -194,20 +233,66 @@ export default function BillEditPage() {
   const grandTotal = subtotal + totalTax
 
   async function handleSave() {
+    if (!isLive) { showToast("This bill isn't in the database yet — nothing to save"); return }
     setSaving(true)
-    await new Promise((r) => setTimeout(r, 900))
-    setSaving(false)
+    try {
+      const supabase = createClient()
+      const liveStatus =
+        form.status === "scheduled_for_payment" ? "scheduled_for_payment"
+        : form.status
+      const { error } = await supabase
+        .from("bills")
+        .update({
+          bill_number: form.bill_number,
+          status: liveStatus,
+          issue_date: form.issue_date || null,
+          due_date: form.due_date || null,
+          notes: form.notes || null,
+          subtotal: subtotal,
+          tax_amount: totalTax,
+          total: grandTotal,
+        })
+        .eq("id", id)
+        .eq("workspace_id", workspace?.id ?? "")
+      if (error) {
+        showToast(error.code === "42P01" ? "Bills table not provisioned yet" : "Could not save changes")
+        return
+      }
+      showToast("Bill saved")
+      window.location.assign(`/property-manager/money/bills/${id}`)
+    } catch {
+      showToast("Could not save changes")
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function handleDelete() {
     if (deleteInput !== form.bill_number) return
+    if (!isLive) { window.location.assign("/property-manager/money/bills"); return }
     setDeleting(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    setDeleting(false)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from("bills").delete().eq("id", id).eq("workspace_id", workspace?.id ?? "")
+      if (error && error.code !== "42P01") {
+        showToast("Could not delete bill")
+        return
+      }
+      window.location.assign("/property-manager/money/bills")
+    } catch {
+      showToast("Could not delete bill")
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-32 lg:pb-24">
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
+          <span>{toastMsg}</span>
+        </div>
+      )}
       <MobileTopBar
         title="Edit Bill"
         subtitle={form.bill_number}
