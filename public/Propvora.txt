@@ -1,37 +1,82 @@
 # Propvora
 
 Propvora is a UK property operations, compliance and profit-control platform,
-operated by Blackwellen Ltd (registered in England and Wales, No. 16482166).
+operated by Blackwellen Ltd (registered in England and Wales, No. 16482166),
+trading as Propvora. ICO registration ZC160806.
 Canonical: https://propvora.com
+
+## Status
+Propvora is RELEASING now at V1–V1.5 — the property-operations + compliance core
+is live and production-ready. The broader V2 "property operating system"
+(marketplace, bookings, customer & supplier workspaces, automations, affiliate
+payouts) is rolling out progressively behind feature flags; the functions are
+listed below so you know what's coming.
 
 ## Target users
 UK landlords, self-managing portfolio operators, and letting/managing agencies.
 
-## Property operation types supported
+## Property types supported
 Single lets, portfolios, HMOs, and managed/agency portfolios.
 
-## Features
-- Portfolio: properties, units, tenancies
-- Compliance: EPC, Gas Safety, EICR, certificates, inspections, reminders
-- Work & maintenance: tasks, jobs, suppliers, PPM, tenant-reported issues
-- Money: income, expenses, invoices, deposits, profit & cashflow
+===================================================================
+## AVAILABLE NOW — V1 to V1.5 (releasing)
+===================================================================
+- Portfolio: properties, units, tenancies, documents
+- Compliance: EPC, Gas Safety (CP12), EICR, certificates, inspections, expiry
+  reminders and a compliance dashboard — Propvora's core differentiator
+- Work & maintenance: tasks, jobs, suppliers, planned maintenance (PPM),
+  tenant-reported issues
+- Money: income, expenses, invoices, deposits, rent recording, profit & cashflow
+  (rent and supplier invoices are recorded FCA-safely — Propvora does not collect
+  or hold this money; the landlord/agent is paid directly)
 - Contacts: tenants, landlords, suppliers, agents, accountants
 - Portals: scoped tenant / landlord / supplier portals (invited access only)
-- AI Copilot: workspace-scoped assistance and drafting
+- AI Copilot: workspace-scoped assistance and drafting, with rate/usage caps
+- Internationalisation: workspace locale, currency and legal-context settings
+  (default UK / GBP / England & Wales)
+- Branded invoices, receipts and documents
+- Affiliate programme: refer-and-earn with a dedicated portal (payouts gated)
+
+===================================================================
+## ROLLING OUT — V2 functions (feature-flagged)
+===================================================================
+- Marketplace OS: a unified marketplace for property stays, suppliers/trades and
+  emergency services — public listings, search and booking
+- Bookings & accommodation: stay listings, reservations, availability, pricing,
+  calendar and iCal sync
+- Payments & escrow: Stripe Connect marketplace payments, escrow-style hold &
+  release, deposits, refunds, disputes and seller payouts
+- Customer workspace: a guest/customer area for bookings, stays, long-lets,
+  saved properties, messages, reviews, payments and disputes
+- Supplier workspace: jobs, quotes, invoicing, a tiered verification flow
+  (identity/KYC, insurance, licences) and payouts
+- Automations engine: triggers, nodes and full workflow automation
+- Multi-country portfolio + global country packs
+- Accounting GL and Making Tax Digital (MTD) support
+- Seller verification gate (identity + insurance) enforced at marketplace launch
 
 ## Security & compliance
 Server-enforced workspace isolation (Supabase RLS), server-side subscription
 gating, signed private file storage, Stripe-verified billing webhooks, CSP/HSTS
-security headers, UK GDPR-aligned data handling. ICO registration ZC160806.
+security headers, rate limiting, encryption in transit (TLS) and at rest, and
+UK GDPR-aligned data handling.
+
+## Payments & FCA position
+Propvora-processed money (marketplace escrow, Connect payouts, its own
+subscriptions) flows through Stripe. Tenant rent and directory-supplier payments
+are RECORDED only — never collected or held by Propvora — keeping the platform
+outside FCA-regulated money handling.
 
 ## Pricing
-Subscription tiers (Starter, Operator, Scale, Pro/Agency) plus add-ons. See /pricing.
+Subscription tiers (Starter, Operator, Scale, Pro/Agency) plus add-ons. Property
+managers' marketplace fees scale by tier. See https://propvora.com/pricing.
 
 ## Support
 In-app support and info@propvora.com / support@propvora.com.
 
 ## Canonical links
 - Home: https://propvora.com
+- Features: https://propvora.com/features
 - Pricing: https://propvora.com/pricing
-- Security: https://propvora.com/security
+- Roadmap: https://propvora.com/roadmap
 - Legal: https://propvora.com/legal
