@@ -102,8 +102,29 @@ const SEED: Record<string, PayoutDetail> = {
   },
 }
 
+/** Honest empty payout — shown for an unknown id instead of cloning a fake one. */
+function emptyPayoutDetail(payoutId: string): PayoutDetail {
+  return {
+    id: payoutId,
+    ref: payoutId,
+    status: "awaiting",
+    workspaceName: "—",
+    expectedAt: null,
+    grossPence: 0,
+    feePence: 0,
+    vatPence: 0,
+    netPence: 0,
+    currency: "GBP",
+    destinationMasked: "—",
+    jobs: [],
+    escrowConditions: [],
+    blockers: [],
+    audit: [],
+  }
+}
+
 export function getSeedPayoutDetail(payoutId: string): PayoutDetail {
-  const found = SEED[payoutId]
-  if (found) return found
-  return { ...SEED["PAY-2025-0058"], id: payoutId, ref: payoutId }
+  // Real payout records render when present; an unknown id degrades to an honest
+  // empty payout (zeros + no lines), never a fabricated one.
+  return SEED[payoutId] ?? emptyPayoutDetail(payoutId)
 }
