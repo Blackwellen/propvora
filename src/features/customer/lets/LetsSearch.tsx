@@ -27,13 +27,13 @@ export default function LetsSearch() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-[20px] font-bold text-slate-900">Find your next home</h2>
-        <p className="text-[13.5px] text-slate-500 mt-1">Discover quality long-term lets from verified landlords and agents.</p>
-      </div>
+      {/* Hero — mirrors the Stays page hero for cross-page consistency */}
+      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-5 py-8 sm:px-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Find your next home</h1>
+        <p className="text-[15px] text-slate-500 mb-6 max-w-2xl">Discover quality long-term lets from verified landlords and agents.</p>
 
-      {/* Search bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+        {/* Search bar */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
         <div className="flex flex-wrap items-end gap-2">
           <Seg icon={MapPin} label="Location"><input defaultValue="Manchester, M1" className="w-full bg-transparent text-[13px] text-slate-800 outline-none" /></Seg>
           <Seg icon={Calendar} label="Move-in date"><button onClick={() => toast("Date picker — coming soon", "info")} className="text-[13px] text-slate-500 text-left w-full">Anytime</button></Seg>
@@ -46,7 +46,8 @@ export default function LetsSearch() {
           <Chip icon={PawPrint}>Pet friendly</Chip><Chip>Bills included</Chip><Chip>Parking</Chip><Chip>Garden</Chip>
           <button className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 ml-auto"><SlidersHorizontal className="w-3.5 h-3.5" /> More filters</button>
         </div>
-      </div>
+        </div>
+      </section>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

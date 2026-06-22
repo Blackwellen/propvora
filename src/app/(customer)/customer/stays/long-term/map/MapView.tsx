@@ -1,7 +1,6 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
 import LongTermRentalCompactCard from '@/components/marketplace/stays/LongTermRentalCompactCard'
 import { MapPin } from 'lucide-react'
 import type { PublicLongTermRental } from '@/lib/public-marketplace/types'
@@ -18,8 +17,8 @@ export default function CustomerLongTermMapView({ rentals }: { rentals: PublicLo
     <div className="flex-1 flex flex-col">
       {/* Top bar */}
       <div className="px-4 pt-4 pb-3 bg-white border-b border-slate-100">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <StayTypeTabs basePath="/customer/stays" />
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-lg font-bold text-slate-900">Long-term rentals · Map</h1>
           <span className="text-sm text-slate-500">
             <span className="font-semibold text-slate-900">{rentals.length}</span> rentals on map
           </span>

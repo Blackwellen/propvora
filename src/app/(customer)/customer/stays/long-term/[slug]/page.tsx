@@ -18,7 +18,6 @@ import {
   StickyNote,
   LayoutGrid,
 } from 'lucide-react'
-import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
 import LongTermRentalCard from '@/components/marketplace/stays/LongTermRentalCard'
 import LongTermRentalEnquiryPanel from '@/components/marketplace/stays/LongTermRentalEnquiryPanel'
 import LongTermRentalCostBreakdown from '@/components/marketplace/stays/LongTermRentalCostBreakdown'
@@ -70,11 +69,6 @@ export default async function CustomerLongTermRentalDetailPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Sub-nav */}
-      <div className="mb-6">
-        <StayTypeTabs basePath="/customer/stays" />
-      </div>
-
       {/* Header */}
       <div className="mb-5">
         <div className="flex items-start justify-between mb-3">

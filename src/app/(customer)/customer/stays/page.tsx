@@ -4,7 +4,6 @@ import PublicFilterChips from '@/components/public-marketplace/PublicFilterChips
 import PublicResultsToolbar from '@/components/public-marketplace/PublicResultsToolbar'
 import MarketplaceTrustStrip from '@/components/public-marketplace/MarketplaceTrustStrip'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
-import StayTypeTabs from '@/components/marketplace/stays/StayTypeTabs'
 import { getPublicStays } from '@/lib/public-marketplace/queries'
 
 export const metadata: Metadata = {
@@ -27,45 +26,36 @@ export default async function CustomerStaysPage() {
   const stays = await getPublicStays()
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 to-white pt-12 pb-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <StayTypeTabs basePath="/customer/stays" />
-          </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-3">Find a Stay</h1>
-          <p className="text-lg text-slate-500 mb-8 max-w-2xl">
-            Verified short-lets, serviced apartments and long-stay rentals across Greater Manchester and beyond.
-          </p>
-          <PublicSearchBar variant="stays" />
-        </div>
+    <div className="space-y-5">
+      {/* Hero — full shell width, rounded like the dashboard hero */}
+      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-5 py-8 sm:px-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Find a Stay</h1>
+        <p className="text-[15px] text-slate-500 mb-6 max-w-2xl">
+          Verified short-lets, serviced apartments and long-stay rentals across the UK.
+        </p>
+        <PublicSearchBar variant="stays" />
       </section>
 
       {/* Filter row */}
-      <div className="sticky top-16 z-30 bg-white border-b border-slate-100 px-4 py-3">
-        <div className="max-w-6xl mx-auto">
-          <PublicFilterChips chips={FILTER_CHIPS} />
-        </div>
+      <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 lg:-mx-8 bg-white border-y border-slate-100 px-4 sm:px-6 lg:px-8 py-3">
+        <PublicFilterChips chips={FILTER_CHIPS} />
       </div>
 
       {/* Results */}
-      <section className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <PublicResultsToolbar
-              count={stays.length}
-              location="Across Greater Manchester"
-              mapHref="/user/stays/map"
-              listHref="/user/stays"
-              viewMode="grid"
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
-            {stays.map(stay => (
-              <StayCard key={stay.id} stay={stay} basePath="/user/stays" />
-            ))}
-          </div>
+      <section>
+        <div className="mb-5">
+          <PublicResultsToolbar
+            count={stays.length}
+            location="Across the UK"
+            mapHref="/user/stays/map"
+            listHref="/user/stays"
+            viewMode="grid"
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
+          {stays.map(stay => (
+            <StayCard key={stay.id} stay={stay} basePath="/user/stays" />
+          ))}
         </div>
       </section>
 
