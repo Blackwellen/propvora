@@ -191,7 +191,13 @@ export async function proxy(request: NextRequest) {
   // session cookie. Their auth is enforced inside the portal route handlers.
   // NOTE: "/supplier/" and "/supplier-portal/" (with trailing slash) deliberately
   // exclude the public "/suppliers" marketplace route which must be anon-readable.
-  const protectedPrefixes = ["/property-manager", "/supplier/", "/supplier-portal/", "/customer", "/user", "/admin"]
+  // NOTE: the standalone affiliate PORTAL lives at exact "/affiliate" and
+  // "/affiliate/*" — both gated below. "/affiliate-login" (auth page) and the
+  // public "/affiliate-programme*" marketing pages must stay anon-readable, so
+  // we use the trailing-slash prefix + an exact match rather than a bare
+  // "/affiliate" prefix (which would also swallow those two).
+  const protectedPrefixes = ["/property-manager", "/supplier/", "/supplier-portal/", "/customer", "/user", "/admin", "/affiliate/"]
+  const isAffiliatePortalHome = pathname === "/affiliate"
 
   // Public checkout funnel — the guest `/checkout/*` group must be reachable
   // WITHOUT an auth account (access is scoped by a session token via RLS, not a
@@ -205,14 +211,20 @@ export async function proxy(request: NextRequest) {
 
   const isProtected =
     !publicCheckout &&
-    protectedPrefixes.some((p) => pathname.startsWith(p)) &&
+    (protectedPrefixes.some((p) => pathname.startsWith(p)) || isAffiliatePortalHome) &&
     !publicAdminPaths.includes(pathname)
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = "/login"
+    // Affiliate portal has its own dedicated login door.
+    url.pathname = pathname === "/affiliate" || pathname.startsWith("/affiliate/") ? "/affiliate-login" : "/login"
     url.searchParams.set("redirectTo", pathname)
     return applySecurityHeaders(NextResponse.redirect(url))
+  }
+
+  // Affiliate login — already-authenticated users go straight to the portal.
+  if (user && pathname === "/affiliate-login") {
+    return applySecurityHeaders(NextResponse.redirect(new URL("/affiliate", request.url)))
   }
 
   // Auth pages — redirect already-authenticated users to app
