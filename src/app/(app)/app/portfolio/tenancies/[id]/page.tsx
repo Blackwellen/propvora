@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTenancy, useUpdateTenancy, useDeleteTenancy } from "@/hooks/useTenancies"
+import DirectPaymentPanel from "@/components/payments/DirectPaymentPanel"
 import { useContact } from "@/hooks/useContacts"
 import { useProperty } from "@/hooks/useProperties"
 import { useUnit } from "@/hooks/useUnits"
@@ -400,6 +401,30 @@ function OverviewTab({ t, activity, activityLoaded, onSave }: { t: TenancyDispla
             ))}
           </div>
         </SectionCard>
+
+        {/* Rent payment recording — FCA-safe: Propvora never collects rent.
+            Records what the landlord received into the money ledger; tenant
+            pays the landlord directly (bank transfer / Direct Debit on the
+            landlord's own account). */}
+        <DirectPaymentPanel
+          table="tenancies"
+          id={t.id}
+          rentTenancyId={t.id}
+          mode="append"
+          title="Rent received"
+          note="Tenants pay rent directly to the landlord (bank transfer, or Direct Debit on the landlord's own account). Record each receipt here — it posts to the money ledger and the tenant's rent history. Propvora never collects or holds rent."
+          recordLabel="Record rent received"
+          payeeNoun="the landlord"
+          defaultAmountPence={Math.round((t.rent ?? 0) * 100)}
+          methods={[
+            { value: "bank_transfer", label: "Bank transfer" },
+            { value: "direct_debit", label: "Direct Debit" },
+            { value: "card", label: "Card" },
+            { value: "cash", label: "Cash" },
+            { value: "other", label: "Other" },
+          ]}
+          revalidate={`/property-manager/portfolio/tenancies/${t.id}`}
+        />
 
         {/* Important Dates — live from tenancy dates */}
         <SectionCard className="p-5">

@@ -13,6 +13,7 @@ import { Banknote, CheckCircle2, Landmark, Loader2 } from "lucide-react"
 import {
   recordDirectPayment,
   clearDirectPayment,
+  recordRentReceipt,
   type DirectPaymentTable,
   type PaymentMethod,
 } from "@/lib/payments/direct-payment"
@@ -47,6 +48,16 @@ export interface DirectPaymentPanelProps {
   revalidate?: string
   /** Copy describing who the payee is, e.g. "your supplier" / "your landlord". */
   payeeNoun?: string
+  /** Override the explanatory note (e.g. for "record rent received"). */
+  note?: string
+  /** Override the record button label. */
+  recordLabel?: string
+  /**
+   * RENT mode: when set, recording writes a real money_transactions rent receipt
+   * (FCA-safe — never Propvora-collected) instead of row metadata. `payments`
+   * (history) is supplied by the parent from the ledger.
+   */
+  rentTenancyId?: string
 }
 
 const DEFAULT_METHODS: { value: PaymentMethod; label: string }[] = [
@@ -75,11 +86,16 @@ export default function DirectPaymentPanel(props: DirectPaymentPanelProps) {
 
   async function submit() {
     setBusy(true); setErr(null)
-    const res = await recordDirectPayment({
-      table: props.table, id: props.id, mode,
-      amountPence: Math.round(parseFloat(amount || "0") * 100),
-      method, reference, periodLabel: props.periodLabel, revalidate: props.revalidate,
-    })
+    const amountPence = Math.round(parseFloat(amount || "0") * 100)
+    const res = props.rentTenancyId
+      ? await recordRentReceipt({
+          tenancyId: props.rentTenancyId, amountPence, method, reference,
+          period: props.periodLabel, revalidate: props.revalidate,
+        })
+      : await recordDirectPayment({
+          table: props.table, id: props.id, mode, amountPence,
+          method, reference, periodLabel: props.periodLabel, revalidate: props.revalidate,
+        })
     setBusy(false)
     if (!res.ok) { setErr(res.error ?? "Could not record the payment."); return }
     setOpen(false)
@@ -106,8 +122,10 @@ export default function DirectPaymentPanel(props: DirectPaymentPanelProps) {
       </div>
 
       <p className="mb-3 text-[12.5px] leading-relaxed text-slate-500">
-        Pay {props.payeeNoun ?? "the payee"} <strong className="text-slate-700">directly</strong> (e.g. bank transfer),
-        then record it here so it reconciles. Propvora doesn&apos;t process or hold this payment.
+        {props.note ?? (
+          <>Pay {props.payeeNoun ?? "the payee"} <strong className="text-slate-700">directly</strong> (e.g. bank transfer),
+          then record it here so it reconciles. Propvora doesn&apos;t process or hold this payment.</>
+        )}
       </p>
 
       {props.payeeBank?.sortCode || props.payeeBank?.accountNumber ? (
@@ -131,7 +149,9 @@ export default function DirectPaymentPanel(props: DirectPaymentPanelProps) {
               <span className="text-slate-600">
                 {p.period ? <strong className="text-slate-800">{p.period}</strong> : null} {fmt(p.amount_pence)} · {(p.method ?? "").replace("_", " ")}{p.paid_at ? ` · ${p.paid_at}` : ""}
               </span>
-              <button onClick={() => clear(p.id)} disabled={busy} className="shrink-0 text-[12px] font-semibold text-slate-400 hover:text-slate-600">Undo</button>
+              {!props.rentTenancyId && (
+                <button onClick={() => clear(p.id)} disabled={busy} className="shrink-0 text-[12px] font-semibold text-slate-400 hover:text-slate-600">Undo</button>
+              )}
             </li>
           ))}
         </ul>
@@ -173,7 +193,7 @@ export default function DirectPaymentPanel(props: DirectPaymentPanelProps) {
         </div>
       ) : (
         <button onClick={() => setOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-4 text-[13px] font-semibold text-white hover:bg-[#1d4ed8]">
-          <Banknote className="h-4 w-4" /> {mode === "append" ? "Record a rent payment" : "Record a payment"}
+          <Banknote className="h-4 w-4" /> {props.recordLabel ?? (mode === "append" ? "Record a rent payment" : "Record a payment")}
         </button>
       )}
     </div>

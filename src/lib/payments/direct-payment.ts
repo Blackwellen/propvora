@@ -84,6 +84,54 @@ export async function recordDirectPayment(input: DirectPaymentInput): Promise<Di
   return { ok: true, paymentId }
 }
 
+/**
+ * Record a RENT receipt the landlord/PM received DIRECTLY (FCA-safe — Propvora
+ * never collects rent). Writes a real `money_transactions` row (direction='in',
+ * category='rent') so it appears in the money ledger AND the tenant's rent
+ * history. Resolves workspace/property/unit from the tenancy.
+ */
+export async function recordRentReceipt(input: {
+  tenancyId: string
+  amountPence: number
+  method: PaymentMethod
+  reference?: string
+  occurredOn?: string
+  period?: string
+  revalidate?: string
+}): Promise<DirectPaymentResult> {
+  if (!input.tenancyId) return { ok: false, error: "Missing tenancy id." }
+  if (!(input.amountPence > 0)) return { ok: false, error: "Enter a rent amount." }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "Not authenticated." }
+
+  const { data: ten, error: tErr } = await supabase
+    .from("tenancies")
+    .select("id, workspace_id, property_id, unit_id")
+    .eq("id", input.tenancyId)
+    .maybeSingle()
+  if (tErr || !ten) return { ok: false, error: "Tenancy not found." }
+
+  const { error } = await supabase.from("money_transactions").insert({
+    workspace_id: ten.workspace_id,
+    direction: "in",
+    category: "rent",
+    amount: Math.round(input.amountPence) / 100,
+    currency: "GBP",
+    occurred_on: input.occurredOn || new Date().toISOString().slice(0, 10),
+    tenancy_id: ten.id,
+    property_id: ten.property_id,
+    unit_id: ten.unit_id,
+    description: input.period ? `Rent · ${input.period}` : "Rent received",
+    reference: input.reference?.trim() || null,
+    reconciled: true,
+    metadata: { method: input.method, recorded_by: user.id, source: "rent_panel" },
+  })
+  if (error) return { ok: false, error: "Could not record the rent payment." }
+  if (input.revalidate) revalidatePath(input.revalidate)
+  return { ok: true }
+}
+
 export async function clearDirectPayment(args: {
   table: DirectPaymentTable
   id: string
