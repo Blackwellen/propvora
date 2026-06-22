@@ -74,17 +74,16 @@ const MOCK_BILLS: Record<string, BillDetail> = {
 
 function getOrCreateBill(id: string): BillDetail {
   if (MOCK_BILLS[id]) return MOCK_BILLS[id]
+  // Unknown id: return a BLANK placeholder (no fabricated supplier/property/job
+  // details). The live fetch in the effect hydrates real values; until then we
+  // must not flash demo data that looks like a real bill.
   return {
-    id, bill_number: `BILL-${id.slice(-3).toUpperCase()}`, supplier: "Example Supplier Ltd",
-    supplier_email: "accounts@example.co.uk", supplier_phone: "07700 000000",
-    type: "maintenance_bill", property: "14 Birchwood Rd", unit: "Flat 1", job: "JOB-2026-099", job_title: "General maintenance",
-    job_estimated_cost: 400, amount: 360, subtotal: 300, tax: 60, paid: 0, due_date: "2026-06-30", issue_date: "2026-06-05",
+    id, bill_number: "", supplier: "Supplier", supplier_email: "", supplier_phone: "",
+    type: "maintenance_bill", property: "—", unit: "—", job: null, job_title: null,
+    job_estimated_cost: null, amount: 0, subtotal: 0, tax: 0, paid: 0, due_date: "", issue_date: "",
     status: "awaiting_review", payment_method: "Bank Transfer (BACS)", approval_required: true, notes: "",
-    line_items: [
-      { id: "li-a", description: "Labour", qty: 3, unit_price: 80, tax_rate: 20 },
-      { id: "li-b", description: "Materials", qty: 1, unit_price: 60, tax_rate: 20 },
-    ],
-    created_by: "Alex Johnson", created_at: "2026-06-05T10:00:00Z", updated_at: "2026-06-05T10:00:00Z", has_invoice_pdf: false,
+    line_items: [],
+    created_by: "—", created_at: "", updated_at: "", has_invoice_pdf: false,
   }
 }
 
