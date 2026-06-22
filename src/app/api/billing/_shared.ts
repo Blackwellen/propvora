@@ -19,12 +19,17 @@ import { NextResponse } from "next/server"
 import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
 export const STRIPE_API_VERSION = "2026-05-27.dahlia" as const
 
-/** Resolve the server Stripe secret key (env). null when unconfigured. */
+/**
+ * Resolve the server Stripe secret key. Uses the shared resolver which prefers
+ * STRIPE_SECRET_KEY_TEST in non-production, so local/test billing uses the test
+ * key (not the live key). null when unconfigured.
+ */
 export function billingStripeSecret(): string | null {
-  const k = process.env.STRIPE_SECRET_KEY
+  const k = stripeSecretKey()
   return k && k.trim().length > 0 ? k : null
 }
 
