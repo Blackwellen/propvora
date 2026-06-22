@@ -52,7 +52,7 @@ export default function SupplierJobSignOffPage() {
 
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Job completion &amp; sign-off</h1>
-        <p className="mt-0.5 text-sm text-slate-500">{job.title} · {job.workspace}</p>
+        <p className="mt-0.5 text-sm text-slate-500">Job {job.ref}</p>
       </div>
 
       {banner && <SupplierBanner tone="emerald" onDismiss={() => setBanner(null)}>{banner}</SupplierBanner>}
@@ -124,7 +124,7 @@ export default function SupplierJobSignOffPage() {
           <SupplierCard className="p-5">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3"><PenLine className="w-5 h-5" /></div>
             <h2 className="text-base font-semibold text-slate-900">Customer sign-off</h2>
-            <p className="text-sm text-slate-500 mt-1">Ask {job.customer} to confirm the work is complete. Sign-off helps release escrow faster.</p>
+            <p className="text-sm text-slate-500 mt-1">Ask the customer to confirm the work is complete. Sign-off helps release escrow faster.</p>
             <div className="mt-3">
               <SupplierField label="Message to customer (optional)">
                 <textarea className={supplierTextareaClass} rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Thanks for having me — please confirm the work looks good." />

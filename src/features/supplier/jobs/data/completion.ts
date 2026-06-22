@@ -39,35 +39,44 @@ export interface JobCompletion {
   recommendations: string[]
 }
 
-const SEED: Record<string, JobCompletion> = {
-  "JOB-2025-0421": {
-    id: "JOB-2025-0421",
-    ref: "JOB-2025-0421",
-    title: "Annual boiler service",
-    customer: "Priya Nair",
-    workspace: "Priya & Co Property Management",
-    valuePence: 16500,
-    qualityScore: 86,
+/* ──────────────────────────────────────────────────────────────────────────
+   Honest, NON-fabricated completion scaffold.
+
+   The evidence/sign-off pages need a *structure* to render (the before/during/
+   after photo slots and the completion checklist are a generic template, not
+   data about a specific customer). So we provide an empty scaffold keyed to the
+   real job id — no fabricated customer, workspace, money, quality score or
+   recommendations. The live job completion read replaces this once wired.
+─────────────────────────────────────────────────────────────────────────── */
+function blankJobCompletion(jobId: string): JobCompletion {
+  return {
+    id: jobId,
+    ref: jobId,
+    title: "Job",
+    customer: "—",
+    workspace: "—",
+    valuePence: 0,
+    qualityScore: null,
     escrowStatus: "held",
     evidence: [
-      { id: "e1", phase: "before", label: "Boiler — before", required: true, fileName: null },
-      { id: "e2", phase: "before", label: "Gas meter reading", required: true, fileName: "meter.jpg" },
-      { id: "e3", phase: "during", label: "Work in progress", required: false, fileName: "during-1.jpg" },
-      { id: "e4", phase: "after", label: "Boiler — after", required: true, fileName: "after-1.jpg" },
-      { id: "e5", phase: "after", label: "Completed safety check", required: true, fileName: "after-2.jpg" },
+      { id: "e1", phase: "before", label: "Before photo", required: true, fileName: null },
+      { id: "e2", phase: "before", label: "Site / meter reading", required: false, fileName: null },
+      { id: "e3", phase: "during", label: "Work in progress", required: false, fileName: null },
+      { id: "e4", phase: "after", label: "After photo", required: true, fileName: null },
+      { id: "e5", phase: "after", label: "Completed safety check", required: false, fileName: null },
     ],
     checklist: [
-      { id: "c1", label: "Work completed to agreed scope", done: true },
-      { id: "c2", label: "Site left clean and safe", done: true },
+      { id: "c1", label: "Work completed to agreed scope", done: false },
+      { id: "c2", label: "Site left clean and safe", done: false },
       { id: "c3", label: "Before & after photos captured", done: false },
-      { id: "c4", label: "Materials & parts logged", done: true },
+      { id: "c4", label: "Materials & parts logged", done: false },
       { id: "c5", label: "Customer walkthrough completed", done: false },
     ],
-    warranty: { months: 12, note: "Parts and labour on the serviced boiler." },
-    recommendations: ["Replace pressure relief valve within 6 months", "Annual service recommended to maintain warranty"],
-  },
+    warranty: null,
+    recommendations: [],
+  }
 }
 
 export function getSeedJobCompletion(jobId: string): JobCompletion {
-  return SEED[jobId] ?? { ...SEED["JOB-2025-0421"], id: jobId, ref: jobId }
+  return blankJobCompletion(jobId)
 }

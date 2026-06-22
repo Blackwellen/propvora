@@ -78,7 +78,7 @@ export default function SupplierJobEvidencePage() {
 
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Job evidence</h1>
-        <p className="mt-0.5 text-sm text-slate-500">{job.title} · {job.workspace}</p>
+        <p className="mt-0.5 text-sm text-slate-500">Job {job.ref}</p>
       </div>
 
       {banner && <SupplierBanner tone={allRequired ? "emerald" : "amber"} onDismiss={() => setBanner(null)}>{banner}</SupplierBanner>}
