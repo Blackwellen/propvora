@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react"
 import { Check, Heart, Share2 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 type Variant = "default" | "compact" | "danger"
 
@@ -35,12 +36,22 @@ export default function ShareSaveButtons({
 }) {
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [authed, setAuthed] = useState<boolean | null>(null)
 
   useEffect(() => {
     setSaved(readSaved(storageKey).includes(slug))
+    let on = true
+    createClient().auth.getUser().then(({ data }) => { if (on) setAuthed(!!data.user) })
+    return () => { on = false }
   }, [slug, storageKey])
 
   function toggleSave() {
+    // Saving is account-backed — prompt login when signed out.
+    if (authed === false) {
+      const next = typeof window !== "undefined" ? window.location.pathname : "/"
+      window.location.assign(`/login?next=${encodeURIComponent(next)}`)
+      return
+    }
     const list = readSaved(storageKey)
     const idx = list.indexOf(slug)
     if (idx === -1) list.push(slug)
