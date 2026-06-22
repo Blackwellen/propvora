@@ -11,6 +11,7 @@ import {
   InlineEditSelect,
 } from "@/components/editing"
 import { getPropertyTypeOption, PROPERTY_TYPE_OPTIONS } from "@/lib/constants/propertyTypes"
+import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 import {
   Building2, Home, Users, PoundSterling,
   Wrench, Calendar, FileText,
@@ -284,18 +285,7 @@ export function OverviewTab({
                   onSave={(v) => onSave("operation_profile", v || null)}
                   label="Operation profile"
                   placeholder="Set profile"
-                  options={[
-                    { value: "long_term_let", label: "Long-term Let" },
-                    { value: "hmo", label: "HMO" },
-                    { value: "student_let", label: "Student Let" },
-                    { value: "serviced_accommodation", label: "Serviced Accommodation" },
-                    { value: "rent_to_rent", label: "Rent to Rent" },
-                    { value: "holiday_let", label: "Holiday Let" },
-                    { value: "build_to_rent", label: "Build to Rent" },
-                    { value: "social_housing", label: "Social Housing" },
-                    { value: "commercial", label: "Commercial" },
-                    { value: "mixed_use", label: "Mixed Use" },
-                  ]}
+                  options={PLANNING_PROFILES.map((p) => ({ value: p.key, label: p.label }))}
                   displayClassName="font-medium text-slate-800 capitalize"
                 />
               </div>

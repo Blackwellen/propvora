@@ -15,6 +15,7 @@ import { Building2, MapPin, Home, PoundSterling, FileText, CheckCircle2, ArrowRi
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 
 /* ------------------------------------------------------------------ */
 /* Schema                                                               */
@@ -48,12 +49,20 @@ const STEPS = [
   { id: 6, label: "Review",         icon: CheckCircle2 },
 ]
 
-const OPERATION_PROFILES = [
-  "Long-Term Let", "Rent-to-Rent", "HMO", "Student Let",
-  "Serviced Accommodation", "Holiday Let", "Build-to-Rent",
-  "Social Housing", "Commercial", "Mixed Use", "Dev / Flip",
-  "Co-Living", "Unassigned",
-]
+// Canonical operation_profile options — VALUE must be the DB enum key
+// (snake_case), label is the display text. Storing the label here was the bug:
+// it wrote an invalid `template` enum (rejected) and never highlighted the
+// selected button (label !== stored snake_case value).
+const OPERATION_PROFILES: { value: string; label: string }[] = PLANNING_PROFILES.map(
+  (p) => ({ value: p.key, label: p.label }),
+)
+
+// Selecting a profile auto-derives the obvious property type.
+const PROFILE_DEFAULT_TYPE: Record<string, string> = {
+  hmo: "hmo",
+  commercial: "commercial",
+  mixed_use: "mixed_use",
+}
 
 const PROPERTY_TYPES = [
   { value: "house",      label: "House" },
@@ -189,17 +198,22 @@ function StepTypeProfile({ register, errors, watch, setValue }: {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {OPERATION_PROFILES.map((p) => (
             <button
-              key={p}
+              key={p.value}
               type="button"
-              onClick={() => setValue("operation_profile", p)}
+              onClick={() => {
+                setValue("operation_profile", p.value, { shouldDirty: true, shouldValidate: true })
+                // Dependent field: derive the obvious property type from the profile.
+                const t = PROFILE_DEFAULT_TYPE[p.value]
+                if (t) setValue("property_type", t, { shouldDirty: true })
+              }}
               className={cn(
                 "px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-left",
-                profile === p
+                profile === p.value
                   ? "border-[#2563EB] bg-blue-50 text-[#2563EB] shadow-sm ring-1 ring-[#2563EB]/20"
                   : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
               )}
             >
-              {p}
+              {p.label}
             </button>
           ))}
         </div>
@@ -250,8 +264,8 @@ function StepReview({ watch }: { watch: ReturnType<typeof useForm<FormData>>["wa
     ["Property name",     data.name],
     ["Status",            data.status],
     ["Address",           [data.address_line1, data.address_line2, data.city, data.postcode].filter(Boolean).join(", ")],
-    ["Property type",     data.property_type],
-    ["Operation profile", data.operation_profile],
+    ["Property type",     PROPERTY_TYPES.find((t) => t.value === data.property_type)?.label ?? data.property_type],
+    ["Operation profile", OPERATION_PROFILES.find((p) => p.value === data.operation_profile)?.label ?? data.operation_profile],
     ["Bedrooms",          String(data.bedrooms)],
     ["Bathrooms",         String(data.bathrooms)],
     ["Target rent",       data.target_rent > 0 ? `£${data.target_rent}/mo` : "—"],
@@ -293,7 +307,7 @@ export default function PropertyEditPage() {
     defaultValues: {
       status: "active",
       property_type: "house",
-      operation_profile: "Long-Term Let",
+      operation_profile: "long_term_let",
       bedrooms: 0,
       bathrooms: 0,
       target_rent: 0,
