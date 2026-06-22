@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import {
   CalendarCheck,
   Heart,
@@ -11,6 +12,7 @@ import {
   Clock,
   Users,
   Moon,
+  PoundSterling,
   Sparkles,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
@@ -235,9 +237,9 @@ export default async function CustomerHomePage() {
 
       {/* ── Travel snapshot (elegant inline figures) ─────────────────────── */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <Figure value={String(summary.total_stays)} label="Stays booked" />
-        <Figure value={String(summary.total_nights)} label="Nights away" />
-        <Figure value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
+        <Figure icon={CalendarCheck} tint="bg-blue-50 text-blue-600" value={String(summary.total_stays)} label="Stays booked" />
+        <Figure icon={Moon} tint="bg-violet-50 text-violet-600" value={String(summary.total_nights)} label="Nights away" />
+        <Figure icon={PoundSterling} tint="bg-emerald-50 text-emerald-600" value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
       </div>
 
       {/* ── Two-column: upcoming + activity ──────────────────────────────── */}
@@ -382,18 +384,34 @@ export default async function CustomerHomePage() {
       {/* ── Travel summary chart ─────────────────────────────────────────── */}
       <StaysSummaryChart summary={summary} />
 
-      {/* ── Discover banner ──────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 rounded-[28px] bg-gradient-to-br from-[#0B1B3F] to-[#1e3a5f] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div>
-          <p className="text-[19px] font-bold leading-tight text-white">Discover more on Propvora</p>
-          <p className="mt-1 text-[14px] text-white/65">Browse verified stays, long lets and trusted services across the UK.</p>
+      {/* ── Discover banner (branded) ────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0B1B3F] via-[#15294f] to-[#2563EB] p-6 sm:p-9 shadow-[0_24px_48px_-24px_rgba(11,27,63,0.6)]">
+        {/* decorative brand glows */}
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#3b82f6]/25 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#0EA5E9]/20 blur-3xl" aria-hidden />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <Image
+              src="/propvora-logo-white.png"
+              alt="Propvora"
+              width={420}
+              height={105}
+              className="mb-4 h-7 w-auto"
+            />
+            <p className="text-[20px] sm:text-[22px] font-bold leading-tight text-white">
+              Everything you need, in one place
+            </p>
+            <p className="mt-1.5 max-w-md text-[14px] text-white/70">
+              Verified stays, long lets and trusted services across the UK — booked securely with escrow protection.
+            </p>
+          </div>
+          <Link
+            href="/stays"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-[14px] font-bold text-[#0B1B3F] shadow-sm transition-transform hover:scale-[1.02]"
+          >
+            <Sparkles className="h-4 w-4 text-[#2563EB]" /> Explore the marketplace <ArrowUpRight className="h-4 w-4" />
+          </Link>
         </div>
-        <Link
-          href="/stays"
-          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#1d4ed8]"
-        >
-          <Sparkles className="h-4 w-4" /> Explore the marketplace <ArrowUpRight className="h-4 w-4" />
-        </Link>
       </div>
     </div>
   )
@@ -415,9 +433,12 @@ function Stat({ icon: Icon, label, value }: { icon: typeof CalendarCheck; label:
   )
 }
 
-function Figure({ value, label }: { value: string; label: string }) {
+function Figure({ icon: Icon, tint, value, label }: { icon: typeof CalendarCheck; tint: string; value: string; label: string }) {
   return (
-    <div className="rounded-2xl border border-[#E7EDF6] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <div className="rounded-2xl border border-[#E7EDF6] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-16px_rgba(15,23,42,0.12)]">
+      <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${tint}`}>
+        <Icon className="h-[18px] w-[18px]" />
+      </div>
       <p className="text-[22px] sm:text-[26px] font-extrabold tracking-tight text-slate-900 leading-none">{value}</p>
       <p className="mt-1.5 text-[12.5px] font-medium text-slate-500">{label}</p>
     </div>
