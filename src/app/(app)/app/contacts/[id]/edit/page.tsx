@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { MobileTopBar } from "@/components/mobile"
 import { useWorkspace } from "@/hooks/useWorkspace"
-import { useContact, useUpdateContact } from "@/hooks/useContacts"
+import { useContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription } from "@/components/ui/Toast"
 import type { ContactType, ContactStatus } from "@/types/database"
 
@@ -61,6 +61,7 @@ export default function ContactEditPage() {
   const { data: workspace } = useWorkspace()
   const { data: liveContact, isLoading } = useContact(workspace?.id, id)
   const updateMutation = useUpdateContact()
+  const deleteMutation = useDeleteContact()
 
   const [toastOpen, setToastOpen] = useState(false)
   const [toastVariant, setToastVariant] = useState<"success" | "error">("success")
@@ -142,7 +143,7 @@ export default function ContactEditPage() {
     try {
       await updateMutation.mutateAsync({ id, workspaceId: workspace.id, payload: { contact_type: data.contact_type, full_name: data.full_name, company_name: data.company_name || null, status: data.status, email: data.email || null, phone: data.phone || null, address_line1: data.address_line1 || null, city: data.city || null, postcode: data.postcode || null, notes: data.notes || null, tags: tags.length > 0 ? tags : null } })
       setToastVariant("success"); setToastMsg("Contact saved successfully."); setToastOpen(true)
-      setTimeout(() => router.push(`/property-manager/contacts/${id}`), 1200)
+      setTimeout(() => router.push(`/app/contacts/${id}`), 1200)
     } catch {
       setToastVariant("error"); setToastMsg("Failed to save contact. Please try again."); setToastOpen(true)
     }
@@ -153,19 +154,23 @@ export default function ContactEditPage() {
     try {
       await updateMutation.mutateAsync({ id, workspaceId: workspace.id, payload: { status: "archived" } })
       setToastVariant("success"); setToastMsg("Contact archived."); setToastOpen(true)
-      setTimeout(() => router.push(`/property-manager/contacts/${id}`), 1200)
+      setTimeout(() => router.push(`/app/contacts/${id}`), 1200)
     } catch {
       setToastVariant("error"); setToastMsg("Failed to archive contact."); setToastOpen(true)
     }
   }
 
   async function handleDelete() {
+    if (!workspace) return
     setDeletingContact(true)
     try {
-      await new Promise(r => setTimeout(r, 800))
+      await deleteMutation.mutateAsync({ id, workspaceId: workspace.id })
       router.push("/property-manager/contacts")
+    } catch {
+      setToastVariant("error"); setToastMsg("Failed to delete contact. Please try again."); setToastOpen(true)
+      setShowDeleteDialog(false)
     } finally {
-      setDeletingContact(false); setShowDeleteDialog(false)
+      setDeletingContact(false)
     }
   }
 
@@ -189,7 +194,7 @@ export default function ContactEditPage() {
       <div className="flex flex-col items-center justify-center py-20 space-y-4 text-center">
         <AlertTriangle className="w-10 h-10 text-amber-400" />
         <p className="text-slate-700 font-semibold text-lg">Contact not found</p>
-        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors">
+        <Link href="/app/contacts" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Contacts
         </Link>
       </div>
@@ -203,9 +208,9 @@ export default function ContactEditPage() {
   return (
     <ToastProvider swipeDirection="right">
       <div className="space-y-0">
-        <MobileTopBar title="Edit Contact" subtitle={displayName} showBack backHref={`/property-manager/contacts/${id}`} />
+        <MobileTopBar title="Edit Contact" subtitle={displayName} showBack backHref={`/app/contacts/${id}`} />
         <div className="hidden md:block mb-6">
-          <Link href={`/property-manager/contacts/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
+          <Link href={`/app/contacts/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Contact
           </Link>
         </div>
@@ -229,7 +234,7 @@ export default function ContactEditPage() {
           {isApplicant && <ApplicantDetailsSection register={reg} watch={wch} />}
 
           <div className="sticky bottom-0 z-20 -mx-4 px-4 py-4 bg-white/90 backdrop-blur border-t border-slate-200 flex items-center justify-end gap-3">
-            <Button type="button" variant="outline" size="md" onClick={() => router.push(`/property-manager/contacts/${id}`)}>Cancel</Button>
+            <Button type="button" variant="outline" size="md" onClick={() => router.push(`/app/contacts/${id}`)}>Cancel</Button>
             <Button type="submit" variant="primary" size="md" loading={isSaving} disabled={!workspace} leftIcon={!isSaving ? <Save className="w-4 h-4" /> : undefined}>
               {isSaving ? "Saving…" : "Save Changes"}
             </Button>

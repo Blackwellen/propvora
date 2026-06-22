@@ -789,9 +789,10 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
     { label: "Active Jobs", value: String(jobs.filter((j) => !["complete", "closed", "invoiced"].includes(j.status)).length), icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
     { label: "Total Jobs", value: String(jobs.length), icon: LayoutGrid, bg: "bg-amber-50", color: "text-amber-600" },
     { label: "Invoiced", value: `£${jobs.reduce((sum, j) => sum + (j.invoiced_amount ?? 0), 0).toLocaleString()}`, icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
-    { label: "Avg Response", value: "2.4 hrs", icon: Clock, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "SLA Performance", value: "98%", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Compliance", value: "92%", icon: ShieldCheck, bg: "bg-blue-50", color: "text-blue-600" },
+    // No live telemetry source for these yet — show honest "—" rather than fabricated metrics.
+    { label: "Avg Response", value: "—", icon: Clock, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "SLA Performance", value: "—", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Compliance", value: "—", icon: ShieldCheck, bg: "bg-blue-50", color: "text-blue-600" },
   ]
 
   return (
