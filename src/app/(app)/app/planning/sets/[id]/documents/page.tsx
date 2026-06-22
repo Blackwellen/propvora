@@ -230,7 +230,7 @@ export default function DocumentsPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {filteredDocs.map((doc) => {
-                const statusCfg = STATUS_CONFIG[doc.status]
+                const statusCfg = STATUS_CONFIG[doc.status] ?? { label: doc.status ?? "—", cls: "bg-slate-100 text-slate-600" }
                 return (
                   <div
                     key={doc.id}
