@@ -325,14 +325,97 @@ async function loadLiveData(): Promise<LiveData | null> {
   }
 }
 
-// ─── Stays (always seed — stays come from property listings, not supplier tables) ──
+// ─── Stays ─────────────────────────────────────────────────────────────────
+// REAL published stay listings (marketplace_listings, transaction_type=
+// 'stay_booking') are merged FIRST so they're bookable end-to-end via the
+// reserve→escrow flow; the expanded seed fills out the marketplace for demo.
+
+const STAY_PHOTOS = [
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+  "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
+  "https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e",
+  "https://images.unsplash.com/photo-1484154218962-a197022b5858",
+]
+
+function dbRowToStay(r: Record<string, unknown>): PublicStay {
+  const g = (k: string) => r[k]
+  const id = String(g("id"))
+  const title = String(g("title") ?? "Stay")
+  const slug = `${slugify(title, id)}-${id.slice(0, 4)}`
+  const images = (g("images") as string[] | null) ?? []
+  const media = (g("media_r2_keys") as string[] | null) ?? []
+  const meta = (g("metadata") as Record<string, unknown> | null) ?? {}
+  const heroImage =
+    images[0] ||
+    (media[0] ? `/api/files/${media[0]}` : "") ||
+    (meta.hero as string | undefined) ||
+    `${STAY_PHOTOS[Math.abs(hashStr(id)) % STAY_PHOTOS.length]}?auto=format&fit=crop&w=800&q=80`
+  // Nightly price in pence — use base_price_pence because that is EXACTLY what
+  // the reserve RPC charges, so the public price always matches the charge.
+  // (Some seed rows have base_price_pence = price × 1000 rather than × 100 — a
+  // data quirk to correct at source; display stays consistent with the charge.)
+  const priceMajor = Number(g("price") ?? 0)
+  const nightlyPence = Number(g("base_price_pence") ?? 0) || (priceMajor > 0 ? Math.round(priceMajor * 100) : 0)
+  const beds = Number(g("bedrooms") ?? 1)
+  return {
+    id, slug, title,
+    stayType: "Entire home",
+    location: String(g("location") ?? g("location_city") ?? "United Kingdom"),
+    city: String(g("location_city") ?? "United Kingdom"),
+    postcode: String(g("location_postcode") ?? g("postcode") ?? ""),
+    beds, bathrooms: Number(g("bathrooms") ?? 1), guests: Math.max(2, beds * 2), bedrooms: beds,
+    rating: Number(g("rating") ?? 4.7), reviewCount: Number(g("review_count") ?? 0),
+    pricePerNight: nightlyPence, cleaningFee: 0, serviceFee: 0, taxes: 0,
+    verified: Boolean(g("verified")), instantBook: Boolean(g("instant_book")),
+    freeCancellation: true, shortLets: true, longStays: false, petsAllowed: false,
+    hostName: String(g("company_name") ?? "Propvora Host"), hostAvatar: "", hostProBadge: Boolean(g("verified")),
+    hostProperties: 0, hostRating: Number(g("rating") ?? 4.7), hostReviews: Number(g("review_count") ?? 0), hostResponseTime: "within an hour",
+    heroImage, gallery: images.length ? images : [heroImage],
+    lat: Number(g("latitude") ?? 51.5), lng: Number(g("longitude") ?? -0.12),
+    amenities: ((g("features") as string[] | null) ?? []).slice(0, 8),
+    badges: Boolean(g("verified")) ? ["Verified"] : [],
+    description: String(g("description") ?? ""),
+  }
+}
+
+let _stayCache: PublicStay[] | null = null
+let _stayCacheTs = 0
+
+async function loadLiveStays(): Promise<PublicStay[]> {
+  const now = Date.now()
+  if (_stayCache && now - _stayCacheTs < CACHE_TTL_MS) return _stayCache
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("marketplace_listings")
+      .select(
+        "id, title, description, rating, review_count, verified, location, location_city, " +
+        "location_postcode, postcode, bedrooms, bathrooms, instant_book, images, media_r2_keys, " +
+        "metadata, features, base_price_pence, price, latitude, longitude, company_name"
+      )
+      .eq("transaction_type", "stay_booking")
+      .eq("status", "published")
+    if (error || !data) return []
+    const stays = (data as unknown as Record<string, unknown>[]).map(dbRowToStay)
+    _stayCache = stays
+    _stayCacheTs = now
+    return stays
+  } catch {
+    return []
+  }
+}
 
 export async function getPublicStays(): Promise<PublicStay[]> {
-  return EXPANDED_STAYS
+  const live = await loadLiveStays()
+  const seen = new Set(live.map(s => s.slug))
+  return [...live, ...EXPANDED_STAYS.filter(s => !seen.has(s.slug))]
 }
 
 export async function getPublicStayBySlug(slug: string): Promise<PublicStay | null> {
-  return EXPANDED_STAYS.find(s => s.slug === slug) ?? null
+  const live = await loadLiveStays()
+  return live.find(s => s.slug === slug) ?? EXPANDED_STAYS.find(s => s.slug === slug) ?? null
 }
 
 // ─── Providers ───────────────────────────────────────────────────────────────
