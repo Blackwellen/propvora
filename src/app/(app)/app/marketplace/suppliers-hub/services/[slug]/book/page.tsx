@@ -1,9 +1,15 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getPublicServiceOfferBySlug } from "@/lib/public-marketplace/queries"
+import { createClient } from "@/lib/supabase/server"
+import { resolveOperatorBuyerWorkspace } from "@/lib/marketplace/buyer-workspace"
 import MarketplaceCheckout, {
   type MarketplaceCheckoutConfig,
 } from "@/components/checkout/MarketplaceCheckout"
+import MarketplaceEscrowCheckout from "@/components/checkout/MarketplaceEscrowCheckout"
+
+/** A real marketplace_listings id is a UUID; seed offers use "service-…" ids. */
+const isRealListing = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(id)
 
 export const dynamic = "force-dynamic"
 
@@ -42,6 +48,35 @@ export default async function ServiceBookPage({
 
   const idx = TIER_INDEX[(pkgParam ?? "standard").toLowerCase()] ?? 1
   const pkg = packages[Math.min(idx, packages.length - 1)]
+
+  // ── REAL escrow path: a real listing + an operator buyer workspace ──────────
+  if (isRealListing(offer.id)) {
+    const supabase = await createClient()
+    const buyerWorkspaceId = await resolveOperatorBuyerWorkspace(supabase)
+    if (buyerWorkspaceId) {
+      return (
+        <MarketplaceEscrowCheckout
+          listingId={offer.id}
+          buyerWorkspaceId={buyerWorkspaceId}
+          heading={offer.title}
+          subheading={`${offer.providerName} · ${offer.location}`}
+          thumbUrl={offer.heroImage}
+          metaRows={[{ label: "Package", value: pkg.name }, { label: "Category", value: offer.category }]}
+          lineItems={[{ label: `${pkg.name} package`, pence: offer.basePrice }]}
+          currency="GBP"
+          trustChips={[
+            ...(offer.verified ? ["Verified"] : []),
+            ...(offer.insured ? ["Insured"] : []),
+            `${offer.rating.toFixed(1)}★ (${offer.reviewCount})`,
+          ]}
+          backHref={`/property-manager/marketplace/suppliers-hub/services/${slug}`}
+          backLabel="Back to service"
+          successHref="/property-manager/work/jobs"
+          successHrefLabel="View in Work"
+        />
+      )
+    }
+  }
 
   const config: MarketplaceCheckoutConfig = {
     kind: "service",

@@ -442,12 +442,74 @@ export async function getFeaturedProviders(): Promise<PublicProvider[]> {
 }
 
 // ─── Service Offers ───────────────────────────────────────────────────────────
+// Real published marketplace_listings (service_package) are merged FIRST so the
+// operator suppliers-hub can purchase them through the real escrow engine
+// (/api/marketplace/checkout) — their `id` is the real listing id.
+
+function dbRowToServiceOffer(r: Record<string, unknown>): PublicServiceOffer {
+  const g = (k: string) => r[k]
+  const id = String(g("id"))
+  const title = String(g("title") ?? "Service")
+  const slug = `${slugify(title, id)}-${id.slice(0, 4)}`
+  const images = (g("images") as string[] | null) ?? []
+  const priceMajor = Number(g("price") ?? 0)
+  const basePence = Number(g("base_price_pence") ?? 0) || (priceMajor > 0 ? Math.round(priceMajor * 100) : 0)
+  const provider = String(g("company_name") ?? "Propvora Supplier")
+  return {
+    id, slug, title,
+    subtitle: String(g("description") ?? "").slice(0, 120),
+    category: String(g("category") ?? "General"),
+    providerName: provider, providerSlug: slugify(provider, id), providerAvatar: "",
+    providerPro: Boolean(g("verified")),
+    rating: Number(g("rating") ?? 4.7), reviewCount: Number(g("review_count") ?? 0), jobsDone: 0,
+    location: String(g("location") ?? g("location_city") ?? "United Kingdom"),
+    city: String(g("location_city") ?? "United Kingdom"),
+    heroImage: images[0] || "", gallery: images,
+    basePrice: basePence, standardPrice: Math.round(basePence * 1.3), premiumPrice: Math.round(basePence * 1.6),
+    duration: "To be confirmed", responseTime: "Within 24 hours", nextAvailable: "Contact for availability",
+    featured: Boolean(g("is_featured")), verified: Boolean(g("verified")), insured: Boolean(g("verified")), urgent: false,
+    deliverables: ((g("features") as string[] | null) ?? []).slice(0, 6),
+    tags: [String(g("category") ?? "General")],
+    lat: Number(g("latitude") ?? 51.5), lng: Number(g("longitude") ?? -0.12),
+  }
+}
+
+let _svcCache: PublicServiceOffer[] | null = null
+let _svcCacheTs = 0
+
+async function loadLiveServiceListings(): Promise<PublicServiceOffer[]> {
+  const now = Date.now()
+  if (_svcCache && now - _svcCacheTs < CACHE_TTL_MS) return _svcCache
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("marketplace_listings")
+      .select(
+        "id, title, description, company_name, rating, review_count, verified, base_price_pence, " +
+        "price, category, location, location_city, latitude, longitude, is_featured, features, images"
+      )
+      .eq("transaction_type", "service_package")
+      .eq("status", "published")
+    if (error || !data) return []
+    const offers = (data as unknown as Record<string, unknown>[]).map(dbRowToServiceOffer)
+    _svcCache = offers
+    _svcCacheTs = now
+    return offers
+  } catch {
+    return []
+  }
+}
 
 export async function getPublicServiceOffers(): Promise<PublicServiceOffer[]> {
+  const dbListings = await loadLiveServiceListings()
   const live = await loadLiveData()
   const liveRows = live?.offers ?? []
-  const seen = new Set(liveRows.map(s => s.slug))
-  const merged = [...liveRows, ...EXPANDED_SERVICE_OFFERS.filter(s => !seen.has(s.slug))]
+  const seen = new Set([...dbListings.map(s => s.slug), ...liveRows.map(s => s.slug)])
+  const merged = [
+    ...dbListings,
+    ...liveRows,
+    ...EXPANDED_SERVICE_OFFERS.filter(s => !seen.has(s.slug)),
+  ]
   return merged.map(withServiceMedia)
 }
 

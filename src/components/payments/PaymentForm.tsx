@@ -28,6 +28,13 @@ interface PaymentFormProps {
   amountPence: number
   currency: string
   onResult: (result: { intentStatus: string | null; paymentId: string | null }) => void
+  /**
+   * Override the intent endpoint. Defaults to the guest booking escrow
+   * (/api/payments/intent { bookingRef }). The operator marketplace escrow
+   * passes /api/marketplace/checkout { listingId, buyerWorkspaceId } — both
+   * return { clientSecret, customerSessionSecret? }.
+   */
+  intentRequest?: { url: string; body: Record<string, unknown> }
 }
 
 type Phase = "loading" | "ready" | "not_ready" | "submitting" | "done"
@@ -37,6 +44,7 @@ export default function PaymentForm({
   amountPence,
   currency,
   onResult,
+  intentRequest,
 }: PaymentFormProps) {
   const [phase, setPhase] = useState<Phase>("loading")
   const [error, setError] = useState<string | null>(null)
@@ -70,10 +78,10 @@ export default function PaymentForm({
         }
         stripeRef.current = stripe
 
-        const res = await fetch("/api/payments/intent", {
+        const res = await fetch(intentRequest?.url ?? "/api/payments/intent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingRef }),
+          body: JSON.stringify(intentRequest?.body ?? { bookingRef }),
         })
         const data = await res.json().catch(() => null)
         if (cancelled) return
