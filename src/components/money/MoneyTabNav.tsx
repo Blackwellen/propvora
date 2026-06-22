@@ -24,20 +24,20 @@ import {
 // refunds/disputes). Accounting (journal, reconciliation, MTD, reports) lives in
 // /app/accounting.
 const MONEY_TABS = [
-  { key: "overview",    label: "Overview",    href: "/app/money",              icon: LayoutDashboard },
-  { key: "income",      label: "Income",      href: "/app/money/income",       icon: TrendingUp },
-  { key: "expenses",    label: "Expenses",    href: "/app/money/expenses",     icon: TrendingDown },
-  { key: "invoices",    label: "Invoices",    href: "/app/money/invoices",     icon: FileText },
-  { key: "bills",       label: "Bills",       href: "/app/money/bills",        icon: Receipt },
-  { key: "arrears",     label: "Arrears",     href: "/app/money/arrears",      icon: AlertTriangle },
-  { key: "deposits",    label: "Deposits",    href: "/app/money/deposits",     icon: Vault },
-  { key: "escrow",      label: "Escrow",      href: "/app/money/escrow",       icon: ShieldCheck },
-  { key: "holds",       label: "Holds",       href: "/app/money/holds",        icon: ShieldAlert },
-  { key: "commissions", label: "Commissions", href: "/app/money/commissions",  icon: Percent },
-  { key: "payouts",     label: "Payouts",     href: "/app/money/payouts",      icon: Banknote },
-  { key: "refunds",     label: "Refunds",     href: "/app/money/refunds",      icon: Undo2 },
-  { key: "disputes",    label: "Disputes",    href: "/app/money/disputes",     icon: Scale },
-  { key: "rent-chase",  label: "Rent Chase",  href: "/app/money/rent-chase",   icon: Siren },
+  { key: "overview",    label: "Overview",    href: "/property-manager/money",              icon: LayoutDashboard },
+  { key: "income",      label: "Income",      href: "/property-manager/money/income",       icon: TrendingUp },
+  { key: "expenses",    label: "Expenses",    href: "/property-manager/money/expenses",     icon: TrendingDown },
+  { key: "invoices",    label: "Invoices",    href: "/property-manager/money/invoices",     icon: FileText },
+  { key: "bills",       label: "Bills",       href: "/property-manager/money/bills",        icon: Receipt },
+  { key: "arrears",     label: "Arrears",     href: "/property-manager/money/arrears",      icon: AlertTriangle },
+  { key: "deposits",    label: "Deposits",    href: "/property-manager/money/deposits",     icon: Vault },
+  { key: "escrow",      label: "Escrow",      href: "/property-manager/money/escrow",       icon: ShieldCheck },
+  { key: "holds",       label: "Holds",       href: "/property-manager/money/holds",        icon: ShieldAlert },
+  { key: "commissions", label: "Commissions", href: "/property-manager/money/commissions",  icon: Percent },
+  { key: "payouts",     label: "Payouts",     href: "/property-manager/money/payouts",      icon: Banknote },
+  { key: "refunds",     label: "Refunds",     href: "/property-manager/money/refunds",      icon: Undo2 },
+  { key: "disputes",    label: "Disputes",    href: "/property-manager/money/disputes",     icon: Scale },
+  { key: "rent-chase",  label: "Rent Chase",  href: "/property-manager/money/rent-chase",   icon: Siren },
 ] as const
 
 interface MoneyTabNavProps {
@@ -55,8 +55,8 @@ export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
         <div className="flex items-center gap-0.5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {MONEY_TABS.map((tab) => {
             const active =
-              tab.href === "/app/money"
-                ? pathname === "/app/money"
+              tab.href === "/property-manager/money"
+                ? pathname === "/property-manager/money"
                 : pathname.startsWith(tab.href)
             const Icon = tab.icon
             const count = counts?.[tab.key]

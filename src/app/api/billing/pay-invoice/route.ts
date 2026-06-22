@@ -80,8 +80,8 @@ export async function POST(request: Request) {
         },
       ],
       metadata: { workspace_id: row.workspace_id, invoice_id: String(id), kind: "invoice_payment" },
-      success_url: `${appUrl}/app/money/invoices/${id}?payment=success`,
-      cancel_url: `${appUrl}/app/money/invoices/${id}?payment=cancelled`,
+      success_url: `${appUrl}/property-manager/money/invoices/${id}?payment=success`,
+      cancel_url: `${appUrl}/property-manager/money/invoices/${id}?payment=cancelled`,
     })
     return NextResponse.json({ url: session.url })
   } catch (e) {

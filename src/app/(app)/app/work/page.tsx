@@ -90,14 +90,14 @@ const SEED_ACTIVITY = [
 // ─── Quick actions ────────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { label: "Create Task",      href: "/app/work/tasks/new",   icon: ClipboardList, iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "Create Job",       href: "/app/work/jobs/new",    icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "Add Supplier",     href: "/app/work/suppliers",   icon: UserPlus,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
-  { label: "Request Quote",    href: "/app/work/suppliers",   icon: FileText,      iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
-  { label: "Log Issue",        href: "/app/work/tasks/new",   icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600" },
-  { label: "Upload Document",  href: "/app/work",             icon: Upload,        iconBg: "bg-slate-100",  iconColor: "text-slate-600" },
-  { label: "View Calendar",    href: "/app/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "AI Assistant",     href: "/app/work",             icon: Sparkles,      iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
+  { label: "Create Task",      href: "/property-manager/work/tasks/new",   icon: ClipboardList, iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Create Job",       href: "/property-manager/work/jobs/new",    icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Add Supplier",     href: "/property-manager/work/suppliers",   icon: UserPlus,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+  { label: "Request Quote",    href: "/property-manager/work/suppliers",   icon: FileText,      iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
+  { label: "Log Issue",        href: "/property-manager/work/tasks/new",   icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600" },
+  { label: "Upload Document",  href: "/property-manager/work",             icon: Upload,        iconBg: "bg-slate-100",  iconColor: "text-slate-600" },
+  { label: "View Calendar",    href: "/property-manager/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "AI Assistant",     href: "/property-manager/work",             icon: Sparkles,      iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
 ]
 
 const SUPPLIER_HEALTH = [
@@ -355,9 +355,9 @@ export default function WorkPage() {
       <MobileTopBar
         title="Work"
         subtitle="Operations command centre"
-        primaryAction={{ label: "Create task", icon: Plus, href: "/app/work/tasks/new" }}
+        primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
         overflowActions={[
-          { label: "Create job", icon: Plus, href: "/app/work/jobs/new" },
+          { label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" },
           { label: "Export", icon: Download, onClick: exportCsv },
           { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: "/summarise" }) },
         ]}
@@ -374,13 +374,13 @@ export default function WorkPage() {
         actions={
           <>
             <Link
-              href="/app/work/tasks/new"
+              href="/property-manager/work/tasks/new"
               className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Task
             </Link>
             <Link
-              href="/app/work/jobs/new"
+              href="/property-manager/work/jobs/new"
               className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Job
@@ -413,7 +413,7 @@ export default function WorkPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-slate-900">Work Pipeline</h2>
             <Link
-              href="/app/work/board"
+              href="/property-manager/work/board"
               className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
             >
               View Board <ChevronRight className="w-3 h-3" />
@@ -494,7 +494,7 @@ export default function WorkPage() {
                   </p>
                 </div>
                 <Link
-                  href="/app/work/tasks"
+                  href="/property-manager/work/tasks"
                   className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
                 >
                   Chase <ChevronRight className="w-3 h-3" />
@@ -509,7 +509,7 @@ export default function WorkPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-slate-900">Next 7 Days</h2>
             <Link
-              href="/app/calendar"
+              href="/property-manager/calendar"
               className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
             >
               Calendar <ChevronRight className="w-3 h-3" />
@@ -575,7 +575,7 @@ export default function WorkPage() {
             ))}
           </div>
           <Link
-            href="/app/work/suppliers"
+            href="/property-manager/work/suppliers"
             className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View Suppliers <ChevronRight className="w-3 h-3" />
@@ -594,7 +594,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.overdue} Overdue</p>
                 <p className="text-xs text-slate-500">Require immediate attention</p>
               </div>
-              <Link href="/app/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -606,7 +606,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.dueThisWeek} Due This Week</p>
                 <p className="text-xs text-slate-500">Next 7 days</p>
               </div>
-              <Link href="/app/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -618,7 +618,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.scheduledJobs} Scheduled Jobs</p>
                 <p className="text-xs text-slate-500">Upcoming</p>
               </div>
-              <Link href="/app/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
                 View →
               </Link>
             </div>
@@ -648,7 +648,7 @@ export default function WorkPage() {
             ))}
           </div>
           <Link
-            href="/app/work/board"
+            href="/property-manager/work/board"
             className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View All <ChevronRight className="w-3 h-3" />
@@ -684,7 +684,7 @@ export default function WorkPage() {
             </div>
           </div>
           <Link
-            href="/app/work/jobs"
+            href="/property-manager/work/jobs"
             className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
           >
             View Financial Impact <ChevronRight className="w-3 h-3" />

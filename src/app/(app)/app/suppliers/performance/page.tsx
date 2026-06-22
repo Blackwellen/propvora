@@ -187,7 +187,7 @@ export default function SuppliersPerformancePage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[13px] font-semibold text-slate-800">Top Performers</h3>
-              <Link href="/app/suppliers/directory" className="text-[11px] text-[#2563EB] hover:underline font-medium">
+              <Link href="/property-manager/suppliers/directory" className="text-[11px] text-[#2563EB] hover:underline font-medium">
                 View all
               </Link>
             </div>
@@ -208,7 +208,7 @@ export default function SuppliersPerformancePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <Link
-                          href={`/app/work/suppliers/${s.id}`}
+                          href={`/property-manager/work/suppliers/${s.id}`}
                           className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate"
                         >
                           {s.name}

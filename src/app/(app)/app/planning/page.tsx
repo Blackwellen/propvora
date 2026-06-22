@@ -160,7 +160,7 @@ export default function PlanningPage() {
             Ask AI
           </button>
           <Link
-            href="/app/planning/wizard"
+            href="/property-manager/planning/wizard"
             className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function PlanningPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[15px] font-bold text-slate-900">Operation Profiles</h2>
           <div className="flex items-center gap-3">
-            <Link href="/app/planning/profiles" className="text-[12.5px] font-semibold text-[#7C3AED] hover:text-violet-700 transition-colors">
+            <Link href="/property-manager/planning/profiles" className="text-[12.5px] font-semibold text-[#7C3AED] hover:text-violet-700 transition-colors">
               View all profiles →
             </Link>
             <button onClick={() => scrollProfiles("left")} className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500 transition-colors">
@@ -212,10 +212,10 @@ export default function PlanningPage() {
                   <RiskPill level={profile.riskLevel} size="sm" />
                 </div>
                 <div className="flex gap-2">
-                  <Link href={`/app/planning/wizard?profile=${profile.key}`} className="flex-1 h-8 rounded-xl text-white text-[12px] font-semibold hover:opacity-90 transition-opacity flex items-center justify-center" style={{ background: profile.colour }}>
+                  <Link href={`/property-manager/planning/wizard?profile=${profile.key}`} className="flex-1 h-8 rounded-xl text-white text-[12px] font-semibold hover:opacity-90 transition-opacity flex items-center justify-center" style={{ background: profile.colour }}>
                     Start Plan
                   </Link>
-                  <Link href={`/app/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`} className="flex-1 h-8 rounded-xl border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center">
+                  <Link href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`} className="flex-1 h-8 rounded-xl border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center">
                     Details
                   </Link>
                 </div>
@@ -232,7 +232,7 @@ export default function PlanningPage() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-[14px] font-bold text-slate-900">Recent Planning Sets</h3>
-              <Link href="/app/planning/sets" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/planning/sets" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -241,7 +241,7 @@ export default function PlanningPage() {
                 <FolderOpen className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                 <p className="text-[13px] font-semibold text-slate-600">No planning sets yet</p>
                 <p className="text-[12px] text-slate-400 mt-1">Create your first set to start modelling deals.</p>
-                <Link href="/app/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 h-8 px-4 rounded-xl bg-[#7C3AED] text-white text-[12.5px] font-semibold hover:bg-violet-700 transition-colors">
+                <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 h-8 px-4 rounded-xl bg-[#7C3AED] text-white text-[12.5px] font-semibold hover:bg-violet-700 transition-colors">
                   <Plus className="w-3.5 h-3.5" /> New Planning Set
                 </Link>
               </div>
@@ -261,7 +261,7 @@ export default function PlanningPage() {
                   {recentSets.map((set) => (
                     <tr
                       key={set.id}
-                      onClick={() => router.push(`/app/planning/sets/${set.id}/overview`)}
+                      onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
                       className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors cursor-pointer"
                     >
                       <td className="px-5 py-3.5">
@@ -286,7 +286,7 @@ export default function PlanningPage() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-[14px] font-bold text-slate-900">Landlord Offers Queue</h3>
-              <Link href="/app/planning/landlord-offers" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/planning/landlord-offers" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -300,7 +300,7 @@ export default function PlanningPage() {
                 {offers.map((offer) => (
                   <Link
                     key={offer.id}
-                    href={`/app/planning/landlord-offers/${offer.id}`}
+                    href={`/property-manager/planning/landlord-offers/${offer.id}`}
                     className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50/50 transition-colors cursor-pointer"
                   >
                     <div style={{ background: "var(--accent-soft)", color: "var(--accent)" }} className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0">
@@ -324,11 +324,11 @@ export default function PlanningPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-5 h-fit sticky top-4">
           <h3 className="text-[14px] font-bold text-slate-900 mb-4">Planning Intelligence</h3>
           {([
-            { icon: AlertTriangle, colour: "#EF4444", label: "Risk Review Needed", value: `${atRiskCount} set${atRiskCount !== 1 ? "s" : ""} at risk`, action: "Review", href: "/app/planning/sets" },
-            { icon: CheckCircle2, colour: "#10B981", label: "Conversion Ready", value: `${convertReady} candidate${convertReady !== 1 ? "s" : ""}`, action: "View", href: "/app/planning/conversions" },
-            { icon: Clock, colour: "#F59E0B", label: "Open Offers", value: `${openOffers} sent or negotiating`, action: "View", href: "/app/planning/landlord-offers" },
-            { icon: BarChart2, colour: "#7C3AED", label: "Best Net Yield", value: bestYieldSet && bestYieldSet.net_yield > 0 ? `${bestYieldSet.net_yield.toFixed(1)}% — ${bestYieldSet.title}` : "No yield data yet", action: "Open", href: bestYieldSet ? `/app/planning/sets/${bestYieldSet.id}/overview` : "/app/planning/sets" },
-            { icon: TrendingUp, colour: "#2563EB", label: "Yield Intelligence", value: "Compare yields across sets", action: "Open", href: "/app/planning/yield-intelligence" },
+            { icon: AlertTriangle, colour: "#EF4444", label: "Risk Review Needed", value: `${atRiskCount} set${atRiskCount !== 1 ? "s" : ""} at risk`, action: "Review", href: "/property-manager/planning/sets" },
+            { icon: CheckCircle2, colour: "#10B981", label: "Conversion Ready", value: `${convertReady} candidate${convertReady !== 1 ? "s" : ""}`, action: "View", href: "/property-manager/planning/conversions" },
+            { icon: Clock, colour: "#F59E0B", label: "Open Offers", value: `${openOffers} sent or negotiating`, action: "View", href: "/property-manager/planning/landlord-offers" },
+            { icon: BarChart2, colour: "#7C3AED", label: "Best Net Yield", value: bestYieldSet && bestYieldSet.net_yield > 0 ? `${bestYieldSet.net_yield.toFixed(1)}% — ${bestYieldSet.title}` : "No yield data yet", action: "Open", href: bestYieldSet ? `/property-manager/planning/sets/${bestYieldSet.id}/overview` : "/property-manager/planning/sets" },
+            { icon: TrendingUp, colour: "#2563EB", label: "Yield Intelligence", value: "Compare yields across sets", action: "Open", href: "/property-manager/planning/yield-intelligence" },
           ] as { icon: React.ElementType; colour: string; label: string; value: string; action: string; href: string }[]).map((item) => (
             <Link key={item.label} href={item.href} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group mb-1">
               <div style={{ background: item.colour + "18" }} className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
@@ -353,7 +353,7 @@ export default function PlanningPage() {
               <p className="text-[22px] font-bold text-slate-900">{money(annualNet)}</p>
               <p className="text-[12px] text-slate-400">{money(totalNetMonthly)}/mo combined across {sets.length} set{sets.length !== 1 ? "s" : ""}</p>
             </div>
-            <Link href="/app/planning/portfolio-intelligence" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 transition-colors">
+            <Link href="/property-manager/planning/portfolio-intelligence" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 transition-colors">
               Portfolio intelligence →
             </Link>
           </div>
@@ -383,10 +383,10 @@ export default function PlanningPage() {
         <p className="text-[12.5px] text-slate-400 mb-4">Get started or move faster.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {([
-            { icon: Plus, colour: "#7C3AED", label: "Start a New Plan", sub: "Create a planning set", href: "/app/planning/wizard" },
-            { icon: BarChart2, colour: "#2563EB", label: "Compare Profiles", sub: "Find the best strategy", href: "/app/planning/profiles" },
-            { icon: GitBranch, colour: "#F59E0B", label: "Yield Intelligence", sub: "Analyse yields", href: "/app/planning/yield-intelligence" },
-            { icon: Sparkles, colour: "#10B981", label: "Conversions", sub: "Convert sets to properties", href: "/app/planning/conversions" },
+            { icon: Plus, colour: "#7C3AED", label: "Start a New Plan", sub: "Create a planning set", href: "/property-manager/planning/wizard" },
+            { icon: BarChart2, colour: "#2563EB", label: "Compare Profiles", sub: "Find the best strategy", href: "/property-manager/planning/profiles" },
+            { icon: GitBranch, colour: "#F59E0B", label: "Yield Intelligence", sub: "Analyse yields", href: "/property-manager/planning/yield-intelligence" },
+            { icon: Sparkles, colour: "#10B981", label: "Conversions", sub: "Convert sets to properties", href: "/property-manager/planning/conversions" },
           ] as { icon: React.ElementType; colour: string; label: string; sub: string; href: string }[]).map((qa) => (
             <Link key={qa.label} href={qa.href} className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all group">
               <div style={{ background: qa.colour + "18" }} className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5">

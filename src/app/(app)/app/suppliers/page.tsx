@@ -33,14 +33,14 @@ import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useSuppliers } from "@/features/suppliers/useSuppliers"
 
 const QUICK_ACTIONS = [
-  { icon: UserPlus,     label: "Add Supplier",   href: "/app/contacts/new?type=supplier" },
-  { icon: FilePlus,     label: "Create Job",     href: "/app/work/jobs/new"              },
-  { icon: MessageSquare,label: "Create Task",    href: "/app/work/tasks/new"             },
-  { icon: BookUser,     label: "Directory",      href: "/app/suppliers/directory"        },
-  { icon: Shield,       label: "Compliance",     href: "/app/suppliers/compliance"       },
-  { icon: TrendingUp,   label: "Performance",    href: "/app/suppliers/performance"      },
-  { icon: ExternalLink, label: "All Contacts",   href: "/app/contacts"                   },
-  { icon: Store,        label: "Marketplace",    href: "/app/marketplace/suppliers"      },
+  { icon: UserPlus,     label: "Add Supplier",   href: "/property-manager/contacts/new?type=supplier" },
+  { icon: FilePlus,     label: "Create Job",     href: "/property-manager/work/jobs/new"              },
+  { icon: MessageSquare,label: "Create Task",    href: "/property-manager/work/tasks/new"             },
+  { icon: BookUser,     label: "Directory",      href: "/property-manager/suppliers/directory"        },
+  { icon: Shield,       label: "Compliance",     href: "/property-manager/suppliers/compliance"       },
+  { icon: TrendingUp,   label: "Performance",    href: "/property-manager/suppliers/performance"      },
+  { icon: ExternalLink, label: "All Contacts",   href: "/property-manager/contacts"                   },
+  { icon: Store,        label: "Marketplace",    href: "/property-manager/marketplace/suppliers"      },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -91,10 +91,10 @@ export default function SuppliersHubPage() {
       <MobileTopBar
         title="Suppliers"
         subtitle="Supplier hub"
-        primaryAction={{ label: "Add supplier", icon: UserPlus, href: "/app/contacts/new?type=supplier" }}
+        primaryAction={{ label: "Add supplier", icon: UserPlus, href: "/property-manager/contacts/new?type=supplier" }}
         overflowActions={[
-          { label: "Create job",     icon: FilePlus,  href: "/app/work/jobs/new"              },
-          { label: "Marketplace",    icon: Store,     href: "/app/marketplace/suppliers"      },
+          { label: "Create job",     icon: FilePlus,  href: "/property-manager/work/jobs/new"              },
+          { label: "Marketplace",    icon: Store,     href: "/property-manager/marketplace/suppliers"      },
           { label: "Export",         icon: Download,  onClick: exportCsv                      },
         ]}
       />
@@ -107,14 +107,14 @@ export default function SuppliersHubPage() {
           actions={
             <>
               <Link
-                href="/app/contacts/new?type=supplier"
+                href="/property-manager/contacts/new?type=supplier"
                 className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Add Supplier
               </Link>
               <Link
-                href="/app/marketplace/suppliers"
+                href="/property-manager/marketplace/suppliers"
                 className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 text-slate-700 rounded-lg text-[13px] font-semibold hover:bg-slate-50 transition-colors"
               >
                 <Store className="w-3.5 h-3.5" />
@@ -179,7 +179,7 @@ export default function SuppliersHubPage() {
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-slate-800">Your Suppliers</h2>
-            <Link href="/app/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium">
+            <Link href="/property-manager/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium">
               View all <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -206,7 +206,7 @@ export default function SuppliersHubPage() {
                 return (
                   <Link
                     key={s.id}
-                    href={`/app/work/suppliers/${s.id}`}
+                    href={`/property-manager/work/suppliers/${s.id}`}
                     className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-2xl hover:shadow-sm transition-all"
                   >
                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0", s.avatarBg)}>
@@ -239,7 +239,7 @@ export default function SuppliersHubPage() {
                 <p className="text-[14px] font-semibold text-slate-700 mb-1">No suppliers yet</p>
                 <p className="text-[12.5px] text-slate-500 mb-4">Add your first supplier to start tracking your network.</p>
                 <Link
-                  href="/app/contacts/new?type=supplier"
+                  href="/property-manager/contacts/new?type=supplier"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
@@ -251,7 +251,7 @@ export default function SuppliersHubPage() {
 
           {suppliers.length > 5 && (
             <Link
-              href="/app/suppliers/directory"
+              href="/property-manager/suppliers/directory"
               className="flex items-center justify-center gap-2 w-full py-3 border border-slate-200 rounded-xl text-[13px] font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               View full directory <ChevronRight className="w-4 h-4" />
@@ -267,7 +267,7 @@ export default function SuppliersHubPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[13px] font-semibold text-slate-800">Compliance Status</h3>
-              <Link href="/app/suppliers/compliance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
+              <Link href="/property-manager/suppliers/compliance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
             </div>
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Shield className="w-8 h-8 text-slate-200 mb-2" />
@@ -280,7 +280,7 @@ export default function SuppliersHubPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[13px] font-semibold text-slate-800">Performance</h3>
-              <Link href="/app/suppliers/performance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
+              <Link href="/property-manager/suppliers/performance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
             </div>
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />

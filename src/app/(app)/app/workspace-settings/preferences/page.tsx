@@ -214,7 +214,7 @@ export default function PreferencesPage() {
           <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
           <p className="text-[12px] text-blue-700 leading-relaxed">
             To change your workspace country, legal jurisdiction, tax regime or VAT settings, go to{" "}
-            <a href="/app/workspace-settings/jurisdiction" className="underline font-medium">
+            <a href="/property-manager/workspace-settings/jurisdiction" className="underline font-medium">
               Settings → Jurisdiction
             </a>
             .
