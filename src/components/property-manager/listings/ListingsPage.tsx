@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import { Filter, Download, ChevronDown, Plus, Search } from 'lucide-react'
 import type { Listing } from '@/lib/property-manager/listings/types'
 import ListingKpiCards from './ListingKpiCards'
@@ -124,10 +125,10 @@ export default function ListingsPage() {
               Bulk actions
               <ChevronDown className="w-4 h-4" />
             </button>
-            <button className="flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700 transition-colors">
+            <Link href="/property-manager/listings/new" className="flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700 transition-colors">
               <Plus className="w-4 h-4" />
               Create listing
-            </button>
+            </Link>
           </div>
         </div>
 
