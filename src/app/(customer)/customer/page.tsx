@@ -1,33 +1,30 @@
 import Link from "next/link"
 import {
   CalendarCheck,
-  ShoppingBag,
   Heart,
-  ArrowUpRight,
-  Sparkles,
   MessageSquare,
+  Search,
   MapPin,
   Bell,
-  Search,
+  ArrowUpRight,
   ChevronRight,
   Clock,
-  Home,
+  Users,
+  Moon,
+  Sparkles,
 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import {
   CustomerCard,
-  CustomerKpiStrip,
   CustomerEmptyState,
   CustomerViewLink,
   CustomerStatusBadge,
-  type CustomerKpi,
 } from "@/components/customer/ui"
 import StaysSummaryChart from "@/components/customer/StaysSummaryChart"
 import {
   moneyPence,
   moneyMajor,
   shortDate,
-  dayMonth,
   humanise,
   toneForStatus,
   timeAgo,
@@ -54,7 +51,6 @@ function getGreeting(): string {
   return "Good evening"
 }
 
-/** Days until a date string (0 = today, negative = past). */
 function daysUntil(iso: string | null | undefined): number | null {
   if (!iso) return null
   const d = new Date(iso)
@@ -65,41 +61,33 @@ function daysUntil(iso: string | null | undefined): number | null {
 
 function daysLabel(days: number | null): string {
   if (days === null) return ""
-  if (days === 0) return "Today!"
+  if (days === 0) return "Today"
   if (days === 1) return "Tomorrow"
   if (days > 0) return `In ${days} days`
-  return "Check-in passed"
+  return "Checked in"
+}
+
+// Curated, deterministic property photography for the "next trip" hero so the
+// same booking always shows the same (real) image. Unsplash is CSP-allowed.
+const TRIP_PHOTOS = [
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+  "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
+  "https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e",
+  "https://images.unsplash.com/photo-1484154218962-a197022b5858",
+]
+function pickPhoto(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
+  return `${TRIP_PHOTOS[h % TRIP_PHOTOS.length]}?auto=format&fit=crop&w=1400&q=80`
 }
 
 const QUICK_ACTIONS = [
-  {
-    label: "Find a stay",
-    description: "Search verified homes",
-    href: "/stay/search",
-    icon: Search,
-    gradient: "from-[#2563EB] to-[#0EA5E9]",
-  },
-  {
-    label: "My bookings",
-    description: "Trips & stays",
-    href: "/user/bookings",
-    icon: CalendarCheck,
-    gradient: "from-[#059669] to-[#10B981]",
-  },
-  {
-    label: "Saved",
-    description: "Your favourites",
-    href: "/user/saved",
-    icon: Heart,
-    gradient: "from-[#e11d48] to-[#fb7185]",
-  },
-  {
-    label: "Messages",
-    description: "Hosts & support",
-    href: "/user/messages",
-    icon: MessageSquare,
-    gradient: "from-[#7c3aed] to-[#a78bfa]",
-  },
+  { label: "Find a stay", description: "Search verified homes", href: "/stay/search", icon: Search, gradient: "from-[#2563EB] to-[#0EA5E9]" },
+  { label: "My bookings", description: "Trips & stays", href: "/user/bookings", icon: CalendarCheck, gradient: "from-[#059669] to-[#10B981]" },
+  { label: "Saved", description: "Your favourites", href: "/user/saved", icon: Heart, gradient: "from-[#e11d48] to-[#fb7185]" },
+  { label: "Messages", description: "Hosts & support", href: "/user/messages", icon: MessageSquare, gradient: "from-[#7c3aed] to-[#a78bfa]" },
 ]
 
 /* ── Page ─────────────────────────────────────────────────────────────────── */
@@ -107,7 +95,7 @@ const QUICK_ACTIONS = [
 export default async function CustomerHomePage() {
   const { supabase, workspaceId, email, displayName } = await requireCustomerContext()
 
-  const [bookings, orders, saved, summary, notifications] = await Promise.all([
+  const [bookings, , saved, summary, notifications] = await Promise.all([
     listCustomerBookings(supabase, workspaceId, email),
     listCustomerOrders(supabase, workspaceId),
     listSavedListings(supabase, workspaceId),
@@ -123,121 +111,106 @@ export default async function CustomerHomePage() {
   const nextStay = upcoming[0] ?? null
   const nextStayDays = nextStay ? daysUntil(nextStay.check_in) : null
 
-  const kpis: CustomerKpi[] = [
-    {
-      icon: CalendarCheck,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
-      value: upcoming.length,
-      label: "Upcoming stays",
-      sub: upcoming.length > 0 ? `Next ${shortDate(upcoming[0].check_in)}` : "Nothing booked",
-      subColor: upcoming.length > 0 ? "text-blue-600" : "text-slate-400",
-      href: "/user/bookings",
-    },
-    {
-      icon: Heart,
-      iconBg: "bg-rose-50",
-      iconColor: "text-rose-600",
-      value: saved.length,
-      label: "Saved listings",
-      sub: saved.length > 0 ? "Your favourites" : "Save listings you like",
-      subColor: "text-slate-500",
-      href: "/user/saved",
-    },
-    {
-      icon: MessageSquare,
-      iconBg: "bg-violet-50",
-      iconColor: "text-violet-600",
-      value: notifications.length,
-      label: "Notifications",
-      sub: notifications.length > 0 ? "Recent activity" : "All clear",
-      subColor: "text-slate-500",
-      href: "/user/notifications",
-    },
-  ]
-
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-8 pb-10">
       <MobileTopBar title="Home" subtitle={`${getGreeting()}, ${firstName}`} />
 
-      {/* ── 1. Hero Greeting Banner ─────────────────────────────────────── */}
-      <div
-        className="relative overflow-hidden rounded-none sm:rounded-3xl mx-0 sm:mx-0"
-        style={{ background: "radial-gradient(ellipse at 70% 50%, #1e3a5f 0%, #0D1B2A 60%)" }}
-      >
-        {/* Subtle decorative rings */}
-        <div
-          className="pointer-events-none absolute -right-24 -top-24 w-80 h-80 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #2563EB 0%, transparent 70%)" }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute right-8 bottom-0 w-40 h-40 rounded-full opacity-5"
-          style={{ background: "radial-gradient(circle, #60a5fa 0%, transparent 70%)" }}
-          aria-hidden
-        />
+      {/* ── Greeting ─────────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[14px] font-medium text-slate-500">{getGreeting()}</p>
+        <h1 className="mt-0.5 text-[30px] sm:text-[38px] font-extrabold tracking-tight text-slate-900 leading-[1.05]">
+          Welcome back, {firstName}
+        </h1>
+        <p className="mt-2 text-[15px] text-slate-500">
+          {nextStay ? "Your next trip is just around the corner." : "Where would you like to go next?"}
+        </p>
+      </div>
 
-        <div className="relative px-5 py-7 sm:px-8 sm:py-9 flex flex-col sm:flex-row sm:items-center gap-6">
-          {/* Left: greeting */}
-          <div className="flex-1 min-w-0">
-            <p className="text-blue-300 text-sm font-medium tracking-wide mb-1">
-              {getGreeting()}
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
-              {firstName} 👋
-            </h1>
-            <p className="mt-2 text-white/60 text-sm max-w-xs">
-              {nextStay
-                ? "Your next stay is coming up. Here's what's on."
-                : "Your home base for stays, bookings, and saved properties."}
-            </p>
-            {!nextStay && (
-              <Link
-                href="/stay/search"
-                className="mt-4 inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
-              >
-                <Search className="w-4 h-4" />
-                Find your next stay
-              </Link>
-            )}
-          </div>
-
-          {/* Right: next stay card */}
-          {nextStay && (
-            <Link
-              href={`/user/bookings/${nextStay.id}`}
-              className="sm:w-64 shrink-0 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
-            >
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <Home className="w-5 h-5 text-blue-600" />
-                </div>
+      {/* ── Next trip — the showpiece (image-led) ────────────────────────── */}
+      {nextStay ? (
+        <section className="overflow-hidden rounded-[28px] border border-[#ECEFF4] bg-white shadow-[0_2px_4px_rgba(15,23,42,0.03),0_28px_56px_-28px_rgba(15,23,42,0.22)]">
+          <div className="grid lg:grid-cols-2">
+            {/* Photo */}
+            <div className="relative min-h-[260px] lg:min-h-[360px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={pickPhoto(nextStay.id)}
+                alt={nextStay.listing_title ?? "Your next stay"}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+              <div className="absolute left-5 top-5 flex items-center gap-2">
+                <span className="rounded-full bg-white/95 px-3 py-1 text-[12px] font-bold text-slate-900 shadow-sm">
+                  Your next trip
+                </span>
                 <CustomerStatusBadge tone={toneForStatus(nextStay.status)}>
                   {humanise(nextStay.status)}
                 </CustomerStatusBadge>
               </div>
-              <p className="text-sm font-semibold text-slate-900 truncate leading-snug">
-                {nextStay.listing_title ?? "Upcoming Stay"}
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5 truncate">
-                {shortDate(nextStay.check_in)} → {shortDate(nextStay.check_out)}
-                {nextStay.nights ? ` · ${nextStay.nights} night${nextStay.nights === 1 ? "" : "s"}` : ""}
-              </p>
+              <div className="absolute inset-x-5 bottom-5 text-white">
+                <h2 className="text-[24px] font-bold leading-tight drop-shadow-sm">
+                  {nextStay.listing_title ?? "Upcoming stay"}
+                </h2>
+                <p className="mt-1 flex items-center gap-1.5 text-[13.5px] text-white/90">
+                  <CalendarCheck className="h-4 w-4" />
+                  {shortDate(nextStay.check_in)} → {shortDate(nextStay.check_out)}
+                </p>
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="flex flex-col justify-center gap-6 p-6 sm:p-8">
               {nextStayDays !== null && (
-                <div className="mt-3 flex items-center gap-1.5 text-[#2563EB]">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">{daysLabel(nextStayDays)}</span>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#EFF5FF] px-3.5 py-1.5 text-[13px] font-bold text-[#1D4ED8]">
+                  <Clock className="h-3.5 w-3.5" /> {daysLabel(nextStayDays)}
                 </div>
               )}
-              <p className="mt-2 text-[11px] text-slate-400 flex items-center gap-0.5 group-hover:text-[#2563EB] transition-colors">
-                View booking <ChevronRight className="w-3 h-3" />
-              </p>
-            </Link>
-          )}
-        </div>
-      </div>
 
-      {/* ── 2. Quick action tiles ──────────────────────────────────────────── */}
+              <div className="grid grid-cols-2 gap-4">
+                <Stat icon={CalendarCheck} label="Check-in" value={shortDate(nextStay.check_in)} />
+                <Stat icon={CalendarCheck} label="Check-out" value={shortDate(nextStay.check_out)} />
+                <Stat icon={Moon} label="Nights" value={nextStay.nights ? String(nextStay.nights) : "—"} />
+                <Stat icon={Users} label="Guests" value={nextStay.guests_count ? String(nextStay.guests_count) : "1"} />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-slate-100 pt-5">
+                <div>
+                  <p className="text-[12px] text-slate-400">Total paid</p>
+                  <p className="text-[22px] font-extrabold tracking-tight text-slate-900">
+                    {moneyPence(nextStay.total_pence, nextStay.currency)}
+                  </p>
+                </div>
+                <Link
+                  href={`/user/bookings/${nextStay.id}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#0B1B3F] px-5 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#15294f]"
+                >
+                  View booking <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="relative overflow-hidden rounded-[28px] min-h-[300px] flex items-end">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pickPhoto(workspaceId)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
+          <div className="relative p-7 sm:p-9 text-white">
+            <h2 className="text-[26px] sm:text-[30px] font-bold leading-tight">Find your next place to stay</h2>
+            <p className="mt-1.5 text-[14.5px] text-white/85 max-w-md">
+              Verified homes, serviced apartments and long-stay rentals across the UK.
+            </p>
+            <Link
+              href="/stay/search"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-[14px] font-semibold text-slate-900 transition-transform hover:scale-[1.02]"
+            >
+              <Search className="h-4 w-4" /> Start searching
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ── Quick actions ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {QUICK_ACTIONS.map((a) => {
           const Icon = a.icon
@@ -260,27 +233,22 @@ export default async function CustomerHomePage() {
         })}
       </div>
 
-      {/* ── 3. KPI strip ──────────────────────────────────────────────────── */}
-      <CustomerKpiStrip kpis={kpis} />
+      {/* ── Travel snapshot (elegant inline figures) ─────────────────────── */}
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <Figure value={String(summary.total_stays)} label="Stays booked" />
+        <Figure value={String(summary.total_nights)} label="Nights away" />
+        <Figure value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
+      </div>
 
-      {/* ── 4. Two-column layout: upcoming + activity ─────────────────────── */}
+      {/* ── Two-column: upcoming + activity ──────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
-        {/* Upcoming stays */}
-        <CustomerCard className="p-5">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-                <CalendarCheck className="w-3.5 h-3.5 text-blue-600" />
-              </div>
-              <h2 className="text-base font-semibold text-slate-900">Upcoming stays</h2>
-            </div>
-            <CustomerViewLink href="/user/bookings" label="View all" />
-          </div>
+        <CustomerCard className="p-5 sm:p-6">
+          <SectionHead icon={CalendarCheck} iconBg="bg-blue-50" iconColor="text-blue-600" title="Upcoming stays" href="/user/bookings" />
           {upcoming.length === 0 ? (
             <CustomerEmptyState
               icon={CalendarCheck}
               title="No upcoming stays"
-              description="When you book a property, your confirmed and pending stays appear here with dates, guests and the price you paid."
+              description="When you book a place, your confirmed and pending trips appear here with dates, guests and the price you paid."
               action={<CustomerViewLink href="/stay/search" label="Find a place to stay" />}
             />
           ) : (
@@ -291,34 +259,28 @@ export default async function CustomerHomePage() {
                   <li key={b.id}>
                     <Link
                       href={`/user/bookings/${b.id}`}
-                      className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/40 transition-colors group"
+                      className="group flex items-center gap-3 rounded-2xl border border-slate-100 p-2.5 transition-colors hover:border-[#CFE0F7] hover:bg-[#F7FAFF]"
                     >
-                      {/* Date block */}
-                      <div className="w-12 shrink-0 rounded-xl bg-blue-600 px-1 py-2 text-center">
-                        <p className="text-[10px] font-bold text-blue-200 leading-none uppercase">
-                          {dayMonth(b.check_in).split(" ")[1]}
-                        </p>
-                        <p className="text-lg font-bold text-white leading-none mt-0.5">
-                          {dayMonth(b.check_in).split(" ")[0]}
-                        </p>
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={pickPhoto(b.id)} alt="" className="h-full w-full object-cover" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[14px] font-semibold text-slate-900">
                           {b.listing_title ?? (b.nights ? `${b.nights}-night stay` : "Stay")}
+                        </p>
+                        <p className="mt-0.5 truncate text-[12.5px] text-slate-500">
+                          {shortDate(b.check_in)} → {shortDate(b.check_out)}
                           {b.guests_count ? ` · ${b.guests_count} guest${b.guests_count === 1 ? "" : "s"}` : ""}
                         </p>
-                        <p className="text-xs text-slate-500 truncate mt-0.5">
-                          {shortDate(b.check_in)} → {shortDate(b.check_out)}
-                        </p>
                         {days !== null && days >= 0 && (
-                          <p className="text-[11px] font-semibold text-blue-600 mt-0.5">{daysLabel(days)}</p>
+                          <p className="mt-0.5 text-[11.5px] font-semibold text-[#2563EB]">{daysLabel(days)}</p>
                         )}
                       </div>
-                      <div className="text-right shrink-0 space-y-1">
-                        <p className="text-sm font-bold text-slate-800">{moneyPence(b.total_pence, b.currency)}</p>
+                      <div className="shrink-0 space-y-1 text-right">
+                        <p className="text-[14px] font-bold text-slate-900">{moneyPence(b.total_pence, b.currency)}</p>
                         <CustomerStatusBadge tone={toneForStatus(b.status)}>{humanise(b.status)}</CustomerStatusBadge>
                       </div>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-200 group-hover:text-blue-400 shrink-0 transition-colors" />
                     </Link>
                   </li>
                 )
@@ -327,56 +289,33 @@ export default async function CustomerHomePage() {
           )}
         </CustomerCard>
 
-        {/* Activity feed */}
-        <CustomerCard className="p-5">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center">
-                <Bell className="w-3.5 h-3.5 text-violet-600" />
-              </div>
-              <h2 className="text-base font-semibold text-slate-900">Recent activity</h2>
-            </div>
-            <CustomerViewLink href="/user/notifications" label="View all" />
-          </div>
+        <CustomerCard className="p-5 sm:p-6">
+          <SectionHead icon={Bell} iconBg="bg-violet-50" iconColor="text-violet-600" title="Recent activity" href="/user/notifications" />
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-10 px-4">
-              <div className="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-3">
-                <Bell className="w-5 h-5 text-slate-300" />
+            <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100">
+                <Bell className="h-5 w-5 text-slate-300" />
               </div>
-              <p className="text-sm font-medium text-slate-700">All quiet</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-[180px]">
-                Your activity will appear here — bookings, payments, messages.
+              <p className="text-[14px] font-semibold text-slate-700">All quiet</p>
+              <p className="mt-1 max-w-[200px] text-[12.5px] text-slate-400">
+                Bookings, payments and messages will show up here.
               </p>
             </div>
           ) : (
             <ul className="space-y-1">
               {notifications.map((n, i) => (
                 <li key={n.id}>
-                  <Link
-                    href={n.href ?? "/user/notifications"}
-                    className="flex items-center gap-3 py-2.5 px-1 rounded-xl hover:bg-slate-50 transition-colors group"
-                  >
-                    {/* Timeline dot */}
-                    <div className="relative flex flex-col items-center shrink-0">
-                      <div
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          n.severity === "warning"
-                            ? "bg-amber-400"
-                            : (n.severity as string) === "error" || n.severity === "critical"
-                            ? "bg-red-400"
-                            : "bg-blue-400"
-                        }`}
-                      />
-                      {i < notifications.length - 1 && (
-                        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-px h-full bg-slate-100" />
-                      )}
+                  <Link href={n.href ?? "/user/notifications"} className="group flex items-center gap-3 rounded-xl px-1 py-2.5 transition-colors hover:bg-slate-50">
+                    <div className="relative flex shrink-0 flex-col items-center">
+                      <div className={`h-2.5 w-2.5 rounded-full ${n.severity === "warning" ? "bg-amber-400" : (n.severity as string) === "error" || n.severity === "critical" ? "bg-red-400" : "bg-blue-400"}`} />
+                      {i < notifications.length - 1 && <div className="absolute left-1/2 top-3 h-full w-px -translate-x-1/2 bg-slate-100" />}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{n.title}</p>
-                      {n.body && <p className="text-xs text-slate-400 truncate mt-0.5">{n.body}</p>}
-                      <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(n.created_at)}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13.5px] font-semibold text-slate-800">{n.title}</p>
+                      {n.body && <p className="mt-0.5 truncate text-[12px] text-slate-400">{n.body}</p>}
+                      <p className="mt-0.5 text-[11px] text-slate-400">{timeAgo(n.created_at)}</p>
                     </div>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-200 group-hover:text-[#2563EB] shrink-0 transition-colors" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-slate-200 transition-colors group-hover:text-[#2563EB]" />
                   </Link>
                 </li>
               ))}
@@ -385,64 +324,36 @@ export default async function CustomerHomePage() {
         </CustomerCard>
       </div>
 
-      {/* ── 5. Saved listings strip ────────────────────────────────────────── */}
+      {/* ── Saved stays ──────────────────────────────────────────────────── */}
       {saved.length > 0 ? (
-        <CustomerCard className="p-5">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center">
-                <Heart className="w-3.5 h-3.5 text-rose-500" />
-              </div>
-              <h2 className="text-base font-semibold text-slate-900">Your saved stays</h2>
-            </div>
-            <CustomerViewLink href="/user/saved" label="View all" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <CustomerCard className="p-5 sm:p-6">
+          <SectionHead icon={Heart} iconBg="bg-rose-50" iconColor="text-rose-500" title="Your saved stays" href="/user/saved" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {saved.slice(0, 3).map((s) => {
               const l = s.listing
-              const img = Array.isArray(l?.images) && l.images.length > 0 ? l.images[0] : null
+              const img = Array.isArray(l?.images) && l.images.length > 0 ? l.images[0] : pickPhoto(s.id)
               return (
-                <Link
-                  key={s.id}
-                  href={l?.id ? `/stays/${l.id}` : "/user/saved"}
-                  className="group flex flex-col rounded-2xl border border-slate-100 overflow-hidden hover:border-slate-200 hover:shadow-sm transition-all"
-                >
-                  {/* Image */}
-                  <div className="h-36 bg-slate-100 relative overflow-hidden">
-                    {img ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={img}
-                        alt={l?.title ?? "Saved listing"}
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-slate-50">
-                        <Home className="w-8 h-8 text-slate-200" />
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm">
-                      <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+                <Link key={s.id} href={l?.id ? `/stays/${l.id}` : "/user/saved"} className="group block">
+                  <div className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img} alt={l?.title ?? "Saved listing"} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                    <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm">
+                      <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
                     </div>
                   </div>
-                  {/* Details */}
-                  <div className="p-3 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      {l?.title ?? "Saved listing"}
-                    </p>
+                  <div className="mt-2.5">
+                    <p className="truncate text-[14px] font-semibold text-slate-900">{l?.title ?? "Saved listing"}</p>
                     {(l?.location || l?.location_city) && (
-                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate">
-                        <MapPin className="w-3 h-3 shrink-0" />
-                        {l.location_city ?? l.location}
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-[12.5px] text-slate-500">
+                        <MapPin className="h-3 w-3 shrink-0" /> {l.location_city ?? l.location}
                       </p>
                     )}
-                    {(l?.price != null || l?.base_price_pence != null) && (
-                      <p className="text-xs font-semibold text-slate-700 mt-1.5">
-                        {l.base_price_pence != null
-                          ? `${moneyPence(l.base_price_pence, l.currency ?? "GBP")} /night`
-                          : l.price != null
-                          ? `${moneyMajor(l.price, l.currency ?? "GBP")} /${l.price_unit ?? "night"}`
-                          : ""}
+                    {(l?.base_price_pence != null || l?.price != null) && (
+                      <p className="mt-1 text-[13px] text-slate-900">
+                        <span className="font-semibold">
+                          {l.base_price_pence != null ? moneyPence(l.base_price_pence, l.currency ?? "GBP") : moneyMajor(l.price!, l.currency ?? "GBP")}
+                        </span>
+                        <span className="text-slate-500"> /{l.price_unit ?? "night"}</span>
                       </p>
                     )}
                   </div>
@@ -452,49 +363,79 @@ export default async function CustomerHomePage() {
           </div>
         </CustomerCard>
       ) : (
-        <CustomerCard className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center">
-              <Heart className="w-3.5 h-3.5 text-rose-500" />
+        <CustomerCard className="flex flex-col items-start gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50">
+              <Heart className="h-5 w-5 text-rose-500" />
             </div>
-            <h2 className="text-base font-semibold text-slate-900">Saved stays</h2>
+            <div>
+              <p className="text-[15px] font-semibold text-slate-900">Save the places you love</p>
+              <p className="mt-0.5 text-[13px] text-slate-500">Tap the heart on any stay to keep it here.</p>
+            </div>
           </div>
-          <p className="text-sm text-slate-500 mb-4">
-            You haven&apos;t saved any stays yet. Browse the marketplace to find your favourites.
-          </p>
-          <Link
-            href="/stay/search"
-            className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
-          >
-            <Search className="w-3.5 h-3.5" />
-            Browse stays
+          <Link href="/stays" className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-slate-800">
+            <Search className="h-4 w-4" /> Browse stays
           </Link>
         </CustomerCard>
       )}
 
-      {/* ── 6. Activity summary chart ──────────────────────────────────────── */}
+      {/* ── Travel summary chart ─────────────────────────────────────────── */}
       <StaysSummaryChart summary={summary} />
 
-      {/* ── 7. Bottom CTA banner ───────────────────────────────────────────── */}
-      <div
-        className="rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        style={{ background: "linear-gradient(135deg, #0D1B2A 0%, #1e3a5f 100%)" }}
-      >
+      {/* ── Discover banner ──────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-4 rounded-[28px] bg-gradient-to-br from-[#0B1B3F] to-[#1e3a5f] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>
-          <p className="text-white font-bold text-lg leading-tight">Discover properties on Propvora</p>
-          <p className="text-white/60 text-sm mt-1">
-            Browse verified stays and lets across the UK.
-          </p>
+          <p className="text-[19px] font-bold leading-tight text-white">Discover more on Propvora</p>
+          <p className="mt-1 text-[14px] text-white/65">Browse verified stays, long lets and trusted services across the UK.</p>
         </div>
         <Link
           href="/stays"
-          className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#1d4ed8]"
         >
-          <Sparkles className="w-4 h-4" />
-          Explore the marketplace
-          <ArrowUpRight className="w-4 h-4" />
+          <Sparkles className="h-4 w-4" /> Explore the marketplace <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
+    </div>
+  )
+}
+
+/* ── Small presentational helpers ──────────────────────────────────────────── */
+
+function Stat({ icon: Icon, label, value }: { icon: typeof CalendarCheck; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] text-slate-400">{label}</p>
+        <p className="truncate text-[14px] font-semibold text-slate-900">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function Figure({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl border border-[#E7EDF6] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <p className="text-[22px] sm:text-[26px] font-extrabold tracking-tight text-slate-900 leading-none">{value}</p>
+      <p className="mt-1.5 text-[12.5px] font-medium text-slate-500">{label}</p>
+    </div>
+  )
+}
+
+function SectionHead({
+  icon: Icon, iconBg, iconColor, title, href,
+}: { icon: typeof CalendarCheck; iconBg: string; iconColor: string; title: string; href: string }) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2.5">
+        <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${iconBg}`}>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
+        </div>
+        <h2 className="text-[16px] font-bold text-slate-900">{title}</h2>
+      </div>
+      <CustomerViewLink href={href} label="View all" />
     </div>
   )
 }

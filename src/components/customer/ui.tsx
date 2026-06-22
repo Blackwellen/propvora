@@ -55,7 +55,7 @@ export function CustomerCard({
   className?: string
 }) {
   return (
-    <div className={cn("bg-white border border-slate-200 rounded-2xl shadow-sm", className)}>
+    <div className={cn("bg-white border border-[#E7EDF6] rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-16px_rgba(15,23,42,0.12)]", className)}>
       {children}
     </div>
   )
@@ -78,20 +78,25 @@ export function CustomerKpiCard({ kpi }: { kpi: CustomerKpi }) {
   const Icon = kpi.icon
   const inner = (
     <>
-      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", kpi.iconBg)}>
-        <Icon className={cn("w-5 h-5", kpi.iconColor)} />
+      <div className="flex items-start justify-between">
+        <div className={cn("w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-white/60 shadow-sm", kpi.iconBg)}>
+          <Icon className={cn("w-5 h-5", kpi.iconColor)} />
+        </div>
+        {kpi.href && (
+          <ChevronRight className="w-4 h-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-[#2563EB]" />
+        )}
       </div>
-      <div className="mt-3">
-        <p className="text-2xl font-bold text-slate-900 leading-none">{kpi.value}</p>
-        <p className="mt-1.5 text-[13px] font-medium text-slate-600">{kpi.label}</p>
-        {kpi.sub && <p className={cn("mt-0.5 text-[11.5px] font-semibold", kpi.subColor ?? "text-slate-400")}>{kpi.sub}</p>}
+      <div className="mt-3.5">
+        <p className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{kpi.value}</p>
+        <p className="mt-1.5 text-[13px] font-semibold text-slate-700">{kpi.label}</p>
+        {kpi.sub && <p className={cn("mt-0.5 text-[11.5px] font-medium", kpi.subColor ?? "text-slate-400")}>{kpi.sub}</p>}
       </div>
     </>
   )
-  const base = "block bg-white border border-slate-200 rounded-2xl shadow-sm p-4 transition-all"
+  const base = "group block bg-white border border-[#E7EDF6] rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-16px_rgba(15,23,42,0.12)] p-4 transition-all"
   if (kpi.href) {
     return (
-      <Link href={kpi.href} className={cn(base, "hover:border-slate-300 hover:shadow-md")}>
+      <Link href={kpi.href} className={cn(base, "hover:-translate-y-0.5 hover:border-[#CFE0F7] hover:shadow-[0_12px_28px_-14px_rgba(37,99,235,0.3)]")}>
         {inner}
       </Link>
     )
