@@ -23,11 +23,8 @@ const footerLinks = {
   legal: [
     { label: "Terms of Service", href: "/legal/terms" },
     { label: "Privacy Policy", href: "/legal/privacy" },
-    { label: "Cookie Policy", href: "/legal/cookies" },
     { label: "Acceptable Use", href: "/legal/acceptable-use" },
-    { label: "Data Processing", href: "/legal/data-processing" },
-    { label: "Affiliate Terms", href: "/affiliate-programme/terms" },
-    { label: "AI Disclaimer", href: "/legal/ai-disclaimer" },
+    { label: "All policies", href: "/legal" },
   ],
 }
 

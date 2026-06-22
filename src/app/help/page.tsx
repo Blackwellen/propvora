@@ -50,7 +50,7 @@ async function loadArticles(): Promise<{ articles: HelpArticle[]; source: "live"
       category: row.category ?? "General",
       title: row.title ?? "Untitled",
       summary: row.summary ?? row.excerpt ?? "",
-      body: row.body ?? row.content ?? row.summary ?? "",
+      sections: [{ heading: "Overview", body: row.body ?? row.content ?? row.summary ?? "" }],
     }))
 
     return { articles: mapped, source: "live" }

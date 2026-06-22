@@ -1,106 +1,107 @@
-﻿import type { Metadata } from "next"
+import type { Metadata } from "next"
 import Link from "next/link"
 import {
-  FileText,
-  Shield,
-  Cookie,
-  AlertTriangle,
-  Database,
-  Share2,
-  Brain,
-  Tag,
-  CalendarCheck,
-  ChevronRight,
+  FileText, Shield, Cookie, AlertTriangle, Database, Brain,
+  CalendarCheck, Home, Store, Share2, ChevronRight, Scale,
 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
 
 export const metadata: Metadata = {
-  title: "Legal | Propvora",
-  description: "Propvora legal documents: Terms of Service, Privacy Policy, Cookie Policy, Acceptable Use, Data Processing Agreement, Affiliate Terms and AI Disclaimer.",
+  title: "Policies & Legal | Propvora",
+  description:
+    "Every Propvora policy, agreement and disclaimer in one place — platform terms, privacy, bookings, hosting, marketplace and affiliate.",
 }
 
-const documents = [
+type Doc = { title: string; href: string; desc?: string }
+type Group = { key: string; title: string; icon: typeof FileText; color: string; bg: string; docs: Doc[] }
+
+const GROUPS: Group[] = [
   {
+    key: "platform",
+    title: "Platform & account",
     icon: FileText,
-    title: "Terms of Service",
-    description: "The agreement governing your use of the Propvora platform, including subscription terms, acceptable use, intellectual property, and limitations of liability.",
-    href: "/legal/terms",
     color: "text-blue-600",
     bg: "bg-blue-50",
-    border: "border-blue-200",
+    docs: [
+      { title: "Terms of Service", href: "/legal/terms", desc: "The agreement governing your use of Propvora." },
+      { title: "Privacy Policy", href: "/legal/privacy", desc: "How we collect, use and protect your data (GDPR)." },
+      { title: "Acceptable Use Policy", href: "/legal/acceptable-use", desc: "Rules and prohibited activities on the platform." },
+      { title: "Cookie Policy", href: "/legal/cookies", desc: "Cookies and tracking we use, and how to manage them." },
+      { title: "Data Processing Agreement", href: "/legal/data-processing", desc: "GDPR DPA for business customers." },
+    ],
   },
   {
-    icon: Shield,
-    title: "Privacy Policy",
-    description: "How we collect, use, store, and protect your personal data. Includes your GDPR rights, our third-party processors, and how to contact us.",
-    href: "/legal/privacy",
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-  },
-  {
-    icon: Cookie,
-    title: "Cookie Policy",
-    description: "What cookies and tracking technologies we use, why we use them, and how you can manage your preferences.",
-    href: "/legal/cookies",
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-  },
-  {
-    icon: AlertTriangle,
-    title: "Acceptable Use Policy",
-    description: "Rules governing acceptable use of the platform, prohibited activities, data usage rules, and enforcement measures.",
-    href: "/legal/acceptable-use",
-    color: "text-orange-600",
-    bg: "bg-orange-50",
-    border: "border-orange-200",
-  },
-  {
-    icon: Database,
-    title: "Data Processing Agreement",
-    description: "Our GDPR Data Processing Agreement for business customers, detailing controller/processor responsibilities, sub-processors, and data transfer mechanisms.",
-    href: "/legal/data-processing",
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-    border: "border-violet-200",
-  },
-  {
-    icon: Share2,
-    title: "Affiliate Terms",
-    description: "Terms governing the Propvora Affiliate Programme, including commission rates, payment terms, tracking, and prohibited promotion methods.",
-    href: "/legal/affiliate-terms",
-    color: "text-pink-600",
-    bg: "bg-pink-50",
-    border: "border-pink-200",
-  },
-  {
+    key: "data-ai",
+    title: "Data & AI",
     icon: Brain,
-    title: "AI Disclaimer",
-    description: "What Propvora's AI Copilot does and does not do. Covers the boundaries of AI assistance, accuracy limitations, and the human-approval requirement.",
-    href: "/legal/ai-disclaimer",
     color: "text-sky-600",
     bg: "bg-sky-50",
-    border: "border-sky-200",
+    docs: [
+      { title: "AI Disclaimer", href: "/legal/ai-disclaimer", desc: "What our AI Copilot does and doesn't do." },
+      { title: "Booking AI Disclaimer", href: "/legal/booking-ai-disclaimer", desc: "AI assistance limits in booking flows." },
+      { title: "Guest Data Notice", href: "/legal/guest-data-notice", desc: "How guest data is handled for bookings." },
+    ],
   },
   {
-    icon: Tag,
-    title: "Supplier Terms",
-    description: "The agreement for suppliers and tradespeople offering services through the Propvora marketplace — responsibilities, verification, fees, payments and disputes.",
-    href: "/legal/seller-agreement",
-    color: "text-indigo-600",
-    bg: "bg-indigo-50",
-    border: "border-indigo-200",
-  },
-  {
+    key: "bookings",
+    title: "Bookings & stays (guests)",
     icon: CalendarCheck,
-    title: "Booking Terms",
-    description: "Guest-facing terms for stays booked through a host's Propvora booking page. Propvora provides the booking software; your contract for the stay is with the host.",
-    href: "/legal/booking-terms",
     color: "text-rose-600",
     bg: "bg-rose-50",
-    border: "border-rose-200",
+    docs: [
+      { title: "Booking Terms", href: "/legal/booking-terms", desc: "Guest-facing terms for stays booked via Propvora." },
+      { title: "Guest Terms", href: "/legal/guest-terms" },
+      { title: "Buyer Terms", href: "/legal/buyer-terms" },
+      { title: "Booking Payment Terms", href: "/legal/booking-payment-terms" },
+      { title: "Cancellation Policy", href: "/legal/booking-cancellation-policy" },
+      { title: "Refund Policy", href: "/legal/booking-refund-policy" },
+      { title: "Review Policy", href: "/legal/booking-review-policy" },
+      { title: "Damage Deposit Policy", href: "/legal/damage-deposit-policy" },
+      { title: "House Rules Policy", href: "/legal/house-rules-policy" },
+      { title: "Safety & Emergency Disclaimer", href: "/legal/safety-emergency-disclaimer" },
+      { title: "General Cancellation Policy", href: "/legal/cancellation-policy" },
+      { title: "General Refund Policy", href: "/legal/refund-policy" },
+    ],
+  },
+  {
+    key: "hosts",
+    title: "Hosts & landlords",
+    icon: Home,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    docs: [
+      { title: "Host Terms", href: "/legal/host-terms", desc: "The agreement for hosts and landlords." },
+      { title: "Host Payout Terms", href: "/legal/host-payout-terms" },
+      { title: "Host Insurance Disclaimer", href: "/legal/host-insurance-disclaimer" },
+      { title: "Host Tax Disclaimer", href: "/legal/host-tax-disclaimer" },
+      { title: "Host Compliance Disclaimer", href: "/legal/host-compliance-disclaimer" },
+      { title: "Listing Accuracy Warranty", href: "/legal/listing-accuracy-warranty" },
+      { title: "Direct Booking Terms", href: "/legal/direct-booking-terms" },
+      { title: "Channel Sync Disclaimer", href: "/legal/channel-sync-disclaimer" },
+    ],
+  },
+  {
+    key: "marketplace",
+    title: "Marketplace & suppliers",
+    icon: Store,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    docs: [
+      { title: "Marketplace Terms", href: "/legal/marketplace-terms", desc: "Terms for the Propvora services marketplace." },
+      { title: "Supplier Agreement", href: "/legal/seller-agreement", desc: "For suppliers & tradespeople — verification, fees, payments, disputes." },
+      { title: "Marketplace Acceptable Use", href: "/legal/acceptable-use-marketplace" },
+    ],
+  },
+  {
+    key: "affiliate",
+    title: "Affiliate programme",
+    icon: Share2,
+    color: "text-pink-600",
+    bg: "bg-pink-50",
+    docs: [
+      { title: "Affiliate Terms", href: "/legal/affiliate-terms", desc: "Commission, payment terms, tracking and prohibited methods." },
+    ],
   },
 ]
 
@@ -110,54 +111,71 @@ export default function LegalPage() {
       <PublicNav />
 
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
-      {/* Hero */}
-      <section className="pt-32 pb-16 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">Legal documents</h1>
-          <p className="text-lg text-slate-600">
-            All of our legal policies, agreements and disclaimers in one place. We believe in clear, plain-English terms that you can actually read.
-          </p>
-        </div>
-      </section>
-
-      {/* Documents */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-4">
-            {documents.map((doc) => (
-              <Link
-                key={doc.href}
-                href={doc.href}
-                className="group flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all"
-              >
-                <div className={`w-12 h-12 rounded-xl ${doc.bg} border ${doc.border} flex items-center justify-center flex-shrink-0`}>
-                  <doc.icon className={`h-6 w-6 ${doc.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
-                    {doc.title}
-                  </h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">{doc.description}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-12 p-6 rounded-2xl bg-slate-50 border border-slate-200">
-            <h3 className="font-semibold text-slate-900 mb-2">Questions about our legal documents?</h3>
-            <p className="text-slate-600 text-sm mb-4">
-              If you have any questions about our terms, privacy practices, or data handling, we&apos;re happy to help. Contact our team at{" "}
-              <a href="mailto:legal@propvora.com" className="text-blue-600 hover:text-blue-700 font-medium">
-                legal@propvora.com
-              </a>
-            </p>
-            <p className="text-slate-500 text-xs">
-              Propvora is a trading name of Blackwellen Ltd · Registered in England and Wales, Company No. 16482166 · Registered office: 61 Bridge Street, Kington, HR5 3DJ · ICO registration ZC160806
+        {/* Hero */}
+        <section className="border-b border-slate-200 bg-gradient-to-b from-slate-50 to-white pt-32 pb-14">
+          <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-slate-600 shadow-sm">
+              <Scale className="h-3.5 w-3.5 text-blue-600" /> Policies & legal
+            </div>
+            <h1 className="mb-3 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+              Every policy, in one place
+            </h1>
+            <p className="mx-auto max-w-2xl text-lg text-slate-500">
+              All of our agreements, policies and disclaimers — written in plain English. Grouped so you can find exactly what applies to you.
             </p>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Grouped documents */}
+        <section className="py-14">
+          <div className="mx-auto max-w-5xl space-y-10 px-4 sm:px-6 lg:px-8">
+            {GROUPS.map((g) => {
+              const Icon = g.icon
+              return (
+                <div key={g.key}>
+                  <div className="mb-4 flex items-center gap-2.5">
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${g.bg}`}>
+                      <Icon className={`h-[18px] w-[18px] ${g.color}`} />
+                    </div>
+                    <h2 className="text-[18px] font-bold text-slate-900">{g.title}</h2>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {g.docs.map((d) => (
+                      <Link
+                        key={d.href}
+                        href={d.href}
+                        className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#CFE0F7] hover:shadow-[0_10px_28px_-14px_rgba(37,99,235,0.3)]"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-[14.5px] font-semibold text-slate-900 group-hover:text-blue-600">{d.title}</h3>
+                          {d.desc && <p className="mt-0.5 text-[12.5px] leading-relaxed text-slate-500">{d.desc}</p>}
+                        </div>
+                        <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:text-blue-600" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Contact */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+              <h3 className="mb-2 flex items-center gap-2 font-semibold text-slate-900">
+                <Shield className="h-4 w-4 text-blue-600" /> Questions about our policies?
+              </h3>
+              <p className="mb-3 text-sm text-slate-600">
+                Email{" "}
+                <a href="mailto:legal@propvora.com" className="font-medium text-blue-600 hover:text-blue-700">legal@propvora.com</a>{" "}
+                and our team will help. For general support, contact{" "}
+                <a href="mailto:support@propvora.com" className="font-medium text-blue-600 hover:text-blue-700">support@propvora.com</a>.
+              </p>
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
+                <Cookie className="h-3 w-3" />
+                <span>Propvora is a trading name of Blackwellen Ltd · Registered in England &amp; Wales No. 16482166 · ICO ZC160806</span>
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
       <PublicFooter />
