@@ -131,25 +131,21 @@ export async function POST(request: NextRequest) {
     // provisioned schema (sibling migration not applied) we return 503 rather
     // than attempting any direct table insert — the RPC is the only sanctioned
     // guest write path.
+    // Matches the deployed create_public_reservation(...) signature (migration
+    // 20260616080000): the RPC itself recomputes price + checks availability and
+    // creates the hold. Legal acceptances are enforced above in JS; ip/userAgent
+    // are recorded via the booking row separately when needed.
+    void ip; void userAgent
     const rpcArgs = {
       p_listing_id: listing.id,
       p_check_in: validated.checkIn,
       p_check_out: validated.checkOut,
-      p_guests: validated.guests,
+      p_guests_count: validated.guests,
       p_guest_name: guest.fullName,
       p_guest_email: guest.email,
       p_guest_phone: guest.phone || null,
-      p_guest_country: guest.country || null,
-      p_guest_message: guest.message || null,
-      p_arrival_time: guest.arrivalTime || null,
-      p_expected_total_pence: quote.totalPence,
-      p_currency: quote.currency,
-      p_accept_house_rules: guest.acceptHouseRules,
-      p_accept_cancellation: guest.acceptCancellation,
-      p_accept_terms: guest.acceptTerms,
-      p_accept_data_sharing: guest.acceptDataSharing,
-      p_ip: ip,
-      p_user_agent: userAgent,
+      p_session_token: null,
+      p_hold_minutes: 30,
     }
 
     const { data, error } = await supabase.rpc("create_public_reservation", rpcArgs)
@@ -186,11 +182,13 @@ export async function POST(request: NextRequest) {
       | null
       | undefined
 
-    const reference =
-      (result?.booking_reference as string | undefined) ??
-      (result?.reference as string | undefined) ??
+    // The RPC RETURNS TABLE(booking_id, nights, subtotal_pence, total_pence, …).
+    const bookingId =
+      (result?.booking_id as string | undefined) ??
       (result?.id as string | undefined) ??
       null
+    const reference =
+      (result?.booking_reference as string | undefined) ?? bookingId
 
     const status =
       (result?.status as string | undefined) ?? "pending_payment"
@@ -199,7 +197,7 @@ export async function POST(request: NextRequest) {
       {
         ok: true,
         reference,
-        reservationId: (result?.id as string | undefined) ?? null,
+        reservationId: bookingId,
         status,
         // Honest messaging — NO claim that payment was taken (P5 handles capture).
         held: true,

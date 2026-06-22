@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { rateLimit, clientKey } from "@/lib/rate-limit"
 import { stripeSecretKey } from "@/lib/payments/stripe-keys"
 
@@ -219,7 +220,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "A booking reference is required." }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  // Guest pay endpoint: there is no auth session here, and the public pay page
+  // has no RLS read path to its own held booking — the unguessable booking id
+  // IS the bearer capability (like a Stripe client_secret), and this route is
+  // rate-limited + recomputes the amount from the row (never trusts the client).
+  // So we load + record via the service role.
+  const supabase = createAdminClient() as Awaited<ReturnType<typeof createClient>>
 
   const booking = await loadHeldBooking(supabase, ref)
   if (booking === "missing") {

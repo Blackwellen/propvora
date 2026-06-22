@@ -221,6 +221,19 @@ export async function handlePaymentEvent(
           )
           if (ranTxn) transitions.push(`transaction ${txnId} → captured`)
         }
+
+        // Sync the booking: funds are secured in escrow → confirm + mark paid.
+        const bookingId = (pi.metadata?.booking_id as string | undefined) || payment.booking_id || null
+        if (bookingId) {
+          const ranBk = await tolerant(() =>
+            supabase
+              .from("bookings")
+              .update({ status: "confirmed", payment_status: "paid", updated_at: nowIso })
+              .eq("id", bookingId)
+              .in("status", ["hold", "pending_payment"])
+          )
+          if (ranBk) transitions.push(`booking ${bookingId} → confirmed/paid`)
+        }
       }
       break
     }
@@ -239,6 +252,19 @@ export async function handlePaymentEvent(
             .eq("status", "requires_payment")
         )
         if (ran) transitions.push(`payment ${payment.id} → authorized`)
+
+        // Funds are now held in escrow → the booking is confirmed + paid.
+        const bookingId = (pi.metadata?.booking_id as string | undefined) || payment.booking_id || null
+        if (bookingId) {
+          const ranBk = await tolerant(() =>
+            supabase
+              .from("bookings")
+              .update({ status: "confirmed", payment_status: "paid", updated_at: nowIso })
+              .eq("id", bookingId)
+              .in("status", ["hold", "pending_payment"])
+          )
+          if (ranBk) transitions.push(`booking ${bookingId} → confirmed/paid`)
+        }
       }
       break
     }

@@ -253,10 +253,11 @@ export async function computeQuote(
         cleaningFeePence: Math.max(0, Math.trunc(q.cleaningFeePence ?? 0)),
         ready: true,
       }
-    } catch (err) {
-      const code = (err as { code?: string } | null)?.code
-      if (!isMissing(code)) throw err
-      // fall through to fallback pricing
+    } catch {
+      // The reservation RPC is the AUTHORITATIVE price (it recomputes server-
+      // side); this quote is only for display. So any pricing-lib failure
+      // (missing table, signature drift, bad input) degrades gracefully to the
+      // transparent fallback below rather than failing the whole reservation.
     }
   }
 
