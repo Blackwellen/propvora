@@ -25,26 +25,22 @@ export default function PaymentDetailRail({ selected }: Props) {
         <div className="flex gap-2.5">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={selected.image} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" /><div><p className="text-[12.5px] font-semibold text-slate-800">{selected.property}</p><p className="text-[11px] text-slate-400">{selected.desc}</p><StatusPill tone={selected.tone}>{selected.status}</StatusPill></div></div>
         <p className="text-[24px] font-bold text-slate-900 mt-3">{formatPence(selected.amountPence, "GBP")}</p>
         <div className="mt-2 pt-2 border-t border-slate-100 space-y-1">
-          <Row l="Subtotal" r={formatPence(Math.round(selected.amountPence * 0.85), "GBP")} />
-          <Row l="Cleaning fee" r="£50.00" />
-          <Row l="Service fee" r="£35.00" />
-          <div className="flex items-center justify-between pt-1 border-t border-slate-100"><span className="text-[12.5px] font-semibold text-slate-700">Total</span><span className="text-[13px] font-bold text-slate-900">{formatPence(selected.amountPence, "GBP")}</span></div>
+          <div className="flex items-center justify-between pt-1"><span className="text-[12.5px] font-semibold text-slate-700">Total</span><span className="text-[13px] font-bold text-slate-900">{formatPence(selected.amountPence, "GBP")}</span></div>
         </div>
         <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
           <Row l="Payment method" r={selected.method} />
           <Row l="Due" r={selected.due} />
-          <Row l="Reference" r="PMT-77123" />
+          <Row l="Reference" r={`BK-${selected.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`} />
         </div>
         <div className="mt-3 space-y-2">
-          {selected.canPay && <button onClick={() => toast("Opening secure payment…", "info")} className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold">Pay {formatPence(selected.amountPence, "GBP")}</button>}
+          {selected.canPay && <Link href={`/customer/bookings/${selected.id}`} className="block w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold text-center">Pay {formatPence(selected.amountPence, "GBP")}</Link>}
           <button onClick={() => toast("Downloading receipt…", "info")} className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Download receipt</button>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-        <p className="text-[14px] font-bold text-slate-900 mb-2">Deposits &amp; refunds</p>
-        <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2"><span className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center"><ShieldCheck className="w-4 h-4" /></span><div><p className="text-[12px] font-semibold text-slate-700">Deposit held</p><p className="text-[10.5px] text-slate-400">Hilltop Retreat</p></div></div><span className="text-[12.5px] font-bold text-slate-900">£1,650</span></div>
-        <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2"><span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><RotateCcw className="w-4 h-4" /></span><div><p className="text-[12px] font-semibold text-slate-700">Refund in review</p><p className="text-[10.5px] text-slate-400">City Loft Apartment</p></div></div><span className="text-[12.5px] font-bold text-slate-900">£320</span></div>
+        <p className="text-[14px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-violet-500" /> Payment protection</p>
+        <p className="text-[12px] text-slate-500">Stay payments are held in escrow and released to the host after a successful stay — so you&apos;re protected if something goes wrong.</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">

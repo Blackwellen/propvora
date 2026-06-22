@@ -3,19 +3,18 @@
 import { useState } from "react"
 import { ShieldCheck } from "lucide-react"
 import { type PillTone } from "../components/StatusPill"
-import { propertyImages as IMG } from "../data/mock"
-import PaymentsKpiStrip from "./components/PaymentsKpiStrip"
+import PaymentsKpiStrip, { type PaymentsKpis } from "./components/PaymentsKpiStrip"
 import PaymentHistoryTable from "./components/PaymentHistoryTable"
 import PaymentMethodsSection from "./components/PaymentMethodsSection"
 import PaymentDetailRail from "./components/PaymentDetailRail"
 
-interface Pay {
+export interface Pay {
   id: string; property: string; desc: string; image: string; amountPence: number; due: string
   status: string; tone: PillTone; method: string; canPay?: boolean
 }
-const PAYMENTS: Pay[] = []
 
-export default function PaymentsClient() {
+export default function PaymentsClient({ payments = [], kpis }: { payments?: Pay[]; kpis?: PaymentsKpis }) {
+  const PAYMENTS = payments
   const [selectedId, setSelectedId] = useState("")
   const selected = PAYMENTS.find((p) => p.id === selectedId)
 
@@ -29,7 +28,7 @@ export default function PaymentsClient() {
         <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-emerald-600 bg-emerald-50 rounded-full px-3 py-1.5"><ShieldCheck className="w-4 h-4" /> All payments protected</span>
       </div>
 
-      <PaymentsKpiStrip />
+      <PaymentsKpiStrip kpis={kpis} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-5 items-start">
         <div className="space-y-5">
