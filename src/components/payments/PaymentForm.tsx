@@ -99,9 +99,11 @@ export default function PaymentForm({
         if (typeof data.currency === "string") setServerCurrency(data.currency)
 
         // Payment Element: created against the intent client_secret so it can
-        // render cards + Google Pay/Apple Pay + saved cards in one widget.
+        // render cards + Google Pay/Apple Pay + saved cards in one widget. When
+        // the buyer is logged in, the CustomerSession surfaces their saved cards.
         const elements = stripe.elements({
           clientSecret: data.clientSecret,
+          ...(data.customerSessionSecret ? { customerSessionClientSecret: data.customerSessionSecret as string } : {}),
           appearance: {
             theme: "stripe",
             variables: {

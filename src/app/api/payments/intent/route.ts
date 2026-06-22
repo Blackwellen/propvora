@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { rateLimit, clientKey } from "@/lib/rate-limit"
 import { stripeSecretKey } from "@/lib/payments/stripe-keys"
+import { resolveStripeCustomer, createCustomerSessionSecret } from "@/lib/payments/stripe-customer"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -250,6 +251,23 @@ export async function POST(request: NextRequest) {
       apiVersion: "2026-05-27.dahlia" as const,
     })
 
+    // ── Saved cards: when a logged-in user is paying, attach their Stripe
+    // Customer + a CustomerSession so the Payment Element shows their saved
+    // cards and can save new ones. Anonymous guests skip this (one-off PI).
+    let stripeCustomerId: string | null = null
+    let customerSessionSecret: string | null = null
+    try {
+      const { data: { user } } = await (await createClient()).auth.getUser()
+      if (user) {
+        stripeCustomerId = await resolveStripeCustomer(stripe, { id: user.id, email: user.email })
+        if (stripeCustomerId) {
+          customerSessionSecret = await createCustomerSessionSecret(stripe, stripeCustomerId)
+        }
+      }
+    } catch {
+      /* anon / auth unavailable — proceed as a guest one-off */
+    }
+
     // ── Idempotency: find an existing open payment + its intent ─────────────
     let paymentId: string | null = null
     let existingIntentId: string | null = null
@@ -299,6 +317,7 @@ export async function POST(request: NextRequest) {
           paymentId,
           amountPence: booking.totalPence,
           currency: booking.currency,
+          customerSessionSecret,
         })
       }
       // else fall through to mint a fresh intent + record
@@ -384,6 +403,10 @@ export async function POST(request: NextRequest) {
 
     const intent = await stripe.paymentIntents.create({
       ...(params as unknown as Stripe.PaymentIntentCreateParams),
+      // Logged-in user → attach their Customer + save the card for next time.
+      ...(stripeCustomerId
+        ? { customer: stripeCustomerId, setup_future_usage: "off_session" as const }
+        : {}),
       automatic_payment_methods: { enabled: true },
     })
 
@@ -405,6 +428,7 @@ export async function POST(request: NextRequest) {
       paymentId,
       amountPence: booking.totalPence,
       currency: booking.currency,
+      customerSessionSecret,
     })
   } catch (err) {
     console.error("[payments/intent]", err)
