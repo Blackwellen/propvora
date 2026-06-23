@@ -22,7 +22,7 @@ const MANAGER_BASE = "/property-manager"
 // Every action routes to a real create wizard/page that exists in the app.
 const ACTIONS: QuickAction[] = [
   { label: "New property",        href: `${MANAGER_BASE}/portfolio/properties/new`,    icon: Building2,    context: `${MANAGER_BASE}/portfolio` },
-  { label: "New tenancy",         href: `${MANAGER_BASE}/portfolio/tenancies?new=1`,   icon: Home,         context: `${MANAGER_BASE}/portfolio` },
+  { label: "New tenancy",         href: `${MANAGER_BASE}/portfolio/tenancies/new`,     icon: Home,         context: `${MANAGER_BASE}/portfolio` },
   { label: "New task",            href: `${MANAGER_BASE}/work/tasks/new`,              icon: CheckSquare,  context: `${MANAGER_BASE}/work` },
   { label: "New job",             href: `${MANAGER_BASE}/work/jobs/new`,               icon: Briefcase,    context: `${MANAGER_BASE}/work` },
   { label: "Add income",          href: `${MANAGER_BASE}/money/income?new=1`,          icon: Wallet,       context: `${MANAGER_BASE}/money` },
