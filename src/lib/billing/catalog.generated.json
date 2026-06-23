@@ -87,106 +87,107 @@
       "interval": null
     },
     "open_banking": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknURCdtTmwVoI",
+      "priceId": "price_1TlHtvAHC49xkmreyVFPDkY4",
       "amount": 1900,
       "interval": "month"
     },
     "whatsapp_business": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUDQrWJ1bY7c",
+      "priceId": "price_1TlHtwAHC49xkmreayZTx6rS",
       "amount": 1500,
       "interval": "month"
     },
     "esignature": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUjjOIEuvuZg",
+      "priceId": "price_1TlHtwAHC49xkmreoKbIOzDt",
       "amount": 1500,
       "interval": "month"
     },
     "accounting_sync": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUoxscKwbQA4",
+      "priceId": "price_1TlHtxAHC49xkmreFd3aOiFk",
       "amount": 2900,
       "interval": "month"
     },
     "mtd_itsa": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknU0jC6C6X4EZ",
+      "priceId": "price_1TlHtxAHC49xkmreNxJxMcpH",
       "amount": 1900,
       "interval": "month"
     },
     "booking_pages": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUjoppNKFPeW",
+      "priceId": "price_1TlHtyAHC49xkmre65QBAgNU",
       "amount": 1900,
       "interval": "month"
     },
     "automation_pack": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUMRTEay61ve",
+      "priceId": "price_1TlHtzAHC49xkmre7Jr0eW9M",
       "amount": 2900,
       "interval": "month"
     },
     "api_access": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUo7n9FTchNG",
+      "priceId": "price_1TlHtzAHC49xkmre454oYCjw",
       "amount": 4900,
       "interval": "month"
     },
     "country_pack_beta": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknUekYOs80IIC",
+      "priceId": "price_1TlHu0AHC49xkmrel3t78Ljq",
       "amount": 1900,
       "interval": "month"
     },
     "supplier_pro_profile": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVkwsd5eBYPL",
+      "priceId": "price_1TlHu0AHC49xkmreP8Yx6B81",
       "amount": 1900,
       "interval": "month"
     },
     "supplier_team": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVLJOJvxmkAM",
+      "priceId": "price_1TlHu1AHC49xkmremeBLzwER",
       "amount": 2900,
       "interval": "month"
     },
     "supplier_emergency": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVc1YT32Xhww",
+      "priceId": "price_1TlHu1AHC49xkmrep3166rFe",
       "amount": 3900,
       "interval": "month"
     },
     "supplier_verified_plus": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVtSE5Xa7ZZX",
+      "priceId": "price_1TlHu2AHC49xkmrezAmSqs0l",
       "amount": 900,
       "interval": "month"
     },
     "supplier_promoted": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVJedHa6EbqL",
+      "priceId": "price_1TlHu3AHC49xkmreUqHgnhUs",
       "amount": 4900,
       "interval": "month"
     },
     "supplier_extra_area": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVslpDyF0iMA",
+      "priceId": "price_1TlHu3AHC49xkmre9htnOsV5",
       "amount": 1000,
       "interval": "month"
     },
     "supplier_automation_pack": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVrEbKmLEMYk",
+      "priceId": "price_1TlHu4AHC49xkmreXeB7UXbg",
       "amount": 1900,
       "interval": "month"
     },
     "supplier_ai_assistant": {
-      "productId": null,
-      "priceId": null,
+      "productId": "prod_UknVZB712ViNMe",
+      "priceId": "price_1TlHu4AHC49xkmreiPB9fFuz",
       "amount": 1500,
       "interval": "month"
     }
-  }
+  },
+  "toppedUpAt": "2026-06-23T00:09:27.891Z"
 }

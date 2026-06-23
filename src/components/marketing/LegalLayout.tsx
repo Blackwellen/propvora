@@ -9,7 +9,8 @@ interface LegalLayoutProps {
   children: React.ReactNode
   /**
    * Shows a "review with legal counsel before publishing" notice above the
-   * content. Defaults to true while these documents are being finalised.
+   * content. These documents are now published, so this defaults to false;
+   * pass `reviewNotice` explicitly to re-flag a page that is being revised.
    */
   reviewNotice?: boolean
 }
@@ -18,7 +19,7 @@ export default function LegalLayout({
   title,
   lastUpdated,
   children,
-  reviewNotice = true,
+  reviewNotice = false,
 }: LegalLayoutProps) {
   return (
     <div className="min-h-screen bg-white">
