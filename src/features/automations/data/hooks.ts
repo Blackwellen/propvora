@@ -175,9 +175,56 @@ export function useAutomationRecipes() {
 
 export function useAutomationRunsLogs() {
   return useLiveData<RunRow[]>([], async (sb, wid) => {
-    const { error } = await sb.from("automation_runs").select("id").eq("workspace_id", wid).limit(1)
+    // Real runs live in automation_v2_runs (lib/automation/runs.ts RUNS_TABLE).
+    // The previous version queried the empty `automation_runs` table just to
+    // probe existence and always returned null, so the UI showed 0 runs even
+    // though the engine had executed dozens.
+    const { data, error } = await sb
+      .from("automation_v2_runs")
+      .select("id, definition_id, status, trigger_context, started_at, finished_at, is_dry_run, created_at")
+      .eq("workspace_id", wid)
+      .order("started_at", { ascending: false, nullsFirst: false })
+      .limit(100)
     if (error) throw error
-    return null
+    const rows = (data ?? []).filter((r) => !(r as { is_dry_run?: boolean }).is_dry_run)
+    if (rows.length === 0) return null
+
+    // Resolve definition names in one round-trip.
+    const defIds = [...new Set(rows.map((r) => (r as { definition_id?: string }).definition_id).filter(Boolean))] as string[]
+    const names = new Map<string, string>()
+    if (defIds.length) {
+      const { data: defs } = await sb.from("automation_definitions").select("id, name").in("id", defIds)
+      for (const d of (defs ?? []) as Array<{ id: string; name: string }>) names.set(d.id, d.name)
+    }
+    const mapStatus = (s: string): RunRow["status"] => (s === "succeeded" ? "success" : s === "failed" ? "failed" : "skipped")
+    const fmtDur = (start: string | null, end: string | null): string => {
+      if (!start || !end) return "—"
+      const ms = new Date(end).getTime() - new Date(start).getTime()
+      if (!Number.isFinite(ms) || ms < 0) return "—"
+      return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
+    }
+    return rows.map((raw) => {
+      const r = raw as {
+        id: string; definition_id?: string; status?: string
+        trigger_context?: Record<string, unknown> | null
+        started_at?: string | null; finished_at?: string | null; created_at?: string | null
+      }
+      const tc = r.trigger_context ?? {}
+      const trig = String((tc.trigger_type ?? tc.type ?? tc.event ?? "event") as string)
+      return {
+        id: r.id,
+        ref: `RUN-${String(r.id).slice(0, 8).toUpperCase()}`,
+        automation: (r.definition_id && names.get(r.definition_id)) || "Automation",
+        triggerEvent: trig,
+        status: mapStatus(r.status ?? "skipped"),
+        startedAt: r.started_at ?? r.created_at ?? "",
+        duration: fmtDur(r.started_at ?? r.created_at ?? null, r.finished_at ?? null),
+        outputs: 0,
+        approvals: 0,
+        initiatedBy: "System",
+        initiatedKind: "System" as const,
+      }
+    })
   })
 }
 
