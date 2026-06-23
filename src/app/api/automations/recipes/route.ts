@@ -4,25 +4,34 @@ import { z } from "zod"
 import { gateAutomation } from "@/lib/billing/gates"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { resolveAuthedWorkspace } from "../_shared"
-import { SMART_RECIPES, instantiateRecipe } from "@/lib/automation/recipes"
+import { SMART_RECIPES, instantiateRecipe, RECIPE_DOMAIN_LABELS } from "@/lib/automation/recipes"
 
 // Smart Recipes: list the curated recipe catalogue, and INSTANTIATE one as a
 // DISABLED DRAFT definition (+ node graph). Never enables or runs anything.
 export const dynamic = "force-dynamic"
 
+const titleCase = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+
 export async function GET(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
   try {
-    const recipes = SMART_RECIPES.map((r) => ({
-      slug: r.slug,
-      name: r.name,
-      description: r.description,
-      domain: r.domain,
-      minPlan: r.minPlan,
-      recommended: Boolean(r.recommended),
-      nodeCount: r.graph.nodes.length,
-      actionCount: r.actions.length,
-    }))
+    const recipes = SMART_RECIPES.map((r) => {
+      const nodeCount = r.graph.nodes.length
+      return {
+        slug: r.slug,
+        name: r.name,
+        description: r.description,
+        domain: r.domain,
+        domainLabel: RECIPE_DOMAIN_LABELS[r.domain] ?? r.domain,
+        minPlan: r.minPlan,
+        recommended: Boolean(r.recommended),
+        nodeCount,
+        actionCount: r.actions.length,
+        triggerType: r.trigger.type,
+        triggerLabel: titleCase(String(r.trigger.type)),
+        difficulty: nodeCount <= 3 ? "Easy" : nodeCount <= 5 ? "Medium" : "Hard",
+      }
+    })
     return NextResponse.json({ ok: true, recipes }, { status: 200 })
   } catch (err) {
     captureException(err, { source: "api/automations/recipes:GET", requestId })

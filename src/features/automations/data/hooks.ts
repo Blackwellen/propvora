@@ -164,11 +164,36 @@ export function useMyAutomations() {
 export function useAutomationRecipes() {
   return useLiveData<{ featured: Recipe[]; recipes: Recipe[] }>(
     { featured: [], recipes: [] },
-    async (sb, wid) => {
-      const { error } = await sb.from("automation_recipes").select("id").eq("workspace_id", wid).limit(1)
-      if (error) throw error
-      // No mapper yet for live recipe rows → treat as empty (honest) for now.
-      return null
+    async () => {
+      // The curated catalogue lives in lib/automation/recipes (SMART_RECIPES),
+      // served by /api/automations/recipes. The previous version queried the
+      // empty automation_recipes table and returned null, so the page showed 0.
+      const res = await fetch("/api/automations/recipes")
+      if (!res.ok) return null
+      const json = (await res.json()) as { ok?: boolean; recipes?: Array<Record<string, unknown>> }
+      const raw = json.recipes ?? []
+      if (raw.length === 0) return null
+      const map = (r: Record<string, unknown>): Recipe => {
+        const cat = String(r.domainLabel ?? r.domain ?? "General")
+        const diff = String(r.difficulty ?? "Medium")
+        return {
+          id: String(r.slug),
+          name: String(r.name),
+          category: cat,
+          tags: [cat].filter(Boolean),
+          badge: r.recommended ? "Most popular" : undefined,
+          trigger: String(r.triggerLabel ?? ""),
+          actionCount: Number(r.actionCount ?? 0),
+          modules: [cat].filter(Boolean),
+          timeSaved: "",
+          successRate: 0,
+          difficulty: (["Easy", "Medium", "Hard"].includes(diff) ? diff : "Medium") as Recipe["difficulty"],
+          reviewFirst: true,
+        }
+      }
+      const recipes = raw.map(map)
+      const featured = raw.filter((r) => r.recommended).slice(0, 6).map(map)
+      return { featured, recipes }
     },
   )
 }

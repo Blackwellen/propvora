@@ -47,9 +47,25 @@ export default function RecipesPage() {
     })
   }, [allRecipes, category, onlyFav, favourites, query])
 
-  function useRecipe(r: Recipe) {
-    toast(`"${r.name}" added as a review-first draft`)
-    setTimeout(() => router.push("/property-manager/automations/my-automations"), 600)
+  async function useRecipe(r: Recipe) {
+    // Install the recipe via the real engine: instantiateRecipe creates a
+    // DISABLED, review-first definition (+ node graph) the user then enables.
+    try {
+      const res = await fetch("/api/automations/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: r.id }),
+      })
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
+      if (!res.ok || !json.ok) {
+        toast(json.error || "Couldn't add that recipe. Please try again.")
+        return
+      }
+      toast(`"${r.name}" added as a review-first draft`)
+      setTimeout(() => router.push("/property-manager/automations/my-automations"), 700)
+    } catch {
+      toast("Couldn't add that recipe. Please try again.")
+    }
   }
 
   const actions = (
@@ -135,8 +151,8 @@ export default function RecipesPage() {
             </div>
             <h3 className="mt-3 text-sm font-semibold text-slate-900">{r.name}</h3>
             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-500">
-              <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{r.timeSaved}</span>
-              <span>{r.successRate}% success</span>
+              <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{r.difficulty} setup</span>
+              <span>{r.actionCount} action{r.actionCount === 1 ? "" : "s"}</span>
             </div>
             <div className="mt-3 flex gap-2">
               <Btn variant="primary" className="flex-1 justify-center" onClick={() => useRecipe(r)}>Use recipe</Btn>
@@ -173,8 +189,7 @@ export default function RecipesPage() {
                     </button>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500">
-                    <span>Saves {r.timeSaved}</span>
-                    <span>{r.successRate}% success</span>
+                    <span>{r.category}</span>
                     <span>Setup: {r.difficulty}</span>
                     {r.reviewFirst && <AutomationsReviewFirstBadge />}
                   </div>
@@ -234,10 +249,9 @@ export default function RecipesPage() {
             <div className="grid grid-cols-2 gap-3">
               <Stat label="Trigger" value={preview.trigger} />
               <Stat label="Actions" value={`${preview.actionCount}`} />
-              <Stat label="Time saved" value={preview.timeSaved} />
-              <Stat label="Success rate" value={`${preview.successRate}%`} />
+              <Stat label="Category" value={preview.category} />
+              <Stat label="Review-first" value={preview.reviewFirst ? "Yes" : "No"} />
               <Stat label="Difficulty" value={preview.difficulty} />
-              <Stat label="Modules" value={preview.modules.join(", ")} />
             </div>
             <Btn variant="primary" className="w-full justify-center" icon={Workflow} onClick={() => { setPreview(null); useRecipe(preview) }}>
               Use this recipe
