@@ -12,6 +12,7 @@ export const runtime = "nodejs"
 export async function GET() {
   const flags = await getGlobalFlags([
     "marketplaceEnabled", "directBookingPages", "registrationCustomer", "registrationSupplier",
+    "supplierWorkspace", "customerWorkspace",
   ])
   return NextResponse.json(
     {
@@ -19,6 +20,8 @@ export async function GET() {
       directBooking: flags.directBookingPages,
       registrationCustomer: flags.registrationCustomer,
       registrationSupplier: flags.registrationSupplier,
+      supplierWorkspace: flags.supplierWorkspace,
+      customerWorkspace: flags.customerWorkspace,
     },
     { headers: { "Cache-Control": "public, max-age=30, s-maxage=30" } }
   )

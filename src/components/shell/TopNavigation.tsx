@@ -113,6 +113,14 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
         .eq("user_id", user.id)
         .limit(50)
       if (data) {
+        // Staged platform: the supplier workspace is only switchable when the
+        // supplierWorkspace flag is on (V1: off). Without this, a pre-existing
+        // supplier membership leaks into the switcher even with the feature off.
+        let supplierOn = false
+        try {
+          const fr = await fetch("/api/flags/public")
+          if (fr.ok) { const f = await fr.json(); supplierOn = Boolean(f?.supplierWorkspace) }
+        } catch { /* default off */ }
         const list: Workspace[] = (data
           .map((row: { workspace_id: string; workspaces: unknown }) => {
             const ws = row.workspaces as { id: string; name: string; slug: string; type?: string } | null
@@ -123,6 +131,8 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
           // from an operator/supplier context — it has its own entry point (the
           // login persona switch) and is deliberately omitted here.
           .filter((ws) => ws.type !== "customer")
+          // Hide supplier workspaces unless the supplierWorkspace flag is on.
+          .filter((ws) => ws.type !== "supplier" || supplierOn)
         setWorkspaces(list)
       }
     } catch {
