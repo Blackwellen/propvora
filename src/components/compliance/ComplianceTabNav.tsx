@@ -15,17 +15,17 @@ import {
 } from "lucide-react"
 
 // 9 tabs — operational compliance + legal advisory (merged from /legal nav item).
-// Legal tab links to /app/legal (HMO licences, EPC advisory, possession, RRA 2026).
+// Legal tab links to /property-manager/legal (HMO licences, EPC advisory, possession, RRA 2026).
 const COMPLIANCE_TABS = [
-  { key: "overview",      label: "Overview",      href: "/app/compliance/overview", root: "/app/compliance", icon: LayoutDashboard },
-  { key: "certificates",  label: "Certificates",  href: "/app/compliance/certificates",  icon: FileCheck2 },
-  { key: "inspections",   label: "Inspections",   href: "/app/compliance/inspections",   icon: ClipboardList },
-  { key: "documents",     label: "Documents",     href: "/app/compliance/documents",     icon: FolderOpen },
-  { key: "evidence",      label: "Evidence",      href: "/app/compliance/evidence",      icon: Shield },
-  { key: "coverage",      label: "Coverage",      href: "/app/compliance/coverage",      icon: Building2 },
-  { key: "supplier-docs", label: "Supplier Docs", href: "/app/compliance/supplier-docs", icon: Truck },
-  { key: "reports",       label: "Reports",       href: "/app/compliance/reports",       icon: BarChart3 },
-  { key: "legal",         label: "Legal",         href: "/app/legal",                    icon: Scale },
+  { key: "overview",      label: "Overview",      href: "/property-manager/compliance/overview", root: "/property-manager/compliance", icon: LayoutDashboard },
+  { key: "certificates",  label: "Certificates",  href: "/property-manager/compliance/certificates",  icon: FileCheck2 },
+  { key: "inspections",   label: "Inspections",   href: "/property-manager/compliance/inspections",   icon: ClipboardList },
+  { key: "documents",     label: "Documents",     href: "/property-manager/compliance/documents",     icon: FolderOpen },
+  { key: "evidence",      label: "Evidence",      href: "/property-manager/compliance/evidence",      icon: Shield },
+  { key: "coverage",      label: "Coverage",      href: "/property-manager/compliance/coverage",      icon: Building2 },
+  { key: "supplier-docs", label: "Supplier Docs", href: "/property-manager/compliance/supplier-docs", icon: Truck },
+  { key: "reports",       label: "Reports",       href: "/property-manager/compliance/reports",       icon: BarChart3 },
+  { key: "legal",         label: "Legal",         href: "/property-manager/legal",                    icon: Scale },
 ] as const
 
 interface ComplianceTabNavProps {
@@ -44,9 +44,9 @@ export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
           {COMPLIANCE_TABS.map((tab) => {
             const active =
               tab.key === "overview"
-                ? pathname === "/app/compliance" || pathname === "/app/compliance/overview"
+                ? pathname === "/property-manager/compliance" || pathname === "/property-manager/compliance/overview"
                 : tab.key === "legal"
-                  ? pathname === "/app/legal" || pathname.startsWith("/app/legal/")
+                  ? pathname === "/property-manager/legal" || pathname.startsWith("/property-manager/legal/")
                   : pathname.startsWith(tab.href)
             const Icon = tab.icon
             const count = counts?.[tab.key]

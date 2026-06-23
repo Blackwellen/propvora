@@ -143,6 +143,17 @@ CREATE INDEX IF NOT EXISTS idx_automation_dry_steps_run   ON automation_dry_run_
 CREATE INDEX IF NOT EXISTS idx_automation_audit_flow      ON automation_audit_events(automation_flow_id);
 CREATE INDEX IF NOT EXISTS idx_automation_audit_ws        ON automation_audit_events(workspace_id, created_at DESC);
 
+-- ── Table privileges ─────────────────────────────────────────────────────────
+-- PostgREST returns 404 (not 403) for a role that has NO table privilege, which
+-- silently breaks the visual builder's save/load for logged-in users. Grant the
+-- standard CRUD privileges to `authenticated`; RLS (below) still restricts every
+-- row to the caller's own workspace. The canvas is auth-only, so `anon` needs
+-- nothing. Without these grants the entire Automation Canvas cannot persist.
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+  automation_flows, automation_flow_versions, automation_nodes, automation_edges,
+  automation_dry_runs, automation_dry_run_steps, automation_audit_events
+  TO authenticated;
+
 -- ── Row Level Security ───────────────────────────────────────────────────────
 -- Pattern: users can only access rows for workspaces they belong to.
 -- Membership check uses workspace_members (confirmed table name).

@@ -1,5 +1,4 @@
-﻿import { Heart } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
+﻿import { createClient } from "@/lib/supabase/server"
 import { getMarketplaceAccess } from "@/components/marketplace/server"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
@@ -58,7 +57,7 @@ export default async function MarketplaceSavedPage() {
             variant="no-results"
             title="Nothing saved yet"
             description="Save stays, suppliers and services you're interested in to compare them here later."
-            action={{ label: "Browse the marketplace", href: "/property-manager/marketplace", icon: Heart }}
+            action={{ label: "Browse the marketplace", href: "/property-manager/marketplace" }}
           />
         </div>
       ) : (

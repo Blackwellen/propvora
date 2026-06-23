@@ -29,7 +29,7 @@ export default async function OwnerStatementsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">Owner Statement</h2>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Owner Statement</h1>
         <p className="text-sm text-slate-500">
           Money collected on the owner&apos;s behalf, fees and expenses, and the net due — derived from posted journal
           entries for {from} to {to}.

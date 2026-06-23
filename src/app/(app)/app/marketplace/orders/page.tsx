@@ -1,5 +1,5 @@
 ﻿import Link from "next/link"
-import { Package, ShoppingBag, ArrowDownLeft, ArrowUpRight } from "lucide-react"
+import { Package, ArrowDownLeft, ArrowUpRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { listOrders, type OrderSide } from "@/lib/marketplace/orders"
 import { getMarketplaceAccess } from "@/components/marketplace/server"
@@ -67,7 +67,7 @@ export default async function MarketplaceOrdersPage({
             variant="no-results"
             title="No orders yet"
             description="When you book a stay, buy a service or sell to another workspace, your orders appear here with their live status."
-            action={{ label: "Browse the marketplace", href: "/property-manager/marketplace", icon: ShoppingBag }}
+            action={{ label: "Browse the marketplace", href: "/property-manager/marketplace" }}
           />
         </div>
       ) : (
