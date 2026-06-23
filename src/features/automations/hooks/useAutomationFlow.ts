@@ -110,6 +110,8 @@ export function useAutomationFlow(workspaceId?: string, automationId?: string) {
         const supabase = createClient()
         const definitionJson = nodesToDefinition(nodes, edges, meta)
 
+        let flowId = meta.id ?? null
+
         if (meta.id) {
           // Update existing
           const { error } = await supabase
@@ -148,11 +150,51 @@ export function useAutomationFlow(workspaceId?: string, automationId?: string) {
             }
             throw new Error(error.message)
           }
-          setMeta((m) => ({ ...m, id: String(data.id) }))
+          flowId = String(data.id)
+          setMeta((m) => ({ ...m, id: flowId! }))
+        }
+
+        // Persist the workflow definition itself. Previously the built
+        // definitionJson (nodes/edges/config) was discarded, so saving an
+        // automation lost everything you built. Write it as a new version row
+        // and point the flow at it. Best-effort: a missing versions table must
+        // not fail the save (the flow metadata is still saved above).
+        if (flowId) {
+          try {
+            const { data: lastV } = await supabase
+              .from("automation_flow_versions")
+              .select("version_number")
+              .eq("automation_flow_id", flowId)
+              .order("version_number", { ascending: false })
+              .limit(1)
+              .maybeSingle()
+            const nextVersion = Number((lastV as { version_number?: number } | null)?.version_number ?? 0) + 1
+            const { data: ver } = await supabase
+              .from("automation_flow_versions")
+              .insert({
+                workspace_id: workspaceId,
+                automation_flow_id: flowId,
+                version_number: nextVersion,
+                definition_json: definitionJson as unknown as Record<string, unknown>,
+                visual_layout_json: { nodes: nodes.map((n) => ({ id: n.id, position: n.position })) },
+                status: "draft",
+              })
+              .select("id")
+              .single()
+            if (ver?.id) {
+              await supabase
+                .from("automation_flows")
+                .update({ current_version_id: String(ver.id) })
+                .eq("id", flowId)
+                .eq("workspace_id", workspaceId)
+            }
+          } catch {
+            /* versions table missing — metadata save above still succeeded */
+          }
         }
 
         setSaved(true)
-        return { id: meta.id, definitionJson }
+        return { id: flowId ?? meta.id, definitionJson }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Save failed."
         setSaveError(msg)
