@@ -179,26 +179,32 @@ export async function saveDefinition(
   if (!workspaceId) throw new Error("No active workspace.")
 
   const lib = await loadDefinitionsLib()
-  const payload = {
-    workspaceId,
-    userId,
-    name: def.name,
+
+  // The sibling lib (createDefinition/updateDefinition) expects positional args
+  // (supabase, workspaceId, userId|id, input) and the NESTED DefinitionInput
+  // shape (trigger:{kind,type,config}, actions:[{action_type,config}]). The flat
+  // payload + single-arg call used before crashed with "reading 'name'" of
+  // undefined. Map the flat definition to the nested input and call correctly.
+  const triggerKind: "event" | "schedule" | "webhook" =
+    /schedule|cron|daily|recurring/i.test(def.trigger_type) ? "schedule"
+      : /webhook|inbound/i.test(def.trigger_type) ? "webhook"
+        : "event"
+  const input = {
+    name: def.name || "Untitled automation",
     description: def.description ?? null,
-    trigger_type: def.trigger_type,
-    trigger_config: def.trigger_config,
-    condition_config: conditionConfig(def),
-    action_type: def.action_type,
-    action_config: def.action_config,
-    review_required: def.review_required,
+    trigger: { kind: triggerKind, type: def.trigger_type, config: def.trigger_config ?? {} },
+    conditions: conditionConfig(def),
+    actions: [{ action_type: def.action_type, config: def.action_config ?? {} }],
     enabled: def.enabled,
+    source: "nl" as const,
   }
 
   if (def.id && lib?.updateDefinition) {
-    await lib.updateDefinition(def.id, payload)
+    await lib.updateDefinition(supabase, workspaceId, def.id, input)
     return { id: def.id }
   }
   if (!def.id && lib?.createDefinition) {
-    return await lib.createDefinition(payload)
+    return await lib.createDefinition(supabase, workspaceId, userId, input)
   }
 
   // Fallback: write straight to smart_rules (RLS-scoped, membership already checked).
