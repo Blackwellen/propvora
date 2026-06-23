@@ -16,6 +16,7 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { authorizeCron } from "@/lib/cron/auth"
 import { drainAutomationQueue } from "@/lib/automation/executor"
+import { enqueueAllDue } from "@/lib/automation/enqueue"
 import { escalateOverdueApprovals } from "@/lib/automation/approvals"
 import { expireStaleHolds } from "@/lib/booking/reservations"
 import { reconcilePayments } from "@/lib/payments/reconciliation"
@@ -38,8 +39,11 @@ async function handle(request: Request): Promise<NextResponse> {
   const admin = createAdminClient()
   const out: Record<string, unknown> = { ok: true }
 
-  // 1. Drain the automation queue + escalate overdue approvals.
+  // 1. Evaluate active automations → enqueue due runs, then drain + escalate.
+  //    The enqueue step was previously missing, so the drain had nothing to do
+  //    and automations never fired on real events.
   try {
+    out.automationEnqueued = await enqueueAllDue(admin)
     out.automation = await drainAutomationQueue(admin, { limit: 100 })
     out.approvalsEscalated = await escalateOverdueApprovals(admin)
   } catch (err) {

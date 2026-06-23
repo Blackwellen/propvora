@@ -18,6 +18,7 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { authorizeCron } from "@/lib/cron/auth"
 import { drainAutomationQueue } from "@/lib/automation/executor"
+import { enqueueAllDue } from "@/lib/automation/enqueue"
 import { escalateOverdueApprovals } from "@/lib/automation/approvals"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
@@ -41,11 +42,18 @@ async function handle(request: Request): Promise<NextResponse> {
 
   try {
     const admin = createAdminClient()
+    // 1. PRODUCE: evaluate active automation_definitions against live data and
+    //    enqueue queued runs (the previously-missing step — without this the
+    //    drain below has nothing to do and automations never fire).
+    const produced = await enqueueAllDue(admin)
+    // 2. CONSUME: drain + execute queued runs (review-first; gated→approvals).
     const result = await drainAutomationQueue(admin, { limit: DRAIN_LIMIT })
     // Escalate any approval objects past their SLA (best-effort, never fails the drain).
     const escalated = await escalateOverdueApprovals(admin)
     return NextResponse.json({
       ok: true,
+      enqueued: produced.enqueued,
+      workspacesEnqueued: produced.workspacesEnqueued,
       claimed: result.claimed,
       executed: result.executed,
       succeeded: result.succeeded,
