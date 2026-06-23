@@ -28,6 +28,7 @@ import { HomeComplianceLegalCard } from "../components/HomeComplianceLegalCard"
 import { HomePriorityPanel } from "../components/HomePriorityPanel"
 import { createClient } from "@/lib/supabase/client"
 import { resolveCoverUrls } from "@/lib/files/coverUrl"
+import { normalisePropertyType, normaliseOperationProfile, normalisePropertyStatus } from "@/lib/portfolio/helpers"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type {
   HomeKpi,
@@ -263,13 +264,13 @@ export function HomeDashboardPage() {
         // 0: properties  (alias live cols → app names the UI expects)
         supabase
           .from("properties")
-          .select("id, name:nickname, city, status, target_rent:target_rent_pcm, cover_file_id, updated_at")
+          .select("id, name:nickname, address_line1, city, postcode, status, template, category, target_rent:target_rent_pcm, bedrooms, cover_file_id, cover_image_url, updated_at")
           .eq("workspace_id", wid),
 
         // 1: units  (live table is property_units)
         supabase
           .from("property_units")
-          .select("id, status, property_id")
+          .select("id, status, property_id, target_rent")
           .eq("workspace_id", wid),
 
         // 2: tenancies  (primary_contact_id → contact_id)
@@ -440,7 +441,9 @@ export function HomeDashboardPage() {
         workTrend: 0,
       })
 
-      /* --- Portfolio snapshot --- */
+      /* --- Portfolio snapshot ---
+         Map live rows onto the canonical PropertyCard shape so the home cards
+         match the Portfolio › Properties page exactly. */
       if (activeProps.length > 0) {
         const gradients = [
           "from-blue-200 to-blue-400",
@@ -449,8 +452,16 @@ export function HomeDashboardPage() {
           "from-emerald-200 to-emerald-400",
           "from-violet-200 to-violet-400",
         ]
-        const snapSource = activeProps.slice(0, 6) as Array<{
-          id: string; name: string; city?: string | null; target_rent?: number | null; cover_file_id?: string | null
+        // Live `properties.status` enum is active|void|off_market|archived;
+        // normalisePropertyStatus expects active|vacant|under_works|archived.
+        const STATUS_FROM_DB: Record<string, string> = {
+          active: "active", void: "vacant", off_market: "under_works", archived: "archived",
+        }
+        const snapSource = activeProps.slice(0, 4) as Array<{
+          id: string; name: string; address_line1?: string | null; city?: string | null; postcode?: string | null
+          status?: string | null; template?: string | null; category?: string | null
+          target_rent?: number | null; bedrooms?: number | null
+          cover_file_id?: string | null; cover_image_url?: string | null
         }>
         // Resolve real uploaded covers (cover_file_id → /api/files URL).
         // Fails soft to an empty Map → gradient fallback in the card.
@@ -458,16 +469,29 @@ export function HomeDashboardPage() {
         const snapProperties: HomeProperty[] = snapSource.map((p, i) => {
           const propUnits = units.filter((u: { property_id: string }) => u.property_id === p.id)
           const propOccupied = propUnits.filter((u: { status: string }) => u.status === "occupied").length
+          const propTenants = (tenancies ?? []).filter(
+            (t: { property_id?: string; status?: string }) => t.property_id === p.id && t.status === "active"
+          ).length
+          const unitRent = propUnits.reduce((s: number, u: { target_rent?: number | null }) => s + (u.target_rent ?? 0), 0)
           return {
             id: p.id,
             name: p.name,
             city: p.city ?? "",
-            monthlyRent: p.target_rent ?? 0,
+            address: [p.address_line1, p.city].filter(Boolean).join(", "),
+            postcode: p.postcode ?? "",
+            type: normalisePropertyType(p.template) as HomeProperty["type"],
+            status: normalisePropertyStatus(STATUS_FROM_DB[String(p.status ?? "active")] ?? "active") as HomeProperty["status"],
+            operationProfile: normaliseOperationProfile(p.template),
+            category: p.category ?? null,
+            bedrooms: p.bedrooms ?? undefined,
+            monthlyRent: unitRent > 0 ? unitRent : (p.target_rent ?? 0),
             units: propUnits.length,
+            occupied: propOccupied,
+            tenants: propTenants,
             risk: "Med" as const,
             occupancyPct: propUnits.length > 0 ? Math.round((propOccupied / propUnits.length) * 100) : 0,
             gradient: gradients[i % gradients.length],
-            coverImageUrl: p.cover_file_id ? coverMap.get(p.cover_file_id) : undefined,
+            coverImageUrl: (p.cover_file_id ? coverMap.get(p.cover_file_id) : undefined) ?? p.cover_image_url ?? undefined,
             href: `/property-manager/portfolio/properties/${p.id}`,
           }
         })
@@ -802,15 +826,11 @@ export function HomeDashboardPage() {
       {/* 2. KPI Row — 7 cards */}
       <HomeKpiRow data={kpi} />
 
-      {/* 3. Priority Panel + Portfolio Snapshot */}
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 md:col-span-8">
-          <HomePriorityPanel items={priorityItems} />
-        </div>
-        <div className="col-span-12 md:col-span-4">
-          <HomePortfolioSnapshotCard properties={properties} />
-        </div>
-      </div>
+      {/* 3. Priority Panel */}
+      <HomePriorityPanel items={priorityItems} />
+
+      {/* 3b. Portfolio Snapshot — canonical property cards, full width */}
+      <HomePortfolioSnapshotCard properties={properties} />
 
       {/* 4. Work Queue + Money + Upcoming + Compliance/Legal */}
       <div className="grid grid-cols-12 gap-4">

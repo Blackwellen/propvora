@@ -27,6 +27,16 @@ export interface HomeProperty {
   /** Resolved cover photo (cover_file_id → /api/files URL). Gradient shows when absent. */
   coverImageUrl?: string
   href?: string
+  /* --- Extra fields so the home snapshot can render the canonical PropertyCard --- */
+  address?: string
+  postcode?: string
+  type?: "HMO" | "BTL" | "SA" | "R2R" | "Commercial" | "Mixed" | "Holiday Let" | "Other"
+  status?: "Active" | "Vacant" | "Under Works" | "Archived"
+  occupied?: number
+  tenants?: number
+  operationProfile?: string
+  category?: string | null
+  bedrooms?: number
 }
 
 export interface HomeTenant {
