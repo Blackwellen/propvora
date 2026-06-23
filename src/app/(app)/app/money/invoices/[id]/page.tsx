@@ -390,7 +390,7 @@ export default function InvoiceDetailPage() {
   const lockedReason = "Issued invoice — locked. Edit while in draft."
   // Derive display values from live data
   const invoiceRaw = inv as unknown as Record<string, unknown>
-  const invoiceNumber = invoiceRaw.invoice_number as string | undefined ?? inv.id.slice(0, 12).toUpperCase()
+  const invoiceNumber = (invoiceRaw.invoice_number as string | undefined) || `INV-${inv.id.slice(0, 8).toUpperCase()}`
   const recipient = invoiceRaw.tenant_name as string | undefined ?? inv.contact_id ?? "—"
   const property = invoiceRaw.property_address as string | undefined ?? inv.property_id ?? "—"
   const invoiceType = inv.invoice_type

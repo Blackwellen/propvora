@@ -357,7 +357,7 @@ export default function EditInvoicePage() {
   }, [notFound, router])
 
   // Derive a display-safe source object for breadcrumb / header
-  const source = { id, invoice_number: invoiceNumber || id, recipient: recipientName }
+  const source = { id, invoice_number: invoiceNumber || `INV-${id.slice(0, 8).toUpperCase()}`, recipient: recipientName }
 
   const [isSaving, setIsSaving] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
