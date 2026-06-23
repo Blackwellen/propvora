@@ -10,6 +10,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { GuidedHelpProvider } from "@/guided-help/GuidedHelpProvider"
 import FirstUseModal from "@/guided-help/components/FirstUseModal"
 import SupplierMobileBottomNav from "@/components/supplier-workspace/SupplierMobileNav"
+import SupplierQuickBar from "@/components/supplier-workspace/SupplierQuickBar"
 import { SupplierWorkspaceProvider } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 import {
   SupplierPlanProvider,
@@ -93,7 +94,10 @@ function SupplierShellChrome({ children }: { children: React.ReactNode }) {
             <TopNavigation base={SUPPLIER_BASE} onOpenCopilot={() => setCopilotOpen(true)} />
           </div>
 
-          <ShellContent>{children}</ShellContent>
+          {/* Supplier-specific quick rail — without this, ShellContent falls back
+              to the PM ShellTabsRail, leaking /property-manager/* links into the
+              supplier workspace. */}
+          <ShellContent topRail={<SupplierQuickBar />}>{children}</ShellContent>
         </div>
 
         {/* Dedicated supplier mobile primary nav (below lg). */}
