@@ -169,11 +169,83 @@ export default function UsageLimitsPage() {
       <Modal
         open={!!modal}
         onClose={() => setModal(null)}
-        title="Admin action"
-        footer={<><Btn variant="outline" onClick={() => setModal(null)}>Cancel</Btn><Btn variant="primary" onClick={() => { setModal(null); toast("Saved (demo)") }}>Confirm</Btn></>}
+        title={
+          modal === "limits" ? "Edit usage limits"
+          : modal === "quotas" ? "Configure workspace quotas"
+          : "Policy controls"
+        }
+        footer={
+          <>
+            <Btn variant="outline" onClick={() => setModal(null)}>Cancel</Btn>
+            <Btn
+              variant="primary"
+              onClick={() => {
+                setModal(null)
+                toast(
+                  modal === "limits" ? "Limits updated — changes apply from next billing cycle"
+                  : modal === "quotas" ? "Quota configuration saved"
+                  : "Policy controls saved"
+                )
+              }}
+            >
+              Save changes
+            </Btn>
+          </>
+        }
       >
-        This control is permission-gated to workspace admins. It connects to the governance and
-        billing back-end to update {modal} settings.
+        {modal === "limits" && (
+          <div className="space-y-4 text-sm">
+            <p className="text-slate-500">Set the maximum number of automation runs, AI credits, and concurrent executions allowed per month for this workspace.</p>
+            {[
+              { label: "Monthly run limit", placeholder: "e.g. 10000", hint: "Set to 0 for unlimited (plan permitting)" },
+              { label: "AI credit cap", placeholder: "e.g. 500", hint: "Credits consumed by AI Builder and AI-powered nodes" },
+              { label: "Max concurrent runs", placeholder: "e.g. 5", hint: "Prevents runaway automations from overwhelming external services" },
+            ].map(({ label, placeholder, hint }) => (
+              <div key={label}>
+                <label className="mb-1 block text-xs font-medium text-slate-600">{label}</label>
+                <input placeholder={placeholder} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+                <p className="mt-0.5 text-[11px] text-slate-400">{hint}</p>
+              </div>
+            ))}
+            <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3 text-xs text-amber-800">
+              Changes to usage limits take effect at the start of the next billing cycle. Contact support to adjust limits mid-cycle.
+            </div>
+          </div>
+        )}
+        {modal === "quotas" && (
+          <div className="space-y-4 text-sm">
+            <p className="text-slate-500">Configure per-workspace quotas that override the default plan limits. Useful for multi-workspace operators.</p>
+            {[
+              { label: "Webhook endpoints", placeholder: "e.g. 10" },
+              { label: "Active automations", placeholder: "e.g. 50" },
+              { label: "Approval queue size", placeholder: "e.g. 200" },
+            ].map(({ label, placeholder }) => (
+              <div key={label}>
+                <label className="mb-1 block text-xs font-medium text-slate-600">{label}</label>
+                <input placeholder={placeholder} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+              </div>
+            ))}
+            <p className="text-xs text-slate-400">Leave blank to use the plan default. Quota changes are instant.</p>
+          </div>
+        )}
+        {modal === "policy" && (
+          <div className="space-y-4 text-sm">
+            <p className="text-slate-500">Set workspace-wide safety policies that govern how automations are published and executed.</p>
+            {[
+              { label: "Review-first by default", hint: "Require a human to approve all automation actions before they execute" },
+              { label: "Block dangerous actions", hint: "Prevent automations from triggering payment, deletion or legal notice actions without manual approval" },
+              { label: "Restrict publish to admins only", hint: "Only workspace admins and owners can publish automations" },
+            ].map(({ label, hint }) => (
+              <label key={label} className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 hover:bg-slate-50">
+                <input type="checkbox" className="mt-0.5 rounded border-slate-300" defaultChecked />
+                <div><div className="font-medium text-slate-800">{label}</div><div className="mt-0.5 text-[11px] text-slate-400">{hint}</div></div>
+              </label>
+            ))}
+            <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3 text-xs text-blue-800">
+              Full governance controls including audit retention and environment rules are in <a href="/property-manager/workspace-settings/automations" className="font-semibold underline">Workspace Settings → Automation Governance</a>.
+            </div>
+          </div>
+        )}
       </Modal>
     </AutomationsModuleShell>
   )

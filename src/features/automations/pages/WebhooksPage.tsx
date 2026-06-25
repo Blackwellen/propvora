@@ -6,7 +6,7 @@ import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsStatusBadge } from "../components/AutomationsBadges"
-import { Btn, Card, CardHeader, Toggle, useToast } from "../components/primitives"
+import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
 import { useAutomationWebhooks } from "../data/hooks"
 import type { WebhookDelivery, WebhookEndpoint } from "../data/types"
 
@@ -16,6 +16,9 @@ const ENV_CLS: Record<string, string> = {
   Development: "bg-blue-50 text-blue-700",
 }
 
+const EVENT_GROUPS = ["property.*", "tenancy.*", "compliance.*", "work.*", "finance.*", "contact.*", "automation.*"]
+const ENVIRONMENTS = ["Production", "Staging", "Development"]
+
 export default function WebhooksPage() {
   const toast = useToast()
   const { data, loading } = useAutomationWebhooks()
@@ -24,6 +27,9 @@ export default function WebhooksPage() {
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => Object.fromEntries(data.endpoints.map((e) => [e.id, e.enabled])))
   const [showSecret, setShowSecret] = useState(false)
   const [epPage, setEpPage] = useState(1)
+  const [newEndpointOpen, setNewEndpointOpen] = useState(false)
+  const [newEp, setNewEp] = useState({ name: "", url: "", environment: "Production", eventGroups: [] as string[], secret: "" })
+  const [saving, setSaving] = useState(false)
 
   const endpointCols: DataColumn<WebhookEndpoint>[] = useMemo(
     () => [
@@ -58,7 +64,7 @@ export default function WebhooksPage() {
       <Btn onClick={() => toast("Opening docs")}>View docs</Btn>
       <Btn icon={KeyRound} onClick={() => toast("Secret generated")}>Generate secret</Btn>
       <Btn icon={Send} onClick={() => toast("Test event sent")}>Test event</Btn>
-      <Btn icon={Plus} variant="primary" onClick={() => toast("New endpoint — opens endpoint form")}>New endpoint</Btn>
+      <Btn icon={Plus} variant="primary" onClick={() => setNewEndpointOpen(true)}>New endpoint</Btn>
     </>
   )
 
@@ -135,6 +141,97 @@ export default function WebhooksPage() {
           </Card>
         )}
       </div>
+      <Modal
+        open={newEndpointOpen}
+        onClose={() => { setNewEndpointOpen(false); setNewEp({ name: "", url: "", environment: "Production", eventGroups: [], secret: "" }) }}
+        title="New webhook endpoint"
+        footer={
+          <>
+            <Btn variant="outline" onClick={() => setNewEndpointOpen(false)}>Cancel</Btn>
+            <Btn
+              variant="primary"
+              disabled={saving || !newEp.name.trim() || !newEp.url.trim()}
+              onClick={async () => {
+                if (!newEp.url.startsWith("https://")) { toast("URL must start with https://"); return }
+                setSaving(true)
+                try {
+                  const res = await fetch("/api/automations/webhooks", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newEp),
+                  })
+                  if (!res.ok) throw new Error("Failed to create endpoint")
+                  toast(`Endpoint "${newEp.name}" created`)
+                  setNewEndpointOpen(false)
+                  setNewEp({ name: "", url: "", environment: "Production", eventGroups: [], secret: "" })
+                } catch {
+                  toast("Could not save endpoint — please try again")
+                } finally {
+                  setSaving(false)
+                }
+              }}
+            >
+              {saving ? "Saving…" : "Create endpoint"}
+            </Btn>
+          </>
+        }
+      >
+        <div className="space-y-4 text-sm">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Endpoint name <span className="text-red-500">*</span></label>
+            <input
+              value={newEp.name}
+              onChange={(e) => setNewEp((s) => ({ ...s, name: e.target.value }))}
+              placeholder="e.g. Production webhook"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Destination URL <span className="text-red-500">*</span></label>
+            <input
+              value={newEp.url}
+              onChange={(e) => setNewEp((s) => ({ ...s, url: e.target.value }))}
+              placeholder="https://your-server.com/webhook"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm focus:border-blue-400 focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-slate-400">Must be an HTTPS endpoint. POST requests with JSON payloads will be sent here.</p>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Environment</label>
+            <select
+              value={newEp.environment}
+              onChange={(e) => setNewEp((s) => ({ ...s, environment: e.target.value }))}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+            >
+              {ENVIRONMENTS.map((env) => <option key={env}>{env}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Event groups to subscribe</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {EVENT_GROUPS.map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setNewEp((s) => ({ ...s, eventGroups: s.eventGroups.includes(g) ? s.eventGroups.filter((x) => x !== g) : [...s.eventGroups, g] }))}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${newEp.eventGroups.includes(g) ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Signing secret <span className="text-slate-400">(optional)</span></label>
+            <input
+              value={newEp.secret}
+              onChange={(e) => setNewEp((s) => ({ ...s, secret: e.target.value }))}
+              type="password"
+              placeholder="Leave blank to auto-generate"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+            />
+          </div>
+        </div>
+      </Modal>
     </AutomationsModuleShell>
   )
 }
