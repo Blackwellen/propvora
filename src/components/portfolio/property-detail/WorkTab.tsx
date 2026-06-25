@@ -45,14 +45,14 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
 
       {/* Jobs */}
       <Card className="overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <p className="text-[14px] font-bold text-slate-900">Jobs</p>
-          <div className="flex items-center gap-2">
-            <Link href={`/property-manager/work/jobs/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
-              <Plus size={13} /> New Job
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+          <p className="text-[14px] font-bold text-slate-900 min-w-0 truncate">Jobs</p>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href={`/property-manager/work/jobs/new?propertyId=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+              <Plus size={13} className="shrink-0" /> New Job
             </Link>
-            <Link href={`/property-manager/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
-              Open Work <ArrowUpRight size={12} />
+            <Link href={`/property-manager/work?property=${propertyId}`} className="shrink-0 whitespace-nowrap text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+              Open Work <ArrowUpRight size={12} className="shrink-0" />
             </Link>
           </div>
         </div>
@@ -129,10 +129,10 @@ export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[
 
       {/* Tasks */}
       <Card className="overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <p className="text-[14px] font-bold text-slate-900">Tasks</p>
-          <Link href={`/property-manager/work?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
-            Open Work <ArrowUpRight size={12} />
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+          <p className="text-[14px] font-bold text-slate-900 min-w-0 truncate">Tasks</p>
+          <Link href={`/property-manager/work?property=${propertyId}`} className="shrink-0 whitespace-nowrap text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+            Open Work <ArrowUpRight size={12} className="shrink-0" />
           </Link>
         </div>
         {tasks.length === 0 ? (

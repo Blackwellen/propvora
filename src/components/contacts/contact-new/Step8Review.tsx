@@ -5,6 +5,23 @@ import { Pencil } from "lucide-react"
 import type { WizardState } from "./types"
 import { PORTAL_EXPIRY_OPTIONS } from "./types"
 import { CONTACT_TYPE_OPTIONS } from "./constants"
+import { buildTypeDetails } from "@/lib/contacts/metadata"
+
+const PRETTY: Record<string, string> = {
+  service_categories: "Service Categories", coverage_postcodes: "Coverage",
+  hourly_rate: "Hourly Rate (£)", callout_fee: "Callout Fee (£)",
+  emergency_available: "Emergency Available", preferred_supplier: "Preferred Supplier",
+  insurance_expiry: "Insurance Expiry", source: "Enquiry Source",
+  budget_min: "Budget Min (£)", budget_max: "Budget Max (£)", move_date: "Desired Move Date",
+  preferred_area: "Preferred Area", preferred_property_types: "Property Types", notes: "Notes",
+  current_rent: "Current Rent (£)", move_in_date: "Move-in Date", move_out_date: "Move-out Date",
+  num_occupants: "Occupants", emergency_contact_name: "Emergency Contact",
+  emergency_contact_phone: "Emergency Phone", preferred_comms: "Preferred Comms",
+  responsibility_notes: "Responsibility Notes", num_properties_owned: "Properties Owned",
+  interested_in_planning: "Interested in Planning", specialisation: "Specialisation",
+  company_registration: "Company Registration", professional_body: "Professional Body",
+  renewal_date: "Renewal / Review Date",
+}
 
 function Section({
   title,
@@ -62,6 +79,20 @@ export default function Step8Review({
     .filter(Boolean)
     .join(", ")
 
+  const td = buildTypeDetails(state)
+  const typeSpecificRows = td
+    ? Object.entries(td)
+        .filter(([k, v]) => k !== "kind" && v != null && v !== "")
+        .map(([k, v]) => ({
+          label: PRETTY[k] ?? k.replace(/_/g, " "),
+          value: Array.isArray(v) ? v.join(", ") : typeof v === "boolean" ? (v ? "Yes" : "No") : String(v),
+        }))
+    : []
+
+  const attachedDocs = state.documents
+    .filter((d) => d.file)
+    .map((d) => ({ name: d.name, fileName: d.file!.name }))
+
   return (
     <div className="space-y-4">
       <div>
@@ -99,7 +130,23 @@ export default function Step8Review({
         <Row label="Preferred Contact" value={state.preferredContact} />
       </Section>
 
-      <Section title="Portal Access" step={7} onJumpTo={onJumpTo}>
+      <Section title="Type-Specific" step={4} onJumpTo={onJumpTo}>
+        {typeSpecificRows.length > 0 ? (
+          typeSpecificRows.map((r) => <Row key={r.label} label={r.label} value={r.value} />)
+        ) : (
+          <p className="text-sm text-slate-400">No type-specific details added.</p>
+        )}
+      </Section>
+
+      <Section title="Documents" step={5} onJumpTo={onJumpTo}>
+        {attachedDocs.length > 0 ? (
+          attachedDocs.map((d, i) => <Row key={i} label={d.name} value={d.fileName} />)
+        ) : (
+          <p className="text-sm text-slate-400">No documents attached. You can add them after saving.</p>
+        )}
+      </Section>
+
+      <Section title="Portal Access" step={6} onJumpTo={onJumpTo}>
         <Row label="Portal Enabled" value={state.portalAccessEnabled ? "Yes" : "No"} />
         {state.portalAccessEnabled && (
           <Row

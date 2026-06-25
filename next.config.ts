@@ -144,16 +144,16 @@ const nextConfig: NextConfig = {
     { source: "/property-manager/settings/compliance", destination: "/property-manager/workspace-settings/compliance", permanent: false },
     { source: "/property-manager/settings/payments-stripe", destination: "/property-manager/workspace-settings/integrations", permanent: false },
 
-    // Calendar view collapse — /calendar/{view} → /calendar?view={view}
-    { source: "/property-manager/calendar/week", destination: "/property-manager/calendar?view=week", permanent: false },
-    { source: "/property-manager/calendar/month", destination: "/property-manager/calendar?view=month", permanent: false },
-    { source: "/property-manager/calendar/day", destination: "/property-manager/calendar?view=day", permanent: false },
-    { source: "/property-manager/calendar/agenda", destination: "/property-manager/calendar?view=agenda", permanent: false },
-    { source: "/property-manager/calendar/gantt", destination: "/property-manager/calendar?view=gantt", permanent: false },
-    { source: "/property-manager/calendar/timeline", destination: "/property-manager/calendar?view=timeline", permanent: false },
-    { source: "/property-manager/calendar/schedule", destination: "/property-manager/calendar?view=schedule", permanent: false },
-    { source: "/property-manager/calendar/views", destination: "/property-manager/calendar", permanent: false },
-    { source: "/property-manager/calendar/views/:view", destination: "/property-manager/calendar?view=:view", permanent: false },
+    // NOTE: Calendar routing is owned by the App Router pages, not next.config.
+    //   /calendar                 → overview hub (CalendarOverviewPage)
+    //   /calendar/views           → client-redirect to /calendar/views/week
+    //   /calendar/views/{view}    → real month/week/day/agenda/gantt grids
+    //   /calendar/{view}          → thin server redirect into /calendar/views/{view}
+    //   /calendar/schedule        → real schedule list
+    //   /calendar/timeline        → real timeline view
+    // A previous "view collapse → /calendar?view=" redirect block lived here but
+    // the overview page never read ?view, so it bounced every view/schedule/
+    // timeline link back to the hub (3 of 6 tabs dead). Removed — do not re-add.
   ],
   rewrites: async () => ({
     beforeFiles: [

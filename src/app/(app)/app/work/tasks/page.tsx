@@ -1,15 +1,13 @@
 ﻿"use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import {
   Plus,
   Search,
   List,
   LayoutGrid,
-  Calendar,
-  GanttChart,
-  Map,
   Columns3,
   MessageSquare,
   Paperclip,
@@ -17,14 +15,18 @@ import {
   Clock,
   ShieldAlert,
   Download,
-  Sparkles,
-  SlidersHorizontal,
   Filter,
   CheckSquare,
   Loader2,
+  Calendar,
+  GanttChart,
+  MapPin,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react"
+
+const LocationMap = dynamic(() => import("@/components/maps/LocationMap"), { ssr: false })
 import {
   PieChart,
   Pie,
@@ -35,8 +37,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -45,7 +45,6 @@ import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { InlineEditSelect } from "@/components/editing"
 import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
 import { useCreateSavedView } from "@/hooks/useSavedViews"
-import { openCopilot } from "@/lib/copilot/open"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { Eye, Edit2, CheckCircle2, Trash2 } from "lucide-react"
 import { WorkStatusBadge } from "@/components/work/WorkStatusBadge"
@@ -84,6 +83,14 @@ interface DemoTask {
   dueToday?: boolean
   /** True only for persisted live rows — gates inline cell editing. */
   isLive?: boolean
+  /** ISO date string of due_at — used by Calendar and Gantt views. */
+  rawDueDate?: string | null
+  /** ISO date string of scheduled_start — used by Gantt bars. */
+  rawScheduledStart?: string | null
+  /** ISO date string of created_at — Gantt bar fallback start. */
+  rawCreatedAt?: string | null
+  /** Property address_line1 — used by Map view geocoding. */
+  propertyAddress?: string | null
 }
 
 const TASK_STATUS_CELL_OPTIONS = [
@@ -101,19 +108,6 @@ const TASK_PRIORITY_CELL_OPTIONS = [
   { value: "urgent", label: "Urgent" },
 ]
 
-// ---------------------------------------------------------------------------
-// Demo data
-// ---------------------------------------------------------------------------
-const DEMO_TASKS: DemoTask[] = [
-  { id: "T-1042", title: "Arrange EPC Assessment", category: "Compliance", property: "Manor Flat 3B", unit: "Flat 3B", assigneeInitials: "JT", assigneeName: "James T.", supplier: "Acme Certs", supplierInitials: "AC", dueDate: "Feb 15, 2024", sla: "-2d", status: "in_progress", priority: "high", costImpact: "£120", notes: 2, files: 1, overdue: true },
-  { id: "T-1043", title: "Fix leaking tap Room 3", category: "Maintenance", property: "Brunswick HMO", unit: "Room 3", assigneeInitials: "SC", assigneeName: "Sarah C.", supplier: "PlumbLine Ltd", supplierInitials: "PL", dueDate: "Feb 20, 2024", sla: "0d", status: "in_progress", priority: "medium", costImpact: "£95", notes: 1, files: 2, dueToday: true },
-  { id: "T-1044", title: "Arrears Evidence Pack — 22 Oak Ave", category: "Legal", property: "22 Oak Ave", unit: "—", assigneeInitials: "JT", assigneeName: "James T.", supplier: "—", supplierInitials: "—", dueDate: "Feb 10, 2024", sla: "-5d", status: "waiting", priority: "urgent", costImpact: "£0", notes: 0, files: 1, overdue: true },
-  { id: "T-1045", title: "Annual boiler inspection", category: "Compliance", property: "14 Grove St", unit: "—", assigneeInitials: "LD", assigneeName: "Lisa D.", supplier: "HeatSafe Ltd", supplierInitials: "HS", dueDate: "Feb 28, 2024", sla: "+2d", status: "in_progress", priority: "medium", costImpact: "£180", notes: 2, files: 3 },
-  { id: "T-1046", title: "Replace bathroom tiles", category: "Maintenance", property: "Victoria Terrace", unit: "Flat 2", assigneeInitials: "MK", assigneeName: "Mark K.", supplier: "Tiling Team", supplierInitials: "TT", dueDate: "Mar 15, 2024", sla: "+5d", status: "todo", priority: "medium", costImpact: "£450", notes: 0, files: 2 },
-  { id: "T-1047", title: "Fire door inspection", category: "Compliance", property: "Manor Flat 2A", unit: "Flat 2A", assigneeInitials: "SC", assigneeName: "Sarah C.", supplier: "FireSafe Co", supplierInitials: "FS", dueDate: "Feb 25, 2024", sla: "0d", status: "waiting", priority: "high", costImpact: "£160", notes: 2, files: 1 },
-  { id: "T-1048", title: "Paint corridor", category: "Repairs", property: "Brunswick HMO", unit: "Communal", assigneeInitials: "LD", assigneeName: "Lisa D.", supplier: "Bright Paints", supplierInitials: "BP", dueDate: "Mar 05, 2024", sla: "+3d", status: "todo", priority: "low", costImpact: "£320", notes: 1, files: 2 },
-  { id: "T-1049", title: "EICR Electrical Test", category: "Compliance", property: "5 Park Lane", unit: "—", assigneeInitials: "MK", assigneeName: "Mark K.", supplier: "ElecCheck", supplierInitials: "EC", dueDate: "Mar 10, 2024", sla: "+8d", status: "todo", priority: "high", costImpact: "£180", notes: 0, files: 0 },
-]
 
 
 // ---------------------------------------------------------------------------
@@ -147,13 +141,33 @@ function FilterDropdown({ label, options, value, onChange }: {
 // View type buttons
 // ---------------------------------------------------------------------------
 const VIEW_TYPES = [
-  { key: "list", label: "List View", icon: List },
-  { key: "card", label: "Card View", icon: LayoutGrid },
-  { key: "kanban", label: "Kanban View", icon: Columns3 },
-  { key: "calendar", label: "Calendar View", icon: Calendar },
-  { key: "gantt", label: "Gantt View", icon: GanttChart },
-  { key: "map", label: "Map View", icon: Map },
+  { key: "list",   label: "List",     icon: List },
+  { key: "card",   label: "Card",     icon: LayoutGrid },
+  { key: "kanban", label: "Kanban",   icon: Columns3 },
+  { key: "calendar", label: "Calendar", icon: Calendar },
+  { key: "gantt",    label: "Gantt",    icon: GanttChart },
+  { key: "map",      label: "Map",      icon: MapPin },
 ]
+
+const TASK_STATUS_DOT: Record<string, string> = {
+  todo: "bg-slate-400",
+  in_progress: "bg-blue-500",
+  waiting: "bg-amber-500",
+  blocked: "bg-red-500",
+  done: "bg-emerald-500",
+  cancelled: "bg-slate-300",
+}
+
+const GANTT_BAR_COLOR: Record<string, string> = {
+  todo: "#94A3B8",
+  in_progress: "#3B82F6",
+  waiting: "#F59E0B",
+  blocked: "#EF4444",
+  done: "#10B981",
+  cancelled: "#CBD5E1",
+}
+
+const PAGE_SIZE = 50
 
 // ---------------------------------------------------------------------------
 // KPI Strip
@@ -390,29 +404,6 @@ function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Bottom: AI Suggestions
-// ---------------------------------------------------------------------------
-function AiSuggestionsPanel() {
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold">
-            <Sparkles className="w-3 h-3" /> AI
-          </span>
-          <h3 className="text-sm font-semibold text-slate-900">AI Suggestions</h3>
-        </div>
-      </div>
-      <div className="flex flex-col items-center justify-center py-6 text-center">
-        <Sparkles className="w-7 h-7 text-violet-300 mb-2" />
-        <p className="text-sm font-medium text-slate-700">AI insights coming soon</p>
-        <p className="text-[11px] text-slate-400 mt-1">Suggestions appear as your task data grows</p>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Bottom: Workload by Assignee
 // ---------------------------------------------------------------------------
 function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
@@ -452,6 +443,341 @@ function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
             <Bar dataKey="completed" fill="#2563EB" radius={4} name="Done" />
           </BarChart>
         </ResponsiveContainer>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Calendar view — month grid by due date
+// ---------------------------------------------------------------------------
+function TasksCalendarView({ tasks }: { tasks: DemoTask[] }) {
+  const [cursor, setCursor] = useState(() => { const d = new Date(); d.setDate(1); return d })
+
+  const byDay = useMemo(() => {
+    const map: Record<string, DemoTask[]> = {}
+    for (const t of tasks) {
+      if (!t.rawDueDate) continue
+      const iso = t.rawDueDate.slice(0, 10)
+      ;(map[iso] ??= []).push(t)
+    }
+    return map
+  }, [tasks])
+
+  const year = cursor.getFullYear()
+  const month = cursor.getMonth()
+  const monthLabel = cursor.toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const todayIso = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}` })()
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`
+  const monthCount = tasks.filter(t => t.rawDueDate?.startsWith(monthPrefix)).length
+  const unscheduled = tasks.filter(t => !t.rawDueDate).length
+
+  const cells: ({ day: number; iso: string } | null)[] = []
+  for (let i = 0; i < firstWeekday; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, iso: `${monthPrefix}-${String(d).padStart(2,"0")}` })
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-[#2563EB]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 leading-tight">{monthLabel}</h3>
+            <p className="text-[11px] text-slate-400 tabular-nums">{monthCount} task{monthCount !== 1 ? "s" : ""} due this month</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+          <button onClick={() => { const d = new Date(); d.setDate(1); setCursor(d) }} className="h-8 px-3 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">Today</button>
+          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+        {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => (
+          <div key={d} className="px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wide text-center">{d}</div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7">
+        {cells.map((cell, i) => {
+          const dayTasks = cell ? (byDay[cell.iso] ?? []) : []
+          const isToday = cell?.iso === todayIso
+          const isWeekend = i % 7 >= 5
+          return (
+            <div key={i} className={cn("group/cell min-h-[88px] sm:min-h-[108px] border-b border-r border-slate-100 p-1.5 transition-colors",
+              !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-blue-50/30" : "hover:bg-blue-50/30",
+              isToday && "bg-blue-50/40"
+            )}>
+              {cell && (
+                <>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500")}>{cell.day}</div>
+                    {dayTasks.length > 0 && <span className="text-[9px] font-semibold text-slate-400 tabular-nums">{dayTasks.length}</span>}
+                  </div>
+                  <div className="space-y-1">
+                    {dayTasks.slice(0, 3).map(t => (
+                      <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
+                        <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", TASK_STATUS_DOT[t.status] ?? "bg-slate-400")} />
+                        <span className="text-[10px] font-medium text-slate-600 truncate">{t.title}</span>
+                      </Link>
+                    ))}
+                    {dayTasks.length > 3 && <p className="text-[9px] font-medium text-[#2563EB] pl-1">+{dayTasks.length - 3} more</p>}
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
+        <div className="flex items-center gap-3 flex-wrap">
+          {[["To Do","bg-slate-400"],["In Progress","bg-blue-500"],["Waiting","bg-amber-500"],["Blocked","bg-red-500"],["Done","bg-emerald-500"]].map(([label, dot]) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span className={cn("w-2 h-2 rounded-full", dot)} />
+              <span className="text-[10px] font-medium text-slate-500">{label}</span>
+            </div>
+          ))}
+        </div>
+        {unscheduled > 0 && <p className="text-[11px] text-slate-400 tabular-nums">{unscheduled} task{unscheduled !== 1 ? "s" : ""} with no due date</p>}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Gantt view — horizontal bars from scheduled_start to due_date
+// ---------------------------------------------------------------------------
+function TasksGanttView({ tasks }: { tasks: DemoTask[] }) {
+  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d }, [])
+  const windowStart = useMemo(() => new Date(today.getTime() - 7 * 86400000), [today])
+  const windowEnd   = useMemo(() => new Date(today.getTime() + 35 * 86400000), [today])
+  const windowMs    = windowEnd.getTime() - windowStart.getTime()
+
+  function toPct(ms: number) { return ((ms - windowStart.getTime()) / windowMs) * 100 }
+  const todayPct = toPct(today.getTime())
+
+  const weekHeaders = useMemo(() => {
+    const h: { label: string; pct: number }[] = []
+    const d = new Date(windowStart)
+    // Advance to nearest Monday
+    if (d.getDay() !== 1) d.setDate(d.getDate() + ((8 - d.getDay()) % 7))
+    while (d <= windowEnd) {
+      h.push({ label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }), pct: toPct(d.getTime()) })
+      d.setDate(d.getDate() + 7)
+    }
+    return h
+  }, [windowStart, windowEnd])
+
+  const { scheduled, unscheduled } = useMemo(() => ({
+    scheduled: tasks.filter(t => t.rawDueDate).sort((a,b) => new Date(a.rawDueDate!).getTime() - new Date(b.rawDueDate!).getTime()),
+    unscheduled: tasks.filter(t => !t.rawDueDate),
+  }), [tasks])
+
+  function barFor(t: DemoTask) {
+    const dueD = new Date(t.rawDueDate!); dueD.setHours(23,59,59)
+    const startMs = t.rawScheduledStart
+      ? new Date(t.rawScheduledStart).getTime()
+      : t.rawCreatedAt
+        ? Math.max(new Date(t.rawCreatedAt).getTime(), windowStart.getTime())
+        : windowStart.getTime()
+    const endMs  = Math.min(dueD.getTime(), windowEnd.getTime())
+    const left   = Math.max(0, toPct(startMs))
+    const right  = Math.min(100, toPct(endMs))
+    const overdue = dueD < today && !["done","cancelled"].includes(t.status)
+    return { left, width: Math.max(right - left, 1.2), overdue }
+  }
+
+  if (tasks.length === 0) {
+    return <WorkEmptyState icon={CheckSquare} title="No tasks to show" description="Create tasks with due dates to see them on the Gantt chart." ctaLabel="+ Create Task" ctaHref="/property-manager/work/tasks/new" />
+  }
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+          <GanttChart className="w-4 h-4 text-[#2563EB]" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 leading-tight">Task Gantt — 6-week view</h3>
+          <p className="text-[11px] text-slate-400 tabular-nums">{scheduled.length} task{scheduled.length !== 1 ? "s" : ""} with due dates · bars show scheduled start → due date</p>
+        </div>
+        <Link href="/property-manager/work/gantt" className="ml-auto text-[11.5px] font-semibold text-[#2563EB] hover:underline whitespace-nowrap">Full Gantt (jobs + tasks) →</Link>
+      </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[580px]">
+          {/* Week header */}
+          <div className="flex border-b border-slate-100 bg-slate-50/60 h-8">
+            <div className="w-[200px] shrink-0 flex items-center px-4">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Task</span>
+            </div>
+            <div className="flex-1 relative">
+              {weekHeaders.map((wh, i) => (
+                <div key={i} className="absolute inset-y-0 flex items-center" style={{ left: `${wh.pct}%` }}>
+                  <div className="h-full w-px bg-slate-200" />
+                  <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap pl-1.5">{wh.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Scheduled rows */}
+          {scheduled.map(t => {
+            const { left, width, overdue } = barFor(t)
+            const bg = overdue ? "#EF4444" : (GANTT_BAR_COLOR[t.status] ?? "#94A3B8")
+            return (
+              <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`}
+                className="group flex items-center h-11 border-b border-slate-50 last:border-0 hover:bg-slate-50/80 transition-colors">
+                <div className="w-[200px] shrink-0 flex items-center gap-2 px-4 min-w-0">
+                  <WorkPriorityBadge priority={t.priority} showLabel={false} />
+                  <span className="text-[12px] font-medium text-slate-700 truncate group-hover:text-[#2563EB] transition-colors">{t.title}</span>
+                </div>
+                <div className="flex-1 relative h-full min-w-0">
+                  {todayPct >= 0 && todayPct <= 100 && (
+                    <div className="absolute inset-y-0 w-px bg-[#2563EB]/30 z-10" style={{ left: `${todayPct}%` }} />
+                  )}
+                  <div className="absolute top-2.5 bottom-2.5 rounded-md flex items-center px-1.5 overflow-hidden transition-opacity group-hover:opacity-80"
+                    style={{ left: `${left}%`, width: `${width}%`, background: bg }}>
+                    <span className="text-[9px] font-bold text-white/90 truncate hidden sm:block leading-none">{t.dueDate}</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+          {/* Unscheduled section */}
+          {unscheduled.length > 0 && (
+            <>
+              <div className="flex items-center h-9 px-4 bg-slate-50/60 border-t border-b border-slate-100">
+                <span className="text-[10.5px] font-semibold text-slate-500">No due date — {unscheduled.length} task{unscheduled.length !== 1 ? "s" : ""}</span>
+              </div>
+              {unscheduled.map(t => (
+                <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`}
+                  className="group flex items-center h-10 border-b border-slate-50 last:border-0 hover:bg-slate-50/80 transition-colors">
+                  <div className="w-[200px] shrink-0 flex items-center gap-2 px-4 min-w-0">
+                    <WorkPriorityBadge priority={t.priority} showLabel={false} />
+                    <span className="text-[12px] font-medium text-slate-500 truncate group-hover:text-[#2563EB] transition-colors">{t.title}</span>
+                  </div>
+                  <div className="flex-1 flex items-center px-3">
+                    <span className="text-[10px] text-slate-400 italic">Set a due date to plot on Gantt</span>
+                  </div>
+                </Link>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+      {/* Footer legend */}
+      <div className="flex items-center flex-wrap gap-3 px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
+        {[["To Do","#94A3B8"],["In Progress","#3B82F6"],["Waiting","#F59E0B"],["Blocked / Overdue","#EF4444"],["Done","#10B981"]].map(([label, bg]) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <span className="w-3 h-2 rounded-sm" style={{ background: bg }} />
+            <span className="text-[10px] font-medium text-slate-500">{label}</span>
+          </div>
+        ))}
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="w-px h-3 bg-[#2563EB]/50" />
+          <span className="text-[10px] text-slate-400">Today</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Map view — tasks plotted by property location
+// ---------------------------------------------------------------------------
+function TasksMapView({ tasks }: { tasks: DemoTask[] }) {
+  const [selectedProp, setSelectedProp] = useState<string | null>(null)
+
+  const markers = useMemo(() => {
+    const seen = new Set<string>()
+    return tasks
+      .filter(t => t.property && t.property !== "—")
+      .reduce<Array<{ id: string; address: string; label: string; sublabel: string; href: string; color: string }>>((acc, t) => {
+        const key = t.property
+        if (seen.has(key)) return acc
+        seen.add(key)
+        const count = tasks.filter(x => x.property === t.property).length
+        acc.push({
+          id: key,
+          address: t.propertyAddress || t.property,
+          label: t.property,
+          sublabel: `${count} task${count !== 1 ? "s" : ""}`,
+          href: `/property-manager/work/tasks`,
+          color: "#2563EB",
+        })
+        return acc
+      }, [])
+  }, [tasks])
+
+  const selectedTasks = selectedProp ? tasks.filter(t => t.property === selectedProp) : []
+  const noPropertyTasks = tasks.filter(t => !t.property || t.property === "—")
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+            <MapPin className="w-4 h-4 text-[#2563EB]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 leading-tight">Task Locations</h3>
+            <p className="text-[11px] text-slate-400">{markers.length} propert{markers.length !== 1 ? "ies" : "y"} with tasks · click a pin to see tasks</p>
+          </div>
+        </div>
+        {markers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+            <MapPin className="w-10 h-10 text-slate-200 mb-3" />
+            <p className="text-sm font-semibold text-slate-600">No property-linked tasks</p>
+            <p className="text-[11.5px] text-slate-400 mt-1 max-w-[240px]">Link tasks to properties when creating them and they will appear here.</p>
+          </div>
+        ) : (
+          <LocationMap
+            markers={markers}
+            height={440}
+            interactive
+            selectedId={selectedProp}
+            onSelect={(id) => setSelectedProp(prev => prev === id ? null : id)}
+          />
+        )}
+      </div>
+      {/* Selected property task list */}
+      {selectedProp && selectedTasks.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+            <p className="text-sm font-semibold text-slate-900">{selectedTasks.length} task{selectedTasks.length !== 1 ? "s" : ""} at {selectedProp}</p>
+            <button onClick={() => setSelectedProp(null)} className="text-[11px] text-slate-400 hover:text-slate-600 transition-colors">Clear</button>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {selectedTasks.map(t => (
+              <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`}
+                className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
+                <span className={cn("w-2 h-2 rounded-full shrink-0", TASK_STATUS_DOT[t.status] ?? "bg-slate-400")} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] font-semibold text-slate-800 truncate">{t.title}</p>
+                  <p className="text-[11px] text-slate-400">{t.dueDate !== "—" ? `Due ${t.dueDate}` : "No due date"}</p>
+                </div>
+                <WorkStatusBadge status={t.status} />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* Unlinked tasks */}
+      {noPropertyTasks.length > 0 && (
+        <div className="bg-white border border-slate-100 rounded-xl p-4">
+          <p className="text-[11px] font-semibold text-slate-500 mb-2">{noPropertyTasks.length} task{noPropertyTasks.length !== 1 ? "s" : ""} not linked to a property</p>
+          <div className="flex flex-wrap gap-2">
+            {noPropertyTasks.map(t => (
+              <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:border-[#2563EB]/40 text-[11.5px] font-medium text-slate-700 hover:text-[#2563EB] transition-all">
+                <span className={cn("w-1.5 h-1.5 rounded-full", TASK_STATUS_DOT[t.status] ?? "bg-slate-400")} />
+                {t.title}
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )
@@ -519,7 +845,8 @@ export default function TasksPage() {
   const usingLive = !!(tasksData && tasksData.length > 0)
   const [bulkBusy, setBulkBusy] = useState(false)
 
-  const [activeView, setActiveView] = useState<"list" | "card" | "kanban">("list")
+  const [activeView, setActiveView] = useState<"list" | "card" | "kanban" | "calendar" | "gantt" | "map">("list")
+  const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [priorityFilter, setPriorityFilter] = useState("")
@@ -551,6 +878,10 @@ export default function TasksPage() {
         overdue: t.due_date ? new Date(t.due_date) < new Date() && !["done", "cancelled"].includes(t.status) : false,
         dueToday: t.due_date ? new Date(t.due_date).toDateString() === new Date().toDateString() : false,
         isLive: true,
+        rawDueDate: t.due_date ?? null,
+        rawScheduledStart: t.scheduled_start ?? null,
+        rawCreatedAt: t.created_at ?? null,
+        propertyAddress: (t as any).properties?.address ?? null,
       }))
     }
     return []
@@ -577,6 +908,16 @@ export default function TasksPage() {
   }, [liveOrDemo, search, statusFilter, priorityFilter, propertyFilter, categoryFilter])
 
   const hasFilters = !!(search || statusFilter || priorityFilter || propertyFilter || categoryFilter)
+
+  // Reset to page 1 whenever filters or view changes
+  useEffect(() => { setPage(1) }, [search, statusFilter, priorityFilter, propertyFilter, categoryFilter, activeView])
+
+  const paginatedTasks = useMemo(() => {
+    if (activeView !== "list") return displayTasks
+    const start = (page - 1) * PAGE_SIZE
+    return displayTasks.slice(start, start + PAGE_SIZE)
+  }, [displayTasks, page, activeView])
+  const totalPages = Math.ceil(displayTasks.length / PAGE_SIZE)
 
   function clearFilters() {
     setSearch("")
@@ -628,7 +969,7 @@ export default function TasksPage() {
   // ── Saved Views: serialise/apply this list's filter + view state ──────────
   interface TaskViewConfig extends Record<string, unknown> {
     search: string; statusFilter: string; priorityFilter: string
-    propertyFilter: string; categoryFilter: string; activeView: "list" | "card" | "kanban"
+    propertyFilter: string; categoryFilter: string; activeView: "list" | "card" | "kanban" | "calendar" | "gantt" | "map"
   }
   const viewConfig: TaskViewConfig = {
     search, statusFilter, priorityFilter, propertyFilter, categoryFilter, activeView,
@@ -705,21 +1046,7 @@ export default function TasksPage() {
         subtitle="Work management"
         primaryAction={{ label: "Create task", icon: Plus, href: "/property-manager/work/tasks/new" }}
         overflowActions={[
-          { label: "Select all", icon: CheckSquare, onClick: () => setSelectedIds(displayTasks.map((t) => t.id)) },
           { label: "Export", icon: Download, onClick: exportSelected },
-          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({
-              prompt: "Help me prioritise my open tasks for this week.",
-              summaryData: {
-                section: "work",
-                pageTitle: "Tasks",
-                summaryData: {
-                  openTasks: liveOrDemo.filter(t => !["done", "cancelled"].includes(t.status)).length,
-                  overdueTasks: liveOrDemo.filter(t => t.overdue).length,
-                  dueTodayTasks: liveOrDemo.filter(t => t.dueToday).length,
-                  totalTasks: liveOrDemo.length,
-                },
-              },
-            }) },
         ]}
       />
       <MobilePageHeader hideTitle
@@ -744,6 +1071,14 @@ export default function TasksPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
           <p className="text-sm text-slate-500 mt-0.5">Work management workspace</p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <Link href="/property-manager/work/gantt" className="text-[11.5px] font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+              <GanttChart className="w-3.5 h-3.5" /> View in Gantt →
+            </Link>
+            <Link href="/property-manager/calendar" className="text-[11.5px] font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5" /> Open Calendar →
+            </Link>
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
@@ -777,12 +1112,6 @@ export default function TasksPage() {
             <Plus className="w-3.5 h-3.5" /> Create Task
           </Link>
           <button
-            onClick={() => setSelectedIds(displayTasks.map(t => t.id))}
-            className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
-          >
-            <CheckSquare className="w-3.5 h-3.5" /> Select All
-          </button>
-          <button
             onClick={() => {
               const rows = displayTasks.map(t => [t.id, t.title, t.status, t.priority, t.property, t.dueDate].join(","))
               const csv = ["ID,Title,Status,Priority,Property,Due Date", ...rows].join("\n")
@@ -791,24 +1120,6 @@ export default function TasksPage() {
             className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
           >
             <Download className="w-3.5 h-3.5" /> Export
-          </button>
-          <button
-            onClick={() => openCopilot({
-              prompt: "Help me prioritise my open tasks for this week.",
-              summaryData: {
-                section: "work",
-                pageTitle: "Tasks",
-                summaryData: {
-                  openTasks: liveOrDemo.filter(t => !["done", "cancelled"].includes(t.status)).length,
-                  overdueTasks: liveOrDemo.filter(t => t.overdue).length,
-                  dueTodayTasks: liveOrDemo.filter(t => t.dueToday).length,
-                  totalTasks: liveOrDemo.length,
-                },
-              },
-            })}
-            className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Ask AI
           </button>
         </div>
       </div>
@@ -828,7 +1139,7 @@ export default function TasksPage() {
             return (
               <button
                 key={vt.key}
-                onClick={() => setActiveView(vt.key as "list" | "card" | "kanban")}
+                onClick={() => setActiveView(vt.key as "list" | "card" | "kanban" | "calendar" | "gantt" | "map")}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] font-medium transition-all",
                   isActive
@@ -842,9 +1153,6 @@ export default function TasksPage() {
             )
           })}
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 hover:bg-slate-50">
-          <SlidersHorizontal className="w-3.5 h-3.5" /> Customize Columns
-        </button>
       </div>
 
       {/* Filter bar */}
@@ -936,7 +1244,7 @@ export default function TasksPage() {
                     <span className="text-sm font-medium text-slate-700">{selectedIds.length} tasks selected</span>
                   )}
                 </div>
-                <span className="text-xs text-slate-500">Showing {displayTasks.length} of {displayTasks.length} tasks</span>
+                <span className="text-xs text-slate-500">Showing {paginatedTasks.length} of {displayTasks.length} tasks</span>
               </div>
 
               {isLoading ? (
@@ -1008,13 +1316,14 @@ export default function TasksPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {displayTasks.map(task => (
+                    {paginatedTasks.map(task => (
                       <tr
                         key={task.id}
                         className={cn(
                           "border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer",
                           selectedIds.includes(task.id) && "bg-blue-50/40"
                         )}
+                        onClick={() => router.push(`/property-manager/work/tasks/${task.id}`)}
                       >
                         <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
                           <input
@@ -1137,33 +1446,38 @@ export default function TasksPage() {
                 </ResponsiveTable>
               )}
 
-              {/* Pagination footer */}
-              <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
-                <p className="text-xs text-slate-500">Showing 1 to {displayTasks.length} of {displayTasks.length} tasks</p>
-                <div className="flex items-center gap-1">
-                  <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  {[1, 2, 3, 4, 5, 6].map(p => (
-                    <button
-                      key={p}
-                      className={cn(
-                        "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
-                        p === 1 ? "bg-[#2563EB] text-white" : "hover:bg-slate-100 text-slate-600"
-                      )}
-                    >
-                      {p}
+              {/* Footer: count + pagination */}
+              <div className="hidden md:flex items-center justify-between gap-4 px-5 py-3 border-t border-slate-100">
+                <p className="text-xs text-slate-500">
+                  {displayTasks.length === 0
+                    ? "No tasks"
+                    : `Showing ${paginatedTasks.length} of ${displayTasks.length} task${displayTasks.length === 1 ? "" : "s"}`}
+                  {hasFilters ? " (filtered)" : ""}
+                </p>
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                      className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                  ))}
-                  <span className="text-slate-400 px-1">...</span>
-                  <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <select className="border border-slate-200 rounded-lg px-2 py-1 text-xs">
-                    <option>25 per page</option>
-                    <option>50 per page</option>
-                  </select>
-                </div>
+                    {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                      const p = i + 1
+                      return (
+                        <button key={p} onClick={() => setPage(p)}
+                          className={cn("w-7 h-7 rounded-lg text-[11px] font-semibold transition-colors",
+                            page === p ? "bg-[#2563EB] text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                          )}>
+                          {p}
+                        </button>
+                      )
+                    })}
+                    {totalPages > 7 && <span className="text-[11px] text-slate-400 px-1">…{totalPages}</span>}
+                    <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                      className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1209,10 +1523,24 @@ export default function TasksPage() {
             </div>
           )}
 
+          {/* Calendar view */}
+          {activeView === "calendar" && (
+            <TasksCalendarView tasks={displayTasks} />
+          )}
+
+          {/* Gantt view — inline compact chart */}
+          {activeView === "gantt" && (
+            <TasksGanttView tasks={displayTasks} />
+          )}
+
+          {/* Map view */}
+          {activeView === "map" && (
+            <TasksMapView tasks={displayTasks} />
+          )}
+
           {/* Bottom panels */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UpcomingDeadlinesPanel tasks={liveOrDemo} />
-            <AiSuggestionsPanel />
             <WorkloadPanel tasks={liveOrDemo} />
           </div>
         </div>

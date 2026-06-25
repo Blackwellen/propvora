@@ -24,6 +24,7 @@ import {
   Square,
 } from "lucide-react"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { ComplianceRequirementsEditor } from "@/components/compliance/ComplianceRequirementsEditor"
 
 export const dynamic = "force-dynamic"
 
@@ -237,6 +238,8 @@ export default function ComplianceSettingsPage() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 pb-6 mt-6">
+
+        <ComplianceRequirementsEditor />
 
         <SettingsCard iconBg="bg-violet-100" icon={<Bell className="w-4 h-4 text-violet-600" />} title="Renewal reminder rules" subtitle="Configure when and how renewal reminders are generated.">
           <div className="flex flex-col gap-3">

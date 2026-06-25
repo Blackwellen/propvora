@@ -39,9 +39,12 @@ function fromDb(r: Record<string, unknown>): Task {
     contact_id: g('assignee_contact_id') ?? g('contact_id') ?? null,
     assigned_to: g('assignee_user_id') ?? null,
     due_date: g('due_at') ?? null,
+    scheduled_start: g('scheduled_start') ?? null,
+    scheduled_end: g('scheduled_end') ?? null,
     completed_at: g('completed_at') ?? null,
     estimated_cost: g('estimated_cost') ?? null,
     actual_cost: g('actual_cost') ?? null,
+    metadata: g('metadata') ?? null,
     is_demo: false,
     created_by: g('created_by') ?? null,
     created_at: g('created_at'),
@@ -56,9 +59,15 @@ function toDb(p: Partial<Task>): Record<string, unknown> {
   if ('assigned_to' in p) o.assignee_user_id = p.assigned_to
   if ('contact_id' in p) o.assignee_contact_id = p.contact_id
   if ('priority' in p) o.priority = prioToDb(p.priority)
+  // `tasks.metadata` is NOT NULL (default '{}'). Never forward an explicit null —
+  // omit the key so the column default applies.
+  if ('metadata' in p && (p as Record<string, unknown>).metadata != null) {
+    o.metadata = (p as Record<string, unknown>).metadata
+  }
   for (const k of [
     'workspace_id', 'title', 'description', 'status', 'property_id',
-    'completed_at', 'estimated_cost', 'actual_cost', 'created_by',
+    'scheduled_start', 'completed_at', 'estimated_cost', 'actual_cost',
+    'created_by',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }
@@ -97,24 +106,28 @@ export function useTasks(
 
       const rows = data ?? []
 
-      // Fetch property names for tasks that have a property_id (no FK in schema
-      // so we can't use PostgREST embedding — do a manual lookup instead).
+      // Fetch property names + addresses for tasks that have a property_id.
+      // No FK in schema so we can't use PostgREST embedding — manual lookup.
       const propIds = [...new Set(rows.map(r => r.property_id).filter(Boolean))]
-      let propNames: Map<string, string> = new Map()
+      const propData = new Map<string, { name: string; address: string }>()
       if (propIds.length > 0) {
         const { data: props } = await supabase
           .from('properties')
           .select('id, nickname, address_line1')
           .in('id', propIds)
         for (const p of props ?? []) {
-          propNames.set(p.id, p.nickname || p.address_line1 || 'Property')
+          propData.set(p.id, {
+            name: p.nickname || p.address_line1 || 'Property',
+            address: p.address_line1 || '',
+          })
         }
       }
 
       return rows.map(r => {
         const task = fromDb(r)
-        if (r.property_id && propNames.has(r.property_id)) {
-          ;(task as any).properties = { name: propNames.get(r.property_id) }
+        if (r.property_id && propData.has(r.property_id)) {
+          const pd = propData.get(r.property_id)!
+          ;(task as any).properties = { name: pd.name, address: pd.address }
         }
         return task
       })

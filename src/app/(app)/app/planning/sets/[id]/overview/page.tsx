@@ -674,8 +674,8 @@ export default function PlanningSetOverviewPage() {
                   <div key={act.id} className="flex items-start gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-800 truncate">{act.title}</p>
-                      {act.description && <p className="text-[11px] text-slate-500 truncate">{act.description}</p>}
+                      <p className="text-xs font-medium text-slate-800 truncate capitalize">{act.action.replace(/_/g, " ")}</p>
+                      {act.detail && <p className="text-[11px] text-slate-500 truncate">{act.detail}</p>}
                       <p className="text-[10px] text-slate-400 mt-0.5">{relDate(act.created_at)}</p>
                     </div>
                   </div>

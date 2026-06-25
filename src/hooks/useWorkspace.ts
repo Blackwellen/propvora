@@ -78,8 +78,9 @@ export function useWorkspaceMembers(workspaceId: string | undefined) {
       const { data, error } = await supabase
         .from('workspace_members')
         .select('*')
+        // live schema orders by created_at — there is no `joined_at` column
         .eq('workspace_id', workspaceId!)
-        .order('joined_at', { ascending: true })
+        .order('created_at', { ascending: true })
 
       if (error) throw error
       return data ?? []

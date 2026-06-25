@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Home, AlertTriangle, CheckCircle2, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -10,6 +11,7 @@ import type { ContactDetail } from "./types"
 import { SectionCard, FieldRow, StatusChip, EmptyState } from "./shared"
 
 export function TenancyTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const t = contact.tenancy
   const rentHistory = [
     { month:"Dec", received:t?.rent ?? 0, expected:t?.rent ?? 0 },
@@ -19,7 +21,7 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
     { month:"Apr", received:t?.rent ?? 0, expected:t?.rent ?? 0 },
     { month:"May", received: contact.arrears > 0 ? 0 : (t?.rent ?? 0), expected:t?.rent ?? 0 },
   ]
-  if (!t) return <EmptyState icon={Home} message="No tenancy linked to this contact." cta="Link Tenancy" />
+  if (!t) return <EmptyState icon={Home} message="No tenancy linked to this contact." cta="Create Tenancy" onCta={() => router.push(`/property-manager/portfolio/tenancies/new?contact=${contact.id}`)} />
   return (
     <div className="space-y-5">
       {contact.arrears > 0 ? (
@@ -29,7 +31,7 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
             <p className="text-sm font-semibold text-red-800">Arrears Outstanding — £{contact.arrears.toLocaleString("en-GB")}</p>
             <p className="text-sm text-red-700">Payment overdue — send notice or create a follow-up task</p>
           </div>
-          <Button variant="destructive" size="sm" className="shrink-0">Create Task</Button>
+          <Button variant="destructive" size="sm" className="shrink-0" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
         </div>
       ) : (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2">
@@ -52,11 +54,13 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
           <FieldRow label="Deposit Scheme" value={t.deposit_scheme} />
           <FieldRow label="Guarantor" value={t.guarantor ?? "None"} />
         </div>
-        <div className="pt-2 border-t border-slate-100">
-          <Link href="/property-manager/portfolio/tenancies/t1" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-            <ExternalLink className="w-3.5 h-3.5" /> Open Full Tenancy Record
-          </Link>
-        </div>
+        {t.id && (
+          <div className="pt-2 border-t border-slate-100">
+            <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+              <ExternalLink className="w-3.5 h-3.5" /> Open Full Tenancy Record
+            </Link>
+          </div>
+        )}
       </SectionCard>
       <div>
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Rent History — 6 Months</p>

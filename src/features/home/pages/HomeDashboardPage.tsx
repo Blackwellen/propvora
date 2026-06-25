@@ -22,11 +22,12 @@ import { HomeTenancySpotlightCard } from "../components/HomeTenancySpotlightCard
 import { HomeWorkQueueCard } from "../components/HomeWorkQueueCard"
 import { HomeMoneySnapshotCard } from "../components/HomeMoneySnapshotCard"
 import { HomeUpcomingCard } from "../components/HomeUpcomingCard"
-import { HomeAiCopilotPrioritiesCard } from "../components/HomeAiCopilotPrioritiesCard"
+import { HomeActionItemsCard } from "../components/HomeActionItemsCard"
 import { HomeRecentActivityCard } from "../components/HomeRecentActivityCard"
 import { HomeComplianceLegalCard } from "../components/HomeComplianceLegalCard"
 import { HomePriorityPanel } from "../components/HomePriorityPanel"
 import { createClient } from "@/lib/supabase/client"
+import { isFeatureEnabled } from "@/lib/flags"
 import { resolveCoverUrls } from "@/lib/files/coverUrl"
 import { normalisePropertyType, normaliseOperationProfile, normalisePropertyStatus } from "@/lib/portfolio/helpers"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -182,7 +183,17 @@ function QuickActionsMenu() {
 /* ------------------------------------------------------------------ */
 /* Command Header                                                         */
 /* ------------------------------------------------------------------ */
-function CommandHeader({ workspaceName, onAskAI }: { workspaceName: string; onAskAI?: () => void }) {
+function CommandHeader({
+  workspaceName,
+  onAskAI,
+  logoUrl,
+  brandColor,
+}: {
+  workspaceName: string
+  onAskAI?: () => void
+  logoUrl?: string | null
+  brandColor?: string | null
+}) {
   const now = new Date()
   const hour = now.getHours()
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
@@ -193,11 +204,30 @@ function CommandHeader({ workspaceName, onAskAI }: { workspaceName: string; onAs
     year: "numeric",
   })
 
+  const initials = workspaceName
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .filter(Boolean)
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "WS"
+
+  const bgColor = brandColor ?? "#1E3A5F"
+
   return (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm px-4 py-3.5 sm:px-6 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-        <div className="w-10 h-10 rounded-xl bg-[#1E3A5F] flex items-center justify-center flex-shrink-0">
-          <Building2 className="text-white" style={{ width: 20, height: 20 }} />
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+          style={{ backgroundColor: bgColor }}
+        >
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={`${workspaceName} logo`} className="w-full h-full object-contain" />
+          ) : (
+            <span className="text-white text-[13px] font-bold leading-none">{initials}</span>
+          )}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -246,7 +276,11 @@ export function HomeDashboardPage() {
   const [complianceItems, setComplianceItems] = useState<HomeComplianceItem[]>([])
   const [priorityItems, setPriorityItems] = useState<HomePriorityItem[]>([])
   const [smartPriorities, setSmartPriorities] = useState<HomeAiPriority[]>([])
+  const [legalEnabled, setLegalEnabled] = useState(true)
+  const [stripeConnected, setStripeConnected] = useState(false)
   const [errored, setErrored] = useState(false)
+  const [showAiPreflight, setShowAiPreflight] = useState(false)
+  const [workspaceBranding, setWorkspaceBranding] = useState<{ logoUrl: string | null; brandColor: string | null }>({ logoUrl: null, brandColor: null })
 
   useEffect(() => {
     if (!workspace?.id) {
@@ -259,6 +293,23 @@ export function HomeDashboardPage() {
       const wid = workspace!.id
       const today = new Date().toISOString()
       const in60days = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
+
+      // Resolve feature flag + branding in parallel
+      const [legalFlagResult, brandingRow] = await Promise.all([
+        isFeatureEnabled("legalSection", { supabase, workspaceId: wid }),
+        supabase.from("workspaces").select("logo_url, brand_color").eq("id", wid).maybeSingle().then(r => r.data),
+      ])
+      setLegalEnabled(legalFlagResult)
+      if (brandingRow) {
+        const rawKey = (brandingRow as { logo_url?: string | null }).logo_url ?? null
+        const logoUrl = rawKey
+          ? (rawKey.startsWith("http") || rawKey.startsWith("/api/") ? rawKey : `/api/files/${rawKey}`)
+          : null
+        setWorkspaceBranding({
+          logoUrl,
+          brandColor: (brandingRow as { brand_color?: string | null }).brand_color ?? null,
+        })
+      }
 
       const results = await Promise.allSettled([
         // 0: properties  (alias live cols → app names the UI expects)
@@ -335,6 +386,13 @@ export function HomeDashboardPage() {
           .select("id, total_amount:total, status, due_date")
           .eq("workspace_id", wid)
           .eq("status", "unpaid"),
+
+        // 10: stripe_accounts (connected payment collection)
+        supabase
+          .from("stripe_accounts")
+          .select("id, charges_enabled")
+          .eq("workspace_id", wid)
+          .limit(1),
       ])
 
       // ---- Properties ----
@@ -410,6 +468,13 @@ export function HomeDashboardPage() {
           ? (invoicesResult.value.data ?? [])
           : []
 
+      const stripeResult = results[10]
+      const stripeRows =
+        stripeResult?.status === "fulfilled" && !isMissingTable((stripeResult.value as { error: { code?: string } | null }).error)
+          ? ((stripeResult.value as { data: { charges_enabled?: boolean }[] | null }).data ?? [])
+          : []
+      setStripeConnected(stripeRows.length > 0 && Boolean(stripeRows[0].charges_enabled))
+
       /* --- Compute KPIs --- */
       const activeProps = props.filter((p) => p.status !== "archived")
       const occupiedUnits = units.filter((u: { status: string }) => u.status === "occupied").length
@@ -440,6 +505,48 @@ export function HomeDashboardPage() {
         arrears: 0,
         workTrend: 0,
       })
+
+      // Capture today's snapshot for future trend calculation (idempotent upsert).
+      const todayStr = new Date().toISOString().split("T")[0]
+      void supabase.from("kpi_snapshots").upsert([
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "properties_count",  value: activeProps.length },
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "units_count",        value: totalUnits },
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "tenancies_count",    value: activeTenanciesList.length },
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "occupancy_pct",      value: occupancyPct },
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "rent_pcm_total",     value: rentRoll },
+        { workspace_id: wid, snapshot_date: todayStr, metric_name: "open_tasks_count",   value: openTaskCount + openJobsCount },
+      ], { onConflict: "workspace_id,snapshot_date,metric_name" })
+
+      // Query historical snapshot ~30 days ago for trend deltas.
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+      void supabase
+        .from("kpi_snapshots")
+        .select("metric_name, value, snapshot_date")
+        .eq("workspace_id", wid)
+        .gte("snapshot_date", thirtyDaysAgo)
+        .lt("snapshot_date", todayStr)
+        .order("snapshot_date", { ascending: false })
+        .then(({ data: snaps }) => {
+          if (!snaps?.length) return
+          const byMetric: Record<string, number> = {}
+          for (const s of snaps) {
+            if (!(s.metric_name in byMetric)) byMetric[s.metric_name] = Number(s.value)
+          }
+          setKpi((prev) => {
+            if (!prev) return prev
+            return {
+              ...prev,
+              propertiesTrend: byMetric.properties_count !== undefined ? activeProps.length - byMetric.properties_count : 0,
+              unitsTrend: byMetric.units_count !== undefined ? totalUnits - byMetric.units_count : 0,
+              tenanciesTrend: byMetric.tenancies_count !== undefined ? activeTenanciesList.length - byMetric.tenancies_count : 0,
+              occupancyTrend: byMetric.occupancy_pct !== undefined ? occupancyPct - byMetric.occupancy_pct : 0,
+              rentTrend: byMetric.rent_pcm_total !== undefined && byMetric.rent_pcm_total > 0
+                ? Math.round(((rentRoll - byMetric.rent_pcm_total) / byMetric.rent_pcm_total) * 100)
+                : 0,
+              workTrend: byMetric.open_tasks_count !== undefined ? openTaskCount + openJobsCount - byMetric.open_tasks_count : 0,
+            }
+          })
+        }, () => {})
 
       /* --- Portfolio snapshot ---
          Map live rows onto the canonical PropertyCard shape so the home cards
@@ -550,16 +657,22 @@ export function HomeDashboardPage() {
           low: "slate",
           normal: "blue",
         }
-        const workList: HomeWorkItem[] = tasks.slice(0, 5).map((j: { id: string; title?: string; priority?: string; property_id?: string }) => ({
-          id: j.id,
-          title: j.title ?? "Work order",
-          property: j.property_id ? (propNameMap[j.property_id] ?? "") : "",
-          unit: "",
-          dueLabel: j.priority === "critical" || j.priority === "high" ? "Urgent" : j.priority === "medium" ? "Medium" : "Open",
-          dueVariant: priorityMap[j.priority ?? "normal"] ?? "slate",
-          iconColor: priorityMap[j.priority ?? "normal"] ?? "slate",
-          href: `/property-manager/work/tasks/${j.id}`,
-        }))
+        const workList: HomeWorkItem[] = tasks.slice(0, 5).map((j: { id: string; title?: string; priority?: string; property_id?: string; due_date?: string }) => {
+          const isOverdue = j.due_date ? new Date(j.due_date).getTime() < Date.now() : false
+          const isUrgent = j.priority === "critical" || j.priority === "high"
+          const dueLabel = isOverdue ? "Overdue" : isUrgent ? "Urgent" : j.priority === "medium" ? "Medium" : "Open"
+          const dueVariant: HomeWorkItem["dueVariant"] = isOverdue || isUrgent ? "red" : j.priority === "medium" ? "amber" : priorityMap[j.priority ?? "normal"] ?? "slate"
+          return {
+            id: j.id,
+            title: j.title ?? "Work order",
+            property: j.property_id ? (propNameMap[j.property_id] ?? "") : "",
+            unit: "",
+            dueLabel,
+            dueVariant,
+            iconColor: dueVariant,
+            href: `/property-manager/work/tasks/${j.id}`,
+          }
+        })
         setWorkItems(workList)
       } else {
         setWorkItems([])
@@ -794,24 +907,79 @@ export function HomeDashboardPage() {
       {/* 1. Command Header */}
       <CommandHeader
         workspaceName={workspace?.name ?? "Your Workspace"}
-        onAskAI={() => openCopilot({
-          prompt: "Summarise my property management dashboard for today — portfolio, rent, open work and compliance.",
-          summaryData: {
-            section: "dashboard",
-            pageTitle: "Home Dashboard",
-            summaryData: {
-              propertyCount: kpi.properties,
-              unitCount: kpi.units,
-              activeTenancies: kpi.activeTenancies,
-              occupancyPct: kpi.occupancyPct,
-              rentCollectedThisMonth: kpi.rentCollected,
-              openWorkItems: kpi.openWork,
-              complianceDue: kpi.complianceDue,
-              rentArrears: kpi.arrears,
-            },
-          },
-        })}
+        onAskAI={() => setShowAiPreflight(true)}
+        logoUrl={workspaceBranding.logoUrl}
+        brandColor={workspaceBranding.brandColor}
       />
+
+      {/* Ask AI pre-flight modal */}
+      {showAiPreflight && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowAiPreflight(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="text-violet-600" style={{ width: 18, height: 18 }} />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-slate-900">Ask Propvora AI</h2>
+                <p className="text-[12px] text-slate-500 mt-0.5">Dashboard AI assistant</p>
+              </div>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4 flex flex-col gap-2">
+              <p className="text-[13px] font-medium text-slate-700">What the AI will do</p>
+              <p className="text-[12px] text-slate-500 leading-relaxed">
+                Open a chat session with context about your current portfolio — {kpi.properties} {kpi.properties === 1 ? "property" : "properties"}, {kpi.activeTenancies} active {kpi.activeTenancies === 1 ? "tenancy" : "tenancies"}, {kpi.openWork} open work items and {kpi.complianceDue} compliance items.
+              </p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+              <AlertTriangle className="text-amber-500 flex-shrink-0 mt-0.5" style={{ width: 14, height: 14 }} />
+              <p className="text-[12px] text-amber-800 leading-relaxed">
+                AI chat uses credits from your monthly allowance. Each message costs approximately 1–3 AI credits depending on length.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={() => setShowAiPreflight(false)}
+                className="flex-1 py-2.5 text-[13px] font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowAiPreflight(false)
+                  openCopilot({
+                    prompt: "Summarise my property management dashboard for today — portfolio, rent, open work and compliance.",
+                    summaryData: {
+                      section: "dashboard",
+                      pageTitle: "Home Dashboard",
+                      summaryData: {
+                        propertyCount: kpi.properties,
+                        unitCount: kpi.units,
+                        activeTenancies: kpi.activeTenancies,
+                        occupancyPct: kpi.occupancyPct,
+                        rentCollectedThisMonth: kpi.rentCollected,
+                        openWorkItems: kpi.openWork,
+                        complianceDue: kpi.complianceDue,
+                        rentArrears: kpi.arrears,
+                      },
+                    },
+                  })
+                }}
+                className="flex-1 py-2.5 text-[13px] font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Sparkles style={{ width: 13, height: 13 }} />
+                Start AI chat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Soft error banner — page still renders with whatever loaded */}
       {errored && (
@@ -844,7 +1012,7 @@ export function HomeDashboardPage() {
           <HomeUpcomingCard events={events} />
         </div>
         <div className="col-span-12 md:col-span-3">
-          <HomeComplianceLegalCard items={complianceItems} />
+          <HomeComplianceLegalCard items={complianceItems} legalEnabled={legalEnabled} />
         </div>
       </div>
 
@@ -858,10 +1026,10 @@ export function HomeDashboardPage() {
         </div>
       </div>
 
-      {/* 6. AI Copilot Priorities (full width below) */}
+      {/* 6. Action Items + Getting Started */}
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 md:col-span-6">
-          <HomeAiCopilotPrioritiesCard priorities={smartPriorities} />
+          <HomeActionItemsCard priorities={smartPriorities} />
         </div>
         <div className="col-span-12 md:col-span-6 bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col justify-between">
           <div>
@@ -873,7 +1041,7 @@ export function HomeDashboardPage() {
               { label: "Add your first property", href: "/property-manager/portfolio/properties/new", done: kpi.properties > 0 },
               { label: "Add a tenant or tenancy", href: "/property-manager/portfolio/tenancies/new", done: kpi.activeTenancies > 0 },
               { label: "Configure compliance items", href: "/property-manager/compliance/certificates/new", done: kpi.complianceDue > 0 },
-              { label: "Connect payment collection", href: "/property-manager/settings/payments-stripe", done: false },
+              { label: "Connect payment collection", href: "/property-manager/settings/payments-stripe", done: stripeConnected },
             ].map((step) => (
               <Link
                 key={step.label}

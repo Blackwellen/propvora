@@ -42,10 +42,10 @@ export function ComplianceTab({ items, loaded, propertyId }: { items: Compliance
 
       {/* Compliance table — live */}
       <Card className="overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <p className="text-[14px] font-bold text-slate-900">Compliance Register</p>
-          <Link href={`/property-manager/compliance?property=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
-            <Plus size={13} /> Add Item
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+          <p className="text-[14px] font-bold text-slate-900 min-w-0 truncate">Compliance Register</p>
+          <Link href={`/property-manager/compliance?property=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+            <Plus size={13} className="shrink-0" /> Add Item
           </Link>
         </div>
         {items.length === 0 ? (

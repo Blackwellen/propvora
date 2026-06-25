@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { requireAdmin } from "@/lib/admin/guard"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { flagGate } from "@/lib/flags/api-gate"
 import {
   listFeeRules,
   createFeeRule,
@@ -27,6 +28,10 @@ export const dynamic = "force-dynamic"
 ─────────────────────────────────────────────────────────────────────────── */
 
 async function guard(): Promise<{ ok: true; actorId: string } | { ok: false; res: NextResponse }> {
+  // V2 marketplace payments rail (commission/fee matrix) — 404 when the flag is
+  // off (direct-API gate), before any admin check leaks its existence.
+  const gated = await flagGate("marketplacePayments")
+  if (gated) return { ok: false, res: gated }
   try {
     const admin = await requireAdmin()
     return { ok: true, actorId: admin.userId }

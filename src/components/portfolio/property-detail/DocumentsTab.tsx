@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import MobileTabs from "@/components/mobile/MobileTabs"
 import {
-  Plus, Upload, Download, Copy, FileText, Eye,
+  Plus, Upload, Download, FileText, Eye,
 } from "lucide-react"
 import { Card } from "./shared"
 
@@ -112,13 +112,6 @@ export function DocumentsTab() {
           <button className="flex items-center gap-1.5 text-[13px] text-slate-600 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50">
             <Plus size={13} /> New Folder
           </button>
-          <ActionMenu
-            align="right"
-            items={[
-              { label: "Export all", icon: Download, onClick: () => {} },
-              { label: "Share folder", icon: Copy, onClick: () => {} },
-            ]}
-          />
         </div>
       </div>
 

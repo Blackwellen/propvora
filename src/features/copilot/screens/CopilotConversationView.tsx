@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { ArrowLeft, MoreHorizontal, ExternalLink, Send, Paperclip } from "lucide-react"
 import PersonAvatar from "../components/PersonAvatar"
+import CopilotBrandMark from "../components/CopilotBrandMark"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
 
 interface ConversationMessage {
@@ -63,22 +64,7 @@ const MESSAGES: ConversationMessage[] = [
 ]
 
 function AiIcon() {
-  return (
-    <div
-      style={{
-        width: 28,
-        height: 28,
-        borderRadius: 8,
-        background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
-    >
-      <span className="text-white" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
-    </div>
-  )
+  return <CopilotBrandMark size={28} radius={8} />
 }
 
 function ContextCard() {

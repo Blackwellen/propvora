@@ -11,6 +11,9 @@ import { uploadFile } from "@/lib/upload"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useContacts } from "@/hooks/useContacts"
+import { useCreateTask } from "@/hooks/useTasks"
+import { type ComplianceIconKey, type ComplianceRequirementDef } from "@/lib/compliance/requirements"
+import { useComplianceRequirements } from "@/lib/compliance/useComplianceRequirements"
 import type { Property } from "@/types/database"
 import {
   Flame,
@@ -21,6 +24,10 @@ import {
   AlertTriangle,
   Plug,
   FileText,
+  Droplet,
+  Wind,
+  Home,
+  Globe,
   Check,
   ChevronRight,
   UploadCloud,
@@ -34,12 +41,14 @@ import {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type CertTypeKey =
-  | "gas_safety" | "eicr" | "epc" | "fire_risk" | "hmo_licence"
-  | "building_insurance" | "pat_test" | "landlord_insurance" | "other"
+/** A certificate-type option resolved from the jurisdiction catalogue. */
+interface CertType extends ComplianceRequirementDef {
+  iconNode: React.ReactNode
+}
 
 interface WizardState {
-  certType:           CertTypeKey | null
+  /** Catalogue requirement key for the chosen jurisdiction (e.g. "gas_safety", "ber"). */
+  certType:           string | null
   recordMode:         "property" | "supplier"
   /** Property id (live) */
   property:           string
@@ -67,29 +76,29 @@ interface WizardState {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CERT_TYPES: { key: CertTypeKey; label: string; helper: string; critical: boolean; icon: React.ReactNode }[] = [
-  { key: "gas_safety",          label: "Gas Safety",           helper: "Annual CP12 certificate",                    critical: true,  icon: <div style={{ color: "#f97316" }}><Flame className="w-5 h-5" /></div> },
-  { key: "eicr",                label: "EICR",                 helper: "Electrical Installation Condition Report",   critical: true,  icon: <div style={{ color: "#eab308" }}><Zap className="w-5 h-5" /></div> },
-  { key: "epc",                 label: "EPC",                  helper: "Energy Performance Certificate",             critical: true,  icon: <div style={{ color: "#22c55e" }}><Leaf className="w-5 h-5" /></div> },
-  { key: "fire_risk",           label: "Fire Risk",            helper: "Fire Risk Assessment",                       critical: true,  icon: <div style={{ color: "#dc2626" }}><AlertTriangle className="w-5 h-5" /></div> },
-  { key: "hmo_licence",         label: "HMO Licence",          helper: "House in Multiple Occupation licence",       critical: true,  icon: <div style={{ color: "#2563EB" }}><Building2 className="w-5 h-5" /></div> },
-  { key: "building_insurance",  label: "Buildings Insurance",  helper: "Buildings insurance policy document",        critical: false, icon: <div style={{ color: "#7c3aed" }}><Shield className="w-5 h-5" /></div> },
-  { key: "pat_test",            label: "PAT Test",             helper: "Portable Appliance Testing certificate",     critical: false, icon: <div style={{ color: "#0284c7" }}><Plug className="w-5 h-5" /></div> },
-  { key: "landlord_insurance",  label: "Landlord Insurance",   helper: "Landlord liability insurance document",      critical: false, icon: <div style={{ color: "#7c3aed" }}><Shield className="w-5 h-5" /></div> },
-  { key: "other",               label: "Other",                helper: "Any other compliance document",              critical: false, icon: <div style={{ color: "#64748b" }}><FileText className="w-5 h-5" /></div> },
-]
+// Resolve a catalogue icon key + colour to a rendered lucide node.
+const ICON_MAP: Record<ComplianceIconKey, { Icon: React.ComponentType<{ className?: string }>; color: string }> = {
+  flame:    { Icon: Flame,         color: "#f97316" },
+  zap:      { Icon: Zap,           color: "#eab308" },
+  leaf:     { Icon: Leaf,          color: "#22c55e" },
+  fire:     { Icon: AlertTriangle, color: "#dc2626" },
+  building: { Icon: Building2,     color: "#2563EB" },
+  shield:   { Icon: Shield,        color: "#7c3aed" },
+  plug:     { Icon: Plug,          color: "#0284c7" },
+  droplet:  { Icon: Droplet,       color: "#0ea5e9" },
+  wind:     { Icon: Wind,          color: "#0d9488" },
+  home:     { Icon: Home,          color: "#2563EB" },
+  file:     { Icon: FileText,      color: "#64748b" },
+}
 
-// Map the wizard's certificate-type keys to the live `compliance_kind` enum.
-const CERT_KIND_MAP: Record<CertTypeKey, string> = {
-  gas_safety: "gas_safety",
-  eicr: "eicr",
-  epc: "epc",
-  fire_risk: "fire_alarm",
-  hmo_licence: "hmo_licence",
-  building_insurance: "insurance",
-  pat_test: "pat",
-  landlord_insurance: "insurance",
-  other: "other",
+function iconNodeFor(key: ComplianceIconKey): React.ReactNode {
+  const { Icon, color } = ICON_MAP[key] ?? ICON_MAP.file
+  return <div style={{ color }}><Icon className="w-5 h-5" /></div>
+}
+
+/** Map merged requirement defs to wizard cert-type options (with rendered icon). */
+function toCertTypes(reqs: ComplianceRequirementDef[]): CertType[] {
+  return reqs.map((r) => ({ ...r, iconNode: iconNodeFor(r.icon) }))
 }
 
 const STEPS = [
@@ -146,13 +155,16 @@ function monthsUntil(date: string): string {
 
 // ─── Step Components ──────────────────────────────────────────────────────────
 
-function Step1({ state, update }: { state: WizardState; update: (p: Partial<WizardState>) => void }) {
+function Step1({ state, update, certTypes, regionName }: { state: WizardState; update: (p: Partial<WizardState>) => void; certTypes: CertType[]; regionName: string }) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900">Select Certificate Type</h2>
       <p className="text-sm text-slate-500">Choose the type of compliance certificate you want to record.</p>
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+        <Globe className="w-3 h-3" /> Requirements shown for <span className="font-medium text-slate-500">{regionName}</span>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-        {CERT_TYPES.map((ct) => (
+        {certTypes.map((ct) => (
           <button
             key={ct.key}
             onClick={() => update({ certType: ct.key })}
@@ -167,7 +179,7 @@ function Step1({ state, update }: { state: WizardState; update: (p: Partial<Wiza
               "w-11 h-11 rounded-xl flex items-center justify-center",
               state.certType === ct.key ? "bg-[#DBEAFE]" : "bg-slate-100",
             )}>
-              {ct.icon}
+              {ct.iconNode}
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-800">{ct.label}</p>
@@ -432,8 +444,8 @@ function Step5({
   )
 }
 
-function Step6({ state, update }: { state: WizardState; update: (p: Partial<WizardState>) => void }) {
-  const typeLabel = CERT_TYPES.find((t) => t.key === state.certType)?.label ?? "Certificate"
+function Step6({ state, update, certTypes }: { state: WizardState; update: (p: Partial<WizardState>) => void; certTypes: CertType[] }) {
+  const typeLabel = certTypes.find((t) => t.key === state.certType)?.label ?? "Certificate"
   const autoTitle = `Renew: ${typeLabel}${state.propertyLabel ? ` — ${state.propertyLabel}` : ""}`
   return (
     <div className="space-y-5">
@@ -489,8 +501,8 @@ function Step6({ state, update }: { state: WizardState; update: (p: Partial<Wiza
   )
 }
 
-function Step7({ state }: { state: WizardState }) {
-  const typeInfo = CERT_TYPES.find((t) => t.key === state.certType)
+function Step7({ state, certTypes }: { state: WizardState; certTypes: CertType[] }) {
+  const typeInfo = certTypes.find((t) => t.key === state.certType)
   const rows = [
     { label: "Certificate Type",  value: typeInfo?.label ?? "—" },
     { label: "Property",          value: state.propertyLabel || "—" },
@@ -526,8 +538,8 @@ function Step7({ state }: { state: WizardState }) {
 
 // ─── Right Summary Rail ───────────────────────────────────────────────────────
 
-function SummaryRail({ state }: { state: WizardState }) {
-  const typeInfo = CERT_TYPES.find((t) => t.key === state.certType)
+function SummaryRail({ state, certTypes }: { state: WizardState; certTypes: CertType[] }) {
+  const typeInfo = certTypes.find((t) => t.key === state.certType)
   const months = monthsUntil(state.expiryDate)
   const isCritical = typeInfo?.critical ?? false
 
@@ -540,7 +552,7 @@ function SummaryRail({ state }: { state: WizardState }) {
         <div className="p-4 space-y-3">
           <div className="flex items-center gap-2.5">
             {typeInfo ? (
-              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">{typeInfo.icon}</div>
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">{typeInfo.iconNode}</div>
             ) : (
               <div className="w-9 h-9 rounded-lg bg-slate-100" />
             )}
@@ -601,8 +613,11 @@ function SummaryRail({ state }: { state: WizardState }) {
 export default function NewCertificatePage() {
   const router                    = useRouter()
   const { workspace }             = useWorkspace()
+  const { requirements, note }    = useComplianceRequirements()
+  const certTypes                 = React.useMemo(() => toCertTypes(requirements), [requirements])
   const { data: properties = [] } = useProperties(workspace?.id)
   const { data: liveContacts = [] } = useContacts(workspace?.id)
+  const createTask = useCreateTask()
   const contacts = React.useMemo(
     () => liveContacts.map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Contact" })),
     [liveContacts]
@@ -619,6 +634,22 @@ export default function NewCertificatePage() {
 
   const update = (partial: Partial<WizardState>) =>
     setState((prev) => ({ ...prev, ...partial }))
+
+  // Per-step validation — block "Continue" until the step's required fields are
+  // satisfied so invalid data can never reach later steps or the final insert.
+  function stepError(s: number): string | null {
+    if (s === 1 && !state.certType) return "Select a certificate type to continue."
+    if (s === 2) {
+      if (state.recordMode === "property" && !state.property) return "Select a property to continue."
+      if (state.recordMode === "supplier" && !state.supplier.trim()) return "Enter a supplier to continue."
+    }
+    if (s === 3) {
+      if (!state.issueDate || !state.expiryDate) return "Both issue and expiry dates are required."
+      if (new Date(state.expiryDate) <= new Date(state.issueDate)) return "Expiry date must be after the issue date."
+    }
+    return null
+  }
+  const currentStepError = stepError(step)
 
   /**
    * If a file was selected, upload it to R2 (server-proxied) and return the
@@ -676,12 +707,13 @@ export default function NewCertificatePage() {
       // 2. Insert the certificate into the live `compliance_items` table.
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      const typeLabel = CERT_TYPES.find((t) => t.key === state.certType)?.label ?? "Certificate"
+      const certDef = certTypes.find((t) => t.key === state.certType)
+      const typeLabel = certDef?.label ?? "Certificate"
       const { data, error } = await supabase
         .from("compliance_items")
         .insert({
           workspace_id: workspace.id,
-          kind: CERT_KIND_MAP[state.certType],
+          kind: certDef?.kind ?? "other",
           title: typeLabel,
           property_id: state.recordMode === "property" && state.property ? state.property : null,
           reference_no: state.referenceNumber || null,
@@ -689,7 +721,17 @@ export default function NewCertificatePage() {
           due_date: state.expiryDate || null,
           status: deriveStatus(),
           notes: state.issuerName ? `Issuer: ${state.issuerName}` : null,
-          metadata: { reminder_enabled: state.renewalReminder },
+          // Persist every captured field — nothing the user entered is discarded.
+          metadata: {
+            reminder_enabled: state.renewalReminder,
+            reminder_days: state.renewalReminder ? Number(state.reminderDays) : null,
+            record_mode: state.recordMode,
+            unit: state.unit || null,
+            tenancy: state.tenancy || null,
+            supplier: state.recordMode === "supplier" ? state.supplier || null : null,
+            issuer_contact: state.issuerContact || null,
+            issuer_name: state.issuerName || null,
+          },
           created_by: user?.id ?? null,
         })
         .select("id")
@@ -703,6 +745,69 @@ export default function NewCertificatePage() {
 
       const certId = data?.id as string | undefined
       setNewId(certId ?? null)
+
+      // 2a. Schedule a renewal reminder (best-effort; 42P01-safe if the
+      //     Level-2 reminders table isn't provisioned in this environment).
+      if (certId && state.renewalReminder && state.expiryDate) {
+        try {
+          const remindAt = new Date(state.expiryDate)
+          remindAt.setDate(remindAt.getDate() - Number(state.reminderDays || "30"))
+          await supabase.from("compliance_renewal_reminders").insert({
+            workspace_id: workspace.id,
+            linked_record_type: "compliance_item",
+            linked_record_id: certId,
+            reminder_type: "in_app",
+            remind_at: remindAt.toISOString(),
+            status: "pending",
+          })
+        } catch {
+          /* non-fatal: reminder preference is also stored on the item metadata */
+        }
+      }
+
+      // 2b. Create the renewal Work task when requested — previously this toggle
+      //     (default ON) collected a title/assignee/due date but discarded them.
+      if (certId && state.createTask) {
+        try {
+          const dueDate =
+            state.taskDueDate ||
+            (state.expiryDate
+              ? (() => {
+                  const d = new Date(state.expiryDate)
+                  d.setDate(d.getDate() - Number(state.reminderDays || "30"))
+                  return d.toISOString().slice(0, 10)
+                })()
+              : null)
+          await createTask.mutateAsync({
+            workspace_id: workspace.id,
+            title: state.taskTitle || `Renew: ${typeLabel}${state.propertyLabel ? ` — ${state.propertyLabel}` : ""}`,
+            description: `Auto-created from compliance certificate (${typeLabel}).`,
+            category: "compliance",
+            priority: certDef?.critical ? "high" : "medium",
+            status: "todo",
+            property_id: state.recordMode === "property" && state.property ? state.property : null,
+            due_date: dueDate,
+            ...(state.taskAssignee ? { metadata: { assignee_name: state.taskAssignee, source: "compliance_certificate", certificate_id: certId } } : { metadata: { source: "compliance_certificate", certificate_id: certId } }),
+            created_by: user?.id ?? null,
+            is_demo: false,
+          })
+        } catch {
+          /* non-fatal: certificate is already created; task is a convenience */
+        }
+      }
+
+      // 2c. Audit trail (best-effort).
+      try {
+        await supabase.from("audit_logs").insert({
+          workspace_id: workspace.id,
+          user_id: user?.id ?? null,
+          action: "compliance.certificate_created",
+          resource_type: "compliance_item",
+          resource_id: certId ?? null,
+        })
+      } catch {
+        /* non-fatal */
+      }
 
       // 3. If a file was uploaded, store it as a linked compliance document.
       if (fileUrl && certId) {
@@ -828,7 +933,7 @@ export default function NewCertificatePage() {
         <main className="flex-1 min-w-0 p-4 sm:p-6">
           <div className="max-w-2xl">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 mb-6">
-              {step === 1 && <Step1 state={state} update={update} />}
+              {step === 1 && <Step1 state={state} update={update} certTypes={certTypes} regionName={note.regionName} />}
               {step === 2 && <Step2 state={state} update={update} properties={properties} />}
               {step === 3 && <Step3 state={state} update={update} />}
               {step === 4 && <Step4 state={state} update={update} contacts={contacts} />}
@@ -839,14 +944,21 @@ export default function NewCertificatePage() {
                   onFileSelected={(file) => { pendingFileRef.current = file }}
                 />
               )}
-              {step === 6 && <Step6 state={state} update={update} />}
-              {step === 7 && <Step7 state={state} />}
+              {step === 6 && <Step6 state={state} update={update} certTypes={certTypes} />}
+              {step === 7 && <Step7 state={state} certTypes={certTypes} />}
             </div>
 
             {uploadError && (
               <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-lg mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
                 <p className="text-sm text-red-700">{uploadError}</p>
+              </div>
+            )}
+
+            {step < STEPS.length && currentStepError && (
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-lg mb-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <p className="text-sm text-amber-700">{currentStepError}</p>
               </div>
             )}
 
@@ -865,7 +977,8 @@ export default function NewCertificatePage() {
                   <Button
                     variant="primary"
                     size="md"
-                    onClick={() => setStep((p) => Math.min(STEPS.length, p + 1))}
+                    disabled={!!currentStepError}
+                    onClick={() => { if (!currentStepError) setStep((p) => Math.min(STEPS.length, p + 1)) }}
                   >
                     Continue
                     <ChevronRight className="w-4 h-4" />
@@ -886,7 +999,7 @@ export default function NewCertificatePage() {
 
         {/* Right Summary Rail 260px */}
         <aside className="hidden xl:block w-64 shrink-0 border-l border-slate-100 bg-slate-50 py-6 px-4">
-          <SummaryRail state={state} />
+          <SummaryRail state={state} certTypes={certTypes} />
         </aside>
       </div>
     </div>

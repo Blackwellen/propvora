@@ -1,17 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import Link from "next/link"
 import {
   Activity,
   CheckCircle2,
   CreditCard,
-  Database,
   Download,
   Gauge,
   Lock,
   ShieldCheck,
   Sliders,
-  Users,
   Webhook,
   Zap,
 } from "lucide-react"
@@ -22,27 +21,10 @@ import { Btn, Card, CardHeader, Modal, useToast } from "../components/primitives
 import { useAutomationUsageLimits } from "../data/hooks"
 import type { PlanQuotaRow } from "../data/types"
 
-const ADMIN_CARDS = [
-  { id: "roles", title: "Role permissions", value: "Workspace roles control automation access", cta: "Manage roles", icon: Users },
-  { id: "publish", title: "Publish permissions", value: "Who can publish automations", cta: "Manage publishers", icon: Lock },
-  { id: "review", title: "Review-first policy", value: "Hold high-risk actions for approval", cta: "Configure policy", icon: ShieldCheck },
-  { id: "danger", title: "Dangerous action restrictions", value: "Guardrails on irreversible actions", cta: "View restrictions", icon: Zap },
-  { id: "env", title: "Environment controls", value: "Separate test and production runs", cta: "Manage environments", icon: Sliders },
-  { id: "audit", title: "Audit retention", value: "How long run logs are kept", cta: "Manage retention", icon: Database },
-]
-
-export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?: "usage" | "admin" }) {
+export default function UsageLimitsPage() {
   const toast = useToast()
   const { data, loading } = useAutomationUsageLimits()
-  const [subtab, setSubtab] = useState<"usage" | "admin">(initialTab)
   const [modal, setModal] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (initialTab === "admin") {
-      const el = document.getElementById("admin-controls-section")
-      el?.scrollIntoView({ behavior: "smooth" })
-    }
-  }, [initialTab])
 
   const quotaCols: DataColumn<PlanQuotaRow>[] = [
     { key: "name", header: "Plan / Workspace", render: (r) => <div><div className="font-medium text-slate-900">{r.name}</div><div className="text-xs text-slate-400">{r.plan}</div></div> },
@@ -73,11 +55,6 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
       icon={Gauge}
       actions={actions}
     >
-      <div className="flex items-center gap-1 border-b border-slate-200">
-        <button onClick={() => setSubtab("usage")} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${subtab === "usage" ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>Usage & Limits</button>
-        <button onClick={() => setSubtab("admin")} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${subtab === "admin" ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>Admin Controls</button>
-      </div>
-
       {/* KPI row — derives from live usage; 0 until runs are recorded */}
       {(() => {
         const totalRuns = data.drivers.reduce((sum, d) => sum + (d.runs ?? 0), 0)
@@ -130,20 +107,27 @@ export default function UsageLimitsPage({ initialTab = "usage" }: { initialTab?:
             </Card>
           </div>
 
-          {/* Admin controls */}
-          <div id="admin-controls-section">
-            <h2 className="text-sm font-semibold text-slate-900">Admin Controls</h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {ADMIN_CARDS.map((c) => (
-                <Card key={c.id} className="p-4">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-600"><c.icon className="h-4 w-4" /></span>
-                  <h3 className="mt-3 text-sm font-semibold text-slate-900">{c.title}</h3>
-                  <p className="mt-0.5 text-xs text-slate-500">{c.value}</p>
-                  <Btn variant="outline" className="mt-3" onClick={() => setModal(c.id)}>{c.cta}</Btn>
-                </Card>
-              ))}
+          {/* Governance moved to Workspace Settings → Automation Governance */}
+          <Card className="border-slate-200 bg-slate-50/60">
+            <div className="flex items-start gap-3 p-4">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-slate-600 ring-1 ring-slate-200">
+                <Lock className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-slate-900">Automation governance</h3>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Review-first policy, publish permissions, dangerous-action guardrails and audit
+                  retention are managed in Workspace Settings.
+                </p>
+                <Link
+                  href="/property-manager/workspace-settings/automations"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Open Automation Governance →
+                </Link>
+              </div>
             </div>
-          </div>
+          </Card>
 
           {/* Plan limits table */}
           <Card>

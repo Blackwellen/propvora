@@ -1,7 +1,7 @@
 "use client"
 import React, { useMemo, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Shield, Calendar, CheckCircle, AlertTriangle, Gavel, FileText } from "lucide-react"
+import { Shield, Calendar, CheckCircle, AlertTriangle, Gavel, FileText, PoundSterling } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -45,11 +45,30 @@ function SelectGroundsInner() {
   const [route, setRoute] = useState<NoticeRoute>("section_8")
   const [selected, setSelected] = useState<string[]>(["g8"])
   const [howToRent, setHowToRent] = useState(false)
+  const [arrearsAmount, setArrearsAmount] = useState("")
+  const [arrearsWeeks, setArrearsWeeks] = useState("")
   const [saving, setSaving] = useState(false)
 
   function toggleGround(id: string) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
   }
+
+  // Rent-arrears grounds (Ground 8 / 10 / 11) — when any is selected we capture
+  // the live arrears figure so the notice preview and court bundle show the real
+  // amount instead of £0. Review-only; not a legal calculation.
+  const RENT_ARREARS_GROUNDS = ["g8", "g10", "g11"]
+  const showArrears = route === "section_8" && selected.some((g) => RENT_ARREARS_GROUNDS.includes(g))
+
+  // Prefill the arrears figure from any value already saved on the case.
+  React.useEffect(() => {
+    if (caseData?.arrears_amount != null && arrearsAmount === "") {
+      setArrearsAmount(String(caseData.arrears_amount))
+    }
+    if (caseData?.arrears_weeks != null && arrearsWeeks === "") {
+      setArrearsWeeks(String(caseData.arrears_weeks))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseData?.arrears_amount, caseData?.arrears_weeks])
 
   const selectedGrounds = useMemo(() => toSelectedGrounds(selected), [selected])
   const noticeDays = indicativeNoticeDays(route, selectedGrounds)
@@ -72,7 +91,20 @@ function SelectGroundsInner() {
 
   const warnings = countWarnings(validity)
 
+  // Validate the optional arrears figure before we persist it.
+  const arrearsError = useMemo(() => {
+    if (!showArrears) return null
+    if (arrearsAmount !== "" && (isNaN(Number(arrearsAmount)) || Number(arrearsAmount) < 0)) {
+      return "Enter a valid arrears amount (£0 or more)."
+    }
+    if (arrearsWeeks !== "" && (isNaN(Number(arrearsWeeks)) || Number(arrearsWeeks) < 0)) {
+      return "Enter a valid number of weeks (0 or more)."
+    }
+    return null
+  }, [showArrears, arrearsAmount, arrearsWeeks])
+
   async function handleNext() {
+    if (arrearsError) return
     const ground = groundsLabel(route, selectedGrounds)
     if (workspaceId && caseId) {
       setSaving(true)
@@ -86,6 +118,10 @@ function SelectGroundsInner() {
             grounds: route === "section_21" ? [] : selectedGrounds,
             notice_period_days: noticeDays,
             validity_snapshot: validity ?? null,
+            // Persist the live arrears figure for rent-based grounds; clear it
+            // when the route no longer relies on arrears (e.g. switched to S21).
+            arrears_amount: showArrears && arrearsAmount !== "" ? Number(arrearsAmount) : null,
+            arrears_weeks: showArrears && arrearsWeeks !== "" ? Number(arrearsWeeks) : null,
             status: "drafting_notice",
           },
         })
@@ -186,7 +222,7 @@ function SelectGroundsInner() {
     <PossessionWizardShell
       currentStep={2}
       rightRail={rightRail}
-      nextDisabled={(route === "section_8" && selected.length === 0) || saving}
+      nextDisabled={(route === "section_8" && selected.length === 0) || !!arrearsError || saving}
       showSaveDraft={false}
       backLabel="Back"
       nextLabel={saving ? "Saving…" : "Next: Review Evidence"}
@@ -297,6 +333,60 @@ function SelectGroundsInner() {
                 </button>
               )
             })}
+          </div>
+        )}
+
+        {/* Rent arrears capture — shown for rent-based grounds. Feeds the notice
+            preview, court bundle and case record with the real figure. */}
+        {showArrears && (
+          <div className="mt-5 rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center">
+                <PoundSterling className="w-3.5 h-3.5 text-red-600" />
+              </div>
+              <h3 className="text-[13px] font-semibold text-slate-800">Rent Arrears (review-only)</h3>
+            </div>
+            <div className="p-5">
+              <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
+                Record the arrears outstanding for this case. These figures appear on the draft notice summary and the
+                court bundle. They are not a legal calculation — confirm the balance against your rent ledger.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="arrears-amount" className="block text-[12px] font-semibold text-slate-700 mb-1.5">
+                    Total arrears (£)
+                  </label>
+                  <input
+                    id="arrears-amount"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.01"
+                    value={arrearsAmount}
+                    onChange={(e) => setArrearsAmount(e.target.value)}
+                    placeholder="e.g. 2400.00"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="arrears-weeks" className="block text-[12px] font-semibold text-slate-700 mb-1.5">
+                    Weeks in arrears <span className="text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="arrears-weeks"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.5"
+                    value={arrearsWeeks}
+                    onChange={(e) => setArrearsWeeks(e.target.value)}
+                    placeholder="e.g. 8"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              {arrearsError && <p className="text-[11px] text-red-600 mt-2">{arrearsError}</p>}
+            </div>
           </div>
         )}
       </div>

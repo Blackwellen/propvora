@@ -1,5 +1,5 @@
 import "server-only"
-import OpenAI from "openai"
+import OpenAI, { AzureOpenAI } from "openai"
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 // ============================================================================
@@ -168,6 +168,30 @@ function getKey(m: ResolvedModel): string | undefined {
   return m.apiKeyEnv ? process.env[m.apiKeyEnv] : undefined
 }
 
+/**
+ * Build the right OpenAI-compatible client. Azure OpenAI uses a different auth
+ * scheme (api-key header), embeds the DEPLOYMENT name in the URL, and needs an
+ * api-version — the AzureOpenAI client handles all of that; the `model` field on
+ * each call is treated as the deployment name (so model_id = deployment name).
+ *
+ * Azure config comes from env so you never store an endpoint in the DB:
+ *   AZURE_OPENAI_ENDPOINT      e.g. https://propvora-eu.openai.azure.com
+ *   AZURE_OPENAI_API_KEY       (referenced via the provider row's api_key_env)
+ *   AZURE_OPENAI_API_VERSION   defaults to a recent GA version
+ */
+function isAzure(m: ResolvedModel): boolean {
+  return m.provider === "azure" || m.provider === "azure-openai" || !!m.baseUrl?.includes("openai.azure.com")
+}
+
+function buildOpenAiClient(m: ResolvedModel, key: string): OpenAI {
+  if (isAzure(m)) {
+    const endpoint = process.env.AZURE_OPENAI_ENDPOINT || m.baseUrl || undefined
+    const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-10-21"
+    return new AzureOpenAI({ apiKey: key, endpoint, apiVersion })
+  }
+  return new OpenAI({ apiKey: key, ...(m.baseUrl ? { baseURL: m.baseUrl } : {}) })
+}
+
 // ---------------------------------------------------------------------------
 // Non-streaming completion with provider fallback.
 // ---------------------------------------------------------------------------
@@ -200,7 +224,7 @@ async function callOpenAiCompatible(
   key: string,
   opts: GatewayCallOptions
 ): Promise<GatewayResult> {
-  const client = new OpenAI({ apiKey: key, ...(m.baseUrl ? { baseURL: m.baseUrl } : {}) })
+  const client = buildOpenAiClient(m, key)
   const completion = await client.chat.completions.create({
     model: m.modelId,
     messages: opts.messages,
@@ -314,7 +338,7 @@ export async function gatewayStream(
         return { model: m, textStream: one(), getUsage: () => usage }
       }
 
-      const client = new OpenAI({ apiKey: key, ...(m.baseUrl ? { baseURL: m.baseUrl } : {}) })
+      const client = buildOpenAiClient(m, key)
       const stream = await client.chat.completions.create({
         model: m.modelId,
         stream: true,
@@ -357,12 +381,18 @@ export async function gatewayStream(
 
 /** Record a usage event into ai_usage_events (server-side, best-effort). */
 export async function recordUsageEvent(
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
   args: { workspaceId: string; userId: string | null; route: string; usage: GatewayUsage }
 ): Promise<void> {
   if (!args.workspaceId || args.workspaceId === "demo-workspace") return
   try {
-    await supabase.from("ai_usage_events").insert({
+    // Service-role insert: ai_usage_events has RLS with SELECT-only policy
+    // (members read their own usage); writes must bypass RLS so the ledger
+    // can't be forged — and so they actually land (the user client would be
+    // RLS-blocked). This is the financial backstop for caps + billing.
+    const { createAdminClient } = await import("@/lib/supabase/admin")
+    const admin = createAdminClient()
+    await admin.from("ai_usage_events").insert({
       workspace_id: args.workspaceId,
       user_id: args.userId,
       provider: args.usage.provider,

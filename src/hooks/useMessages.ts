@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Conversation, Message } from '@/types/database'
@@ -226,6 +227,121 @@ export function useContactMessages(
   })
 }
 
+/**
+ * Total unread messages across the workspace (for the side-nav badge).
+ *
+ * Reuses the shared `useConversations` cache (so it adds no extra inbox query)
+ * and subscribes to workspace-scoped `messages` INSERTs to keep the badge live
+ * without a manual refresh. The subscription is workspace-scoped and cleaned up
+ * on unmount / workspace switch. Returns 0 while loading or when empty.
+ */
+export function useUnreadMessagesCount(workspaceId: string | undefined): number {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+  const { data: conversations = [] } = useConversations(workspaceId)
+
+  useEffect(() => {
+    if (!workspaceId) return
+    const channel = supabase
+      .channel(`ws-messages:${workspaceId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `workspace_id=eq.${workspaceId}` },
+        () => { queryClient.invalidateQueries({ queryKey: [CONV_KEY, workspaceId] }) },
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId])
+
+  return conversations.reduce((acc, c) => acc + (c.unread_count ?? 0), 0)
+}
+
+/**
+ * Live thread subscription for the open conversation. On any new message in the
+ * thread, refresh the message list and the inbox (last-activity + unread). The
+ * channel is thread-scoped and cleaned up on unmount / conversation change.
+ */
+export function useThreadRealtime(
+  workspaceId: string | undefined,
+  conversationId: string | undefined,
+) {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    if (!workspaceId || !conversationId) return
+    const channel = supabase
+      .channel(`thread:${conversationId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${conversationId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: [MSG_KEY, workspaceId, conversationId] })
+          queryClient.invalidateQueries({ queryKey: [CONV_KEY, workspaceId] })
+        },
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId, conversationId])
+}
+
+/**
+ * Mark every inbound message in a thread as read by the current user.
+ *
+ * The inbox derives a thread's unread count from `messages.read_by` (an array
+ * of user ids) — a message is "unread for me" when it isn't from me and my id
+ * isn't in its `read_by`. Opening a conversation must therefore stamp my id
+ * into the `read_by` of the inbound messages so the inbox badge and side-nav
+ * count clear. Best-effort + 42P01-safe; only touches rows that actually need
+ * it, and invalidates the inbox so the badge updates without a manual refresh.
+ */
+export function useMarkThreadRead() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+  return useMutation<number, Error, { workspaceId: string; conversationId: string }>({
+    mutationFn: async ({ workspaceId, conversationId }) => {
+      const meId = await currentUserId(supabase)
+      if (!meId) return 0
+
+      const { data, error } = await supabase
+        .from('messages')
+        .select('id, sender_id, read_by')
+        .eq('workspace_id', workspaceId)
+        .eq('thread_id', conversationId)
+      if (error) {
+        if (is42P01(error)) return 0
+        throw error
+      }
+
+      // Only inbound messages I haven't already read.
+      const toMark = (data ?? []).filter((m: Record<string, any>) => {
+        if (m.sender_id === meId) return false
+        const readBy = Array.isArray(m.read_by) ? (m.read_by as string[]) : []
+        return !readBy.includes(meId)
+      })
+      if (toMark.length === 0) return 0
+
+      await Promise.all(
+        toMark.map((m: Record<string, any>) => {
+          const readBy = Array.isArray(m.read_by) ? (m.read_by as string[]) : []
+          return supabase
+            .from('messages')
+            .update({ read_by: [...readBy, meId] })
+            .eq('id', m.id)
+        }),
+      )
+      return toMark.length
+    },
+    onSuccess: (marked, { workspaceId }) => {
+      // Only refresh the inbox/counts when something actually changed.
+      if (marked > 0) {
+        queryClient.invalidateQueries({ queryKey: [CONV_KEY, workspaceId] })
+      }
+    },
+  })
+}
+
 /** Send a message into an existing thread as the current user. */
 export function useSendMessage() {
   const supabase = createClient()
@@ -233,9 +349,9 @@ export function useSendMessage() {
   return useMutation<
     Message,
     Error,
-    { workspaceId: string; conversationId: string; body: string }
+    { workspaceId: string; conversationId: string; body: string; clientToken?: string }
   >({
-    mutationFn: async ({ workspaceId, conversationId, body }) => {
+    mutationFn: async ({ workspaceId, conversationId, body, clientToken }) => {
       const { data: auth } = await supabase.auth.getUser()
       const meId = auth.user?.id ?? null
       const senderName =
@@ -243,6 +359,15 @@ export function useSendMessage() {
         (auth.user?.user_metadata?.name as string | undefined) ??
         auth.user?.email ??
         'You'
+
+      // Server-side idempotency: a uuid minted once per composed message. A
+      // retried send (double-click / network retry / optimistic re-fire) hits
+      // the partial unique index (thread_id, client_token) and raises 23505 —
+      // we then fetch and return the already-stored row instead of inserting a
+      // duplicate. `crypto.randomUUID` is available in all supported browsers.
+      const token =
+        clientToken ??
+        (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : undefined)
 
       const { data, error } = await supabase
         .from('messages')
@@ -252,10 +377,24 @@ export function useSendMessage() {
           sender_id: meId,
           sender_name: senderName,
           content: body.trim(),
+          ...(token ? { client_token: token } : {}),
         })
         .select('id, thread_id, workspace_id, sender_id, content, demo, created_at')
         .single()
-      if (error) throw error
+      if (error) {
+        // 23505 = unique violation ⇒ this exact send already landed. Return the
+        // existing row so the caller sees success (idempotent), not a duplicate.
+        if (error.code === '23505' && token) {
+          const { data: existing } = await supabase
+            .from('messages')
+            .select('id, thread_id, workspace_id, sender_id, content, demo, created_at')
+            .eq('thread_id', conversationId)
+            .eq('client_token', token)
+            .single()
+          if (existing) return toUiMessage(existing as Record<string, any>, meId)
+        }
+        throw error
+      }
 
       // Bump the thread so it sorts to the top next load (best-effort).
       try {

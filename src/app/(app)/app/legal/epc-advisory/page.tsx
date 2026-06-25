@@ -13,6 +13,7 @@ import {
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
+import { LegalJurisdictionGate } from "@/components/legal/LegalJurisdictionGate"
 import {
   useEpcCertificates,
   computeEpcReadiness,
@@ -38,6 +39,14 @@ function exportEpcCsv(
 }
 
 export default function EpcAdvisoryPage() {
+  return (
+    <LegalJurisdictionGate module="epc">
+      <EpcAdvisoryPageInner />
+    </LegalJurisdictionGate>
+  )
+}
+
+function EpcAdvisoryPageInner() {
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
   const { data: properties = [], isLoading: loadingProps } = useProperties(workspaceId)

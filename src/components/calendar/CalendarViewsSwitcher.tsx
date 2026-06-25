@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useSectionBasePath, resolveSectionHref } from "@/components/sections/SectionBasePath"
 import {
   CalendarRange,
   CalendarDays,
@@ -45,7 +46,14 @@ const VIEW_TABS = [
 ] as const
 
 export default function CalendarViewsSwitcher() {
-  const pathname = usePathname()
+  const rawPathname = usePathname()
+  const ctx = useSectionBasePath()
+  // Rebase the live pathname back onto /property-manager/calendar so active-state
+  // matching works identically whether mounted under /app or /supplier.
+  const pathname =
+    ctx && rawPathname.startsWith(ctx.base)
+      ? "/property-manager/calendar" + rawPathname.slice(ctx.base.length)
+      : rawPathname
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
@@ -55,7 +63,7 @@ export default function CalendarViewsSwitcher() {
         return (
           <Link
             key={tab.key}
-            href={tab.href}
+            href={resolveSectionHref(tab.href, ctx)}
             className={cn(
               "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-150 border",
               active

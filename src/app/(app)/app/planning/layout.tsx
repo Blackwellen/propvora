@@ -2,13 +2,14 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getWorkspaceTier } from "@/lib/billing/gates"
 import { PLAN_DISPLAY } from "@/lib/billing/plans"
+import { isFeatureEnabled } from "@/lib/flags"
 
 /**
- * Planning Engine layout — gates this section behind Operator+ plan.
+ * Planning Engine layout — gates behind the planningEnabled feature flag
+ * AND an Operator+ plan tier.
  *
- * Starter-tier workspaces are redirected to billing with an upgrade hint.
- * Gate fails open on a DB error (never lock a paying user out on a transient
- * hiccup). Operator+ have full access; Scale+ also unlock AI planning features.
+ * Starter-tier workspaces → redirect to billing.
+ * Flag OFF → redirect to home. Gate fails open on a DB error.
  */
 export const dynamic = "force-dynamic"
 
@@ -17,6 +18,8 @@ export default async function PlanningLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (process.env.NEXT_PUBLIC_QA_ALL_FLAGS === "true") return <>{children}</>
+
   const supabase = await createClient()
 
   const {
@@ -43,17 +46,19 @@ export default async function PlanningLayout({
       workspaceId = mem?.workspace_id ?? null
     }
   } catch {
-    // Fail open — let the page render (gate error must not lock paying users out).
     return <>{children}</>
   }
 
   if (!workspaceId) return <>{children}</>
 
+  // Feature flag gate — planningEnabled defaults ON (V1 kill-switch).
+  const planningOn = await isFeatureEnabled("planningEnabled", { supabase })
+  if (!planningOn) redirect("/property-manager")
+
   const tier = await getWorkspaceTier(supabase, workspaceId)
   const plan = PLAN_DISPLAY[tier]
 
-  // Starter tier → soft redirect to billing with upgrade prompt.
-  // All other tiers (operator, scale, pro_agency, enterprise) pass through.
+  // Starter tier → billing upgrade prompt.
   if (tier === "starter") {
     redirect(
       `/property-manager/workspace/billing?upgrade=planning&from=${plan.name}`

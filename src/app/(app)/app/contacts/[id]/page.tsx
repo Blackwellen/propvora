@@ -8,14 +8,16 @@ import { useRouter } from "next/navigation"
 import { MobileTabs } from "@/components/mobile"
 import { cn } from "@/lib/utils"
 import { useContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import { useContactRelations } from "@/hooks/useContactRelations"
 import { useWorkspace } from "@/hooks/useWorkspace"
 import { deriveSupplierCategories } from "@/lib/constants/supplierCategories"
+import { metadataToSupplierInfo, metadataToEnquiryInfo, typeDetailRows } from "@/lib/contacts/metadata"
 
 import { ContactSaveContext } from "@/components/contacts/contact-detail/ContactSaveContext"
 import { ContactDetailHeader } from "@/components/contacts/contact-detail/ContactDetailHeader"
 import { KpiStrip } from "@/components/contacts/contact-detail/ContactKpiStrip"
 import { RightRail } from "@/components/contacts/contact-detail/ContactRightRail"
-import { ContactDetailSkeleton } from "@/components/contacts/contact-detail/shared"
+import { ContactDetailSkeleton, SectionCard, FieldRow } from "@/components/contacts/contact-detail/shared"
 import {
   TenantOverviewTab,
   LandlordOverviewTab,
@@ -98,6 +100,11 @@ function ContactDetailPageInner() {
   const id = params.id as string
   const { data: workspace } = useWorkspace()
   const { data: liveContact, isLoading, isError } = useContact(workspace?.id, id)
+  const { data: relations } = useContactRelations(
+    workspace?.id,
+    id,
+    liveContact?.contact_type as ContactType | undefined,
+  )
   const updateContact = useUpdateContact()
   const deleteContact = useDeleteContact()
 
@@ -143,12 +150,12 @@ function ContactDetailPageInner() {
     postcode: liveContact.postcode ?? "",
     address_line1: liveContact.address_line1 ?? null,
     tags: Array.isArray(liveContact.tags) ? (liveContact.tags as string[]) : [],
-    arrears: 0,
-    linked_properties: 0,
-    active_tenancies: 0,
+    arrears: relations?.arrears ?? 0,
+    linked_properties: relations?.linked_properties ?? 0,
+    active_tenancies: relations?.active_tenancies ?? 0,
     last_contacted: null,
     next_follow_up: null,
-    health: "healthy",
+    health: (relations?.arrears ?? 0) > 0 ? "risk" : "healthy",
     portal_status: null,
     notes: liveContact.notes ?? null,
     service_categories: deriveSupplierCategories({
@@ -156,7 +163,16 @@ function ContactDetailPageInner() {
       subcategory: liveContact.subcategory,
       tags: liveContact.tags,
     }),
-    activity: [],
+    // Type-specific detail captured by the New Contact wizard (Step 4) is stored
+    // on contacts.metadata and hydrated here into the typed sub-objects the
+    // Supplier/Enquiry tabs render, plus generic rows for the other types.
+    supplier: metadataToSupplierInfo(liveContact.metadata),
+    enquiry: metadataToEnquiryInfo(liveContact.metadata),
+    type_detail_rows: typeDetailRows(liveContact.metadata),
+    tenancy: relations?.tenancy,
+    invoices: relations?.invoices ?? [],
+    jobs: relations?.jobs ?? [],
+    activity: relations?.activity ?? [],
   }
 
   const editable = liveContact.is_demo !== true
@@ -190,12 +206,27 @@ function ContactDetailPageInner() {
   function renderTabContent() {
     const type = contact.contact_type
     switch (activeTab) {
-      case "overview":
-        if (type === "tenant")    return <TenantOverviewTab contact={contact} />
-        if (type === "landlord")  return <LandlordOverviewTab contact={contact} />
-        if (type === "supplier")  return <SupplierOverviewTab contact={contact} />
-        if (type === "applicant") return <ApplicantOverviewTab contact={contact} />
-        return <ProfileTab contact={contact} />
+      case "overview": {
+        const base =
+          type === "tenant" ? <TenantOverviewTab contact={contact} />
+          : type === "landlord" ? <LandlordOverviewTab contact={contact} />
+          : type === "supplier" ? <SupplierOverviewTab contact={contact} />
+          : type === "applicant" ? <ApplicantOverviewTab contact={contact} />
+          : <ProfileTab contact={contact} />
+        const rows = contact.type_detail_rows ?? []
+        if (rows.length === 0) return base
+        return (
+          <div className="space-y-5">
+            {base}
+            <SectionCard className="p-4 space-y-3">
+              <h4 className="text-sm font-semibold text-slate-900">Details</h4>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {rows.map((r) => <FieldRow key={r.label} label={r.label} value={r.value} />)}
+              </div>
+            </SectionCard>
+          </div>
+        )
+      }
       case "profile":
         if (type === "supplier")  return <SupplierProfileTab contact={contact} />
         return <ProfileTab contact={contact} />
@@ -206,16 +237,16 @@ function ContactDetailPageInner() {
       case "offers":     return <LandlordOffersTab contact={contact} />
       case "work":       return <WorkHistoryTab contact={contact} />
       case "invoices":   return <InvoiceTable invoices={contact.invoices ?? []} />
-      case "portal":     return <PortalAccessTab contact={contact} />
+      case "portal":     return <PortalAccessTab contact={contact} workspaceId={wsId} />
       case "enquiry":    return <EnquiryTab contact={contact} />
-      case "interest":   return <PropertyInterestTab />
-      case "viewings":   return <ViewingsTab />
+      case "interest":   return <PropertyInterestTab contactId={contact.id} />
+      case "viewings":   return <ViewingsTab contactId={contact.id} />
       case "documents":  return <ContactDocumentsTab contactId={contact.id} workspaceId={wsId} />
       case "messages":   return <MessagesTab contactId={contact.id} workspaceId={wsId} />
       case "notes":      return <NotesTab contact={contact} />
-      case "tasks":      return <TasksTab />
+      case "tasks":      return <TasksTab contactId={contact.id} workspaceId={wsId} />
       case "activity":   return <ActivityTimeline items={contact.activity ?? []} />
-      case "audit":      return <AuditTab />
+      case "audit":      return <AuditTab contactId={contact.id} workspaceId={wsId} />
       default:           return <ActivityTimeline items={[]} />
     }
   }

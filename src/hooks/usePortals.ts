@@ -5,9 +5,11 @@ import { createClient } from "@/lib/supabase/client"
 import {
   DEFAULT_PORTAL_PROFILES,
   DEFAULT_PORTAL_PURPOSES,
+  isExtendedPortalProfile,
   type PortalGrantStatus,
   type TokenStatus,
 } from "@/lib/portals/config"
+import { isExtendedPortalProfilesEnabled } from "@/lib/portal/flags"
 
 /**
  * Live data hooks for the workspace-side Portals management section.
@@ -220,6 +222,34 @@ export function usePortalDiagnostics(
   })
 }
 
+// ─── Workspace-level recipient uploads count (42P01-safe) ──────────────
+
+/**
+ * Counts recipient-uploaded files across the whole workspace. Recipients
+ * upload through the resource-scoped share-link surface (portal_share_uploads),
+ * so this is the real, honest "files recipients have sent in" signal for the
+ * Portals overview KPI. Resolves to 0 if the table is not provisioned.
+ */
+export function usePortalUploadsCount(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<number>({
+    queryKey: ["portal-uploads-count", workspaceId],
+    enabled: !!workspaceId,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("portal_share_uploads")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId!)
+      if (error) {
+        if (error.code === PG_MISSING) return 0
+        throw error
+      }
+      return count ?? 0
+    },
+    staleTime: 30 * 1000,
+  })
+}
+
 // ─── Config templates (profiles / purposes) — 42P01-safe w/ defaults ───
 
 export interface PortalProfileRow {
@@ -238,7 +268,14 @@ export function usePortalProfiles(workspaceId: string | undefined) {
     queryKey: ["portal-profiles", workspaceId],
     enabled: !!workspaceId,
     queryFn: async () => {
-      const fallback: PortalProfileRow[] = DEFAULT_PORTAL_PROFILES.map((p) => ({
+      // V1 hides the extended profiles (applicant/accountant/solicitor/generic)
+      // unless the extended-profiles flag is on — they have no real experience.
+      const showExtended = isExtendedPortalProfilesEnabled()
+      const gate = (key: string) => showExtended || !isExtendedPortalProfile(key)
+
+      const fallback: PortalProfileRow[] = DEFAULT_PORTAL_PROFILES.filter((p) =>
+        gate(p.key)
+      ).map((p) => ({
         key: p.key,
         label: p.label,
         description: p.description,
@@ -257,10 +294,12 @@ export function usePortalProfiles(workspaceId: string | undefined) {
         throw error
       }
       if (!data || data.length === 0) return fallback
-      return data.map((r) => ({
-        ...(r as Omit<PortalProfileRow, "source">),
-        source: "config" as const,
-      }))
+      return data
+        .filter((r) => gate(r.key))
+        .map((r) => ({
+          ...(r as Omit<PortalProfileRow, "source">),
+          source: "config" as const,
+        }))
     },
     staleTime: 60 * 1000,
   })

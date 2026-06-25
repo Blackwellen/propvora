@@ -4,7 +4,6 @@ import { useMemo, useState } from "react"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
 import {
   Clock,
-  Download,
   Heart,
   LayoutGrid,
   List,
@@ -71,8 +70,7 @@ export default function RecipesPage() {
   const actions = (
     <>
       <Btn icon={Wand2} variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>AI Builder</Btn>
-      <Btn icon={Download} onClick={() => toast("Import recipe — connects to recipe import")}>Import</Btn>
-      <Btn icon={Plus} variant="primary" onClick={() => toast("Create recipe — opens the canvas builder")}>Create recipe</Btn>
+      <Btn icon={Plus} variant="primary" onClick={() => router.push("/property-manager/automations/canvas")}>Create recipe</Btn>
     </>
   )
 

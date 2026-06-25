@@ -9,7 +9,7 @@ import {
   Calendar, Clock, AlertTriangle, ChevronRight, Shield, Home,
   Building2, Phone, Mail, Edit2, Check, X,
   TrendingUp, ArrowRight, CheckSquare, Square, PoundSterling,
-  Eye, RefreshCw, LogOut, Trash2,
+  Eye, RefreshCw, LogOut,
 } from "lucide-react"
 import { Donut } from "@/components/charts/Donut"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -268,9 +268,8 @@ export function TenancyCardStandard({
           items={[
             { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
             { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-            { label: "Renew", icon: RefreshCw, onClick: () => {} },
-            { label: "End tenancy", icon: LogOut, onClick: () => {} },
-            { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
+            { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}/overview`) },
+            { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}/deposit`) },
           ]}
         />
       </div>
@@ -376,9 +375,12 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
             Notice given · {fmtDate(tenancy.notice_date)}
           </div>
         )}
-        <div className="ml-auto flex items-center gap-1 text-[11px] text-blue-600 font-semibold cursor-pointer hover:text-blue-700">
+        <Link
+          href={`/property-manager/portfolio/tenancies/${tenancy.id}`}
+          className="ml-auto flex items-center gap-1 text-[11px] text-blue-600 font-semibold hover:text-blue-700"
+        >
           Next action <ArrowRight className="w-3 h-3" />
-        </div>
+        </Link>
       </div>
 
       {/* Action buttons row */}
@@ -389,21 +391,26 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
         >
           View full profile <ChevronRight className="w-3.5 h-3.5" />
         </Link>
-        <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-semibold hover:bg-slate-50 transition-colors">
+        <Link
+          href="/property-manager/money"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-semibold hover:bg-slate-50 transition-colors"
+        >
           <TrendingUp className="w-3.5 h-3.5" /> Payment history
-        </button>
-        <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-semibold hover:bg-slate-50 transition-colors">
+        </Link>
+        <Link
+          href={`/property-manager/portfolio/tenancies/${tenancy.id}`}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-semibold hover:bg-slate-50 transition-colors"
+        >
           Documents
-        </button>
+        </Link>
         <div className="ml-auto">
           <ActionMenu
             align="right"
             items={[
               { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
               { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-              { label: "Renew", icon: RefreshCw, onClick: () => {} },
-              { label: "End tenancy", icon: LogOut, onClick: () => {} },
-              { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
+              { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}/overview`) },
+              { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}/deposit`) },
             ]}
           />
         </div>
@@ -474,7 +481,10 @@ export function TenancyCardRisk({ tenancy, onTakeAction }: { tenancy: TenancyCar
 
         {/* CTA */}
         <button
-          onClick={() => onTakeAction?.(tenancy.id)}
+          onClick={() => {
+            onTakeAction?.(tenancy.id)
+            router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`)
+          }}
           className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 text-white text-[12px] font-bold hover:bg-red-700 transition-colors shadow-sm"
         >
           Take action <ArrowRight className="w-3.5 h-3.5" />
@@ -485,8 +495,8 @@ export function TenancyCardRisk({ tenancy, onTakeAction }: { tenancy: TenancyCar
           items={[
             { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
             { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-            { label: "Renew", icon: RefreshCw, onClick: () => {} },
-            { label: "End tenancy", icon: LogOut, onClick: () => {} },
+            { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
           ]}
         />
       </div>
@@ -561,7 +571,10 @@ export function TenancyCardEndingSoon({ tenancy, onStartRenewal }: { tenancy: Te
 
         {/* CTA */}
         <button
-          onClick={() => onStartRenewal?.(tenancy.id)}
+          onClick={() => {
+            onStartRenewal?.(tenancy.id)
+            router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`)
+          }}
           className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 text-white text-[12px] font-bold hover:bg-orange-600 transition-colors shadow-sm"
         >
           Start renewal <ArrowRight className="w-3.5 h-3.5" />
@@ -572,8 +585,8 @@ export function TenancyCardEndingSoon({ tenancy, onStartRenewal }: { tenancy: Te
           items={[
             { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
             { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-            { label: "Renew", icon: RefreshCw, onClick: () => {} },
-            { label: "End tenancy", icon: LogOut, onClick: () => {} },
+            { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
           ]}
         />
       </div>
@@ -679,8 +692,8 @@ export function TenancyCardCompact({
           items={[
             { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
             { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-            { label: "Renew", icon: RefreshCw, onClick: () => {} },
-            { label: "End tenancy", icon: LogOut, onClick: () => {} },
+            { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
           ]}
         />
       </div>
@@ -1000,8 +1013,8 @@ export function TenancyCardMobile({ tenancy, onView }: { tenancy: TenancyCardDat
           items={[
             { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
             { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${tenancy.property_id}`) },
-            { label: "Renew", icon: RefreshCw, onClick: () => {} },
-            { label: "End tenancy", icon: LogOut, onClick: () => {} },
+            { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
+            { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${tenancy.id}`) },
           ]}
         />
       </div>

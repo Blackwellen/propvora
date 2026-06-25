@@ -74,7 +74,7 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
     items: [
       { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
       { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
-      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale },
+      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale, flag: "legalSection" },
       { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow },
     ],
   },

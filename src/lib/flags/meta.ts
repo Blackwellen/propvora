@@ -46,7 +46,7 @@ export const FLAG_META: Record<V2FlagKey, FlagMeta> = {
   icalSync:             { stage: "V1.5", module: "Booking",     risk: "low" },
   canvasLite:           { stage: "V1.5", module: "Automation",  risk: "medium" },
   multiCountryPortfolio:{ stage: "V2",   module: "Global",      risk: "medium" },
-  globalCountryPacks:   { stage: "V2",   module: "Global",      risk: "medium" },
+  globalCountryPacks:   { stage: "V1",   module: "Global",      risk: "low" },
   accountingGl:         { stage: "V2",   module: "Accounting",  risk: "high" },
   automationsFull:      { stage: "V2",   module: "Automation",  risk: "high",   parent: "canvasLite" },
   portalTenant:         { stage: "V1",   module: "Portals",     risk: "low" },
@@ -56,6 +56,8 @@ export const FLAG_META: Record<V2FlagKey, FlagMeta> = {
   registrationSupplier: { stage: "V2",   module: "Auth",        risk: "medium", parent: "supplierWorkspace" },
   affiliateEnabled:     { stage: "V1",   module: "Platform",    risk: "low" },
   sellerVerificationRequired: { stage: "V2", module: "Marketplace", risk: "high", parent: "marketplaceEnabled" },
+  legalSection:              { stage: "V1",   module: "Platform",    risk: "low" },
+  planningEnabled:           { stage: "V1",   module: "Platform",    risk: "low" },
 }
 
 export function flagMeta(key: V2FlagKey): FlagMeta {

@@ -10,14 +10,7 @@ import {
   CheckCircle2,
   Receipt,
   Zap,
-  LayoutGrid,
-  List,
-  MapPin,
   BarChart3,
-  Filter,
-  BookmarkPlus,
-  ChevronDown,
-  ChevronRight,
   Plus,
   Download,
   Star,
@@ -35,7 +28,6 @@ import {
   Briefcase,
   ExternalLink,
 } from "lucide-react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageContainer"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
@@ -44,29 +36,10 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
 import { useSuppliers, type SupplierView } from "@/features/suppliers/useSuppliers"
-import { useWorkspaceSupplierPreferences } from "@/lib/suppliers/ratings"
+import { useWorkspaceSupplierPreferences, useWorkspaceSupplierRatings } from "@/lib/suppliers/ratings"
 import { Ban } from "lucide-react"
 
-// ─── Static decorative data (charts / right-rail) ─────────────────────────────
-
-const RFQS = [
-  { priority: "High", title: "Office Fit Out — Manchester", quotes: 5, due: "Due in 2 days", priorColor: "text-red-600 bg-red-50" },
-  { priority: "Medium", title: "Plumbing Maintenance — Q2", quotes: 3, due: "Due in 5 days", priorColor: "text-amber-600 bg-amber-50" },
-  { priority: "Low", title: "Electrical Installation — Leeds", quotes: 2, due: "Due in 8 days", priorColor: "text-slate-600 bg-slate-100" },
-]
-
-const PERF_METRICS = [
-  { label: "On-Time Response", value: 98, color: "bg-emerald-500" },
-  { label: "Job Completion", value: 95, color: "bg-blue-500" },
-  { label: "SLA Compliance", value: 96, color: "bg-violet-500" },
-  { label: "Quality Score", value: 94, color: "bg-amber-500" },
-]
-
-const COMPLIANCE_DATA = [
-  { name: "Compliant", value: 149, pct: 96, fill: "#10b981" },
-  { name: "Expiring Soon", value: 4, pct: 2.5, fill: "#f59e0b" },
-  { name: "Non-Compliant", value: 3, pct: 1.5, fill: "#ef4444" },
-]
+// ─── Quick actions (right-rail) ───────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
   { icon: UserPlus, label: "Add Supplier", href: "/property-manager/contacts/new?type=supplier" },
@@ -74,30 +47,9 @@ const QUICK_ACTIONS = [
   { icon: FilePlus, label: "Create Job", href: "/property-manager/work/jobs/new" },
   { icon: MessageSquare, label: "Create Task", href: "/property-manager/work/tasks/new" },
   { icon: Users, label: "Preferred", href: "/property-manager/work/suppliers/preferred" },
-  { icon: Download, label: "Compliance", href: "/property-manager/work/suppliers/compliance" },
+  { icon: BarChart3, label: "Reports", href: "/property-manager/work/reports" },
   { icon: ExternalLink, label: "All Contacts", href: "/property-manager/contacts" },
   { icon: Bot, label: "Work Hub", href: "/property-manager/work" },
-]
-
-const VIEW_TOGGLES = [
-  { key: "directory", label: "Directory", icon: Users },
-  { key: "card", label: "Card", icon: LayoutGrid },
-  { key: "list", label: "List", icon: List },
-  { key: "map", label: "Map", icon: MapPin },
-  { key: "performance", label: "Performance", icon: BarChart3 },
-]
-
-const MAP_PINS = [
-  { x: 48, y: 35, size: 10, color: "bg-blue-400" },
-  { x: 38, y: 42, size: 7, color: "bg-emerald-400" },
-  { x: 55, y: 48, size: 8, color: "bg-amber-400" },
-  { x: 62, y: 30, size: 6, color: "bg-violet-400" },
-  { x: 30, y: 55, size: 9, color: "bg-blue-500" },
-  { x: 70, y: 55, size: 5, color: "bg-red-400" },
-  { x: 44, y: 60, size: 7, color: "bg-emerald-500" },
-  { x: 58, y: 65, size: 6, color: "bg-amber-500" },
-  { x: 25, y: 40, size: 5, color: "bg-blue-300" },
-  { x: 75, y: 40, size: 8, color: "bg-slate-400" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -114,31 +66,6 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-function ComplianceBar({ value }: { value: number }) {
-  const barColor = value >= 95 ? "bg-emerald-500" : value >= 85 ? "bg-amber-400" : "bg-red-400"
-  const textColor = value >= 95 ? "text-emerald-600" : "text-amber-600"
-  const badgeClass = value >= 95 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
-  return (
-    <div className="flex items-center gap-2">
-      <div className="w-16 h-1.5 rounded-full bg-slate-200">
-        <div className={cn("h-1.5 rounded-full", barColor)} style={{ width: `${value}%` }} />
-      </div>
-      <span className={cn("text-[11px] font-semibold", textColor)}>{value}%</span>
-      <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", badgeClass)}>
-        {value >= 95 ? "Compliant" : "At Risk"}
-      </span>
-    </div>
-  )
-}
-
-// Deterministic seeded numbers so the premium UI stays populated without external data.
-function seededRating(id: string) {
-  return 4.3 + ((id.charCodeAt(0) % 7) / 10)
-}
-function seededResponse(id: string) {
-  return (1 + (id.charCodeAt(Math.min(1, id.length - 1)) % 30) / 10).toFixed(1) + " hrs"
-}
-
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function SuppliersPage() {
@@ -146,9 +73,10 @@ export default function SuppliersPage() {
   const workspaceId = useWorkspaceId()
   const { suppliers, isSeed, loading } = useSuppliers(workspaceId)
   const { data: preferences } = useWorkspaceSupplierPreferences(workspaceId)
+  const { data: ratings } = useWorkspaceSupplierRatings(workspaceId)
   const updateContact = useUpdateContact()
+  const ratingOf = (id: string) => ratings?.get(id)?.avg ?? null
 
-  const [activeView, setActiveView] = useState("directory")
   const [search, setSearch] = useState("")
   const [tradeFilter, setTradeFilter] = useState("All Trades")
   const [sortBy, setSortBy] = useState<"name" | "rating" | "trade">("name")
@@ -172,13 +100,22 @@ export default function SuppliersPage() {
       )
     })
     return [...rows].sort((a, b) => {
-      if (sortBy === "rating") return seededRating(b.id) - seededRating(a.id)
+      if (sortBy === "rating") return (ratings?.get(b.id)?.avg ?? -1) - (ratings?.get(a.id)?.avg ?? -1)
       if (sortBy === "trade") return a.trade.localeCompare(b.trade)
       return a.name.localeCompare(b.name)
     })
-  }, [suppliers, search, tradeFilter, sortBy])
+  }, [suppliers, search, tradeFilter, sortBy, ratings])
 
   const preferred = useMemo(() => suppliers.filter((s) => s.preferred).slice(0, 3), [suppliers])
+
+  const tradeBreakdown = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const s of suppliers) counts.set(s.trade, (counts.get(s.trade) ?? 0) + 1)
+    return Array.from(counts.entries())
+      .map(([trade, count]) => ({ trade, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+  }, [suppliers])
 
   function handleTogglePreferred(s: SupplierView) {
     if (s.isSeed || !workspaceId) return
@@ -292,7 +229,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* KPI Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         {KPIS.map((kpi) => {
           const Icon = kpi.icon
           return (
@@ -311,36 +248,6 @@ export default function SuppliersPage() {
       </div>
 
       <WorkTabNav />
-
-      {/* View toggle + actions bar */}
-      <div className="hidden md:flex items-center gap-2 flex-wrap">
-        <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">
-          {VIEW_TOGGLES.map((v) => {
-            const Icon = v.icon
-            return (
-              <button
-                key={v.key}
-                onClick={() => setActiveView(v.key)}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all",
-                  activeView === v.key ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                )}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {v.label}
-              </button>
-            )
-          })}
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-[12.5px] text-slate-600 hover:bg-slate-50">
-            <Filter className="w-3.5 h-3.5" /> Filters
-          </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-[12.5px] text-slate-600 hover:bg-slate-50">
-            <BookmarkPlus className="w-3.5 h-3.5" /> Saved Views <ChevronDown className="w-3 h-3 ml-1" />
-          </button>
-        </div>
-      </div>
 
       {/* Search + filter row */}
       <div className="hidden md:flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-2xl px-4 py-2.5">
@@ -418,7 +325,10 @@ export default function SuppliersPage() {
                 leading: (s) => (
                   <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white text-[11px] font-bold shrink-0", s.avatarBg)}>{s.initials}</div>
                 ),
-                badge: (s) => <span className="text-[12px] font-semibold text-slate-700">{seededRating(s.id).toFixed(1)}★</span>,
+                badge: (s) => {
+                  const r = ratingOf(s.id)
+                  return <span className="text-[12px] font-semibold text-slate-700">{r != null ? `${r.toFixed(1)}★` : "Unrated"}</span>
+                },
                 onRowClick: (s) => router.push(`/property-manager/work/suppliers/${s.id}`),
                 fields: [
                   { label: "Trade", render: (s) => s.trade },
@@ -471,7 +381,7 @@ export default function SuppliersPage() {
                     </tr>
                   ) : (
                     filtered.map((s) => {
-                      const rating = seededRating(s.id)
+                      const rating = ratingOf(s.id)
                       const pref = preferences?.get(s.id)
                       const showPreferred = (pref?.preferred ?? s.preferred) && !pref?.blocked
                       const showBlocked = pref?.blocked ?? false
@@ -518,10 +428,14 @@ export default function SuppliersPage() {
                             <span className="text-[12px] text-slate-400">—</span>
                           </td>
                           <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-1">
-                              <StarRating rating={rating} />
-                              <span className="text-[11px] font-semibold text-slate-700 ml-1">{rating.toFixed(1)}</span>
-                            </div>
+                            {rating != null ? (
+                              <div className="flex items-center gap-1">
+                                <StarRating rating={rating} />
+                                <span className="text-[11px] font-semibold text-slate-700 ml-1">{rating.toFixed(1)}</span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">Unrated</span>
+                            )}
                           </td>
                           <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="inline-flex justify-end">
@@ -549,63 +463,40 @@ export default function SuppliersPage() {
             </ResponsiveTable>
 
             {!loading && filtered.length > 0 && (
-              <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
-                <p className="text-xs text-slate-500">Showing {filtered.length} of {suppliers.length} suppliers</p>
-                <div className="flex items-center gap-1">
-                  <button className="w-7 h-7 rounded text-[12px] font-medium bg-[#2563EB] text-white">1</button>
-                  <button className="p-1.5 rounded hover:bg-slate-100" aria-label="Next">
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
-                </div>
+              <div className="hidden md:block px-5 py-3 border-t border-slate-100">
+                <p className="text-xs text-slate-500">Showing all {filtered.length} of {suppliers.length} suppliers</p>
               </div>
             )}
           </div>
 
           {/* Bottom panels — 3 columns */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Supplier Coverage Map */}
+            {/* Network by Trade — live breakdown of supplier contacts */}
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
               <div className="px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-900">Supplier Coverage</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Network by Trade</h3>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
                     {suppliers.length} Active
                   </span>
                 </div>
               </div>
-              <div className="relative h-48 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                  {[20, 40, 60, 80].map((y) => (
-                    <div key={y} className="absolute w-full border-t border-slate-400" style={{ top: `${y}%` }} />
-                  ))}
-                  {[20, 40, 60, 80].map((x) => (
-                    <div key={x} className="absolute h-full border-l border-slate-400" style={{ left: `${x}%` }} />
-                  ))}
-                </div>
-                {MAP_PINS.map((pin, i) => (
-                  <div
-                    key={i}
-                    className={cn("absolute rounded-full opacity-80", pin.color)}
-                    style={{ left: `${pin.x}%`, top: `${pin.y}%`, width: pin.size, height: pin.size }}
-                  />
-                ))}
-                <div className="absolute bottom-2 left-3">
-                  <p className="text-[10px] text-slate-400">UK Coverage · 12 Regions</p>
-                </div>
-              </div>
-              <div className="px-4 py-3">
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { region: "London", count: 48, color: "text-blue-600" },
-                    { region: "Midlands", count: 34, color: "text-emerald-600" },
-                    { region: "North", count: 29, color: "text-amber-600" },
-                  ].map((r) => (
-                    <div key={r.region} className="text-center">
-                      <p className={cn("text-sm font-bold", r.color)}>{r.count}</p>
-                      <p className="text-[10px] text-slate-500">{r.region}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="px-4 py-4">
+                {tradeBreakdown.length === 0 ? (
+                  <p className="text-[12px] text-slate-400 text-center py-4">No suppliers yet.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {tradeBreakdown.map((t) => (
+                      <div key={t.trade} className="flex items-center gap-3">
+                        <span className="text-[11px] text-slate-600 w-28 shrink-0 truncate">{t.trade}</span>
+                        <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-2 rounded-full bg-[#2563EB]" style={{ width: `${(t.count / tradeBreakdown[0].count) * 100}%` }} />
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-700 w-5 text-right shrink-0">{t.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -639,7 +530,9 @@ export default function SuppliersPage() {
                         <p className="text-[12.5px] font-semibold text-slate-800 truncate">{s.name}</p>
                         <p className="text-[11px] text-slate-500">{s.trade}</p>
                       </div>
-                      <span className="text-[11px] font-bold text-amber-500">★ {seededRating(s.id).toFixed(1)}</span>
+                      {ratingOf(s.id) != null
+                        ? <span className="text-[11px] font-bold text-amber-500">★ {ratingOf(s.id)!.toFixed(1)}</span>
+                        : <span className="text-[11px] text-slate-400">Unrated</span>}
                     </Link>
                   ))
                 )}

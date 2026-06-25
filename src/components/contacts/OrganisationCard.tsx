@@ -156,10 +156,12 @@ export default function OrganisationCard({ contact, onClick }: OrganisationCardP
             <span className="truncate">{contact.city}</span>
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-xs text-slate-400">
-          <Building className="w-3 h-3 shrink-0" />
-          <span>{contact.property_count ?? 0} linked properties</span>
-        </div>
+        {contact.property_count != null && contact.property_count > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <Building className="w-3 h-3 shrink-0" />
+            <span>{contact.property_count} linked properties</span>
+          </div>
+        )}
       </div>
 
       {/* Tags */}

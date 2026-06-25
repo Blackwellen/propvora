@@ -1,0 +1,97 @@
+{
+  "_meta": {
+    "source": "Numbeo City Cost of Living",
+    "note": "Run scripts/pull-numbeo-rents.mjs to refresh with live data",
+    "last_updated": "2026-06-23",
+    "indices": {
+      "27": "1-bed city centre /mo",
+      "28": "1-bed outside centre /mo",
+      "29": "3-bed city centre /mo",
+      "30": "3-bed outside centre /mo"
+    }
+  },
+  "GB": {
+    "London":       { "1bed_city": 2200, "1bed_out": 1650, "3bed_city": 3800, "3bed_out": 2800, "currency": "GBP" },
+    "Manchester":   { "1bed_city": 1350, "1bed_out": 950,  "3bed_city": 2200, "3bed_out": 1600, "currency": "GBP" },
+    "Birmingham":   { "1bed_city": 1050, "1bed_out": 800,  "3bed_city": 1800, "3bed_out": 1300, "currency": "GBP" },
+    "Leeds":        { "1bed_city": 1000, "1bed_out": 750,  "3bed_city": 1700, "3bed_out": 1200, "currency": "GBP" },
+    "Glasgow":      { "1bed_city": 900,  "1bed_out": 700,  "3bed_city": 1500, "3bed_out": 1100, "currency": "GBP" },
+    "Edinburgh":    { "1bed_city": 1200, "1bed_out": 900,  "3bed_city": 2100, "3bed_out": 1500, "currency": "GBP" },
+    "Bristol":      { "1bed_city": 1250, "1bed_out": 950,  "3bed_city": 2100, "3bed_out": 1600, "currency": "GBP" },
+    "Liverpool":    { "1bed_city": 850,  "1bed_out": 650,  "3bed_city": 1400, "3bed_out": 1050, "currency": "GBP" },
+    "Sheffield":    { "1bed_city": 800,  "1bed_out": 600,  "3bed_city": 1300, "3bed_out": 950,  "currency": "GBP" },
+    "Nottingham":   { "1bed_city": 800,  "1bed_out": 625,  "3bed_city": 1350, "3bed_out": 1000, "currency": "GBP" },
+    "Cardiff":      { "1bed_city": 900,  "1bed_out": 700,  "3bed_city": 1550, "3bed_out": 1150, "currency": "GBP" },
+    "Oxford":       { "1bed_city": 1450, "1bed_out": 1100, "3bed_city": 2400, "3bed_out": 1800, "currency": "GBP" },
+    "Cambridge":    { "1bed_city": 1400, "1bed_out": 1050, "3bed_city": 2300, "3bed_out": 1700, "currency": "GBP" },
+    "Leicester":    { "1bed_city": 800,  "1bed_out": 625,  "3bed_city": 1300, "3bed_out": 980,  "currency": "GBP" },
+    "Coventry":     { "1bed_city": 775,  "1bed_out": 600,  "3bed_city": 1250, "3bed_out": 950,  "currency": "GBP" }
+  },
+  "US": {
+    "New York":     { "1bed_city": 3600, "1bed_out": 2500, "3bed_city": 6500, "3bed_out": 4200, "currency": "USD" },
+    "Los Angeles":  { "1bed_city": 2500, "1bed_out": 1900, "3bed_city": 4800, "3bed_out": 3500, "currency": "USD" },
+    "Chicago":      { "1bed_city": 1900, "1bed_out": 1400, "3bed_city": 3500, "3bed_out": 2600, "currency": "USD" },
+    "Houston":      { "1bed_city": 1350, "1bed_out": 1050, "3bed_city": 2400, "3bed_out": 1800, "currency": "USD" },
+    "Phoenix":      { "1bed_city": 1300, "1bed_out": 1050, "3bed_city": 2200, "3bed_out": 1700, "currency": "USD" },
+    "Miami":        { "1bed_city": 2400, "1bed_out": 1800, "3bed_city": 4500, "3bed_out": 3200, "currency": "USD" },
+    "San Francisco":{ "1bed_city": 3300, "1bed_out": 2600, "3bed_city": 6000, "3bed_out": 4500, "currency": "USD" },
+    "Seattle":      { "1bed_city": 2100, "1bed_out": 1600, "3bed_city": 3800, "3bed_out": 2900, "currency": "USD" },
+    "Austin":       { "1bed_city": 1600, "1bed_out": 1250, "3bed_city": 2800, "3bed_out": 2100, "currency": "USD" },
+    "Denver":       { "1bed_city": 1600, "1bed_out": 1300, "3bed_city": 2800, "3bed_out": 2200, "currency": "USD" }
+  },
+  "AE": {
+    "Dubai":        { "1bed_city": 2200, "1bed_out": 1400, "3bed_city": 4500, "3bed_out": 3000, "currency": "AED" },
+    "Abu Dhabi":    { "1bed_city": 1800, "1bed_out": 1200, "3bed_city": 3800, "3bed_out": 2600, "currency": "AED" }
+  },
+  "AU": {
+    "Sydney":       { "1bed_city": 2600, "1bed_out": 2000, "3bed_city": 4800, "3bed_out": 3600, "currency": "AUD" },
+    "Melbourne":    { "1bed_city": 2100, "1bed_out": 1600, "3bed_city": 3900, "3bed_out": 2900, "currency": "AUD" },
+    "Brisbane":     { "1bed_city": 1900, "1bed_out": 1500, "3bed_city": 3500, "3bed_out": 2700, "currency": "AUD" },
+    "Perth":        { "1bed_city": 1800, "1bed_out": 1400, "3bed_city": 3200, "3bed_out": 2500, "currency": "AUD" }
+  },
+  "CA": {
+    "Toronto":      { "1bed_city": 2400, "1bed_out": 1800, "3bed_city": 4400, "3bed_out": 3200, "currency": "CAD" },
+    "Vancouver":    { "1bed_city": 2600, "1bed_out": 2000, "3bed_city": 4800, "3bed_out": 3700, "currency": "CAD" },
+    "Montreal":     { "1bed_city": 1500, "1bed_out": 1150, "3bed_city": 2600, "3bed_out": 2000, "currency": "CAD" },
+    "Calgary":      { "1bed_city": 1700, "1bed_out": 1350, "3bed_city": 3000, "3bed_out": 2300, "currency": "CAD" }
+  },
+  "DE": {
+    "Berlin":       { "1bed_city": 1350, "1bed_out": 1000, "3bed_city": 2500, "3bed_out": 1800, "currency": "EUR" },
+    "Munich":       { "1bed_city": 1900, "1bed_out": 1500, "3bed_city": 3600, "3bed_out": 2700, "currency": "EUR" },
+    "Hamburg":      { "1bed_city": 1400, "1bed_out": 1050, "3bed_city": 2600, "3bed_out": 1950, "currency": "EUR" },
+    "Frankfurt":    { "1bed_city": 1450, "1bed_out": 1100, "3bed_city": 2700, "3bed_out": 2000, "currency": "EUR" }
+  },
+  "FR": {
+    "Paris":        { "1bed_city": 1800, "1bed_out": 1350, "3bed_city": 3600, "3bed_out": 2600, "currency": "EUR" },
+    "Lyon":         { "1bed_city": 950,  "1bed_out": 750,  "3bed_city": 1800, "3bed_out": 1400, "currency": "EUR" },
+    "Marseille":    { "1bed_city": 800,  "1bed_out": 650,  "3bed_city": 1500, "3bed_out": 1150, "currency": "EUR" }
+  },
+  "ES": {
+    "Madrid":       { "1bed_city": 1350, "1bed_out": 1000, "3bed_city": 2400, "3bed_out": 1700, "currency": "EUR" },
+    "Barcelona":    { "1bed_city": 1500, "1bed_out": 1100, "3bed_city": 2800, "3bed_out": 2000, "currency": "EUR" }
+  },
+  "NL": {
+    "Amsterdam":    { "1bed_city": 2000, "1bed_out": 1550, "3bed_city": 3800, "3bed_out": 2900, "currency": "EUR" },
+    "Rotterdam":    { "1bed_city": 1400, "1bed_out": 1050, "3bed_city": 2600, "3bed_out": 1900, "currency": "EUR" }
+  },
+  "SG": {
+    "Singapore":    { "1bed_city": 3000, "1bed_out": 2200, "3bed_city": 5500, "3bed_out": 4200, "currency": "SGD" }
+  },
+  "JP": {
+    "Tokyo":        { "1bed_city": 1600, "1bed_out": 1200, "3bed_city": 3000, "3bed_out": 2200, "currency": "JPY", "_note": "JPY values in thousands" },
+    "Osaka":        { "1bed_city": 900,  "1bed_out": 700,  "3bed_city": 1700, "3bed_out": 1250, "currency": "JPY", "_note": "JPY values in thousands" }
+  },
+  "ZA": {
+    "Cape Town":    { "1bed_city": 18000,"1bed_out": 13000,"3bed_city": 35000,"3bed_out": 25000,"currency": "ZAR" },
+    "Johannesburg": { "1bed_city": 14000,"1bed_out": 10000,"3bed_city": 28000,"3bed_out": 20000,"currency": "ZAR" }
+  },
+  "NG": {
+    "Lagos":        { "1bed_city": 450000,"1bed_out": 280000,"3bed_city": 900000,"3bed_out": 600000,"currency": "NGN" },
+    "Abuja":        { "1bed_city": 500000,"1bed_out": 320000,"3bed_city": 1000000,"3bed_out": 700000,"currency": "NGN" }
+  },
+  "IN": {
+    "Mumbai":       { "1bed_city": 55000, "1bed_out": 35000, "3bed_city": 110000,"3bed_out": 70000,"currency": "INR" },
+    "Bangalore":    { "1bed_city": 30000, "1bed_out": 20000, "3bed_city": 60000, "3bed_out": 40000,"currency": "INR" },
+    "Delhi":        { "1bed_city": 35000, "1bed_out": 22000, "3bed_city": 70000, "3bed_out": 45000,"currency": "INR" }
+  }
+}

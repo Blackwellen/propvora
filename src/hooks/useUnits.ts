@@ -14,6 +14,7 @@ export interface Unit {
   bathrooms: number | null
   floor_area_sqm: number | null
   target_rent: number | null
+  notes: string | null
   // App vocabulary. Mapped to the live `units.status` CHECK
   // (available|occupied|maintenance|offline) at the adapter boundary.
   status: 'occupied' | 'vacant' | 'under_works' | 'reserved'
@@ -38,6 +39,7 @@ export interface InsertUnit {
   floor_area_sqm?: number
   target_rent?: number
   status?: string
+  notes?: string
 }
 
 export interface UpdateUnit extends Partial<InsertUnit> {
@@ -83,6 +85,7 @@ function fromDb(r: Record<string, unknown>): Unit {
     bathrooms: g('bathrooms') ?? null,
     floor_area_sqm: g('size_sqm') ?? null,
     target_rent: g('rent_amount') ?? null,
+    notes: g('notes') ?? null,
     status: STATUS_FROM_DB[dbStatus] ?? 'vacant',
     is_demo: false,
     created_at: g('created_at'),
@@ -93,10 +96,12 @@ function fromDb(r: Record<string, unknown>): Unit {
 function toDb(p: Record<string, any>): Record<string, unknown> {
   const o: Record<string, unknown> = {}
   if ('unit_name' in p) o.label = p.unit_name
+  if ('unit_type' in p) o.unit_type = p.unit_type
   if ('floor_area_sqm' in p) o.size_sqm = p.floor_area_sqm
   if ('target_rent' in p) o.rent_amount = p.target_rent
   if ('floor' in p) o.floor = p.floor == null ? null : String(p.floor)
   if ('status' in p) o.status = STATUS_TO_DB[String(p.status)] ?? 'available'
+  if ('notes' in p) o.notes = p.notes
   for (const k of ['workspace_id', 'property_id', 'bedrooms', 'bathrooms'] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
   }
@@ -171,11 +176,12 @@ export function useUpdateUnit() {
   const supabase = createClient()
   const qc = useQueryClient()
   return useMutation<Unit, Error, { id: string; workspaceId: string; payload: UpdateUnit }>({
-    mutationFn: async ({ id, payload }) => {
+    mutationFn: async ({ id, workspaceId, payload }) => {
       const { data, error } = await supabase
         .from(TABLE)
         .update(toDb(payload))
         .eq('id', id)
+        .eq('workspace_id', workspaceId)
         .select()
         .single()
       if (error) throw error
@@ -191,8 +197,8 @@ export function useDeleteUnit() {
   const supabase = createClient()
   const qc = useQueryClient()
   return useMutation<void, Error, { id: string; workspaceId: string; propertyId: string }>({
-    mutationFn: async ({ id }) => {
-      const { error } = await supabase.from(TABLE).delete().eq('id', id)
+    mutationFn: async ({ id, workspaceId }) => {
+      const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('workspace_id', workspaceId)
       if (error) throw error
     },
     onSuccess: (_d, { workspaceId, propertyId }) => {

@@ -219,7 +219,7 @@ export default function TasksPage() {
       {/* ── Section Header ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">10A Tasks</h2>
+          <h2 className="text-base font-bold text-slate-900">Tasks</h2>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden">

@@ -52,8 +52,8 @@ export default function RunsLogsPage() {
 
   return (
     <AutomationsModuleShell
-      title="Automations"
-      subtitle="Review-first portfolio automation that proposes safe, reversible next steps."
+      title="Runs & Logs"
+      subtitle="Track every automation execution — status, duration, trigger context and step-level detail."
       icon={Activity}
       actions={actions}
     >

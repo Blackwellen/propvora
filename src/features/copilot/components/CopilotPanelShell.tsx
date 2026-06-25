@@ -10,6 +10,7 @@ import CopilotChatScreen from "../screens/CopilotChatScreen"
 import CopilotInboxScreen from "../screens/CopilotInboxScreen"
 import CopilotStartConversationScreen from "../screens/CopilotStartConversationScreen"
 import CopilotConversationView from "../screens/CopilotConversationView"
+import CopilotBrandMark from "./CopilotBrandMark"
 import { zIndex } from "@/lib/ui/z-index"
 
 interface CopilotPanelShellProps {
@@ -20,23 +21,7 @@ interface CopilotPanelShellProps {
 }
 
 function PropvoraCopilotIcon() {
-  return (
-    <div
-      style={{
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        boxShadow: "0 2px 8px rgba(37,99,235,0.35)",
-      }}
-    >
-      <span className="text-white" style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
-    </div>
-  )
+  return <CopilotBrandMark size={36} radius={10} />
 }
 
 export default function CopilotPanelShell({ isOpen, onClose, summaryData }: CopilotPanelShellProps) {
@@ -179,18 +164,18 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData }: Copi
       <div className="flex items-center gap-1 px-5 pt-3 pb-2 border-b border-slate-100 shrink-0">
         {(["copilot", "inbox"] as CopilotTab[]).map((tab) => {
           const active = activeTab === tab
-          const label = tab === "copilot" ? "✦ Copilot" : "✉ Inbox"
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-4 py-1.5 text-[12.5px] font-semibold transition-all rounded-full ${
+              className={`relative inline-flex items-center gap-1.5 px-4 py-1.5 text-[12.5px] font-semibold transition-all rounded-full ${
                 active
                   ? "text-violet-700 bg-violet-50"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
               }`}
             >
-              {label}
+              {tab === "copilot" ? <CopilotBrandMark size={15} radius={4} /> : <span aria-hidden>✉</span>}
+              {tab === "copilot" ? "Copilot" : "Inbox"}
               {active && (
                 <span
                   className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-violet-600"
@@ -261,8 +246,8 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData }: Copi
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       {(activeTab === "copilot" || (activeTab === "inbox" && inboxScreen === "list")) && (
         <div className="flex items-center justify-between gap-2 px-5 py-2 border-t border-slate-100 shrink-0 bg-slate-50/50">
-          <p className="text-[10px] text-violet-600 font-semibold shrink-0">
-            ✦ Propvora Copilot
+          <p className="inline-flex items-center gap-1.5 text-[10px] text-violet-600 font-semibold shrink-0">
+            <CopilotBrandMark size={13} radius={4} /> Propvora Copilot
           </p>
           {/* AI honesty disclaimer — kept visible on every breakpoint (incl. mobile). */}
           <p className="text-[9.5px] text-slate-400 text-right max-w-[240px] leading-tight">

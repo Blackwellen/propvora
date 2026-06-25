@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getMoneyActor, assertWorkspaceMember } from "@/lib/money/server"
+import { flagGate } from "@/lib/flags/api-gate"
 import {
   createDamageOrDepositHold,
   deductFromHold,
@@ -26,6 +27,10 @@ export const dynamic = "force-dynamic"
 ─────────────────────────────────────────────────────────────────────────── */
 
 export async function POST(request: NextRequest) {
+  // V2 marketplace escrow rail — 404 when the flag is off (direct-API gate).
+  const gated = await flagGate("marketplaceEscrow")
+  if (gated) return gated
+
   const actor = await getMoneyActor()
   if (!actor) return NextResponse.json({ error: "Unauthorised" }, { status: 401 })
 
@@ -78,6 +83,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  // V2 marketplace escrow rail — 404 when the flag is off (direct-API gate).
+  const gated = await flagGate("marketplaceEscrow")
+  if (gated) return gated
+
   const actor = await getMoneyActor()
   if (!actor) return NextResponse.json({ error: "Unauthorised" }, { status: 401 })
 

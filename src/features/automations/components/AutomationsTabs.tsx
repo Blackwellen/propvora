@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSectionBasePath, resolveSectionHref } from "@/components/sections/SectionBasePath"
+import { useAutomationsFlags } from "./AutomationsFlagsContext"
 
 /**
  * Route-aware horizontal tab strip for the Automations module.
@@ -22,7 +23,7 @@ export interface AutomationsTab {
 }
 
 export const AUTOMATIONS_TABS: AutomationsTab[] = [
-  { label: "Home", href: "/property-manager/automations/home", match: ["/automations", "/automations/home"] },
+  { label: "Overview", href: "/property-manager/automations/overview", match: ["/automations", "/automations/overview", "/automations/home"] },
   { label: "Recipes", href: "/property-manager/automations/recipes", match: ["/automations/recipes", "/automations/templates"] },
   { label: "My Automations", href: "/property-manager/automations/my-automations", match: ["/automations/my-automations"] },
   { label: "Canvas Builder", href: "/property-manager/automations/canvas", match: ["/automations/canvas", "/automations/builder"] },
@@ -33,7 +34,8 @@ export const AUTOMATIONS_TABS: AutomationsTab[] = [
   { label: "Webhooks", href: "/property-manager/automations/webhooks", match: ["/automations/webhooks"] },
   { label: "AI Builder", href: "/property-manager/automations/ai-builder", match: ["/automations/ai-builder"] },
   { label: "Usage & Limits", href: "/property-manager/automations/usage-limits", match: ["/automations/usage-limits", "/automations/usage"] },
-  { label: "Admin Controls", href: "/property-manager/automations/admin-controls", match: ["/automations/admin-controls"] },
+  // Admin Controls (workspace governance) moved to
+  // Workspace Settings → Automation Governance. Intentionally NOT a module tab.
 ]
 
 function isActive(pathname: string, match: string[], base: string) {
@@ -65,8 +67,13 @@ export default function AutomationsTabs({
   const pathname = usePathname() ?? ""
   const ctx = useSectionBasePath()
   const base = ctx?.base ?? "/app/automations"
-  const visibleTabs = hiddenTabs?.length
-    ? AUTOMATIONS_TABS.filter((t) => !hiddenTabs.includes(t.label))
+  // Prefer the centrally-resolved flags from the Automations layout so EVERY
+  // page renders an identical, correctly-gated strip. Fall back to the prop for
+  // mounts outside that layout (e.g. the Supplier workspace).
+  const flags = useAutomationsFlags()
+  const effectiveHidden = flags?.hiddenTabs ?? hiddenTabs
+  const visibleTabs = effectiveHidden?.length
+    ? AUTOMATIONS_TABS.filter((t) => !effectiveHidden.includes(t.label))
     : AUTOMATIONS_TABS
   return (
     <nav className="overflow-x-auto border-b border-slate-200" aria-label="Automation sections">

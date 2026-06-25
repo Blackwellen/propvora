@@ -2,16 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import {
-  Edit2,
-  ShieldCheck,
-  Plus,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from "lucide-react"
+import { ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import type { PlanningRisk } from "@/lib/planning/types"
+import { getProfileByKey, type ProfileConfig } from "@/lib/planning/profile-config"
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -19,14 +12,19 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse bg-slate-200 rounded-xl ${className ?? ""}`} />
 }
 
-function TrendIcon({ trend }: { trend: string }) {
-  if (trend === "improving") return <div style={{ color: "var(--color-success)" }}><TrendingDown className="w-3.5 h-3.5" /></div>
-  if (trend === "worsening") return <div style={{ color: "var(--color-danger-500, #EF4444)" }}><TrendingUp className="w-3.5 h-3.5" /></div>
-  return <div style={{ color: "var(--text-disabled)" }}><Minus className="w-3.5 h-3.5" /></div>
+interface SetRow {
+  operation_profile: string | null
+  risk_score: number | null
 }
 
-function startCase(s: string): string {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+const LEVEL_CLS: Record<string, string> = {
+  Low: "text-emerald-600",
+  Medium: "text-amber-600",
+  Possible: "text-amber-600",
+  Likely: "text-orange-600",
+  High: "text-red-600",
+  Severe: "text-red-700",
+  Critical: "text-red-700",
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -35,7 +33,7 @@ export default function RiskPage() {
   const params = useParams()
   const id = params.id as string
 
-  const [risks, setRisks] = useState<PlanningRisk[]>([])
+  const [set, setSet] = useState<SetRow | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -43,17 +41,25 @@ export default function RiskPage() {
     const supabase = createClient()
     async function load() {
       setLoading(true)
-      // planning_risks is not yet provisioned (42P01) — swallow error to empty.
-      const { data, error } = await supabase
-        .from("planning_risks")
-        .select("*")
-        .eq("planning_set_id", id)
-        .order("risk_score", { ascending: false })
-      setRisks(error ? [] : ((data ?? []) as PlanningRisk[]))
+      // Risk register is derived from the set's operation profile (same library that
+      // powers Planning › Profiles › Risks), keyed to the set's stored risk score.
+      const { data } = await supabase
+        .from("planning_sets")
+        .select("operation_profile, risk_score")
+        .eq("id", id)
+        .maybeSingle()
+      setSet((data ?? null) as SetRow | null)
       setLoading(false)
     }
     load()
   }, [id])
+
+  const profile: ProfileConfig | undefined = set?.operation_profile
+    ? getProfileByKey(set.operation_profile)
+    : undefined
+  const risks = profile?.risks
+  const score = set?.risk_score ?? null
+  const scoreColor = score == null ? "#64748B" : score >= 60 ? "#EF4444" : score >= 40 ? "#F59E0B" : "#10B981"
 
   return (
     <div className="flex flex-col gap-5">
@@ -61,82 +67,100 @@ export default function RiskPage() {
       {/* ── Section Header ──────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">8B Risk</h2>
+          <h2 className="text-base font-bold text-slate-900">Risk</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Identify, assess and manage risks that could impact your project outcomes.
+            Risk register and mitigations for this strategy. Derived from the {profile?.name ?? "operation"} risk model.
           </p>
         </div>
-        <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-          <Edit2 className="w-3.5 h-3.5" />
-          Edit
-        </button>
       </div>
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
-      ) : risks.length === 0 ? (
-        /* ── Honest empty state ── */
+      ) : !risks ? (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 text-slate-400" />
           </div>
-          <div className="text-sm font-semibold text-slate-700">No risks yet</div>
+          <div className="text-sm font-semibold text-slate-700">Risk model unavailable</div>
           <p className="text-xs text-slate-400 max-w-sm">
-            Add risks to this planning set to build a risk register, heatmap and sensitivity analysis.
+            This planning set has no operation profile set, so a risk register can&apos;t be derived. Set the profile on the Overview tab.
           </p>
-          <button className="mt-1 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors">
-            <Plus className="w-3.5 h-3.5" />
-            Add risk
-          </button>
         </div>
       ) : (
-        /* ── Risk Register Table (full width) ── */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Risk Register</h3>
-            <span className="text-[11px] text-slate-400">{risks.length} risk{risks.length === 1 ? "" : "s"}</span>
+        <>
+          {/* ── KPI strip ── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col gap-1">
+              <span className="text-xs text-slate-500 font-medium">Plan Risk Score</span>
+              <span className="text-[19px] font-bold" style={{ color: scoreColor }}>{score ?? "—"}<span className="text-xs text-slate-400">/100</span></span>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col gap-1">
+              <span className="text-xs text-slate-500 font-medium">Overall Rating</span>
+              <span className="text-[19px] font-bold text-slate-900">{risks.overallRating}</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col gap-1">
+              <span className="text-xs text-slate-500 font-medium">Identified Risks</span>
+              <span className="text-[19px] font-bold text-slate-900">{risks.register.length}</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col gap-1">
+              <span className="text-xs text-slate-500 font-medium">Est. Exposure</span>
+              <span className="text-[15px] font-bold text-slate-900">{risks.totalExposureEstimate}</span>
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  {["ID", "Risk", "Category", "Risk Score", "Likelihood", "Impact", "Trend", "Status", "Due Date"].map((h) => (
-                    <th key={h} className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {risks.map((r) => (
-                  <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                    <td className="px-3 py-3 font-mono text-[10px] font-semibold text-slate-500">{r.risk_code ?? "—"}</td>
-                    <td className="px-3 py-3 text-slate-800 font-medium max-w-[200px]">
-                      <span className="truncate block">{r.label}</span>
-                    </td>
-                    <td className="px-3 py-3 text-slate-500 capitalize">{r.category}</td>
-                    <td className="px-3 py-3">
-                      <span className={`font-bold ${r.risk_score >= 60 ? "text-red-600" : r.risk_score >= 40 ? "text-amber-600" : "text-emerald-600"}`}>
-                        {r.risk_score}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-slate-600">{startCase(r.likelihood)}</td>
-                    <td className="px-3 py-3 text-slate-600">{startCase(r.impact)}</td>
-                    <td className="px-3 py-3">
-                      <TrendIcon trend={r.risk_trend} />
-                    </td>
-                    <td className="px-3 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 capitalize">
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-slate-500 whitespace-nowrap">
-                      {r.due_date ? new Date(r.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
-                    </td>
+
+          {/* ── Risk Register Table ── */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-900">Risk Register</h3>
+              <span className="text-[11px] text-slate-400">{risks.register.length} risks</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    {["#", "Risk", "Category", "Score", "Likelihood", "Impact", "Mitigation", "Owner"].map((h) => (
+                      <th key={h} className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {risks.register.map((r, i) => (
+                    <tr key={r.name} className="border-b border-slate-50 hover:bg-slate-50 transition-colors align-top">
+                      <td className="px-3 py-3 font-mono text-[10px] font-semibold text-slate-400">R-{String(i + 1).padStart(2, "0")}</td>
+                      <td className="px-3 py-3 text-slate-800 font-medium max-w-[180px]"><span className="block">{r.name}</span></td>
+                      <td className="px-3 py-3 text-slate-500">{r.category}</td>
+                      <td className="px-3 py-3">
+                        <span className={`font-bold ${r.score >= 60 ? "text-red-600" : r.score >= 40 ? "text-amber-600" : "text-emerald-600"}`}>{r.score}</span>
+                      </td>
+                      <td className={`px-3 py-3 font-medium ${LEVEL_CLS[r.likelihood] ?? "text-slate-600"}`}>{r.likelihood}</td>
+                      <td className={`px-3 py-3 font-medium ${LEVEL_CLS[r.impact] ?? "text-slate-600"}`}>{r.impact}</td>
+                      <td className="px-3 py-3 text-slate-600 max-w-[260px]">{r.mitigation}</td>
+                      <td className="px-3 py-3 text-slate-500 whitespace-nowrap">{r.owner}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* ── Mitigation actions ── */}
+          {risks.mitigationActions.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <h3 className="text-sm font-semibold text-slate-900">Priority Mitigation Actions</h3>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {risks.mitigationActions.map((a) => (
+                  <li key={a} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                    <span className="text-xs text-slate-700">{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

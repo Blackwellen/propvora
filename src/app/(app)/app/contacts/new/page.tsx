@@ -1,7 +1,7 @@
 ﻿"use client"
 
-import React, { useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import React, { Suspense, useState, useCallback } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   AlertCircle, ArrowLeft, Check, CheckCircle2,
   ChevronLeft, ChevronRight, Loader2,
@@ -9,12 +9,14 @@ import {
 import { useCreateContact } from "@/hooks/useContacts"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type { InsertContact } from "@/types/database"
-import { type WizardState, defaultState, getDocumentSlots, STEP_NAMES } from "@/components/contacts/contact-new/types"
+import { uploadFile } from "@/lib/upload"
+import { createClient } from "@/lib/supabase/client"
+import { buildTypeDetails } from "@/lib/contacts/metadata"
+import { type WizardState, defaultState, getDocumentSlots, stateFromParams, STEP_NAMES } from "@/components/contacts/contact-new/types"
 import { CONTACT_TYPE_OPTIONS } from "@/components/contacts/contact-new/constants"
 import Step1TypeSelector     from "@/components/contacts/contact-new/Step1TypeSelector"
 import Step2Details          from "@/components/contacts/contact-new/Step2Details"
 import Step3Communication    from "@/components/contacts/contact-new/Step3Communication"
-import Step4RelationshipLinks from "@/components/contacts/contact-new/Step4RelationshipLinks"
 import Step5TypeSpecific     from "@/components/contacts/contact-new/Step5TypeSpecific"
 import Step6Documents        from "@/components/contacts/contact-new/Step6Documents"
 import Step7PortalAccess     from "@/components/contacts/contact-new/Step7PortalAccess"
@@ -22,19 +24,36 @@ import Step8Review           from "@/components/contacts/contact-new/Step8Review
 import StepperRail           from "@/components/contacts/contact-new/StepperRail"
 import SummaryRail           from "@/components/contacts/contact-new/SummaryRail"
 
-const skippableSteps = new Set([4, 6, 7])
+// Type-Specific (4), Documents (5) and Portal Access (6) are all optional.
+const skippableSteps = new Set([4, 5, 6])
+const LAST_STEP = 7
 
+// Default export wraps the wizard in a Suspense boundary: the inner component
+// reads quick-add hand-off params via useSearchParams, which requires a Suspense
+// boundary for the production prerender to succeed (CSR bailout otherwise fails
+// the build). See reference-client-searchparams-suspense.
 export default function NewContactPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewContactWizard />
+    </Suspense>
+  )
+}
+
+function NewContactWizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { workspace } = useWorkspace()
   const createContact = useCreateContact()
 
   const [step, setStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [errors, setErrors] = useState<string[]>([])
-  const [state, setState] = useState<WizardState>({ ...defaultState })
+  // Seed initial state from quick-add hand-off params (entity/type/name/email…).
+  const [state, setState] = useState<WizardState>(() => stateFromParams(searchParams))
   const [succeeded, setSucceeded] = useState(false)
   const [createdContact, setCreatedContact] = useState<{ id: string; name: string; type: string } | null>(null)
+  const [createWarnings, setCreateWarnings] = useState<string[]>([])
 
   // Auto-populate document slots when contactType changes
   const handleSetState: React.Dispatch<React.SetStateAction<WizardState>> = useCallback(
@@ -75,7 +94,7 @@ export default function NewContactPage() {
     if (errs.length > 0) { setErrors(errs); return }
     setErrors([])
     setCompletedSteps((prev) => new Set(prev).add(step))
-    setStep((s) => Math.min(s + 1, 8))
+    setStep((s) => Math.min(s + 1, LAST_STEP))
   }
 
   const handleBack = () => {
@@ -86,12 +105,24 @@ export default function NewContactPage() {
   const handleSkip = () => {
     setErrors([])
     setCompletedSteps((prev) => new Set(prev).add(step))
-    setStep((s) => Math.min(s + 1, 8))
+    setStep((s) => Math.min(s + 1, LAST_STEP))
   }
 
   const handleJumpTo = (targetStep: number) => {
     setErrors([])
     setStep(targetStep)
+  }
+
+  // Map the wizard's portal-link expiry option to a day count for the grant API.
+  const portalExpiryDays = (opt: string): number => {
+    switch (opt) {
+      case "24h": return 1
+      case "7d": return 7
+      case "30d": return 30
+      case "after_job": return 30
+      case "never": return 365
+      default: return 30
+    }
   }
 
   const handleCreate = async () => {
@@ -105,6 +136,9 @@ export default function NewContactPage() {
     const typeLabel =
       CONTACT_TYPE_OPTIONS.find((c) => c.value === state.contactType)?.label ?? "Contact"
 
+    // Step 5 → namespaced type-specific details persisted on `contacts.metadata`.
+    const typeDetails = buildTypeDetails(state)
+
     const payload: InsertContact = {
       workspace_id: workspace.id,
       contact_type: state.contactType ?? "other",
@@ -116,6 +150,7 @@ export default function NewContactPage() {
       address_line1: state.addressLine1.trim() || null,
       city: state.city.trim() || null,
       postcode: state.postcode.trim() || null,
+      avatar_url: state.avatarKey,
       notes: state.notes.trim() || null,
       // Persist selected supplier service categories alongside tags so they
       // surface in the supplier service column/filter/detail.
@@ -126,13 +161,72 @@ export default function NewContactPage() {
         ].filter((v, i, a) => v && a.indexOf(v) === i)
         return merged.length > 0 ? merged : null
       })(),
+      metadata: typeDetails ? ({ type_details: typeDetails } as unknown as import("@/types/database").Json) : null,
       status: "active",
       is_demo: false,
     }
 
     try {
+      // 1. Primary record. If this fails, nothing else runs (no orphans).
       const result = await createContact.mutateAsync(payload)
-      setCreatedContact({ id: result.id, name: fullName || "New Contact", type: typeLabel })
+      const contactId = result.id
+
+      // 2. Child writes run AFTER the contact exists. They are best-effort and
+      //    individually guarded: a failure here does not undo the created
+      //    contact (the user can re-do documents/portal from the detail page),
+      //    but we collect warnings to surface honestly on the success screen.
+      const warnings: string[] = []
+
+      // Step 6 — upload selected documents to R2 and attach to the contact.
+      const docsToUpload = state.documents.filter((d) => d.file)
+      if (docsToUpload.length > 0) {
+        const supabase = createClient()
+        for (const doc of docsToUpload) {
+          try {
+            const up = await uploadFile(doc.file!, workspace.id, "contacts")
+            const { error } = await supabase.from("documents").insert({
+              workspace_id: workspace.id,
+              name: doc.name || doc.file!.name,
+              mime_type: up.type || doc.file!.type || null,
+              size_bytes: up.size ?? doc.file!.size,
+              r2_key: up.key,
+              r2_bucket: "propvora",
+              url: up.url,
+              status: "uploaded",
+              metadata: { contact_id: contactId, expiry: doc.expiry || null },
+            })
+            if (error) warnings.push(`Could not attach "${doc.name}".`)
+          } catch {
+            warnings.push(`Could not upload "${doc.name}".`)
+          }
+        }
+      }
+
+      // Step 7 — provision a portal access grant via the secure server route.
+      if (state.portalAccessEnabled) {
+        try {
+          const accessType =
+            state.contactType === "landlord" ? "landlord"
+            : state.contactType === "tenant" || state.contactType === "post_tenant" ? "tenant"
+            : "supplier"
+          const res = await fetch("/api/portals/grant", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              workspaceId: workspace.id,
+              contactId,
+              accessType,
+              expiryDays: portalExpiryDays(state.portalExpiry),
+            }),
+          })
+          if (!res.ok) warnings.push("Portal access could not be provisioned — set it up from the contact's Portal tab.")
+        } catch {
+          warnings.push("Portal access could not be provisioned — set it up from the contact's Portal tab.")
+        }
+      }
+
+      setCreateWarnings(warnings)
+      setCreatedContact({ id: contactId, name: fullName || "New Contact", type: typeLabel })
       setSucceeded(true)
     } catch {
       setErrors(["Failed to create contact. Please check your connection and try again."])
@@ -142,6 +236,7 @@ export default function NewContactPage() {
   const handleReset = () => {
     setSucceeded(false)
     setCreatedContact(null)
+    setCreateWarnings([])
     setState({ ...defaultState })
     setStep(1)
     setCompletedSteps(new Set())
@@ -165,6 +260,14 @@ export default function NewContactPage() {
                 {createdContact.name} has been added as a {createdContact.type}.
               </p>
             </div>
+            {createWarnings.length > 0 && (
+              <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-left">
+                <p className="text-xs font-semibold text-amber-800 mb-1">The contact was created, but some extras need attention:</p>
+                <ul className="text-xs text-amber-700 space-y-0.5 list-disc list-inside">
+                  {createWarnings.map((w, i) => <li key={i}>{w}</li>)}
+                </ul>
+              </div>
+            )}
             <div className="flex flex-col gap-2.5 pt-2">
               <button
                 onClick={() => router.push(`/property-manager/contacts/${createdContact.id}`)}
@@ -225,13 +328,12 @@ export default function NewContactPage() {
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="px-6 py-6">
               {step === 1 && <Step1TypeSelector state={state} setState={handleSetState} errors={errors} />}
-              {step === 2 && <Step2Details state={state} setState={setState} errors={errors} />}
+              {step === 2 && <Step2Details state={state} setState={setState} errors={errors} workspaceId={workspace?.id} />}
               {step === 3 && <Step3Communication state={state} setState={setState} errors={errors} />}
-              {step === 4 && <Step4RelationshipLinks state={state} setState={setState} />}
-              {step === 5 && <Step5TypeSpecific state={state} setState={setState} />}
-              {step === 6 && <Step6Documents state={state} setState={setState} />}
-              {step === 7 && <Step7PortalAccess state={state} setState={setState} />}
-              {step === 8 && <Step8Review state={state} onJumpTo={handleJumpTo} />}
+              {step === 4 && <Step5TypeSpecific state={state} setState={setState} />}
+              {step === 5 && <Step6Documents state={state} setState={setState} />}
+              {step === 6 && <Step7PortalAccess state={state} setState={setState} />}
+              {step === 7 && <Step8Review state={state} onJumpTo={handleJumpTo} />}
             </div>
 
             {/* Footer nav */}
@@ -247,7 +349,7 @@ export default function NewContactPage() {
               </button>
 
               <div className="flex items-center gap-2">
-                {skippableSteps.has(step) && step < 8 && (
+                {skippableSteps.has(step) && step < LAST_STEP && (
                   <button
                     type="button"
                     onClick={handleSkip}
@@ -257,7 +359,7 @@ export default function NewContactPage() {
                   </button>
                 )}
 
-                {step < 8 ? (
+                {step < LAST_STEP ? (
                   <button
                     type="button"
                     onClick={handleNext}

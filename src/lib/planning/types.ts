@@ -296,6 +296,7 @@ export interface PlanningDocument {
   planning_set_id: string
   title: string
   file_name: string | null
+  file_path: string | null
   file_url: string | null
   category: DocumentCategory
   status: DocumentStatus
@@ -358,17 +359,18 @@ export interface PlanningAiReview {
 
 // ── Tab 17: Activity ──────────────────────────────────────────────────────────
 
+// Aligned to the live `planning_activity` schema (cols: action, detail, user_id,
+// metadata). The migration-016 draft used action_type/title/description/actor_id,
+// which never reached the live DB (create-table-if-not-exists lost to an earlier
+// definition); live is the source of truth.
 export interface PlanningActivity {
   id: string
   workspace_id: string
-  planning_set_id: string | null
-  entity_type: string | null
-  entity_id: string | null
-  action_type: string
-  title: string
-  description: string | null
-  actor_id: string | null
-  metadata_json: Record<string, unknown> | null
+  planning_set_id: string
+  user_id: string | null
+  action: string
+  detail: string | null
+  metadata: Record<string, unknown> | null
   created_at: string
 }
 

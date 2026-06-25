@@ -98,7 +98,7 @@ export default function ForecastsPage() {
       subtitle="Financial projections and cashflow analysis across your planning sets."
     >
       {/* KPI strip — live */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
         <KpiCard label="Combined Net/mo" value={isLoading ? "—" : combinedNet > 0 ? money(combinedNet) : "—"} subtitle={`${sets.length} set${sets.length !== 1 ? "s" : ""}`} icon={TrendingUp} iconColour="#10B981" />
         <KpiCard label="Best Net Yield" value={isLoading ? "—" : bestSet && bestSet.net_yield > 0 ? `${bestSet.net_yield.toFixed(1)}%` : "—"} subtitle={bestSet?.title?.slice(0, 18)} icon={BarChart2} iconColour="#7C3AED" />
         <KpiCard label="Total Upfront Cash" value={isLoading ? "—" : totalUpfront > 0 ? money(totalUpfront) : "—"} subtitle="across pipeline" icon={PoundSterling} iconColour="#2563EB" />

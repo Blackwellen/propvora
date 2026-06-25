@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -7,21 +7,22 @@ import {
   Building2, Wrench, Home, Users, Briefcase, TrendingUp,
   Search, X, LayoutGrid, List, ChevronDown,
   ArrowUpRight, MapPin, MessageSquare,
-  AlertTriangle, CheckCircle2, SlidersHorizontal, UserPlus, Eye, Edit, Archive, Trash2,
+  AlertTriangle, CheckCircle2, UserPlus, Eye, Edit, Archive, Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { MobileTopBar, MobilePageHeader, MobileFilterSheet, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import QuickAddContactModal from "@/components/contacts/contact-new/QuickAddContactModal"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import OrganisationCard from "@/components/contacts/OrganisationCard"
 import type { Contact } from "@/types/database"
 
 /* ================================================================== */
-/* Shared organisation action menu — wired to live update/delete       */
+/* Shared organisation action menu â€” wired to live update/delete       */
 /* ================================================================== */
 function OrgActionMenu({ contact, align = "right" }: { contact: Contact; align?: "left" | "right" }) {
   const router = useRouter()
@@ -131,7 +132,7 @@ function getInitials(name: string): string {
 }
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "—"
+  if (!iso) return "â€”"
   const diff = Date.now() - new Date(iso).getTime()
   const days = Math.floor(diff / 86400000)
   if (days === 0) return "Today"
@@ -250,138 +251,6 @@ function SkeletonOrgCard() {
 }
 
 /* ================================================================== */
-/* ADD ORGANISATION MODAL                                               */
-/* ================================================================== */
-
-interface AddOrgModalProps {
-  onClose: () => void
-  onSuccess: () => void
-  workspaceId?: string
-}
-
-function AddOrgModal({ onClose, onSuccess, workspaceId }: AddOrgModalProps) {
-  const [companyName, setCompanyName] = useState("")
-  const [type, setType]               = useState("supplier")
-  const [email, setEmail]             = useState("")
-  const [phone, setPhone]             = useState("")
-  const [city, setCity]               = useState("")
-  const [contactName, setContactName] = useState("")
-  const [saving, setSaving]           = useState(false)
-  const [formError, setFormError]     = useState<string | null>(null)
-  const createContact = useCreateContact()
-
-  async function handleSave() {
-    if (!companyName.trim()) { setFormError("Company name is required"); return }
-    if (!workspaceId) { setFormError("Workspace not loaded"); return }
-    setSaving(true)
-    setFormError(null)
-    try {
-      await createContact.mutateAsync({
-        workspace_id: workspaceId,
-        full_name: contactName.trim() || companyName.trim(),
-        company_name: companyName.trim(),
-        contact_type: type as import("@/types/database").ContactType,
-        email: email.trim() || null,
-        phone: phone.trim() || null,
-        city: city.trim() || null,
-        status: "active",
-        is_demo: false,
-      })
-      onSuccess()
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Failed to save organisation")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="add-org-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 id="add-org-title" className="text-lg font-bold text-slate-900">Add Organisation</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Create a new organisation contact</p>
-          </div>
-          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="add-org-name" className="block text-xs font-medium text-slate-700 mb-1">Company / Organisation Name <span className="text-red-400">*</span></label>
-            <input id="add-org-name" type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Premier Electrical Ltd"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-
-          <div>
-            <label htmlFor="add-org-type" className="block text-xs font-medium text-slate-700 mb-1">Organisation Type</label>
-            <select id="add-org-type" value={type} onChange={e => setType(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all">
-              <option value="supplier">Supplier</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="cleaning">Cleaning</option>
-              <option value="emergency_contractor">Emergency Contractor</option>
-              <option value="landlord">Landlord</option>
-              <option value="agent">Agent</option>
-              <option value="legal">Legal / Solicitor</option>
-              <option value="accountant">Accountant</option>
-              <option value="insurer">Insurer</option>
-              <option value="investor">Investor</option>
-              <option value="affiliate">Affiliate</option>
-              <option value="utility_provider">Utility Provider</option>
-              <option value="broadband">Broadband</option>
-              <option value="local_authority">Local Authority</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="add-org-contact" className="block text-xs font-medium text-slate-700 mb-1">Primary Contact Name</label>
-            <input id="add-org-contact" type="text" value={contactName} onChange={e => setContactName(e.target.value)} placeholder="John Smith"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-
-          <div>
-            <label htmlFor="add-org-email" className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-            <input id="add-org-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="info@organisation.co.uk"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="add-org-phone" className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
-              <input id="add-org-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="01234 567890"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-            <div>
-              <label htmlFor="add-org-city" className="block text-xs font-medium text-slate-700 mb-1">City</label>
-              <input id="add-org-city" type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="Birmingham"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-          </div>
-        </div>
-
-        {formError && <p className="text-xs text-red-500 mt-2">{formError}</p>}
-
-        <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
-          <button onClick={onClose} disabled={saving} className="flex-1 h-9 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !companyName.trim()}
-            className="flex-1 h-9 rounded-lg bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? "Saving…" : "Save Organisation"}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ================================================================== */
 /* TOAST                                                                */
 /* ================================================================== */
 
@@ -409,7 +278,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
   return (
     <div className="flex items-center justify-between text-xs text-slate-500 mt-4">
       <span>
-        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)}</span> of {total}
+        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}â€“{Math.min(page * PAGE_SIZE, total)}</span> of {total}
       </span>
       <div className="flex items-center gap-1">
         <button
@@ -566,7 +435,7 @@ export default function OrganisationsPage() {
           count={`${filtered.length} ${filtered.length === 1 ? "organisation" : "organisations"}`}
           search={searchQuery}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search organisations…"
+          searchPlaceholder="Search organisationsâ€¦"
           onOpenFilters={() => setMobileFiltersOpen(true)}
           activeFilterCount={activeFilterCount}
         />
@@ -652,7 +521,7 @@ export default function OrganisationsPage() {
               <input
                 type="text"
                 aria-label="Search organisations"
-                placeholder="Search organisations…"
+                placeholder="Search organisationsâ€¦"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
@@ -692,17 +561,11 @@ export default function OrganisationsPage() {
                   className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] cursor-pointer appearance-none"
                 >
                   <option value="recent">Recently updated</option>
-                  <option value="name">Name A–Z</option>
+                  <option value="name">Name Aâ€“Z</option>
                   <option value="type">Type</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
               </div>
-
-              {/* Filters button */}
-              <button className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:bg-slate-50 transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-              </button>
 
               {/* View switcher */}
               <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-slate-100 border border-slate-200">
@@ -731,7 +594,7 @@ export default function OrganisationsPage() {
             <p className="text-xs text-slate-400">
               Showing{" "}
               <span className="font-semibold text-slate-600">
-                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–${Math.min(page * PAGE_SIZE, filtered.length)}`}
+                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}â€“${Math.min(page * PAGE_SIZE, filtered.length)}`}
               </span>{" "}
               of <span className="font-semibold text-slate-600">{filtered.length}</span> organisations
             </p>
@@ -834,7 +697,8 @@ export default function OrganisationsPage() {
       {/* ADD ORGANISATION MODAL                                        */}
       {/* ============================================================ */}
       {showAddModal && (
-        <AddOrgModal
+        <QuickAddContactModal
+          mode="organisation"
           workspaceId={workspace?.id}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {

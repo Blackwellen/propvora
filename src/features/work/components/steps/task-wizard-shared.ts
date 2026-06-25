@@ -7,6 +7,7 @@ export interface TaskWizardData {
   priority: "urgent" | "high" | "medium" | "low"
   propertyId: string
   propertyName: string
+  scheduledStart: string
   dueDate: string
   assignee: string
   estimatedCost: number

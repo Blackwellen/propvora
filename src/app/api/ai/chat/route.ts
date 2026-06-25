@@ -8,6 +8,16 @@ import { checkRate, recordUsage } from "@/lib/ai/metering"
 import { checkCaps, checkAiCap, checkAiRateLimit } from "@/lib/ai/caps"
 import { getPlanLimits } from "@/lib/billing/gates"
 import { resolveModelChain, gatewayStream, recordUsageEvent } from "@/lib/ai/gateway"
+import { orderChainForRole } from "@/lib/ai/routing"
+import { resolveNavigation } from "@/lib/ai/navigation"
+import { extractFieldUpdate } from "@/lib/ai/field-extract"
+import { debitCredits, creditsForTokens } from "@/lib/ai/credits"
+import { recallMemory, renderMemory } from "@/lib/ai/memory"
+import { retrieve, renderRetrieved } from "@/lib/ai/embeddings"
+import { getKeyRecords } from "@/lib/ai/key-records"
+import { renderSiteStructure } from "@/lib/ai/site-map"
+import { commandToTool } from "@/lib/ai/tools"
+import { describeCost } from "@/lib/ai/credits"
 import { SAFETY_CLAUSES, fenceUntrusted } from "@/lib/ai/safety"
 import { getWorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
 import { aiJurisdictionClause } from "@/lib/international/guardrails"
@@ -22,7 +32,63 @@ const chatSchema = z.object({
   threadId: z.string().uuid().optional(),
   contextRoute: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(100).optional(),
+  /** JSON: { section, entityId|propertyId|tenancyId, ... } from the current page. */
+  pageContext: z.string().max(2000).optional(),
+  /** @-mentioned records the user referenced in the composer. */
+  mentions: z.array(z.object({ type: z.string().max(32), id: z.string().max(64), label: z.string().max(160) })).max(10).optional(),
 })
+
+/**
+ * Deterministic record-action parser — turns "mark @X done" / "set @X priority
+ * high" / "close @X" into a permissioned record.update tool proposal, using the
+ * real id from the @-mention. Reliable on ANY model (no native tool-calling
+ * needed); Azure GPT-5.4 can later propose richer multi-step calls. Returns the
+ * tool + exact args + a human summary, or null.
+ */
+function detectRecordAction(
+  message: string,
+  mentions?: { type: string; id: string; label: string }[]
+): { tool: string; args: Record<string, unknown>; summary: string } | null {
+  if (!mentions || mentions.length === 0) return null
+  const m = mentions[0]
+  const t = message.toLowerCase()
+  const updatable = ["task", "job", "property", "unit", "compliance", "tenancy"]
+  if (!updatable.includes(m.type)) return null
+
+  if (/\b(mark|set|flag)\b.*\b(done|complete|completed|finished|resolved)\b/.test(t) || /\b(complete|done|finish)\b/.test(t)) {
+    if (m.type === "task" || m.type === "job") {
+      return { tool: "record.update", args: { recordType: m.type, recordId: m.id, status: "done" }, summary: `Mark “${m.label}” as done` }
+    }
+  }
+  if (/\bclose\b/.test(t)) {
+    return { tool: "record.update", args: { recordType: m.type, recordId: m.id, status: "closed" }, summary: `Close “${m.label}”` }
+  }
+  const pr = t.match(/\b(low|normal|medium|high|urgent)\b/)
+  if (pr && /\bpriorit/.test(t)) {
+    return { tool: "record.update", args: { recordType: m.type, recordId: m.id, priority: pr[1] }, summary: `Set “${m.label}” priority to ${pr[1]}` }
+  }
+  const setAs = t.match(/\b(?:mark|set|change)\b.*\bas\b\s+([a-z_]+)/)
+  if (setAs) {
+    return { tool: "record.update", args: { recordType: m.type, recordId: m.id, status: setAs[1] }, summary: `Set “${m.label}” to ${setAs[1]}` }
+  }
+  return null
+}
+
+/** Pull a (type,id) entity to pin a NEW chat to, from the page context JSON. */
+function pinnedEntityFrom(pageContext?: string): { type: string; id: string } | null {
+  if (!pageContext) return null
+  try {
+    const p = JSON.parse(pageContext) as Record<string, unknown>
+    const section = typeof p.section === "string" ? p.section : "standard"
+    for (const k of ["entityId", "propertyId", "tenancyId", "contactId", "jobId", "invoiceId"]) {
+      if (typeof p[k] === "string" && p[k]) {
+        const type = k.replace(/Id$/, "")
+        return { type: type === "entity" ? section : type, id: p[k] as string }
+      }
+    }
+  } catch { /* ignore */ }
+  return null
+}
 
 export async function POST(request: NextRequest) {
   const requestId = requestIdFrom(request.headers)
@@ -39,7 +105,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
-    const { message, threadId, contextRoute, workspaceId } = parsed.data
+    const { message, threadId, contextRoute, workspaceId, pageContext, mentions } = parsed.data
 
     // 3. Verify workspace membership (only when a real workspace is provided)
     if (workspaceId && workspaceId !== "demo-workspace") {
@@ -108,6 +174,68 @@ export async function POST(request: NextRequest) {
     // gate them behind explicit approval. Unknown "/x" text falls through to chat.
     const slash = parseSlashCommand(message)
 
+    // 4b-i. DETERMINISTIC NAVIGATION — "/go-to X", or natural "take me to / open /
+    // show me X" → resolve a real destination and tell the client to navigate.
+    // No model call (instant), and it self-limits: only fires on an explicit nav
+    // verb or the /go-to command, and only when a real destination matches.
+    {
+      const isGoTo = slash?.command.slug === "/go-to"
+      const navVerb = /^\s*(take me|go|open|show me|navigate|jump|bring me|nav)\b/i.test(message)
+      if (isGoTo || navVerb) {
+        const intent = isGoTo ? slash!.args : message
+        const target = resolveNavigation(intent)
+        if (target) {
+          const enc = new TextEncoder()
+          const filters = target.filters ? "?" + new URLSearchParams(target.filters).toString() : ""
+          const body = `Opening ${target.label} for you.`
+          return new Response(
+            new ReadableStream<Uint8Array>({
+              start(c) { c.enqueue(enc.encode(body)); c.close() },
+            }),
+            {
+              headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache, no-transform",
+                "X-AI-Navigate": `${target.route}${filters}|${target.label}`,
+              },
+            }
+          )
+        }
+      }
+    }
+
+    // 4b-ii. RECORD ACTION — "mark @X done", "set @X priority high", "close @X".
+    // Deterministic + permission-safe: emits the exact tool + args (with the real
+    // id from the @-mention) so the approval card can execute record.update.
+    {
+      let action = detectRecordAction(message, mentions)
+      // If the fast detector missed but the user @-mentioned a record and used an
+      // edit verb, ask the model to map the phrasing to the exact field(s) — the
+      // natural-language surface for ANY editable field (e.g. "set @X current
+      // value to 425k", "change rent to 1,250").
+      if (!action && mentions && mentions.length > 0 && workspaceId && workspaceId !== "demo-workspace" && /\b(set|update|change|edit|make|increase|decrease|raise|lower|adjust|rename)\b/i.test(message)) {
+        const extracted = await extractFieldUpdate(supabase, message, mentions[0])
+        if (extracted) action = extracted
+      }
+      if (action && workspaceId && workspaceId !== "demo-workspace") {
+        const enc = new TextEncoder()
+        const body = `${action.summary} — approve to apply.`
+        return new Response(
+          new ReadableStream<Uint8Array>({ start(c) { c.enqueue(enc.encode(body)); c.close() } }),
+          {
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "no-cache, no-transform",
+              "X-AI-Tool": action.tool,
+              "X-AI-Tool-Args": JSON.stringify(action.args),
+              "X-AI-Requires-Approval": "1",
+              "X-AI-Tool-Cost": String(describeCost(action.tool).credits),
+            },
+          }
+        )
+      }
+    }
+
     // 5. Live, TYPE-AWARE workspace context (RLS-scoped, 42P01-safe → real data,
     // never leaks cross-workspace). Resolves operator/supplier/customer + modules.
     const { profile, caps, snapshot } = workspaceId
@@ -134,6 +262,9 @@ export async function POST(request: NextRequest) {
     let thread = threadId ?? null
     if (!thread) {
       try {
+        // Pin a new chat to the entity it was opened on (property/tenancy/…),
+        // so the chat history shows its context and future turns default to it.
+        const pin = pinnedEntityFrom(pageContext)
         const { data: newThread } = await supabase
           .from("ai_chat_threads")
           .insert({
@@ -141,6 +272,14 @@ export async function POST(request: NextRequest) {
             user_id: user.id,
             context_route: contextRoute ?? null,
             title: message.trim().slice(0, 80),
+            ...(pin
+              ? {
+                  pinned_entity_type: pin.type,
+                  pinned_entity_id: pin.id,
+                  // chat_type must satisfy the CHECK (standard|property|portfolio|tenant|automation|project)
+                  chat_type: pin.type === "property" ? "property" : pin.type === "tenancy" || pin.type === "tenant" ? "tenant" : "standard",
+                }
+              : {}),
           })
           .select("id")
           .single()
@@ -165,6 +304,24 @@ export async function POST(request: NextRequest) {
         /* non-fatal */
       }
     }
+
+    // 7b. Recall memory tiers (thread summary + durable workspace facts + this
+    // user's preferences). RLS-scoped, fail-open. Injected as trusted system
+    // knowledge (it is engine-curated, not raw user input) but still kept brief.
+    // 7b/c/d. Recall memory, RAG-retrieve, and fetch KEY RECORDS — all in
+    // PARALLEL (they're independent) so the pre-model work doesn't add up
+    // sequentially. Key records (real named tasks/tenancies/compliance/units)
+    // are what let commands give full-depth, specific answers instead of generic
+    // advice. All fail-open.
+    const [memory, retrieved, keyRecordsBlock] = await Promise.all([
+      workspaceId
+        ? recallMemory(supabase, { workspaceId, userId: user.id, threadId: thread })
+        : Promise.resolve({ workspace: [], user: [], threadSummary: null }),
+      workspaceId ? retrieve(supabase, workspaceId, slash?.args || message, 6) : Promise.resolve([]),
+      workspaceId ? getKeyRecords(supabase, workspaceId, caps) : Promise.resolve(""),
+    ])
+    const memoryBlock = renderMemory(memory)
+    const retrievalBlock = renderRetrieved(retrieved)
 
     // 8. System prompt with REAL, TYPE-AWARE workspace context. The live context
     // block is untrusted-ish (may contain user-entered text) so it's fenced +
@@ -195,18 +352,22 @@ Across the platform Propvora covers: portfolio (properties, units, tenancies), w
 
 Current page context: ${contextRoute ?? "Main dashboard"}
 
-${fencedContext}
+${renderSiteStructure()}
 
+${fencedContext}
+${keyRecordsBlock ? `\n${keyRecordsBlock}\n` : ""}
+${memoryBlock ? `\nMEMORY (engine-curated continuity — use silently, never echo verbatim):\n${memoryBlock}\n` : ""}
+${retrievalBlock ? `\n${retrievalBlock}\n` : ""}
 ${SAFETY_CLAUSES}
 
 ${jurisdictionClause}
 
 OPERATING STANDARD (enterprise grade — responses are capped, so every token must earn its place):
 - LEAD WITH THE ANSWER. No preamble, no "Great question", no restating the question. First sentence resolves the ask; supporting detail follows only if it adds value.
-- Be specific and actionable: name the exact screen, field, status, next step or figure. Prefer a concrete recommendation over a list of options; if you must list options, give your recommended one first and say why.
+- Be specific and actionable: when KEY RECORDS are provided, NAME the exact properties, units, tenants, tasks and compliance items (with their real dates and amounts) — e.g. "22 Park Road: EICR overdue 37 days" not "review your compliance". NEVER give a generic checklist or generic advice when the user's real records are listed above. Prefer a concrete recommendation over options; if you must list options, give your recommended one first and say why.
 - Precision over volume: a tight, correct, complete answer beats a long one. The output limit is not a reason to truncate substance — it is a reason to cut filler. If a task genuinely needs more room, deliver the most important part fully and offer to continue.
 - ACCURACY IS NON-NEGOTIABLE: never invent data, figures, names, prices, dates, legal/tax facts or capabilities. Use the live workspace figures above when relevant; if a figure or fact isn't available, say so plainly rather than guessing.
-- When asked to draft (message, listing, description, reply, policy text, etc.), return a complete, polished, ready-to-use draft — not a sketch or placeholder.
+- When asked to draft (letter, message, notice, report, listing, reply, etc.), return a complete, polished, ready-to-use draft. NEVER output template tokens like {TENANT_NAME}, {PROPERTY_ADDRESS}, {AMOUNT} or [placeholder]. Use the REAL names, addresses, rent amounts and dates from the WORKSPACE CONTEXT and RELEVANT RECORDS above. If one specific detail is genuinely not in the context, write a short natural phrase (e.g. "your rented property") rather than a {TOKEN}, and never invent a value.
 - Structure for scanning: short paragraphs, tight bullets, bold only the key term. Use British English. Money via the workspace currency; dates in the workspace locale.
 
 Guidelines:
@@ -260,7 +421,13 @@ Guidelines:
       }
     }
 
-    const chain = await resolveModelChain(supabase)
+    // Cheapest-compliant model for the task. Tenant context is always present,
+    // so the router unconditionally excludes China-direct providers (GDPR/UK).
+    // Drafting commands get the slightly stronger "agentic" tier (still cheap —
+    // Kimi on NVIDIA NIM); plain chat uses the "workhorse" tier.
+    const baseChain = await resolveModelChain(supabase)
+    const role = activeCommand?.requiresApproval ? "agentic" : "workhorse"
+    const chain = orderChainForRole(baseChain, role)
     const gw = await gatewayStream(chain, {
       maxTokens: Math.min(planMaxTokens, COPILOT_MAX_OUTPUT_TOKENS),
       temperature: 0.6,
@@ -321,6 +488,16 @@ Guidelines:
             inputTokens: usage.tokensIn,
             outputTokens: usage.tokensOut,
           })
+          // Credit-class ledger: a chat turn is metered as Conversation (1 credit
+          // per 1k tokens). Best-effort; never blocks the response.
+          await debitCredits(supabase, {
+            workspaceId,
+            userId: user.id,
+            operationKey: "chat.turn",
+            credits: creditsForTokens(usage.tokensIn, usage.tokensOut),
+            refType: "chat_thread",
+            refId: thread,
+          })
         }
       },
     })
@@ -335,6 +512,14 @@ Guidelines:
         "X-AI-Command": activeCommand?.slug ?? "",
         // Draft commands must be approved before anything is created/sent.
         "X-AI-Requires-Approval": activeCommand?.requiresApproval ? "1" : "0",
+        // The executor the client should POST to /api/ai/tool once the user
+        // approves the draft (empty when this command has no safe executor),
+        // plus the pre-flight credit estimate for the approval card.
+        "X-AI-Tool": activeCommand ? (commandToTool(activeCommand.mutationType) ?? "") : "",
+        "X-AI-Tool-Cost": (() => {
+          const t = activeCommand ? commandToTool(activeCommand.mutationType) : null
+          return t ? String(describeCost(t).credits) : ""
+        })(),
         "X-Workspace-Type": profile.type,
       },
     })

@@ -154,6 +154,7 @@ export interface MoneyDepositRow {
   property_name: string | null
   amount: number
   status: DepositStatus
+  scheme: string | null
   scheme_reference: string | null
   protected_at: string | null
   return_due_date: string | null
@@ -563,6 +564,7 @@ function mapDeposit(r: RawRow): MoneyDepositRow {
     property_name: propertyJoin?.address_line1 ?? null,
     amount: num(r.amount),
     status: depositStatusFromLive(str(r.status)),
+    scheme: strN(r.protection_scheme),
     scheme_reference: strN(r.reference_number),
     protected_at: str(r.status) === 'protected' ? strN(r.updated_at) : null,
     return_due_date: strN(r.return_due_date),
@@ -919,7 +921,7 @@ export function useMoneyInvoice(workspaceId: string | undefined, invoiceId: stri
     queryFn: async () => {
       const { data, error } = await supabase
         .from('invoices')
-        .select('*')
+        .select('*, contacts(display_name), properties(address_line1)')
         .eq('workspace_id', workspaceId!)
         .eq('id', invoiceId!)
         .maybeSingle()
@@ -1211,7 +1213,7 @@ export function useCreateMoneyBill(workspaceId: string | undefined) {
         workspace_id: payload.workspace_id,
         bill_number: payload.reference || `BILL-${Date.now().toString(36).toUpperCase()}`,
         bill_type: 'supplier',
-        supplier_contact_id: null, // page passes a free-text supplier name, not a contact id
+        supplier_contact_id: payload.supplier_id,
         property_id: payload.property_id,
         status,
         issue_date: new Date().toISOString().slice(0, 10),
@@ -1329,6 +1331,59 @@ export function useMoneyArrearsSummary(workspaceId: string | undefined) {
   })
 }
 
+// Payload for opening a new rent-chase / arrears case.
+export interface InsertMoneyArrears {
+  workspace_id: string
+  property_id: string | null
+  contact_id: string | null
+  tenancy_id: string | null
+  amount_due: number
+  amount_paid?: number
+  due_date?: string | null
+  notes?: string | null
+}
+
+export function useCreateMoneyArrears(workspaceId: string | undefined) {
+  const supabase = createClient()
+  const qc = useQueryClient()
+
+  return useMutation<MoneyArrearsRow, Error, InsertMoneyArrears>({
+    mutationFn: async (payload) => {
+      const daysOverdue = payload.due_date
+        ? Math.max(0, Math.floor((Date.now() - new Date(payload.due_date).getTime()) / 86400000))
+        : 0
+      const amountPaid = payload.amount_paid ?? 0
+      // amount_outstanding is a plain (non-generated) column the list sorts by and
+      // the summary reads — populate it to keep ordering/aggregates correct.
+      const insert = {
+        workspace_id: payload.workspace_id,
+        property_id: payload.property_id,
+        contact_id: payload.contact_id,
+        tenancy_id: payload.tenancy_id,
+        amount_due: payload.amount_due,
+        amount_paid: amountPaid,
+        amount_outstanding: payload.amount_due - amountPaid,
+        status: 'open',
+        days_overdue: daysOverdue,
+        notes: payload.notes ?? null,
+      }
+      const { data, error } = await supabase
+        .from('arrears_records')
+        .insert(insert)
+        .select('*, contacts(display_name), properties(address_line1)')
+        .single()
+      if (error) throw error
+      return mapArrears(data as RawRow)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.arrears(workspaceId) })
+      qc.invalidateQueries({ queryKey: QK.arrearsSummary(workspaceId) })
+      qc.invalidateQueries({ queryKey: QK.overview(workspaceId) })
+      qc.invalidateQueries({ queryKey: QK.activity(workspaceId) })
+    },
+  })
+}
+
 // ─────────────────────────────────────────────
 // DEPOSITS  (deposits)
 // ─────────────────────────────────────────────
@@ -1411,6 +1466,8 @@ export interface InsertMoneyDeposit {
   received_date: string
   status: DepositStatus
   scheme: string | null
+  reference?: string | null
+  notes?: string | null
 }
 
 export function useCreateMoneyDeposit(workspaceId: string | undefined) {
@@ -1428,8 +1485,11 @@ export function useCreateMoneyDeposit(workspaceId: string | undefined) {
         currency: 'GBP',
         status: payload.status === 'returned' ? 'returned' : payload.status === 'protected' ? 'protected' : payload.status === 'expected' ? 'expected' : 'received',
         received_date: payload.received_date,
-        reference_number: payload.scheme,
-        notes: [payload.tenant_name, payload.property_address].filter(Boolean).join(' — ') || null,
+        // scheme code lives in protection_scheme; reference_number holds the
+        // certificate/membership reference the scheme issues on lodgement.
+        protection_scheme: payload.scheme,
+        reference_number: payload.reference ?? null,
+        notes: [payload.tenant_name, payload.property_address, payload.notes].filter(Boolean).join(' — ') || null,
       }
       const { data, error } = await supabase
         .from('deposits')

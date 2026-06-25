@@ -255,6 +255,8 @@ export interface Contact {
   status: ContactStatus
   is_demo: boolean
   avatar_url: string | null
+  /** Namespaced type-specific detail (supplier/enquiry/tenant/landlord/professional). */
+  metadata: Json | null
   created_by: string | null
   created_at: string
   updated_at: string
@@ -272,9 +274,12 @@ export interface Task {
   contact_id: string | null
   assigned_to: string | null
   due_date: string | null
+  scheduled_start: string | null
+  scheduled_end: string | null
   completed_at: string | null
   estimated_cost: number | null
   actual_cost: number | null
+  metadata: Json | null
   is_demo: boolean
   created_by: string | null
   created_at: string
@@ -806,6 +811,7 @@ export interface InsertContact {
   notes?: string | null
   tags?: string[] | null
   avatar_url?: string | null
+  metadata?: Json | null
   created_by?: string | null
 }
 
@@ -821,9 +827,11 @@ export interface InsertTask {
   contact_id?: string | null
   assigned_to?: string | null
   due_date?: string | null
+  scheduled_start?: string | null
   completed_at?: string | null
   estimated_cost?: number | null
   actual_cost?: number | null
+  metadata?: Json | null
   created_by?: string | null
 }
 

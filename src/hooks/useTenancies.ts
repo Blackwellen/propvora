@@ -116,6 +116,8 @@ function toDb(p: Record<string, any>): Record<string, unknown> {
   if ('tenant_contact_id' in p) o.primary_contact_id = p.tenant_contact_id
   if ('rent_frequency' in p) o.rent_period = PERIOD_TO_DB[String(p.rent_frequency)] ?? 'monthly'
   if ('deposit_reference' in p) o.deposit_ref = p.deposit_reference
+  if ('tenancy_type' in p) o.tenancy_type = p.tenancy_type
+  if ('deposit_held_by' in p) o.deposit_held_by = p.deposit_held_by
   if ('status' in p) o.status = STATUS_TO_DB[String(p.status)] ?? 'active'
   for (const k of [
     'workspace_id', 'property_id', 'unit_id', 'start_date', 'end_date',
@@ -193,11 +195,12 @@ export function useUpdateTenancy() {
   const supabase = createClient()
   const qc = useQueryClient()
   return useMutation<Tenancy, Error, { id: string; workspaceId: string; payload: UpdateTenancy }>({
-    mutationFn: async ({ id, payload }) => {
+    mutationFn: async ({ id, workspaceId, payload }) => {
       const { data, error } = await supabase
         .from('tenancies')
         .update(toDb(payload))
         .eq('id', id)
+        .eq('workspace_id', workspaceId)
         .select()
         .single()
       if (error) throw error
@@ -213,8 +216,8 @@ export function useDeleteTenancy() {
   const supabase = createClient()
   const qc = useQueryClient()
   return useMutation<void, Error, { id: string; workspaceId: string }>({
-    mutationFn: async ({ id }) => {
-      const { error } = await supabase.from('tenancies').delete().eq('id', id)
+    mutationFn: async ({ id, workspaceId }) => {
+      const { error } = await supabase.from('tenancies').delete().eq('id', id).eq('workspace_id', workspaceId)
       if (error) throw error
     },
     onSuccess: (_d, { workspaceId }) => {

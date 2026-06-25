@@ -9,9 +9,17 @@ interface TaskStepScheduleProps {
 export function TaskStepSchedule({ data, onChange }: TaskStepScheduleProps) {
   return (
     <div className="space-y-5">
-      <div>
-        <label className={labelClass}>Due date</label>
-        <input type="date" value={data.dueDate} onChange={(e) => onChange({ dueDate: e.target.value })} className={inputClass} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelClass}>Scheduled start</label>
+          <input type="date" value={data.scheduledStart} onChange={(e) => onChange({ scheduledStart: e.target.value })} className={inputClass} />
+          <p className="text-[11px] text-slate-400 mt-1">When work is planned to begin (used by Gantt chart)</p>
+        </div>
+        <div>
+          <label className={labelClass}>Due date</label>
+          <input type="date" value={data.dueDate} onChange={(e) => onChange({ dueDate: e.target.value })} className={inputClass} />
+          <p className="text-[11px] text-slate-400 mt-1">Deadline for completion</p>
+        </div>
       </div>
       <div>
         <label className={labelClass}>Assignee</label>

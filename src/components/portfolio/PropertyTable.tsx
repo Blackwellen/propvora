@@ -5,7 +5,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import type { PropertyCardData } from "./PropertyCard"
 import {
-  ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit2, Archive, ArrowUpDown, Building2, Home,
+  ChevronUp, ChevronDown, MoreHorizontal, Eye, Settings2, ArrowUpDown, Building2, Home,
 } from "lucide-react"
 import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
@@ -290,9 +290,8 @@ export function PropertyTable({
                           <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(null)} />
                           <div className="absolute right-0 top-full mt-1 z-40 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 max-h-[min(60vh,360px)] overflow-y-auto overscroll-contain">
                             {[
-                              { label: "View",    icon: Eye,     href: `/property-manager/portfolio/properties/${p.id}` },
-                              { label: "Edit",    icon: Edit2,   href: `/property-manager/portfolio/properties/${p.id}/edit` },
-                              { label: "Archive", icon: Archive, href: undefined },
+                              { label: "View",   icon: Eye,       href: `/property-manager/portfolio/properties/${p.id}` },
+                              { label: "Manage", icon: Settings2, href: `/property-manager/portfolio/properties/${p.id}` },
                             ].map(({ label, icon: Icon, href }) => (
                               href ? (
                                 <Link

@@ -144,7 +144,15 @@ function NoticePreviewInner() {
               <Item icon={Building2} label="Property" value={property} sub={caseData?.ground} />
               <Item icon={User} label="Respondent" value={tenant} />
               <Item icon={FileText} label="Ground(s)" value={caseData?.ground ?? "—"} />
-              <Item icon={DollarSign} label="Rent Arrears" value={money(caseData?.arrears_amount)} highlight />
+              {!isS21 && (
+                <Item
+                  icon={DollarSign}
+                  label="Rent Arrears"
+                  value={money(caseData?.arrears_amount)}
+                  sub={caseData?.arrears_weeks != null ? `${caseData.arrears_weeks} weeks` : undefined}
+                  highlight
+                />
+              )}
               <Item
                 icon={Clock}
                 label="Indicative Notice Period"

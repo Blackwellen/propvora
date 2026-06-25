@@ -1,7 +1,7 @@
 // Country-specific tab configuration.
 // Defines which tabs are visible, their labels, and their order per section per jurisdiction.
 
-export type SectionName = 'compliance' | 'money' | 'portfolio' | 'legal' | 'work' | 'planning'
+export type SectionName = 'compliance' | 'money' | 'portfolio' | 'legal' | 'work' | 'planning' | 'unit_detail' | 'tenancy_detail' | 'property_detail'
 
 export interface TabDef {
   key: string
@@ -133,8 +133,9 @@ export const PORTFOLIO_TABS: TabDef[] = [
   { key: 'map',           label: 'Map',                    order: 11 },
 
   // UK
-  { key: 'tenancies',     label: 'Tenancies',              order: 2, onlyFor: ['GB'] },
-  { key: 'hmo',           label: 'HMO Details',            order: 3, onlyFor: ['GB'] },
+  { key: 'tenancies',          label: 'Tenancies',          order: 2, onlyFor: ['GB'] },
+  { key: 'hmo',                label: 'HMO Details',        order: 3, onlyFor: ['GB'] },
+  { key: 'rent_to_rent_prop',  label: 'R2R Agreement',      order: 4 },
 
   // USA
   { key: 'leases_us',     label: 'Leases',                 order: 2, onlyFor: ['US'] },
@@ -186,6 +187,78 @@ export const LEGAL_TABS: TabDef[] = [
 
   // Canada
   { key: 'ltb_ca',        label: 'LTB / RTB',              order: 1, onlyFor: ['CA'] },
+]
+
+// ── Unit detail tabs (per-unit detail view) ───────────────────────────────────
+// Route keys are canonical (e.g. /units/[id]/tenancy). Labels are i18n'd via localizedLabels.
+export interface TabDefI18n extends TabDef {
+  /** Override label per country code, e.g. { US: 'Lease', DE: 'Mietvertrag' } */
+  localizedLabels?: Record<string, string>
+}
+
+export const UNIT_DETAIL_TABS: TabDefI18n[] = [
+  { key: 'overview',        label: 'Overview',        order: 0 },
+  {
+    key: 'tenancy',
+    label: 'Tenancy',
+    order: 1,
+    localizedLabels: { US: 'Lease', DE: 'Mietvertrag', AE: 'Tenancy Contract', AU: 'Tenancy Agreement' },
+  },
+  { key: 'documents',       label: 'Documents',       order: 2 },
+  { key: 'timeline',        label: 'Timeline',        order: 3 },
+  { key: 'activity',        label: 'Activity',        order: 4 },
+  { key: 'finance',         label: 'Finance',         order: 5 },
+  { key: 'specifications',  label: 'Specifications',  order: 6 },
+]
+
+// ── Tenancy detail tabs (per-tenancy detail view) ─────────────────────────────
+export const TENANCY_DETAIL_TABS: TabDefI18n[] = [
+  { key: 'overview',        label: 'Overview',        order: 0 },
+  { key: 'payments',        label: 'Payments',        order: 1 },
+  { key: 'documents',       label: 'Documents',       order: 2 },
+  { key: 'timeline',        label: 'Timeline',        order: 3 },
+  { key: 'notes',           label: 'Notes',           order: 4 },
+  { key: 'activity',        label: 'Activity',        order: 5 },
+  {
+    key: 'deposit',
+    label: 'Deposit',
+    order: 6,
+    localizedLabels: { US: 'Security Deposit', AU: 'Bond', DE: 'Kaution', AE: 'Security Deposit' },
+  },
+  { key: 'communications',  label: 'Communications',  order: 7 },
+]
+
+// ── Property detail tabs (per-property detail view) ───────────────────────────
+// Route keys are canonical slugs (e.g. /properties/[id]/tenancies). Labels are
+// i18n'd via localizedLabels. Profile-gated tabs (hmo, rent-to-rent) are
+// additionally filtered in the layout by the property's operation_profile.
+// The `hmo` tab links to the dedicated /properties/[id]/hmo management surface.
+export const PROPERTY_DETAIL_TABS: TabDefI18n[] = [
+  { key: 'overview',   label: 'Overview',   order: 0 },
+  { key: 'units',      label: 'Units',      order: 1 },
+  {
+    key: 'tenancies',
+    label: 'Tenancies',
+    order: 2,
+    localizedLabels: { US: 'Leases', AU: 'Tenancy Agreements', DE: 'Mietverträge', AE: 'Tenancy Contracts', CA: 'Tenancies' },
+  },
+  // Profile-gated (operation_profile === 'hmo'); links to dedicated /hmo surface.
+  { key: 'hmo',           label: 'HMO Details',   order: 3, onlyFor: ['GB'] },
+  // Profile-gated (operation_profile === 'rent_to_rent').
+  { key: 'rent-to-rent',  label: 'R2R Agreement', order: 4 },
+  { key: 'finances',   label: 'Finances',   order: 5 },
+  { key: 'compliance', label: 'Compliance', order: 6 },
+  { key: 'documents',  label: 'Documents',  order: 7 },
+  { key: 'contacts',   label: 'Contacts',   order: 8 },
+  { key: 'work',       label: 'Work',       order: 9 },
+  { key: 'activity',   label: 'Activity',   order: 10 },
+  { key: 'map',        label: 'Map',        order: 11 },
+
+  // Jurisdiction-specific info panels (rendered via HmoTab info mode).
+  { key: 'fair-housing',   label: 'Fair Housing',  order: 3, onlyFor: ['US'] },
+  { key: 'bond',           label: 'Bond',          order: 3, onlyFor: ['AU'] },
+  { key: 'ejari',          label: 'Ejari',         order: 3, onlyFor: ['AE'] },
+  { key: 'betriebskosten', label: 'Betriebskosten', order: 3, onlyFor: ['DE'] },
 ]
 
 /**

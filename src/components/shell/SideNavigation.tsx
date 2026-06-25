@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useUnreadMessagesCount } from "@/hooks/useMessages"
 import {
   LayoutDashboard,
   Building2,
@@ -43,6 +44,8 @@ export interface ShellNavItem {
   icon: React.ElementType
   /** When set, the item is only shown if navFlags[flag] === true (V2/V1.5 gating). */
   flag?: string
+  /** When set, a live count badge is rendered for this item. "messagesUnread" → workspace unread messages. */
+  badgeKey?: "messagesUnread"
 }
 export interface ShellNavGroup {
   label: string
@@ -69,7 +72,7 @@ interface SideNavigationProps {
   navFlags?: Record<string, boolean>
 }
 
-const NAV_GROUPS = [
+const NAV_GROUPS: ShellNavGroup[] = [
   {
     label: "OVERVIEW",
     items: [{ label: "Home", href: MANAGER_BASE, icon: LayoutDashboard }],
@@ -85,10 +88,10 @@ const NAV_GROUPS = [
       // Suppliers hub — PM's own supplier network (directory, compliance, performance).
       // Marketplace procurement tab is a secondary action inside the hub page itself.
       { label: "Suppliers",  href: `${MANAGER_BASE}/suppliers`, icon: Store, flag: "marketplaceEnabled" },
-      { label: "Planning",   href: `${MANAGER_BASE}/planning`,   icon: Map },
+      { label: "Planning",   href: `${MANAGER_BASE}/planning`,   icon: Map, flag: "planningEnabled" },
       { label: "Contacts",   href: `${MANAGER_BASE}/contacts`,    icon: Users },
       { label: "Portals",    href: `${MANAGER_BASE}/portals`,     icon: MessageSquareMore },
-      { label: "Messages",   href: `${MANAGER_BASE}/messages`,    icon: MessageSquare },
+      { label: "Messages",   href: `${MANAGER_BASE}/messages`,    icon: MessageSquare, badgeKey: "messagesUnread" },
     ],
   },
   {
@@ -105,8 +108,10 @@ const NAV_GROUPS = [
     label: "OPERATIONS",
     items: [
       { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
-      // Legal (HMO licences, EPC, possession, RRA 2026) is surfaced as a tab inside Compliance.
       { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
+      // Legal (HMO licences, EPC, possession, RRA 2026) — its own nav location under
+      // Compliance. V1 operational kill-switch (legalSection), default ON.
+      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale, flag: "legalSection" },
       // Automations-lite (presets) is V1.5 under canvasLite; full canvas is automationsFull.
       { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow, flag: "canvasLite" },
     ],
@@ -143,6 +148,8 @@ export default function SideNavigation({
 }: SideNavigationProps) {
   const pathname = usePathname()
   const { workspace } = useWorkspace()
+  // Live workspace unread-message count for the Messages nav badge.
+  const messagesUnread = useUnreadMessagesCount(workspace?.id)
 
   // Resolve the active workspace config (defaults to Property Manager).
   const base = navConfig?.base ?? MANAGER_BASE
@@ -225,6 +232,7 @@ export default function SideNavigation({
                   collapsed={collapsed}
                   active={active}
                   onClick={onNavigate}
+                  badge={item.badgeKey === "messagesUnread" ? messagesUnread : undefined}
                 />
               )
             })}

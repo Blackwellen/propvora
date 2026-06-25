@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import {
   AlertTriangle,
   CheckCircle2,
@@ -10,7 +10,28 @@ import {
   Workflow,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import type { PlanningConversionChecklist } from "@/lib/planning/types"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { useCreateProperty } from "@/hooks/useProperties"
+import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+
+interface ConversionSet {
+  operation_profile: string | null
+  status: string | null
+  gross_monthly_income: number | null
+  net_monthly_income: number | null
+  upfront_cash_required: number | null
+  address: string | null
+  title: string | null
+  property_id: string | null
+}
+
+interface DerivedStep {
+  id: string
+  label: string
+  status: "complete" | "pending" | "blocked"
+  blocker?: boolean
+  completed_at?: string | null
+}
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -73,32 +94,86 @@ function ReadinessGauge({ pct }: { pct: number }) {
 export default function ConversionPage() {
   const params = useParams()
   const id = params.id as string
+  const router = useRouter()
+  const { workspace } = useWorkspace()
+  const createProperty = useCreateProperty()
 
-  const [checklist, setChecklist] = useState<PlanningConversionChecklist[]>([])
+  const [set, setSet] = useState<ConversionSet | null>(null)
+  const [hasAiReview, setHasAiReview] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [simulateOpen, setSimulateOpen] = useState(false)
+  const [converting, setConverting] = useState(false)
+  const [convertError, setConvertError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
     const supabase = createClient()
     async function load() {
       setLoading(true)
-      // planning_conversion_checklists is not yet provisioned (42P01) — swallow to empty.
-      const { data, error } = await supabase
-        .from("planning_conversion_checklists")
-        .select("*")
-        .eq("planning_set_id", id)
-        .order("created_at")
-      setChecklist(error ? [] : ((data ?? []) as PlanningConversionChecklist[]))
+      // Readiness is derived from the set's real state — no separate checklist table.
+      const [{ data: s }, { count }] = await Promise.all([
+        supabase
+          .from("planning_sets")
+          .select("operation_profile, status, gross_monthly_income, net_monthly_income, upfront_cash_required, address, title, property_id")
+          .eq("id", id)
+          .maybeSingle(),
+        supabase
+          .from("planning_ai_reviews")
+          .select("id", { count: "exact", head: true })
+          .eq("planning_set_id", id),
+      ])
+      setSet((s ?? null) as ConversionSet | null)
+      setHasAiReview((count ?? 0) > 0)
       setLoading(false)
     }
     load()
   }, [id])
 
+  const alreadyConverted = set?.status === "converted" || !!set?.property_id
+
+  // Derive the conversion checklist from real set signals.
+  const checklist: DerivedStep[] = set
+    ? [
+        { id: "profile", label: "Operation profile selected", status: set.operation_profile ? "complete" : "pending", blocker: !set.operation_profile },
+        { id: "assumptions", label: "Financial assumptions completed", status: Number(set.gross_monthly_income ?? 0) > 0 ? "complete" : "pending", blocker: !(Number(set.gross_monthly_income ?? 0) > 0) },
+        { id: "viable", label: "Plan is cashflow positive", status: Number(set.net_monthly_income ?? 0) > 0 ? "complete" : "blocked", blocker: !(Number(set.net_monthly_income ?? 0) > 0) },
+        { id: "aireview", label: "AI review run", status: hasAiReview ? "complete" : "pending" },
+        { id: "address", label: "Property address captured", status: set.address ? "complete" : "pending", blocker: !set.address },
+        { id: "converted", label: "Converted to live property", status: alreadyConverted ? "complete" : "pending", completed_at: alreadyConverted ? null : undefined },
+      ]
+    : []
+
   const total = checklist.length
   const complete = checklist.filter((c) => c.status === "complete").length
   const blockers = checklist.filter((c) => c.blocker && c.status !== "complete")
   const readiness = total > 0 ? Math.round((complete / total) * 100) : 0
+  // Ready to convert once the hard prerequisites pass (profile, assumptions, address, viable).
+  const canConvert = !!set && !alreadyConverted && !!set.operation_profile && !!set.address &&
+    Number(set.gross_monthly_income ?? 0) > 0 && Number(set.net_monthly_income ?? 0) > 0
+
+  async function convertToProperty() {
+    if (!set || !workspace?.id || !canConvert) return
+    setConverting(true)
+    setConvertError(null)
+    try {
+      const created = await createProperty.mutateAsync({
+        workspace_id: workspace.id,
+        name: set.title || set.address || "Converted plan",
+        status: "active",
+        is_demo: false,
+        address_line1: set.address ?? undefined,
+        target_rent: Number(set.gross_monthly_income ?? 0) || undefined,
+        notes: `Created from planning set ${id}`,
+      })
+      const supabase = createClient()
+      await supabase.from("planning_sets")
+        .update({ status: "converted", property_id: created.id })
+        .eq("id", id).eq("workspace_id", workspace.id)
+      router.push(`/property-manager/portfolio/properties/${created.id}`)
+    } catch {
+      setConvertError("Couldn't convert this plan to a property. Please try again.")
+      setConverting(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -113,7 +188,7 @@ export default function ConversionPage() {
 
       {/* ── Section header ── */}
       <div>
-        <h2 className="text-base font-bold text-slate-900">9A Conversion</h2>
+        <h2 className="text-base font-bold text-slate-900">Conversion</h2>
         <p className="text-xs text-slate-500 mt-0.5">Operational pipeline from plan to live portfolio record.</p>
       </div>
 
@@ -125,14 +200,14 @@ export default function ConversionPage() {
 
           {loading ? (
             <Skeleton className="h-64 w-full" />
-          ) : checklist.length === 0 ? (
+          ) : !set ? (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
                 <Workflow className="w-6 h-6 text-slate-400" />
               </div>
-              <div className="text-sm font-semibold text-slate-700">No conversion checklist yet</div>
+              <div className="text-sm font-semibold text-slate-700">Planning set not found</div>
               <p className="text-xs text-slate-400 max-w-sm">
-                The conversion pipeline and readiness checklist will appear here once this planning set begins conversion to a live portfolio record.
+                This planning set couldn&apos;t be loaded, so a conversion checklist can&apos;t be shown.
               </p>
             </div>
           ) : (
@@ -144,14 +219,11 @@ export default function ConversionPage() {
                     <div className="flex flex-col items-center">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                         step.status === "complete" ? "bg-emerald-500" :
-                        step.status === "in_progress" ? "bg-amber-400" :
                         step.status === "blocked" ? "bg-red-400" : "bg-slate-200"
                       }`}>
                         {step.status === "complete" ? (
                           <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                         ) : step.status === "blocked" ? (
-                          <AlertCircle className="w-3.5 h-3.5 text-white" />
-                        ) : step.status === "in_progress" ? (
                           <AlertCircle className="w-3.5 h-3.5 text-white" />
                         ) : (
                           <Circle className="w-3.5 h-3.5 text-slate-400" />
@@ -219,38 +291,48 @@ export default function ConversionPage() {
             </div>
           )}
 
-          {!loading && (
+          {!loading && set && (
             <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-4 flex flex-col gap-3">
-              <button
-                onClick={() => setSimulateOpen(true)}
-                className="w-full h-10 rounded-xl bg-[#7C3AED] hover:bg-violet-700 text-white text-sm font-bold transition-colors"
-              >
-                Convert to Live (Simulate)
-              </button>
-              <p className="text-[11px] text-slate-500 text-center">Simulate conversion impact before going live.</p>
-            </div>
-          )}
-
-          {simulateOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-              <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
-                <h3 className="text-sm font-bold text-slate-900">Simulate Conversion?</h3>
-                <p className="text-xs text-slate-500">This will run a simulation of the conversion process. No live data will be modified.</p>
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={() => setSimulateOpen(false)}
-                    className="flex-1 h-9 rounded-xl border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => setSimulateOpen(false)}
-                    className="flex-1 h-9 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors"
-                  >
-                    Run Simulation
-                  </button>
-                </div>
-              </div>
+              {alreadyConverted ? (
+                <>
+                  <div className="flex items-center gap-2 text-emerald-700">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="text-sm font-semibold">Converted to a live property</span>
+                  </div>
+                  {set.property_id && (
+                    <button
+                      onClick={() => router.push(`/property-manager/portfolio/properties/${set.property_id}`)}
+                      className="w-full h-9 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                    >
+                      View property
+                    </button>
+                  )}
+                </>
+              ) : (
+                <ConfirmDialog
+                  title="Convert plan to property?"
+                  description={`This creates a live property "${set.title || set.address || "from this plan"}" in your portfolio and links it back to this planning set.`}
+                  confirmLabel="Convert"
+                  confirmVariant="primary"
+                  onConfirm={convertToProperty}
+                >
+                  {(open) => (
+                    <button
+                      onClick={open}
+                      disabled={!canConvert || converting}
+                      className="w-full h-10 rounded-xl bg-[#7C3AED] hover:bg-violet-700 text-white text-sm font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {converting ? "Converting…" : "Convert to Property"}
+                    </button>
+                  )}
+                </ConfirmDialog>
+              )}
+              {!alreadyConverted && (
+                <p className="text-[11px] text-slate-500 text-center">
+                  {canConvert ? "Creates a real portfolio property from this plan." : "Complete the blockers above before converting."}
+                </p>
+              )}
+              {convertError && <p className="text-[11px] text-red-600 text-center">{convertError}</p>}
             </div>
           )}
         </div>

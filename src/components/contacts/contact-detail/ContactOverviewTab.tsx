@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { AlertTriangle, CheckCircle2, Building2, ExternalLink, Clock, Zap, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -10,6 +11,7 @@ import { SectionCard, FieldRow, StatusChip, EmptyState } from "./shared"
 
 // ---- Tenant Overview ----
 export function TenantOverviewTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const invoices = contact.invoices ?? []
   const recent = invoices.slice(0, 3)
   return (
@@ -21,7 +23,7 @@ export function TenantOverviewTab({ contact }: { contact: ContactDetail }) {
             <p className="text-sm font-semibold text-red-800">Arrears Outstanding</p>
             <p className="text-sm text-red-700">£{contact.arrears.toLocaleString("en-GB")} overdue — action required</p>
           </div>
-          <Button variant="destructive" size="sm" className="shrink-0">Create Task</Button>
+          <Button variant="destructive" size="sm" className="shrink-0" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
         </div>
       )}
       <div className="grid sm:grid-cols-3 gap-4">
@@ -163,6 +165,7 @@ export function SupplierOverviewTab({ contact }: { contact: ContactDetail }) {
 
 // ---- Applicant Overview ----
 export function ApplicantOverviewTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const eq = contact.enquiry
   return (
     <div className="space-y-5">
@@ -173,7 +176,7 @@ export function ApplicantOverviewTab({ contact }: { contact: ContactDetail }) {
             <p className="text-sm font-semibold text-amber-800">Follow-up due {contact.next_follow_up}</p>
             <p className="text-sm text-amber-700">Book a viewing or send a follow-up message</p>
           </div>
-          <Button variant="outline" size="sm" className="shrink-0">Create Task</Button>
+          <Button variant="outline" size="sm" className="shrink-0" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contact.id}`)}>Create Task</Button>
         </div>
       )}
       {eq && (

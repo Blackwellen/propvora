@@ -20,6 +20,7 @@ import { enqueueAllDue } from "@/lib/automation/enqueue"
 import { escalateOverdueApprovals } from "@/lib/automation/approvals"
 import { expireStaleHolds } from "@/lib/booking/reservations"
 import { reconcilePayments } from "@/lib/payments/reconciliation"
+import { dispatchPpmReminderEmails } from "@/lib/ppm/reminder-emails"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
@@ -65,6 +66,15 @@ async function handle(request: Request): Promise<NextResponse> {
   } catch (err) {
     captureException(err, { source: "api/cron/daily:reconcile", requestId })
     out.reconcileError = true
+  }
+
+  // 4. PPM reminder emails — ensure today's in-app reminders exist (idempotent),
+  //    then email any not-yet-emailed dispatch rows via Resend.
+  try {
+    out.ppmReminders = await dispatchPpmReminderEmails(admin)
+  } catch (err) {
+    captureException(err, { source: "api/cron/daily:ppmReminders", requestId })
+    out.ppmRemindersError = true
   }
 
   return NextResponse.json(out)

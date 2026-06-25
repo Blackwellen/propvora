@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Settings2,
   Building2,
   Eye,
   Pencil,
@@ -25,6 +24,7 @@ import { PpmCategoryBadge, type PpmCategory } from "@/features/work/ppm/componen
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { useProperties } from "@/hooks/useProperties"
 import {
   usePpmPlans,
   useDeletePpmPlan,
@@ -85,11 +85,12 @@ function dueLabel(d: string | null): string {
   return diff < 0 ? `${Math.abs(diff)} days overdue` : `In ${diff} days`
 }
 
-function planToRow(p: PpmPlan): ScheduleRow {
+function planToRow(p: PpmPlan, propertyById?: Map<string, { name: string; address: string }>): ScheduleRow {
+  const prop = p.property_id ? propertyById?.get(p.property_id) : undefined
   return {
     id: p.id,
-    property: p.property_id ? "Linked Property" : "—",
-    address: "",
+    property: prop?.name || (p.property_id ? "Linked property" : "—"),
+    address: prop?.address ?? "",
     taskType: p.name,
     category: (p.category as PpmCategory) || "General",
     frequency: FREQ_LABEL[p.frequency ?? ""] ?? (p.frequency ?? "—"),
@@ -127,6 +128,7 @@ export default function PpmSchedulesPage() {
   const router = useRouter()
   const workspaceId = useWorkspaceId()
   const { data: livePlans, isLoading } = usePpmPlans(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
   const deletePlan = useDeletePpmPlan()
   const generateJob = useGenerateJobFromPpm()
 
@@ -135,11 +137,22 @@ export default function PpmSchedulesPage() {
   const [supplierFilter, setSupplierFilter] = useState("")
   const [frequencyFilter, setFrequencyFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const propertyById = useMemo(() => {
+    const map = new Map<string, { name: string; address: string }>()
+    for (const p of properties) {
+      const address = [p.address_line1, p.city, p.postcode].filter(Boolean).join(", ")
+      map.set(p.id, { name: p.name || "Unnamed property", address })
+    }
+    return map
+  }, [properties])
 
   const hasLive = !!livePlans && livePlans.length > 0
   const allRows: ScheduleRow[] = useMemo(
-    () => (hasLive ? livePlans!.map(planToRow) : []),
-    [hasLive, livePlans]
+    () => (hasLive ? livePlans!.map((p) => planToRow(p, propertyById)) : []),
+    [hasLive, livePlans, propertyById]
   )
 
   // Distinct filter option values from the active dataset
@@ -162,12 +175,43 @@ export default function PpmSchedulesPage() {
   const kpis = useMemo(() => buildKpis(allRows), [allRows])
   const activeFilters = [propertyFilter, supplierFilter, frequencyFilter, statusFilter].filter(Boolean).length
 
+  // Pagination — reset to first page whenever the filtered set changes
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
+  React.useEffect(() => {
+    setPage(1)
+  }, [search, propertyFilter, supplierFilter, frequencyFilter, statusFilter, pageSize])
+  const safePage = Math.min(page, pageCount)
+  const pagedRows = useMemo(
+    () => rows.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [rows, safePage, pageSize]
+  )
+
   function clearAll() {
     setSearch("")
     setPropertyFilter("")
     setSupplierFilter("")
     setFrequencyFilter("")
     setStatusFilter("")
+  }
+
+  function exportCsv() {
+    const headers = ["Property", "Address", "Task Type", "Category", "Frequency", "Last Completed", "Next Due", "Supplier", "Est. Cost", "Status"]
+    const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`
+    const lines = [headers.join(",")]
+    for (const r of rows) {
+      lines.push(
+        [r.property, r.address, r.taskType, r.category, r.frequency, r.lastCompleted, r.nextDue, r.supplier, r.estCost, r.status]
+          .map(escape)
+          .join(",")
+      )
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `ppm-schedules-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   function goToRow(row: ScheduleRow) {
@@ -197,8 +241,12 @@ export default function PpmSchedulesPage() {
           <p className="text-sm text-slate-500">Manage all recurring maintenance schedules</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors">
-            <Download className="w-4 h-4" /> Export ▾
+          <button
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" /> Export CSV
           </button>
           <Link
             href="/property-manager/work/ppm/schedules/new"
@@ -278,9 +326,6 @@ export default function PpmSchedulesPage() {
               {rows.length}
             </span>
           </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-[12px] text-slate-600 hover:bg-slate-50 transition-colors">
-            <Settings2 className="w-3.5 h-3.5" /> Column settings
-          </button>
         </div>
 
         <div className="overflow-x-auto">
@@ -326,7 +371,7 @@ export default function PpmSchedulesPage() {
                   </td>
                 </tr>
               ) : (
-                rows.map((s, i) => (
+                pagedRows.map((s, i) => (
                   <tr
                     key={s.id ?? i}
                     onClick={() => goToRow(s)}
@@ -401,26 +446,48 @@ export default function PpmSchedulesPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 flex-wrap gap-3">
-          <p className="text-xs text-slate-500">Showing {rows.length} of {allRows.length} schedules</p>
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400">
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-            <button className="w-7 h-7 rounded text-[12px] font-medium bg-[#2563EB] text-white">1</button>
-            <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400">
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+        {rows.length > 0 && (
+          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 flex-wrap gap-3">
+            <p className="text-xs text-slate-500">
+              Showing {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, rows.length)} of {rows.length}
+              {rows.length !== allRows.length && ` (filtered from ${allRows.length})`}
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={safePage <= 1}
+                className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <span className="px-2 text-[12px] font-medium text-slate-700">
+                Page {safePage} of {pageCount}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                disabled={safePage >= pageCount}
+                className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">Rows per page</span>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+                className="border border-slate-200 rounded-lg px-2 py-1 text-[12px] text-slate-700 bg-white"
+                aria-label="Rows per page"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Rows per page</span>
-            <select className="border border-slate-200 rounded-lg px-2 py-1 text-[12px] text-slate-700 bg-white">
-              <option>10</option>
-              <option>25</option>
-              <option>50</option>
-            </select>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic"
 import { WizardProvider, useWizard } from "@/components/planning/wizard/WizardContext"
 import { WizardShell } from "@/components/planning/wizard/WizardShell"
 import { WizardLiveSummary } from "@/components/planning/wizard/WizardLiveSummary"
+import { PROFILE_KEY_MAP } from "@/lib/planning/profile-config"
 
 const Step01Profile         = dynamic(() => import("@/components/planning/wizard/steps/Step01Profile"),         { ssr: false })
 const Step02Basics          = dynamic(() => import("@/components/planning/wizard/steps/Step02Basics"),          { ssr: false })
@@ -29,18 +30,6 @@ const STEP_COMPONENTS = [
   Step09ReviewCreate,
 ]
 
-const STEP_LABELS = [
-  "Profile",
-  "Basics",
-  "Income",
-  "Expenses & Bills",
-  "Upfront & Compliance",
-  "LL Offer",
-  "Forecast",
-  "Risk & AI Review",
-  "Review & Create",
-]
-
 function WizardInner() {
   const { state, setStep, saveDraft } = useWizard()
   const router = useRouter()
@@ -48,7 +37,10 @@ function WizardInner() {
   const currentStepIndex = state.currentStep - 1
   const StepComponent    = STEP_COMPONENTS[currentStepIndex]
   const isLastStep       = state.currentStep === STEP_COMPONENTS.length
-  const canContinue      = state.currentStep === 1 ? !!state.profileKey : true
+  const canContinue =
+    state.currentStep === 1 ? !!state.profileKey :
+    state.currentStep === 2 ? !!state.setName.trim() :
+    true
 
   const handleNext = useCallback(() => {
     if (state.currentStep < STEP_COMPONENTS.length) {
@@ -63,7 +55,7 @@ function WizardInner() {
     }
   }, [state.currentStep, setStep])
 
-  const nextLabel = `Continue to Step ${state.currentStep + 1}: ${STEP_LABELS[state.currentStep] ?? ""}`
+  const nextLabel = "Continue"
 
   return (
     <WizardShell
@@ -87,7 +79,11 @@ function WizardInner() {
 
 function WizardPageInner() {
   const searchParams = useSearchParams()
-  const profileKey   = searchParams.get("profile") ?? undefined
+  const rawProfile = searchParams.get("profile") ?? undefined
+  // Profile cards pass the underscore key (long_term_let); profile detail-page CTAs
+  // pass the hyphen slug (long-term-let). Normalise both to the canonical key so the
+  // wizard always pre-selects the strategy.
+  const profileKey = rawProfile ? (PROFILE_KEY_MAP[rawProfile] ?? rawProfile) : undefined
 
   return (
     <WizardProvider initialData={profileKey ? { profileKey } : undefined}>

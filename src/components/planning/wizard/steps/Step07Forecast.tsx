@@ -222,7 +222,7 @@ export default function Step07Forecast() {
     <div className="flex flex-col">
       {/* ── KPI Strip ──────────────────────────────────────────────────────────── */}
       <div className="px-4 sm:px-6 lg:px-8 py-5 border-b border-slate-100">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
           {kpis.map(kpi => {
             const Icon = kpi.icon
             return (

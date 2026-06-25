@@ -1,10 +1,17 @@
 import {
   LayoutDashboard, Home, FileText, CreditCard, Wrench, Building2, Wallet, ClipboardList, FolderOpen,
-  MessageSquare,
+  MessageSquare, ClipboardCheck, CalendarClock, Receipt, Gavel, FileSignature,
   type LucideIcon,
 } from "lucide-react"
 
-export type PortalKind = "supplier" | "landlord" | "tenant"
+export type PortalKind =
+  | "supplier"
+  | "landlord"
+  | "tenant"
+  | "applicant"
+  | "accountant"
+  | "solicitor"
+  | "generic"
 
 export interface PortalNavItem {
   label: string
@@ -62,4 +69,48 @@ export const PORTAL_NAV: Record<PortalKind, PortalNavGroup[]> = {
     { label: "DOCUMENTS", items: [{ label: "Documents", segment: "documents", icon: FolderOpen }] },
     { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
   ],
+  // ── Extended profiles (gated behind PORTALS_EXTENDED_PROFILES) ───────────
+  applicant: [
+    { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
+    { label: "APPLICATION", items: [
+      { label: "My application", segment: "application", icon: ClipboardCheck },
+      { label: "Viewings", segment: "viewings", icon: CalendarClock },
+    ] },
+    { label: "DOCUMENTS", items: [{ label: "Documents", segment: "documents", icon: FileText }] },
+    { label: "SUPPORT", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
+  ],
+  accountant: [
+    { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
+    { label: "FINANCE", items: [
+      { label: "Statements", segment: "statements", icon: Wallet },
+      { label: "Transactions", segment: "transactions", icon: Receipt },
+      { label: "Invoices", segment: "invoices", icon: FileText },
+    ] },
+    { label: "DOCUMENTS", items: [{ label: "Documents", segment: "documents", icon: FolderOpen }] },
+    { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
+  ],
+  solicitor: [
+    { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
+    { label: "LEGAL", items: [
+      { label: "Matters", segment: "matters", icon: Gavel },
+      { label: "Documents", segment: "documents", icon: FileSignature },
+    ] },
+    { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
+  ],
+  generic: [
+    { label: "OVERVIEW", items: [{ label: "Dashboard", segment: "", icon: LayoutDashboard }] },
+    { label: "SHARED", items: [{ label: "Documents", segment: "documents", icon: FolderOpen }] },
+    { label: "COMMS", items: [{ label: "Messages", segment: "messages", icon: MessageSquare }] },
+  ],
+}
+
+/** Human label per portal vertical (used by shell chrome + display names). */
+export const PORTAL_KIND_LABEL: Record<PortalKind, string> = {
+  supplier: "Supplier",
+  landlord: "Landlord",
+  tenant: "Tenant",
+  applicant: "Applicant",
+  accountant: "Accountant",
+  solicitor: "Solicitor",
+  generic: "Portal",
 }

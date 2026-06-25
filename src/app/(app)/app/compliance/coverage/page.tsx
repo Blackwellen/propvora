@@ -22,6 +22,7 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useComplianceItems, humaniseType, downloadCsv, type ComplianceItemVM } from "../_lib/useComplianceItems"
+import { useComplianceRequirements } from "@/lib/compliance/useComplianceRequirements"
 
 /**
  * Coverage is a REAL computed matrix:
@@ -68,21 +69,31 @@ export default function CoveragePage() {
   const router = useRouter()
   const { workspace } = useWorkspace()
   const { items, loading: itemsLoading } = useComplianceItems()
+  const { requirements } = useComplianceRequirements()
   const { data: properties = [], isLoading: propsLoading } = useProperties(workspace?.id)
   const [showPct, setShowPct] = useState(false)
   const [search, setSearch] = useState("")
 
   const loading = itemsLoading || propsLoading
 
-  // Distinct requirement types (columns) from live items.
+  // Columns = the jurisdiction's REQUIRED requirement kinds (so a requirement with
+  // no record on file still shows as a column, surfacing the gap as "missing")
+  // unioned with any extra requirement types actually observed on live items.
+  // Keyed by `kind` because that's what compliance_items.type stores.
   const columns = useMemo(() => {
     const set = new Map<string, string>()
+    // 1) Required by the active jurisdiction pack (built-in + custom).
+    for (const r of requirements) {
+      if (r.kind === "insurance" || r.kind === "other") continue // not coverage matrix columns
+      if (!set.has(r.kind)) set.set(r.kind, humaniseType(r.kind))
+    }
+    // 2) Any extra types observed on live items.
     for (const i of items) {
       const key = i.type ?? "other"
       if (!set.has(key)) set.set(key, i.typeLabel)
     }
     return [...set.entries()].map(([key, label]) => ({ key, label })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [items])
+  }, [items, requirements])
 
   // Index items by property + type.
   const byPropType = useMemo(() => {
@@ -205,7 +216,7 @@ export default function CoveragePage() {
         ) : (
           <>
             {/* KPIs */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
               <ComplianceKpiCard label="Coverage Score" value={loading ? "—" : `${kpis.score}%`} subtitle={kpis.score >= 85 ? "Good" : kpis.score >= 60 ? "Fair" : "Needs work"} icon={TrendingUp} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
               <ComplianceKpiCard label="Total Gaps" value={loading ? "—" : kpis.totalGaps} subtitle={`${kpis.overdue} overdue`} icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
               <ComplianceKpiCard label="Critical Properties" value={loading ? "—" : kpis.criticalProps} subtitle="Below 60% coverage" icon={Building2} iconBg="bg-red-100" iconColor="text-red-600" />

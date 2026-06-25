@@ -1,5 +1,9 @@
 ﻿"use client"
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspaceId } from "@/hooks/useWorkspace"
 import {
   Plus,
   LayoutGrid,
@@ -35,8 +39,68 @@ interface Prospect {
   timeInStage: string
 }
 
-/* ─── Mock data ───────────────────────────────────────────────── */
-const PROSPECTS: Prospect[] = []
+const PROSPECT_STATUS_MAP: Record<string, ProspectStatus> = {
+  new: "New",
+  contacted: "Contacted",
+  viewing_scheduled: "Viewing Scheduled",
+  viewing_done: "Viewing Done",
+  referencing: "Referencing",
+  offered: "Offered",
+  accepted: "Accepted",
+}
+
+function useProspects(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<Prospect[]>({
+    queryKey: ["prospects", workspaceId],
+    enabled: !!workspaceId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("prospects")
+        .select(`
+          *,
+          property_vacancies ( title, properties ( nickname, address_line_1, city ) )
+        `)
+        .eq("workspace_id", workspaceId!)
+        .not("status", "in", '("rejected","withdrawn")')
+        .order("created_at", { ascending: false })
+      if (error) throw error
+
+      return (data ?? []).map((p: any) => {
+        const vac = Array.isArray(p.property_vacancies) ? p.property_vacancies[0] : p.property_vacancies
+        const prop = vac ? (Array.isArray(vac.properties) ? vac.properties[0] : vac.properties) : null
+        const propertyLabel = prop
+          ? [prop.address_line_1, prop.city].filter(Boolean).join(", ")
+          : (vac?.title ?? "—")
+        const name = `${p.first_name} ${p.last_name}`
+        const initials = name.split(" ").map((w: string) => w[0] ?? "").join("").slice(0, 2).toUpperCase()
+        const daysInPipeline = Math.max(0, Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000))
+        const budgetLabel = p.budget_min && p.budget_max
+          ? `£${Number(p.budget_min).toLocaleString("en-GB")}–£${Number(p.budget_max).toLocaleString("en-GB")}/pcm`
+          : p.budget_max
+            ? `Up to £${Number(p.budget_max).toLocaleString("en-GB")}/pcm`
+            : "—"
+
+        return {
+          id: p.id,
+          initials,
+          name,
+          email: p.email,
+          phone: p.phone ?? "—",
+          property: propertyLabel,
+          source: p.source ?? "Direct",
+          status: PROSPECT_STATUS_MAP[p.status] ?? "New",
+          moveInDate: p.move_in_date
+            ? new Date(p.move_in_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+            : "—",
+          budget: budgetLabel,
+          daysInPipeline,
+          timeInStage: `${daysInPipeline}d`,
+        } satisfies Prospect
+      })
+    },
+  })
+}
 
 const PIPELINE_COLUMNS: { status: ProspectStatus; color: string }[] = [
   { status: "New",               color: "slate"  },
@@ -80,10 +144,13 @@ const avatarColors = [
 
 /* ─── Page ────────────────────────────────────────────────────── */
 export default function ProspectsPage() {
+  const router = useRouter()
+  const workspaceId = useWorkspaceId()
+  const { data: prospects = [], isLoading } = useProspects(workspaceId)
   const [view, setView] = useState<"kanban" | "table">("kanban")
   const [statusFilter, setStatusFilter] = useState<ProspectStatus | "All">("All")
 
-  const filtered = statusFilter === "All" ? PROSPECTS : PROSPECTS.filter((p) => p.status === statusFilter)
+  const filtered = statusFilter === "All" ? prospects : prospects.filter((p) => p.status === statusFilter)
 
   /* Row → card mapping for the mobile list (table view). */
   const prospectCardMapping: MobileCardMapping<Prospect> = {
@@ -91,7 +158,7 @@ export default function ProspectsPage() {
     title: (p) => p.name,
     subtitle: (p) => p.property,
     leading: (p) => {
-      const idx = PROSPECTS.findIndex((x) => x.id === p.id)
+      const idx = prospects.findIndex((x) => x.id === p.id)
       return (
         <div className={cn("w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0", avatarColors[idx % avatarColors.length])}>
           {p.initials}
@@ -116,10 +183,10 @@ export default function ProspectsPage() {
       {/* Mobile top bar */}
       <MobileTopBar
         title="Prospects"
-        subtitle={`${PROSPECTS.length} in pipeline`}
+        subtitle={`${prospects.length} in pipeline`}
         showBack
         backHref="/property-manager/portfolio/leasing"
-        primaryAction={{ label: "Add prospect", icon: Plus, onClick: () => {} }}
+        primaryAction={{ label: "Add prospect", icon: Plus, onClick: () => router.push("/property-manager/contacts/new") }}
         overflowActions={[
           { label: view === "kanban" ? "Table view" : "Kanban view", icon: view === "kanban" ? List : LayoutGrid, onClick: () => setView(view === "kanban" ? "table" : "kanban") },
         ]}
@@ -130,7 +197,7 @@ export default function ProspectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-slate-900">Prospects</h1>
-            <p className="text-[13px] text-slate-500 mt-0.5">{PROSPECTS.length} active prospects in pipeline</p>
+            <p className="text-[13px] text-slate-500 mt-0.5">{prospects.length} active prospects in pipeline</p>
           </div>
           <div className="flex items-center gap-2">
             {/* View toggle */}
@@ -163,10 +230,10 @@ export default function ProspectsPage() {
             onClick={() => setStatusFilter("All")}
             className={cn("text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap transition-colors", statusFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
           >
-            All ({PROSPECTS.length})
+            All ({prospects.length})
           </button>
           {STATUS_FILTERS.map((s) => {
-            const count = PROSPECTS.filter((p) => p.status === s).length
+            const count = prospects.filter((p) => p.status === s).length
             return (
               <button
                 key={s}
@@ -186,10 +253,10 @@ export default function ProspectsPage() {
           onClick={() => setStatusFilter("All")}
           className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600")}
         >
-          All ({PROSPECTS.length})
+          All ({prospects.length})
         </button>
         {STATUS_FILTERS.map((s) => {
-          const count = PROSPECTS.filter((p) => p.status === s).length
+          const count = prospects.filter((p) => p.status === s).length
           return (
             <button
               key={s}
@@ -208,7 +275,7 @@ export default function ProspectsPage() {
           <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="flex gap-3 min-w-max pb-2">
               {PIPELINE_COLUMNS.map((col) => {
-                const colProspects = PROSPECTS.filter((p) => p.status === col.status)
+                const colProspects = prospects.filter((p) => p.status === col.status)
                 return (
                   <div key={col.status} className="w-52 shrink-0">
                     <div className={cn("flex items-center gap-2 px-3 py-2 rounded-lg border mb-2 text-[12px] font-semibold", columnHeaderBg[col.color])}>
@@ -221,6 +288,12 @@ export default function ProspectsPage() {
                           <p className="text-[11px] text-slate-500">Empty</p>
                         </div>
                       )}
+                      {isLoading && (
+                          <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-3 animate-pulse">
+                            <div className="h-3 bg-slate-200 rounded w-3/4 mb-2" />
+                            <div className="h-3 bg-slate-200 rounded w-full" />
+                          </div>
+                        )}
                       {colProspects.map((p, idx) => (
                         <div
                           key={p.id}
@@ -279,7 +352,7 @@ export default function ProspectsPage() {
                   </tr>
                 )}
                 {filtered.map((p, idx) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/contacts/new?name=${encodeURIComponent(p.name)}`)}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", avatarColors[idx % avatarColors.length])}>

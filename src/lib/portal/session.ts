@@ -29,7 +29,27 @@ import { createAdminClient } from "@/lib/supabase/admin"
 export const PORTAL_COOKIE_NAME = "pv_portal_session"
 
 /** Portal verticals this engine understands. */
-export type PortalType = "supplier" | "landlord" | "tenant"
+export type PortalType =
+  | "supplier"
+  | "landlord"
+  | "tenant"
+  | "applicant"
+  | "accountant"
+  | "solicitor"
+  | "generic"
+
+/**
+ * Property-scoped portal verticals: these resolve their data through the
+ * landlord-style linked-property allow-list (contact_portal_access /
+ * contact_links with linked_type='property'). Applicant is contact/email
+ * scoped (via prospects) so it is deliberately excluded.
+ */
+export const PROPERTY_SCOPED_PORTAL_TYPES: PortalType[] = [
+  "landlord",
+  "accountant",
+  "solicitor",
+  "generic",
+]
 
 export interface PortalScope {
   /** The workspace the session is bound to. NEVER widened past this. */
@@ -161,12 +181,22 @@ interface RawSessionRow {
 }
 
 function coercePortalType(v: unknown): PortalType {
-  if (v === "supplier" || v === "landlord" || v === "tenant") return v
-  // owner/investor map to the landlord vertical; applicant/occupier handled
-  // by callers — default to the most-restrictive supplier view on doubt.
+  if (
+    v === "supplier" ||
+    v === "landlord" ||
+    v === "tenant" ||
+    v === "applicant" ||
+    v === "accountant" ||
+    v === "solicitor" ||
+    v === "generic"
+  ) {
+    return v
+  }
+  // owner/investor map to the landlord vertical; occupier to tenant.
   if (v === "owner" || v === "investor") return "landlord"
   if (v === "occupier") return "tenant"
-  return "supplier"
+  // Anything else is treated as the most-restrictive generic document portal.
+  return "generic"
 }
 
 /**

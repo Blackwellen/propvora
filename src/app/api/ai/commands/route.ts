@@ -31,6 +31,20 @@ export async function GET(request: NextRequest) {
 
     const profile = await getWorkspaceProfile(supabase, workspaceId)
     const caps = capabilitiesFor(profile.type)
+
+    // Feature-flag gating: V2 surfaces (bookings, marketplace) default OFF, so
+    // their commands must NOT appear unless the workspace flag is on. Adjust the
+    // capability map by the live flags before filtering.
+    if (workspaceId && workspaceId !== "demo-workspace" && process.env.NEXT_PUBLIC_QA_ALL_FLAGS !== "true") {
+      const { isFeatureEnabled } = await import("@/lib/flags")
+      const [bookings, marketplace] = await Promise.all([
+        isFeatureEnabled("bookingManagement", { supabase, workspaceId }).catch(() => false),
+        isFeatureEnabled("marketplaceEnabled", { supabase, workspaceId }).catch(() => false),
+      ])
+      caps.bookings = caps.bookings && bookings
+      caps.marketplace = caps.marketplace && marketplace
+    }
+
     // commandsForPacks respects NEXT_PUBLIC_QA_ALL_FLAGS for QA mode.
     const commands = commandsForPacks(profile.type, caps).map((c) => ({
       slug: c.slug,

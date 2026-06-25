@@ -133,7 +133,7 @@ export default function SuppliersHubPage() {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         {KPIS.map((kpi) => {
           const Icon = kpi.icon
           return (

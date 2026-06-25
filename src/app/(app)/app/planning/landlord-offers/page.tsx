@@ -15,7 +15,6 @@ import {
   Plus,
   Eye,
   Trash2,
-  Pencil,
 } from "lucide-react"
 import { PlanningPageShell } from "@/components/planning/PlanningPageShell"
 import { KpiCard } from "@/components/planning/shared"
@@ -137,8 +136,7 @@ export default function LandlordOffersPage() {
         {(open) => (
           <ActionMenu
             items={[
-              { label: "View Offer", icon: Eye, onClick: () => router.push(`/property-manager/planning/landlord-offers/${offer.id}`) },
-              { label: "Edit", icon: Pencil, onClick: () => router.push(`/property-manager/planning/landlord-offers/${offer.id}`) },
+              { label: "View / Edit", icon: Eye, onClick: () => router.push(`/property-manager/planning/landlord-offers/${offer.id}`) },
               { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
             ]}
           />

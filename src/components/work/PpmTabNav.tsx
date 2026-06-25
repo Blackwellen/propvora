@@ -8,8 +8,6 @@ const PPM_TABS = [
   { key: "overview",   label: "Overview",   href: "/property-manager/work/ppm/overview" },
   { key: "schedules",  label: "Schedules",  href: "/property-manager/work/ppm/schedules" },
   { key: "timeline",   label: "Timeline",   href: "/property-manager/work/ppm/timeline" },
-  { key: "suppliers",  label: "Suppliers",  href: "/property-manager/work/ppm/suppliers" },
-  { key: "reports",    label: "Reports",    href: "/property-manager/work/ppm/reports" },
 ]
 
 export function PpmTabNav() {

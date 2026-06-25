@@ -8,18 +8,14 @@ import {
   MapPin,
   Star,
   CheckCircle2,
-  ChevronRight,
-  ChevronLeft,
   ChevronDown,
   Search,
   Plus,
-  Bell,
-  Info,
   Eye,
-  Briefcase,
   Mail,
   Phone,
   Users,
+  Wrench,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
@@ -31,15 +27,16 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useUpdateContact } from "@/hooks/useContacts"
 import { useSuppliers, type SupplierView } from "@/features/suppliers/useSuppliers"
+import { useWorkspaceSupplierRatings } from "@/lib/suppliers/ratings"
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
 
-function buildKpis(total: number, preferred: number) {
+function buildKpis(total: number, preferred: number, tradesCount: number) {
   return [
     { label: "Preferred Suppliers", value: String(preferred), sub: "Marked preferred", trend: `${total} total`, trendColor: "text-blue-600" },
-    { label: "Average Response Time", value: "1h 42m", sub: "Industry avg: 2h 48m", trend: "better than avg", trendColor: "text-emerald-600" },
-    { label: "Active Trades", value: "18", sub: "Covered by your network", trend: "trades covered", trendColor: "text-blue-600" },
-    { label: "Expiring Docs", value: "23", sub: "Require attention", trend: "View all", trendColor: "text-red-600", trendHref: "/property-manager/work/suppliers/compliance" },
+    { label: "Total Suppliers", value: String(total), sub: "In your network", trend: "", trendColor: "text-slate-400" },
+    { label: "Active Trades", value: String(tradesCount), sub: "Covered by your network", trend: "trades", trendColor: "text-blue-600" },
+    { label: "Avg Response Time", value: "—", sub: "Builds up as jobs complete", trend: "", trendColor: "text-slate-400" },
   ]
 }
 
@@ -63,15 +60,15 @@ function StarRating({ rating }: { rating: number }) {
 
 function SupplierCard({
   supplier,
+  rating,
   onTogglePreferred,
 }: {
   supplier: SupplierView
+  rating: number | null
   onTogglePreferred: (s: SupplierView) => void
 }) {
   const router = useRouter()
   const href = `/property-manager/work/suppliers/${supplier.id}`
-  // Deterministic seeded rating so the premium UI stays populated without external data.
-  const rating = 4.5 + ((supplier.id.charCodeAt(0) % 5) / 10)
 
   return (
     <div
@@ -98,7 +95,11 @@ function SupplierCard({
           </div>
 
           <div className="flex items-center gap-1 mb-2">
-            <StarRating rating={rating} />
+            {rating != null ? (
+              <StarRating rating={rating} />
+            ) : (
+              <span className="text-[11px] font-medium text-slate-400">Unrated</span>
+            )}
             <span className="text-[11px] text-slate-400">· {supplier.category}</span>
           </div>
 
@@ -147,7 +148,7 @@ function SupplierCard({
 
             <div>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Compliance</p>
-              <SupplierComplianceStatus status="valid" nextReview="12 Jun 2026" />
+              <SupplierComplianceStatus status="unknown" label="Add documents" />
             </div>
           </div>
 
@@ -161,9 +162,9 @@ function SupplierCard({
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="flex-1 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
             >
-              Assign to Job
+              <Wrench className="w-3.5 h-3.5" /> Generate Job
             </Link>
           </div>
         </div>
@@ -173,7 +174,7 @@ function SupplierCard({
           <ActionMenu
             items={[
               { label: "View Profile", icon: Eye, onClick: () => router.push(href) },
-              { label: "Assign to Job", icon: Briefcase, onClick: () => router.push(`/property-manager/work/jobs/new?supplierId=${supplier.id}`) },
+              { label: "Generate Job", icon: Wrench, onClick: () => router.push(`/property-manager/work/jobs/new?supplierId=${supplier.id}`) },
               {
                 label: supplier.preferred ? "Remove from Preferred" : "Mark Preferred",
                 icon: Star,
@@ -190,9 +191,9 @@ function SupplierCard({
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors whitespace-nowrap text-center"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors whitespace-nowrap"
             >
-              Assign to Job
+              <Wrench className="w-3.5 h-3.5" /> Generate Job
             </Link>
           </div>
         </div>
@@ -227,6 +228,7 @@ function CardSkeleton() {
 export default function PreferredSuppliersPage() {
   const workspaceId = useWorkspaceId()
   const { suppliers, isSeed, loading } = useSuppliers(workspaceId)
+  const { data: ratings } = useWorkspaceSupplierRatings(workspaceId)
   const updateContact = useUpdateContact()
 
   const [search, setSearch] = useState("")
@@ -255,7 +257,7 @@ export default function PreferredSuppliersPage() {
   }, [suppliers, search, tradeFilter, preferredOnly])
 
   const preferredCount = suppliers.filter((s) => s.preferred).length
-  const kpis = buildKpis(suppliers.length, preferredCount)
+  const kpis = buildKpis(suppliers.length, preferredCount, Math.max(trades.length - 1, 0))
 
   function handleTogglePreferred(s: SupplierView) {
     if (s.isSeed || !workspaceId) return // seed rows are not persisted
@@ -334,13 +336,7 @@ export default function PreferredSuppliersPage() {
             <p className="text-3xl font-bold text-slate-900">{k.value}</p>
             <div className="flex items-center gap-1 mt-1.5">
               <span className="text-[11px] text-slate-500">{k.sub}</span>
-              {k.trendHref ? (
-                <Link href={k.trendHref} className={cn("text-[11px] font-semibold ml-1", k.trendColor)}>
-                  {k.trend}
-                </Link>
-              ) : (
-                <span className={cn("text-[11px] font-semibold ml-1", k.trendColor)}>{k.trend}</span>
-              )}
+              {k.trend && <span className={cn("text-[11px] font-semibold ml-1", k.trendColor)}>{k.trend}</span>}
             </div>
           </div>
         ))}
@@ -427,23 +423,15 @@ export default function PreferredSuppliersPage() {
             </div>
           ) : (
             filtered.map((s) => (
-              <SupplierCard key={s.id} supplier={s} onTogglePreferred={handleTogglePreferred} />
+              <SupplierCard key={s.id} supplier={s} rating={ratings?.get(s.id)?.avg ?? null} onTogglePreferred={handleTogglePreferred} />
             ))
           )}
 
-          {/* Pagination (display only — full list shown) */}
           {!loading && filtered.length > 0 && (
-            <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
-              <p className="text-xs text-slate-500">Showing {filtered.length} of {suppliers.length}</p>
-              <div className="flex items-center gap-1">
-                <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400" aria-label="Previous">
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <button className="w-7 h-7 rounded text-[12px] font-medium bg-[#2563EB] text-white">1</button>
-                <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400" aria-label="Next">
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <div className="pt-2">
+              <p className="text-xs text-slate-500">
+                Showing all {filtered.length} of {suppliers.length} supplier{suppliers.length === 1 ? "" : "s"}
+              </p>
             </div>
           )}
         </div>
@@ -451,59 +439,24 @@ export default function PreferredSuppliersPage() {
         {/* RIGHT RAIL */}
         <div className="space-y-4">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-amber-500" />
-                <h3 className="text-sm font-semibold text-slate-900">Document Reminders</h3>
-              </div>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                23
-              </span>
+            <div className="flex items-start gap-2 mb-3">
+              <Wrench className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
+              <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
             </div>
             <div className="space-y-2">
-              {[
-                { count: 12, label: "Gas Safe Certificates", sub: "Expires within 30 days" },
-                { count: 6, label: "Public Liability Insurance", sub: "Expires within 30 days" },
-                { count: 5, label: "Electrical Certifications", sub: "Expires within 30 days" },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href="/property-manager/work/suppliers/compliance"
-                  className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-amber-700 w-6 text-center">{item.count}</span>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-800">{item.label}</p>
-                      <p className="text-[10px] text-slate-500">{item.sub}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                </Link>
-              ))}
+              <Link
+                href="/property-manager/work/jobs/new"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors"
+              >
+                <Wrench className="w-4 h-4" /> Generate Job
+              </Link>
+              <Link
+                href="/property-manager/contacts/new?type=supplier"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+              >
+                <Plus className="w-4 h-4" /> Add Supplier
+              </Link>
             </div>
-            <Link
-              href="/property-manager/work/suppliers/compliance"
-              className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
-            >
-              View all expiring documents →
-            </Link>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div className="flex items-start gap-2 mb-3">
-              <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-              <h3 className="text-sm font-semibold text-slate-900">Need a Supplier?</h3>
-            </div>
-            <p className="text-[12px] text-slate-600 leading-snug mb-4">
-              Can&apos;t find the right supplier? Add a new supplier contact and mark it preferred.
-            </p>
-            <Link
-              href="/property-manager/contacts/new?type=supplier"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-sm font-semibold hover:bg-blue-50 transition-colors"
-            >
-              <Plus className="w-4 h-4" /> Add Supplier
-            </Link>
           </div>
         </div>
       </div>

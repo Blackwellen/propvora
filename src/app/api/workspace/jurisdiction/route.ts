@@ -36,6 +36,8 @@ const bodySchema = z.object({
   // Optional overrides; if omitted we fall back to the pack defaults.
   currency: z.string().trim().min(1).max(8).optional(),
   locale: z.string().trim().min(2).max(12).optional(),
+  // Optional sub-jurisdiction refinement (GB only): "EW" | "SCT" | "NI".
+  region: z.string().trim().max(8).optional(),
 })
 
 async function requireOwnerAdmin(
@@ -77,8 +79,19 @@ export async function GET(request: NextRequest) {
     listSelectableCountries(supabase),
   ])
 
+  // Sub-jurisdiction region lives in workspaces.settings JSONB (GB refinement).
+  let region: string | null = null
+  try {
+    const { data: ws } = await supabase.from("workspaces").select("settings").eq("id", workspaceId).maybeSingle()
+    const settings = (ws?.settings ?? {}) as { region?: string }
+    region = settings.region ?? null
+  } catch {
+    /* settings column absent — region stays null */
+  }
+
   return NextResponse.json({
     current,
+    region,
     countries,
     canEdit: ALLOWED_ROLES.has(String(member.role)),
   })
@@ -137,6 +150,31 @@ export async function POST(request: NextRequest) {
   const currency = parsed.data.currency ?? pack.defaultCurrency ?? undefined
   const locale = parsed.data.locale ?? pack.defaultLocale ?? undefined
 
+  // CRITICAL: the client reads jurisdiction from the `settings` JSONB column via
+  // useWorkspaceJurisdiction() — that hook (not business_country_code) drives the
+  // compliance requirement packs, the jurisdiction banner and the Legal section
+  // gate. Writing only the dedicated columns left those packs stuck on the GB
+  // default, so the selection never took effect client-side. We merge the choice
+  // into settings (preserving any existing keys) so the packs go live in V1.
+  const { data: wsRow } = await supabase
+    .from("workspaces")
+    .select("settings")
+    .eq("id", workspaceId)
+    .maybeSingle()
+  const existingSettings = ((wsRow?.settings as Record<string, unknown> | null) ?? {})
+  // Sub-jurisdiction region (GB only): EW | SCT | NI. Cleared for any other
+  // country so a stale "SCT" can't linger after switching away from GB.
+  const regionRaw = (parsed.data.region ?? "").toUpperCase().trim()
+  const region = countryCode === "GB" && ["EW", "SCT", "NI"].includes(regionRaw) ? regionRaw : null
+  const mergedSettings: Record<string, unknown> = {
+    ...existingSettings,
+    countryCode,
+    ...(currency ? { currency } : {}),
+    ...(locale ? { locale } : {}),
+    ...(region ? { region } : {}),
+  }
+  if (!region) delete mergedSettings.region
+
   // Build the update, then trim to the columns the live schema actually has so
   // a 42703 on any single column can't fail the whole request.
   const desired: Record<string, unknown> = {
@@ -145,6 +183,7 @@ export async function POST(request: NextRequest) {
     default_currency: currency ?? null,
     currency: currency ?? null,
     default_language: locale ?? null,
+    settings: mergedSettings,
     updated_at: new Date().toISOString(),
   }
 
@@ -154,9 +193,12 @@ export async function POST(request: NextRequest) {
 
   let { error } = await tryUpdate(desired)
   if (error && (error.code === "42703" || /column .* does not exist/i.test(error.message))) {
-    // Drop the offending column and retry with the safe core set.
+    // Drop the offending column and retry with the safe core set. `settings`
+    // exists in every lineage (the client loads it), so it stays in the safe set
+    // — that is what actually drives the packs.
     const safe: Record<string, unknown> = {
       business_country_code: countryCode,
+      settings: mergedSettings,
       updated_at: new Date().toISOString(),
     }
     ;({ error } = await tryUpdate(safe))

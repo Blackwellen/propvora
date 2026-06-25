@@ -13,8 +13,8 @@ interface HomePortfolioSnapshotCardProps {
     the home snapshot renders the exact same card as the Portfolio › Properties
     page (no bespoke mini-card). */
 function toCardData(p: HomeProperty): PropertyCardData {
-  const units = p.units > 0 ? p.units : 1
-  const occupied = p.occupied ?? Math.round((p.occupancyPct / 100) * units)
+  const units = p.units
+  const occupied = p.occupied ?? Math.round((p.occupancyPct / 100) * Math.max(units, 1))
   return {
     id: p.id,
     name: p.name,

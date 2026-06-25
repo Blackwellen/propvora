@@ -329,6 +329,11 @@ export interface InsertHmoLicence {
   arrangement_type?: string
   occupancy_current?: number | null
   r2r_agreement_end?: string | null
+  // NOTE: `conditions` is jsonb NOT NULL DEFAULT '[]' — only send it when it has
+  // entries; never send null (would violate the NOT-NULL constraint → 23502).
+  conditions?: string[]
+  document_path?: string | null
+  renewal_reminder_days?: number
 }
 
 const HMO_KEY = 'legal-hmo-licences'

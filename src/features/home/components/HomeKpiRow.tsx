@@ -43,7 +43,7 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
         loading={loading}
       />
       <HomeKpiCard
-        label="Active Tenancies"
+        label="Tenancies"
         value={String(data.activeTenancies)}
         trend={data.tenanciesTrend !== 0 ? `${data.tenanciesTrend > 0 ? "+" : ""}${data.tenanciesTrend} vs last month` : undefined}
         trendUp={data.tenanciesTrend >= 0}
@@ -87,7 +87,7 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
         loading={loading}
       />
       <HomeKpiCard
-        label="Compliance Due"
+        label="Compliance"
         value={String(data.complianceDue)}
         trendNeutral
         icon={ShieldAlert}

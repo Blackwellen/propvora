@@ -246,10 +246,10 @@ export async function createWorkspace(
     console.error("[createWorkspace] referral attribution failed:", e)
   }
 
-  // 8. Seed demo data if requested — via the consolidated, type-aware SQL seeder
-  //    (single source of truth, same action as Settings → Demo data).
+  // 8. Seed demo data if requested — v2 wrapper adds planning data on top of
+  //    the core substrate + deep finance seeder.
   if (data.demoDataVariant) {
-    const { error: seedError } = await supabase.rpc("seed_full_demo_workspace", {
+    const { error: seedError } = await supabase.rpc("seed_full_demo_workspace_v2", {
       p_workspace_id: workspace.id as string,
       p_user_id: user.id,
     })

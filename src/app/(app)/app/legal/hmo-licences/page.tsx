@@ -1,7 +1,8 @@
 ﻿"use client"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { LegalJurisdictionGate } from "@/components/legal/LegalJurisdictionGate"
 import {
   Key,
   Clock,
@@ -13,17 +14,14 @@ import {
   ChevronRight,
   Search,
   Trash2,
-  X,
   Calendar,
 } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useProperties } from "@/hooks/useProperties"
 import {
   useHmoLicences,
-  useCreateHmoLicence,
   useDeleteHmoLicence,
   formatDate,
   daysUntil,
@@ -78,16 +76,30 @@ function exportRenewalCsv(licences: HmoLicence[]) {
 }
 
 export default function HmoLicencesPage() {
+  return (
+    <LegalJurisdictionGate module="hmo">
+      <HmoLicencesPageInner />
+    </LegalJurisdictionGate>
+  )
+}
+
+function HmoLicencesPageInner() {
   const router = useRouter()
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
   const { data: licences = [], isLoading } = useHmoLicences(workspaceId)
-  const { data: properties = [] } = useProperties(workspaceId)
-  const createLicence = useCreateHmoLicence()
   const deleteLicence = useDeleteHmoLicence()
 
   const [search, setSearch] = useState("")
-  const [showCreate, setShowCreate] = useState(false)
+
+  // Deep-link: /legal/hmo-licences?new=1 opens the register-licence wizard (used
+  // by the Copilot's "Register an HMO licence" action). Read from window to
+  // avoid the useSearchParams Suspense prerender requirement.
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("new") === "1") {
+      router.replace("/property-manager/legal/hmo-licences/new")
+    }
+  }, [router])
 
   const filtered = licences.filter((l) => {
     const hay = `${l.property?.nickname ?? ""} ${l.licence_number ?? ""} ${l.issuing_council ?? ""}`.toLowerCase()
@@ -169,7 +181,7 @@ export default function HmoLicencesPage() {
             Renewal Report (CSV)
           </button>
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={() => router.push("/property-manager/legal/hmo-licences/new")}
             className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -224,7 +236,7 @@ export default function HmoLicencesPage() {
                   Register a licence against a property to track expiry, conditions and renewal reminders.
                 </p>
                 <button
-                  onClick={() => setShowCreate(true)}
+                  onClick={() => router.push("/property-manager/legal/hmo-licences/new")}
                   className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -363,143 +375,7 @@ export default function HmoLicencesPage() {
         </div>
       </div>
 
-      {showCreate && (
-        <RegisterLicenceModal
-          properties={properties.map((p) => ({ id: p.id, name: p.name }))}
-          submitting={createLicence.isPending}
-          onClose={() => setShowCreate(false)}
-          onSubmit={async (payload) => {
-            if (!workspaceId) return
-            const created = await createLicence.mutateAsync({ workspace_id: workspaceId, ...payload })
-            setShowCreate(false)
-            router.push(`/property-manager/legal/hmo-licences/${created.id}`)
-          }}
-        />
-      )}
     </>
   )
 }
 
-/* ─── Register Licence modal ───────────────────────────────────── */
-function RegisterLicenceModal({
-  properties,
-  submitting,
-  onClose,
-  onSubmit,
-}: {
-  properties: { id: string; name: string }[]
-  submitting: boolean
-  onClose: () => void
-  onSubmit: (payload: {
-    property_id: string
-    licence_type: string
-    licence_number?: string
-    issuing_council?: string
-    issue_date?: string | null
-    expiry_date: string
-    max_occupants?: number | null
-    status?: string
-  }) => Promise<void>
-}) {
-  const [propertyId, setPropertyId] = useState(properties[0]?.id ?? "")
-  const [licenceType, setLicenceType] = useState("mandatory")
-  const [licenceNumber, setLicenceNumber] = useState("")
-  const [council, setCouncil] = useState("")
-  const [issueDate, setIssueDate] = useState("")
-  const [expiryDate, setExpiryDate] = useState("")
-  const [maxOccupants, setMaxOccupants] = useState("")
-  const [error, setError] = useState<string | null>(null)
-
-  async function submit() {
-    if (!propertyId) { setError("Select a property."); return }
-    if (!expiryDate) { setError("Expiry date is required."); return }
-    setError(null)
-    try {
-      await onSubmit({
-        property_id: propertyId,
-        licence_type: licenceType,
-        licence_number: licenceNumber || undefined,
-        issuing_council: council || undefined,
-        issue_date: issueDate || null,
-        expiry_date: expiryDate,
-        max_occupants: maxOccupants ? Number(maxOccupants) : null,
-        status: "active",
-      })
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not register licence")
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h3 className="text-[15px] font-bold text-slate-900">Register HMO Licence</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
-        </div>
-        <div className="p-6 space-y-4">
-          {properties.length === 0 && (
-            <p className="text-[12px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              No properties found. Add a property in Portfolio first.
-            </p>
-          )}
-          <Labelled label="Property *">
-            <select value={propertyId} onChange={(e) => setPropertyId(e.target.value)} className={selectCls}>
-              <option value="">Select property…</option>
-              {properties.map((p) => <option key={p.id} value={p.id}>{p.name || "Unnamed property"}</option>)}
-            </select>
-          </Labelled>
-          <div className="grid grid-cols-2 gap-4">
-            <Labelled label="Licence type *">
-              <select value={licenceType} onChange={(e) => setLicenceType(e.target.value)} className={selectCls}>
-                <option value="mandatory">Mandatory</option>
-                <option value="additional">Additional</option>
-                <option value="selective">Selective</option>
-              </select>
-            </Labelled>
-            <Labelled label="Max occupants">
-              <input type="number" value={maxOccupants} onChange={(e) => setMaxOccupants(e.target.value)} className={inputCls} />
-            </Labelled>
-          </div>
-          <Labelled label="Licence number">
-            <input value={licenceNumber} onChange={(e) => setLicenceNumber(e.target.value)} className={inputCls} placeholder="e.g. MCC-HMO-2026-0001" />
-          </Labelled>
-          <Labelled label="Issuing council">
-            <input value={council} onChange={(e) => setCouncil(e.target.value)} className={inputCls} placeholder="e.g. Manchester City Council" />
-          </Labelled>
-          <div className="grid grid-cols-2 gap-4">
-            <Labelled label="Issue date">
-              <input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} className={inputCls} />
-            </Labelled>
-            <Labelled label="Expiry date *">
-              <input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className={inputCls} />
-            </Labelled>
-          </div>
-          {error && <p className="text-[12px] text-red-600">{error}</p>}
-        </div>
-        <div className="flex gap-2 px-6 py-4 border-t border-slate-100">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors">Cancel</button>
-          <button
-            onClick={submit}
-            disabled={submitting || properties.length === 0}
-            className="flex-1 h-10 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold disabled:opacity-50 transition-colors"
-          >
-            {submitting ? "Registering…" : "Register Licence"}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const inputCls = "w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-const selectCls = inputCls
-
-function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">{label}</label>
-      {children}
-    </div>
-  )
-}

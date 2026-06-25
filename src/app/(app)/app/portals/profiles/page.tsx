@@ -26,9 +26,8 @@ export default function PortalProfilesPage() {
           <div className="flex items-start gap-2 p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
             <p className="text-[12px] text-blue-800 leading-relaxed">
-              Showing built-in default profiles. Custom profiles are stored in the
-              <span className="font-mono"> portal_profiles </span> table
-              (migration 20260621120000 — apply to enable workspace customisation). The grant wizard already uses these templates.
+              These are Propvora&apos;s built-in access profiles — active across every workspace and
+              used directly by the grant wizard. Per-workspace customisation is on the roadmap.
             </p>
           </div>
         )}

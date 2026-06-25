@@ -216,17 +216,17 @@ create table if not exists public.planning_conversion_checklists (
 );
 
 -- ── planning_activity ──────────────────────────────────────────────────────
+-- Schema matches the live table (source of truth). Columns: action / detail /
+-- user_id / metadata. (An earlier draft used action_type/title/description/
+-- actor_id; the live DB never adopted it — kept aligned here for fresh-DB parity.)
 create table if not exists public.planning_activity (
   id               uuid primary key default gen_random_uuid(),
   workspace_id     uuid not null references public.workspaces(id) on delete cascade,
-  planning_set_id  uuid,
-  entity_type      text,
-  entity_id        uuid,
-  action_type      text not null,
-  title            text not null,
-  description      text,
-  actor_id         uuid,
-  metadata_json    jsonb,
+  planning_set_id  uuid not null,
+  user_id          uuid,
+  action           text not null,
+  detail           text,
+  metadata         jsonb,
   created_at       timestamptz default now()
 );
 

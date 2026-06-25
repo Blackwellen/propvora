@@ -37,7 +37,7 @@ export interface AutomationNavItem {
 }
 
 export const AUTOMATION_NAV_ITEMS: AutomationNavItem[] = [
-  { label: "Home", href: "/property-manager/automations/home", match: ["/automations", "/automations/home"] },
+  { label: "Overview", href: "/property-manager/automations/overview", match: ["/automations", "/automations/overview", "/automations/home"] },
   { label: "Recipes", href: "/property-manager/automations/recipes", match: ["/automations/recipes", "/automations/templates"] },
   { label: "My Automations", href: "/property-manager/automations/my-automations", match: ["/automations/my-automations"] },
   { label: "Canvas Builder", href: "/property-manager/automations/canvas", match: ["/automations/canvas", "/automations/builder"] },

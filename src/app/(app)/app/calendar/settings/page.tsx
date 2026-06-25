@@ -24,21 +24,37 @@ export default function CalendarSettingsPage() {
   const [notifications, setNotifications] = useState<NotifPrefs>(DEFAULT_NOTIFS)
   const [defaultView, setDefaultView] = useState<string>("month")
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [icalToken, setIcalToken] = useState<string | null>(null)
 
-  // Load persisted calendar_settings (42P01 / RLS tolerant).
+  // Load persisted calendar_settings (42P01 / RLS tolerant). Ensures an iCal
+  // subscribe token exists so the feed URL below is real and unguessable.
   useEffect(() => {
     if (!workspace?.id) return
     ;(async () => {
       const supabase = createClient()
       const { data, error } = await supabase
         .from("calendar_settings")
-        .select("default_view, visible_layers_json")
+        .select("default_view, visible_layers_json, ical_token")
         .eq("workspace_id", workspace.id)
         .maybeSingle()
-      if (error || !data) return
-      if (data.default_view) setDefaultView(data.default_view as string)
-      const layers = (data.visible_layers_json ?? {}) as { notifications?: Partial<NotifPrefs> }
-      if (layers.notifications) setNotifications({ ...DEFAULT_NOTIFS, ...layers.notifications })
+      if (!error && data) {
+        if (data.default_view) setDefaultView(data.default_view as string)
+        const layers = (data.visible_layers_json ?? {}) as { notifications?: Partial<NotifPrefs> }
+        if (layers.notifications) setNotifications({ ...DEFAULT_NOTIFS, ...layers.notifications })
+      }
+      // Generate + persist a token once if the workspace has none yet.
+      let token = (data?.ical_token as string | null) ?? null
+      if (!token) {
+        token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, "")
+        const { error: tokenErr } = await supabase
+          .from("calendar_settings")
+          .upsert(
+            { workspace_id: workspace.id, ical_token: token, updated_at: new Date().toISOString() },
+            { onConflict: "workspace_id" }
+          )
+        if (tokenErr) token = null
+      }
+      if (token) setIcalToken(token)
     })()
   }, [workspace?.id])
 
@@ -65,15 +81,16 @@ export default function CalendarSettingsPage() {
     }
   }, [workspace?.id, defaultView, notifications])
 
-  const icalUrl = workspace?.id
-    ? `/api/calendar/ical?workspace_id=${workspace.id}`
-    : "/api/calendar/ical?workspace_id=your-workspace-id"
+  const icalUrl = icalToken
+    ? `/api/calendar/ical/${icalToken}.ics`
+    : null
 
-  const fullIcalUrl = typeof window !== "undefined"
-    ? `${window.location.origin}${icalUrl}`
-    : icalUrl
+  const fullIcalUrl = icalUrl
+    ? (typeof window !== "undefined" ? `${window.location.origin}${icalUrl}` : icalUrl)
+    : "Generating your private feed URL…"
 
   function copyIcal() {
+    if (!icalUrl) return
     navigator.clipboard
       .writeText(fullIcalUrl)
       .then(() => {
@@ -128,11 +145,13 @@ export default function CalendarSettingsPage() {
             <code className="flex-1 text-xs text-slate-700 font-mono truncate">{fullIcalUrl}</code>
             <button
               onClick={copyIcal}
+              disabled={!icalUrl}
               className={cn(
                 "shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
                 copied
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50",
+                !icalUrl && "opacity-50 cursor-not-allowed"
               )}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

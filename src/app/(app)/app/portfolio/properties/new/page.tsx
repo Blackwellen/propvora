@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 import { PROPERTY_TYPE_GROUPS, getPropertyTypeOption, templateForPropertyType } from "@/lib/constants/propertyTypes"
+import { useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useContacts } from "@/hooks/useContacts"
+import { geocodeAddress } from "@/lib/maps/geocode"
 import {
   ChevronLeft,
   ChevronRight,
@@ -376,32 +379,45 @@ function StepUnits({ data, onChange }: { data: PropertyWizardData; onChange: (d:
   )
 }
 
-function StepContacts({ data, onChange }: { data: PropertyWizardData; onChange: (d: Partial<PropertyWizardData>) => void }) {
+function StepContacts({ data, onChange, contacts }: {
+  data: PropertyWizardData
+  onChange: (d: Partial<PropertyWizardData>) => void
+  contacts: { id: string; full_name: string; contact_type: string }[]
+}) {
+  // Only contacts that can sensibly own/hold a property.
+  const landlordContacts = contacts.filter((c) =>
+    ["landlord", "investor", "other"].includes(c.contact_type)
+  )
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-sm text-slate-500">Link contacts to this property (optional at this stage).</p>
+      <p className="text-sm text-slate-500">Link an owner from your contacts (optional).</p>
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Landlord / Owner</label>
-        <input
-          type="text"
-          placeholder="Search contacts or enter name..."
-          value={data.landlordContactId}
-          onChange={(e) => onChange({ landlordContactId: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Managing Agent</label>
-        <input
-          type="text"
-          placeholder="Search contacts or enter name..."
-          value={data.agentContactId}
-          onChange={(e) => onChange({ agentContactId: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
-        />
+        <label htmlFor="landlord-contact" className="block text-sm font-medium text-slate-700 mb-1.5">Landlord / Owner</label>
+        {contacts.length === 0 ? (
+          <div className="p-3 rounded-xl bg-slate-50 border border-[#E2E8F0] text-xs text-slate-500">
+            No contacts yet. You can add an owner from the{" "}
+            <Link href="/property-manager/contacts" className="text-[#2563EB] underline">Contacts</Link>{" "}
+            section and link them later.
+          </div>
+        ) : (
+          <div className="relative">
+            <select
+              id="landlord-contact"
+              value={data.landlordContactId}
+              onChange={(e) => onChange({ landlordContactId: e.target.value })}
+              className="w-full h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            >
+              <option value="">No owner linked</option>
+              {(landlordContacts.length > 0 ? landlordContacts : contacts).map((c) => (
+                <option key={c.id} value={c.id}>{c.full_name}</option>
+              ))}
+            </select>
+            <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
+          </div>
+        )}
       </div>
       <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-[#2563EB]">
-        You can add and manage contacts fully from the Contacts section.
+        Managing agents, tenants and other parties are linked from the property’s Contacts tab once it’s created.
       </div>
     </div>
   )
@@ -410,15 +426,21 @@ function StepContacts({ data, onChange }: { data: PropertyWizardData; onChange: 
 function StepDocuments() {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500">Upload property documents (optional at this stage).</p>
-      <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[#2563EB]/50 hover:bg-blue-50/30 transition-all cursor-pointer">
-        <Upload className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-        <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
-        <p className="text-xs text-slate-500 mt-1">EPC, Gas Safety, EICR, Tenancy agreements, etc.</p>
-        <Button variant="soft" size="sm" className="mt-4">Browse files</Button>
-      </div>
-      <div className="p-3 rounded-xl bg-slate-50 text-xs text-slate-500">
-        Supported: PDF, Word, Excel, JPEG, PNG — Max 20MB per file
+      <p className="text-sm text-slate-500">Documents are added once the property exists, so each file links to the right record.</p>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+            <Upload className="w-4 h-4 text-[#2563EB]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Upload after creation</p>
+            <p className="text-xs text-slate-500 mt-1">
+              When you finish, you’ll land on the property detail page where the
+              <span className="font-medium text-slate-700"> Documents</span> tab lets you upload EPC, Gas Safety,
+              EICR and tenancy agreements to secure storage (PDF, Word, Excel, JPEG, PNG — max 20MB each).
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -473,6 +495,9 @@ function StepReview({ data }: { data: PropertyWizardData }) {
 export default function NewPropertyPage() {
   const router = useRouter()
   const { workspace } = useWorkspace()
+  const queryClient = useQueryClient()
+  const { data: rawContacts } = useContacts(workspace?.id)
+  const contacts = rawContacts ?? []
   const [step, setStep] = useState(1)
   const [data, setData] = useState<PropertyWizardData>(defaultData)
   const [saving, setSaving] = useState(false)
@@ -489,11 +514,14 @@ export default function NewPropertyPage() {
   }
 
   async function handleSubmit() {
+    if (saving) return // guard against double-submit
     setSaving(true)
     setSaveError(null)
     try {
       const supabase = createClient()
       const workspaceId = workspace?.id
+      const { data: auth } = await supabase.auth.getUser()
+      const userId = auth.user?.id ?? null
 
       // ── Property count gate ──────────────────────────────────────────────
       // Check the plan's property limit before inserting. Uses the anon client
@@ -524,6 +552,16 @@ export default function NewPropertyPage() {
       }
       // ────────────────────────────────────────────────────────────────────
 
+      // Geocode the address so the property map shows a pin immediately.
+      // Fails silently — the property saves even if geocoding is unavailable.
+      const geoQuery = [data.addressLine1, data.city, data.postcode].filter(Boolean).join(", ")
+      let lat: number | null = null
+      let lng: number | null = null
+      try {
+        const geo = await geocodeAddress(geoQuery, { limit: 1 })
+        if (geo.length > 0) { lat = geo[0].lat; lng = geo[0].lng }
+      } catch { /* silent */ }
+
       const { data: created, error } = await supabase
         .from("properties")
         .insert({
@@ -534,18 +572,28 @@ export default function NewPropertyPage() {
           // `template` enum is derived from it (mapping never invents enum values).
           category: data.propertyType || null,
           template: templateForPropertyType(data.propertyType),
+          // Operation profile (Step 3) is a first-class column — without this the
+          // chosen profile was silently dropped on create.
+          operation_profile: data.operationProfile || "long_term_let",
           status: data.status,
+          created_by: userId,
+          landlord_contact_id: data.landlordContactId || null,
           address_line1: data.addressLine1,
           address_line2: data.addressLine2 || null,
           city: data.city,
           county: data.county || null,
           postcode: data.postcode,
+          latitude: lat,
+          longitude: lng,
           bedrooms: data.bedrooms,
           bathrooms: data.bathrooms,
           floor_area_sqm: data.floorArea || null,
           year_built: data.yearBuilt || null,
           purchase_price: data.purchasePrice || null,
           current_value: data.currentValue || null,
+          // Monthly mortgage (Step 5) maps to the live `mortgage_outstanding`
+          // column — previously collected then dropped.
+          mortgage_outstanding: data.monthlyMortgage || null,
           target_rent_pcm: data.targetRent || null,
         })
         .select()
@@ -568,6 +616,11 @@ export default function NewPropertyPage() {
         if (unitsError) throw unitsError
       }
 
+      // The wizard writes via the raw client (for the plan gate + geocode), so
+      // refresh the react-query caches the list/detail screens read from.
+      queryClient.invalidateQueries({ queryKey: ["properties", workspaceId] })
+      queryClient.invalidateQueries({ queryKey: ["units", workspaceId] })
+
       router.push(`/property-manager/portfolio/properties/${created.id}`)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save property"
@@ -583,7 +636,7 @@ export default function NewPropertyPage() {
     4: <StepPhysical data={data} onChange={handleChange} />,
     5: <StepFinancials data={data} onChange={handleChange} />,
     6: <StepUnits data={data} onChange={handleChange} />,
-    7: <StepContacts data={data} onChange={handleChange} />,
+    7: <StepContacts data={data} onChange={handleChange} contacts={contacts} />,
     8: <StepDocuments />,
     9: <StepReview data={data} />,
   }

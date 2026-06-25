@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getAdminIdentity } from "@/lib/admin/guard"
 import { getMoneyActor, assertWorkspaceMember } from "@/lib/money/server"
+import { flagGate } from "@/lib/flags/api-gate"
 import {
   requestEvidence,
   holdPayout,
@@ -47,6 +48,10 @@ type Action =
   | "note"
 
 export async function POST(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  // V2 marketplace disputes rail — 404 when the flag is off (direct-API gate).
+  const gated = await flagGate("marketplaceDisputes")
+  if (gated) return gated
+
   const { id: disputeId } = await ctx.params
 
   // ── AuthZ ────────────────────────────────────────────────────────────────

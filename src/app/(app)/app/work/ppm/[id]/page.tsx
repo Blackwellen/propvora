@@ -22,8 +22,11 @@ import {
   Sparkles,
   AlertTriangle,
   Plus,
+  Bell,
+  Check,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PPM_REMINDER_OPTIONS, ppmReminderLabel } from "@/features/work/components/steps/ppm-wizard-shared"
 import { WorkTabNav } from "@/components/work/WorkTabNav"
 import { PpmTabNav } from "@/components/work/PpmTabNav"
 import { MobileTopBar, MobileTabs } from "@/components/mobile"
@@ -36,10 +39,13 @@ import {
   useUpdatePpmPlan,
   useDeletePpmPlan,
   useGenerateJobFromPpm,
+  usePpmGeneratedJobs,
   type PpmPlan,
   type UpdatePpmPlan,
 } from "@/hooks/usePpm"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
+import { useRecordActivity } from "@/features/work/useRecordActivity"
+import { useTabParam } from "@/features/work/useTabParam"
 
 // ---------------------------------------------------------------------------
 // Seeded fallback plan — used when the table is missing or the row isn't found
@@ -65,6 +71,7 @@ function seededPlan(id: string): PpmPlan {
     last_completed_date: "2025-06-12",
     estimated_cost: 850,
     auto_generate_job: true,
+    reminders: [30, 7, 1],
     reference: "PPM-0021",
     notes:
       "Ensure tenant access is arranged. Issue Gas Safety Certificate upon completion and upload to compliance records.",
@@ -211,6 +218,69 @@ function PpmKpiStrip({ plan }: { plan: PpmPlan }) {
 }
 
 // ---------------------------------------------------------------------------
+// Reminders editor — mirrors the wizard's reminder chips; edits an existing
+// plan's `reminders` array. Each toggle saves immediately (optimistic).
+// ---------------------------------------------------------------------------
+function PpmRemindersEditor({
+  reminders,
+  editable,
+  saving,
+  onChange,
+}: {
+  reminders: number[]
+  editable: boolean
+  saving: boolean
+  onChange: (next: number[]) => void
+}) {
+  const sorted = [...reminders].sort((a, b) => b - a)
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Bell className="w-4 h-4 text-slate-500" />
+        <h3 className="text-sm font-semibold text-slate-900">Reminders</h3>
+      </div>
+      <p className="text-xs text-slate-500 mb-3">
+        Send an in-app + email notification this many days before the next due date.
+      </p>
+      {editable ? (
+        <div className="flex flex-wrap gap-2">
+          {PPM_REMINDER_OPTIONS.map((o) => {
+            const active = reminders.includes(o.value)
+            return (
+              <button
+                key={o.value}
+                type="button"
+                role="checkbox"
+                aria-checked={active}
+                disabled={saving}
+                onClick={() =>
+                  onChange(
+                    active
+                      ? reminders.filter((d) => d !== o.value)
+                      : [...reminders, o.value].sort((a, b) => b - a),
+                  )
+                }
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all disabled:opacity-50",
+                  active
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                )}
+              >
+                {active && <Check className="w-3.5 h-3.5" />}
+                {o.label}
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="text-[13px] text-slate-700">{sorted.length ? sorted.map(ppmReminderLabel).join(", ") : "None"}</p>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function PpmDetailPage() {
@@ -221,7 +291,11 @@ export default function PpmDetailPage() {
   const updatePlan = useUpdatePpmPlan()
   const deletePlan = useDeletePpmPlan()
   const generateJob = useGenerateJobFromPpm()
-  const [activeTab, setActiveTab] = useState("Overview")
+  // Real work orders dispatched from this plan (linked via jobs.ppm_plan_id).
+  const { data: generatedJobs = [] } = usePpmGeneratedJobs(workspaceId, id, !!planData)
+  // Real logged activity for this plan (merged with derived schedule events below).
+  const { data: ppmLogs = [] } = useRecordActivity(workspaceId, "ppm_plan", planData ? id : undefined)
+  const [activeTab, setActiveTab] = useTabParam(PPM_TABS, "Overview")
   const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
 
@@ -238,6 +312,11 @@ export default function PpmDetailPage() {
       workspaceId,
       payload: { [field]: value } as UpdatePpmPlan,
     })
+  }
+
+  async function saveReminders(next: number[]) {
+    if (!isLive || !workspaceId || !planData) return
+    await updatePlan.mutateAsync({ id: planData.id, workspaceId, payload: { reminders: next } })
   }
 
   async function handleDelete() {
@@ -634,6 +713,12 @@ export default function PpmDetailPage() {
                   <span className="text-xs font-semibold text-slate-500">{plan.auto_generate_job ? "Enabled" : "Off"}</span>
                 )}
               </div>
+              <PpmRemindersEditor
+                reminders={plan.reminders ?? []}
+                editable={editable}
+                saving={updatePlan.isPending}
+                onChange={saveReminders}
+              />
             </div>
           )}
 
@@ -641,7 +726,11 @@ export default function PpmDetailPage() {
           {activeTab === "Generated Jobs" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-500">Work orders created from this plan</p>
+                <p className="text-sm text-slate-500">
+                  {generatedJobs.length > 0
+                    ? `${generatedJobs.length} work order${generatedJobs.length === 1 ? "" : "s"} created from this plan`
+                    : "Work orders created from this plan"}
+                </p>
                 <button
                   onClick={handleGenerateJob}
                   disabled={generating}
@@ -650,11 +739,54 @@ export default function PpmDetailPage() {
                   <Wrench className="w-3.5 h-3.5" /> {generating ? "Generating…" : "Generate Job"}
                 </button>
               </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
-                <Wrench className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-700">No jobs generated yet</p>
-                <p className="text-xs text-slate-400 mt-1">Generate a job to dispatch a work order from this plan.</p>
-              </div>
+              {generatedJobs.length === 0 ? (
+                <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
+                  <Wrench className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-semibold text-slate-700">No jobs generated yet</p>
+                  <p className="text-xs text-slate-400 mt-1">Generate a job to dispatch a work order from this plan.</p>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Work Order</th>
+                          <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Status</th>
+                          <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Scheduled</th>
+                          <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {generatedJobs.map((j) => {
+                          const amount = j.approved_amount ?? j.quoted_amount
+                          return (
+                            <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                              <td className="px-4 py-3">
+                                <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                                  {j.title}
+                                </Link>
+                                {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
+                              </td>
+                              <td className="px-4 py-3 hidden sm:table-cell">
+                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-blue-50 text-blue-700 border-blue-100 capitalize">
+                                  {j.status.replace(/_/g, " ")}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 hidden md:table-cell text-[12px] text-slate-600">
+                                {j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString("en-GB") : "—"}
+                              </td>
+                              <td className="px-4 py-3 text-right text-[12.5px] font-semibold text-slate-800 tabular-nums">
+                                {amount != null ? `£${Number(amount).toLocaleString()}` : "—"}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -691,24 +823,45 @@ export default function PpmDetailPage() {
           {activeTab === "Activity" && (
             <div className="bg-white border border-slate-200 rounded-xl p-4">
               <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity</h3>
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">SY</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-semibold text-slate-700">System</p>
-                    <p className="text-[10px] text-slate-400">{fmtDate(plan.created_at)}</p>
-                  </div>
-                  <p className="text-xs text-slate-600 mt-0.5">PPM plan created</p>
+              {ppmLogs.length > 0 && (
+                <div className="space-y-3 mb-4 pb-4 border-b border-slate-100">
+                  {ppmLogs.map((ev) => (
+                    <div key={ev.id} className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                        {ev.action.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-semibold text-slate-700 capitalize">{ev.action.replace(/_/g, " ")}</p>
+                          <p className="text-[10px] text-slate-400">{new Date(ev.created_at).toLocaleString("en-GB")}</p>
+                        </div>
+                        {ev.description && <p className="text-xs text-slate-600 mt-0.5">{ev.description}</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              )}
+              <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-1 before:bottom-1 before:w-0.5 before:bg-slate-100">
+                {[
+                  plan.next_due_date ? { text: "Next service due", date: plan.next_due_date, tone: "blue" as const } : null,
+                  plan.last_completed_date ? { text: "Last completed", date: plan.last_completed_date, tone: "emerald" as const } : null,
+                  { text: "PPM plan created", date: plan.created_at, tone: "slate" as const },
+                ]
+                  .filter((e): e is { text: string; date: string; tone: "blue" | "emerald" | "slate" } => e !== null)
+                  .map((ev, i) => (
+                    <div key={i} className="relative">
+                      <div
+                        className={cn(
+                          "absolute -left-[18px] mt-1 w-3 h-3 rounded-full border-2 border-white",
+                          ev.tone === "blue" ? "bg-[#2563EB]" : ev.tone === "emerald" ? "bg-emerald-500" : "bg-slate-400"
+                        )}
+                      />
+                      <p className="text-xs font-medium text-slate-700">{ev.text}</p>
+                      <p className="text-[10px] text-slate-400">{fmtDate(ev.date)}</p>
+                    </div>
+                  ))}
               </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-                <button className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg text-xs font-semibold">Post</button>
-              </div>
+              <p className="text-[11px] text-slate-400 mt-4">Derived from this plan&apos;s schedule. Generated work orders are tracked in the Generated Jobs tab.</p>
             </div>
           )}
         </div>

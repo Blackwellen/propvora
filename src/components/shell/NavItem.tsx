@@ -10,6 +10,8 @@ interface NavItemProps {
   collapsed: boolean
   active: boolean
   onClick?: () => void
+  /** Live unread/notification count. Renders a pill (expanded) or dot (collapsed) when > 0. */
+  badge?: number
 }
 
 export default function NavItem({
@@ -19,12 +21,16 @@ export default function NavItem({
   collapsed,
   active,
   onClick,
+  badge = 0,
 }: NavItemProps) {
+  const showBadge = badge > 0
+  const badgeLabel = badge > 99 ? "99+" : String(badge)
   return (
     <Link
       href={href}
       onClick={onClick}
       aria-current={active ? "page" : undefined}
+      aria-label={showBadge ? `${label}, ${badge} unread` : undefined}
       title={collapsed ? label : undefined}
       className={cn(
         "flex items-center min-h-[40px] py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative mx-2 mb-0.5",
@@ -45,6 +51,27 @@ export default function NavItem({
         )}
       />
       {!collapsed && <span className="truncate">{label}</span>}
+
+      {/* Unread badge — pill on the right when expanded */}
+      {!collapsed && showBadge && (
+        <span
+          aria-hidden="true"
+          className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm"
+        >
+          {badgeLabel}
+        </span>
+      )}
+
+      {/* Unread badge — dot over the icon when collapsed */}
+      {collapsed && showBadge && (
+        <span
+          aria-hidden="true"
+          className="absolute top-1.5 right-3 min-w-[16px] h-4 px-1 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center tabular-nums border border-[#06142E] shadow-sm"
+        >
+          {badgeLabel}
+        </span>
+      )}
+
       {collapsed && (
         <div
           aria-hidden="true"

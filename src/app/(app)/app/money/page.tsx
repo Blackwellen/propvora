@@ -29,6 +29,8 @@ import type { InsertMoneyIncome, MoneyActivityRow } from "@/hooks/useMoneyData"
 import Link from "next/link"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import JurisdictionBanner from "@/components/i18n/JurisdictionBanner"
+import { Skeleton } from "@/components/ui/Skeleton"
+import { useFeatureFlag } from "@/hooks/useFeatureFlag"
 
 // ─── Money formatting (Intl, no float rounding bugs) ──────────────────────────
 
@@ -250,12 +252,56 @@ function CashflowBars({ income, expenses }: { income: number; expenses: number }
   )
 }
 
+// ─── Loading skeleton (matches final layout to avoid layout shift) ────────────
+
+function MoneyOverviewSkeleton() {
+  return (
+    <>
+      {/* KPI row — 6 cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col gap-3">
+            <Skeleton circle className="w-9 h-9" />
+            <Skeleton className="h-3 w-2/3" />
+            <Skeleton className="h-6 w-1/2" />
+          </div>
+        ))}
+      </div>
+
+      {/* Body — 2-col */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col gap-4">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-56" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="w-full lg:w-80 xl:w-96 shrink-0 flex flex-col gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-3">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MoneyOverviewPage() {
   const { workspace } = useWorkspace()
   const { data: overview, isLoading, error } = useMoneyOverview(workspace?.id)
   const { data: activity } = useMoneyActivity(workspace?.id, { limit: 6 })
+  // Full double-entry GL is a V2 surface (off by default). Only surface links
+  // into /accounting when the flag is on — otherwise they'd be dead links.
+  const accountingEnabled = useFeatureFlag("accountingGl")
   const [showAddModal, setShowAddModal] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
@@ -337,8 +383,9 @@ export default function MoneyOverviewPage() {
 
       <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
         <JurisdictionBanner />
-        {/* Desktop section header — mobile uses MobileTopBar above */}
-        <div className="hidden md:block">
+        {/* Desktop section header — below lg the shell renders MobileTopBar +
+            MobileBottomNav, so gate at lg to avoid a duplicate header. */}
+        <div className="hidden lg:block">
         <SectionHeader
           title="Money"
           subtitle="Financial control centre for income, expenses, receivables, payables and cashflow."
@@ -362,8 +409,9 @@ export default function MoneyOverviewPage() {
         />
         </div>
 
-        {/* Mobile section nav — kept visible below md (MoneyTabNav scrolls) */}
-        <div className="md:hidden -mx-6">
+        {/* Mobile section nav — kept visible below lg (MoneyTabNav shows its
+            dropdown variant), matching the shell's mobile breakpoint. */}
+        <div className="lg:hidden -mx-6">
           <MoneyTabNav />
         </div>
 
@@ -373,8 +421,14 @@ export default function MoneyOverviewPage() {
           </div>
         )}
 
+        {/* Loading skeleton — shown until the first overview payload lands, so the
+            KPI row never flashes £0 / empty-states while data is still in flight. */}
+        {isLoading && !overview && !error && <MoneyOverviewSkeleton />}
+
+        {(!isLoading || overview) && !error && (
+          <>
         {/* KPI Row — all live */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
           <MoneyKpiCard
             label="Income Received"
             value={fmtGBP(incomeReceived)}
@@ -447,7 +501,9 @@ export default function MoneyOverviewPage() {
                   items={[
                     { label: "View Income", icon: TrendingUp, onClick: () => { window.location.href = "/property-manager/money/income" } },
                     { label: "View Expenses", icon: TrendingDown, onClick: () => { window.location.href = "/property-manager/money/expenses" } },
-                    { label: "Open Accounting Ledger", icon: BarChart3, onClick: () => { window.location.href = "/property-manager/accounting" } },
+                    ...(accountingEnabled
+                      ? [{ label: "Open Accounting Ledger", icon: BarChart3, onClick: () => { window.location.href = "/property-manager/accounting" } }]
+                      : []),
                   ]}
                 />
               </div>
@@ -470,10 +526,12 @@ export default function MoneyOverviewPage() {
                 </div>
               )}
 
-              <p className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">
-                For full ledgers, journals and reports, see{" "}
-                <Link href="/property-manager/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
-              </p>
+              {accountingEnabled && (
+                <p className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">
+                  For full ledgers, journals and reports, see{" "}
+                  <Link href="/property-manager/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
+                </p>
+              )}
             </div>
 
             {/* Receivables vs Payables — live */}
@@ -626,16 +684,20 @@ export default function MoneyOverviewPage() {
               </div>
             </div>
 
-            {/* Accounting link */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-              <h3 className="text-sm font-semibold text-slate-900 mb-1">Accounting</h3>
-              <p className="text-xs text-slate-500 mb-3">Ledger, journals, P&amp;L and tax reporting live in Accounting.</p>
-              <Link href="/property-manager/accounting" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
-                Open Accounting <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
+            {/* Accounting link — V2 GL surface, only shown when flagged on */}
+            {accountingEnabled && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <h3 className="text-sm font-semibold text-slate-900 mb-1">Accounting</h3>
+                <p className="text-xs text-slate-500 mb-3">Ledger, journals, P&amp;L and tax reporting live in Accounting.</p>
+                <Link href="/property-manager/accounting" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                  Open Accounting <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
+          </>
+        )}
       </DashboardContainer>
     </div>
   )

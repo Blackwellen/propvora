@@ -1,11 +1,12 @@
 "use client"
 import React, { useMemo } from "react"
 import Link from "next/link"
-import { Scale, Key, Zap, Gavel, ArrowRight, AlertTriangle, Plus, Sparkles } from "lucide-react"
-import { openCopilot } from "@/lib/copilot/open"
+import { Scale, Key, Zap, Gavel, ArrowRight, AlertTriangle, Plus } from "lucide-react"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useTenancies } from "@/hooks/useTenancies"
+import { LegalJurisdictionGate } from "@/components/legal/LegalJurisdictionGate"
+import { useLegalJurisdiction } from "@/hooks/useLegalJurisdiction"
 import {
   usePossessionCases,
   useHmoLicences,
@@ -16,7 +17,16 @@ import {
 } from "./legal-data"
 
 export default function LegalOverviewPage() {
+  return (
+    <LegalJurisdictionGate module="overview">
+      <LegalOverviewPageInner />
+    </LegalJurisdictionGate>
+  )
+}
+
+function LegalOverviewPageInner() {
   const { workspace } = useWorkspace()
+  const { jurisdiction: legalJur } = useLegalJurisdiction()
   const workspaceId = workspace?.id
   const { data: cases = [], isLoading: lc } = usePossessionCases(workspaceId)
   const { data: licences = [], isLoading: ll } = useHmoLicences(workspaceId)
@@ -49,6 +59,7 @@ export default function LegalOverviewPage() {
 
   const CARDS = [
     {
+      key: "possession" as const,
       title: "Possession",
       href: "/property-manager/legal/possession",
       icon: Gavel,
@@ -58,6 +69,7 @@ export default function LegalOverviewPage() {
       sub: `${cases.length} total · ${cases.filter((c) => c.notice_served_date).length} notices served`,
     },
     {
+      key: "hmo" as const,
       title: "HMO Licences",
       href: "/property-manager/legal/hmo-licences",
       icon: Key,
@@ -67,6 +79,7 @@ export default function LegalOverviewPage() {
       sub: `${licences.length} total · ${expiringLicences} expiring ≤ 90 days`,
     },
     {
+      key: "epc" as const,
       title: "EPC Advisory",
       href: "/property-manager/legal/epc-advisory",
       icon: Zap,
@@ -76,6 +89,7 @@ export default function LegalOverviewPage() {
       sub: `${epc.validCert}/${epc.totalProperties} valid · ${epc.missingCert} missing`,
     },
     {
+      key: "rra" as const,
       title: "RRA 2026",
       href: "/property-manager/legal/rra-2026",
       icon: Scale,
@@ -84,7 +98,25 @@ export default function LegalOverviewPage() {
       metricLabel: "readiness",
       sub: `${ten.periodic} periodic · ${ten.fixed} fixed remaining`,
     },
+    // Workspace custom legal modules → informational cards (no sub-tooling).
+    ...legalJur.customModules.map((m, i) => ({
+      key: `custom-${i}` as const,
+      title: m.label,
+      href: "/property-manager/settings/legal",
+      icon: Scale,
+      iconCls: "bg-slate-100 text-slate-600",
+      metric: "—",
+      metricLabel: "workspace note",
+      sub: m.note,
+    })),
   ]
+    // Hide built-in cards a workspace has disabled via its custom legal pack.
+    .filter((c) => {
+      if (c.key === "possession" || c.key === "hmo" || c.key === "epc" || c.key === "rra") {
+        return !legalJur.modules[c.key].disabled
+      }
+      return true
+    })
 
   const expiringSoon = [...licences]
     .filter((l) => daysUntil(l.expiry_date) != null && (daysUntil(l.expiry_date) as number) <= 90)
@@ -104,30 +136,6 @@ export default function LegalOverviewPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => openCopilot({
-              prompt: "What legal items need my attention? Summarise possession cases, HMO licences and EPC status.",
-              summaryData: {
-                section: "legal",
-                pageTitle: "Legal & Compliance Overview",
-                summaryData: {
-                  activeCases,
-                  activeLicences,
-                  expiringLicences,
-                  epcReadinessPct: epc.readinessPct,
-                  epcMissingCerts: epc.missingCert,
-                  epcValidCerts: epc.validCert,
-                  rraReadinessPct: rraPct,
-                  totalProperties: properties.length,
-                  totalTenancies: tenancies.length,
-                },
-              },
-            })}
-            className="border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Ask AI
-          </button>
           <Link
             href="/property-manager/legal/possession/new/select-tenancy"
             className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"

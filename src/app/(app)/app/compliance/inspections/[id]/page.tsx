@@ -22,7 +22,7 @@ import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
   ChevronRight, Home, AlertTriangle, Calendar, User, Edit2, RefreshCw,
   CheckCircle2, FileText, Briefcase, XCircle, Upload, ClipboardList, Shield,
-  CalendarDays, Sparkles, BarChart2, Info, Check, Building2, Link2, Activity,
+  CalendarDays, BarChart2, Info, Check, Building2, Link2, Activity,
   Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -558,15 +558,6 @@ export default function InspectionDetailPage() {
               </div>
             </Card>
 
-            <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-[#7C3AED]" />
-                <p className="text-xs font-semibold text-violet-800 uppercase tracking-wide">AI Insight</p>
-              </div>
-              <p className="text-xs text-violet-700 leading-relaxed">
-                {overdue ? "This inspection is overdue. Reschedule immediately and document why it was missed." : "Keep this inspection on track and record findings promptly once complete."}
-              </p>
-            </div>
           </aside>
         </div>
       </div>

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import { PortfolioSectionTabs } from "@/components/portfolio/PortfolioSectionTabs"
+import { PortfolioSegmentsRail } from "@/components/portfolio/PortfolioSegmentsRail"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { PropertyCard, type PropertyCardData } from "@/components/portfolio/PropertyCard"
@@ -249,6 +250,17 @@ export default function PropertiesListPage() {
         activeCount={activeFilters}
         onClear={clearFilters}
       />
+
+      {/* Browse-by-segment rail — the 13-profile hero ported from the Portfolio
+          Overview. Counts use the full (unfiltered) set; clicking toggles the
+          page's profile filter so the rail and the list stay in lockstep. */}
+      {!loading && allProperties.length > 0 && (
+        <PortfolioSegmentsRail
+          properties={allProperties}
+          activeProfile={filterProfile}
+          onSelect={(label) => { setFilterProfile(label); setPage(1) }}
+        />
+      )}
 
       {/* Desktop header — hidden on phones (MobileTopBar/Header own mobile) */}
       <div className="hidden md:block">

@@ -37,6 +37,7 @@ export interface PpmPlan {
   last_completed_date: string | null
   estimated_cost: number | null
   auto_generate_job: boolean | null
+  reminders: number[] | null
   reference: string | null
   notes: string | null
   is_demo: boolean
@@ -63,6 +64,8 @@ export interface InsertPpmPlan {
   last_completed_date?: string | null
   estimated_cost?: number | null
   auto_generate_job?: boolean | null
+  /** jsonb array of "days before due" offsets, e.g. [30, 7, 1]. */
+  reminders?: number[] | null
   reference?: string | null
   notes?: string | null
   created_by?: string | null
@@ -239,32 +242,90 @@ export function useGenerateJobFromPpm() {
 
   return useMutation<{ ok: boolean; jobId?: string }, Error, { plan: PpmPlan }>({
     mutationFn: async ({ plan }) => {
+      const base = {
+        workspace_id: plan.workspace_id,
+        title: plan.name,
+        status: 'scheduled',
+        priority: (plan.priority as string) || 'medium',
+        is_demo: false,
+        description: plan.description ?? null,
+        category: plan.category ?? null,
+        property_id: plan.property_id ?? null,
+        supplier_contact_id: plan.supplier_contact_id ?? null,
+        scheduled_date: plan.next_due_date ?? null,
+        quoted_amount: plan.estimated_cost ?? null,
+      }
+
+      // Link the generated job back to its plan so the PPM "Generated Jobs"
+      // tab can list it. Tolerant of a DB where the column hasn't been added
+      // yet (42703) — retry the insert without the linkage.
       const { data, error } = await supabase
         .from('jobs')
-        .insert({
-          workspace_id: plan.workspace_id,
-          title: plan.name,
-          status: 'scheduled',
-          priority: (plan.priority as string) || 'medium',
-          is_demo: false,
-          description: plan.description ?? null,
-          category: plan.category ?? null,
-          property_id: plan.property_id ?? null,
-          supplier_contact_id: plan.supplier_contact_id ?? null,
-          scheduled_date: plan.next_due_date ?? null,
-          quoted_amount: plan.estimated_cost ?? null,
-        })
+        .insert({ ...base, ppm_plan_id: plan.id })
         .select('id')
         .single()
 
       if (error) {
         if (error.code === '42P01') return { ok: false }
+        if (error.code === '42703') {
+          const retry = await supabase.from('jobs').insert(base).select('id').single()
+          if (retry.error) {
+            if (retry.error.code === '42P01') return { ok: false }
+            throw retry.error
+          }
+          return { ok: true, jobId: (retry.data as { id: string }).id }
+        }
         throw error
       }
       return { ok: true, jobId: (data as { id: string }).id }
     },
     onSuccess: (_data, { plan }) => {
       queryClient.invalidateQueries({ queryKey: ['jobs', plan.workspace_id] })
+      queryClient.invalidateQueries({ queryKey: ['ppm-generated-jobs', plan.workspace_id, plan.id] })
+    },
+  })
+}
+
+// ============================================================
+// Jobs generated from a PPM plan (linked via jobs.ppm_plan_id).
+// 42P01/42703-safe so a missing table or column yields an honest
+// empty list rather than a crash.
+// ============================================================
+
+export interface PpmGeneratedJob {
+  id: string
+  title: string
+  status: string
+  scheduled_date: string | null
+  quoted_amount: number | null
+  approved_amount: number | null
+  reference: string | null
+  created_at: string
+}
+
+export function usePpmGeneratedJobs(
+  workspaceId: string | undefined,
+  planId: string | undefined,
+  enabled = true
+) {
+  const supabase = createClient()
+  return useQuery<PpmGeneratedJob[]>({
+    queryKey: ['ppm-generated-jobs', workspaceId, planId],
+    enabled: !!workspaceId && !!planId && enabled,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('id, title, status, scheduled_date, quoted_amount, approved_amount, reference, created_at')
+        .eq('workspace_id', workspaceId!)
+        .eq('ppm_plan_id', planId!)
+        .order('created_at', { ascending: false })
+      if (error) {
+        // missing table (42P01) or missing column (42703) → empty
+        if (error.code === '42P01' || error.code === '42703') return []
+        throw error
+      }
+      return (data ?? []) as PpmGeneratedJob[]
     },
   })
 }

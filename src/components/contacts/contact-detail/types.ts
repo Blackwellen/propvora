@@ -3,12 +3,12 @@
 export type ContactType = "tenant" | "landlord" | "supplier" | "applicant" | "agent" | "legal" | "other"
 export type HealthStatus = "healthy" | "risk" | "follow_up" | "needs_data"
 
-export interface InvoiceRecord { ref: string; amount: number; status: string; date: string }
+export interface InvoiceRecord { id?: string; ref: string; amount: number; status: string; date: string }
 export interface ActivityRecord { action: string; time: string; type: string }
-export interface JobRecord { title: string; status: string; date: string; cost: number; property: string }
+export interface JobRecord { id?: string; title: string; status: string; date: string; cost: number; property: string }
 
 export interface TenancyInfo {
-  property: string; unit: string; rent: number; deposit: number
+  id?: string; property: string; unit: string; rent: number; deposit: number
   start: string; end: string; status: string; deposit_scheme: string; guarantor: string | null
 }
 export interface EnquiryInfo {
@@ -33,6 +33,8 @@ export interface ContactDetail {
   last_contacted: string | null; next_follow_up: string | null; health: HealthStatus
   portal_status: string | null; notes: string | null
   service_categories?: string[]
+  /** Generic label/value rows from contacts.metadata for types without a bespoke tab. */
+  type_detail_rows?: { label: string; value: string }[]
   tenancy?: TenancyInfo; invoices?: InvoiceRecord[]; activity?: ActivityRecord[]
   properties?: string[]; planning_sets?: PlanningSet[]; landlord_offers?: LandlordOffer[]
   enquiry?: EnquiryInfo; supplier?: SupplierInfo; jobs?: JobRecord[]

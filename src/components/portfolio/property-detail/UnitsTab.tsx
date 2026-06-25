@@ -14,7 +14,7 @@ import {
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import {
   Home, Users, Wrench,
-  Plus, Download, Upload,
+  Plus,
   Eye, Trash2, Search, SlidersHorizontal,
 } from "lucide-react"
 import { StatusPill, fmt, Card } from "./shared"
@@ -89,13 +89,6 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
           <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Unit
           </Link>
-          <ActionMenu
-            align="right"
-            items={[
-              { label: "Export units", icon: Download, onClick: () => {} },
-              { label: "Import units", icon: Upload, onClick: () => {} },
-            ]}
-          />
         </div>
       </div>
 

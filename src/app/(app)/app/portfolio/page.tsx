@@ -9,13 +9,8 @@ import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { StatCard } from "@/components/ui/StatCard"
 import { PropertyCard, type PropertyCardData } from "@/components/portfolio/PropertyCard"
-import { UnitCard, type UnitCardData } from "@/components/portfolio/UnitCard"
-import { TenancyCard, type TenancyCardData } from "@/components/portfolio/TenancyCard"
-import { PropertyListView } from "@/components/portfolio/PropertyListView"
-import { PropertyDataView } from "@/components/portfolio/PropertyDataView"
-import { TenancyListView } from "@/components/portfolio/TenancyListView"
-import { TenancyDataView } from "@/components/portfolio/TenancyDataView"
-import { TenancyGanttView } from "@/components/portfolio/TenancyGanttView"
+import { type UnitCardData } from "@/components/portfolio/UnitCard"
+import { type TenancyCardData } from "@/components/portfolio/TenancyCard"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties, useDeleteProperty } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
@@ -33,7 +28,6 @@ import { cn } from "@/lib/utils"
 import { aggregateByProperty, normaliseOperationProfile, normalisePropertyStatus, normalisePropertyType, exportCsv } from "@/lib/portfolio/helpers"
 import { createClient } from "@/lib/supabase/client"
 import { resolvePropertyCoverUrls, resolveCoverUrlsByUnit } from "@/lib/files/coverUrl"
-import { openCopilot } from "@/lib/copilot/open"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { mapPreviewTile } from "@/lib/maps/tiles"
 
@@ -96,28 +90,6 @@ function PortfolioKpiCard({ label, value, icon: Icon, color, bg, href, sub }: {
   )
 }
 
-function ViewSwitcher<T extends string>({ options, value, onChange }: {
-  options: { key: T; label: string; icon: React.ElementType }[]
-  value: T
-  onChange: (v: T) => void
-}) {
-  return (
-    <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100">
-      {options.map(opt => {
-        const Icon = opt.icon
-        return (
-          <button key={opt.key} onClick={() => onChange(opt.key)}
-            className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150",
-              value === opt.key ? "bg-white shadow-sm text-[#2563EB] font-semibold" : "text-slate-500 hover:text-slate-700"
-            )}>
-            <Icon className="w-3.5 h-3.5" />{opt.label}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
 
 function AttentionRow({ icon: Icon, label, value, color, bg, href, urgent }: {
   icon: React.ElementType; label: string; value: string | number
@@ -137,46 +109,6 @@ function AttentionRow({ icon: Icon, label, value, color, bg, href, urgent }: {
   )
 }
 
-/* ── Shared chip button ── */
-function Chip({ active, onClick, children, color }: {
-  active: boolean; onClick: () => void; children: React.ReactNode; color?: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all whitespace-nowrap",
-        active ? "text-white border-transparent shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm"
-      )}
-      style={active ? { background: color ?? "#2563EB", borderColor: color ?? "#2563EB" } : undefined}
-    >
-      {children}
-    </button>
-  )
-}
-
-/* ── Filter label ── */
-function FLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{children}</p>
-}
-
-/* ── Filter input ── */
-function FInput({ value, onChange, placeholder, prefix }: { value: string; onChange: (v: string) => void; placeholder?: string; prefix?: string }) {
-  return (
-    <div className="relative">
-      {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-500 font-medium">{prefix}</span>}
-      <input
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={cn(
-          "w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm",
-          prefix ? "pl-6 pr-3" : "px-3"
-        )}
-      />
-    </div>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* Main Page                                                            */
@@ -186,9 +118,6 @@ export default function PortfolioPage() {
   const { workspace } = useWorkspace()
 
   const [activeTab, setActiveTab] = useState<MainTab>("overview")
-  const [propView, setPropView] = useState<PropertyView>("grid")
-  const [unitView, setUnitView] = useState<UnitView>("grid")
-  const [tenView, setTenView] = useState<TenancyView>("cards")
 
   /* Segment carousel */
   const segScrollRef = useRef<HTMLDivElement>(null)
@@ -196,32 +125,6 @@ export default function PortfolioPage() {
     segScrollRef.current?.scrollBy({ left: dir === "right" ? 230 : -230, behavior: "smooth" })
   }
 
-  /* Property filters */
-  const [propSearch, setPropSearch]       = useState("")
-  const [propFStatus, setPropFStatus]     = useState("all")
-  const [propFProfile, setPropFProfile]   = useState("all")
-  const [propFCity, setPropFCity]         = useState("")
-  const [propFMinRent, setPropFMinRent]   = useState("")
-  const [propFMaxRent, setPropFMaxRent]   = useState("")
-  const [propShowAdv, setPropShowAdv]     = useState(false)
-
-  /* Unit filters */
-  const [unitSearch, setUnitSearch]     = useState("")
-  const [unitFStatus, setUnitFStatus]   = useState("all")
-  const [unitFType, setUnitFType]       = useState("all")
-  const [unitFProp, setUnitFProp]       = useState("all")
-  const [unitShowAdv, setUnitShowAdv]   = useState(false)
-
-  /* Tenancy filters */
-  const [tenSearch, setTenSearch]               = useState("")
-  const [tenFStatus, setTenFStatus]             = useState("all")
-  const [tenFArrears, setTenFArrears]           = useState(false)
-  const [tenFEndingSoon, setTenFEndingSoon]     = useState(false)
-  const [tenFProp, setTenFProp]                 = useState("all")
-  const [tenFProfile, setTenFProfile]           = useState("all")
-  const [tenFMinRent, setTenFMinRent]           = useState("")
-  const [tenFMaxRent, setTenFMaxRent]           = useState("")
-  const [tenShowAdv, setTenShowAdv]             = useState(false)
 
   /* Data hooks */
   const { data: rawProperties, isLoading: propsLoading } = useProperties(workspace?.id)
@@ -322,50 +225,6 @@ export default function PortfolioPage() {
     })
   }, [rawProperties, rawUnits, rawTenancies, isLive, propCoverUrls])
 
-  /* Filtered datasets */
-  const filteredProperties = useMemo(() => {
-    let r = [...properties]
-    const q = propSearch.toLowerCase()
-    if (q) r = r.filter(p => p.name.toLowerCase().includes(q) || p.address.toLowerCase().includes(q) || (p.postcode ?? "").toLowerCase().includes(q))
-    if (propFStatus !== "all") r = r.filter(p => p.status === propFStatus)
-    if (propFProfile !== "all") r = r.filter(p => p.operationProfile === propFProfile)
-    if (propFCity) r = r.filter(p => p.address.toLowerCase().includes(propFCity.toLowerCase()) || (p.postcode ?? "").toLowerCase().includes(propFCity.toLowerCase()))
-    if (propFMinRent) r = r.filter(p => p.monthlyRent >= Number(propFMinRent))
-    if (propFMaxRent) r = r.filter(p => p.monthlyRent <= Number(propFMaxRent))
-    return r
-  }, [properties, propSearch, propFStatus, propFProfile, propFCity, propFMinRent, propFMaxRent])
-
-  const filteredUnits = useMemo(() => {
-    let r = [...units]
-    const q = unitSearch.toLowerCase()
-    if (q) r = r.filter(u => (u.unit_name ?? "").toLowerCase().includes(q) || (u.property_name ?? "").toLowerCase().includes(q) || (u.tenant_name ?? "").toLowerCase().includes(q))
-    if (unitFStatus !== "all") r = r.filter(u => u.status === unitFStatus)
-    if (unitFType !== "all") r = r.filter(u => u.unit_type === unitFType)
-    if (unitFProp !== "all") r = r.filter(u => u.property_id === unitFProp)
-    return r
-  }, [units, unitSearch, unitFStatus, unitFType, unitFProp])
-
-  const filteredTenancies = useMemo(() => {
-    let r = [...tenancies]
-    const q = tenSearch.toLowerCase()
-    if (q) r = r.filter(t => (t.tenant_name ?? "").toLowerCase().includes(q) || (t.property_name ?? "").toLowerCase().includes(q) || (t.unit_name ?? "").toLowerCase().includes(q))
-    if (tenFStatus !== "all") r = r.filter(t => t.status === tenFStatus)
-    if (tenFArrears) r = r.filter(t => (t.arrears ?? 0) > 0)
-    if (tenFEndingSoon) r = r.filter(t => t.end_date && daysUntil(t.end_date) >= 0 && daysUntil(t.end_date) <= 60)
-    if (tenFProp !== "all") r = r.filter(t => t.property_id === tenFProp)
-    if (tenFMinRent) r = r.filter(t => t.rent_amount >= Number(tenFMinRent))
-    if (tenFMaxRent) r = r.filter(t => t.rent_amount <= Number(tenFMaxRent))
-    if (tenFProfile !== "all") r = r.filter(t => {
-      const prop = properties.find(p => p.id === t.property_id)
-      return prop?.operationProfile === tenFProfile
-    })
-    return r
-  }, [tenancies, properties, tenSearch, tenFStatus, tenFArrears, tenFEndingSoon, tenFProp, tenFMinRent, tenFMaxRent, tenFProfile])
-
-  /* Active filter counts */
-  const propActiveFilters = [propSearch, propFStatus !== "all" ? "1" : "", propFProfile !== "all" ? "1" : "", propFCity, propFMinRent, propFMaxRent].filter(Boolean).length
-  const unitActiveFilters = [unitSearch, unitFStatus !== "all" ? "1" : "", unitFType !== "all" ? "1" : "", unitFProp !== "all" ? "1" : ""].filter(Boolean).length
-  const tenActiveFilters  = [tenSearch, tenFStatus !== "all" ? "1" : "", tenFArrears ? "1" : "", tenFEndingSoon ? "1" : "", tenFProp !== "all" ? "1" : "", tenFProfile !== "all" ? "1" : "", tenFMinRent, tenFMaxRent].filter(Boolean).length
 
   /* KPIs */
   const totalUnits      = units.length
@@ -378,49 +237,40 @@ export default function PortfolioPage() {
   const arrearsCount    = tenancies.filter(t => (t.arrears ?? 0) > 0).length
   const arrearsTotal    = tenancies.reduce((s, t) => s + (t.arrears ?? 0), 0)
 
-  /* Unique property list for dropdowns */
-  const propertyOptions = properties.map(p => ({ id: p.id, name: p.name }))
 
-  /* AI Portfolio Review — seed the Copilot with real portfolio-level context.
-     Guidance only: the assistant advises, it never performs actions itself. */
-  function runPortfolioReview() {
-    const segCounts = ALL_PROFILES
-      .map(p => ({ label: p.label, n: properties.filter(x => x.operationProfile === p.key).length }))
-      .filter(s => s.n > 0)
-      .map(s => `${s.label}: ${s.n}`)
-      .join(", ")
-    const lines = [
-      "Review my property portfolio and summarise its performance, risks and opportunities. Give guidance only — do not claim to have made any changes.",
-      "",
-      "Current portfolio snapshot:",
-      `- Properties: ${properties.length}${segCounts ? ` (${segCounts})` : ""}`,
-      `- Units: ${totalUnits} (${vacantUnits} vacant, ${occupiedUnits} occupied)`,
-      `- Active tenancies: ${activeTenancies}`,
-      `- Occupancy: ${totalUnits > 0 ? `${occupancyPct}%` : "n/a"}`,
-      `- Monthly rent roll: ${totalRentRoll > 0 ? fmtGBP(totalRentRoll) : "£0"}`,
-      `- Arrears: ${arrearsTotal > 0 ? fmtGBP(arrearsTotal) : "£0"} across ${arrearsCount} tenant${arrearsCount === 1 ? "" : "s"}`,
-      `- Tenancies ending within 60 days: ${endingSoon.length}`,
-      `- Open work orders: ${openWorkTotal}`,
-      "",
-      "Please flag the top risks, highlight quick wins, and suggest where to focus next.",
-    ]
-    openCopilot({
-      prompt: lines.join("\n"),
-      summaryData: {
-        section: "portfolio",
-        propertyCount: properties.length,
-        unitCount: totalUnits,
-        vacantUnits,
-        occupiedUnits,
-        occupancyRate: occupancyPct,
-        activeTenancies,
-        monthlyRentRoll: totalRentRoll,
-        arrearsTotal,
-        arrearsCount,
-        tenanciesEndingSoon: endingSoon.length,
-        openWorkOrders: openWorkTotal,
-      },
-    })
+  /* AI Portfolio Review — pre-flight cost confirmation → server-side AI action → inline result.
+     Rule: must NOT open the copilot bubble. Must show estimate → confirm → execute → result. */
+  type AiReviewPhase = "idle" | "confirm" | "loading" | "result" | "error"
+  const [aiReviewPhase, setAiReviewPhase] = useState<AiReviewPhase>("idle")
+  const [aiReviewResult, setAiReviewResult]   = useState<string>("")
+  const [aiReviewError,  setAiReviewError]    = useState<string>("")
+
+  function openAiReviewConfirm() {
+    if (properties.length === 0) return
+    setAiReviewPhase("confirm")
+  }
+
+  async function executeAiReview() {
+    if (!workspace?.id) return
+    setAiReviewPhase("loading")
+    try {
+      const res = await fetch("/api/ai/actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "explain-portfolio", workspaceId: workspace.id }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setAiReviewError(json.error ?? "AI review failed. Please try again.")
+        setAiReviewPhase("error")
+        return
+      }
+      setAiReviewResult(json.result ?? json.text ?? json.message ?? "Review complete.")
+      setAiReviewPhase("result")
+    } catch {
+      setAiReviewError("Network error. Please check your connection and try again.")
+      setAiReviewPhase("error")
+    }
   }
 
   /* CSV export — client-side, derived from the live (or seeded) rows */
@@ -449,21 +299,6 @@ export default function PortfolioPage() {
     { key: "tenancies",  label: "Tenancies",  icon: Users,     count: activeTenancies },
   ]
 
-  const PROP_VIEWS: { key: PropertyView; label: string; icon: React.ElementType }[] = [
-    { key: "grid", label: "Grid", icon: LayoutGrid },
-    { key: "list", label: "List", icon: List },
-    { key: "data", label: "Data", icon: Table2 },
-  ]
-  const UNIT_VIEWS: { key: UnitView; label: string; icon: React.ElementType }[] = [
-    { key: "grid", label: "Grid", icon: LayoutGrid },
-    { key: "list", label: "List", icon: List },
-  ]
-  const TEN_VIEWS: { key: TenancyView; label: string; icon: React.ElementType }[] = [
-    { key: "cards", label: "Cards", icon: LayoutGrid },
-    { key: "list",  label: "List",  icon: List },
-    { key: "data",  label: "Data",  icon: Table2 },
-    { key: "gantt", label: "Gantt", icon: BarChart3 },
-  ]
 
   const openWorkTotal = properties.reduce((s, p) => s + (p.openWork ?? 0), 0)
   const portfolioKpis = [
@@ -522,7 +357,7 @@ export default function PortfolioPage() {
             <ActionMenu
               align="right"
               items={[
-                { label: "View all properties", icon: Building2, onClick: () => setActiveTab("properties") },
+                { label: "View all properties", icon: Building2, onClick: () => router.push("/property-manager/portfolio/properties") },
                 { label: "Open map view", icon: Map, onClick: () => router.push("/property-manager/portfolio/map") },
                 { label: "Open tenancy timeline", icon: Calendar, onClick: () => router.push("/property-manager/portfolio/timeline") },
                 { label: "Export portfolio (CSV)", icon: Download, onClick: exportPortfolio },
@@ -548,34 +383,41 @@ export default function PortfolioPage() {
         </div>
       )}
 
-      {/* Main tab bar */}
-      <div className="flex items-center gap-0 mb-4 border-b border-slate-200">
+      {/* Main tab bar.
+         Overview is the only inline tab. Properties / Units / Tenancies are LINKS
+         to their canonical standalone routes (/portfolio/properties, /units,
+         /tenancies) — these are the single source of truth, also reached by every
+         detail-page "Back" link and the PortfolioSectionTabs. This removes the
+         previous "two forms of the same page" (inline tab vs standalone route). */}
+      <div className="flex items-center gap-0 mb-4 border-b border-slate-200 overflow-x-auto">
         {MAIN_TABS.map(tab => {
           const Icon = tab.icon
           const active = activeTab === tab.key
+          const badge = tab.count != null && (
+            <span className={cn(
+              "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold",
+              active ? "bg-blue-100 text-[#2563EB]" : "bg-slate-100 text-slate-500"
+            )}>{tab.count}</span>
+          )
+          const className = cn(
+            "flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px whitespace-nowrap transition-all duration-150",
+            active ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+          )
+          // Overview stays an inline tab; the list tabs navigate to canonical routes.
+          if (tab.key === "overview") {
+            return (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={className}>
+                <Icon className="w-3.5 h-3.5" />{tab.label}{badge}
+              </button>
+            )
+          }
+          const href = `/property-manager/portfolio/${tab.key}`
           return (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px whitespace-nowrap transition-all duration-150",
-                active ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
-              )}>
-              <Icon className="w-3.5 h-3.5" />
-              {tab.label}
-              {tab.count != null && (
-                <span className={cn(
-                  "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold",
-                  active ? "bg-blue-100 text-[#2563EB]" : "bg-slate-100 text-slate-500"
-                )}>{tab.count}</span>
-              )}
-            </button>
+            <Link key={tab.key} href={href} className={className}>
+              <Icon className="w-3.5 h-3.5" />{tab.label}{badge}
+            </Link>
           )
         })}
-
-        <div className="ml-auto pb-1">
-          {activeTab === "properties" && <ViewSwitcher options={PROP_VIEWS} value={propView} onChange={setPropView} />}
-          {activeTab === "units"      && <ViewSwitcher options={UNIT_VIEWS} value={unitView} onChange={setUnitView} />}
-          {activeTab === "tenancies"  && <ViewSwitcher options={TEN_VIEWS}  value={tenView}  onChange={setTenView} />}
-        </div>
       </div>
 
       {/* Tab content */}
@@ -610,7 +452,7 @@ export default function PortfolioPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[14px] font-bold text-slate-900">Portfolio segments</h3>
-                <button onClick={() => setActiveTab("properties")}
+                <button onClick={() => router.push("/property-manager/portfolio/properties")}
                   className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
                   View all <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -643,7 +485,7 @@ export default function PortfolioPage() {
                     return (
                       <div
                         key={profile.key}
-                        onClick={() => { setPropFProfile(profile.key); setActiveTab("properties") }}
+                        onClick={() => router.push("/property-manager/portfolio/properties")}
                         className={cn(
                           "relative shrink-0 w-[200px] h-[180px] rounded-2xl overflow-hidden border cursor-pointer group shadow-sm",
                           "hover:shadow-xl hover:-translate-y-1 transition-all duration-200",
@@ -673,7 +515,7 @@ export default function PortfolioPage() {
                             <ActionMenu
                               align="right"
                               items={[
-                                { label: `View ${profile.shortLabel} properties`, icon: Eye, onClick: () => setActiveTab("properties") },
+                                { label: `View ${profile.shortLabel} properties`, icon: Eye, onClick: () => router.push("/property-manager/portfolio/properties") },
                                 { label: "Add property", icon: Plus, onClick: () => router.push("/property-manager/portfolio/properties/new") },
                               ]}
                             />
@@ -729,7 +571,7 @@ export default function PortfolioPage() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-[14px] font-bold text-slate-900">Recent properties</h3>
-                  <button onClick={() => setActiveTab("properties")}
+                  <button onClick={() => router.push("/property-manager/portfolio/properties")}
                     className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
                     View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -816,437 +658,148 @@ export default function PortfolioPage() {
                   { label: "Add unit",           href: "/property-manager/portfolio/units/new",      icon: Home,       iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
                   { label: "Create tenancy",     href: "/property-manager/portfolio/tenancies/new",  icon: Users,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
                   { label: "Open work queue",    href: "/property-manager/work",                     icon: Wrench,     iconBg: "bg-slate-100",  iconColor: "text-slate-500" },
-                  { label: "Run rent review",    onClick: () => setActiveTab("tenancies"), icon: TrendingUp, iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
+                  { label: "Run rent review",    href: "/property-manager/portfolio/tenancies?mode=rent-review", icon: TrendingUp, iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
                   { label: "Create planning set",href: "/property-manager/planning",                 icon: BarChart2,  iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
-                ] as const).map((a, i) => {
+                ]).map((a, i) => {
                   const Icon = a.icon
-                  const inner = (
-                    <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group cursor-pointer w-full">
-                      <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shrink-0", a.iconBg)}>
-                        <Icon className={cn("w-3.5 h-3.5", a.iconColor)} />
+                  return (
+                    <Link key={i} href={a.href}>
+                      <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group cursor-pointer w-full">
+                        <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shrink-0", a.iconBg)}>
+                          <Icon className={cn("w-3.5 h-3.5", a.iconColor)} />
+                        </div>
+                        <span className="text-[13px] font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex-1 text-left">{a.label}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" />
                       </div>
-                      <span className="text-[13px] font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex-1 text-left">{a.label}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" />
-                    </div>
+                    </Link>
                   )
-                  if ("href" in a && a.href) return <Link key={i} href={a.href}>{inner}</Link>
-                  return <button key={i} onClick={"onClick" in a ? a.onClick : undefined}>{inner}</button>
                 })}
               </div>
             </div>
 
-            {/* AI Review */}
-            <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #6D28D9 0%, #7C3AED 50%, #5B21B6 100%)" }}>
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-              <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #A78BFA, transparent)" }} />
-              <div className="relative p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-white" />
+            {/* AI Review — pre-flight confirm → execute → inline result (no copilot bubble) */}
+            {aiReviewPhase === "result" ? (
+              /* Inline result panel */
+              <div className="bg-white rounded-2xl border border-violet-200 shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-violet-100 bg-violet-50">
+                  <Sparkles className="w-4 h-4 text-violet-600" />
+                  <span className="text-[13px] font-bold text-violet-900">AI Portfolio Review</span>
+                  <button onClick={() => { setAiReviewPhase("idle"); setAiReviewResult("") }}
+                    className="ml-auto text-[11px] font-medium text-violet-500 hover:text-violet-700 transition-colors">
+                    Clear
+                  </button>
+                </div>
+                <div className="p-4 text-[13px] text-slate-700 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
+                  {aiReviewResult}
+                </div>
+                <div className="px-4 py-2 border-t border-slate-100 bg-slate-50 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                  <span className="text-[10.5px] text-slate-400">AI review · Propvora AI Copilot · Guidance only</span>
+                </div>
+              </div>
+            ) : (
+              <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #6D28D9 0%, #7C3AED 50%, #5B21B6 100%)" }}>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+                <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #A78BFA, transparent)" }} />
+                <div className="relative p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13.5px] font-bold text-white">AI Portfolio Review</span>
+                          <span className="text-[9.5px] font-semibold text-violet-300 bg-white/10 px-1.5 py-0.5 rounded-full border border-white/10">Beta</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13.5px] font-bold text-white">AI Portfolio Review</span>
-                        <span className="text-[9.5px] font-semibold text-violet-300 bg-white/10 px-1.5 py-0.5 rounded-full border border-white/10">Beta</span>
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/15 shrink-0">
+                      <div className="relative">
+                        <div className="w-5 h-5 rounded-full bg-white/80 flex items-center justify-center">
+                          <Sparkles className="w-3 h-3 text-violet-700" />
+                        </div>
+                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-violet-300 animate-pulse" />
                       </div>
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/15 shrink-0">
-                    <div className="relative">
-                      <div className="w-5 h-5 rounded-full bg-white/80 flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-violet-700" />
+                  {aiReviewPhase === "error" && (
+                    <p className="text-[11.5px] text-red-300 mb-2 bg-white/10 rounded-lg px-3 py-2">{aiReviewError}</p>
+                  )}
+                  <p className="text-[12px] text-violet-200 mb-3 leading-relaxed">Get an intelligent summary of your portfolio performance, risks, and opportunities.</p>
+                  <div className="flex flex-col gap-1.5 mb-4">
+                    {[{ icon: TrendingUp, label: "Performance insights" }, { icon: AlertTriangle, label: "Risk detection" }, { icon: Sparkles, label: "Actionable recommendations" }].map(({ icon: Icon, label }) => (
+                      <div key={label} className="flex items-center gap-2 text-[11px] text-violet-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />{label}
                       </div>
-                      <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-violet-300 animate-pulse" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-[12px] text-violet-200 mb-3 leading-relaxed">Get an intelligent summary of your portfolio performance, risks, and opportunities.</p>
-                <div className="flex flex-col gap-1.5 mb-4">
-                  {[{ icon: TrendingUp, label: "Performance insights" }, { icon: AlertTriangle, label: "Risk detection" }, { icon: Sparkles, label: "Actionable recommendations" }].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex items-center gap-2 text-[11px] text-violet-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />{label}
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={runPortfolioReview}
-                  disabled={properties.length === 0}
-                  title={properties.length === 0 ? "Add a property to run a review" : "Open the AI Copilot with your portfolio context"}
-                  className="w-full py-2.5 rounded-xl bg-white/90 hover:bg-white text-[13px] font-bold flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                  style={{ color: "#5B21B6" }}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />Run AI review
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      ) : activeTab === "properties" ? (
-        /* ══ PROPERTIES ══ */
-        <div>
-          {/* Filter panel */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="relative flex-1 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  value={propSearch}
-                  onChange={e => setPropSearch(e.target.value)}
-                  placeholder="Search by name, address, postcode..."
-                  className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                />
-              </div>
-              <button
-                onClick={() => setPropShowAdv(v => !v)}
-                className={cn(
-                  "flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12px] font-semibold transition-all shadow-sm whitespace-nowrap",
-                  propShowAdv || propActiveFilters > 0
-                    ? "bg-blue-50 border-blue-200 text-[#2563EB]"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                )}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-                {propActiveFilters > 0 && (
-                  <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{propActiveFilters}</span>
-                )}
-              </button>
-              <Button variant="primary" size="sm" asChild>
-                <Link href="/property-manager/portfolio/properties/new"><Plus className="w-4 h-4" />Add</Link>
-              </Button>
-            </div>
-
-            {/* Status chips */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {["all", "Active", "Vacant", "Under Works"].map(s => (
-                <Chip key={s} active={propFStatus === s} onClick={() => setPropFStatus(s)}>{s === "all" ? "All statuses" : s}</Chip>
-              ))}
-            </div>
-
-            {/* Advanced filters */}
-            {propShowAdv && (
-              <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
-                <div>
-                  <FLabel>Operation profile</FLabel>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Chip active={propFProfile === "all"} onClick={() => setPropFProfile("all")}>All</Chip>
-                    {ALL_PROFILES.map(p => (
-                      <Chip key={p.key} active={propFProfile === p.key} onClick={() => setPropFProfile(propFProfile === p.key ? "all" : p.key)} color={p.color}>{p.shortLabel}</Chip>
                     ))}
                   </div>
+                  <button
+                    onClick={openAiReviewConfirm}
+                    disabled={properties.length === 0 || aiReviewPhase === "loading"}
+                    title={properties.length === 0 ? "Add a property to run a review" : "Review cost estimate, then run AI portfolio review"}
+                    className="w-full py-2.5 rounded-xl bg-white/90 hover:bg-white text-[13px] font-bold flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                    style={{ color: "#5B21B6" }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {aiReviewPhase === "loading" ? "Running review…" : "Run AI review"}
+                  </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <div>
-                    <FLabel>City / location</FLabel>
-                    <div className="relative">
-                      <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-                      <FInput value={propFCity} onChange={setPropFCity} placeholder="e.g. Manchester" />
-                    </div>
-                  </div>
-                  <div>
-                    <FLabel>Min monthly rent</FLabel>
-                    <FInput value={propFMinRent} onChange={setPropFMinRent} placeholder="0" prefix="£" />
-                  </div>
-                  <div>
-                    <FLabel>Max monthly rent</FLabel>
-                    <FInput value={propFMaxRent} onChange={setPropFMaxRent} placeholder="Any" prefix="£" />
-                  </div>
-                </div>
-                {propActiveFilters > 0 && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-slate-500">{filteredProperties.length} of {properties.length} properties</p>
-                    <button onClick={() => { setPropSearch(""); setPropFStatus("all"); setPropFProfile("all"); setPropFCity(""); setPropFMinRent(""); setPropFMaxRent("") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600 transition-colors">
-                      <X className="w-3.5 h-3.5" />Clear all
-                    </button>
-                  </div>
-                )}
               </div>
             )}
           </div>
-
-          <p className="text-[12.5px] text-slate-500 mb-4">
-            Showing {filteredProperties.length} of {properties.length} properties
-          </p>
-
-          {propView === "grid" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
-              {filteredProperties.length === 0 && (
-                <div className="col-span-full flex flex-col items-center py-20 gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><Building2 className="w-8 h-8 text-slate-300" /></div>
-                  <p className="text-[13px] font-semibold text-slate-600">No properties match your filters</p>
-                  <button onClick={() => { setPropSearch(""); setPropFStatus("all"); setPropFProfile("all"); setPropFCity(""); setPropFMinRent(""); setPropFMaxRent("") }} className="text-sm text-[#2563EB] hover:underline">Clear filters</button>
-                </div>
-              )}
-            </div>
-          )}
-          {propView === "list" && <PropertyListView properties={filteredProperties} />}
-          {propView === "data" && <PropertyDataView properties={filteredProperties} />}
-        </div>
-
-      ) : activeTab === "units" ? (
-        /* ══ UNITS ══ */
-        <div>
-          {/* Filter panel */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="relative flex-1 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  value={unitSearch}
-                  onChange={e => setUnitSearch(e.target.value)}
-                  placeholder="Search by unit name, property, tenant..."
-                  className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                />
-              </div>
-              <button
-                onClick={() => setUnitShowAdv(v => !v)}
-                className={cn(
-                  "flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12px] font-semibold transition-all shadow-sm whitespace-nowrap",
-                  unitShowAdv || unitActiveFilters > 0 ? "bg-blue-50 border-blue-200 text-[#2563EB]" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                )}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />Filters
-                {unitActiveFilters > 0 && (
-                  <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{unitActiveFilters}</span>
-                )}
-              </button>
-              <Button variant="primary" size="sm" asChild>
-                <Link href="/property-manager/portfolio/units/new"><Plus className="w-4 h-4" />Add</Link>
-              </Button>
-            </div>
-
-            {/* Status chips */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {[{ v: "all", l: "All statuses" }, { v: "occupied", l: "Occupied" }, { v: "vacant", l: "Vacant" }, { v: "under_works", l: "Maintenance" }, { v: "reserved", l: "Reserved" }].map(s => (
-                <Chip key={s.v} active={unitFStatus === s.v} onClick={() => setUnitFStatus(s.v)}>{s.l}</Chip>
-              ))}
-            </div>
-
-            {/* Advanced */}
-            {unitShowAdv && (
-              <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
-                <div>
-                  <FLabel>Unit type</FLabel>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[{ v: "all", l: "All types" }, { v: "room", l: "Room" }, { v: "studio", l: "Studio" }, { v: "flat", l: "Flat" }, { v: "suite", l: "Suite" }, { v: "house", l: "House" }, { v: "apartment", l: "Apartment" }].map(t => (
-                      <Chip key={t.v} active={unitFType === t.v} onClick={() => setUnitFType(t.v)}>{t.l}</Chip>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <FLabel>Property</FLabel>
-                    <select
-                      value={unitFProp}
-                      onChange={e => setUnitFProp(e.target.value)}
-                      className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
-                    >
-                      <option value="all">All properties</option>
-                      {propertyOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                  </div>
-                </div>
-                {unitActiveFilters > 0 && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-slate-500">{filteredUnits.length} of {units.length} units</p>
-                    <button onClick={() => { setUnitSearch(""); setUnitFStatus("all"); setUnitFType("all"); setUnitFProp("all") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600">
-                      <X className="w-3.5 h-3.5" />Clear all
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <p className="text-[12.5px] text-slate-500 mb-4">
-            Showing {filteredUnits.length} of {totalUnits} units · {vacantUnits} vacant
-          </p>
-
-          {unitView === "grid" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredUnits.map(u => <UnitCard key={u.id} unit={u} />)}
-              {filteredUnits.length === 0 && (
-                <div className="col-span-full flex flex-col items-center py-20 gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><Home className="w-8 h-8 text-slate-300" /></div>
-                  <p className="text-[13px] font-semibold text-slate-600">No units match your filters</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {unitView === "list" && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50/50">
-                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">Unit</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">Property</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">Tenant</th>
-                      <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rent</th>
-                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">Area</th>
-                      <th className="px-4 py-3 w-10" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {filteredUnits.map(u => {
-                      const statusCfg = {
-                        occupied:    { label: "Occupied",    dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50 border border-emerald-200" },
-                        vacant:      { label: "Vacant",      dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
-                        under_works: { label: "Maintenance", dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
-                        reserved:    { label: "Reserved",    dot: "bg-violet-500",  text: "text-violet-700",  bg: "bg-violet-50 border border-violet-200" },
-                      }[u.status] ?? { label: "Vacant", dot: "bg-slate-400", text: "text-slate-600", bg: "bg-slate-100 border border-slate-200" }
-                      return (
-                        <tr key={u.id} className="hover:bg-slate-50/60 transition-colors group">
-                          <td className="px-4 py-3">
-                            <Link href={`/property-manager/portfolio/units/${u.id}`} className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors">{u.unit_name}</Link>
-                            <p className="text-[11px] text-slate-500">{u.unit_type ?? "Unit"}</p>
-                          </td>
-                          <td className="px-4 py-3 text-[12.5px] text-slate-600">{u.property_name ?? "—"}</td>
-                          <td className="px-4 py-3">
-                            <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full", statusCfg.bg, statusCfg.text)}>
-                              <span className={cn("w-1.5 h-1.5 rounded-full", statusCfg.dot)} />{statusCfg.label}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-[12.5px] text-slate-700">{u.tenant_name ?? <span className="text-slate-300">—</span>}</td>
-                          <td className="px-4 py-3 text-right text-[13px] font-bold text-slate-900 tabular-nums">{u.target_rent ? fmtGBP(u.target_rent) : <span className="text-slate-300">—</span>}</td>
-                          <td className="px-4 py-3 text-[12px] text-slate-500">{u.floor_area_sqm ? `${u.floor_area_sqm}m²` : "—"}</td>
-                          <td className="px-4 py-3">
-                            <Link href={`/property-manager/portfolio/units/${u.id}`} className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </Link>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                    {filteredUnits.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-slate-500">No units match your filters</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-      ) : activeTab === "tenancies" ? (
-        /* ══ TENANCIES ══ */
-        <div>
-          {/* Filter panel */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="relative flex-1 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  value={tenSearch}
-                  onChange={e => setTenSearch(e.target.value)}
-                  placeholder="Search by tenant, property, unit..."
-                  className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                />
-              </div>
-              <button
-                onClick={() => setTenShowAdv(v => !v)}
-                className={cn(
-                  "flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12px] font-semibold transition-all shadow-sm whitespace-nowrap",
-                  tenShowAdv || tenActiveFilters > 0 ? "bg-blue-50 border-blue-200 text-[#2563EB]" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                )}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />Filters
-                {tenActiveFilters > 0 && (
-                  <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{tenActiveFilters}</span>
-                )}
-              </button>
-              <Button variant="primary" size="sm" asChild>
-                <Link href="/property-manager/portfolio/tenancies/new"><Plus className="w-4 h-4" />Create</Link>
-              </Button>
-            </div>
-
-            {/* Status + quick filters */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {["all", "draft", "active", "ended", "terminated"].map(s => (
-                <Chip key={s} active={tenFStatus === s} onClick={() => setTenFStatus(s)}>{s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}</Chip>
-              ))}
-              <div className="h-4 w-px bg-slate-200 mx-0.5" />
-              <Chip active={tenFEndingSoon} onClick={() => setTenFEndingSoon(v => !v)} color="#EA580C">Ending soon</Chip>
-              <Chip active={tenFArrears} onClick={() => setTenFArrears(v => !v)} color="#EF4444">Arrears</Chip>
-            </div>
-
-            {/* Advanced */}
-            {tenShowAdv && (
-              <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
-                <div>
-                  <FLabel>Operation profile</FLabel>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Chip active={tenFProfile === "all"} onClick={() => setTenFProfile("all")}>All profiles</Chip>
-                    {ALL_PROFILES.map(p => (
-                      <Chip key={p.key} active={tenFProfile === p.key} onClick={() => setTenFProfile(tenFProfile === p.key ? "all" : p.key)} color={p.color}>{p.shortLabel}</Chip>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <div>
-                    <FLabel>Property</FLabel>
-                    <select value={tenFProp} onChange={e => setTenFProp(e.target.value)}
-                      className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm">
-                      <option value="all">All properties</option>
-                      {propertyOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <FLabel>Min rent</FLabel>
-                    <FInput value={tenFMinRent} onChange={setTenFMinRent} placeholder="0" prefix="£" />
-                  </div>
-                  <div>
-                    <FLabel>Max rent</FLabel>
-                    <FInput value={tenFMaxRent} onChange={setTenFMaxRent} placeholder="Any" prefix="£" />
-                  </div>
-                </div>
-                {tenActiveFilters > 0 && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-slate-500">{filteredTenancies.length} of {tenancies.length} tenancies</p>
-                    <button onClick={() => { setTenSearch(""); setTenFStatus("all"); setTenFArrears(false); setTenFEndingSoon(false); setTenFProp("all"); setTenFProfile("all"); setTenFMinRent(""); setTenFMaxRent("") }}
-                      className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-slate-600">
-                      <X className="w-3.5 h-3.5" />Clear all
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <p className="text-[12.5px] text-slate-500 mb-4">
-            Showing {filteredTenancies.length} of {tenancies.length} tenancies · {endingSoon.length} ending soon · {arrearsCount} in arrears
-          </p>
-
-          {tenView === "cards" && (
-            <div className="flex flex-col gap-3">
-              {filteredTenancies.map(t => (
-                <TenancyCard
-                  key={t.id}
-                  tenancy={t}
-                  onView={id => router.push(`/property-manager/portfolio/tenancies/${id}`)}
-                />
-              ))}
-              {filteredTenancies.length === 0 && (
-                <div className="flex flex-col items-center py-20 gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><Users className="w-8 h-8 text-slate-300" /></div>
-                  <p className="text-[13px] font-semibold text-slate-600">No tenancies match your filters</p>
-                </div>
-              )}
-            </div>
-          )}
-          {tenView === "list"  && <TenancyListView tenancies={filteredTenancies} />}
-          {tenView === "data"  && <TenancyDataView tenancies={filteredTenancies} />}
-          {tenView === "gantt" && <TenancyGanttView tenancies={filteredTenancies} />}
         </div>
 
       ) : null}
+
+      {/* AI Review pre-flight confirmation modal */}
+      {aiReviewPhase === "confirm" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setAiReviewPhase("idle")}>
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-[15px] font-bold text-slate-900">Run AI Portfolio Review?</h3>
+                <p className="text-[12.5px] text-slate-500 mt-0.5">Analyses your portfolio and surfaces insights, risks, and quick wins.</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2.5">
+              <div className="flex items-center justify-between text-[12.5px]">
+                <span className="text-slate-600 font-medium">What it will do</span>
+                <span className="text-slate-800 font-semibold">Portfolio performance review</span>
+              </div>
+              <div className="flex items-center justify-between text-[12.5px]">
+                <span className="text-slate-600 font-medium">Estimated cost</span>
+                <span className="text-[#7C3AED] font-bold">1 AI action</span>
+              </div>
+              <div className="flex items-center justify-between text-[12.5px]">
+                <span className="text-slate-600 font-medium">Result</span>
+                <span className="text-slate-800 font-semibold">Shown inline on this page</span>
+              </div>
+            </div>
+
+            <p className="text-[11.5px] text-slate-400 mb-4 leading-relaxed">
+              AI guidance is advisory only. Verify any legal, financial or compliance points with a qualified professional.
+            </p>
+
+            <div className="flex gap-2">
+              <button onClick={() => setAiReviewPhase("idle")}
+                className="flex-1 h-10 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={executeAiReview}
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition-colors flex items-center justify-center gap-1.5"
+                style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+                <Sparkles className="w-3.5 h-3.5" />
+                Run AI review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete confirmation (live data) */}
       {confirmDelete && (

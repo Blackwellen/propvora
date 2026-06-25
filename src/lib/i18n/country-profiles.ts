@@ -153,6 +153,16 @@ const PROFILES: Record<string, CountryProfile> = {
   }),
   MX: researchProfile("MX", "Mexico", "es-ES", "MXN", "+52"),
   AE: researchProfile("AE", "United Arab Emirates", "en-GB", "AED", "+971"),
+  SA: researchProfile("SA", "Saudi Arabia", "en-GB", "SAR", "+966", {
+    taxScheme: "vat",
+    taxName: "VAT",
+    standardTaxRate: 15,
+    taxIdLabel: "VAT number",
+  }),
+  GL: researchProfile("GL", "Greenland", "da-DK", "DKK", "+299", {
+    // Greenland is part of the Kingdom of Denmark but outside the EU/EU VAT area.
+    privacyRegime: "eu_gdpr",
+  }),
   TR: restrictedProfile("TR", "Turkey", "tr-TR", "TRY", "+90", { privacyRegime: "kvkk" }),
   IN: restrictedProfile("IN", "India", "en-GB", "INR", "+91", { privacyRegime: "dpdp" }),
   ID: restrictedProfile("ID", "Indonesia", "en-GB", "IDR", "+62"),

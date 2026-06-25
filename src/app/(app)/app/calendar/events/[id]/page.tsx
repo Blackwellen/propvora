@@ -18,7 +18,6 @@ import {
   Shield,
   Layers,
   ChevronRight,
-  Sparkles,
   RefreshCw,
   Plus,
   AlertCircle,
@@ -654,16 +653,6 @@ function RightRail({ event, onDelete, onMarkDone, busy }: { event: CalendarEvent
         </dl>
       </div>
 
-      {/* AI insight */}
-      <div className="rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] p-4 space-y-2">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#7C3AED]" />
-          <p className="text-xs font-semibold text-[#6D28D9] uppercase tracking-wide">AI Insight</p>
-        </div>
-        <p className="text-xs text-[#6D28D9] leading-relaxed">
-          AI-powered recommendations for this event will appear here once your calendar data is populated.
-        </p>
-      </div>
     </div>
   )
 }

@@ -5,8 +5,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ChevronUp, ChevronDown,
-  TrendingUp, Eye, Edit2, Building2,
-  Plus, Users, Archive,
+  TrendingUp, Eye, Building2,
+  Plus, Users, Settings2,
 } from "lucide-react"
 import type { PropertyCardData } from "./PropertyCard"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -197,17 +197,13 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                         className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
-                      <Link href={`/property-manager/portfolio/properties/${p.id}/edit`}
-                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-all">
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </Link>
                       <ActionMenu
                         align="right"
                         items={[
                           { label: "View property", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/properties/${p.id}`) },
                           { label: "Add unit", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/units/new?propertyId=${p.id}`) },
                           { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?propertyId=${p.id}`) },
-                          { label: "Archive", icon: Archive, onClick: () => {} },
+                          { label: "Manage property", icon: Settings2, onClick: () => router.push(`/property-manager/portfolio/properties/${p.id}`) },
                         ]}
                       />
                     </div>

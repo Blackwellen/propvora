@@ -2,10 +2,12 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
 import {
   Building2, ExternalLink, Plus, TrendingUp, FileText, Settings,
   MapPin, Star, Shield, StickyNote, ListChecks, Check,
-  MessageCircle, MessageSquare, Zap, User,
+  MessageCircle, MessageSquare, Zap, User, CalendarDays,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import LocationMap from "@/components/maps/LocationMap"
@@ -17,6 +19,8 @@ import {
   InlineEditTextarea,
 } from "@/components/editing"
 import { useContactMessages } from "@/hooks/useMessages"
+import { useCreateTask, useCompleteTask } from "@/hooks/useTasks"
+import { createClient } from "@/lib/supabase/client"
 import type { ContactDetail } from "./types"
 import {
   SectionCard, FieldRow, EmptyState, StatusChip,
@@ -184,13 +188,15 @@ export function SupplierProfileTab({ contact }: { contact: ContactDetail }) {
 
 // ---- Landlord Properties ----
 export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const props = contact.properties ?? []
-  if (props.length === 0) return <EmptyState icon={Building2} message="No properties linked to this landlord yet." cta="Link Property" />
+  const linkProperty = () => router.push(`/property-manager/portfolio/properties?link_contact=${contact.id}`)
+  if (props.length === 0) return <EmptyState icon={Building2} message="No properties linked to this landlord yet." cta="Link Property" onCta={linkProperty} />
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-500">{props.length} properties</p>
-        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Link Property</Button>
+        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={linkProperty}>Link Property</Button>
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
         {props.map((prop, i) => (
@@ -206,10 +212,9 @@ export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-              <span className="text-xs text-slate-400">1 tenant</span>
-              <Link href="/property-manager/portfolio/properties/p1" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                View <ExternalLink className="w-3 h-3" />
+            <div className="flex items-center justify-end mt-3 pt-3 border-t border-slate-100">
+              <Link href="/property-manager/portfolio/properties" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                View in Portfolio <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
           </SectionCard>
@@ -221,15 +226,17 @@ export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
 
 // ---- Planning Sets ----
 export function PlanningSetTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const sets = contact.planning_sets ?? []
+  const createSet = () => router.push(`/property-manager/planning/sets?contact=${contact.id}`)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-500">{sets.length} planning sets</p>
-        <Button variant="primary" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Create Planning Set</Button>
+        <Button variant="primary" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={createSet}>Create Planning Set</Button>
       </div>
       {sets.length === 0 ? (
-        <EmptyState icon={TrendingUp} message="No planning sets created for this landlord yet." />
+        <EmptyState icon={TrendingUp} message="No planning sets created for this landlord yet." cta="Create Planning Set" onCta={createSet} />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
@@ -261,15 +268,17 @@ export function PlanningSetTab({ contact }: { contact: ContactDetail }) {
 
 // ---- Landlord Offers ----
 export function LandlordOffersTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const offers = contact.landlord_offers ?? []
+  const createOffer = () => router.push(`/property-manager/planning/landlord-offers?contact=${contact.id}`)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-500">{offers.length} offers</p>
-        <Button variant="primary" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Create Offer</Button>
+        <Button variant="primary" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={createOffer}>Create Offer</Button>
       </div>
       {offers.length === 0 ? (
-        <EmptyState icon={FileText} message="No landlord offers created yet." />
+        <EmptyState icon={FileText} message="No landlord offers created yet." cta="Create Offer" onCta={createOffer} />
       ) : (
         <div className="space-y-3">
           {offers.map((o, i) => (
@@ -282,7 +291,7 @@ export function LandlordOffersTab({ contact }: { contact: ContactDetail }) {
                 <p className="text-xs text-slate-500 mt-0.5">£{o.amount.toLocaleString("en-GB")}/mo</p>
               </div>
               <StatusChip status={o.status} />
-              <button className="text-xs text-blue-600 hover:underline">View</button>
+              <Link href="/property-manager/planning/landlord-offers" className="text-xs text-blue-600 hover:underline">View</Link>
             </SectionCard>
           ))}
         </div>
@@ -293,6 +302,7 @@ export function LandlordOffersTab({ contact }: { contact: ContactDetail }) {
 
 // ---- Enquiry (Applicant) ----
 export function EnquiryTab({ contact }: { contact: ContactDetail }) {
+  const router = useRouter()
   const eq = contact.enquiry
   if (!eq) return <EmptyState icon={User} message="No enquiry details recorded." />
   return (
@@ -317,34 +327,38 @@ export function EnquiryTab({ contact }: { contact: ContactDetail }) {
           <p className="text-sm font-semibold text-blue-900">Ready to convert?</p>
           <p className="text-sm text-blue-700">Convert this applicant to a tenant and create a tenancy record</p>
         </div>
-        <Button variant="primary" size="sm" className="shrink-0">Convert to Tenant</Button>
+        <Button variant="primary" size="sm" className="shrink-0" onClick={() => router.push(`/property-manager/portfolio/tenancies/new?contact=${contact.id}`)}>Convert to Tenant</Button>
       </div>
     </div>
   )
 }
 
 // ---- Property Interest (Applicant) ----
-export function PropertyInterestTab() {
+export function PropertyInterestTab({ contactId }: { contactId: string }) {
+  const router = useRouter()
+  const linkProperty = () => router.push(`/property-manager/portfolio/properties?link_contact=${contactId}`)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-500">0 properties of interest</p>
-        <Button variant="outline" size="sm">Link Property</Button>
+        <p className="text-xs text-slate-500">Properties of interest</p>
+        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={linkProperty}>Link Property</Button>
       </div>
-      <EmptyState icon={Building2} message="No properties of interest linked yet. Link a property to track this applicant's interest." cta="Link Property" />
+      <EmptyState icon={Building2} message="No properties of interest linked yet. Link a property to track this applicant's interest." cta="Link Property" onCta={linkProperty} />
     </div>
   )
 }
 
 // ---- Viewings ----
-export function ViewingsTab() {
+export function ViewingsTab({ contactId }: { contactId: string }) {
+  const router = useRouter()
+  const bookViewing = () => router.push(`/property-manager/calendar/events/new?contact=${contactId}&type=viewing`)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-500">0 viewings</p>
-        <Button variant="outline" size="sm">Book Viewing</Button>
+        <p className="text-xs text-slate-500">Viewings</p>
+        <Button variant="outline" size="sm" leftIcon={<CalendarDays className="w-3.5 h-3.5" />} onClick={bookViewing}>Book Viewing</Button>
       </div>
-      <EmptyState icon={Building2} message="No viewings scheduled or completed yet." cta="Book Viewing Task" />
+      <EmptyState icon={CalendarDays} message="No viewings scheduled or completed yet." cta="Book Viewing" onCta={bookViewing} />
     </div>
   )
 }
@@ -404,27 +418,80 @@ export function NotesTab({ contact }: { contact: ContactDetail }) {
   )
 }
 
-// ---- Tasks ----
-export function TasksTab() {
+// ---- Tasks (real, contact-scoped, persisted) ----
+interface ContactTaskRow { id: string; title: string; status: string; due_at: string | null }
+
+function useContactTasks(workspaceId: string | undefined, contactId: string) {
+  return useQuery<ContactTaskRow[]>({
+    queryKey: ["contact-tasks", workspaceId, contactId],
+    enabled: !!workspaceId && !!contactId,
+    staleTime: 15 * 1000,
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("id, title, status, due_at")
+        .eq("workspace_id", workspaceId!)
+        .eq("assignee_contact_id", contactId)
+        .order("due_at", { ascending: true, nullsFirst: false })
+        .limit(100)
+      if (error) {
+        if (error.code === "42P01") return []
+        throw error
+      }
+      return (data ?? []) as ContactTaskRow[]
+    },
+  })
+}
+
+export function TasksTab({ contactId, workspaceId }: { contactId: string; workspaceId: string | undefined }) {
+  const { editable } = useContactSave()
+  const router = useRouter()
+  const { data: tasks = [], isLoading, refetch } = useContactTasks(workspaceId, contactId)
+  const createTask = useCreateTask()
+  const completeTask = useCompleteTask()
   const [showForm, setShowForm] = useState(false)
   const [title, setTitle] = useState("")
   const [dueDate, setDueDate] = useState("")
-  const [saving, setSaving] = useState(false)
-  const [tasks, setTasks] = useState<{ id: string; title: string; dueDate: string; status: string }[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  function saveTask() {
-    if (!title.trim()) return
-    setSaving(true)
-    const newTask = { id: Date.now().toString(), title: title.trim(), dueDate, status: "to_do" }
-    setTasks(prev => [newTask, ...prev])
-    setTitle(""); setDueDate(""); setShowForm(false); setSaving(false)
+  async function saveTask() {
+    if (!title.trim() || !workspaceId) return
+    setError(null)
+    try {
+      await createTask.mutateAsync({
+        workspace_id: workspaceId,
+        title: title.trim(),
+        status: "todo",
+        priority: "medium",
+        contact_id: contactId,
+        ...(dueDate ? { due_date: dueDate } : {}),
+      } as Parameters<typeof createTask.mutateAsync>[0])
+      setTitle(""); setDueDate(""); setShowForm(false)
+      await refetch()
+    } catch {
+      setError("Could not save the task. Please try again.")
+    }
   }
+
+  async function markDone(id: string) {
+    if (!workspaceId) return
+    try {
+      await completeTask.mutateAsync({ id, workspaceId })
+      await refetch()
+    } catch { /* surfaced via optimistic rollback in hook */ }
+  }
+
+  const isDone = (s: string) => s === "done" || s === "completed" || s === "cancelled"
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-900">Tasks ({tasks.length})</h3>
-        <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setShowForm(!showForm)}>Add Task</Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => router.push(`/property-manager/work/tasks/new?contact=${contactId}`)}>Full task form</Button>
+          <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} disabled={!editable} onClick={() => setShowForm(!showForm)}>Add Task</Button>
+        </div>
       </div>
       {showForm && (
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
@@ -438,26 +505,38 @@ export function TasksTab() {
             <input id="contact-task-due" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
               className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
           </div>
+          {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
-            <Button variant="primary" size="sm" loading={saving} onClick={saveTask} disabled={!title.trim()}>
+            <Button variant="primary" size="sm" loading={createTask.isPending} onClick={saveTask} disabled={!title.trim()}>
               <Check className="w-3.5 h-3.5" /> Save Task
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { setShowForm(false); setTitle(""); setDueDate("") }}>Cancel</Button>
+            <Button variant="outline" size="sm" onClick={() => { setShowForm(false); setTitle(""); setDueDate(""); setError(null) }}>Cancel</Button>
           </div>
         </div>
       )}
-      {tasks.length === 0 && !showForm ? (
+      {isLoading ? (
+        <div className="py-10 text-center text-sm text-slate-400">Loading tasks…</div>
+      ) : tasks.length === 0 && !showForm ? (
         <EmptyState icon={ListChecks} message="No tasks linked to this contact yet." />
       ) : (
         <div className="space-y-2">
           {tasks.map(task => (
             <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-all">
-              <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-900">{task.title}</p>
-                {task.dueDate && <p className="text-xs text-slate-400 mt-0.5">Due {new Date(task.dueDate).toLocaleDateString("en-GB")}</p>}
-              </div>
-              <Badge variant="default" size="sm">To Do</Badge>
+              <button
+                type="button"
+                onClick={() => !isDone(task.status) && markDone(task.id)}
+                disabled={!editable || isDone(task.status)}
+                aria-label={isDone(task.status) ? "Task complete" : "Mark task complete"}
+                className={cn("w-4 h-4 rounded-full border shrink-0 flex items-center justify-center transition-colors",
+                  isDone(task.status) ? "bg-emerald-500 border-emerald-500" : "border-slate-300 hover:border-emerald-500")}
+              >
+                {isDone(task.status) && <Check className="w-3 h-3 text-white" />}
+              </button>
+              <Link href={`/property-manager/work/tasks/${task.id}`} className="flex-1 min-w-0">
+                <p className={cn("text-sm font-medium truncate", isDone(task.status) ? "text-slate-400 line-through" : "text-slate-900")}>{task.title}</p>
+                {task.due_at && <p className="text-xs text-slate-400 mt-0.5">Due {new Date(task.due_at).toLocaleDateString("en-GB")}</p>}
+              </Link>
+              <StatusChip status={task.status} />
             </div>
           ))}
         </div>

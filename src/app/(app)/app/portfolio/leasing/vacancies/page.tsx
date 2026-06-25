@@ -1,6 +1,9 @@
 ﻿"use client"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspaceId } from "@/hooks/useWorkspace"
 import {
   Plus,
   Download,
@@ -41,8 +44,52 @@ interface Vacancy {
   daysListed: number
 }
 
-/* ─── Mock data ───────────────────────────────────────────────── */
-const VACANCIES: Vacancy[] = []
+const DB_STATUS_MAP: Record<string, VacancyStatus> = {
+  draft: "Draft",
+  active: "Active",
+  under_offer: "Under Offer",
+  let: "Let",
+  withdrawn: "Draft",
+}
+
+function useVacancies(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<Vacancy[]>({
+    queryKey: ["vacancies", workspaceId],
+    enabled: !!workspaceId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("property_vacancies")
+        .select(`*, properties ( nickname, address_line_1, city, type ), prospects ( id )`)
+        .eq("workspace_id", workspaceId!)
+        .order("created_at", { ascending: false })
+      if (error) throw error
+      return (data ?? []).map((v: any) => {
+        const prop = Array.isArray(v.properties) ? v.properties[0] : v.properties
+        const portals = (v.portal_listings as Record<string, boolean>) ?? {}
+        return {
+          id: v.id,
+          address: prop ? [prop.address_line_1, prop.city].filter(Boolean).join(", ") : v.title,
+          type: prop?.type ?? "Property",
+          bedrooms: v.bedrooms ?? null,
+          furnished: v.furnished ?? "—",
+          availableFrom: v.available_from
+            ? new Date(v.available_from).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+            : "Now",
+          rent: v.asking_rent ? `£${Number(v.asking_rent).toLocaleString("en-GB")}/pcm` : "—",
+          status: DB_STATUS_MAP[v.status] ?? "Draft",
+          portals: [
+            { label: "Rightmove",    short: "RM",  listed: !!portals.rightmove },
+            { label: "Zoopla",       short: "ZP",  listed: !!portals.zoopla },
+            { label: "OnTheMarket",  short: "OTM", listed: !!portals.otm },
+          ],
+          prospectCount: Array.isArray(v.prospects) ? v.prospects.length : 0,
+          daysListed: Math.max(0, Math.floor((Date.now() - new Date(v.created_at).getTime()) / 86400000)),
+        } satisfies Vacancy
+      })
+    },
+  })
+}
 
 const STATUS_FILTERS: { key: VacancyStatus | "All"; label: string }[] = [
   { key: "All",         label: "All" },
@@ -62,19 +109,21 @@ const statusStyle: Record<VacancyStatus, string> = {
 /* ─── Page ────────────────────────────────────────────────────── */
 export default function VacanciesPage() {
   const router = useRouter()
+  const workspaceId = useWorkspaceId()
+  const { data: vacancies = [], isLoading } = useVacancies(workspaceId)
   const [activeFilter, setActiveFilter] = useState<VacancyStatus | "All">("All")
 
-  const filtered = activeFilter === "All" ? VACANCIES : VACANCIES.filter((v) => v.status === activeFilter)
+  const filtered = activeFilter === "All" ? vacancies : vacancies.filter((v) => v.status === activeFilter)
 
   return (
     <>
       {/* Mobile top bar */}
       <MobileTopBar
         title="Vacancies"
-        subtitle={`${VACANCIES.length} total vacancies`}
+        subtitle={`${vacancies.length} total vacancies`}
         showBack
         backHref="/property-manager/portfolio/leasing"
-        primaryAction={{ label: "New vacancy", icon: Plus, onClick: () => {} }}
+        primaryAction={{ label: "New vacancy", icon: Plus, onClick: () => router.push("/property-manager/portfolio/units/new") }}
       />
 
       {/* Page header — hidden on phones */}
@@ -82,7 +131,7 @@ export default function VacanciesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-slate-900">Vacancies</h1>
-            <p className="text-[13px] text-slate-500 mt-0.5">{VACANCIES.length} total vacancies</p>
+            <p className="text-[13px] text-slate-500 mt-0.5">{vacancies.length} total vacancies</p>
           </div>
           <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
             <Plus className="w-3.5 h-3.5" />
@@ -128,14 +177,29 @@ export default function VacanciesPage() {
           ))}
         </div>
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 animate-pulse">
+                <div className="h-4 bg-slate-100 rounded w-1/2 mb-3" />
+                <div className="h-6 bg-slate-100 rounded w-3/4 mb-2" />
+                <div className="h-4 bg-slate-100 rounded w-full mb-1" />
+                <div className="h-4 bg-slate-100 rounded w-2/3" />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Grid */}
-        {filtered.length === 0 && (
+        {!isLoading && filtered.length === 0 && (
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-10 text-center">
             <BedDouble className="w-8 h-8 text-slate-300 mx-auto mb-3" />
             <p className="text-[13px] font-medium text-slate-600">No vacancies yet</p>
             <p className="text-[12px] text-slate-400 mt-1">Create a vacancy to start listing properties and tracking prospects.</p>
           </div>
         )}
+        {!isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
             <div key={v.id} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -214,10 +278,9 @@ export default function VacanciesPage() {
                     <ActionMenu
                       align="right"
                       items={[
-                        { label: "View listing", icon: Eye, onClick: () => {} },
-                        { label: "Schedule viewing", icon: CalendarDays, onClick: () => {} },
-                        { label: "Mark as let", icon: CheckCircle2, onClick: () => {} },
-                        { label: "Remove listing", icon: Trash2, onClick: () => {}, variant: "danger" },
+                        { label: "View listing", icon: Eye, onClick: () => router.push("/property-manager/portfolio/units") },
+                        { label: "Schedule viewing", icon: CalendarDays, onClick: () => router.push("/property-manager/portfolio/leasing/viewings") },
+                        { label: "Mark as let", icon: CheckCircle2, onClick: () => router.push("/property-manager/portfolio/tenancies/new") },
                       ]}
                     />
                   </div>
@@ -226,6 +289,7 @@ export default function VacanciesPage() {
             </div>
           ))}
         </div>
+        )}
 
         {/* Portal Export info card */}
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden p-5">

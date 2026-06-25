@@ -14,7 +14,7 @@ import {
 } from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import {
-  Building2, Plus, Download, Upload,
+  Building2, Plus,
   Eye, RefreshCw, XCircle, Search, SlidersHorizontal,
 } from "lucide-react"
 import { StatusPill, fmt, Card } from "./shared"
@@ -53,10 +53,10 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
   if (tenanciesList.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-[13px] text-slate-500">No tenancies yet for this property.</p>
-          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
-            <Plus size={13} /> New Tenancy
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[13px] text-slate-500 min-w-0">No tenancies yet for this property.</p>
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+            <Plus size={13} className="shrink-0" /> New Tenancy
           </Link>
         </div>
       </div>
@@ -90,13 +90,6 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
           <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> New Tenancy
           </Link>
-          <ActionMenu
-            align="right"
-            items={[
-              { label: "Export tenancies", icon: Download, onClick: () => {} },
-              { label: "Import tenancies", icon: Upload, onClick: () => {} },
-            ]}
-          />
         </div>
       </div>
 

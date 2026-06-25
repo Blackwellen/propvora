@@ -57,6 +57,28 @@ export function useSupplierDocuments(
   })
 }
 
+/** All supplier documents in a workspace (for the workspace-level Compliance page). */
+export function useWorkspaceSupplierDocuments(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<SupplierDocument[]>({
+    queryKey: ['supplier-documents', workspaceId, 'all'],
+    enabled: !!workspaceId,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('supplier_documents')
+        .select('id, workspace_id, supplier_id, doc_type, name, expiry_date, is_verified, notes, created_at')
+        .eq('workspace_id', workspaceId!)
+        .order('expiry_date', { ascending: true, nullsFirst: false })
+      if (error) {
+        if (code(error) === '42P01') return []
+        throw error
+      }
+      return (data ?? []) as SupplierDocument[]
+    },
+  })
+}
+
 export interface ContactActivityRow {
   id: string
   workspace_id: string

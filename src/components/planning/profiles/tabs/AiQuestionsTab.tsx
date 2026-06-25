@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Sparkles, ChevronDown, ChevronRight, Send, Zap } from 'lucide-react'
+import { Sparkles, ChevronDown, ChevronRight, ArrowRight, Zap } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
 import { ProfileKpiCard } from '@/components/planning/profiles'
 
@@ -14,31 +14,17 @@ export default function AiQuestionsTab({ profile }: Props) {
   const { aiQuestions } = profile
 
   const [activeQuestion, setActiveQuestion] = useState<string | null>(null)
-  const [customQuestion, setCustomQuestion] = useState('')
-  const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [toast, setToast] = useState<string | null>(null)
 
-  function showToast(msg: string) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 3500)
+  // Personalised AI runs inside a Planning Set (real, record-grounded, cost-metered
+  // flow). Profile guides are reference content, so every "explore" CTA deep-links
+  // into the wizard rather than faking an AI answer here.
+  const wizardHref = `/property-manager/planning/wizard?profile=${profile.slug}`
+  function questionHref(question: string) {
+    return `${wizardHref}&q=${encodeURIComponent(question)}`
   }
 
   function toggleQuestion(q: string) {
     setActiveQuestion((prev) => (prev === q ? null : q))
-  }
-
-  function handleAskAI(question: string) {
-    showToast('AI answer coming — start a Planning Set for personalized analysis')
-  }
-
-  function handleCustomSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!customQuestion.trim()) return
-    setAnswers((prev) => ({
-      ...prev,
-      [customQuestion.trim()]: 'This is a profile-level suggestion. Start a Planning Set to get personalized AI analysis.',
-    }))
-    setCustomQuestion('')
   }
 
   const circumference = 2 * Math.PI * 42
@@ -68,14 +54,6 @@ export default function AiQuestionsTab({ profile }: Props) {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl flex items-center gap-2">
-          <Sparkles className="w-4 h-4" style={{ color: profile.accentColor }} />
-          <span>{toast}</span>
-        </div>
-      )}
-
       {/* 1. Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Confidence Score */}
@@ -204,14 +182,14 @@ export default function AiQuestionsTab({ profile }: Props) {
                 {isOpen && (
                   <div className="px-4 pb-4 pt-1 bg-slate-50/60 border-t border-slate-100">
                     <p className="text-sm text-slate-600 leading-relaxed mb-3">{q.insight}</p>
-                    <button
-                      onClick={() => handleAskAI(q.question)}
+                    <Link
+                      href={questionHref(q.question)}
                       className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-white text-sm font-medium transition-all"
                       style={{ backgroundColor: profile.accentColor }}
                     >
                       <Sparkles className="w-4 h-4" />
-                      Ask AI
-                    </button>
+                      Model this in a Planning Set
+                    </Link>
                   </div>
                 )}
               </div>
@@ -277,42 +255,22 @@ export default function AiQuestionsTab({ profile }: Props) {
         </ol>
       </div>
 
-      {/* 7. Custom Question Input */}
+      {/* 7. How AI analysis works here */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Ask a Custom Question</h2>
-        <p className="text-sm text-slate-500 mb-4">Get a profile-level response or start a Planning Set for personalised AI analysis.</p>
-
-        {/* Past answers */}
-        {Object.keys(answers).length > 0 && (
-          <div className="space-y-3 mb-4">
-            {Object.entries(answers).map(([q, a]) => (
-              <div key={q} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <p className="text-sm font-semibold text-slate-800 mb-1">{q}</p>
-                <p className="text-sm text-slate-500">{a}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <form onSubmit={handleCustomSubmit} className="flex gap-3">
-          <input
-            type="text"
-            value={customQuestion}
-            onChange={(e) => setCustomQuestion(e.target.value)}
-            placeholder="e.g. What yield should I target for this model?"
-            className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent"
-            style={{ '--tw-ring-color': profile.accentColor } as React.CSSProperties}
-          />
-          <button
-            type="submit"
-            disabled={!customQuestion.trim()}
-            className="px-4 py-3 rounded-xl text-white font-medium text-sm flex items-center gap-2 disabled:opacity-40 transition-opacity"
-            style={{ backgroundColor: profile.accentColor }}
-          >
-            <Send className="w-4 h-4" />
-            Ask
-          </button>
-        </form>
+        <h2 className="text-lg font-semibold text-slate-900 mb-2">Want answers for your own deal?</h2>
+        <p className="text-sm text-slate-500 mb-4 max-w-2xl">
+          The questions above are a reference framework for the <span className="font-medium text-slate-700">{profile.name}</span> model.
+          Personalised AI analysis — grounded in your property, your numbers and live compliance data — runs inside a Planning Set,
+          where every AI run shows its cost before it executes and is logged to your workspace usage.
+        </p>
+        <Link
+          href={wizardHref}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition-all"
+          style={{ backgroundColor: profile.accentColor }}
+        >
+          Start a Planning Set
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* 8. Start Planning Set CTA */}

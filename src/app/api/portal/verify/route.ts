@@ -11,6 +11,7 @@ import {
   sha256,
   portalCookieOptions,
   getRequestMeta,
+  PROPERTY_SCOPED_PORTAL_TYPES,
 } from "@/lib/portal/session"
 import { getLandlordPropertyIds } from "@/lib/portal/data"
 
@@ -84,16 +85,17 @@ export async function POST(req: NextRequest) {
 
   const grant = outcome.resolved
 
-  // Freeze any record-level allow-lists for landlord scope at verify time so
-  // the session carries them and downstream reads can't be widened.
+  // Freeze any record-level allow-lists for property-scoped verticals
+  // (landlord / accountant / solicitor / generic) at verify time so the
+  // session carries them and downstream reads can't be widened.
   const scope = { ...grant.scope }
-  if (grant.portalType === "landlord" && grant.contactId) {
+  if (PROPERTY_SCOPED_PORTAL_TYPES.includes(grant.portalType) && grant.contactId) {
     try {
       const ids = await getLandlordPropertyIds({
         id: "pending",
         workspaceId: grant.workspaceId,
         contactId: grant.contactId,
-        portalType: "landlord",
+        portalType: grant.portalType,
         scope: grant.scope,
         expiresAt: new Date().toISOString(),
         workspaceName: "",

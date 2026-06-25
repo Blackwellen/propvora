@@ -7,15 +7,12 @@ import {
   ChevronLeft,
   CheckCircle2,
   Calendar,
-  Sparkles,
-  MoreHorizontal,
   Building2,
   Truck,
   Hash,
   Copy,
   PoundSterling,
   FileText,
-  Download,
   Plus,
   CheckSquare,
   Activity,
@@ -48,9 +45,10 @@ import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs"
 import DirectPaymentPanel from "@/components/payments/DirectPaymentPanel"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import { useJobDocuments } from "@/features/work/useWorkDocuments"
+import { useRecordActivity } from "@/features/work/useRecordActivity"
+import { useTabParam } from "@/features/work/useTabParam"
 import type { Job, UpdateJob } from "@/types/database"
-import { openCopilot } from "@/lib/copilot/open"
-
 // Job lifecycle status options (matches the live `jobs.status` enum).
 const JOB_STATUS_OPTIONS = [
   { value: "new", label: "New" },
@@ -129,7 +127,6 @@ interface JobView {
     status: string
     steps: string[]
   }
-  documents: { name: string; size: string; date: string; type: string }[]
   recentUpdates: { user: string; initials: string; action: string; time: string }[]
   activity: { user: string; initials: string; text: string; time: string }[]
 }
@@ -203,7 +200,6 @@ function buildJobView(job: Job): JobView {
       status: job.status === "complete" ? "Complete" : "On Schedule",
       steps: [],
     },
-    documents: [],
     recentUpdates: [
       { user: "System", initials: "SY", action: `Job created ${createdAt}`, time: createdAt },
     ],
@@ -213,7 +209,7 @@ function buildJobView(job: Job): JobView {
   }
 }
 
-const JOB_TABS = ["Overview", "Schedule", "Quotes", "Costs", "Documents", "Activity", "Supplier", "Communications", "Notes", "Linked Tasks"]
+const JOB_TABS = ["Overview", "Schedule", "Quotes", "Costs", "Documents", "Activity", "Supplier", "Notes", "Linked Tasks"]
 
 // ---------------------------------------------------------------------------
 // Loading skeleton
@@ -481,9 +477,6 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
           <div className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900">Linked Issues</h3>
-              <button className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
-                <Plus className="w-3 h-3" /> Link Issue
-              </button>
             </div>
             <div className="space-y-2">
               {job.linkedIssues.map(issue => (
@@ -609,47 +602,11 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
           revalidate={`/property-manager/work/jobs/${job.id}`}
         />
 
-        {/* Documents */}
+        {/* Activity */}
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-slate-900">Documents</h3>
-            <button className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
-              <Plus className="w-3 h-3" /> Upload
-            </button>
-          </div>
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center mb-3">
-            <p className="text-xs text-slate-400">Drop files here or click to upload</p>
-          </div>
-          {job.documents.length > 0 && (
-            <div className="space-y-2">
-              {job.documents.map(doc => (
-                <div key={doc.name} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-red-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{doc.name}</p>
-                      <p className="text-[11px] text-slate-400">{doc.size} · {doc.date}</p>
-                    </div>
-                  </div>
-                  <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
-                    <Download className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Activity & Comments */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-900">Activity &amp; Comments</h3>
-            <button className="text-[11px] text-slate-400 border border-slate-200 rounded-lg px-2 py-1 hover:bg-slate-50">All Updates</button>
-          </div>
+          <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity</h3>
           {job.activity.map((item, i) => (
-            <div key={i} className="flex items-start gap-3 mb-4">
+            <div key={i} className="flex items-start gap-3 mb-4 last:mb-0">
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                 {item.initials}
               </div>
@@ -662,14 +619,6 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
               </div>
             </div>
           ))}
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-            />
-            <button className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg text-xs font-semibold">Post</button>
-          </div>
         </div>
       </div>
 
@@ -694,23 +643,6 @@ function OverviewTab({ job, rawJob, onSave, options }: OverviewTabProps) {
           </div>
         </div>
 
-        {/* Documents summary */}
-        {job.documents.length > 0 && (
-          <div className="bg-white border border-slate-200 rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Documents</h3>
-            <div className="space-y-2">
-              {job.documents.map(doc => (
-                <div key={doc.name} className="flex items-start gap-2">
-                  <FileText className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[11px] font-medium text-slate-700 truncate max-w-[140px]">{doc.name}</p>
-                    <p className="text-[10px] text-slate-400">{doc.size}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -765,6 +697,75 @@ function NotesTab({ rawJob, onSave }: { rawJob: Job; onSave: (field: keyof Updat
 }
 
 // ---------------------------------------------------------------------------
+// Documents tab — live upload + re-read so evidence survives a refresh
+// ---------------------------------------------------------------------------
+function JobDocumentsTab({ workspaceId, jobId }: { workspaceId?: string; jobId: string }) {
+  const { data: docs = [] } = useJobDocuments(workspaceId, jobId)
+  return (
+    <div className="space-y-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Documents &amp; Evidence</h3>
+        <EvidenceUpload
+          workspaceId={workspaceId}
+          folder="job-evidence"
+          table="job_documents"
+          extra={{ job_id: jobId }}
+          initialDocs={docs}
+          className="mb-3"
+        />
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Activity tab — real activity_logs history merged with derived lifecycle events
+// ---------------------------------------------------------------------------
+function JobActivityTab({ workspaceId, jobId, baseActivity }: { workspaceId?: string; jobId: string; baseActivity: JobView["activity"] }) {
+  const { data: logs = [], isLoading } = useRecordActivity(workspaceId, "job", jobId)
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity</h3>
+      {isLoading ? (
+        <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-10 rounded-lg bg-slate-100 animate-pulse" />)}</div>
+      ) : (
+        <>
+          {logs.map((ev) => (
+            <div key={ev.id} className="flex items-start gap-3 mb-4">
+              <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                {ev.action.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold text-slate-700 capitalize">{ev.action.replace(/_/g, " ")}</p>
+                  <p className="text-[10px] text-slate-400">{new Date(ev.created_at).toLocaleString("en-GB")}</p>
+                </div>
+                {ev.description && <p className="text-xs text-slate-600 mt-0.5">{ev.description}</p>}
+              </div>
+            </div>
+          ))}
+          {/* Derived lifecycle baseline (shown beneath any real logged activity). */}
+          {baseActivity.map((item, i) => (
+            <div key={i} className="flex items-start gap-3 mb-4 last:mb-0">
+              <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-500 text-[10px] font-bold flex items-center justify-center shrink-0">
+                {item.initials}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold text-slate-600">{item.user}</p>
+                  <p className="text-[10px] text-slate-400">{item.time}</p>
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function JobDetailPage() {
@@ -774,7 +775,7 @@ export default function JobDetailPage() {
   const { data: jobData, isLoading, error } = useJob(workspaceId, id)
   const updateJob = useUpdateJob()
   const deleteJob = useDeleteJob()
-  const [activeTab, setActiveTab] = useState("Overview")
+  const [activeTab, setActiveTab] = useTabParam(JOB_TABS, "Overview")
   const [copied, setCopied] = useState(false)
   const [completing, setCompleting] = useState(false)
 
@@ -857,7 +858,6 @@ export default function JobDetailPage() {
           { label: jobData.status === "complete" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (jobData.status !== "complete") handleMarkComplete() } },
           { label: "Reschedule", icon: Calendar, href: "/property-manager/work/ppm" },
           { label: "Request quote", icon: FileText, href: "/property-manager/work/suppliers" },
-          { label: "Ask AI", icon: Sparkles, onClick: () => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` }) },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
@@ -893,12 +893,6 @@ export default function JobDetailPage() {
           >
             Request Quote
           </Link>
-          <button
-            onClick={() => openCopilot({ prompt: `Summarise this job and tell me what action is needed next.` })}
-            className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </button>
           <ConfirmDeleteDialog
             title="Delete this job?"
             description="This action cannot be undone. The job will be permanently removed."
@@ -913,9 +907,6 @@ export default function JobDetailPage() {
               </button>
             )}
           </ConfirmDeleteDialog>
-          <button className="h-8 w-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-50">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -1219,93 +1210,11 @@ export default function JobDetailPage() {
           )}
 
           {activeTab === "Documents" && (
-            <div className="space-y-4">
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Documents &amp; Evidence</h3>
-                <EvidenceUpload
-                  workspaceId={workspaceId}
-                  folder="job-evidence"
-                  table="job_documents"
-                  extra={{ job_id: id }}
-                  className="mb-3"
-                />
-                {job.documents.length > 0 && (
-                  <div className="space-y-2">
-                    {job.documents.map(doc => (
-                      <div key={doc.name} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                            <FileText className="w-4 h-4 text-red-500" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-slate-700">{doc.name}</p>
-                            <p className="text-[11px] text-slate-400">{doc.size} · {doc.date}</p>
-                          </div>
-                        </div>
-                        <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
-                          <Download className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            <JobDocumentsTab workspaceId={workspaceId} jobId={id} />
           )}
 
           {activeTab === "Activity" && (
-            <div className="bg-white border border-slate-200 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity &amp; Comments</h3>
-              {job.activity.map((item, i) => (
-                <div key={i} className="flex items-start gap-3 mb-4">
-                  <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                    {item.initials}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs font-semibold text-slate-700">{item.user}</p>
-                      <p className="text-[10px] text-slate-400">{item.time}</p>
-                    </div>
-                    <p className="text-xs text-slate-600 mt-0.5">{item.text}</p>
-                  </div>
-                </div>
-              ))}
-              <div className="flex items-center gap-3 mt-4">
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-                <button className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg text-xs font-semibold">Post</button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "Communications" && (
-            <div className="space-y-4">
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-slate-900">Communications Log</h3>
-                  <button className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
-                    <Plus className="w-3 h-3" /> Log Communication
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {job.recentUpdates.map((u, i) => (
-                    <div key={i} className="flex items-start gap-3 pb-3 border-b border-slate-50 last:border-0">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold shrink-0">
-                        {u.initials}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-slate-700">{u.user}</p>
-                        <p className="text-xs text-slate-600">{u.action}</p>
-                        <p className="text-[10px] text-slate-400">{u.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <JobActivityTab workspaceId={workspaceId} jobId={id} baseActivity={job.activity} />
           )}
 
           {activeTab === "Notes" && (
@@ -1316,14 +1225,15 @@ export default function JobDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-slate-500">{job.linkedIssues.length} tasks linked to this job</p>
-                <Link href="/property-manager/work/tasks/new" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline">
-                  <Plus className="w-3 h-3" /> Link Task
-                </Link>
               </div>
               {job.linkedIssues.length === 0 ? (
                 <div className="text-center py-12">
                   <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-sm text-slate-500">No tasks linked to this job</p>
+                  <p className="text-xs text-slate-400 mt-1">Create tasks in the Tasks section and link them to jobs in a future update.</p>
+                  <Link href="/property-manager/work/tasks" className="mt-4 inline-flex items-center gap-1 text-[12.5px] text-[#2563EB] hover:underline">
+                    View all tasks →
+                  </Link>
                 </div>
               ) : (
                 job.linkedIssues.map(issue => (

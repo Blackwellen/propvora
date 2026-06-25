@@ -10,14 +10,24 @@ import { EmptyState, StatusChip } from "./shared"
 export function WorkHistoryTab({ contact }: { contact: ContactDetail }) {
   const jobs = contact.jobs ?? []
   const totalCost = jobs.reduce((s, j) => s + j.cost, 0)
-  if (jobs.length === 0) return <EmptyState icon={Briefcase} message="No jobs linked to this supplier yet." cta="Create Job" />
+  if (jobs.length === 0) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-slate-500">No jobs yet</p>
+        <Link href={`/property-manager/work/jobs/new?contact=${contact.id}`}>
+          <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Create Job</Button>
+        </Link>
+      </div>
+      <EmptyState icon={Briefcase} message="No jobs linked to this supplier yet." />
+    </div>
+  )
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-slate-500">{jobs.length} jobs · Total spend: <span className="font-semibold text-slate-900">£{totalCost.toLocaleString("en-GB")}</span></p>
         </div>
-        <Link href="/property-manager/work/jobs/new">
+        <Link href={`/property-manager/work/jobs/new?contact=${contact.id}`}>
           <Button variant="outline" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>Create Job</Button>
         </Link>
       </div>
@@ -38,7 +48,13 @@ export function WorkHistoryTab({ contact }: { contact: ContactDetail }) {
                 <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">{job.date}</td>
                 <td className="px-4 py-3 font-semibold text-slate-900">£{job.cost}</td>
                 <td className="px-4 py-3"><StatusChip status={job.status} /></td>
-                <td className="px-4 py-3 text-right"><button className="text-xs text-blue-600 hover:underline">View</button></td>
+                <td className="px-4 py-3 text-right">
+                  {job.id ? (
+                    <Link href={`/property-manager/work/jobs/${job.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
+                  ) : (
+                    <span className="text-xs text-slate-300">—</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

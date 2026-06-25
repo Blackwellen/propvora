@@ -1,23 +1,27 @@
 ﻿"use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
 import { PortfolioSectionTabs } from "@/components/portfolio/PortfolioSectionTabs"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { TenancyCard, type TenancyCardData } from "@/components/portfolio/TenancyCard"
+import { TenancyListView } from "@/components/portfolio/TenancyListView"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTenancies } from "@/hooks/useTenancies"
 import { useProperties } from "@/hooks/useProperties"
 import { useContacts } from "@/hooks/useContacts"
+import { useUnits } from "@/hooks/useUnits"
 import {
   Plus, Search, Users, ChevronLeft, ChevronRight, X,
-  AlertTriangle, Calendar, SlidersHorizontal, MapPin, Download,
+  AlertTriangle, Calendar, SlidersHorizontal, MapPin, Download, TrendingUp,
+  LayoutGrid, List,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { normaliseOperationProfile, exportCsv } from "@/lib/portfolio/helpers"
+import { lookupMarketRent, pickBenchmarkRent } from "@/lib/market-data/lookup"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileFilterSheet"
@@ -69,11 +73,22 @@ function FLabel({ children }: { children: React.ReactNode }) {
 /* Page                                                                 */
 /* ------------------------------------------------------------------ */
 export default function TenanciesListPage() {
+  return (
+    <Suspense fallback={null}>
+      <TenanciesListPageInner />
+    </Suspense>
+  )
+}
+
+function TenanciesListPageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const rentReviewMode = searchParams.get("mode") === "rent-review"
   const { workspace, isLoading: wsLoading } = useWorkspace()
   const { data: rawTenancies, isLoading: tenanciesLoading } = useTenancies(workspace?.id)
   const { data: rawProperties } = useProperties(workspace?.id)
   const { data: rawContacts } = useContacts(workspace?.id)
+  const { data: rawUnits } = useUnits(workspace?.id)
 
   /* Filters */
   const [search, setSearch]               = useState("")
@@ -87,6 +102,7 @@ export default function TenanciesListPage() {
   const [filterCity, setFilterCity]       = useState("")
   const [showAdv, setShowAdv]             = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [view, setView]                   = useState<"cards" | "list">("cards")
   const [page, setPage]                   = useState(1)
 
   const loading = wsLoading || tenanciesLoading
@@ -95,15 +111,17 @@ export default function TenanciesListPage() {
     if (!workspace?.id || !rawTenancies?.length) return []
     const propName = new Map((rawProperties ?? []).map(p => [p.id, p.name]))
     const contactName = new Map((rawContacts ?? []).map(c => [c.id, c.full_name]))
+    const unitName = new Map((rawUnits ?? []).map(u => [u.id, u.unit_name]))
     return rawTenancies.map((t) => ({
       id: t.id, property_id: t.property_id, unit_id: t.unit_id,
       property_name: propName.get(t.property_id),
+      unit_name: t.unit_id ? (unitName.get(t.unit_id) ?? undefined) : undefined,
       tenant_name: t.tenant_contact_id ? (contactName.get(t.tenant_contact_id) ?? "Tenant") : undefined,
       status: t.status, start_date: t.start_date, end_date: t.end_date,
       rent_amount: t.rent_amount, deposit_amount: t.deposit_amount,
       deposit_held_by: t.deposit_held_by, rent_frequency: t.rent_frequency,
     }))
-  }, [rawTenancies, rawProperties, rawContacts, workspace?.id])
+  }, [rawTenancies, rawProperties, rawContacts, rawUnits, workspace?.id])
 
   const propertyOptions = useMemo(() => {
     if (!workspace?.id || !rawProperties?.length) return []
@@ -137,6 +155,33 @@ export default function TenanciesListPage() {
   const activeCount  = allTenancies.filter(t => t.status === "active").length
   const endingSoonCount = allTenancies.filter(t => t.end_date && daysUntil(t.end_date) >= 0 && daysUntil(t.end_date) <= 60).length
   const arrearsCount = allTenancies.filter(t => (t.arrears ?? 0) > 0).length
+
+  /* Rent review: compare active tenancy rent vs property target_rent + Numbeo market rate */
+  const rentReviewItems = useMemo(() => {
+    if (!rentReviewMode) return []
+    const propMap = new Map((rawProperties ?? []).map(p => [p.id, p]))
+    return allTenancies
+      .filter(t => t.status === "active")
+      .map(t => {
+        const prop = propMap.get(t.property_id)
+        const target = prop?.target_rent ?? null
+        const current = t.rent_amount ?? 0
+        const diff = target !== null ? target - current : null
+        const pct = target !== null && current > 0 ? Math.round(((target - current) / current) * 100) : null
+        // Numbeo market rate lookup using property city + country
+        const marketMatch = lookupMarketRent(prop?.city, prop?.country, prop?.bedrooms)
+        const marketRent = pickBenchmarkRent(marketMatch, prop?.bedrooms)
+        const marketCurrency = marketMatch?.currency ?? null
+        const marketCity = marketMatch?.matchedCity ?? null
+        return { ...t, target_rent: target, diff, pct, marketRent, marketCurrency, marketCity }
+      })
+      .filter(t => (t.diff !== null && t.diff > 0) || (t.marketRent !== null && t.marketRent > (t.rent_amount ?? 0)))
+      .sort((a, b) => {
+        const gapA = a.diff ?? (a.marketRent ? a.marketRent - (a.rent_amount ?? 0) : 0)
+        const gapB = b.diff ?? (b.marketRent ? b.marketRent - (b.rent_amount ?? 0) : 0)
+        return gapB - gapA
+      })
+  }, [rentReviewMode, allTenancies, rawProperties])
 
   const activeFilters = [
     search,
@@ -230,6 +275,69 @@ export default function TenanciesListPage() {
         onClear={clearAll}
       />
 
+      {/* Rent review mode banner */}
+      {rentReviewMode && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+              <TrendingUp className="w-4 h-4 text-amber-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-[13.5px] font-bold text-amber-900">Rent Review Mode</p>
+                <span className="text-[11px] font-semibold text-amber-600 bg-amber-100 rounded-lg px-2 py-0.5">
+                  {rentReviewItems.length} below target
+                </span>
+              </div>
+              <p className="text-[12.5px] text-amber-800 leading-relaxed mb-3">
+                Comparing current rents against your property targets. Tenancies below target are listed below — click one to update its rent or issue a rent increase notice.
+              </p>
+              {rentReviewItems.length > 0 ? (
+                <div className="space-y-2">
+                  {rentReviewItems.slice(0, 5).map(t => (
+                    <Link
+                      key={t.id}
+                      href={`/property-manager/portfolio/tenancies/${t.id}`}
+                      className="flex items-center gap-3 bg-white rounded-xl border border-amber-200 px-3 py-2 hover:border-amber-400 transition-colors group"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12.5px] font-semibold text-slate-800 truncate">{t.property_name ?? "Property"}</p>
+                        <p className="text-[11.5px] text-slate-500">{t.tenant_name ?? "Tenant"}</p>
+                      </div>
+                      <div className="text-right shrink-0 space-y-0.5">
+                        <p className="text-[11.5px] text-slate-400">Current: £{(t.rent_amount ?? 0).toLocaleString()}/mo</p>
+                        {t.target_rent !== null && t.pct !== null && t.pct > 0 && (
+                          <p className="text-[11.5px] font-semibold text-amber-700">
+                            Your target: £{(t.target_rent).toLocaleString()} <span className="text-[10.5px]">(+{t.pct}%)</span>
+                          </p>
+                        )}
+                        {t.marketRent !== null && (
+                          <p className="text-[11px] text-slate-500">
+                            Market ({t.marketCity ?? "area"}): {t.marketCurrency} {t.marketRent.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-amber-400 group-hover:text-amber-600 shrink-0" />
+                    </Link>
+                  ))}
+                  {rentReviewItems.length > 5 && (
+                    <p className="text-[11.5px] text-amber-700 text-center pt-1">+ {rentReviewItems.length - 5} more below</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-[12.5px] text-amber-700 italic">All active tenancies are at or above their target and market rents.</p>
+              )}
+            </div>
+            <Link
+              href="/property-manager/portfolio/tenancies"
+              className="text-[11px] font-semibold text-amber-600 hover:text-amber-800 shrink-0 mt-0.5"
+            >
+              Dismiss
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Desktop header — hidden on phones */}
       <div className="hidden md:block">
       <PageHeader
@@ -286,6 +394,17 @@ export default function TenanciesListPage() {
               <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{activeFilters}</span>
             )}
           </button>
+          {/* View switcher (Cards / List) */}
+          <div className="flex items-center gap-0.5 h-9 px-0.5 rounded-xl border border-slate-200 bg-slate-50 shadow-sm" role="group" aria-label="View type">
+            <button onClick={() => setView("cards")} aria-label="Card view" aria-pressed={view === "cards"}
+              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}>
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button onClick={() => setView("list")} aria-label="List view" aria-pressed={view === "list"}
+              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "list" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}>
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Status + quick filters */}
@@ -419,6 +538,8 @@ export default function TenanciesListPage() {
             </Button>
           </div>
         </div>
+      ) : view === "list" ? (
+        <TenancyListView tenancies={paginated} />
       ) : (
         <div className="flex flex-col gap-3">
           {paginated.map(t => (

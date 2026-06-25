@@ -77,7 +77,7 @@ export default function ApprovalsPage() {
 
   const actions = (
     <>
-      <Btn icon={ShieldCheck} onClick={() => toast("Opening review queue")}>Review queue (24)</Btn>
+      <Btn icon={ShieldCheck} onClick={() => toast("Opening review queue")}>{`Review queue${approvals.length > 0 ? ` (${approvals.length})` : ""}`}</Btn>
       <Btn icon={ChevronDown} variant="emerald" disabled={!lowRiskSelectedOnly} onClick={() => toast(`Bulk-approved ${selected.length} low-risk`)}>Bulk approve</Btn>
       <Btn onClick={() => toast("Rules policy — opens policy editor")}>Rules policy</Btn>
       <Btn onClick={() => toast("SLA settings")}>SLA settings</Btn>

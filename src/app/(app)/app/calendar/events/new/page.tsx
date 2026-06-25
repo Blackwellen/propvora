@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   Calendar,
   CheckSquare,
@@ -302,12 +302,12 @@ function Step2({ form, setForm }: { form: FormData; setForm: (f: FormData) => vo
 /* ------------------------------------------------------------------ */
 /* Step 3 — Link Records                                                */
 /* ------------------------------------------------------------------ */
-function Step3({ form, setForm, properties }: { form: FormData; setForm: (f: FormData) => void; properties: string[] }) {
+function Step3({ form, setForm, properties, units, contacts }: { form: FormData; setForm: (f: FormData) => void; properties: string[]; units: string[]; contacts: string[] }) {
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-slate-900">Link Records</h2>
-        <p className="text-sm text-slate-500 mt-0.5">Connect this event to a property (optional).</p>
+        <p className="text-sm text-slate-500 mt-0.5">Connect this event to a property or contact (optional).</p>
       </div>
 
       <div>
@@ -320,12 +320,23 @@ function Step3({ form, setForm, properties }: { form: FormData; setForm: (f: For
         />
       </div>
 
-      {form.property && (
+      {form.property && units.length > 0 && (
         <div>
           <FieldLabel htmlFor="event-unit">Unit (optional)</FieldLabel>
-          <SelectInput id="event-unit" value={form.unit} onChange={v => setForm({ ...form, unit: v })} options={["Unit 1", "Unit 2", "Unit 3", "Ground Floor", "First Floor"]} />
+          <SelectInput id="event-unit" value={form.unit} onChange={v => setForm({ ...form, unit: v })} options={units} />
         </div>
       )}
+
+      <div>
+        <FieldLabel htmlFor="event-contact">Contact (optional)</FieldLabel>
+        <SelectInput
+          id="event-contact"
+          value={form.contact}
+          onChange={v => setForm({ ...form, contact: v })}
+          options={contacts.length > 0 ? contacts : ["No contacts found"]}
+        />
+        <p className="text-[11px] text-slate-400 mt-1">Link a tenant, landlord or supplier contact to this event.</p>
+      </div>
     </div>
   )
 }
@@ -630,7 +641,6 @@ function SummaryRail({ form, step }: { form: FormData; step: number }) {
 /* Page                                                                 */
 /* ------------------------------------------------------------------ */
 export default function NewEventPage() {
-  const router = useSectionRouter()
   const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
   const [step, setStep] = useState(1)
@@ -642,6 +652,10 @@ export default function NewEventPage() {
 
   // Property label -> id map so we can persist the real FK.
   const [propertyMap, setPropertyMap] = useState<Record<string, string>>({})
+  // Units keyed by property id, and contact label -> id map (real records).
+  const [unitsByProperty, setUnitsByProperty] = useState<Record<string, string[]>>({})
+  const [contacts, setContacts] = useState<string[]>([])
+  const [contactMap, setContactMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!workspace?.id) return
@@ -663,7 +677,42 @@ export default function NewEventPage() {
       setProperties(labels)
       setPropertyMap(map)
     })()
+    ;(async () => {
+      const { data } = await supabase
+        .from("units")
+        .select("id, label, property_id")
+        .eq("workspace_id", workspace.id)
+        .order("label", { ascending: true })
+      if (!data) return // 42P01 / RLS tolerant
+      const byProp: Record<string, string[]> = {}
+      for (const u of data as Array<{ id: string; label: string | null; property_id: string | null }>) {
+        if (!u.property_id || !u.label) continue
+        ;(byProp[u.property_id] ??= []).push(u.label)
+      }
+      setUnitsByProperty(byProp)
+    })()
+    ;(async () => {
+      const { data } = await supabase
+        .from("contacts")
+        .select("id, display_name")
+        .eq("workspace_id", workspace.id)
+        .order("display_name", { ascending: true })
+        .limit(500)
+      if (!data) return // 42P01 / RLS tolerant
+      const labels: string[] = []
+      const map: Record<string, string> = {}
+      for (const c of data as Array<{ id: string; display_name: string | null }>) {
+        const label = c.display_name || c.id
+        labels.push(label)
+        map[label] = c.id
+      }
+      setContacts(labels)
+      setContactMap(map)
+    })()
   }, [workspace?.id])
+
+  const selectedPropertyId = form.property ? propertyMap[form.property] : undefined
+  const selectedPropertyUnits = selectedPropertyId ? (unitsByProperty[selectedPropertyId] ?? []) : []
 
   function goTo(s: number) { setStep(s) }
   function next() { setStep(s => Math.min(s + 1, 7)) }
@@ -700,16 +749,37 @@ export default function NewEventPage() {
       form.eventType === "planning" ? "planning" :
       form.eventType === "compliance" ? "compliance" :
       "manual"
+    // Map wizard event type → the constrained `type` enum so calendar views
+    // colour/filter events correctly (CHECK: compliance/inspection/tenancy/
+    // work/viewing/meeting/deadline/general).
+    const typeEnum =
+      form.eventType === "task" || form.eventType === "job" ? "work" :
+      form.eventType === "supplier" || form.eventType === "followup" || form.eventType === "planning" ? "meeting" :
+      form.eventType === "viewing" ? "viewing" :
+      form.eventType === "inspection" ? "inspection" :
+      form.eventType === "money" ? "deadline" :
+      form.eventType === "compliance" ? "compliance" :
+      "general"
     const riskLevel = (form.risk || "Normal").toLowerCase() === "low" ? "normal" : (form.risk || "Normal").toLowerCase()
+    // Map risk → the constrained `priority` enum (high/medium/low).
+    const priority =
+      form.risk === "Critical" || form.risk === "Urgent" ? "high" :
+      form.risk === "Important" ? "medium" : "low"
+
+    const contactId = form.contact ? (contactMap[form.contact] ?? null) : null
 
     setSaving(true)
     setSaveError(null)
     try {
       const supabase = createClient()
+      const { data: userRes } = await supabase.auth.getUser()
+      const userId = userRes?.user?.id ?? null
+
       const { data, error } = await supabase
         .from("calendar_events")
         .insert({
           workspace_id: workspace.id,
+          created_by: userId,
           title: form.title.trim(),
           description: form.notes || null,
           start_at: startIso.toISOString(),
@@ -719,18 +789,28 @@ export default function NewEventPage() {
           start_date: form.startDate,
           start_time: form.allDay ? null : (form.startTime || null),
           end_time: form.allDay ? null : (form.endTime || null),
+          type: typeEnum,
           event_type: form.eventType || "manual",
+          priority,
           all_day: form.allDay,
           recurrence_rule: form.recurrence !== "None" ? form.recurrence : null,
           property_id: form.property ? (propertyMap[form.property] ?? null) : null,
+          // Link a contact via the generic related_type/related_id columns.
+          related_type: contactId ? "contact" : null,
+          related_id: contactId,
           // No dedicated columns on calendar_events for these — preserve in metadata
-          // jsonb instead of failing the insert (source_module/timezone/status/risk/location).
+          // jsonb instead of failing the insert (source_module/timezone/status/risk/
+          // location/unit/assignee/contact label).
           metadata: {
             source_module: sourceModule,
             timezone: form.timezone || "Europe/London",
             status: "scheduled",
             risk_level: ["normal", "important", "urgent", "critical"].includes(riskLevel) ? riskLevel : "normal",
             location: form.location || null,
+            unit_label: form.unit || null,
+            assignee: form.assignee || null,
+            contact_label: form.contact || null,
+            recurrence_end: form.recurrenceEnd || null,
           },
         })
         .select("id")
@@ -745,7 +825,39 @@ export default function NewEventPage() {
         setSaving(false)
         return
       }
-      setCreatedId((data as { id: string }).id)
+      const newEventId = (data as { id: string }).id
+
+      // Persist the Step 4 reminder as a real calendar_reminders row linked to the
+      // event, computing due_at from the chosen timing relative to the start.
+      const OFFSET_MIN: Record<string, number> = {
+        "At time of event": 0,
+        "15 minutes before": 15,
+        "1 hour before": 60,
+        "1 day before": 60 * 24,
+        "7 days before": 60 * 24 * 7,
+      }
+      const offset = OFFSET_MIN[form.reminderTiming] ?? 0
+      const dueAt = new Date(startIso.getTime() - offset * 60_000)
+      const channel = form.reminderType === "Email" ? "email" : "in_app"
+      // Best-effort: a failed reminder must not roll back the created event.
+      const { error: remErr } = await supabase
+        .from("calendar_reminders")
+        .insert({
+          workspace_id: workspace.id,
+          created_by: userId,
+          event_id: newEventId,
+          title: `Reminder: ${form.title.trim()}`,
+          reminder_type: "standard",
+          channel,
+          due_at: dueAt.toISOString(),
+          status: "pending",
+        })
+      if (remErr && (remErr as { code?: string }).code !== "42P01") {
+        // Non-fatal — event is created; surface a soft note via console only.
+        console.warn("Reminder not created:", remErr.message)
+      }
+
+      setCreatedId(newEventId)
       setStep(7)
     } catch (err: unknown) {
       setSaveError(err instanceof Error ? err.message : "Unexpected error saving event")
@@ -809,7 +921,7 @@ export default function NewEventPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm min-h-[500px]">
               {step === 1 && <Step1 form={form} setForm={setForm} />}
               {step === 2 && <Step2 form={form} setForm={setForm} />}
-              {step === 3 && <Step3 form={form} setForm={setForm} properties={properties} />}
+              {step === 3 && <Step3 form={form} setForm={setForm} properties={properties} units={selectedPropertyUnits} contacts={contacts} />}
               {step === 4 && <Step4 form={form} setForm={setForm} />}
               {step === 5 && <Step5 form={form} setForm={setForm} />}
               {step === 6 && <Step6 form={form} goTo={goTo} />}

@@ -1,5 +1,9 @@
 ﻿"use client"
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { createClient } from "@/lib/supabase/client"
+import { useWorkspaceId } from "@/hooks/useWorkspace"
 import {
   Plus,
   CheckCircle2,
@@ -35,8 +39,63 @@ interface Agreement {
   status: AgreementStatus
 }
 
-/* ─── Mock data ───────────────────────────────────────────────── */
-const AGREEMENTS: Agreement[] = []
+const AGREEMENT_STATUS_MAP: Record<string, AgreementStatus> = {
+  draft: "Draft",
+  sent: "Sent",
+  partially_signed: "Partially Signed",
+  fully_signed: "Fully Signed",
+  expired: "Expired",
+  declined: "Expired",
+  cancelled: "Expired",
+}
+
+const SIGNATORY_ROLE_MAP: Record<string, Signatory["role"]> = {
+  tenant: "Tenant",
+  landlord: "Landlord",
+  guarantor: "Tenant",
+  agent: "Agent",
+  witness: "Agent",
+}
+
+function useAgreements(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<Agreement[]>({
+    queryKey: ["tenancy-agreements", workspaceId],
+    enabled: !!workspaceId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tenancy_agreements")
+        .select(`*, agreement_signatories ( * )`)
+        .eq("workspace_id", workspaceId!)
+        .order("created_at", { ascending: false })
+      if (error) throw error
+
+      return (data ?? []).map((a: any) => {
+        const sigs: Signatory[] = (a.agreement_signatories ?? []).map((s: any) => ({
+          name: s.name,
+          email: s.email,
+          role: SIGNATORY_ROLE_MAP[s.role] ?? "Tenant",
+          signed: !!s.signed_at,
+          signedAt: s.signed_at
+            ? new Date(s.signed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+            : undefined,
+        }))
+
+        return {
+          id: a.id,
+          title: a.title,
+          tenancy: a.tenancy_id ?? "—",
+          signatories: sigs,
+          created: new Date(a.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+          deadline: a.signing_deadline
+            ? new Date(a.signing_deadline).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+            : null,
+          status: AGREEMENT_STATUS_MAP[a.status] ?? "Draft",
+        } satisfies Agreement
+      })
+    },
+  })
+}
 
 type StatusFilter = "All" | AgreementStatus
 
@@ -58,10 +117,13 @@ function getInitials(name: string) {
 
 /* ─── Page ────────────────────────────────────────────────────── */
 export default function AgreementsPage() {
+  const router = useRouter()
+  const workspaceId = useWorkspaceId()
+  const { data: agreements = [], isLoading } = useAgreements(workspaceId)
   const [activeTab, setActiveTab] = useState<StatusFilter>("All")
   const [drawerAgreement, setDrawerAgreement] = useState<Agreement | null>(null)
 
-  const filtered = activeTab === "All" ? AGREEMENTS : AGREEMENTS.filter((a) => a.status === activeTab)
+  const filtered = activeTab === "All" ? agreements : agreements.filter((a) => a.status === activeTab)
 
   /* Row → card mapping for the mobile list (mirrors the desktop table columns). */
   const agreementCardMapping: MobileCardMapping<Agreement> = {
@@ -92,17 +154,17 @@ export default function AgreementsPage() {
       {/* Mobile top bar */}
       <MobileTopBar
         title="Tenancy Agreements"
-        subtitle={`${AGREEMENTS.length} agreements`}
+        subtitle={`${agreements.length} agreements`}
         showBack
         backHref="/property-manager/portfolio/leasing"
-        primaryAction={{ label: "Create agreement", icon: Plus, onClick: () => {} }}
+        primaryAction={{ label: "Create agreement", icon: Plus, onClick: () => router.push("/property-manager/portfolio/tenancies/new") }}
       />
 
       {/* Page header — hidden on phones */}
       <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-slate-900">Tenancy Agreements</h1>
-          <p className="text-[13px] text-slate-500 mt-0.5">{AGREEMENTS.length} agreements · {AGREEMENTS.filter((a) => a.status === "Partially Signed" || a.status === "Sent").length} awaiting signature</p>
+          <p className="text-[13px] text-slate-500 mt-0.5">{agreements.length} agreements · {agreements.filter((a) => a.status === "Partially Signed" || a.status === "Sent").length} awaiting signature</p>
         </div>
         <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
           <Plus className="w-3.5 h-3.5" />

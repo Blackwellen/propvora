@@ -35,6 +35,7 @@ function fromDb(r: Record<string, unknown>): Contact {
     status: (g('status') ?? 'active') as Contact['status'],
     is_demo: (g('demo') ?? false) as boolean,
     avatar_url: g('avatar_url') ?? null,
+    metadata: g('metadata') ?? null,
     created_by: g('created_by') ?? null,
     created_at: g('created_at'),
     updated_at: g('updated_at'),
@@ -47,11 +48,20 @@ function toDb(p: Partial<Contact>): Record<string, unknown> {
   if ('full_name' in p) o.display_name = p.full_name
   if ('company_name' in p) o.company = p.company_name
   if ('is_demo' in p) o.demo = p.is_demo
+  // NB: `created_by` is intentionally NOT forwarded — the live `contacts` table
+  // has no such column, and emitting it makes every insert/update fail (42703).
   for (const k of [
     'workspace_id', 'email', 'phone', 'address_line1', 'city', 'postcode',
-    'notes', 'tags', 'status', 'avatar_url', 'created_by', 'category', 'subcategory',
+    'notes', 'tags', 'status', 'avatar_url', 'category', 'subcategory', 'metadata',
   ] as const) {
-    if (k in p) o[k] = (p as Record<string, unknown>)[k]
+    if (!(k in p)) continue
+    const v = (p as Record<string, unknown>)[k]
+    // `tags` and `metadata` are NOT NULL columns with DB defaults ('{}'). Sending
+    // an explicit null violates the not-null constraint (Postgres 23502 → HTTP
+    // 400), which silently broke the New Contact wizard. Omit these keys when
+    // null/undefined so Postgres applies the default instead.
+    if ((k === 'tags' || k === 'metadata') && (v === null || v === undefined)) continue
+    o[k] = v
   }
   return o
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle, Sparkles, Clock, FileText } from 'lucide-react'
+import { CheckCircle, Shield, Clock, FileText } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
 
 interface Props {
@@ -164,13 +164,13 @@ export default function ComplianceTab({ profile }: Props) {
         </div>
       </div>
 
-      {/* 5. AI Compliance Insight */}
+      {/* 5. Compliance Guidance */}
       <div className="flex items-start gap-4 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-5">
         <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
-          <Sparkles className="w-5 h-5 text-white" />
+          <Shield className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-blue-900 mb-1">AI Compliance Insight</p>
+          <p className="text-sm font-semibold text-blue-900 mb-1">Compliance Guidance</p>
           <p className="text-sm text-blue-700 leading-relaxed">{compliance.aiInsight}</p>
         </div>
       </div>

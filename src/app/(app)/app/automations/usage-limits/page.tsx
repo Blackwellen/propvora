@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function AutomationUsageLimitsRoute() {
-  return <UsageLimitsPage initialTab="usage" />
+  return <UsageLimitsPage />
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   AlertTriangle, Clock, MessageSquare, CheckCircle2,
   FileText, Globe, X,
-  Search, SlidersHorizontal, Activity, Eye, Copy,
+  Search, Activity, Eye, Copy,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
@@ -326,10 +326,6 @@ export default function ActivityPage() {
               </button>
             )}
           </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            Filters
-          </button>
         </div>
 
         {/* Feed */}

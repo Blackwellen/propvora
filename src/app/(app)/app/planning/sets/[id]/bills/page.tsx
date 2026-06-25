@@ -146,7 +146,7 @@ export default function BillsPage() {
           {/* Section header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Section 5B — Bills</h2>
+              <h2 className="text-base font-bold text-slate-900">Bills</h2>
               <p className="text-xs text-slate-500 mt-0.5">Utility bills &amp; supplier tracking</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">

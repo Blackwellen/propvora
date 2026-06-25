@@ -31,7 +31,7 @@ export function ContactsStatsStrip({ contacts, isLoading }: { contacts: MappedCo
   const tenantCount    = contacts.filter(c => c.contact_type === "tenant" && c.status === "active").length
   const applicantCount = contacts.filter(c => c.contact_type === "applicant").length
   const supplierCount  = contacts.filter(c => ["supplier","maintenance","cleaning","emergency_contractor"].includes(c.contact_type)).length
-  const landlordCount  = contacts.filter(c => c.contact_type === "landlord").length
+  const landlordCount  = contacts.filter(c => c.contact_type === "landlord" || c.contact_type === "owner").length
   const preferredCount = contacts.filter(c => c.tags.includes("preferred")).length
   const followUpCount  = contacts.filter(c => c.tags.includes("follow_up")).length
 

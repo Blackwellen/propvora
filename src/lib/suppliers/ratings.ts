@@ -136,6 +136,48 @@ export function useCreateSupplierRating() {
   })
 }
 
+export interface SupplierRatingSummary {
+  avg: number
+  count: number
+}
+
+/**
+ * Workspace-wide rating averages keyed by supplier contact id (for list pages).
+ * Each supplier's score is the mean of its rating rows' populated-dimension averages.
+ * 42P01-safe: returns an empty map if the table isn't present.
+ */
+export function useWorkspaceSupplierRatings(workspaceId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<Map<string, SupplierRatingSummary>>({
+    queryKey: ["supplier-ratings", workspaceId],
+    enabled: !!workspaceId,
+    staleTime: 30 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("supplier_ratings")
+        .select("*")
+        .eq("workspace_id", workspaceId!)
+      const map = new Map<string, SupplierRatingSummary>()
+      if (error) {
+        if (code(error) === "42P01") return map
+        throw error
+      }
+      const acc = new Map<string, number[]>()
+      for (const r of (data ?? []) as SupplierRating[]) {
+        const a = ratingAverage(r)
+        if (a == null) continue
+        const list = acc.get(r.supplier_contact_id) ?? []
+        list.push(a)
+        acc.set(r.supplier_contact_id, list)
+      }
+      for (const [id, vals] of acc) {
+        map.set(id, { avg: vals.reduce((s, v) => s + v, 0) / vals.length, count: vals.length })
+      }
+      return map
+    },
+  })
+}
+
 // ─── Preferred / blocked marking ──────────────────────────────────────────────
 
 export interface SupplierPreference {

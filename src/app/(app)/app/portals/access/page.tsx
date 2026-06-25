@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Plus, Search, X, Globe, Eye, Clock, XCircle, Send,
+  Plus, Search, X, Globe, Eye, Clock, XCircle,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { SectionHeader } from "@/components/layout/SectionHeader"
@@ -84,7 +84,6 @@ function GrantRow({ grant, workspaceId }: { grant: PortalGrant; workspaceId: str
           items={[
             { label: "View grant", icon: Eye, onClick: () => router.push(`/property-manager/portals/access/${grant.id}`) },
             { label: "Extend expiry (+30d)", icon: Clock, onClick: () => workspaceId && extend.mutate({ id: grant.id, workspaceId, days: 30 }), disabled: isRevoked },
-            { label: "Resend link", icon: Send, onClick: () => {}, disabled: true },
             { label: isRevoked ? "Revoked" : "Revoke access", icon: XCircle, variant: "danger", onClick: () => workspaceId && revoke.mutate({ id: grant.id, workspaceId }), disabled: isRevoked },
           ]}
         />

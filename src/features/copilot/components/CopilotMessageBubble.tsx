@@ -4,13 +4,24 @@ import React from "react"
 import PersonAvatar from "./PersonAvatar"
 import CopilotComplianceResultCard from "./CopilotComplianceResultCard"
 import CopilotDraftMessageCard from "./CopilotDraftMessageCard"
-import type { QuickAction } from "../types"
+import CopilotApprovalCard from "./CopilotApprovalCard"
+import CopilotAgentPlan from "./CopilotAgentPlan"
+import CopilotBrandMark from "./CopilotBrandMark"
+import { ArrowRight } from "lucide-react"
+import type { QuickAction, ApprovalSpec, AgentPlanSpec } from "../types"
 
 interface CopilotMessageBubbleProps {
   role: "user" | "ai"
   content: string
   timestamp: string
   card?: "compliance-result" | "draft-message"
+  /** When set, render an approval card under the message. */
+  approval?: ApprovalSpec
+  /** When set, render a multi-step agent plan under the message. */
+  agentPlan?: AgentPlanSpec
+  /** When set, render a "navigate there" button under the message. */
+  navTarget?: { route: string; label: string }
+  onNavigate?: (route: string) => void
   /** When true and content is empty, show a typing indicator (streaming). */
   streaming?: boolean
   /** Suggested follow-up commands shown as clickable chips below AI messages. */
@@ -84,22 +95,7 @@ function TypingDots() {
 }
 
 function AiIcon() {
-  return (
-    <div
-      style={{
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
-    >
-      <span className="text-white" style={{ fontSize: 14, lineHeight: 1 }}>✦</span>
-    </div>
-  )
+  return <CopilotBrandMark size={32} radius={10} />
 }
 
 export default function CopilotMessageBubble({
@@ -107,6 +103,10 @@ export default function CopilotMessageBubble({
   content,
   timestamp,
   card,
+  approval,
+  agentPlan,
+  navTarget,
+  onNavigate,
   streaming,
   quickActions,
   onQuickAction,
@@ -172,6 +172,22 @@ export default function CopilotMessageBubble({
           <div className="w-full max-w-[480px]">
             <CopilotDraftMessageCard />
           </div>
+        )}
+
+        {/* Approval card — pre-flight cost → confirm → execute → inline result */}
+        {!isUser && !streaming && approval && <CopilotApprovalCard spec={approval} />}
+
+        {/* Multi-step agent plan — batch of proposed actions with Approve all */}
+        {!isUser && !streaming && agentPlan && <CopilotAgentPlan spec={agentPlan} />}
+
+        {/* Navigation action — jump to the resolved destination */}
+        {!isUser && !streaming && navTarget && (
+          <button
+            onClick={() => onNavigate?.(navTarget.route)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-[12px] font-[600] text-violet-700 transition-colors hover:bg-violet-100"
+          >
+            Open {navTarget.label} <ArrowRight className="h-3.5 w-3.5" />
+          </button>
         )}
 
         {/* Timestamp */}

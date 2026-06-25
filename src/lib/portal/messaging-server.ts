@@ -1,6 +1,7 @@
 import "server-only"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { PortalSession } from "./session"
+import { PROPERTY_SCOPED_PORTAL_TYPES } from "./session"
 import { getTenantTenancies, getLandlordPropertyIds } from "./data"
 
 // ============================================================================
@@ -40,9 +41,10 @@ export async function getPortalRelatedIds(session: PortalSession): Promise<strin
       ids.add(t.id)
       if (t.property_id) ids.add(t.property_id)
     }
-  } else if (session.portalType === "landlord") {
+  } else if (PROPERTY_SCOPED_PORTAL_TYPES.includes(session.portalType)) {
+    // landlord / accountant / solicitor / generic — threads on linked properties
     for (const id of await getLandlordPropertyIds(session)) ids.add(id)
-  } else {
+  } else if (session.portalType === "supplier") {
     // supplier — threads attached to the supplier's assigned jobs
     if (session.contactId) {
       try {
@@ -67,7 +69,7 @@ export async function getPrimaryThreadTarget(
     const tenancies = await getTenantTenancies(session)
     const t = tenancies.find((x) => x.status === "active") ?? tenancies[0]
     if (t) return { relatedId: t.id, relatedType: "tenancy" }
-  } else if (session.portalType === "landlord") {
+  } else if (PROPERTY_SCOPED_PORTAL_TYPES.includes(session.portalType)) {
     const ids = await getLandlordPropertyIds(session)
     if (ids[0]) return { relatedId: ids[0], relatedType: "property" }
   }

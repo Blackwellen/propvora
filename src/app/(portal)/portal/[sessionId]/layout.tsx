@@ -1,8 +1,15 @@
 import { redirect } from "next/navigation"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { isExternalPortalEnabled } from "@/lib/portal/flags"
+import {
+  isExternalPortalEnabled,
+  isExtendedPortalProfilesEnabled,
+} from "@/lib/portal/flags"
 import { getSessionForRoute } from "@/lib/portal/session"
+import { PORTAL_KIND_LABEL } from "@/components/shells/portal/portal-nav"
 import PortalShell from "@/components/shells/PortalShell"
+
+/** Extended profiles only render when the extended-profiles flag is enabled. */
+const EXTENDED_PORTAL_TYPES = ["applicant", "accountant", "solicitor", "generic"] as const
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -28,13 +35,18 @@ export default async function PortalSessionLayout({
     redirect("/portal/login")
   }
 
+  // Extended profiles (applicant / accountant / solicitor / generic) only
+  // render when the extended-profiles flag is on. Fail closed: route a
+  // flagged-off recipient to the expired surface rather than leaking the view.
+  if (
+    (EXTENDED_PORTAL_TYPES as readonly string[]).includes(session.portalType) &&
+    !isExtendedPortalProfilesEnabled()
+  ) {
+    redirect("/portal/expired")
+  }
+
   // Resolve a friendly display name for the signed-in external contact.
-  let displayName =
-    session.portalType === "landlord"
-      ? "Landlord"
-      : session.portalType === "tenant"
-        ? "Tenant"
-        : "Supplier"
+  let displayName = PORTAL_KIND_LABEL[session.portalType] ?? "Portal"
   if (session.contactId) {
     try {
       const admin = createAdminClient()

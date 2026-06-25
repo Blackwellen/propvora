@@ -405,13 +405,25 @@ function mapDocument(row: DocumentRow): ComplianceDocument {
 }
 
 function mapEvidence(row: EvidenceRow): ComplianceEvidence {
+  // The uploaded file URL is persisted in `notes` as "File: <url>" because the
+  // live compliance_evidence table has no dedicated file_url column. Extract it
+  // so the "Open File" action is enabled, and keep the displayed notes clean.
+  let fileUrl: string | null = null
+  let displayNotes = row.notes
+  if (row.notes) {
+    const m = row.notes.match(/^File:\s*(\S+)\s*$/i)
+    if (m) {
+      fileUrl = m[1]
+      displayNotes = null
+    }
+  }
   return {
     id: row.id,
     workspace_id: row.workspace_id,
     property_id: null,
     evidence_name: row.label ?? 'Evidence',
     evidence_type: row.kind,
-    file_url: null,
+    file_url: fileUrl,
     file_size_bytes: null,
     file_mime_type: null,
     source: 'compliance_item',
@@ -420,7 +432,7 @@ function mapEvidence(row: EvidenceRow): ComplianceEvidence {
     related_record_id: row.compliance_item_id,
     related_record_label: row.label ?? null,
     verification_status: 'verified',
-    notes: row.notes,
+    notes: displayNotes,
     created_at: row.created_at,
   }
 }

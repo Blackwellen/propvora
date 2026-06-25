@@ -82,6 +82,11 @@ const CURRENCY_OPTIONS = [
   { value: "NZD", label: "NZD — New Zealand Dollar ($)" },
   { value: "CAD", label: "CAD — Canadian Dollar ($)" },
   { value: "AED", label: "AED — UAE Dirham (د.إ)" },
+  { value: "SAR", label: "SAR — Saudi Riyal (﷼)" },
+  { value: "CHF", label: "CHF — Swiss Franc (CHF)" },
+  { value: "SEK", label: "SEK — Swedish Krona (kr)" },
+  { value: "DKK", label: "DKK — Danish Krone (kr)" },
+  { value: "CZK", label: "CZK — Czech Koruna (Kč)" },
 ]
 
 const LOCALE_OPTIONS = SUPPORTED_LOCALES.map((l) => ({
@@ -101,6 +106,12 @@ export default function JurisdictionSettingsPage() {
   const [countryCode, setCountryCode] = useState("GB")
   const [currency, setCurrency] = useState("GBP")
   const [locale, setLocale] = useState("en-GB")
+  // Sub-jurisdiction within GB: England & Wales (EW), Scotland (SCT), Northern
+  // Ireland (NI). Drives the compliance requirement pack for UK workspaces.
+  const [region, setRegion] = useState("EW")
+  // The region as last loaded/saved from the server — used to restore on Discard
+  // (region isn't part of the WorkspaceJurisdiction `current` object).
+  const [loadedRegion, setLoadedRegion] = useState("EW")
 
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isDirty, setIsDirty] = useState(false)
@@ -138,6 +149,7 @@ export default function JurisdictionSettingsPage() {
         }
         const json = (await res.json()) as {
           current: WorkspaceJurisdiction
+          region?: string | null
           countries: SelectableCountry[]
           canEdit: boolean
         }
@@ -148,6 +160,8 @@ export default function JurisdictionSettingsPage() {
         setCountryCode(json.current.countryCode || "GB")
         setCurrency(json.current.currency || "GBP")
         setLocale(json.current.locale || "en-GB")
+        setRegion(json.region || "EW")
+        setLoadedRegion(json.region || "EW")
       } catch {
         if (!cancelled) setLoadError("Could not load jurisdiction settings.")
       }
@@ -214,7 +228,7 @@ export default function JurisdictionSettingsPage() {
       const res = await fetch("/api/workspace/jurisdiction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId, countryCode, currency, locale }),
+        body: JSON.stringify({ workspaceId, countryCode, currency, locale, region: countryCode === "GB" ? region : undefined }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -224,6 +238,7 @@ export default function JurisdictionSettingsPage() {
         return
       }
       if (json.current) setCurrent(json.current as WorkspaceJurisdiction)
+      setLoadedRegion(countryCode === "GB" ? region : "EW")
       setSaved(true)
       setIsDirty(false)
       setTimeout(() => setSaved(false), 3000)
@@ -281,6 +296,28 @@ export default function JurisdictionSettingsPage() {
                 disabled={!canEdit}
               />
             </div>
+            {/* UK sub-jurisdiction — England & Wales and Scotland have distinct
+                statutory compliance regimes, so the region drives the pack. */}
+            {countryCode === "GB" && (
+              <div className="md:col-span-2">
+                <SelectField
+                  label="UK region"
+                  value={region}
+                  onChange={(v) => {
+                    setRegion(v)
+                    setIsDirty(true)
+                    setSaved(false)
+                  }}
+                  options={[
+                    { value: "EW", label: "England & Wales" },
+                    { value: "SCT", label: "Scotland" },
+                    { value: "NI", label: "Northern Ireland" },
+                  ]}
+                  disabled={!canEdit}
+                  helper="Scotland has a distinct compliance regime (Repairing Standard, Landlord Registration, interlinked alarms). Drives the Compliance requirement pack."
+                />
+              </div>
+            )}
             <SelectField
               label="Currency"
               value={currency}
@@ -345,6 +382,7 @@ export default function JurisdictionSettingsPage() {
                 setCurrency(current.currency || "GBP")
                 setLocale(current.locale || "en-GB")
               }
+              setRegion(loadedRegion)
             }}
             className="px-4 py-2.5 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >

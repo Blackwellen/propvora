@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
 import { Bot, ChevronDown, Download, FileEdit, Pause, Plus, Power, Trash2, Wand2 } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
@@ -36,6 +36,30 @@ function HealthCell({ health }: { health: Health }) {
   )
 }
 
+function exportAutomationsCsv(rows: AutomationRow[]) {
+  const header = ["Name", "Ref", "Trigger", "Actions", "Status", "Owner", "Last Run", "Health", "Review-first", "Enabled"]
+  const csvRows = rows.map((r) => [
+    `"${r.name.replace(/"/g, '""')}"`,
+    r.ref,
+    `"${r.trigger.replace(/"/g, '""')}"`,
+    r.actionCount,
+    r.status,
+    r.owner,
+    r.lastRun,
+    r.health ?? "unknown",
+    r.reviewFirst ? "Yes" : "No",
+    r.enabled ? "Yes" : "No",
+  ])
+  const csv = [header.join(","), ...csvRows.map((row) => row.join(","))].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `automations-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function MyAutomationsPage() {
   const router = useSectionRouter()
   const toast = useToast()
@@ -43,6 +67,8 @@ export default function MyAutomationsPage() {
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => Object.fromEntries(rows.map((r) => [r.id, r.enabled])))
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const bulkRef = useRef<HTMLDivElement>(null)
 
   const columns: DataColumn<AutomationRow>[] = useMemo(
     () => [
@@ -104,8 +130,25 @@ export default function MyAutomationsPage() {
   const actions = (
     <>
       <Btn icon={Wand2} variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>AI Builder</Btn>
-      <Btn icon={ChevronDown} onClick={() => toast("Bulk actions menu")}>Bulk actions</Btn>
-      <Btn icon={Download} onClick={() => toast("Exporting automations…")}>Export</Btn>
+      <div ref={bulkRef} className="relative">
+        <Btn icon={ChevronDown} onClick={() => setBulkOpen((v) => !v)}>Bulk actions</Btn>
+        {bulkOpen && (
+          <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+            {[
+              { label: "Enable selected", action: () => { setSelected((s) => { s.forEach((id) => void setAutomationEnabled(id, true)); return s }); setBulkOpen(false); toast(`Enabled ${selected.length} automations`) } },
+              { label: "Disable selected", action: () => { setSelected((s) => { s.forEach((id) => void setAutomationEnabled(id, false)); return s }); setBulkOpen(false); toast(`Disabled ${selected.length} automations`) } },
+              { label: "Export selected", action: () => { exportAutomationsCsv(rows.filter((r) => selected.includes(r.id))); setBulkOpen(false) } },
+              { label: "Select all", action: () => { setSelected(rows.map((r) => r.id)); setBulkOpen(false) } },
+              { label: "Clear selection", action: () => { setSelected([]); setBulkOpen(false) } },
+            ].map(({ label, action }) => (
+              <button key={label} onClick={action} className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <Btn icon={Download} onClick={() => { exportAutomationsCsv(rows); toast("Export downloaded") }}>Export</Btn>
       <Btn icon={Plus} variant="primary" onClick={() => router.push("/property-manager/automations/canvas")}>New automation</Btn>
     </>
   )

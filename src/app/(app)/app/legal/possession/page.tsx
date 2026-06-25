@@ -99,7 +99,7 @@ function exportCasesCsv(cases: PossessionCase[]) {
   URL.revokeObjectURL(url)
 }
 
-/* ─── Page ───────────────────────────────────────────────────────── */
+/* ─── Page (jurisdiction-gated by possession/layout.tsx) ──────────── */
 export default function PossessionPage() {
   const router = useRouter()
   const { workspace } = useWorkspace()

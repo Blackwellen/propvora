@@ -30,24 +30,24 @@
       "productId": "prod_Ugy5Ry00cimmul",
       "tier": "scale",
       "monthly": {
-        "priceId": "price_1Tha9WAHC49xkmrefgWf2Qm0",
-        "amount": 14900
+        "priceId": "price_1Tm0k4AHC49xkmreE7Ai4ecJ",
+        "amount": 16900
       },
       "annual": {
-        "priceId": "price_1Tha9WAHC49xkmre58gU39ON",
-        "amount": 149000
+        "priceId": "price_1Tm0k5AHC49xkmrezjCOZ9RG",
+        "amount": 169000
       }
     },
     "pro_agency": {
       "productId": "prod_Ugy5ZoekjlxugM",
       "tier": "pro_agency",
       "monthly": {
-        "priceId": "price_1Tha9XAHC49xkmrehzCKZPqM",
-        "amount": 29900
+        "priceId": "price_1Tm0k6AHC49xkmreRxunPLMo",
+        "amount": 32900
       },
       "annual": {
-        "priceId": "price_1Tha9XAHC49xkmreRV5hL1Jm",
-        "amount": 299000
+        "priceId": "price_1Tm0k6AHC49xkmre5lgnxRav",
+        "amount": 329000
       }
     },
     "enterprise": {
@@ -187,7 +187,26 @@
       "priceId": "price_1TlHu4AHC49xkmreiPB9fFuz",
       "amount": 1500,
       "interval": "month"
+    },
+    "ai_pro": {
+      "productId": "prod_UlXpWG7bLfvoKz",
+      "priceId": "price_1Tm0k0AHC49xkmreTD4lQHMF",
+      "amount": 2900,
+      "interval": "month"
+    },
+    "intelligence_pack_1k": {
+      "productId": "prod_UlXpEQ3RYSpwW8",
+      "priceId": "price_1Tm0k3AHC49xkmre2yKbJg0j",
+      "amount": 2000,
+      "interval": null
+    },
+    "action_pack_1k": {
+      "productId": "prod_UlXppE3IWq19eC",
+      "priceId": "price_1Tm0k4AHC49xkmrec89Dhaac",
+      "amount": 1500,
+      "interval": null
     }
   },
-  "toppedUpAt": "2026-06-23T00:09:27.891Z"
+  "toppedUpAt": "2026-06-23T00:09:27.891Z",
+  "aiPricingAddedAt": "2026-06-25T00:02:09.888Z"
 }

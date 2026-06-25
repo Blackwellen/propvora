@@ -26,14 +26,16 @@ import {
   Cell,
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
-import type { PlanningForecast, PlanningScenario } from "@/lib/planning/types"
+import { forecastForSet, hasSetFinancials, type PlanningSetSummary } from "@/lib/planning/set-forecast"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
 function fmt(n: number): string {
-  if (Math.abs(n) >= 1_000_000) return `£${(n / 1_000_000).toFixed(1)}m`
-  if (Math.abs(n) >= 1_000) return `£${(n / 1_000).toFixed(0)}k`
-  return `£${n.toFixed(0)}`
+  const sign = n < 0 ? "-" : ""
+  const a = Math.abs(n)
+  if (a >= 1_000_000) return `${sign}£${(a / 1_000_000).toFixed(1)}m`
+  if (a >= 1_000) return `${sign}£${(a / 1_000).toFixed(0)}k`
+  return `${sign}£${a.toFixed(0)}`
 }
 
 function fmtFull(n: number): string {
@@ -80,8 +82,7 @@ export default function ForecastsPage() {
   const params = useParams()
   const id = params.id as string
 
-  const [forecasts, setForecasts] = useState<PlanningForecast[]>([])
-  const [scenarios, setScenarios] = useState<PlanningScenario[]>([])
+  const [set, setSet] = useState<PlanningSetSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -91,13 +92,14 @@ export default function ForecastsPage() {
     async function load() {
       setLoading(true)
       setError(null)
-      // planning_forecasts / planning_scenarios may 42P01 — swallow each to empty.
-      const [{ data: f, error: fErr }, { data: s, error: sErr }] = await Promise.all([
-        supabase.from("planning_forecasts").select("*").eq("planning_set_id", id).order("month_index"),
-        supabase.from("planning_scenarios").select("*").eq("planning_set_id", id).order("created_at"),
-      ])
-      setForecasts(fErr ? [] : ((f ?? []) as PlanningForecast[]))
-      setScenarios(sErr ? [] : ((s ?? []) as PlanningScenario[]))
+      // The set row stores authoritative summary financials; we project those forward.
+      const { data, error: sErr } = await supabase
+        .from("planning_sets")
+        .select("gross_monthly_income, total_monthly_expenses, net_monthly_income, upfront_cash_required")
+        .eq("id", id)
+        .maybeSingle()
+      if (sErr) setError("Couldn't load this planning set.")
+      setSet((data ?? null) as PlanningSetSummary | null)
       setLoading(false)
     }
     load()
@@ -115,17 +117,22 @@ export default function ForecastsPage() {
     )
   }
 
-  // Build monthly chart data from real forecasts only (no fabricated series).
-  const baseForecasts = forecasts.filter((f) => f.scenario_type === "base")
-  const optForecasts = forecasts.filter((f) => f.scenario_type === "optimistic")
+  // Project monthly cashflow from the set's stored summary via the shared engine.
+  const canProject = hasSetFinancials(set)
+  const baseMonths = canProject && set ? forecastForSet(set, "base", 24) : []
+  const optMonths = canProject && set ? forecastForSet(set, "optimistic", 24) : []
+  const upfront = Math.max(0, Number(set?.upfront_cash_required ?? 0))
 
-  const monthlyData = baseForecasts.slice(0, 24).map((f, i) => ({
-    month: `M${f.month_index}`,
-    net: f.net_cashflow,
-    target: optForecasts[i]?.net_cashflow ?? null,
-    cumulative: f.cumulative_cashflow,
-    targetCumulative: optForecasts[i]?.cumulative_cashflow ?? null,
+  // Cumulative reflects payback of upfront cash (starts negative, climbs to break-even).
+  const monthlyData = baseMonths.map((f, i) => ({
+    month: `M${f.monthIndex + 1}`,
+    net: f.netCashflow,
+    target: optMonths[i]?.netCashflow ?? null,
+    cumulative: Math.round((f.cumulativeCashflow - upfront) * 100) / 100,
+    targetCumulative: optMonths[i] != null ? Math.round((optMonths[i].cumulativeCashflow - upfront) * 100) / 100 : null,
   }))
+  const optForecasts = optMonths
+  const scenarios: unknown[] = []
 
   const breakevenData = monthlyData.map((m) => ({ month: m.month, net: m.net, cumulative: m.cumulative }))
   const breakevenMonthIdx = breakevenData.findIndex((d) => d.cumulative >= 0)
@@ -144,7 +151,7 @@ export default function ForecastsPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">10 Forecasts</h2>
+          <h2 className="text-base font-bold text-slate-900">Forecasts</h2>
           <p className="text-xs text-slate-500 mt-0.5">Projected cashflow and break-even analysis for this planning set.</p>
         </div>
       </div>
@@ -255,10 +262,10 @@ export default function ForecastsPage() {
 
                 <ChartCard title="Gross Income vs Costs (monthly)">
                   <ResponsiveContainer width="100%" height={200}>
-                    <ComposedChart data={baseForecasts.slice(0, 24).map((f) => ({
-                      month: `M${f.month_index}`,
-                      gross: f.gross_income,
-                      costs: f.operating_costs + f.bills + f.financing_costs,
+                    <ComposedChart data={baseMonths.slice(0, 24).map((f) => ({
+                      month: `M${f.monthIndex + 1}`,
+                      gross: f.grossIncome,
+                      costs: f.operatingCosts + f.bills + f.financingCosts,
                     }))} margin={{ left: -10, right: 8, top: 4, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey="month" tick={{ fontSize: 9, fill: "#94A3B8" }} interval={2} />

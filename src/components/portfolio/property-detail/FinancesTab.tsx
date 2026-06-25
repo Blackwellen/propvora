@@ -21,10 +21,10 @@ export function FinancesTab({ tenanciesList, unitsList, prop }: { tenanciesList:
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] text-slate-500">Rent roll derived from live tenancies. Full transactions, arrears and reports live in Money.</p>
-        <Link href="/property-manager/money" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
-          Open Money <ArrowUpRight size={13} />
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[13px] text-slate-500 min-w-0">Rent roll derived from live tenancies. Full transactions, arrears and reports live in Money.</p>
+        <Link href="/property-manager/money" className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          Open Money <ArrowUpRight size={13} className="shrink-0" />
         </Link>
       </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
 import { UploadCloud, FileText, X, Loader2, ExternalLink, Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -59,7 +59,23 @@ export function EvidenceUpload({
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
-  const [docs, setDocs] = useState<EvidenceDoc[]>(initialDocs)
+  // Session uploads are kept separate from `initialDocs` (persisted rows read
+  // back by the parent) so async-loaded persisted docs always render, and
+  // newly uploaded files appear at the top without clobbering them.
+  const [uploaded, setUploaded] = useState<EvidenceDoc[]>([])
+  const [hidden, setHidden] = useState<Set<string>>(new Set())
+  const keyOf = (d: EvidenceDoc) => d.key ?? d.url
+  const docs = useMemo(() => {
+    const seen = new Set<string>()
+    const merged: EvidenceDoc[] = []
+    for (const d of [...uploaded, ...initialDocs]) {
+      const k = keyOf(d)
+      if (seen.has(k) || hidden.has(k)) continue
+      seen.add(k)
+      merged.push(d)
+    }
+    return merged
+  }, [uploaded, initialDocs, hidden])
   const [dragOver, setDragOver] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState<number | null>(null)
@@ -132,7 +148,7 @@ export function EvidenceUpload({
       }
 
       // 4. Optimistic UI — render the thumbnail from the persisted URL.
-      setDocs((prev) => [doc, ...prev])
+      setUploaded((prev) => [doc, ...prev])
       onUploaded?.(doc)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed")
@@ -220,8 +236,8 @@ export function EvidenceUpload({
       {/* Uploaded list — image thumbnails resolve from the persisted signed URL */}
       {docs.length > 0 && (
         <div className="space-y-2">
-          {docs.map((d, i) => (
-            <div key={`${d.key ?? d.url}-${i}`} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+          {docs.map((d) => (
+            <div key={keyOf(d)} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
               <div className="w-9 h-9 rounded-lg bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
                 {isImage(d.type) ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -244,7 +260,7 @@ export function EvidenceUpload({
                 <ExternalLink className="w-4 h-4" />
               </a>
               <button
-                onClick={() => setDocs((prev) => prev.filter((_, idx) => idx !== i))}
+                onClick={() => setHidden((prev) => new Set(prev).add(keyOf(d)))}
                 className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50"
                 aria-label="Remove from list"
               >

@@ -3,9 +3,9 @@
 import { useState, useCallback, useEffect } from "react"
 import {
   FileText, Upload, Send, Search, Eye, Download,
-  AlertTriangle, X, SlidersHorizontal,
+  AlertTriangle, X,
   Clock, CheckCircle, Archive, Image as ImageIcon,
-  Table as TableIcon, AlertCircle, ChevronDown,
+  Table as TableIcon, AlertCircle,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
@@ -48,6 +48,7 @@ interface LiveDocument {
   daysLeft?: string
   status: DocStatus
   size: string
+  url: string | null
 }
 
 // ─── Mime type → FileType ──────────────────────────────────────────────────────
@@ -323,6 +324,25 @@ export default function DocumentsPage() {
     setTimeout(() => setToast({ msg: "", visible: false }), 2500)
   }, [])
 
+  // Preview opens the authed /api/files/{key} view URL in a new tab.
+  const handlePreview = useCallback((doc: LiveDocument) => {
+    if (!doc.url) { showToast("File reference unavailable"); return }
+    if (typeof window !== "undefined") window.open(doc.url, "_blank", "noopener,noreferrer")
+  }, [showToast])
+
+  // Download triggers a same-origin authed download with the original filename.
+  const handleDownload = useCallback((doc: LiveDocument) => {
+    if (!doc.url) { showToast("File reference unavailable"); return }
+    if (typeof document === "undefined") return
+    const a = document.createElement("a")
+    a.href = doc.url
+    a.download = doc.name
+    a.rel = "noopener"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }, [showToast])
+
   const loadDocs = useCallback(async () => {
     if (!workspace?.id) return
     setLoadingDocs(true)
@@ -333,7 +353,7 @@ export default function DocumentsPage() {
       // (no contact_id column), so we resolve names client-side.
       const { data, error } = await supabase
         .from("documents")
-        .select("id, name, r2_key, size_bytes, mime_type, category, status, expires_at, created_at, metadata")
+        .select("id, name, r2_key, url, size_bytes, mime_type, category, status, expires_at, created_at, metadata")
         .eq("workspace_id", workspace.id)
         .is("archived_at", null)
         .order("created_at", { ascending: false })
@@ -367,7 +387,18 @@ export default function DocumentsPage() {
         const fileName = (row.r2_key as string | null)?.split("/").pop() ?? row.name
         const category = (row.category as string | null) ?? "Other"
         const uploaded = new Date(row.created_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-        const status: DocStatus = (row.status === "verified" ? "verified" : row.status === "needs_review" ? "needs_review" : "verified")
+
+        // Derive expiry-aware status & days-left from the real expires_at.
+        const expiresAt = row.expires_at ? new Date(row.expires_at as string) : null
+        let daysLeft: string | undefined
+        let status: DocStatus = row.status === "needs_review" ? "needs_review" : "verified"
+        if (expiresAt) {
+          const days = Math.ceil((expiresAt.getTime() - Date.now()) / 86400000)
+          if (days < 0) { status = "expired"; daysLeft = "Expired" }
+          else if (days <= 45) { status = "expiring"; daysLeft = `${days} day${days === 1 ? "" : "s"} left` }
+          else { daysLeft = `${days} days left` }
+        }
+
         return {
           id: row.id as string,
           name: row.name as string,
@@ -377,9 +408,11 @@ export default function DocumentsPage() {
           contactRole: contactRole.charAt(0).toUpperCase() + contactRole.slice(1),
           category,
           uploaded,
-          expiry: row.expires_at ? new Date(row.expires_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null,
+          expiry: expiresAt ? expiresAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null,
+          daysLeft,
           status,
           size: fmtSize(row.size_bytes as number | null),
+          url: (row.url as string | null) ?? null,
         }
       })
       setDocs(rows)
@@ -419,7 +452,8 @@ export default function DocumentsPage() {
 
   const totalDocs = docs.length
   const verified = docs.filter((d) => d.status === "verified").length
-  const expiringSoon = docs.filter((d) => d.daysLeft && parseInt(d.daysLeft.replace(/\D/g, "")) <= 45).length
+  const verifiedPct = totalDocs > 0 ? Math.round((verified / totalDocs) * 100) : 0
+  const expiringSoon = docs.filter((d) => d.status === "expiring").length
   const needsReview = docs.filter((d) => d.status === "needs_review").length
 
   return (
@@ -486,16 +520,14 @@ export default function DocumentsPage() {
           />
           <ContactsKpiCard
             label="Verified"
-            value={`${verified} (${Math.round((verified / totalDocs) * 100)}%)`}
-            trend="All current"
-            trendUp
+            value={`${verified} (${verifiedPct}%)`}
             icon={<CheckCircle className="w-5 h-5 text-emerald-600" />}
             accentColor="bg-emerald-50"
           />
           <ContactsKpiCard
             label="Expiring Soon"
             value={expiringSoon}
-            alert="Action needed"
+            alert={expiringSoon > 0 ? "Action needed" : undefined}
             icon={<Clock className="w-5 h-5 text-amber-600" />}
             accentColor="bg-amber-50"
           />
@@ -519,9 +551,6 @@ export default function DocumentsPage() {
                 Review and renew documents before they expire
               </p>
             </div>
-            <button className="text-xs font-semibold text-amber-700 border border-amber-300 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors shrink-0">
-              View all
-            </button>
           </div>
         )}
 
@@ -563,13 +592,6 @@ export default function DocumentsPage() {
                   </button>
                 )}
               </div>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-              </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-colors ml-auto">
-                Sort: Newest <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
             </div>
 
             {/* Table */}
@@ -599,6 +621,16 @@ export default function DocumentsPage() {
                     { label: "Expiry", render: (d) => d.expiry || "No expiry" },
                     { label: "Size", render: (d) => d.size },
                   ],
+                  actions: (d) => (
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => handlePreview(d)} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#2563EB] px-2 py-1">
+                        <Eye className="w-4 h-4" /> Preview
+                      </button>
+                      <button onClick={() => handleDownload(d)} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald-600 px-2 py-1">
+                        <Download className="w-4 h-4" /> Download
+                      </button>
+                    </div>
+                  ),
                 }}
                 className="p-3"
               >
@@ -680,10 +712,10 @@ export default function DocumentsPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
-                              <button title="Preview" aria-label={`Preview ${doc.name}`} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+                              <button onClick={() => handlePreview(doc)} title="Preview" aria-label={`Preview ${doc.name}`} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
                                 <Eye className="w-4 h-4" />
                               </button>
-                              <button title="Download" aria-label={`Download ${doc.name}`} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
+                              <button onClick={() => handleDownload(doc)} title="Download" aria-label={`Download ${doc.name}`} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
                                 <Download className="w-4 h-4" />
                               </button>
                             </div>

@@ -1,15 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useParams } from "next/navigation"
 import {
   AlertTriangle,
   CheckCircle2,
-  RefreshCw,
   TrendingUp,
   Diamond,
   Sparkles,
   ArrowRight,
+  X,
+  Zap,
 } from "lucide-react"
 import {
   RadialBarChart,
@@ -17,6 +18,7 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspace } from "@/providers/AuthProvider"
 import type { PlanningAiReview } from "@/lib/planning/types"
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -41,78 +43,237 @@ function ScoreBar({ label, score, color }: { label: string; score: number; color
   )
 }
 
+// ── Pre-flight Modal ──────────────────────────────────────────────────────────
+
+interface PreflightModalProps {
+  onConfirm: () => void
+  onCancel: () => void
+  running: boolean
+  dailyTokens: number
+  dailyCap: number
+}
+
+function PreflightModal({ onConfirm, onCancel, running, dailyTokens, dailyCap }: PreflightModalProps) {
+  const pct = dailyCap > 0 ? Math.min(100, Math.round((dailyTokens / dailyCap) * 100)) : 0
+  const estCostPence = 0 // ~<1p at GPT-4o-mini rates
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-[18px] h-[18px] text-violet-600" />
+            </div>
+            <div>
+              <h3 className="text-[14px] font-bold text-slate-900">Run AI Review</h3>
+              <p className="text-[11px] text-slate-500">Confirm before running</p>
+            </div>
+          </div>
+          <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="bg-violet-50 rounded-xl p-3.5 mb-4 text-[12px] text-violet-800 leading-relaxed">
+          The AI will analyse your planning set&apos;s financial assumptions, risk score, yield and data completeness — then score it across five dimensions and provide strengths, weaknesses, and recommendations.
+        </div>
+
+        <div className="flex flex-col gap-2.5 mb-5">
+          <div className="flex items-center justify-between text-[12px]">
+            <span className="text-slate-500">Estimated cost</span>
+            <span className="font-semibold text-slate-700">{estCostPence < 1 ? "<1p" : `~${estCostPence}p`} (included in plan)</span>
+          </div>
+          {dailyCap > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex items-center justify-between text-[12px]">
+                <span className="text-slate-500">Monthly AI runs</span>
+                <span className="font-semibold text-slate-700">{dailyTokens} / {dailyCap} used</span>
+              </div>
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${pct}%`, background: pct > 80 ? "#EF4444" : "#7C3AED" }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2.5">
+          <button
+            onClick={onCancel}
+            disabled={running}
+            className="flex-1 h-10 rounded-xl border border-slate-200 text-slate-700 text-[13px] font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={running}
+            className="flex-1 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+          >
+            {running ? (
+              <>
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                Running…
+              </>
+            ) : (
+              <>
+                <Zap className="w-3.5 h-3.5" />
+                Run AI Review
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function AiReviewPage() {
   const params = useParams()
   const id = params.id as string
+  const { workspace } = useWorkspace()
 
   const [review, setReview] = useState<PlanningAiReview | null>(null)
   const [timeSince, setTimeSince] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showPreflight, setShowPreflight] = useState(false)
+  const [running, setRunning] = useState(false)
+  const [runError, setRunError] = useState<string | null>(null)
+  const [dailyTokens, setDailyTokens] = useState(0)
+  const [dailyCap, setDailyCap] = useState(0)
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!id) return
+    setLoading(true)
     const supabase = createClient()
-    async function load() {
-      setLoading(true)
-      // planning_ai_reviews is not yet provisioned (42P01) — swallow to null (no review).
-      const { data, error } = await supabase
-        .from("planning_ai_reviews")
-        .select("*")
-        .eq("planning_set_id", id)
-        .order("reviewed_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      const row = error ? null : (data as PlanningAiReview | null)
-      setReview(row)
-      if (row) {
-        const diff = Date.now() - new Date(row.reviewed_at).getTime()
-        const mins = Math.floor(diff / 60000)
-        setTimeSince(mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 1440)}d ago`)
-      } else {
-        setTimeSince(null)
-      }
-      setLoading(false)
+    const { data, error } = await supabase
+      .from("planning_ai_reviews")
+      .select("*")
+      .eq("planning_set_id", id)
+      .order("reviewed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const row = error ? null : (data as PlanningAiReview | null)
+    setReview(row)
+    if (row) {
+      const diff = Date.now() - new Date(row.reviewed_at).getTime()
+      const mins = Math.floor(diff / 60000)
+      setTimeSince(mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 1440)}d ago`)
+    } else {
+      setTimeSince(null)
     }
-    load()
+    setLoading(false)
   }, [id])
 
+  // Fetch daily token usage for the preflight display
+  const loadUsage = useCallback(async () => {
+    if (!workspace?.id) return
+    try {
+      const res = await fetch(`/api/ai/usage`)
+      if (res.ok) {
+        const data = await res.json() as { used?: number; limit?: number }
+        setDailyTokens(data.used ?? 0)
+        setDailyCap(data.limit ?? 0)
+      }
+    } catch { /* non-fatal */ }
+  }, [workspace?.id])
+
+  useEffect(() => { load() }, [load])
+  useEffect(() => { loadUsage() }, [loadUsage])
+
+  async function handleRunReview() {
+    if (!workspace?.id || !id) return
+    setRunning(true)
+    setRunError(null)
+    try {
+      const res = await fetch("/api/ai/planning-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planningSetId: id, workspaceId: workspace.id }),
+      })
+      const data = await res.json() as { review?: PlanningAiReview; error?: string }
+      if (!res.ok || data.error) {
+        setRunError(data.error ?? "AI review failed. Please try again.")
+        setRunning(false)
+        setShowPreflight(false)
+        return
+      }
+      setShowPreflight(false)
+      setRunning(false)
+      await load()
+      await loadUsage()
+    } catch {
+      setRunError("Network error. Please try again.")
+      setRunning(false)
+      setShowPreflight(false)
+    }
+  }
+
   return (
-    <div className="flex flex-col gap-5">
-
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h2 className="text-base font-bold text-slate-900">10B AI Review</h2>
-          <p className="text-xs text-slate-500 mt-0.5">{timeSince ? `Last reviewed ${timeSince}` : "No review run yet"}</p>
-        </div>
-        <button
-          disabled
-          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Run Review
-        </button>
-      </div>
-
-      {loading ? (
-        <Skeleton className="h-80 w-full" />
-      ) : !review ? (
-        /* ── Honest empty state ── */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-violet-500" />
-          </div>
-          <div className="text-sm font-semibold text-slate-700">No AI review yet</div>
-          <p className="text-xs text-slate-400 max-w-sm">
-            Complete your assumptions and run an AI review to score this plan&apos;s financial viability, risk and data completeness.
-          </p>
-        </div>
-      ) : (
-        <AiReviewContent review={review} />
+    <>
+      {showPreflight && (
+        <PreflightModal
+          onConfirm={handleRunReview}
+          onCancel={() => { setShowPreflight(false); setRunning(false) }}
+          running={running}
+          dailyTokens={dailyTokens}
+          dailyCap={dailyCap}
+        />
       )}
-    </div>
+
+      <div className="flex flex-col gap-5">
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">AI Review</h2>
+            <p className="text-xs text-slate-500 mt-0.5">{timeSince ? `Last reviewed ${timeSince}` : "No review run yet"}</p>
+          </div>
+          <button
+            onClick={() => setShowPreflight(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold transition-colors shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {review ? "Re-run AI Review" : "Run AI Review"}
+          </button>
+        </div>
+
+        {runError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+            <p className="text-[13px] text-red-700 font-medium">{runError}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <Skeleton className="h-80 w-full" />
+        ) : !review ? (
+          /* ── Honest empty state ── */
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-violet-500" />
+            </div>
+            <div className="text-sm font-semibold text-slate-700">No AI review yet</div>
+            <p className="text-xs text-slate-400 max-w-sm">
+              Complete your assumptions then click <strong>Run AI Review</strong> to score this plan&apos;s financial viability, risk and data completeness.
+            </p>
+            <button
+              onClick={() => setShowPreflight(true)}
+              className="mt-2 inline-flex items-center gap-1.5 h-9 px-5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-[13px] font-semibold transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Run AI Review
+            </button>
+          </div>
+        ) : (
+          <AiReviewContent review={review} />
+        )}
+      </div>
+    </>
   )
 }
 

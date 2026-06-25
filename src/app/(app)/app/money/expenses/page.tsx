@@ -13,7 +13,6 @@ import {
   ChevronDown,
   X,
   Paperclip,
-  Filter,
   CalendarDays,
   Table2,
   LayoutGrid,
@@ -30,6 +29,7 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyExpenses, useCreateMoneyExpense, useMoneyExpensesSummary } from "@/hooks/useMoneyData"
 import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import { createClient } from "@/lib/supabase/client"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
@@ -89,7 +89,6 @@ interface AddExpenseForm {
   date: string
   status: string
   description: string
-  notes: string
 }
 
 // ─── Status config ────────────────────────────────────────────────────────────
@@ -179,22 +178,17 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
     date: "",
     status: "",
     description: "",
-    notes: "",
   })
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const createExpense = useCreateMoneyExpense(workspaceId)
   const { data: properties = [] } = useProperties(workspaceId)
+  const { data: suppliers = [] } = useContacts(workspaceId, { contact_type: "supplier" })
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    setReceiptFile(e.target.files?.[0] ?? null)
   }
 
   async function handleSave() {
@@ -213,7 +207,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
         cost_behaviour: (form.cost_behaviour as InsertMoneyExpense["cost_behaviour"]) || null,
         description: form.description || null,
         property_id: form.property || null,
-        supplier_id: null,
+        supplier_id: form.supplier || null,
       })
       onClose()
     } catch (err) {
@@ -221,7 +215,6 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
     } finally {
       setSaving(false)
     }
-    void receiptFile // receipt upload requires storage integration
   }
 
   return (
@@ -257,9 +250,13 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-supplier" className="text-xs font-medium text-slate-600">Supplier</label>
-              <input id="exp-supplier" name="supplier" type="text" value={form.supplier} onChange={handleChange}
-                placeholder="Supplier name…"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+              <select id="exp-supplier" name="supplier" value={form.supplier} onChange={handleChange}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                <option value="">Select supplier…</option>
+                {suppliers.map((s) => (
+                  <option key={s.id} value={s.id}>{s.full_name || s.company_name || "Unnamed supplier"}</option>
+                ))}
+              </select>
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-property" className="text-xs font-medium text-slate-600">Property</label>
@@ -302,22 +299,6 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
               placeholder="Brief description…"
               className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="exp-notes" className="text-xs font-medium text-slate-600">Notes</label>
-            <textarea id="exp-notes" name="notes" value={form.notes} onChange={handleChange} rows={2}
-              placeholder="Optional notes…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600">Receipt</span>
-            <label className="flex items-center gap-3 border-2 border-dashed border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-blue-300 transition-colors">
-              <Paperclip className="w-4 h-4 text-slate-400" />
-              <span className="text-xs text-slate-500">
-                {receiptFile ? receiptFile.name : "Attach receipt (PDF, JPG, PNG)"}
-              </span>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFile} className="hidden" />
-            </label>
-          </div>
         </div>
         {formError && <p className="text-xs text-red-500 px-6 pb-2">{formError}</p>}
         <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-100 sticky bottom-0 bg-white">
@@ -341,6 +322,9 @@ export default function MoneyExpensesPage() {
   const { data: summary } = useMoneyExpensesSummary(workspace?.id)
   const [viewMode, setViewMode] = useState<ViewMode>("table")
   const [searchQuery, setSearchQuery] = useState("")
+  const [propertyFilter, setPropertyFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [showAddModal, setShowAddModal] = useState(false)
   const _sp = useSearchParams()
   useEffect(() => { if (_sp.get("new") === "1") setShowAddModal(true) }, [_sp])
@@ -383,10 +367,10 @@ export default function MoneyExpensesPage() {
       expenseType: r.expense_type,
       typeColor: "bg-blue-100 text-blue-700",
       costBehaviour: (r.cost_behaviour === "fixed" ? "Fixed" : r.cost_behaviour === "variable" ? "Variable" : r.cost_behaviour === "capital_reno" ? "Capital" : "Variable") as CostBehaviour,
-      propertyName: r.property_id ?? "—",
+      propertyName: r.property_name ?? "—",
       propertyAddress: "—",
-      supplierName: r.supplier_id ?? "—",
-      supplierInitials: "—",
+      supplierName: r.supplier_name ?? "—",
+      supplierInitials: (r.supplier_name ?? "—").slice(0, 2).toUpperCase(),
       description: r.description ?? r.expense_type,
       amount: fmtGBP2(r.amount ?? 0),
       status: (r.status as ExpenseStatus) ?? "planned",
@@ -414,13 +398,21 @@ export default function MoneyExpensesPage() {
       }))
   }, [liveExpenses, totalExpensesAll])
 
-  const filtered = EXPENSE_ROWS_LIVE.filter((r) => !hiddenIds.has(r.id)).filter((r) =>
-    searchQuery
-      ? r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.supplierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
-      : true
-  )
+  const filtered = EXPENSE_ROWS_LIVE
+    .filter((r) => !hiddenIds.has(r.id))
+    .filter((r) => (propertyFilter === "all" ? true : r.propertyName === propertyFilter))
+    .filter((r) => (typeFilter === "all" ? true : r.expenseType === typeFilter))
+    .filter((r) => (statusFilter === "all" ? true : r.status === statusFilter))
+    .filter((r) =>
+      searchQuery
+        ? r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.supplierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
+        : true
+    )
+
+  const hasActiveFilters = propertyFilter !== "all" || typeFilter !== "all" || statusFilter !== "all" || searchQuery !== ""
+  function clearFilters() { setPropertyFilter("all"); setTypeFilter("all"); setStatusFilter("all"); setSearchQuery("") }
 
   const visibleRows = showAllRows ? filtered : filtered.slice(0, 10)
 
@@ -596,26 +588,40 @@ export default function MoneyExpensesPage() {
                     className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                 </div>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <CalendarDays className="w-3.5 h-3.5" />
-                  This Month <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  All Properties <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  All Types <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  All Statuses <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <Filter className="w-3.5 h-3.5" />
-                  More filters
-                </button>
-                <button className="text-xs text-slate-500 hover:text-slate-700 transition-colors px-1">
-                  Clear
-                </button>
+                <select
+                  aria-label="Filter by property"
+                  value={propertyFilter}
+                  onChange={(e) => setPropertyFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 max-w-[180px]"
+                >
+                  <option value="all">All Properties</option>
+                  {[...new Set(EXPENSE_ROWS_LIVE.map((r) => r.propertyName).filter((n) => n && n !== "—"))].map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Filter by expense type"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <option value="all">All Types</option>
+                  {EXPENSE_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <select
+                  aria-label="Filter by status"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 capitalize"
+                >
+                  <option value="all">All Statuses</option>
+                  {["paid", "approved", "due", "planned"].map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
+                </select>
+                {hasActiveFilters && (
+                  <button onClick={clearFilters} className="text-xs text-slate-500 hover:text-slate-700 transition-colors px-1">
+                    Clear
+                  </button>
+                )}
 
                 {/* View toggle */}
                 <div className="flex items-center bg-slate-100 rounded-lg p-0.5 ml-auto">

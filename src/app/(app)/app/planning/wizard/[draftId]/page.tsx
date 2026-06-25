@@ -30,18 +30,6 @@ const STEP_COMPONENTS = [
   Step09ReviewCreate,
 ]
 
-const STEP_LABELS = [
-  "Profile",
-  "Basics",
-  "Income",
-  "Expenses & Bills",
-  "Upfront & Compliance",
-  "LL Offer",
-  "Forecast",
-  "Risk & AI Review",
-  "Review & Create",
-]
-
 function WizardInner() {
   const { state, setStep, saveDraft } = useWizard()
   const router = useRouter()
@@ -49,7 +37,10 @@ function WizardInner() {
   const currentStepIndex = state.currentStep - 1
   const StepComponent    = STEP_COMPONENTS[currentStepIndex]
   const isLastStep       = state.currentStep === STEP_COMPONENTS.length
-  const canContinue      = state.currentStep === 1 ? !!state.profileKey : true
+  const canContinue =
+    state.currentStep === 1 ? !!state.profileKey :
+    state.currentStep === 2 ? !!state.setName.trim() :
+    true
 
   const handleNext = () => {
     if (state.currentStep < STEP_COMPONENTS.length) {
@@ -64,7 +55,7 @@ function WizardInner() {
     }
   }
 
-  const nextLabel = `Continue to Step ${state.currentStep + 1}: ${STEP_LABELS[state.currentStep] ?? ""}`
+  const nextLabel = "Continue"
 
   return (
     <WizardShell
@@ -123,7 +114,7 @@ export default function ResumeDraftPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-slate-400 text-sm">Loading draft…</div>
       </div>
     )

@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   Clock,
   Zap,
-  Sparkles,
   GitBranch,
   Home,
   Building2,
@@ -29,6 +28,7 @@ import {
   Hammer,
   Construction,
   ChevronRight,
+  Sparkles,
 } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { PlanningPageShell } from "@/components/planning/PlanningPageShell"
@@ -38,7 +38,6 @@ import { PROFILE_SLUG_MAP } from "@/lib/planning/profile-config"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { usePlanningSets } from "@/hooks/usePlanningsets"
 import { createClient } from "@/lib/supabase/client"
-import { openCopilot } from "@/lib/copilot/open"
 import type { PlanningLandlordOffer } from "@/types/database"
 
 /* ------------------------------------------------------------------ */
@@ -85,6 +84,8 @@ export default function PlanningPage() {
   const { data: sets = [], isLoading } = usePlanningSets(workspace?.id)
 
   const [offers, setOffers] = useState<PlanningLandlordOffer[]>([])
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (!workspace?.id) return
@@ -135,30 +136,6 @@ export default function PlanningPage() {
       subtitle="Model deals, analyse opportunities, and build landlord offers across your portfolio."
       actions={
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => openCopilot({
-              prompt: "What does my planning data show? Summarise my planning sets, yields and any risk alerts.",
-              summaryData: {
-                section: "planning",
-                pageTitle: "Planning Engine",
-                summaryData: {
-                  totalPlanningSets: sets.length,
-                  activeScenarios: activeCount,
-                  avgNetMonthly: avgNet,
-                  bestYield: bestYieldSet?.net_yield ?? 0,
-                  bestYieldSetTitle: bestYieldSet?.title ?? null,
-                  riskAlerts: atRiskCount,
-                  openOffers,
-                  annualNetIncome: annualNet,
-                  convertReadySets: convertReady,
-                },
-              },
-            })}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl border border-violet-200 bg-violet-50 text-violet-700 text-[13px] font-semibold hover:bg-violet-100 transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
-            Ask AI
-          </button>
           <Link
             href="/property-manager/planning/wizard"
             className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors shadow-sm"
@@ -170,8 +147,8 @@ export default function PlanningPage() {
       }
     >
       {/* ── KPI Strip ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <KpiCard label="Total Planning Sets" value={isLoading ? "—" : String(sets.length)} icon={FolderOpen} iconColour="#7C3AED" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+        <KpiCard label="Planning Sets" value={isLoading ? "—" : String(sets.length)} icon={FolderOpen} iconColour="#7C3AED" />
         <KpiCard label="Active Sets" value={isLoading ? "—" : String(activeCount)} icon={Zap} iconColour="#2563EB" />
         <KpiCard label="Avg Net / Month" value={isLoading ? "—" : avgNet > 0 ? money(avgNet) : "—"} subtitle="across sets" icon={TrendingUp} iconColour="#10B981" />
         <KpiCard label="Best Net Yield" value={isLoading ? "—" : bestYieldSet && bestYieldSet.net_yield > 0 ? `${bestYieldSet.net_yield.toFixed(1)}%` : "—"} subtitle={bestYieldSet?.title ? bestYieldSet.title.slice(0, 22) : undefined} icon={BarChart2} iconColour="#2563EB" />
@@ -357,8 +334,8 @@ export default function PlanningPage() {
               Portfolio intelligence →
             </Link>
           </div>
-          <div className="h-[160px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[160px] min-w-0">
+            {mounted && <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart data={forecastData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="netGrad" x1="0" y1="0" x2="0" y2="1">
@@ -372,7 +349,7 @@ export default function PlanningPage() {
                 <Tooltip formatter={(v) => [`£${Number(v).toLocaleString()}`, "Net"]} contentStyle={{ borderRadius: 12, border: "1px solid #E2E8F0", fontSize: 12 }} />
                 <Area type="monotone" dataKey="net" stroke="#7C3AED" strokeWidth={2} fill="url(#netGrad)" dot={false} name="Net" />
               </AreaChart>
-            </ResponsiveContainer>
+            </ResponsiveContainer>}
           </div>
         </div>
       )}
@@ -386,7 +363,7 @@ export default function PlanningPage() {
             { icon: Plus, colour: "#7C3AED", label: "Start a New Plan", sub: "Create a planning set", href: "/property-manager/planning/wizard" },
             { icon: BarChart2, colour: "#2563EB", label: "Compare Profiles", sub: "Find the best strategy", href: "/property-manager/planning/profiles" },
             { icon: GitBranch, colour: "#F59E0B", label: "Yield Intelligence", sub: "Analyse yields", href: "/property-manager/planning/yield-intelligence" },
-            { icon: Sparkles, colour: "#10B981", label: "Conversions", sub: "Convert sets to properties", href: "/property-manager/planning/conversions" },
+            { icon: Zap, colour: "#10B981", label: "Conversions", sub: "Convert sets to properties", href: "/property-manager/planning/conversions" },
           ] as { icon: React.ElementType; colour: string; label: string; sub: string; href: string }[]).map((qa) => (
             <Link key={qa.label} href={qa.href} className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all group">
               <div style={{ background: qa.colour + "18" }} className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5">

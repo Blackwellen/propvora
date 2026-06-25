@@ -235,9 +235,6 @@ export default function PortfolioGalleryPage() {
         subtitle={`${filtered.length} images`}
         showBack
         backHref="/property-manager/portfolio"
-        overflowActions={[
-          { label: "Upload images", icon: Upload, onClick: () => {} },
-        ]}
       />
 
       {/* Mobile page header — search + filter sheet trigger */}

@@ -117,6 +117,49 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     mutationType: "task-draft",
   },
   {
+    slug: "/generate-report",
+    label: "/generate-report",
+    description: "Generate a branded PDF report or letter",
+    category: "General",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Write the FULL body of the requested document (report, letter or notice) grounded in the real records in WORKSPACE CONTEXT and RELEVANT RECORDS — use the actual property names, addresses, tenant names, amounts and dates. NEVER use {PLACEHOLDER} tokens. Use clear headings and short paragraphs. End with: 'Review and approve to generate the PDF.' Do NOT claim it was generated.",
+    requiresApproval: true,
+    mutationType: "doc-generate",
+  },
+  {
+    slug: "/agent",
+    label: "/agent",
+    description: "Plan a multi-step action across your records",
+    category: "General",
+    capability: "always",
+    pack: "ai-core",
+    prompt: "(handled by the multi-step agent — this should not reach the chat model)",
+    requiresApproval: false,
+  },
+  {
+    slug: "/go-to",
+    label: "/go-to",
+    description: "Jump to any section or open a wizard",
+    category: "General",
+    capability: "always",
+    pack: "ai-core",
+    prompt: "(handled by the navigation agent — this should not reach the model)",
+    requiresApproval: false,
+  },
+  {
+    slug: "/compare-properties",
+    label: "/compare-properties",
+    description: "Compare properties side by side",
+    category: "Portfolio",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Compare the properties the user names (or the top properties in RELEVANT RECORDS) side by side on: units, occupancy, active tenancies, monthly rent, open tasks and compliance status. Use ONLY the real figures from WORKSPACE CONTEXT and RELEVANT RECORDS — never invent numbers. Output a compact comparison, one property per block, then a one-line verdict on which needs attention most. If data for a property isn't available, say so.",
+    requiresApproval: false,
+  },
+  {
     slug: "/escalation-summary",
     label: "/escalation-summary",
     description: "List open escalations and high-priority items",
@@ -195,7 +238,7 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "compliance",
     pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Provide a UK rental compliance checklist covering the seven core requirements: Gas Safety Certificate (annual), Electrical Installation Condition Report (every 5 years), EPC minimum E rating (10-year cycle), smoke and carbon monoxide alarms, Legionella risk assessment, HMO licensing where applicable, and deposit protection (within 30 days). Output format: numbered list — requirement name, frequency, consequence of non-compliance (one line each). Frame all points as general information and recommend confirming deadlines with a compliance specialist. Under 260 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Using the 'COMPLIANCE NEEDING ATTENTION' items in KEY RECORDS, list each REAL item by its property name and its due/overdue date, ordered most urgent (most overdue) first, and for each give the specific next action (e.g. 'Book EICR for 22 Park Road — overdue 37 days'). Do NOT output a generic checklist when real records are present. If KEY RECORDS shows no compliance items needing attention, say compliance looks up to date and briefly note the core UK requirements. Frame as information, not guaranteed advice. Under 260 words.",
     requiresApproval: false,
   },
   {
@@ -206,7 +249,7 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "compliance",
     pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. List the documents a UK rental portfolio most commonly is missing and the legal risk of each absence. Cover: Gas Safety Certificate, EICR, EPC, signed AST, deposit protection certificate, Right to Rent check records, How to Rent guide acknowledgement, and Legionella assessment. Reference the documents count from WORKSPACE CONTEXT if shown. Output format: numbered list — document name, risk if missing (one line), how to close the gap (one line). Under 240 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Using KEY RECORDS (properties + compliance items), identify which SPECIFIC properties are missing or overdue on a required document, naming the property and the document (e.g. 'Mill Cottage — EICR overdue, re-let blocked'). Lead with the real gaps from the records; only after that, briefly note any standard UK documents not represented in the records. Never produce only a generic list when real records are present. Output: numbered list — property + document, risk (one line), how to close it (one line). Under 240 words.",
     requiresApproval: false,
   },
   {
@@ -217,7 +260,7 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "compliance",
     pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Produce a compliance action calendar for a UK rental portfolio showing the 10 most time-sensitive recurring compliance obligations. For each item show the legal requirement, typical renewal frequency, and suggested action trigger (e.g. 6 weeks before expiry). Output format: numbered list — item name, frequency, trigger point, consequence of missing it. End with a note that actual due dates depend on the property's specific certificate dates and should be confirmed in the Compliance section. Under 260 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Build a compliance calendar from KEY RECORDS: list the user's REAL compliance items by property name, ordered by actual due/expiry date (soonest first), each with its date and the trigger action (e.g. 'EICR — 88 Hawthorn, expires 7 Jul — book renewal now'). Only use the real dates in the records; do not invent dates. If no records, briefly note standard UK renewal frequencies. Never produce only a generic calendar when real records exist. Under 260 words.",
     requiresApproval: false,
   },
   {
@@ -228,7 +271,7 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     capability: "compliance",
     pack: "compliance",
     prompt:
-      "Respond in plain text only. No asterisks, no markdown headers. Explain the deposit protection obligations for UK landlords under the Housing Act 2004: the 30-day protection deadline, the three government-approved schemes (DPS, MyDeposits, TDS), prescribed information requirements, and the penalty for non-compliance (up to 3x deposit). Reference the active-tenancy count from WORKSPACE CONTEXT. Output format: numbered list — obligation name, deadline, risk if missed (one line each). End with: 'Review each tenancy in the Portfolio section to confirm deposit protection status.' Frame as general information; recommend a solicitor for specific cases. Under 230 words.",
+      "Respond in plain text only. No asterisks, no markdown headers. Using the ACTIVE TENANCIES in KEY RECORDS, list each tenancy by tenant name and property, and flag deposit risk where relevant (e.g. a 'Protect deposit' task in KEY RECORDS, or a tenancy that may need confirmation). Name the specific tenancies. Then briefly state the UK rule (30-day protection, approved schemes, up to 3x penalty) as context. Never produce only a generic explanation when real tenancies are listed. Frame as information, recommend a solicitor for specific cases. Under 230 words.",
     requiresApproval: false,
   },
 

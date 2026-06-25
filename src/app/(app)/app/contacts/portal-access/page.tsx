@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from "react"
 import {
-  Plus, Search, X, Copy, RefreshCw, XCircle, ExternalLink,
+  Plus, Search, X, Copy, XCircle, ExternalLink,
   Globe, Shield, Hash, Clock, Zap, Activity, Lock,
-  ChevronDown, CheckCircle2, AlertTriangle, SlidersHorizontal,
+  ChevronDown, CheckCircle2, AlertTriangle,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
@@ -311,6 +311,11 @@ export default function PortalAccessPage() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
+  const handleOpen = (id: string) => {
+    if (typeof window === "undefined") return
+    window.open(`${window.location.origin}/portal/${id}`, "_blank", "noopener,noreferrer")
+  }
+
   const handleRevoke = async (id: string) => {
     if (confirmRevokeId === id) {
       setConfirmRevokeId(null)
@@ -409,8 +414,6 @@ export default function PortalAccessPage() {
           <ContactsKpiCard
             label="Active Links"
             value={activeCount}
-            trend="+2 this week"
-            trendUp
             icon={<Globe className="w-5 h-5 text-emerald-600" />}
             accentColor="bg-emerald-50"
           />
@@ -539,10 +542,6 @@ export default function PortalAccessPage() {
                   </button>
                 )}
               </div>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-              </button>
             </div>
 
             {/* Table */}
@@ -658,9 +657,6 @@ export default function PortalAccessPage() {
                               >
                                 {copiedId === link.id ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                               </button>
-                              <button title="Regenerate" aria-label={`Regenerate link for ${link.contactName}`} className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40">
-                                <RefreshCw className="w-4 h-4" />
-                              </button>
                               <button
                                 onClick={() => handleRevoke(link.id)}
                                 title={confirmRevokeId === link.id ? "Confirm revoke" : "Revoke"}
@@ -674,7 +670,13 @@ export default function PortalAccessPage() {
                               >
                                 <XCircle className="w-4 h-4" />
                               </button>
-                              <button title="Open" aria-label={`Open portal link for ${link.contactName}`} className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+                              <button
+                                onClick={() => handleOpen(link.id)}
+                                disabled={isRevoked || isExpired}
+                                title={isRevoked || isExpired ? "Link is no longer active" : "Open portal link"}
+                                aria-label={`Open portal link for ${link.contactName}`}
+                                className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
                                 <ExternalLink className="w-4 h-4" />
                               </button>
                             </div>

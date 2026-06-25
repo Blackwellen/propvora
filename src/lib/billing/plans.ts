@@ -161,6 +161,15 @@ const ADDON_DISPLAY: Record<
   ai_credits_1k: { name: "AI credit pack", description: "One-time top-up of 1,000 AI credits.", audience: "operator", eligibility: "AI-enabled tiers" },
   onboarding: { name: "Onboarding & migration", description: "Guided setup and data migration.", audience: "operator", eligibility: "All plans" },
 
+  // ── Intelligence Layer add-ons (recurring AI-Pro + one-off credit packs) ──
+  // Unlocks the agentic Copilot layer on lower tiers, and tops up the heavy
+  // (Intelligence / Action) credit classes for power users. Stripe price IDs are
+  // null until the OWNER runs scripts/stripe-setup-catalog.mjs; defined here so
+  // they render in the add-on grid the moment the products exist.
+  ai_pro: { name: "AI Pro", description: "Unlock autonomous AI agents, web/market intelligence, document AI and monitors — with a generous monthly credit allowance.", audience: "operator", eligibility: "Starter, Operator, Scale" },
+  intelligence_pack_1k: { name: "Intelligence credit pack", description: "1,000 Intelligence credits for web search, market data, document AI and agent runs.", audience: "operator", eligibility: "AI-enabled tiers" },
+  action_pack_1k: { name: "Action credit pack", description: "1,000 Action credits for AI-drafted writes, emails and automation runs.", audience: "operator", eligibility: "AI-enabled tiers" },
+
   // ── New operator add-ons (Layer 2) ──────────────────────────────────────
   open_banking: { name: "Open Banking", description: "Live bank feeds and reconciliation via Open Banking.", audience: "operator", eligibility: "Operator+" },
   whatsapp_business: { name: "WhatsApp Business", description: "Send and receive messages over WhatsApp Business (usage extra).", audience: "operator", eligibility: "Operator+" },

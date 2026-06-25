@@ -126,6 +126,21 @@ function mapNativeStatus(s: string | null): CalendarItem['status'] {
   }
 }
 
+// Native events store an explicit status, but a past-dated event left as
+// "scheduled"/"confirmed" must still read as overdue/due-today — exactly like
+// every cross-section item (deriveStatus) and the `overdue` bucket. Without this
+// the Overdue KPI (date-based bucket) and the Status="Overdue" filter (status
+// string) disagree. Terminal/explicit states always win; otherwise we make the
+// status date-aware so all surfaces (KPI, filter, Schedule/Timeline) agree.
+function deriveNativeStatus(metaStatus: string | null, start: string, today: Date): CalendarItem['status'] {
+  const stored = mapNativeStatus(metaStatus)
+  if (stored === 'completed' || stored === 'cancelled' || stored === 'overdue') return stored
+  const d = new Date(start)
+  if (isSameDay(d, today)) return 'due_today'
+  if (isPastDay(d, today)) return 'overdue'
+  return stored // future: keep scheduled / confirmed
+}
+
 export interface UseCalendarItemsResult {
   items: CalendarItem[]
   isLoading: boolean
@@ -251,7 +266,7 @@ export function useCalendarItems(workspaceId: string | undefined): UseCalendarIt
           allDay: Boolean(e.all_day),
           source,
           sourceLabel: SOURCE_META[source].label,
-          status: mapNativeStatus((meta.status ?? null) as string | null),
+          status: deriveNativeStatus((meta.status ?? null) as string | null, e.start_at, today),
           href: `/property-manager/calendar/events/${e.id}`,
           propertyId: e.property_id ?? null,
           isNative: true,

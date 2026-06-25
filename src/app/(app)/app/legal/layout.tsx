@@ -1,8 +1,21 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { isFeatureEnabled } from "@/lib/flags"
 import { LegalTabNav } from "@/components/legal/LegalTabNav"
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
+import { LegalJurisdictionNote } from "@/components/legal/LegalJurisdictionNote"
 import JurisdictionBanner from "@/components/i18n/JurisdictionBanner"
 
-export default function LegalLayout({ children }: { children: React.ReactNode }) {
+export default async function LegalLayout({ children }: { children: React.ReactNode }) {
+  // QA all-flags bypass
+  if (process.env.NEXT_PUBLIC_QA_ALL_FLAGS !== "true") {
+    const supabase = await createClient()
+    const enabled = await isFeatureEnabled("legalSection", { supabase })
+    if (!enabled) {
+      redirect("/property-manager/compliance")
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 -mx-6 -mt-6">
       {/* Canonical section header: title above the persistent tab rail */}
@@ -17,15 +30,12 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         <LegalDisclaimer />
       </div>
       <div className="flex-1">{children}</div>
-      {/* Jurisdiction footer note — subtle reminder that legal info is England & Wales.
-          For non-GB workspaces this is especially important. GB workspaces still see it
-          because Scotland and Northern Ireland have different regulations. */}
+      {/* Jurisdiction-aware footer note — reads the workspace country/region and
+          shows the correct statutory disclaimer (reviewed England & Wales wording,
+          or the research-only "verify locally" wording for every other
+          jurisdiction). Mirrors the Compliance section. */}
       <div className="px-6 pb-6">
-        <p className="text-[11px] text-slate-400 mt-8 border-t border-slate-100 pt-3">
-          Information relates to England &amp; Wales law unless otherwise stated. Scotland and Northern Ireland have
-          different regulations. Propvora is not a law firm and does not provide legal advice. Consult a qualified
-          solicitor before acting on any legal information shown here.
-        </p>
+        <LegalJurisdictionNote />
       </div>
     </div>
   )

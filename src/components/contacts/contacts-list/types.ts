@@ -22,6 +22,7 @@ export const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   post_tenant:          { label: "Past Tenant",    cls: "bg-slate-100 text-slate-600" },
   applicant:            { label: "Applicant",      cls: "bg-sky-100 text-sky-700" },
   landlord:             { label: "Landlord",       cls: "bg-blue-100 text-blue-700" },
+  owner:                { label: "Landlord",       cls: "bg-blue-100 text-blue-700" },
   guarantor:            { label: "Guarantor",      cls: "bg-violet-100 text-violet-700" },
   supplier:             { label: "Supplier",       cls: "bg-amber-100 text-amber-700" },
   maintenance:          { label: "Maintenance",    cls: "bg-amber-100 text-amber-700" },
@@ -43,6 +44,7 @@ export const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
 export const PIE_COLOURS: Record<string, string> = {
   tenant:      "#10B981",
   landlord:    "#2563EB",
+  owner:       "#2563EB",
   supplier:    "#F59E0B",
   applicant:   "#0EA5E9",
   post_tenant: "#64748B",
@@ -53,7 +55,7 @@ export const PIE_COLOURS: Record<string, string> = {
 export const TYPE_FILTER_MAP: Record<TypeFilter, string[]> = {
   all:          [],
   tenants:      ["tenant"],
-  landlords:    ["landlord"],
+  landlords:    ["landlord","owner"],
   suppliers:    ["supplier","maintenance","cleaning","emergency_contractor"],
   applicants:   ["applicant"],
   past_tenants: ["post_tenant"],

@@ -212,7 +212,7 @@ export default function PlanningSetsPage() {
       />
 
       {/* KPI Cards — derived from live data */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
         <KpiCard label="Total Planning Sets" value={isLoading ? "—" : String(kpiTotal)} icon={FolderOpen} iconColour="#7C3AED" />
         <KpiCard label="Active" value={isLoading ? "—" : String(kpiReview)} icon={Eye} iconColour="#2563EB" />
         <KpiCard label="Converted" value={isLoading ? "—" : String(kpiConversion)} icon={CheckCircle2} iconColour="#10B981" />
@@ -315,7 +315,7 @@ export default function PlanningSetsPage() {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-[14px] font-bold text-slate-900">{set.title}</p>
                   <div onClick={(e) => e.stopPropagation()}>
-                    <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                    <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/assumptions`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                   </div>
                 </div>
                 <ProfileTag profileKey={set.operation_profile} size="sm" />
@@ -340,6 +340,26 @@ export default function PlanningSetsPage() {
 
           {/* Desktop / tablet: full table + card / compact view toggle */}
           <div className="hidden md:block">
+          {/* Bulk action toolbar — shown when rows are selected in table view */}
+          {viewMode === "table" && selected.length > 0 && (
+            <div className="flex items-center gap-3 mb-3 px-4 py-2.5 bg-blue-50 rounded-xl border border-blue-200">
+              <span className="text-[12.5px] font-semibold text-blue-700">{selected.length} selected</span>
+              <ConfirmBulkDelete
+                count={selected.length}
+                onConfirm={async () => {
+                  for (const id of selected) await handleDelete(id)
+                  setSelected([])
+                }}
+              />
+              <button
+                onClick={() => setSelected([])}
+                className="ml-auto h-7 px-3 rounded-lg bg-white border border-blue-200 text-blue-600 text-[12px] font-semibold hover:bg-blue-50 transition-colors"
+              >
+                Clear selection
+              </button>
+            </div>
+          )}
+
           {viewMode === "cards" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {!isLoading && filtered.map((set) => (
@@ -351,7 +371,7 @@ export default function PlanningSetsPage() {
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <p className="text-[14px] font-bold text-slate-900">{set.title}</p>
                     <div onClick={(e) => e.stopPropagation()}>
-                      <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                      <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/assumptions`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                     </div>
                   </div>
                   <ProfileTag profileKey={set.operation_profile} size="sm" />
@@ -374,6 +394,36 @@ export default function PlanningSetsPage() {
               {!isLoading && filtered.length === 0 && (
                 <div className="sm:col-span-2"><EmptyState hasSets={sets.length > 0} /></div>
               )}
+            </div>
+          ) : viewMode === "compact" ? (
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
+              {isLoading && (
+                <div className="px-5 py-12 text-center text-[13px] text-slate-400">Loading planning sets…</div>
+              )}
+              {!isLoading && filtered.length === 0 && (
+                <div className="px-5 py-16"><EmptyState hasSets={sets.length > 0} /></div>
+              )}
+              {!isLoading && filtered.map((set) => (
+                <div
+                  key={set.id}
+                  onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer group transition-colors"
+                >
+                  <div className="flex-1 min-w-0 flex items-center gap-3">
+                    <p className="text-[13px] font-semibold text-slate-800 truncate w-40 shrink-0">{set.title}</p>
+                    <ProfileTag profileKey={set.operation_profile} size="sm" />
+                    <StatusPill status={set.status} size="sm" />
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <p className="text-[13px] font-bold text-slate-900 w-20 text-right">{set.net_monthly_income > 0 ? money(set.net_monthly_income) : "—"}</p>
+                    <RiskPill level={riskLevel(set.risk_score)} size="sm" />
+                    <p className="text-[11.5px] text-slate-400 w-14 text-right hidden lg:block">{timeAgo(set.updated_at)}</p>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/assumptions`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
@@ -439,7 +489,7 @@ export default function PlanningSetsPage() {
                         <td className="px-3 py-3.5 text-[13px] text-slate-600">{set.roi > 0 ? `${set.roi.toFixed(1)}%` : "—"}</td>
                         <td className="px-3 py-3.5 text-[12px] text-slate-400 whitespace-nowrap">{timeAgo(set.updated_at)}</td>
                         <td className="px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
-                          <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
+                          <SetMenu set={set} onView={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)} onEdit={() => router.push(`/property-manager/planning/sets/${set.id}/assumptions`)} onDuplicate={() => handleDuplicate(set)} onDelete={() => handleDelete(set.id)} />
                         </td>
                       </tr>
                     ))}
@@ -560,6 +610,7 @@ function SetMenu({ set, onView, onEdit, onDuplicate, onDelete }: {
   onDuplicate: () => void
   onDelete: () => Promise<void> | void
 }) {
+  const router = useRouter()
   return (
     <ConfirmDialog
       title="Delete planning set?"
@@ -572,11 +623,32 @@ function SetMenu({ set, onView, onEdit, onDuplicate, onDelete }: {
           items={[
             { label: "View", icon: Eye, onClick: onView },
             { label: "Edit", icon: Pencil, onClick: onEdit },
-            { label: "Landlord Offer", icon: Sparkles, onClick: onView },
+            { label: "Landlord Offer", icon: Sparkles, onClick: () => router.push(`/property-manager/planning/sets/${set.id}/landlord-offer`) },
             { label: "Duplicate", icon: LayoutGrid, onClick: onDuplicate },
             { label: "Delete", icon: Trash2, onClick: open, variant: "danger" },
           ]}
         />
+      )}
+    </ConfirmDialog>
+  )
+}
+
+function ConfirmBulkDelete({ count, onConfirm }: { count: number; onConfirm: () => Promise<void> }) {
+  return (
+    <ConfirmDialog
+      title={`Delete ${count} planning set${count !== 1 ? "s" : ""}?`}
+      description={`This will permanently remove ${count} planning set${count !== 1 ? "s" : ""}. This cannot be undone.`}
+      confirmLabel="Delete all"
+      onConfirm={onConfirm}
+    >
+      {(open) => (
+        <button
+          onClick={open}
+          className="flex items-center gap-1.5 h-7 px-3 rounded-lg bg-red-100 text-red-700 text-[12px] font-semibold hover:bg-red-200 transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Delete {count}
+        </button>
       )}
     </ConfirmDialog>
   )

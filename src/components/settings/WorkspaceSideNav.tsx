@@ -14,6 +14,7 @@ import {
   Globe,
   Navigation,
   Plug,
+  Workflow,
   Mail,
   HardDrive,
   Lock,
@@ -133,6 +134,13 @@ export const WORKSPACE_NAV: SettingsNavItem[] = [
     label: "Integrations",
     href: "/property-manager/workspace-settings/integrations",
     icon: Plug,
+    group: "Configuration",
+  },
+  {
+    key: "automations",
+    label: "Automation Governance",
+    href: "/property-manager/workspace-settings/automations",
+    icon: Workflow,
     group: "Configuration",
   },
   {

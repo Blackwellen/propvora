@@ -239,6 +239,8 @@ const FEATURE_LABEL: Record<FeatureKey, string> = {
   canvasLite: "Canvas Lite automations",
   procurementRules: "Supplier procurement rules",
   ownerPortals: "Owner / client portals",
+  aiAgentRuns: "AI agents & autonomous actions",
+  byok: "Bring your own AI key",
 }
 
 /** Lowest tier whose feature set includes `feature` (for the upgrade hint). */
@@ -412,6 +414,27 @@ export function gateAutomation(
   workspaceId: string
 ): Promise<GateResult> {
   return gateFeature(supabase, workspaceId, "automation")
+}
+
+/**
+ * Gate: agentic Copilot layer (Tier C/D — agent runs, web/market intelligence,
+ * document generation, monitors). Scale+ on plan. NOTE: lower tiers can unlock
+ * this via the AI-Pro add-on; callers that support the add-on should OR this
+ * gate with an active-add-on check before blocking.
+ */
+export function gateAiAgents(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFeature(supabase, workspaceId, "aiAgentRuns")
+}
+
+/** Gate: bring-your-own AI key. Enterprise only. */
+export function gateByok(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<GateResult> {
+  return gateFeature(supabase, workspaceId, "byok")
 }
 
 // ── v2 feature-flag gate (additive) ───────────────────────────────────────

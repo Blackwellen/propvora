@@ -16,7 +16,7 @@ const CALENDAR_TABS = [
   },
   {
     key:  "views",
-    label: "Calendar Views",
+    label: "Calendar",
     href:  "/property-manager/calendar/views",
     exact: false,
     /** also active for old per-view routes that have been migrated under /views */

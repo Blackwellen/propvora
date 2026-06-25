@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 export interface WorkKpi {
@@ -13,6 +14,8 @@ export interface WorkKpi {
   subColor?: string
   ring?: boolean
   ringColor?: string
+  /** When provided the card is rendered as a Link to this href */
+  href?: string
 }
 
 interface WorkKpiStripProps {
@@ -40,10 +43,11 @@ function KpiCard({ kpi }: { kpi: WorkKpi }) {
     subColor,
     ring,
     ringColor = "#2563EB",
+    href,
   } = kpi
 
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 hover:shadow-md transition-shadow cursor-pointer">
+  const inner = (
+    <>
       {ring ? (
         <div className="relative w-10 h-10 shrink-0">
           <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
@@ -90,6 +94,22 @@ function KpiCard({ kpi }: { kpi: WorkKpi }) {
           </p>
         )}
       </div>
+    </>
+  )
+
+  const baseClass = "bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
+
+  if (href) {
+    return (
+      <Link href={href} className={cn(baseClass, "cursor-pointer")}>
+        {inner}
+      </Link>
+    )
+  }
+
+  return (
+    <div className={baseClass}>
+      {inner}
     </div>
   )
 }

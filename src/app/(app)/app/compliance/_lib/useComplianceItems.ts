@@ -67,16 +67,24 @@ export function fmtDate(d: string | null | undefined): string {
 /** Derive a normalised status from the raw status + due date. */
 export function deriveStatus(item: ComplianceItem): DerivedStatus {
   const raw = (item.status ?? "").toLowerCase()
-  // Honour explicit terminal states first.
-  if (["expired", "overdue", "failed"].includes(raw)) return "expired"
+  // Date-independent states first: "missing" and in-progress work are not
+  // governed by an expiry date.
   if (["missing", "not_started", "none"].includes(raw)) return "missing"
-  if (["expiring_soon", "due_soon", "warning"].includes(raw)) return "expiring_soon"
   if (["pending", "in_progress", "scheduled", "needs_data"].includes(raw)) return "pending"
 
-  // Otherwise derive from the due date.
   const d = daysUntil(item.due_date)
+
+  // An explicit terminal "expired" always wins.
+  if (["expired", "overdue", "failed"].includes(raw)) return "expired"
+
+  // For renewal-style statuses (valid / compliant / expiring_soon / due_soon /
+  // warning / unknown) the DUE DATE is the source of truth — a stale
+  // "expiring_soon" flag must still escalate to "expired" once the date passes,
+  // otherwise overdue items wrongly surface in the "Expiring soon" list.
   if (d == null) {
-    return raw === "valid" || raw === "compliant" || raw === "complete" ? "valid" : "pending"
+    if (["valid", "compliant", "complete"].includes(raw)) return "valid"
+    if (["expiring_soon", "due_soon", "warning"].includes(raw)) return "expiring_soon"
+    return "pending"
   }
   if (d < 0) return "expired"
   if (d <= EXPIRING_WINDOW_DAYS) return "expiring_soon"

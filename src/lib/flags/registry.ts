@@ -41,6 +41,8 @@ export const V2_FLAG_KEYS = [
   "registrationSupplier",
   "affiliateEnabled",
   "sellerVerificationRequired",
+  "legalSection",
+  "planningEnabled",
 ] as const
 
 /** A v2 feature flag identifier (camelCase). */
@@ -184,8 +186,12 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     key: "globalCountryPacks",
     dbKey: toDbKey("globalCountryPacks"),
     label: "Global Country Packs",
-    description: "Country pack legal/tax/compliance depth and support-status gating.",
-    defaultEnabled: false,
+    description:
+      "Workspace-level jurisdiction packs: per-country compliance requirement sets, " +
+      "legal-section gating and jurisdiction disclaimers. Pulled forward to V1 — the " +
+      "workspace jurisdiction picker (Settings → Jurisdiction) drives Compliance + Legal. " +
+      "(Per-property multi-country remains V2 under multiCountryPortfolio.)",
+    defaultEnabled: true,
   },
   accountingGl: {
     key: "accountingGl",
@@ -253,6 +259,21 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     label: "Seller verification gate",
     description: "Enforce identity/KYC (+ supplier insurance) before a seller can go live or receive payouts. OFF until marketplace launch so pre-launch listings aren't blocked; turn ON at launch.",
     defaultEnabled: false,
+  },
+  // ── Operational section kill-switches (V1 — default ON) ──────────────────────
+  legalSection: {
+    key: "legalSection",
+    dbKey: toDbKey("legalSection"),
+    label: "Legal Section",
+    description: "Legal advisory tools: HMO licences, EPC advisory, possession notices (Section 8/21), RRA 2026 tracker. Operational kill-switch — ON in V1. Can be disabled per-workspace if not needed.",
+    defaultEnabled: true,
+  },
+  planningEnabled: {
+    key: "planningEnabled",
+    dbKey: toDbKey("planningEnabled"),
+    label: "Planning Engine",
+    description: "Planning Engine section: forecasts, portfolio intelligence, yield analysis, scenario modelling, property acquisition sets. Operational kill-switch — ON in V1.",
+    defaultEnabled: true,
   },
 }
 

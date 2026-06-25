@@ -131,15 +131,18 @@ export default function CalendarMonthPage() {
         />
         </div>
 
-        {/* Mobile month nav */}
-        <div className="md:hidden flex items-center gap-2">
-          <button onClick={prevMonth} aria-label="Previous month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button onClick={goToday} className="flex-1 h-10 rounded-xl bg-white border border-[#E2EAF6] text-slate-700 text-[13px] font-semibold">Today</button>
-          <button onClick={nextMonth} aria-label="Next month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600">
-            <ChevronRight className="w-5 h-5" />
-          </button>
+        {/* Mobile month nav — nav buttons on their own row, the view switcher
+            on a second row so its 5 chips don't squeeze "Today" at ≤390px. */}
+        <div className="md:hidden space-y-2.5">
+          <div className="flex items-center gap-2">
+            <button onClick={prevMonth} aria-label="Previous month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600 shrink-0">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button onClick={goToday} className="flex-1 h-10 rounded-xl bg-white border border-[#E2EAF6] text-slate-700 text-[13px] font-semibold">Today</button>
+            <button onClick={nextMonth} aria-label="Next month" className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-slate-600 shrink-0">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
           <CalendarViewsSwitcher />
         </div>
 

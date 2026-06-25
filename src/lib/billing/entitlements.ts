@@ -44,6 +44,16 @@ export interface FeatureFlags {
   procurementRules: boolean
   /** Owner / client portals (multi-landlord). */
   ownerPortals: boolean
+  // ── Intelligence Layer (additive) ──────────────────────────────────────
+  /**
+   * Agentic Copilot tier (Tier C/D): autonomous agent runs, web/market
+   * intelligence, document generation and continuous monitors. Scale+ on plan;
+   * lower tiers unlock it via the AI-Pro add-on. Conversation Copilot
+   * (aiCopilot) is separate and lighter.
+   */
+  aiAgentRuns: boolean
+  /** Bring-your-own AI provider key (Enterprise) — unlimited, own data terms. */
+  byok: boolean
 }
 
 /** The gated feature keys (used by the generic gate). */
@@ -89,6 +99,8 @@ type TierFeatureKeys =
   | "canvasLite"
   | "procurementRules"
   | "ownerPortals"
+  | "aiAgentRuns"
+  | "byok"
 
 const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
   // V1 keys (whiteLabel/ssoSaml/portals/automation) keep their exact prior
@@ -98,6 +110,7 @@ const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
     bookingManagement: false, directBookingPages: false, supplierWorkspaceInvites: false,
     marketplaceBrowsing: false, marketplacePublishing: false, canvasLite: false,
     procurementRules: false, ownerPortals: false,
+    aiAgentRuns: false, byok: false,
   },
   operator: {
     whiteLabel: false, ssoSaml: false, portals: false, automation: false,
@@ -106,6 +119,7 @@ const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
     bookingManagement: true, directBookingPages: false, supplierWorkspaceInvites: false,
     marketplaceBrowsing: false, marketplacePublishing: false, canvasLite: false,
     procurementRules: false, ownerPortals: false,
+    aiAgentRuns: false, byok: false,
   },
   scale: {
     whiteLabel: false, ssoSaml: false, portals: true, automation: true,
@@ -114,6 +128,8 @@ const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
     bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
     marketplaceBrowsing: true, marketplacePublishing: false, canvasLite: true,
     procurementRules: false, ownerPortals: false,
+    // Scale unlocks the agentic Copilot layer (with a bundled credit allowance).
+    aiAgentRuns: true, byok: false,
   },
   pro_agency: {
     whiteLabel: true, ssoSaml: true, portals: true, automation: true,
@@ -122,12 +138,15 @@ const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
     bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
     marketplaceBrowsing: true, marketplacePublishing: true, canvasLite: true,
     procurementRules: true, ownerPortals: true,
+    aiAgentRuns: true, byok: false,
   },
   enterprise: {
     whiteLabel: true, ssoSaml: true, portals: true, automation: true,
     bookingManagement: true, directBookingPages: true, supplierWorkspaceInvites: true,
     marketplaceBrowsing: true, marketplacePublishing: true, canvasLite: true,
     procurementRules: true, ownerPortals: true,
+    // Enterprise: agentic layer + bring-your-own-key.
+    aiAgentRuns: true, byok: true,
   },
 }
 
@@ -163,6 +182,8 @@ export function featuresForTier(tier: PlanTier): FeatureFlags {
     canvasLite: extra.canvasLite,
     procurementRules: extra.procurementRules,
     ownerPortals: extra.ownerPortals,
+    aiAgentRuns: extra.aiAgentRuns,
+    byok: extra.byok,
   }
 }
 

@@ -4,7 +4,10 @@ import Link from "next/link"
 import { Building2, Menu, LogOut, LifeBuoy } from "lucide-react"
 import type { PortalKind } from "./portal-nav"
 
-const BADGE: Record<PortalKind, string> = { supplier: "SUPPLIER", landlord: "LANDLORD", tenant: "TENANT" }
+const BADGE: Record<PortalKind, string> = {
+  supplier: "SUPPLIER", landlord: "LANDLORD", tenant: "TENANT",
+  applicant: "APPLICANT", accountant: "ACCOUNTANT", solicitor: "SOLICITOR", generic: "GENERIC",
+}
 
 function initialsOf(name: string): string {
   return name.trim().split(/\s+/).map((w) => w[0]).filter(Boolean).join("").slice(0, 2).toUpperCase() || "PV"

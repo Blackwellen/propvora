@@ -9,6 +9,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCenter,
@@ -23,9 +24,6 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import {
   Plus,
-  Sparkles,
-  Filter,
-  MoreHorizontal,
   CheckCircle2,
   TrendingDown,
   Clock,
@@ -48,7 +46,6 @@ import { useProperties } from "@/hooks/useProperties"
 import { createClient } from "@/lib/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Task, TaskStatus } from "@/types/database"
-import { openCopilot } from "@/lib/copilot/open"
 
 // ─── Column definitions ────────────────────────────────────────────────────────
 
@@ -195,6 +192,7 @@ function TaskCard({ task, isDragging = false, propertyName }: TaskCardProps) {
 
   return (
     <div
+      style={isDragging ? { willChange: "transform" } : undefined}
       className={cn(
         "bg-white border rounded-xl p-3 transition-all group select-none",
         isOverdue ? "border-red-200 bg-red-50/30" : "border-slate-200",
@@ -285,7 +283,10 @@ function SortableTaskCard({ task, propertyName }: { task: Task; propertyName?: s
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // Use CSS transition from dnd-kit for smooth reorder animation
+    transition: transition ?? "transform 180ms cubic-bezier(0.25, 1, 0.5, 1)",
+    // GPU-accelerate the dragged element so movement is buttery
+    willChange: isDragging ? "transform" : undefined,
     // keep a ghost placeholder visible in the source column while dragging
     opacity: isDragging ? 0.35 : 1,
   }
@@ -349,9 +350,6 @@ function KanbanColumn({
             {tasks.length}
           </span>
         </div>
-        <button className="p-1 rounded hover:bg-slate-100 text-slate-400">
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
       </div>
 
       {/* Sortable card list + column drop target */}
@@ -445,8 +443,15 @@ export default function WorkBoardPage() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        // Require a small movement before triggering drag so clicks on links still work
-        distance: 6,
+        // Small distance threshold so clicks on links still fire cleanly
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        // On touch devices, require a brief hold to avoid scroll conflicts
+        delay: 200,
+        tolerance: 8,
       },
     })
   )
@@ -587,13 +592,6 @@ export default function WorkBoardPage() {
               <Download className="w-4 h-4" />
               Export
             </button>
-            <button
-              onClick={() => openCopilot({ prompt: "Summarise my kanban board — which tasks need attention and what should I focus on today?" })}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors shadow-sm"
-            >
-              <Sparkles className="w-4 h-4" />
-              Ask AI
-            </button>
           </>
         }
       />
@@ -609,21 +607,9 @@ export default function WorkBoardPage() {
 
       {/* Board controls bar */}
       <div className="hidden md:flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-xl px-4 py-2.5">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500 text-[13px]">Group by</span>
-          <select className="border border-slate-200 rounded-lg px-3 py-1 text-[12.5px] text-slate-700 bg-white">
-            <option>Status</option>
-            <option>Priority</option>
-            <option>Assignee</option>
-            <option>Property</option>
-          </select>
-        </div>
+        <span className="text-slate-500 text-[13px]">Grouped by status</span>
 
         <div className="w-px h-5 bg-slate-200 mx-1" />
-
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-[12.5px] font-medium text-slate-600 hover:bg-slate-50">
-          <Filter className="w-3.5 h-3.5" /> Filters
-        </button>
 
         {/* Priority filter */}
         <select
@@ -728,36 +714,6 @@ export default function WorkBoardPage() {
                 </div>
               </div>
 
-              {/* AI Recommendations */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-violet-600" />
-                  <h3 className="text-sm font-semibold text-slate-900">AI Recommendations</h3>
-                </div>
-                {[
-                  { icon: TrendingDown, text: "Review any blocked tasks",          action: "Review",   color: "text-red-500",    href: "/property-manager/work/tasks" },
-                  { icon: Clock,        text: "Check waiting-on-supplier items",   action: "Schedule", color: "text-amber-500",  href: "/property-manager/work/ppm" },
-                  { icon: FileText,     text: "Review supplier quotes",            action: "Review",   color: "text-violet-500", href: "/property-manager/work/suppliers" },
-                ].map((item, i) => {
-                  const Icon = item.icon
-                  return (
-                    <div key={i} className="flex items-center gap-2 mb-2.5">
-                      <Icon className={cn("w-3.5 h-3.5 shrink-0", item.color)} />
-                      <span className="text-[12px] text-slate-600 flex-1">{item.text}</span>
-                      <Link href={item.href} className="text-[11px] font-semibold text-[#2563EB] hover:underline shrink-0">
-                        {item.action}
-                      </Link>
-                    </div>
-                  )
-                })}
-                <button
-                  onClick={() => openCopilot({ prompt: "Give me AI insights on my open tasks — which are at risk and what should I prioritise?" })}
-                  className="text-[12px] font-semibold text-violet-600 hover:underline mt-1 block w-full text-left"
-                >
-                  Ask AI for more insights →
-                </button>
-              </div>
-
               {/* Recent Activity */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
@@ -781,7 +737,12 @@ export default function WorkBoardPage() {
           </div>
 
           {/* Drag overlay — floats above everything while dragging */}
-          <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+          <DragOverlay
+            dropAnimation={{
+              duration: 180,
+              easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+            }}
+          >
             {activeTask ? <TaskCard task={activeTask} isDragging /> : null}
           </DragOverlay>
         </DndContext>

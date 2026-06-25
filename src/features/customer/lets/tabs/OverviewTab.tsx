@@ -59,7 +59,7 @@ export default function OverviewTab() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         {KPIS.map((k) => { const Icon = k.icon; return (
           <div key={k.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center", k.bg)}><Icon className="w-[18px] h-[18px]" /></span>

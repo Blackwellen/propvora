@@ -12,6 +12,7 @@ import {
   Send,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspace, useAuth } from "@/providers/AuthProvider"
 import type { PlanningActivity } from "@/lib/planning/types"
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -94,52 +95,70 @@ const FILTER_TABS: ActivityFilter[] = ["All", "Updates", "Comments", "Documents"
 export default function ActivityPage() {
   const params = useParams()
   const id = params.id as string
+  const { workspace } = useWorkspace()
+  const { user } = useAuth()
 
   const [activity, setActivity] = useState<PlanningActivity[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<ActivityFilter>("All")
   const [comment, setComment] = useState("")
   const [posting, setPosting] = useState(false)
+  const [postError, setPostError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Current user display name + initials (no hardcoded avatar).
+  const meName =
+    (user?.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user?.email ? user.email.split("@")[0] : "") ||
+    "You"
+  const meInitials = meName
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("") || "?"
+
   useEffect(() => {
-    if (!id) return
+    if (!id || !workspace?.id) return
     const supabase = createClient()
     async function load() {
       setLoading(true)
-      // planning_activity is not yet provisioned (42P01) — swallow to empty.
       const { data, error } = await supabase
         .from("planning_activity")
         .select("*")
         .eq("planning_set_id", id)
+        .eq("workspace_id", workspace!.id)
         .order("created_at", { ascending: false })
         .limit(50)
+      // Table is RLS-scoped to workspace members; on any error degrade to empty.
       setActivity(error ? [] : ((data ?? []) as PlanningActivity[]))
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, workspace?.id])
 
   async function handlePostComment() {
-    if (!comment.trim() || !id) return
+    if (!comment.trim() || !id || !workspace?.id) return
     setPosting(true)
+    setPostError(null)
     const supabase = createClient()
-    try {
-      const { data } = await supabase.from("planning_activity").insert({
-        planning_set_id: id,
-        action_type: "comment_added",
-        title: "Comment added",
-        description: comment.trim(),
-      }).select().single()
-      if (data) {
-        setActivity((prev) => [data as PlanningActivity, ...prev])
-      }
-      setComment("")
-    } catch {
-      // silently ignore
-    } finally {
-      setPosting(false)
+    // workspace_id is NOT NULL and gates the RLS policy; actor_id attributes the
+    // comment to the current user. Omitting either fails the insert (was a silent
+    // dead action before this fix).
+    const { data, error } = await supabase.from("planning_activity").insert({
+      workspace_id: workspace.id,
+      planning_set_id: id,
+      action: "comment_added",
+      detail: comment.trim(),
+      user_id: user?.id ?? null,
+    }).select().single()
+    setPosting(false)
+    if (error || !data) {
+      setPostError("Couldn't post your comment. Please try again.")
+      return
     }
+    setActivity((prev) => [data as PlanningActivity, ...prev])
+    setComment("")
   }
 
   // Build display activity list from real rows only
@@ -154,10 +173,10 @@ export default function ActivityPage() {
       return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     })(),
     time: new Date(a.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-    action_type: a.action_type,
-    actor: a.actor_id ?? "System",
-    title: a.title,
-    description: a.description ?? undefined,
+    action_type: a.action,
+    actor: a.user_id ? (a.user_id === user?.id ? meName : "Team member") : "System",
+    title: getActionTypeCfg(a.action).label,
+    description: a.detail ?? undefined,
   }))
 
   // Filter
@@ -181,7 +200,7 @@ export default function ActivityPage() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">10C Activity</h2>
+          <h2 className="text-base font-bold text-slate-900">Activity</h2>
         </div>
       </div>
 
@@ -206,7 +225,7 @@ export default function ActivityPage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-            JT
+            {meInitials}
           </div>
           <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 h-9">
             <input
@@ -227,6 +246,7 @@ export default function ActivityPage() {
             <Send className="w-3.5 h-3.5" />
           </button>
         </div>
+        {postError && <p className="text-[11px] text-red-600 mt-2 ml-9">{postError}</p>}
       </div>
 
       {/* ── Timeline Feed ──────────────────────────────────────────────────── */}

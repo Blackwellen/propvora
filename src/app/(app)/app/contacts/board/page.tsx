@@ -4,8 +4,8 @@ import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  Plus, Search, X, SlidersHorizontal, LayoutGrid, Tag,
-  MapPin, Clock, ChevronDown,
+  Plus, Search, X, LayoutGrid, Tag,
+  MapPin, Clock,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
@@ -466,9 +466,6 @@ export default function ContactsBoardPage() {
               {f.label}
             </button>
           ))}
-          <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">
-            More Filters <ChevronDown className="w-3 h-3" />
-          </button>
         </div>
 
         <div className="flex-1" />
@@ -490,10 +487,6 @@ export default function ContactsBoardPage() {
             </button>
           )}
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          Filters
-        </button>
       </div>
 
       {/* Mobile type filter row */}

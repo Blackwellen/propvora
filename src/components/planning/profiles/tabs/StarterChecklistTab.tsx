@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ChevronDown, ChevronRight, AlertCircle, Download, Zap } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
+import { downloadCsv } from '@/lib/export/csv'
 
 interface Props {
   profile: ProfileConfig
@@ -19,11 +21,29 @@ export default function StarterChecklistTab({ profile }: Props) {
   const [expandedPhases, setExpandedPhases] = useState<Set<number>>(
     new Set(checklist.phases.map((_, i) => i))
   )
-  const [toast, setToast] = useState<string | null>(null)
 
-  function showToast(msg: string) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 3000)
+  const wizardHref = `/property-manager/planning/wizard?profile=${profile.slug}`
+
+  /** Real CSV export of the full checklist with live completion status. */
+  function handleExport() {
+    const rows = checklist.phases.flatMap((phase, phaseIdx) =>
+      phase.tasks.map((task, taskIdx) => ({
+        phase: phase.name,
+        task: task.label,
+        priority: task.priority,
+        owner: task.owner,
+        day: task.daysOffset === 0 ? 'Day 0' : `+${task.daysOffset}d`,
+        status: completedTasks.has(`${phaseIdx}-${taskIdx}`) ? 'Complete' : 'Open',
+      })),
+    )
+    downloadCsv(`${profile.slug}-starter-checklist`, rows, [
+      { key: 'phase', label: 'Phase' },
+      { key: 'task', label: 'Task' },
+      { key: 'priority', label: 'Priority' },
+      { key: 'owner', label: 'Owner' },
+      { key: 'day', label: 'Day' },
+      { key: 'status', label: 'Status' },
+    ])
   }
 
   function toggleTask(id: string) {
@@ -64,13 +84,6 @@ export default function StarterChecklistTab({ profile }: Props) {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl">
-          {toast}
-        </div>
-      )}
-
       {/* 1. Progress Summary */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Progress Summary</h2>
@@ -212,20 +225,20 @@ export default function StarterChecklistTab({ profile }: Props) {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => showToast('Preparing checklist export...')}
+            onClick={handleExport}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all text-slate-700"
           >
             <Download className="w-4 h-4" />
-            Export Checklist
+            Export Checklist (CSV)
           </button>
-          <button
-            onClick={() => showToast('Start a Planning Set to create your personalised task plan')}
+          <Link
+            href={wizardHref}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
             style={{ backgroundColor: profile.accentColor }}
           >
             <Zap className="w-4 h-4" />
             Create Planning Set from Here
-          </button>
+          </Link>
         </div>
       </div>
     </div>

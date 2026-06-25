@@ -124,13 +124,15 @@ export default function PersonCard({ contact, onClick, onMenuClick }: PersonCard
           </span>
           <span className="text-slate-600 font-medium">{formatDate(contact.last_interaction_at)}</span>
         </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="flex items-center gap-1 text-slate-400">
-            <Home className="w-3 h-3" />
-            Properties
-          </span>
-          <span className="text-slate-600 font-medium">{contact.property_count ?? 0}</span>
-        </div>
+        {contact.property_count != null && contact.property_count > 0 && (
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1 text-slate-400">
+              <Home className="w-3 h-3" />
+              Properties
+            </span>
+            <span className="text-slate-600 font-medium">{contact.property_count}</span>
+          </div>
+        )}
       </div>
 
       {/* Alert badges */}

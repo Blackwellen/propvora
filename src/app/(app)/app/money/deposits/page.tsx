@@ -47,7 +47,15 @@ function downloadCSV(data: Record<string, unknown>[], filename: string) {
 
 /* ─── Types ───────────────────────────────────────────────────────────── */
 type DepositStatus = "protected" | "unprotected" | "return_due" | "disputed" | "expected" | "received" | "returned"
-type ProtectionScheme = "Deposit Protection Service (DPS)" | "MyDeposits (Custodial)" | "TDS (Custodial)" | null
+// Normalise a scheme picker label to the canonical short code stored in
+// deposits.protection_scheme ("DPS" | "TDS" | "MyDeposits") so newly-protected
+// deposits match the filter options and seed data.
+function toSchemeCode(label: string): string {
+  if (label.includes("DPS")) return "DPS"
+  if (label.includes("MyDeposits")) return "MyDeposits"
+  if (label.includes("TDS")) return "TDS"
+  return label
+}
 
 interface DepositRow {
   id: string
@@ -58,7 +66,8 @@ interface DepositRow {
   propertyAddress: string
   amount: number
   receivedDate: string
-  scheme: ProtectionScheme
+  // Canonical short code as stored in deposits.protection_scheme ("DPS" | "TDS" | "MyDeposits"); null when unprotected.
+  scheme: string | null
   status: DepositStatus
   statusDetail: string
 }
@@ -119,7 +128,7 @@ function mapDepositRow(r: MoneyDepositRow): DepositRow {
     propertyAddress: r.property_name ?? "Unknown Property",
     amount: r.amount,
     receivedDate,
-    scheme: null,
+    scheme: r.scheme,
     status: r.status as DepositStatus,
     statusDetail: r.scheme_reference
       ? `${statusDetail} · Ref: ${r.scheme_reference}`
@@ -264,6 +273,11 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
       ? `${form.property}${form.property ? ", " : ""}${form.unit}`
       : form.property
 
+    const combinedNotes = [
+      form.notes.trim(),
+      form.prescribed_info_served_at ? `Prescribed information served: ${form.prescribed_info_served_at}` : "",
+    ].filter(Boolean).join(" · ") || null
+
     createDeposit.mutate(
       {
         workspace_id: workspaceId,
@@ -271,8 +285,10 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
         property_address: propertyAddress.trim() || "—",
         amount: parseFloat(form.amount),
         received_date: form.received_date,
-        status: "received",
+        status: form.protection_scheme ? "protected" : "received",
         scheme: form.protection_scheme || null,
+        reference: form.protection_reference.trim() || null,
+        notes: combinedNotes,
       },
       {
         onSuccess: () => {
@@ -557,7 +573,7 @@ function AddProtectionModal({
     const supabase = createClient()
     const { error: updErr } = await supabase
       .from("deposits")
-      .update({ status: "protected", protection_scheme: scheme, reference_number: reference.trim() })
+      .update({ status: "protected", protection_scheme: toSchemeCode(scheme), reference_number: reference.trim() })
       .eq("id", deposit.id)
       .eq("workspace_id", workspaceId)
     setSaving(false)

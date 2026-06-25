@@ -22,6 +22,25 @@ export interface PortalProfileTemplate {
   description: string
   /** maps to contact_portal_access.access_type */
   accessType: string
+  /**
+   * Release tier. "v1" profiles ship by default (landlord / supplier / tenant).
+   * "extended" profiles (applicant / accountant / solicitor / generic) ALSO
+   * have a real, dedicated recipient portal experience now, but remain gated
+   * behind the extended-profiles feature flag so a workspace opts into them
+   * explicitly. Each extended profile routes to its own vertical (applicant /
+   * accountant / solicitor / generic) — no longer the supplier fallback.
+   * See isExtendedPortalProfilesEnabled.
+   */
+  tier: "v1" | "extended"
+}
+
+/** The three portal profiles that ship in V1 — each has a real experience. */
+export const V1_PORTAL_PROFILE_KEYS: PortalAccessType[] = ["landlord", "supplier", "tenant"]
+
+/** True when `key` is an extended profile that must be gated behind the flag. */
+export function isExtendedPortalProfile(key: string | null | undefined): boolean {
+  if (!key) return false
+  return !V1_PORTAL_PROFILE_KEYS.includes(key as PortalAccessType)
 }
 
 export interface PortalPurposeTemplate {
@@ -37,42 +56,49 @@ export const DEFAULT_PORTAL_PROFILES: PortalProfileTemplate[] = [
     label: "Landlord / Owner",
     description: "Owner-facing access to statements, documents and property updates.",
     accessType: "landlord",
+    tier: "v1",
   },
   {
     key: "supplier",
     label: "Supplier / Contractor",
     description: "Contractor job view with invoice and document upload — no portfolio data.",
     accessType: "supplier",
+    tier: "v1",
   },
   {
     key: "tenant",
     label: "Tenant / Occupier",
     description: "Occupier access to tenancy documents, requests and statements.",
     accessType: "tenant",
+    tier: "v1",
   },
   {
     key: "applicant",
     label: "Applicant",
-    description: "Prospective applicant access to forms and viewing confirmations.",
+    description: "Prospective applicant access to application status, viewings and forms.",
     accessType: "applicant",
+    tier: "extended",
   },
   {
     key: "accountant",
     label: "Accountant",
-    description: "Read access to financial documents and exportable statements.",
-    accessType: "supplier",
+    description: "Read access to statements, transactions, invoices and financial documents.",
+    accessType: "accountant",
+    tier: "extended",
   },
   {
     key: "solicitor",
     label: "Solicitor",
     description: "Legal document exchange for conveyancing and possession matters.",
-    accessType: "supplier",
+    accessType: "solicitor",
+    tier: "extended",
   },
   {
     key: "generic",
     label: "Generic",
     description: "General-purpose document exchange for any external contact.",
-    accessType: "supplier",
+    accessType: "generic",
+    tier: "extended",
   },
 ]
 

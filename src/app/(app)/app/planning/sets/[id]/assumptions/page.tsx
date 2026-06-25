@@ -6,7 +6,6 @@ import {
   Edit2,
   AlertTriangle,
   RefreshCw,
-  Settings,
   Sliders,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -210,15 +209,7 @@ export default function PlanningSetAssumptionsPage() {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                <Settings className="w-3.5 h-3.5" />
-                Settings
-              </button>
-              <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                <Edit2 className="w-3.5 h-3.5" />
-                Bulk Edit
-              </button>
-              <button onClick={load} className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-colors">
+              <button onClick={load} aria-label="Refresh assumptions" className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-colors">
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               </button>
             </div>

@@ -1,20 +1,46 @@
 "use client"
 
-import React, { useState, type KeyboardEvent } from "react"
-import { X, Tag } from "lucide-react"
+import React, { useRef, useState, type KeyboardEvent } from "react"
+import { X, Tag, Camera, Loader2 } from "lucide-react"
 import type { WizardState } from "./types"
 import { InputField, TextareaField } from "./FormPrimitives"
+import { uploadFile, validateUploadFile } from "@/lib/upload"
+import { avatarKeyToUrl } from "@/components/settings/AvatarUploader"
 
 export default function Step2Details({
   state,
   setState,
   errors,
+  workspaceId,
 }: {
   state: WizardState
   setState: React.Dispatch<React.SetStateAction<WizardState>>
   errors: string[]
+  workspaceId?: string
 }) {
   const [tagInput, setTagInput] = useState("")
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+
+  const isOrg = state.entityType === "organisation"
+
+  async function handleAvatar(file: File | undefined) {
+    if (!file) return
+    if (!workspaceId) { setAvatarError("Connect a workspace before uploading."); return }
+    const invalid = validateUploadFile(file, { imagesOnly: true })
+    if (invalid) { setAvatarError(invalid); return }
+    setAvatarError(null)
+    setUploadingAvatar(true)
+    try {
+      const { key } = await uploadFile(file, workspaceId, "contacts/avatars", { imagesOnly: true })
+      setState((s) => ({ ...s, avatarKey: key }))
+    } catch (e) {
+      setAvatarError(e instanceof Error ? e.message : "Upload failed")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   const addTag = () => {
     const trimmed = tagInput.trim()
@@ -42,6 +68,52 @@ export default function Step2Details({
       <div>
         <h2 className="text-lg font-semibold text-slate-900 mb-1">Contact Details</h2>
         <p className="text-sm text-slate-500">Enter the basic information for this contact.</p>
+      </div>
+
+      {/* Photo / logo uploader */}
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+            {avatarKeyToUrl(state.avatarKey) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarKeyToUrl(state.avatarKey)!} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <Camera className="w-6 h-6 text-white/80" />
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => !uploadingAvatar && fileRef.current?.click()}
+            aria-label={isOrg ? "Upload logo" : "Upload photo"}
+            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors"
+          >
+            {uploadingAvatar ? (
+              <Loader2 className="w-3 h-3 text-blue-600 animate-spin" />
+            ) : (
+              <Camera className="w-3 h-3 text-slate-600" />
+            )}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+            className="hidden"
+            onChange={(e) => handleAvatar(e.target.files?.[0])}
+          />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-slate-900">{isOrg ? "Organisation logo" : "Contact photo"}</p>
+          <p className="text-xs text-slate-400 mt-0.5">JPG, PNG, WebP or HEIC · max 10MB · optional</p>
+          <button
+            type="button"
+            onClick={() => !uploadingAvatar && fileRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-60"
+          >
+            {uploadingAvatar ? "Uploading…" : state.avatarKey ? "Replace image" : `Upload ${isOrg ? "logo" : "photo"}`}
+          </button>
+          {avatarError && <p className="text-xs text-red-600 mt-1.5">{avatarError}</p>}
+        </div>
       </div>
 
       {state.entityType === "person" ? (

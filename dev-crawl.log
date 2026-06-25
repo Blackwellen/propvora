@@ -1,0 +1,319 @@
+
+> propvora-final-release-v.1.0@0.1.0 dev
+> next dev --turbopack -p 3001
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.181:3001
+- Environments: .env.local, .env
+✓ Ready in 1532ms
+- Experiments (use with caution):
+  · optimizePackageImports
+
+○ Compiling /app ...
+ GET /login 200 in 213ms (next.js: 62ms, proxy.ts: 17ms, application-code: 135ms)
+ GET /property-manager 200 in 14.5s (next.js: 7.8s, proxy.ts: 615ms, application-code: 6.1s)
+ GET /manifest.webmanifest 200 in 407ms (next.js: 367ms, proxy.ts: 12ms, application-code: 28ms)
+ GET /property-manager 200 in 1047ms (next.js: 14ms, proxy.ts: 210ms, application-code: 824ms)
+ GET /manifest.webmanifest 200 in 39ms (next.js: 13ms, proxy.ts: 15ms, application-code: 11ms)
+ GET /property-manager 200 in 1225ms (next.js: 16ms, proxy.ts: 303ms, application-code: 906ms)
+ GET /manifest.webmanifest 200 in 40ms (next.js: 13ms, proxy.ts: 17ms, application-code: 10ms)
+ GET /property-manager/marketplace 200 in 1705ms (next.js: 1137ms, proxy.ts: 205ms, application-code: 364ms)
+ GET /property-manager/accounting 200 in 1083ms (next.js: 911ms, proxy.ts: 115ms, application-code: 56ms)
+ GET /property-manager/bookings 200 in 1143ms (next.js: 989ms, proxy.ts: 110ms, application-code: 44ms)
+ GET /property-manager/listings 200 in 1104ms (next.js: 846ms, proxy.ts: 215ms, application-code: 42ms)
+ GET /property-manager/suppliers 200 in 2.1s (next.js: 822ms, proxy.ts: 1156ms, application-code: 143ms)
+ GET /manifest.webmanifest 200 in 34ms (next.js: 12ms, proxy.ts: 12ms, application-code: 10ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477:13)
+ GET /property-manager 200 in 1005ms (next.js: 11ms, proxy.ts: 116ms, application-code: 878ms)
+ GET /manifest.webmanifest 200 in 33ms (next.js: 13ms, proxy.ts: 10ms, application-code: 10ms)
+ GET /api/flags/public 200 in 738ms (next.js: 477ms, proxy.ts: 8ms, application-code: 253ms)
+ GET /property-manager 200 in 1188ms (next.js: 13ms, proxy.ts: 239ms, application-code: 937ms)
+ GET /manifest.webmanifest 200 in 45ms (next.js: 15ms, proxy.ts: 20ms, application-code: 10ms)
+ GET /property-manager 200 in 1204ms (next.js: 197ms, proxy.ts: 437ms, application-code: 570ms)
+ GET /manifest.webmanifest 200 in 75ms (next.js: 50ms, proxy.ts: 10ms, application-code: 15ms)
+✓ Compiled in 844ms
+ GET /property-manager 200 in 1457ms (next.js: 303ms, proxy.ts: 710ms, application-code: 444ms)
+ GET /manifest.webmanifest 200 in 84ms (next.js: 52ms, proxy.ts: 16ms, application-code: 16ms)
+ GET /property-manager 200 in 1433ms (next.js: 11ms, proxy.ts: 261ms, application-code: 1161ms)
+ GET /manifest.webmanifest 200 in 31ms (next.js: 11ms, proxy.ts: 12ms, application-code: 9ms)
+ GET /api/flags/public 200 in 592ms (next.js: 160ms, proxy.ts: 231ms, application-code: 201ms)
+ GET /property-manager 200 in 2.1s (next.js: 330ms, proxy.ts: 431ms, application-code: 1316ms)
+ GET /manifest.webmanifest 200 in 107ms (next.js: 83ms, proxy.ts: 9ms, application-code: 16ms)
+[browser] Image with src "/demo/properties/birchfield-lane.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477:13)
+[browser] Image with src "/demo/properties/sycamore-road.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477:13)
+ GET /api/flags/public 200 in 597ms (next.js: 126ms, proxy.ts: 274ms, application-code: 197ms)
+ GET /property-manager 200 in 1116ms (next.js: 18ms, proxy.ts: 280ms, application-code: 819ms)
+ GET /manifest.webmanifest 200 in 27ms (next.js: 8ms, proxy.ts: 9ms, application-code: 10ms)
+ GET /property-manager/compliance 200 in 1417ms (next.js: 1077ms, proxy.ts: 290ms, application-code: 50ms)
+ GET /manifest.webmanifest 200 in 30ms (next.js: 6ms, proxy.ts: 16ms, application-code: 9ms)
+ GET /property-manager/compliance/overview 200 in 1117ms (next.js: 911ms, proxy.ts: 136ms, application-code: 70ms)
+ GET /property-manager/compliance/overview 200 in 200ms (next.js: 8ms, proxy.ts: 151ms, application-code: 40ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477:13)
+ GET /manifest.webmanifest 200 in 31ms (next.js: 7ms, proxy.ts: 15ms, application-code: 9ms)
+ GET /property-manager/calendar 200 in 1138ms (next.js: 890ms, proxy.ts: 206ms, application-code: 41ms)
+ GET /manifest.webmanifest 200 in 25ms (next.js: 6ms, proxy.ts: 9ms, application-code: 10ms)
+ GET /property-manager 200 in 161ms (next.js: 12ms, proxy.ts: 113ms, application-code: 36ms)
+ GET /manifest.webmanifest 200 in 21ms (next.js: 6ms, proxy.ts: 8ms, application-code: 8ms)
+ GET /property-manager/portfolio 200 in 2.5s (next.js: 2.3s, proxy.ts: 106ms, application-code: 72ms)
+ GET /manifest.webmanifest 200 in 23ms (next.js: 5ms, proxy.ts: 9ms, application-code: 9ms)
+  Reload env: .env
+✓ Compiled in 152ms
+  Reload env: .env
+  Reload env: .env
+  Reload env: .env
+ GET /property-manager 200 in 2.1s (next.js: 309ms, proxy.ts: 444ms, application-code: 1316ms)
+ GET /manifest.webmanifest 200 in 82ms (next.js: 58ms, proxy.ts: 9ms, application-code: 15ms)
+✓ Compiled in 944ms
+ GET /property-manager 200 in 2.1s (next.js: 363ms, proxy.ts: 1223ms, application-code: 510ms)
+ GET /manifest.webmanifest 200 in 70ms (next.js: 47ms, proxy.ts: 9ms, application-code: 14ms)
+✓ Compiled in 743ms
+ GET /property-manager 200 in 1488ms (next.js: 300ms, proxy.ts: 539ms, application-code: 649ms)
+ GET /manifest.webmanifest 200 in 82ms (next.js: 50ms, proxy.ts: 15ms, application-code: 17ms)
+✓ Compiled in 758ms
+ GET /property-manager 200 in 3.1s (next.js: 299ms, proxy.ts: 1019ms, application-code: 1825ms)
+ GET /manifest.webmanifest 200 in 78ms (next.js: 53ms, proxy.ts: 9ms, application-code: 17ms)
+✓ Compiled in 707ms
+ GET /property-manager 200 in 1887ms (next.js: 340ms, proxy.ts: 965ms, application-code: 582ms)
+ GET /manifest.webmanifest 200 in 85ms (next.js: 52ms, proxy.ts: 15ms, application-code: 18ms)
+✓ Compiled in 748ms
+ GET /property-manager 200 in 2.0s (next.js: 307ms, proxy.ts: 1238ms, application-code: 461ms)
+ GET /manifest.webmanifest 200 in 78ms (next.js: 52ms, proxy.ts: 8ms, application-code: 17ms)
+✓ Compiled in 752ms
+ GET /property-manager 200 in 2.4s (next.js: 306ms, proxy.ts: 458ms, application-code: 1590ms)
+ GET /manifest.webmanifest 200 in 84ms (next.js: 56ms, proxy.ts: 9ms, application-code: 20ms)
+✓ Compiled in 706ms
+ GET /property-manager 200 in 1363ms (next.js: 324ms, proxy.ts: 504ms, application-code: 535ms)
+ GET /manifest.webmanifest 200 in 91ms (next.js: 57ms, proxy.ts: 11ms, application-code: 23ms)
+ GET /property-manager 200 in 1747ms (next.js: 18ms, proxy.ts: 426ms, application-code: 1303ms)
+ GET /manifest.webmanifest 200 in 36ms (next.js: 14ms, proxy.ts: 12ms, application-code: 11ms)
+✓ Compiled in 904ms
+ GET /property-manager 200 in 1631ms (next.js: 384ms, proxy.ts: 604ms, application-code: 643ms)
+ GET /property-manager 200 in 974ms (next.js: 13ms, proxy.ts: 490ms, application-code: 472ms)
+ GET /property-manager 200 in 1788ms (next.js: 11ms, proxy.ts: 223ms, application-code: 1555ms)
+ GET /property-manager 200 in 1858ms (next.js: 135ms, proxy.ts: 256ms, application-code: 1467ms)
+ GET /property-manager 200 in 1844ms (next.js: 18ms, proxy.ts: 236ms, application-code: 1590ms)
+ GET /property-manager 200 in 1832ms (next.js: 254ms, proxy.ts: 229ms, application-code: 1349ms)
+ GET /property-manager 200 in 1863ms (next.js: 315ms, proxy.ts: 435ms, application-code: 1112ms)
+ GET /property-manager 200 in 1867ms (next.js: 365ms, proxy.ts: 442ms, application-code: 1061ms)
+ GET /property-manager 200 in 1720ms (next.js: 19ms, proxy.ts: 202ms, application-code: 1500ms)
+ GET /property-manager 200 in 1563ms (next.js: 378ms, proxy.ts: 266ms, application-code: 919ms)
+ GET /property-manager 200 in 1562ms (next.js: 89ms, proxy.ts: 257ms, application-code: 1216ms)
+ GET /property-manager 200 in 1550ms (next.js: 141ms, proxy.ts: 247ms, application-code: 1162ms)
+ GET /property-manager 200 in 1553ms (next.js: 307ms, proxy.ts: 251ms, application-code: 994ms)
+ GET /manifest.webmanifest 200 in 86ms (next.js: 62ms, proxy.ts: 10ms, application-code: 14ms)
+✓ Compiled in 786ms
+ GET /property-manager 200 in 1597ms (next.js: 318ms, proxy.ts: 543ms, application-code: 736ms)
+ GET /property-manager 200 in 1421ms (next.js: 24ms, proxy.ts: 426ms, application-code: 971ms)
+ GET /property-manager 200 in 1611ms (next.js: 124ms, proxy.ts: 207ms, application-code: 1280ms)
+ GET /property-manager 200 in 1650ms (next.js: 26ms, proxy.ts: 241ms, application-code: 1383ms)
+ GET /property-manager 200 in 1651ms (next.js: 76ms, proxy.ts: 239ms, application-code: 1336ms)
+ GET /property-manager 200 in 1629ms (next.js: 401ms, proxy.ts: 227ms, application-code: 1001ms)
+ GET /property-manager 200 in 1658ms (next.js: 248ms, proxy.ts: 613ms, application-code: 797ms)
+ GET /property-manager 200 in 2.3s (next.js: 18ms, proxy.ts: 505ms, application-code: 1751ms)
+ GET /property-manager 200 in 1815ms (next.js: 93ms, proxy.ts: 263ms, application-code: 1458ms)
+ GET /property-manager 200 in 1804ms (next.js: 146ms, proxy.ts: 259ms, application-code: 1400ms)
+ GET /property-manager 200 in 1814ms (next.js: 389ms, proxy.ts: 294ms, application-code: 1131ms)
+ GET /property-manager 200 in 1802ms (next.js: 342ms, proxy.ts: 258ms, application-code: 1203ms)
+ GET /property-manager 200 in 1795ms (next.js: 613ms, proxy.ts: 276ms, application-code: 906ms)
+ GET /manifest.webmanifest 200 in 75ms (next.js: 53ms, proxy.ts: 9ms, application-code: 13ms)
+✓ Compiled in 745ms
+ GET /property-manager 200 in 1261ms (next.js: 355ms, proxy.ts: 445ms, application-code: 461ms)
+ GET /manifest.webmanifest 200 in 73ms (next.js: 51ms, proxy.ts: 10ms, application-code: 12ms)
+✓ Compiled in 854ms
+ GET /property-manager 200 in 1205ms (next.js: 337ms, proxy.ts: 377ms, application-code: 491ms)
+ GET /manifest.webmanifest 200 in 100ms (next.js: 69ms, proxy.ts: 16ms, application-code: 15ms)
+✓ Compiled in 775ms
+ GET /property-manager 200 in 1241ms (next.js: 326ms, proxy.ts: 372ms, application-code: 543ms)
+ GET /manifest.webmanifest 200 in 92ms (next.js: 70ms, proxy.ts: 9ms, application-code: 14ms)
+✓ Compiled in 784ms
+ GET /property-manager 200 in 1151ms (next.js: 321ms, proxy.ts: 361ms, application-code: 470ms)
+ GET /manifest.webmanifest 200 in 84ms (next.js: 55ms, proxy.ts: 12ms, application-code: 17ms)
+✓ Compiled in 1091ms
+ GET /property-manager 200 in 1400ms (next.js: 347ms, proxy.ts: 327ms, application-code: 726ms)
+ GET /property-manager 200 in 777ms (next.js: 12ms, proxy.ts: 257ms, application-code: 509ms)
+ GET /manifest.webmanifest 200 in 69ms (next.js: 48ms, proxy.ts: 9ms, application-code: 12ms)
+✓ Compiled in 764ms
+ GET /property-manager 200 in 1101ms (next.js: 281ms, proxy.ts: 323ms, application-code: 498ms)
+ GET /manifest.webmanifest 200 in 71ms (next.js: 48ms, proxy.ts: 10ms, application-code: 13ms)
+ GET /property-manager 200 in 1147ms (next.js: 221ms, proxy.ts: 406ms, application-code: 520ms)
+ GET /manifest.webmanifest 200 in 74ms (next.js: 50ms, proxy.ts: 10ms, application-code: 14ms)
+✓ Compiled in 807ms
+ GET /property-manager 200 in 1378ms (next.js: 205ms, proxy.ts: 481ms, application-code: 692ms)
+ GET /property-manager 200 in 723ms (next.js: 19ms, proxy.ts: 389ms, application-code: 315ms)
+ GET /property-manager 200 in 533ms (next.js: 8ms, proxy.ts: 232ms, application-code: 293ms)
+ GET /manifest.webmanifest 200 in 78ms (next.js: 56ms, proxy.ts: 10ms, application-code: 13ms)
+  Reload env: .env
+✓ Compiled in 204ms
+ GET /property-manager 200 in 1462ms (next.js: 345ms, proxy.ts: 397ms, application-code: 720ms)
+ GET /property-manager 200 in 1368ms (next.js: 10ms, proxy.ts: 291ms, application-code: 1067ms)
+ GET /property-manager 200 in 971ms (next.js: 8ms, proxy.ts: 188ms, application-code: 775ms)
+ GET /property-manager 200 in 1406ms (next.js: 168ms, proxy.ts: 305ms, application-code: 933ms)
+ GET /property-manager 200 in 1409ms (next.js: 35ms, proxy.ts: 302ms, application-code: 1072ms)
+ GET /property-manager 200 in 1399ms (next.js: 216ms, proxy.ts: 298ms, application-code: 884ms)
+ GET /manifest.webmanifest 200 in 106ms (next.js: 72ms, proxy.ts: 18ms, application-code: 16ms)
+✓ Compiled in 1118ms
+✓ Compiled in 796ms
+ GET /property-manager 200 in 597ms (next.js: 89ms, proxy.ts: 107ms, application-code: 401ms)
+ GET /property-manager 200 in 1635ms (next.js: 448ms, proxy.ts: 388ms, application-code: 799ms)
+[browser] {"msg":"observability","level":"error","source":"app-section-error-boundary","requestId":"42d75642-6b4f-4641-9330-3367b7ca4305","error":"ReferenceError","message":"HomeAiCopilotPrioritiesCard is not defined","tags":{"digest":null,"route":"/property-manager"},"time":"2026-06-23T18:53:05.604Z"} 
+    at emit (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:116:21)
+    at captureException (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:128:9)
+    at SectionError.useEffect (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_15va-sq._.js:192:173)
+    at Object.react_stack_bottom_frame (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:15087:22)
+    at runWithFiberInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at commitHookEffectListMount (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:7255:167)
+    at commitHookPassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:7290:60)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8689:33)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8693:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8693:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8750:17)
+    at recursivelyTraversePassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8676:316)
+    at commitPassiveMountOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8688:17) (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:116:21)
+[browser] {"msg":"observability","level":"error","source":"app-section-error-boundary","requestId":"f21f3362-7eff-478d-b6bd-d75fe2238069","error":"ReferenceError","message":"HomeAiCopilotPrioritiesCard is not defined","tags":{"digest":null,"route":"/property-manager"},"time":"2026-06-23T18:53:05.614Z"} 
+    at emit (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:116:21)
+    at captureException (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:128:9)
+    at SectionError.useEffect (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_15va-sq._.js:192:173)
+    at Object.react_stack_bottom_frame (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:15087:22)
+    at runWithFiberInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at commitHookEffectListMount (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:7255:167)
+    at commitHookPassiveMountEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:7290:60)
+    at reconnectPassiveEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8779:17)
+    at recursivelyTraverseReconnectPassiveEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8766:13)
+    at reconnectPassiveEffects (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:8778:17)
+    at doubleInvokeEffectsOnFiber (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10117:133)
+    at runWithFiberInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:79)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10110:147) (file://C:/Users/PC/Documents/Saas Dev Build/propvora-final-release-v.1.0/.next/dev/static/chunks/_142q4w-._.js:116:21)
+ GET /manifest.webmanifest 200 in 93ms (next.js: 63ms, proxy.ts: 15ms, application-code: 15ms)
+ POST /api/bug-report 200 in 962ms (next.js: 525ms, proxy.ts: 165ms, application-code: 272ms)
+ POST /api/bug-report 200 in 947ms (next.js: 530ms, proxy.ts: 160ms, application-code: 257ms)
+✓ Compiled in 834ms
+ GET /property-manager 200 in 1357ms (next.js: 396ms, proxy.ts: 269ms, application-code: 692ms)
+  Reload env: .env
+ GET /property-manager 200 in 3.5s (next.js: 11ms, proxy.ts: 268ms, application-code: 3.2s)
+ GET /property-manager 200 in 3.1s (next.js: 8ms, proxy.ts: 174ms, application-code: 2.9s)
+ GET /property-manager 200 in 1176ms (next.js: 394ms, proxy.ts: 316ms, application-code: 466ms)
+ GET /manifest.webmanifest 200 in 83ms (next.js: 61ms, proxy.ts: 9ms, application-code: 13ms)
+  Reload env: .env
+ GET /property-manager 200 in 1243ms (next.js: 429ms, proxy.ts: 409ms, application-code: 405ms)
+ GET /manifest.webmanifest 200 in 81ms (next.js: 59ms, proxy.ts: 8ms, application-code: 14ms)
+  Reload env: .env
+  Reload env: .env
+ GET /property-manager 200 in 4.2s (next.js: 376ms, proxy.ts: 1546ms, application-code: 2.3s)
+  Reload env: .env
+ GET /property-manager 200 in 2.9s (next.js: 1831ms, proxy.ts: 376ms, application-code: 711ms)
+ GET /property-manager 200 in 952ms (next.js: 14ms, proxy.ts: 576ms, application-code: 362ms)
+ GET /manifest.webmanifest 200 in 91ms (next.js: 68ms, proxy.ts: 9ms, application-code: 14ms)
+✓ Compiled in 691ms
+ GET /property-manager 200 in 1511ms (next.js: 425ms, proxy.ts: 628ms, application-code: 457ms)
+ GET /manifest.webmanifest 200 in 95ms (next.js: 72ms, proxy.ts: 8ms, application-code: 15ms)
+✓ Compiled in 716ms
+ GET /property-manager 200 in 1386ms (next.js: 359ms, proxy.ts: 554ms, application-code: 473ms)
+ GET /manifest.webmanifest 200 in 98ms (next.js: 65ms, proxy.ts: 20ms, application-code: 14ms)
+✓ Compiled in 838ms
+ GET /property-manager 200 in 1206ms (next.js: 374ms, proxy.ts: 357ms, application-code: 474ms)
+ GET /manifest.webmanifest 200 in 114ms (next.js: 84ms, proxy.ts: 15ms, application-code: 14ms)
+✓ Compiled in 733ms
+ GET /property-manager 200 in 1294ms (next.js: 366ms, proxy.ts: 447ms, application-code: 481ms)
+ GET /manifest.webmanifest 200 in 85ms (next.js: 61ms, proxy.ts: 9ms, application-code: 15ms)
+✓ Compiled in 736ms
+ GET /property-manager 200 in 1316ms (next.js: 420ms, proxy.ts: 390ms, application-code: 506ms)
+ GET /manifest.webmanifest 200 in 91ms (next.js: 67ms, proxy.ts: 9ms, application-code: 14ms)
+✓ Compiled in 687ms
+ GET /property-manager 200 in 1310ms (next.js: 369ms, proxy.ts: 502ms, application-code: 438ms)
+ GET /manifest.webmanifest 200 in 92ms (next.js: 61ms, proxy.ts: 16ms, application-code: 14ms)
+  Reload env: .env
+ GET /property-manager 200 in 1908ms (next.js: 888ms, proxy.ts: 473ms, application-code: 547ms)
+ GET /manifest.webmanifest 200 in 206ms (next.js: 181ms, proxy.ts: 12ms, application-code: 13ms)
+ GET /property-manager 200 in 1144ms (next.js: 21ms, proxy.ts: 258ms, application-code: 865ms)
+ GET /manifest.webmanifest 200 in 24ms (next.js: 6ms, proxy.ts: 9ms, application-code: 10ms)
+ GET /property-manager 200 in 1366ms (next.js: 377ms, proxy.ts: 488ms, application-code: 502ms)
+ GET /manifest.webmanifest 200 in 99ms (next.js: 73ms, proxy.ts: 11ms, application-code: 15ms)
+ GET /property-manager 200 in 1143ms (next.js: 262ms, proxy.ts: 395ms, application-code: 485ms)
+ GET /manifest.webmanifest 200 in 90ms (next.js: 63ms, proxy.ts: 14ms, application-code: 13ms)
+✓ Compiled in 840ms
+✓ Compiled in 720ms
+✓ Compiled in 763ms
+  Reload env: .env
+  Reload env: .env
+  Reload env: .env
+  Reload env: .env
+  Reload env: .env
+  Reload env: .env.local
+ GET / 200 in 3.9s (next.js: 890ms, proxy.ts: 773ms, application-code: 2.2s)
+○ Compiling /app/work ...
+ GET /property-manager/work 200 in 17.5s (next.js: 14.5s, proxy.ts: 254ms, application-code: 2.7s)
+ GET /manifest.webmanifest 200 in 165ms (next.js: 118ms, proxy.ts: 25ms, application-code: 21ms)
+[?25h

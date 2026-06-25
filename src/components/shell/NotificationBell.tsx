@@ -343,12 +343,18 @@ export default function NotificationBell() {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
             <a
-              href="/property-manager/account/notifications"
+              href="/property-manager/notifications"
               className="text-[11.5px] text-blue-600 hover:underline font-medium"
             >
               View all notifications →
+            </a>
+            <a
+              href="/property-manager/account/notifications"
+              className="text-[11px] text-slate-400 hover:text-slate-600 hover:underline"
+            >
+              Settings
             </a>
           </div>
         </div>,

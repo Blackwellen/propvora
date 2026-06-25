@@ -1,8 +1,9 @@
 import { ComplianceTabNav } from "@/components/compliance/ComplianceTabNav"
+import { ComplianceJurisdictionNote } from "@/components/compliance/ComplianceJurisdictionNote"
 
 export const dynamic = "force-dynamic"
 
-export default function ComplianceLayout({
+export default async function ComplianceLayout({
   children,
 }: {
   children: React.ReactNode
@@ -19,14 +20,11 @@ export default function ComplianceLayout({
       </div>
       <ComplianceTabNav />
       <div className="px-6 pt-0">{children}</div>
-      {/* Jurisdiction footer note — compliance rules are England & Wales by default.
-          Non-GB jurisdictions will see different requirements. */}
+      {/* Jurisdiction-aware footer note — reads the workspace country/region and
+          shows the correct statutory disclaimer (reviewed for GB E&W/Scotland,
+          research-only wording for every other jurisdiction). */}
       <div className="px-6 pb-6">
-        <p className="text-[11px] text-slate-400 mt-8 border-t border-slate-100 pt-3">
-          Compliance requirements shown are based on England &amp; Wales regulations unless your workspace jurisdiction is
-          set otherwise. Scotland, Northern Ireland and non-UK jurisdictions may have different legal requirements.
-          Always verify with a qualified local professional.
-        </p>
+        <ComplianceJurisdictionNote />
       </div>
     </div>
   )

@@ -16,7 +16,6 @@ import {
   LayoutGrid,
   CalendarDays,
   X,
-  Filter,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money"
@@ -86,8 +85,6 @@ interface AddIncomeModalForm {
   expected_date: string
   received_date: string
   status: string
-  reference: string
-  notes: string
 }
 
 // ─── Status config ────────────────────────────────────────────────────────────
@@ -167,8 +164,6 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
     expected_date: "",
     received_date: "",
     status: "",
-    reference: "",
-    notes: "",
   })
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -275,18 +270,6 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
             </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="inc-reference" className="text-xs font-medium text-slate-600">Reference</label>
-            <input id="inc-reference" name="reference" type="text" value={form.reference} onChange={handleChange}
-              placeholder="e.g. INC-2026-1342"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="inc-notes" className="text-xs font-medium text-slate-600">Notes</label>
-            <textarea id="inc-notes" name="notes" value={form.notes} onChange={handleChange} rows={2}
-              placeholder="Optional notes…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
-          </div>
         </div>
         {formError && <p className="text-xs text-red-500 px-6 pb-2">{formError}</p>}
         <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-100 sticky bottom-0 bg-white">
@@ -310,8 +293,17 @@ export default function MoneyIncomePage() {
   const { workspace } = useWorkspace()
   const { data: liveIncome, isLoading } = useMoneyIncome(workspace?.id)
   const { data: summary } = useMoneyIncomeSummary(workspace?.id)
+  const { data: properties = [] } = useProperties(workspace?.id)
+  const propertyNameById = React.useMemo(() => {
+    const m = new Map<string, string>()
+    for (const p of properties) m.set(p.id, p.name || p.address_line1 || "Unnamed property")
+    return m
+  }, [properties])
   const [viewMode, setViewMode] = useState<ViewMode>("table")
   const [searchQuery, setSearchQuery] = useState("")
+  const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [propertyFilter, setPropertyFilter] = useState<string>("all")
   const [showAddModal, setShowAddModal] = useState(false)
   const _sp = useSearchParams()
   useEffect(() => { if (_sp.get("new") === "1") setShowAddModal(true) }, [_sp])
@@ -353,7 +345,7 @@ export default function MoneyIncomePage() {
       contactName: "—",
       contactRole: "—",
       contactInitials: "—",
-      propertyName: r.property_id ?? "—",
+      propertyName: r.property_id ? (propertyNameById.get(r.property_id) ?? "—") : "—",
       incomeType: r.income_type,
       typeColor: "bg-emerald-100 text-emerald-700",
       dueDate: r.expected_date ?? "—",
@@ -361,7 +353,7 @@ export default function MoneyIncomePage() {
       status: (r.status as IncomeStatus) ?? "expected",
       reference: r.id.slice(0, 8).toUpperCase(),
     }))
-  }, [liveIncome])
+  }, [liveIncome, propertyNameById])
 
   // Live "Income by Type" donut segments
   const totalIncomeAll = React.useMemo(
@@ -401,13 +393,18 @@ export default function MoneyIncomePage() {
     }
   }
 
-  const filtered = INCOME_ROWS_LIVE.filter((r) => !hiddenIds.has(r.id)).filter((r) =>
-    searchQuery
-      ? r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
-      : true
-  )
+  const filtered = INCOME_ROWS_LIVE
+    .filter((r) => !hiddenIds.has(r.id))
+    .filter((r) => (typeFilter === "all" ? true : r.incomeType === typeFilter))
+    .filter((r) => (statusFilter === "all" ? true : r.status === statusFilter))
+    .filter((r) => (propertyFilter === "all" ? true : r.propertyName === propertyFilter))
+    .filter((r) =>
+      searchQuery
+        ? r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
+        : true
+    )
 
   function handleExportCSV() {
     downloadCSV(
@@ -593,23 +590,36 @@ export default function MoneyIncomePage() {
                   </button>
                 </div>
 
-                {/* Filters */}
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  Type: All <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  Status: All <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  Property: All <ChevronDown className="w-3 h-3" />
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <CalendarDays className="w-3.5 h-3.5" />
-                  Jun 1 – Jun 30, 2026
-                </button>
-                <button aria-label="More filters" className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  <Filter className="w-4 h-4 text-slate-400" />
-                </button>
+                {/* Filters — functional, client-side */}
+                <select
+                  aria-label="Filter by income type"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <option value="all">Type: All</option>
+                  {INCOME_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <select
+                  aria-label="Filter by status"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 capitalize"
+                >
+                  <option value="all">Status: All</option>
+                  {STATUS_OPTIONS.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
+                </select>
+                <select
+                  aria-label="Filter by property"
+                  value={propertyFilter}
+                  onChange={(e) => setPropertyFilter(e.target.value)}
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 max-w-[180px]"
+                >
+                  <option value="all">Property: All</option>
+                  {[...new Set(properties.map((p) => p.name || p.address_line1 || "Unnamed property"))].map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

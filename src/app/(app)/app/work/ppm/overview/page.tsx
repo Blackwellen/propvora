@@ -107,40 +107,6 @@ interface UpcomingRow {
   filterStatus: "due-soon" | "overdue" | "scheduled" | "completed"
 }
 
-const UPCOMING_DUE: UpcomingRow[] = [
-  { id: null, icon: "🔥", serviceType: "Boiler Annual Service", property: "7 Oak Ave", dueDate: "12 Jun 2026", dueDaysLabel: "in 5 days", priority: "high", supplier: "HeatPro Ltd", estCost: "£850", status: "due-soon", filterStatus: "due-soon" },
-  { id: null, icon: "⚡", serviceType: "EICR Inspection", property: "22 Mill Lane", dueDate: "14 Jun 2026", dueDaysLabel: "in 7 days", priority: "high", supplier: "ElecSure Ltd", estCost: "£620", status: "due-soon", filterStatus: "due-soon" },
-  { id: null, icon: "🛡", serviceType: "Gas Safety Certificate", property: "14 Park Rd", dueDate: "18 Jun 2026", dueDaysLabel: "in 11 days", priority: "medium", supplier: "British Gas Homecare", estCost: "£120", status: "scheduled", filterStatus: "scheduled" },
-  { id: null, icon: "💧", serviceType: "Legionella Risk Assessment", property: "3 River View", dueDate: "24 Jun 2026", dueDaysLabel: "in 17 days", priority: "medium", supplier: "AquaSafe Ltd", estCost: "£300", status: "scheduled", filterStatus: "scheduled" },
-  { id: null, icon: "🔴", serviceType: "Fire Alarm Test", property: "Beech House", dueDate: "26 Jun 2026", dueDaysLabel: "in 19 days", priority: "medium", supplier: "FireSafe Services", estCost: "£180", status: "scheduled", filterStatus: "scheduled" },
-  { id: null, icon: "❄", serviceType: "HVAC Maintenance", property: "41 Station Rd", dueDate: "29 Jun 2026", dueDaysLabel: "in 22 days", priority: "low", supplier: "ClimaCare Ltd", estCost: "£250", status: "scheduled", filterStatus: "scheduled" },
-]
-
-// ─── Overdue actions ──────────────────────────────────────────────────────────
-
-const OVERDUE_ACTIONS = [
-  {
-    icon: "🔥",
-    serviceType: "Boiler Annual Service",
-    property: "Beech House",
-    ref: "FIRE-0021",
-    dueDate: "02 Jun 2026",
-    daysOverdue: 8,
-    supplier: "FireSafe Services",
-    estCost: "£850",
-  },
-  {
-    icon: "⚡",
-    serviceType: "EICR Inspection",
-    property: "Elm Court",
-    ref: "ELEC-0153",
-    dueDate: "05 Jun 2026",
-    daysOverdue: 5,
-    supplier: "ElecSure Ltd",
-    estCost: "£620",
-  },
-]
-
 // ─── Compliance health donut ──────────────────────────────────────────────────
 // Derived from live PPM rows; static fallback used only when no data loaded yet.
 
@@ -164,17 +130,7 @@ const FALLBACK_COMPLIANCE_DATA = [
   { name: "Overdue",     value: 0, pct: 0, fill: "#EF4444" },
 ]
 
-// ─── Top service types ────────────────────────────────────────────────────────
-
-const SERVICE_TYPES = [
-  { name: "Gas Safety Certificate", count: 28, color: "#F97316" },
-  { name: "Boiler Service",         count: 21, color: "#3B82F6" },
-  { name: "EICR Inspection",        count: 18, color: "#EAB308" },
-  { name: "Fire Alarm Test",        count: 15, color: "#EF4444" },
-  { name: "Legionella Assessment",  count: 11, color: "#14B8A6" },
-]
-
-const MAX_COUNT = 28
+const SERVICE_PALETTE = ["#F97316", "#3B82F6", "#EAB308", "#EF4444", "#14B8A6"]
 
 // ─── Priority badge ───────────────────────────────────────────────────────────
 
@@ -237,9 +193,58 @@ export default function PpmOverviewPage() {
   }, [properties])
 
   const allUpcoming: UpcomingRow[] = useMemo(
-    () => (hasLive ? livePlans!.map((p) => planToUpcoming(p, propertyNameById)) : UPCOMING_DUE),
+    () => (hasLive ? livePlans!.map((p) => planToUpcoming(p, propertyNameById)) : []),
     [hasLive, livePlans, propertyNameById]
   )
+
+  const overdueRows = useMemo(
+    () => allUpcoming.filter((r) => r.filterStatus === "overdue"),
+    [allUpcoming]
+  )
+
+  // Top service types — derived from live plan categories (no fabricated counts)
+  const serviceTypes = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of livePlans ?? []) {
+      const key = p.category?.trim() || p.name?.trim() || "Other"
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count], i) => ({ name, count, color: SERVICE_PALETTE[i % SERVICE_PALETTE.length] }))
+  }, [livePlans])
+  const maxServiceCount = Math.max(1, ...serviceTypes.map((s) => s.count))
+
+  // Insights — heuristic, derived from live counts (no fabricated figures)
+  const insights = useMemo(() => {
+    const overdue = allUpcoming.filter((r) => r.filterStatus === "overdue").length
+    const dueSoon = allUpcoming.filter((r) => r.filterStatus === "due-soon").length
+    const out: { tone: "blue" | "amber" | "emerald"; text: string }[] = []
+    if (overdue > 0)
+      out.push({ tone: "amber", text: `${overdue} schedule${overdue === 1 ? " is" : "s are"} overdue — generate a job or reschedule to stay compliant.` })
+    if (dueSoon > 0)
+      out.push({ tone: "blue", text: `${dueSoon} schedule${dueSoon === 1 ? "" : "s"} due soon — confirm supplier availability ahead of the deadline.` })
+    if (out.length === 0)
+      out.push({ tone: "emerald", text: "All planned maintenance is on schedule. No overdue or imminent items." })
+    return out
+  }, [allUpcoming])
+
+  function exportCsv() {
+    const headers = ["Service Type", "Property", "Due Date", "Priority", "Supplier", "Est. Cost", "Status"]
+    const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`
+    const lines = [headers.join(",")]
+    for (const r of allUpcoming) {
+      lines.push([r.serviceType, r.property, r.dueDate, r.priority, r.supplier, r.estCost, r.status].map(escape).join(","))
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `ppm-schedules-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const displayUpcomingDue = useMemo(() => {
     if (statusFilter === "all") return allUpcoming
@@ -296,8 +301,12 @@ export default function PpmOverviewPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors">
-            <Download className="w-4 h-4" /> Export ▾
+          <button
+            onClick={exportCsv}
+            disabled={allUpcoming.length === 0}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" /> Export CSV
           </button>
           <Link
             href="/property-manager/work/ppm/schedules/new"
@@ -470,39 +479,52 @@ export default function PpmOverviewPage() {
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 <h2 className="text-sm font-semibold text-slate-900">Overdue Actions</h2>
               </div>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                2 overdue
-              </span>
+              {overdueRows.length > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                  {overdueRows.length} overdue
+                </span>
+              )}
             </div>
-            <div className="divide-y divide-slate-50">
-              {OVERDUE_ACTIONS.map((item, i) => (
-                <div key={i} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-slate-900">
-                        {item.icon} {item.serviceType}
-                      </span>
-                      <span className="text-[11px] text-slate-500">·</span>
-                      <span className="text-xs text-slate-600">{item.property}</span>
-                      <span className="text-[10px] font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
-                        {item.ref}
-                      </span>
+            {overdueRows.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <CheckCircle2 className="w-7 h-7 text-emerald-400 mb-2" />
+                <p className="text-sm font-semibold text-slate-700">No overdue schedules</p>
+                <p className="text-xs text-slate-400 mt-1">Everything is on track.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-50">
+                {overdueRows.map((item, i) => (
+                  <div
+                    key={item.id ?? i}
+                    onClick={() => goToPlan(item)}
+                    className={cn("flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors", item.id && "cursor-pointer")}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-slate-900">
+                          {item.icon} {item.serviceType}
+                        </span>
+                        <span className="text-[11px] text-slate-500">·</span>
+                        <span className="text-xs text-slate-600">{item.property}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <span className="text-xs text-slate-500">Due {item.dueDate}</span>
+                        <span className="text-xs font-semibold text-red-600">{item.dueDaysLabel}</span>
+                        {item.supplier !== "—" && <span className="text-xs text-slate-500">{item.supplier}</span>}
+                        {item.estCost !== "—" && <span className="text-xs font-semibold text-slate-700">{item.estCost}</span>}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      <span className="text-xs text-slate-500">Due {item.dueDate}</span>
-                      <span className="text-xs font-semibold text-red-600">
-                        {item.daysOverdue} days overdue
-                      </span>
-                      <span className="text-xs text-slate-500">{item.supplier}</span>
-                      <span className="text-xs font-semibold text-slate-700">{item.estCost}</span>
-                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); goToPlan(item) }}
+                      disabled={!item.id}
+                      className="shrink-0 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                      View
+                    </button>
                   </div>
-                  <button className="shrink-0 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-                    View
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -560,28 +582,29 @@ export default function PpmOverviewPage() {
           <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-slate-900">Top Service Types</h3>
-              <select className="text-[11px] border border-slate-200 rounded-lg px-2 py-1 text-slate-600 bg-white">
-                <option>This Year</option>
-                <option>Last Year</option>
-              </select>
+              <span className="text-[11px] text-slate-400">By plan count</span>
             </div>
-            <div className="space-y-3">
-              {SERVICE_TYPES.map((st) => (
-                <div key={st.name} className="flex items-center gap-3">
-                  <span className="text-[11px] text-slate-600 w-32 shrink-0 leading-tight truncate">{st.name}</span>
-                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{
-                        width: `${(st.count / MAX_COUNT) * 100}%`,
-                        backgroundColor: st.color,
-                      }}
-                    />
+            {serviceTypes.length === 0 ? (
+              <p className="text-[12px] text-slate-400 py-4 text-center">No PPM schedules yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {serviceTypes.map((st) => (
+                  <div key={st.name} className="flex items-center gap-3">
+                    <span className="text-[11px] text-slate-600 w-32 shrink-0 leading-tight truncate">{st.name}</span>
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-2 rounded-full transition-all"
+                        style={{
+                          width: `${(st.count / maxServiceCount) * 100}%`,
+                          backgroundColor: st.color,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-700 w-6 text-right shrink-0">{st.count}</span>
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-700 w-6 text-right shrink-0">{st.count}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* PPM Insights */}
@@ -589,32 +612,29 @@ export default function PpmOverviewPage() {
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-4 h-4 text-violet-600" />
               <h3 className="text-sm font-semibold text-slate-900">PPM Insights</h3>
+              <span className="ml-auto text-[9px] font-medium text-slate-400 uppercase tracking-wide">Heuristic</span>
             </div>
             <div className="space-y-3">
-              <div className="flex items-start gap-2.5 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                <TrendingUp className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                <p className="text-[12px] text-slate-700 leading-snug">
-                  Gas Safety Certificates peak in June. Consider staggering schedules to balance supplier capacity.
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-[12px] text-slate-700 leading-snug">
-                  2 properties have repeat overdue items. Review maintenance execution.
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <p className="text-[12px] text-slate-700 leading-snug">
-                  Potential savings of £1,420 by consolidating HVAC maintenance this quarter.
-                </p>
-              </div>
+              {insights.map((ins, i) => {
+                const tone = {
+                  blue: { wrap: "bg-blue-50 border-blue-100", icon: "text-blue-600", Icon: TrendingUp },
+                  amber: { wrap: "bg-amber-50 border-amber-100", icon: "text-amber-600", Icon: AlertCircle },
+                  emerald: { wrap: "bg-emerald-50 border-emerald-100", icon: "text-emerald-600", Icon: CheckCircle2 },
+                }[ins.tone]
+                const Icon = tone.Icon
+                return (
+                  <div key={i} className={cn("flex items-start gap-2.5 p-3 rounded-xl border", tone.wrap)}>
+                    <Icon className={cn("w-4 h-4 shrink-0 mt-0.5", tone.icon)} />
+                    <p className="text-[12px] text-slate-700 leading-snug">{ins.text}</p>
+                  </div>
+                )
+              })}
             </div>
             <Link
-              href="/property-manager/work/ppm/reports"
+              href="/property-manager/work/reports"
               className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
             >
-              View all insights <ChevronRight className="w-3 h-3" />
+              View work reports <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
         </div>

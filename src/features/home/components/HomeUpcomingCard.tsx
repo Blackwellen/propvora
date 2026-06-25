@@ -23,11 +23,12 @@ function EventTypeBadge({ type }: { type: EventType }) {
     tenancy: "Tenancy",
     meeting: "Meeting",
     maintenance: "Maintenance",
+    event: "Event",
   }
   const cls = styles[type] ?? styles.default
   return (
     <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium flex-shrink-0 ${cls}`}>
-      {labels[type] ?? type}
+      {labels[type] ?? "Event"}
     </span>
   )
 }

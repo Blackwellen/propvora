@@ -1,13 +1,14 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { InvoiceRecord } from "./types"
 import { SectionCard, EmptyState, StatusChip } from "./shared"
 
 export function InvoiceTable({ invoices, emptyLabel }: { invoices: InvoiceRecord[]; emptyLabel?: string }) {
-  if (invoices.length === 0) return <EmptyState icon={Wallet} message={emptyLabel ?? "No invoices yet."} cta="Record Invoice" />
+  if (invoices.length === 0) return <EmptyState icon={Wallet} message={emptyLabel ?? "No invoices yet."} />
   const total = invoices.reduce((s, i) => s + i.amount, 0)
   const paid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0)
   const outstanding = total - paid
@@ -42,7 +43,11 @@ export function InvoiceTable({ invoices, emptyLabel }: { invoices: InvoiceRecord
                 <td className="px-4 py-3 font-semibold text-slate-900">£{inv.amount.toLocaleString("en-GB")}</td>
                 <td className="px-4 py-3"><StatusChip status={inv.status} /></td>
                 <td className="px-4 py-3 text-right">
-                  <button className="text-xs text-blue-600 hover:underline">View</button>
+                  {inv.id ? (
+                    <Link href={`/property-manager/money/invoices/${inv.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
+                  ) : (
+                    <span className="text-xs text-slate-300">—</span>
+                  )}
                 </td>
               </tr>
             ))}

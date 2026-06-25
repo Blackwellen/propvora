@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import {
-  Search, X, Clock, AlertTriangle, CheckCircle2, FileText, Calendar, StickyNote,
+  Search, X, Clock, AlertTriangle, CheckCircle2, FileText, StickyNote,
   MessageSquare, ChevronDown,
 } from "lucide-react"
 import { DashboardContainer } from "@/components/layout/PageContainer"
@@ -344,7 +344,6 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
       <div className="bg-white rounded-2xl border border-slate-200 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-slate-900">Activity Over Time</h3>
-          <span className="text-[10px] text-blue-600 cursor-pointer hover:underline">View full report</span>
         </div>
         <BarChart events={events} />
       </div>
@@ -477,11 +476,6 @@ export default function TimelinePage() {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contact Timeline</h1>
           <p className="text-sm text-slate-500 mt-0.5">All contact events, interactions and milestones in chronological order</p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
-          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-          1–4 June 2026
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-        </button>
       </div>
 
       {/* Controls */}

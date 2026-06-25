@@ -459,13 +459,13 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
     <div className="flex flex-col gap-5">
 
       {/* ── Tenancy KPI strip ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <TenancyKpi icon={Users} label="Total Tenancies" value={String(tenancies.length)} sub="All tenancies" iconBg="bg-blue-50" iconColor="text-[#2563EB]" change="+7%" changePos />
-        <TenancyKpi icon={Users} label="Active Tenancies" value={String(activeTenancies.length)} sub={`${tenancies.length > 0 ? Math.round((activeTenancies.length / tenancies.length) * 100) : 0}% of total`} iconBg="bg-emerald-50" iconColor="text-emerald-600" change="+5%" changePos />
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        <TenancyKpi icon={Users} label="Total Tenancies" value={String(tenancies.length)} sub="All tenancies" iconBg="bg-blue-50" iconColor="text-[#2563EB]" />
+        <TenancyKpi icon={Users} label="Active Tenancies" value={String(activeTenancies.length)} sub={`${tenancies.length > 0 ? Math.round((activeTenancies.length / tenancies.length) * 100) : 0}% of total`} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
         <TenancyKpi icon={Clock} label="Ending Soon" value={String(endingSoon.length)} sub="Within 30 days" iconBg="bg-orange-50" iconColor="text-orange-600" />
         <TenancyKpi icon={AlertTriangle} label="Notice Given" value={String(noticeGiven.length)} sub={`${tenancies.length > 0 ? Math.round((noticeGiven.length / tenancies.length) * 100) : 0}% of total`} iconBg="bg-violet-50" iconColor="text-violet-600" />
         <TenancyKpi icon={RefreshCw} label="Renewals Due" value={String(renewalsDue.length)} sub="Within 60 days" iconBg="bg-blue-50" iconColor="text-[#2563EB]" />
-        <TenancyKpi icon={PoundSterling} label="Rent at Risk" value={rentAtRisk > 0 ? fmtGBP(rentAtRisk) : "£0"} sub="Potential loss" iconBg="bg-red-50" iconColor="text-red-600" change="-5.2%" changePos={false} />
+        <TenancyKpi icon={PoundSterling} label="Rent at Risk" value={rentAtRisk > 0 ? fmtGBP(rentAtRisk) : "£0"} sub="Potential loss" iconBg="bg-red-50" iconColor="text-red-600" />
       </div>
 
       {/* ── Gantt card ── */}

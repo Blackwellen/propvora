@@ -1,12 +1,9 @@
-import UsageLimitsPage from "@/features/automations/pages/UsageLimitsPage"
+import { redirect } from "next/navigation"
 
-export const metadata = {
-  title: "Admin Controls - Automations - Propvora",
-  description: "Govern automation usage, enforce policies, and maintain operational guardrails.",
-}
-
-// Admin Controls is consolidated into Usage & Limits (Admin Controls sub-tab).
-// This route is kept to preserve any bookmarked links.
-export default function AutomationAdminControlsRoute() {
-  return <UsageLimitsPage initialTab="admin" />
+// Admin Controls (workspace automation governance) has moved out of the
+// Automations module tab strip into Workspace Settings → Automation Governance,
+// where it was fully redesigned. This route is kept so existing links land in
+// the right place.
+export default function AutomationAdminControlsRedirect() {
+  redirect("/property-manager/workspace-settings/automations")
 }

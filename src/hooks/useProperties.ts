@@ -34,7 +34,24 @@ const TEMPLATE_TO_PROFILE: Record<string, string> = {
   social_housing: 'social_housing',
   build_to_rent: 'build_to_rent',
 }
-const PROFILE_TO_TEMPLATE: Record<string, string> = { long_term_let: 'standard_rental' }
+// Every operation_profile maps to one of the 5 valid `template` enum members
+// (template is NOT NULL). The true profile is stored in the dedicated
+// `operation_profile` column; `template` is kept valid for legacy/template-sync.
+const PROFILE_TO_TEMPLATE: Record<string, string> = {
+  long_term_let: 'standard_rental',
+  rent_to_rent: 'r2r',
+  hmo: 'hmo',
+  student_let: 'student_let',
+  serviced_accommodation: 'sa_lite',
+  holiday_let: 'sa_lite',
+  build_to_rent: 'standard_rental',
+  social_housing: 'standard_rental',
+  commercial: 'standard_rental',
+  mixed_use: 'standard_rental',
+  refinancing: 'standard_rental',
+  dev_flip: 'standard_rental',
+  co_living: 'hmo',
+}
 
 // Live `properties.status` enum = active|void|off_market|archived.
 // The UI historically offered vacant/under_works (no such enum members), which
@@ -83,7 +100,9 @@ function fromDb(r: Record<string, unknown>): Property {
     latitude: g('latitude') ?? null,
     longitude: g('longitude') ?? null,
     property_type: templateToType(template),
-    operation_profile: (template ? (TEMPLATE_TO_PROFILE[template] ?? template) : null) as Property['operation_profile'],
+    // Prefer the dedicated column; fall back to template-derived for any legacy
+    // row written before the column existed.
+    operation_profile: ((g('operation_profile') as string | null) ?? (template ? (TEMPLATE_TO_PROFILE[template] ?? template) : null)) as Property['operation_profile'],
     category: (g('category') ?? null) as string | null,
     status: (PROPERTY_STATUS_FROM_DB[String(g('status') ?? 'active')] ?? 'active') as Property['status'],
     bedrooms: g('bedrooms') ?? null,
@@ -106,7 +125,10 @@ function fromDb(r: Record<string, unknown>): Property {
 function toDb(p: Partial<Property>): Record<string, unknown> {
   const o: Record<string, unknown> = {}
   if ('name' in p) o.nickname = p.name
-  if ('operation_profile' in p && p.operation_profile) o.template = PROFILE_TO_TEMPLATE[p.operation_profile] ?? p.operation_profile
+  if ('operation_profile' in p && p.operation_profile) {
+    o.operation_profile = p.operation_profile
+    o.template = PROFILE_TO_TEMPLATE[p.operation_profile] ?? 'standard_rental'
+  }
   if ('target_rent' in p) o.target_rent_pcm = p.target_rent
   if ('monthly_mortgage' in p) o.mortgage_outstanding = p.monthly_mortgage
   if ('is_demo' in p) o.demo = p.is_demo

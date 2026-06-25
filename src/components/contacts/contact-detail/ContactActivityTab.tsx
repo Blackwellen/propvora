@@ -1,7 +1,9 @@
 "use client"
 
 import React from "react"
+import { useQuery } from "@tanstack/react-query"
 import { CheckCircle2, FileText, ListChecks, AlertTriangle, Activity, StickyNote, Globe, Shield } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 import type { ActivityRecord } from "./types"
 import { EmptyState } from "./shared"
 
@@ -36,13 +38,37 @@ export function ActivityTimeline({ items }: { items: ActivityRecord[] }) {
   )
 }
 
-export function AuditTab() {
-  const rows = [
-    { who: "System", action: "Contact created", field: "—", when: "2026-01-15 09:23" },
-    { who: "admin@propvora.com", action: "Email updated", field: "email", when: "2026-02-01 14:12" },
-    { who: "admin@propvora.com", action: "Tag added: reliable", field: "tags", when: "2026-02-01 14:13" },
-    { who: "System", action: "Tenancy linked", field: "tenancy_id", when: "2026-02-01 14:15" },
-  ]
+interface AuditRow { id: string; user_id: string | null; action: string; resource_type: string | null; created_at: string }
+
+function useContactAudit(workspaceId: string | undefined, contactId: string) {
+  return useQuery<AuditRow[]>({
+    queryKey: ["contact-audit", workspaceId, contactId],
+    enabled: !!workspaceId && !!contactId,
+    staleTime: 30 * 1000,
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("id, user_id, action, resource_type, created_at")
+        .eq("workspace_id", workspaceId!)
+        .eq("resource_id", contactId)
+        .order("created_at", { ascending: false })
+        .limit(100)
+      if (error) {
+        if (error.code === "42P01") return []
+        throw error
+      }
+      return (data ?? []) as AuditRow[]
+    },
+  })
+}
+
+export function AuditTab({ contactId, workspaceId }: { contactId: string; workspaceId: string | undefined }) {
+  const { data: rows = [], isLoading } = useContactAudit(workspaceId, contactId)
+
+  if (isLoading) return <div className="py-10 text-center text-sm text-slate-400">Loading audit log…</div>
+  if (rows.length === 0) return <EmptyState icon={Shield} message="No audit entries recorded for this contact yet." />
+
   return (
     <div className="space-y-4">
       <p className="text-xs text-slate-500">Full change log — admin visible only</p>
@@ -50,18 +76,18 @@ export function AuditTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              {["Who","Action","Field","When"].map(h => (
+              {["Who","Action","Resource","When"].map(h => (
                 <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="px-4 py-3 text-slate-700 font-medium">{r.who}</td>
-                <td className="px-4 py-3 text-slate-700">{r.action}</td>
-                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{r.field}</td>
-                <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{r.when}</td>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3 text-slate-700 font-medium">{r.user_id ? `${r.user_id.slice(0, 8)}…` : "System"}</td>
+                <td className="px-4 py-3 text-slate-700">{r.action.replace(/[._]/g, " ")}</td>
+                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{r.resource_type ?? "—"}</td>
+                <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString("en-GB")}</td>
               </tr>
             ))}
           </tbody>

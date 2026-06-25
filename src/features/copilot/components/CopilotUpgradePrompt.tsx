@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { X, Sparkles, Zap, LifeBuoy, BookOpen, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import CopilotBrandMark from "./CopilotBrandMark"
 import { zIndex } from "@/lib/ui/z-index"
 
 interface CopilotUpgradePromptProps {
@@ -37,21 +38,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(124,58,237,0.35)",
-            }}
-          >
-            <span className="text-white" style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
-          </div>
+          <CopilotBrandMark size={36} radius={10} />
           <div>
             <p className="text-[14px] font-bold text-slate-900 leading-tight">
               Propvora Copilot

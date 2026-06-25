@@ -1,0 +1,18 @@
+-- ============================================================
+-- Tasks RLS: drop the legacy permissive write policy
+-- ============================================================
+-- The original `"Members write tasks"` policy (FOR ALL, role public,
+-- USING is_workspace_member, no WITH CHECK) was added in 003_rls_policies.sql
+-- before the granular per-command policies existed. Because permissive
+-- policies are OR-combined, it silently defeated:
+--   * tasks_insert_ops / tasks_update_ops — meant to exclude `accountant`
+--   * tasks_delete_admin — meant to restrict DELETE to owner/admin
+-- i.e. ANY workspace member (incl. accountant) could insert/update/delete tasks.
+--
+-- Dropping it restores the intended role granularity:
+--   INSERT/UPDATE -> owner/admin/manager/member   (tasks_insert_ops/tasks_update_ops)
+--   DELETE        -> owner/admin                   (tasks_delete_admin)
+--   SELECT        -> any workspace member          (tasks_select_members)
+--
+-- Idempotent and safe to re-run.
+DROP POLICY IF EXISTS "Members write tasks" ON public.tasks;

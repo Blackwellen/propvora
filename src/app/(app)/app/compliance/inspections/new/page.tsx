@@ -12,6 +12,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
 import { useContacts } from "@/hooks/useContacts"
+import { useCreateTask } from "@/hooks/useTasks"
 import {
   Home,
   LogIn,
@@ -204,6 +205,7 @@ function SummaryRail({
 export default function NewInspectionPage() {
   const router = useRouter()
   const { workspace } = useWorkspace()
+  const createTask = useCreateTask()
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -264,6 +266,14 @@ export default function NewInspectionPage() {
   const propertyUnits = liveUnits.map((u) => u.unit_name).filter(Boolean)
   const typeCfg = inspType ? INSPECTION_TYPES.find((t) => t.key === inspType) : null
 
+  // Per-step gate so required fields are satisfied before advancing.
+  function canAdvanceFrom(s: number): boolean {
+    if (s === 1) return !!inspType
+    if (s === 2) return inspType === "supplier" ? !!supplierId : !!propertyId
+    if (s === 3) return !!scheduledDate
+    return true
+  }
+
   function addChecklistItem() {
     if (!newItemLabel.trim()) return
     setChecklist((prev) => [
@@ -304,10 +314,16 @@ export default function NewInspectionPage() {
       // Combine date + time into a timestamp for scheduled_for.
       const scheduledAt = scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "10:00"}:00`).toISOString() : null
       const inspectorName = inspectors.find((c) => c.id === inspectorId)?.name ?? null
+      // Persist every captured field — duration, unit, and reminder settings were
+      // previously dropped. We fold them into the notes column (guaranteed to
+      // exist) so nothing the user entered is lost.
       const notesParts = [
         inspectorName ? `Inspector: ${inspectorName}` : null,
+        unit ? `Unit: ${unit}` : null,
+        `Duration: ${duration}`,
         inspectorNotes || null,
-        checklist.length ? `Checklist: ${checklist.map((c) => c.label).join(", ")}` : null,
+        `Reminder (you): ${userReminder}${inspectorReminderEnabled ? ` · Inspector: ${inspectorReminderTiming}` : ""}`,
+        checklist.length ? `Checklist: ${checklist.map((c) => `${c.label} [${c.severity}]`).join(", ")}` : null,
       ].filter(Boolean)
 
       const { data, error } = await supabase
@@ -331,7 +347,44 @@ export default function NewInspectionPage() {
         setSaving(false)
         return
       }
-      setNewId((data?.id as string) ?? null)
+      const inspectionId = (data?.id as string) ?? null
+      setNewId(inspectionId)
+
+      // Create the linked Work job when requested — previously this toggle
+      // collected a title/assignee/due date but discarded all of it on save.
+      if (createWorkJob) {
+        try {
+          await createTask.mutateAsync({
+            workspace_id: workspace.id,
+            title: workJobTitle || `Follow up: ${typeCfg?.label ?? "inspection"}${selectedProperty ? ` — ${selectedProperty.name}` : ""}`,
+            description: `Auto-created from scheduled inspection.`,
+            category: "inspection",
+            priority: "medium",
+            status: "todo",
+            property_id: propertyId || null,
+            ...(workJobAssignee ? { contact_id: workJobAssignee } : {}),
+            due_date: workJobDue || (scheduledDate || null),
+            metadata: { source: "compliance_inspection", inspection_id: inspectionId },
+            created_by: user?.id ?? null,
+            is_demo: false,
+          })
+        } catch {
+          /* non-fatal: inspection already scheduled; the job is a convenience */
+        }
+      }
+
+      // Audit trail (best-effort).
+      try {
+        await supabase.from("audit_logs").insert({
+          workspace_id: workspace.id,
+          user_id: user?.id ?? null,
+          action: "compliance.inspection_scheduled",
+          resource_type: "property_inspection",
+          resource_id: inspectionId,
+        })
+      } catch {
+        /* non-fatal */
+      }
       setSaved(true)
     } catch (err) {
       console.error("Save error:", err)
@@ -846,8 +899,8 @@ export default function NewInspectionPage() {
                   <Button
                     variant="primary"
                     size="md"
-                    disabled={step === 1 && !inspType}
-                    onClick={() => setStep((s) => s + 1)}
+                    disabled={!canAdvanceFrom(step)}
+                    onClick={() => { if (canAdvanceFrom(step)) setStep((s) => s + 1) }}
                   >
                     Next
                     <ChevronRight className="w-4 h-4" />

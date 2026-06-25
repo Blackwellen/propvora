@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useSectionRouter, useSectionLink } from "@/components/sections/SectionBasePath"
+import { useSectionLink } from "@/components/sections/SectionBasePath"
 import {
   Bell,
   ChevronLeft,
@@ -33,7 +33,6 @@ function nowLocalInput(): string {
 interface EventOption { id: string; title: string; start_at: string }
 
 export default function NewReminderPage() {
-  const router = useSectionRouter()
   const sectionLink = useSectionLink()
   const { workspace } = useWorkspace()
 
@@ -66,6 +65,7 @@ export default function NewReminderPage() {
   function validate(): string | null {
     if (!title.trim()) return "Please enter a reminder title."
     if (!dueLocal) return "Please choose when the reminder is due."
+    if (new Date(dueLocal).getTime() <= Date.now()) return "The reminder time must be in the future."
     return null
   }
 
@@ -77,10 +77,12 @@ export default function NewReminderPage() {
     setError(null)
     try {
       const supabase = createClient()
+      const { data: userRes } = await supabase.auth.getUser()
       const { error: e } = await supabase
         .from("calendar_reminders")
         .insert({
           workspace_id: workspace.id,
+          created_by: userRes?.user?.id ?? null,
           event_id: eventId || null,
           title: title.trim(),
           reminder_type: "standard",

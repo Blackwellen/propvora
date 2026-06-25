@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 
-// Settings is no longer a top-level tab. Governance/admin controls live under
-// Admin Controls (part of Usage & Limits).
+// Settings is no longer a top-level tab. Automation governance moved to
+// Workspace Settings → Automation Governance.
 export default function AutomationSettingsRedirect() {
-  redirect("/property-manager/automations/admin-controls")
+  redirect("/property-manager/workspace-settings/automations")
 }

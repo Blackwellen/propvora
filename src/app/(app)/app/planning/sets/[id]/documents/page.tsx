@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import {
   AlertTriangle,
   Search,
-  Filter,
   Upload,
   FolderOpen,
   FileText,
@@ -15,7 +14,12 @@ import {
   CheckCircle2,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspace, useAuth } from "@/providers/AuthProvider"
 import type { PlanningDocument, DocumentCategory, DocumentStatus } from "@/lib/planning/types"
+
+const DOCS_BUCKET = "planning-documents"
+const MAX_DOC_BYTES = 25 * 1024 * 1024 // 25MB
+const ALLOWED_EXT = ["pdf", "png", "jpg", "jpeg", "webp", "doc", "docx", "xls", "xlsx", "csv"]
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -52,25 +56,13 @@ function FileIcon({ name }: { name: string }) {
 
 // ── Action button per status ──────────────────────────────────────────────────
 
-function ActionButton({ status }: { status: DocumentStatus }) {
-  if (status === "missing") return (
-    <button className="h-7 px-3 rounded-lg border border-red-300 text-red-600 text-[10px] font-semibold hover:bg-red-50 transition-colors whitespace-nowrap">
-      Upload required
-    </button>
-  )
-  if (status === "expired") return (
-    <button className="h-7 px-3 rounded-lg border border-amber-300 text-amber-700 text-[10px] font-semibold hover:bg-amber-50 transition-colors">
-      Replace
-    </button>
-  )
-  if (status === "unreadable") return (
-    <button className="h-7 px-3 rounded-lg border border-red-300 text-red-600 text-[10px] font-semibold hover:bg-red-50 transition-colors whitespace-nowrap">
-      Upload Clear Copy
-    </button>
-  )
+function ActionButton({ doc, onView }: { doc: PlanningDocument; onView: (d: PlanningDocument) => void }) {
   return (
-    <button className="h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50 transition-colors">
-      View
+    <button
+      onClick={(e) => { e.stopPropagation(); onView(doc) }}
+      className="h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50 transition-colors inline-flex items-center gap-1"
+    >
+      <Eye className="w-3 h-3" /> View
     </button>
   )
 }
@@ -94,6 +86,8 @@ const DOC_CATEGORIES: { key: DocTab; label: string }[] = [
 export default function DocumentsPage() {
   const params = useParams()
   const id = params.id as string
+  const { workspace } = useWorkspace()
+  const { user } = useAuth()
 
   const [docs, setDocs] = useState<PlanningDocument[]>([])
   const [loading, setLoading] = useState(true)
@@ -101,23 +95,75 @@ export default function DocumentsPage() {
   const [activeFolder, setActiveFolder] = useState<DocTab>("all")
   const [search, setSearch] = useState("")
   const [selectedDoc, setSelectedDoc] = useState<PlanningDocument | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function load() {
+    if (!id || !workspace?.id) return
+    setLoading(true)
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("planning_documents")
+      .select("*")
+      .eq("planning_set_id", id)
+      .eq("workspace_id", workspace.id)
+      .order("uploaded_at", { ascending: false })
+    setDocs(error ? [] : ((data ?? []) as PlanningDocument[]))
+    setLoading(false)
+  }
 
   useEffect(() => {
-    if (!id) return
-    const supabase = createClient()
-    async function load() {
-      setLoading(true)
-      // planning_documents is not yet provisioned (42P01) — swallow to empty.
-      const { data, error } = await supabase
-        .from("planning_documents")
-        .select("*")
-        .eq("planning_set_id", id)
-        .order("uploaded_at", { ascending: false })
-      setDocs(error ? [] : ((data ?? []) as PlanningDocument[]))
-      setLoading(false)
-    }
+    if (!id || !workspace?.id) return
     load()
-  }, [id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, workspace?.id])
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = "" // allow re-selecting the same file
+    if (!file || !workspace?.id || !id) return
+    setUploadError(null)
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? ""
+    if (!ALLOWED_EXT.includes(ext)) { setUploadError(`Unsupported file type .${ext}`); return }
+    if (file.size > MAX_DOC_BYTES) { setUploadError("File is larger than 25MB."); return }
+    setUploading(true)
+    try {
+      const supabase = createClient()
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+      const path = `${workspace.id}/${id}/${crypto.randomUUID()}-${safeName}`
+      const { error: upErr } = await supabase.storage.from(DOCS_BUCKET).upload(path, file, { upsert: false })
+      if (upErr) throw upErr
+      const category: DocumentCategory = (activeTab !== "all" ? activeTab : "property")
+      const { error: insErr } = await supabase.from("planning_documents").insert({
+        workspace_id: workspace.id,
+        planning_set_id: id,
+        title: file.name.replace(/\.[^.]+$/, ""),
+        file_name: file.name,
+        file_path: path,
+        category,
+        status: "uploaded",
+        uploaded_by: user?.id ?? null,
+      })
+      if (insErr) {
+        // Roll back the orphaned upload if the row insert fails.
+        await supabase.storage.from(DOCS_BUCKET).remove([path])
+        throw insErr
+      }
+      await load()
+    } catch {
+      setUploadError("Upload failed. Please try again.")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function handleView(doc: PlanningDocument) {
+    if (!doc.file_path) return
+    const supabase = createClient()
+    const { data } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(doc.file_path, 120)
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer")
+  }
 
   // Live counts per category
   function countFor(key: DocTab): number {
@@ -136,7 +182,7 @@ export default function DocumentsPage() {
       {/* ── Section Header + Controls ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">9B Documents</h2>
+          <h2 className="text-base font-bold text-slate-900">Documents</h2>
           <p className="text-xs text-slate-500 mt-0.5">Document hub for this planning set.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -150,16 +196,24 @@ export default function DocumentsPage() {
               className="h-8 pl-8 pr-3 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-violet-300 w-44"
             />
           </div>
-          <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-            <Filter className="w-3.5 h-3.5" />
-            Filter
-          </button>
-          <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv"
+            onChange={handleUpload}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors disabled:opacity-50"
+          >
             <Upload className="w-3.5 h-3.5" />
-            Upload Documents
+            {uploading ? "Uploading…" : "Upload Documents"}
           </button>
         </div>
       </div>
+      {uploadError && <p className="text-[11px] text-red-600 -mt-2">{uploadError}</p>}
 
       {/* ── Category Tab Bar ── */}
       <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-100 pb-0">
@@ -222,9 +276,13 @@ export default function DocumentsPage() {
               <p className="text-xs text-slate-400 max-w-sm">
                 Upload compliance certificates, offer summaries, property records and other documents for this planning set.
               </p>
-              <button className="mt-1 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="mt-1 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors disabled:opacity-50"
+              >
                 <Upload className="w-3.5 h-3.5" />
-                Upload Documents
+                {uploading ? "Uploading…" : "Upload Documents"}
               </button>
             </div>
           ) : (
@@ -272,7 +330,7 @@ export default function DocumentsPage() {
                         </div>
                       )}
                     </div>
-                    <ActionButton status={doc.status} />
+                    <ActionButton doc={doc} onView={handleView} />
                   </div>
                 )
               })}
@@ -295,8 +353,11 @@ export default function DocumentsPage() {
                 <FileText className="w-12 h-12 text-slate-300" />
               </div>
               <span className="text-[10px] text-slate-400 font-medium">{selectedDoc.file_name ?? "No file uploaded"}</span>
-              {selectedDoc.file_url && (
-                <button className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50">
+              {selectedDoc.file_path && (
+                <button
+                  onClick={() => handleView(selectedDoc)}
+                  className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50"
+                >
                   <Eye className="w-3 h-3" />
                   View Full Document
                 </button>

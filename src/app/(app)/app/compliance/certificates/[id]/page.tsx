@@ -38,7 +38,6 @@ import {
   DollarSign,
   Activity,
   ShieldCheck,
-  Sparkles,
   Plus,
   Eye,
   CheckCircle2,
@@ -734,15 +733,6 @@ export default function CertificateDetailPage() {
           </div>
         )}
 
-        <div className="bg-[#F5F3FF] rounded-xl border border-[#DDD6FE] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-[#7C3AED]" />
-            <p className="text-xs font-bold text-[#7C3AED] uppercase tracking-wide">AI Insight</p>
-          </div>
-          <p className="text-xs text-[#5b21b6] leading-relaxed">
-            Renewals typically take 3–7 days to arrange with a certified engineer. Schedule early to avoid a compliance gap.
-          </p>
-        </div>
       </div>
     )
   }

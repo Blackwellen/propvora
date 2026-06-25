@@ -29,6 +29,8 @@ export interface WizardState {
   primaryContactName: string
   notes: string
   tags: TagItem[]
+  /** R2 storage key for the contact photo / organisation logo (persisted as avatar_url). */
+  avatarKey: string | null
 
   // Step 3
   email: string
@@ -106,6 +108,7 @@ export const defaultState: WizardState = {
   primaryContactName: "",
   notes: "",
   tags: [],
+  avatarKey: null,
   email: "",
   phone: "",
   secondaryPhone: "",
@@ -178,7 +181,6 @@ export const STEP_NAMES = [
   "Contact Type",
   "Details",
   "Communication",
-  "Relationship Links",
   "Type-Specific",
   "Documents",
   "Portal Access",
@@ -189,11 +191,10 @@ export const STEP_TIPS: Record<number, string> = {
   1: "Selecting the right type ensures you see the most relevant fields and documents for this contact.",
   2: "A clear display name helps your team instantly recognise this contact across Propvora.",
   3: "Adding multiple contact methods improves response rates and keeps your data complete.",
-  4: "Linking contacts to properties and tenancies now saves time later — you can always do it after saving.",
-  5: "These details are unique to this contact type and help you track obligations and service scope.",
-  6: "Uploading key documents now keeps everything in one place and triggers expiry reminders automatically.",
-  7: "Supplier portal access lets contractors submit quotes and upload certificates without needing full system access.",
-  8: "Review everything before saving. You can jump back to any section to make changes.",
+  4: "These details are unique to this contact type and help you track obligations and service scope.",
+  5: "Uploading key documents now keeps everything in one place and triggers expiry reminders automatically.",
+  6: "Supplier portal access lets contractors submit quotes and upload certificates without needing full system access.",
+  7: "Review everything before saving. You can jump back to any section to make changes.",
 }
 
 export const PORTAL_EXPIRY_OPTIONS = [
@@ -203,6 +204,34 @@ export const PORTAL_EXPIRY_OPTIONS = [
   { value: "after_job", label: "After Job Completion" },
   { value: "never", label: "Never Expires" },
 ]
+
+/**
+ * Build a wizard initial state from quick-add hand-off query params, e.g.
+ * /property-manager/contacts/new?entity=person&type=tenant&firstName=Jane&...
+ * Unknown / missing params fall back to the wizard defaults, so a bare /new
+ * route still opens cleanly.
+ */
+export function stateFromParams(params: URLSearchParams): WizardState {
+  const entity: EntityType = params.get("entity") === "organisation" ? "organisation" : "person"
+  const rawType = params.get("type")
+  const validTypes = new Set(CONTACT_TYPE_OPTIONS_NEW.map((o) => o.value as string))
+  const contactType = (rawType && validTypes.has(rawType) ? rawType : null) as ContactType | null
+  const state: WizardState = {
+    ...defaultState,
+    entityType: entity,
+    contactType,
+    firstName: params.get("firstName") ?? "",
+    lastName: params.get("lastName") ?? "",
+    organisationName: params.get("org") ?? "",
+    email: params.get("email") ?? "",
+    phone: params.get("phone") ?? "",
+    city: params.get("city") ?? "",
+    avatarKey: params.get("avatar") ?? null,
+  }
+  // Pre-populate the type-driven document slots so Step 6 reflects the type.
+  state.documents = getDocumentSlots(contactType)
+  return state
+}
 
 export function getDocumentSlots(contactType: ContactType | null): DocumentSlot[] {
   if (!contactType) return []

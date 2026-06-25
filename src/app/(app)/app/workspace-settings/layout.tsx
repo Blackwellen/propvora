@@ -10,6 +10,7 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  Scale,
   CreditCard,
   Package,
   Receipt,
@@ -30,6 +31,7 @@ import {
   FlaskConical,
   AlertTriangle,
   Settings2,
+  Workflow,
 } from "lucide-react"
 
 const WORKSPACE_NAV = [
@@ -50,6 +52,7 @@ const WORKSPACE_NAV = [
   { key: "preferences",  label: "Preferences",        href: "/property-manager/workspace-settings/preferences",      icon: Settings2,     group: "Configuration" },
   { key: "navigation",    label: "Menu Builder",       href: "/property-manager/workspace-settings/navigation",       icon: LayoutGrid,    group: "Configuration" },
   { key: "integrations",  label: "Integrations",       href: "/property-manager/workspace-settings/integrations",     icon: Plug,          group: "Configuration" },
+  { key: "automations",   label: "Automation Governance", href: "/property-manager/workspace-settings/automations",   icon: Workflow,      group: "Configuration" },
   { key: "email",         label: "Email & SMTP",       href: "/property-manager/workspace-settings/email",            icon: Mail,          group: "Configuration" },
   { key: "storage",       label: "Storage",            href: "/property-manager/workspace-settings/storage",          icon: HardDrive,     group: "Configuration" },
   { key: "security",      label: "Security",           href: "/property-manager/workspace-settings/security",         icon: Lock,          group: "Security" },
@@ -59,6 +62,7 @@ const WORKSPACE_NAV = [
   { key: "demo-data",     label: "Demo Data",          href: "/property-manager/workspace-settings/demo-data",        icon: FlaskConical,  group: "Advanced" },
   { key: "danger-zone",   label: "Danger Zone",        href: "/property-manager/workspace-settings/danger-zone",      icon: AlertTriangle, group: "Advanced" },
   { key: "compliance",    label: "Compliance",         href: "/property-manager/settings/compliance",                 icon: ShieldCheck,   group: "Configuration" },
+  { key: "legal",         label: "Legal",              href: "/property-manager/settings/legal",                      icon: Scale,         group: "Configuration" },
 ]
 
 const GROUPS = ["General", "Billing", "AI", "Configuration", "Security", "Advanced"] as const

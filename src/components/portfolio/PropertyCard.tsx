@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Heart, TrendingUp, Building2, Home, Eye, Plus, Users, Archive } from "lucide-react"
+import { Heart, TrendingUp, Building2, Home, Eye, Plus, Users, Settings2 } from "lucide-react"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
@@ -204,7 +204,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
                   { label: "View property", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/properties/${property.id}`) },
                   { label: "Add unit", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/units/new?propertyId=${property.id}`) },
                   { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?propertyId=${property.id}`) },
-                  { label: "Archive", icon: Archive, onClick: () => {} },
+                  { label: "Manage property", icon: Settings2, onClick: () => router.push(`/property-manager/portfolio/properties/${property.id}`) },
                 ]}
               />
             </div>

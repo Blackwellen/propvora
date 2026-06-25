@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateTenancy } from "@/hooks/useTenancies"
+import { useCreateContact } from "@/hooks/useContacts"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
 import {
@@ -154,28 +155,38 @@ function StepProperty({ data, onChange, properties, units }: {
   )
 }
 
-function StepTenant({ data, onChange }: { data: TenancyWizardData; onChange: (d: Partial<TenancyWizardData>) => void }) {
+function StepTenant({ data, onChange, emailValid }: { data: TenancyWizardData; onChange: (d: Partial<TenancyWizardData>) => void; emailValid: boolean }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500">Enter tenant details. You can link a full contact profile later.</p>
+      <p className="text-sm text-slate-500">Enter tenant details. A linked contact is created automatically when you finish.</p>
       {[
         { key: "tenant_name", label: "Tenant name", placeholder: "e.g. James Wilson", required: true, type: "text" },
         { key: "tenant_email", label: "Email address", placeholder: "james@email.com", type: "email" },
         { key: "tenant_phone", label: "Phone number", placeholder: "07700 900 123", type: "tel" },
-      ].map((f) => (
-        <div key={f.key}>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            {f.label}{f.required && <span className="text-red-500"> *</span>}
-          </label>
-          <input
-            type={f.type}
-            placeholder={f.placeholder}
-            value={(data as unknown as Record<string, string>)[f.key]}
-            onChange={(e) => onChange({ [f.key]: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
-          />
-        </div>
-      ))}
+      ].map((f) => {
+        const showEmailError = f.key === "tenant_email" && !emailValid
+        return (
+          <div key={f.key}>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              {f.label}{f.required && <span className="text-red-500"> *</span>}
+            </label>
+            <input
+              type={f.type}
+              placeholder={f.placeholder}
+              aria-invalid={showEmailError}
+              value={(data as unknown as Record<string, string>)[f.key]}
+              onChange={(e) => onChange({ [f.key]: e.target.value })}
+              className={cn(
+                "w-full h-10 px-3 rounded-lg border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all",
+                showEmailError ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-[#2563EB]"
+              )}
+            />
+            {showEmailError && (
+              <p className="text-xs text-red-600 mt-1">Enter a valid email address (or leave blank).</p>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -323,15 +334,21 @@ function StepFinancials({ data, onChange }: { data: TenancyWizardData; onChange:
 function StepDocuments() {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500">Upload tenancy documents (optional — you can do this from the tenancy detail page).</p>
-      <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[#2563EB]/40 hover:bg-blue-50/20 transition-all cursor-pointer">
-        <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-        <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
-        <p className="text-xs text-slate-500 mt-1">Tenancy agreement, deposit protection, move-in photos…</p>
-        <Button variant="soft" size="sm" className="mt-4">Browse files</Button>
-      </div>
-      <div className="p-3 rounded-xl bg-blue-50 text-xs text-[#2563EB]">
-        Document upload will be available after the tenancy is created.
+      <p className="text-sm text-slate-500">Documents are added once the tenancy exists, so each file links to the right record.</p>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-[#2563EB]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Upload after creation</p>
+            <p className="text-xs text-slate-500 mt-1">
+              When you finish this wizard you’ll land on the tenancy detail page, where the
+              <span className="font-medium text-slate-700"> Documents</span> tab lets you upload the tenancy
+              agreement, deposit protection certificate and move-in photos to secure storage.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -370,6 +387,7 @@ export default function NewTenancyPage() {
   const { data: rawProperties } = useProperties(workspace?.id)
   const { data: rawUnits } = useUnits(workspace?.id)
   const { mutateAsync: createTenancy } = useCreateTenancy()
+  const { mutateAsync: createContact } = useCreateContact()
 
   const [step, setStep] = useState(1)
   const [data, setData] = useState<TenancyWizardData>(defaultData)
@@ -391,22 +409,46 @@ export default function NewTenancyPage() {
     setData((prev) => ({ ...prev, ...updates }))
   }
 
+  // Basic email shape check (only enforced when an email is supplied).
+  const emailValid = data.tenant_email.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.tenant_email.trim())
+  const endDateValid = !data.end_date || data.end_date >= data.start_date
+
   function canAdvance() {
     if (step === 1) return data.property_id !== ""
-    if (step === 2) return data.tenant_name.trim() !== ""
-    if (step === 3) return data.start_date !== ""
+    if (step === 2) return data.tenant_name.trim() !== "" && emailValid
+    if (step === 3) return data.start_date !== "" && endDateValid
     if (step === 4) return data.rent_amount > 0
     return true
   }
 
   async function handleSubmit() {
+    if (saving) return // guard against double-submit
     setSaving(true)
     setSaveError(null)
     try {
+      // The tenant name/email/phone collected in Step 2 must become a real
+      // linked contact — otherwise the tenancy is created with no tenant. Create
+      // (or reuse details into) a `tenant` contact and link it via primary_contact_id.
+      let tenantContactId: string | undefined
+      const trimmedName = data.tenant_name.trim()
+      if (trimmedName) {
+        const contact = await createContact({
+          workspace_id: workspace!.id,
+          contact_type: "tenant",
+          full_name: trimmedName,
+          email: data.tenant_email.trim() || undefined,
+          phone: data.tenant_phone.trim() || undefined,
+          status: "active",
+          is_demo: false,
+        })
+        tenantContactId = contact.id
+      }
+
       const tenancy = await createTenancy({
         workspace_id: workspace!.id,
         property_id: data.property_id,
         unit_id: data.unit_id || undefined,
+        tenant_contact_id: tenantContactId,
         start_date: data.start_date,
         end_date: data.end_date || undefined,
         rent_amount: data.rent_amount,
@@ -474,7 +516,7 @@ export default function NewTenancyPage() {
         <h2 className="text-base font-semibold text-slate-900 mb-1">{STEPS[step - 1].label}</h2>
         <div className="border-b border-slate-100 mb-5" />
         {step === 1 && <StepProperty data={data} onChange={handleChange} properties={properties} units={units} />}
-        {step === 2 && <StepTenant data={data} onChange={handleChange} />}
+        {step === 2 && <StepTenant data={data} onChange={handleChange} emailValid={emailValid} />}
         {step === 3 && <StepDates data={data} onChange={handleChange} />}
         {step === 4 && <StepFinancials data={data} onChange={handleChange} />}
         {step === 5 && <StepDocuments />}

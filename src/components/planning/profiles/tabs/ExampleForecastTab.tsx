@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { AlertCircle, Settings, GitCompare, Download } from 'lucide-react'
 import type { ProfileConfig, ScenarioType } from '@/lib/planning/profile-config'
 import { ProfileKpiCard } from '@/components/planning/profiles'
+import { downloadCsv } from '@/lib/export/csv'
 
 interface Props {
   profile: ProfileConfig
@@ -12,14 +14,46 @@ interface Props {
 export default function ExampleForecastTab({ profile }: Props) {
   const { forecast } = profile
   const [selectedScenario, setSelectedScenario] = useState<ScenarioType>('base')
-  const [toast, setToast] = useState<string | null>(null)
 
-  function showToast(msg: string) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 3000)
-  }
+  const wizardHref = `/property-manager/planning/wizard?profile=${profile.slug}`
 
   const activeScenario = forecast.scenarios.find((s) => s.type === selectedScenario) ?? forecast.scenarios[0]
+
+  /** Real CSV export of the active scenario's monthly cashflow + assumptions + sensitivity. */
+  function handleExport() {
+    const monthlyRows = (activeScenario?.monthly ?? []).map((m) => ({
+      section: 'Monthly Cashflow',
+      label: m.month,
+      income: m.income,
+      costs: m.costs,
+      net: m.net,
+    }))
+    const assumptionRows = forecast.assumptions.map((a) => ({
+      section: 'Assumption',
+      label: a.label,
+      income: a.value,
+      costs: '',
+      net: '',
+    }))
+    const sensitivityRows = forecast.sensitivityRows.map((s) => ({
+      section: 'Sensitivity',
+      label: `${s.variable} (base ${s.base})`,
+      income: `upside ${s.upside}`,
+      costs: `downside ${s.downside}`,
+      net: '',
+    }))
+    downloadCsv(
+      `${profile.slug}-${selectedScenario}-forecast`,
+      [...monthlyRows, ...assumptionRows, ...sensitivityRows],
+      [
+        { key: 'section', label: 'Section' },
+        { key: 'label', label: 'Item' },
+        { key: 'income', label: 'Income / Value' },
+        { key: 'costs', label: 'Costs / Downside' },
+        { key: 'net', label: 'Net' },
+      ],
+    )
+  }
 
   const scenarioLabels: Record<ScenarioType, string> = {
     base: 'Base Case',
@@ -47,13 +81,6 @@ export default function ExampleForecastTab({ profile }: Props) {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl">
-          {toast}
-        </div>
-      )}
-
       {/* 1. Scenario Selector */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
         <div className="flex items-center gap-2 flex-wrap">
@@ -227,26 +254,26 @@ export default function ExampleForecastTab({ profile }: Props) {
       {/* 7. Quick Actions */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
         <div className="flex items-center gap-3 flex-wrap">
-          <button
-            onClick={() => showToast('Open your Planning Set to edit assumptions')}
+          <Link
+            href={wizardHref}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all text-slate-700"
           >
             <Settings className="w-4 h-4" />
             Edit Assumptions
-          </button>
-          <button
-            onClick={() => showToast('Start a Planning Set to compare scenarios side-by-side')}
+          </Link>
+          <Link
+            href={wizardHref}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all text-slate-700"
           >
             <GitCompare className="w-4 h-4" />
             Compare Scenarios
-          </button>
+          </Link>
           <button
-            onClick={() => showToast('Generating export...')}
+            onClick={handleExport}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all text-slate-700"
           >
             <Download className="w-4 h-4" />
-            Export
+            Export CSV
           </button>
         </div>
       </div>

@@ -134,7 +134,11 @@ export default function OverviewTab({ profile }: Props) {
   function handleQuickAction(action: string) {
     if (action === 'compare') setCompareOpen(true)
     else if (action === 'quick-scenario') setScenarioOpen(true)
-    else if (action === 'download') showToast('Generating PDF...')
+    else if (action === 'download') {
+      // Real export: browser print-to-PDF of the current profile guide.
+      showToast('Opening print / save-as-PDF…')
+      setTimeout(() => window.print(), 150)
+    }
   }
 
   const riskLevelColor: Record<string, string> = {

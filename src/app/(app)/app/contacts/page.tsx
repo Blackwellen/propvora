@@ -1,17 +1,15 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo, useEffect, useRef } from "react"
-import { UserPlus, Upload, Download, CheckCircle2, X, AlertTriangle, Sparkles } from "lucide-react"
-import { openCopilot } from "@/lib/copilot/open"
+import { UserPlus, Upload, Download, CheckCircle2, X, AlertTriangle } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { cn } from "@/lib/utils"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { SectionHeader } from "@/components/layout/SectionHeader"
 import { MobileTopBar } from "@/components/mobile"
 import { downloadCsv, parseCsv } from "@/lib/export/csv"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import { useContacts, useCreateContact } from "@/hooks/useContacts"
 import { deriveSupplierCategories, SUPPLIER_CATEGORIES } from "@/lib/constants/supplierCategories"
 import type { Contact } from "@/types/database"
 
@@ -27,6 +25,7 @@ import {
 } from "@/components/contacts/contacts-list/ContactsTable"
 import type { MappedContact, ViewMode, TypeFilter } from "@/components/contacts/contacts-list/types"
 import { TYPE_FILTER_MAP } from "@/components/contacts/contacts-list/types"
+import QuickAddContactModal from "@/components/contacts/contact-new/QuickAddContactModal"
 
 function mapContact(c: Contact): MappedContact {
   return {
@@ -50,83 +49,6 @@ function mapContact(c: Contact): MappedContact {
   }
 }
 
-function AddContactModal({ onClose, onSuccess, workspaceId }: { onClose: () => void; onSuccess: () => void; workspaceId?: string }) {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName]   = useState("")
-  const [email, setEmail]         = useState("")
-  const [phone, setPhone]         = useState("")
-  const [type, setType]           = useState("tenant")
-  const [saving, setSaving]       = useState(false)
-  const [error, setError]         = useState<string | null>(null)
-  const createContact = useCreateContact()
-
-  async function handleSave() {
-    const name = `${firstName.trim()} ${lastName.trim()}`.trim()
-    if (!name) { setError("Name is required"); return }
-    if (!workspaceId) { setError("Workspace not loaded"); return }
-    setSaving(true); setError(null)
-    try {
-      await createContact.mutateAsync({
-        workspace_id: workspaceId,
-        full_name: name,
-        contact_type: type as import("@/types/database").ContactType,
-        email: email.trim() || null,
-        phone: phone.trim() || null,
-        status: "active",
-        is_demo: false,
-      })
-      onSuccess()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save contact")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="add-contact-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5">
-          <h2 id="add-contact-title" className="text-lg font-bold text-slate-900">Add Contact</h2>
-          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"><X className="w-4 h-4" /></button>
-        </div>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="add-contact-first" className="block text-xs font-medium text-slate-700 mb-1">First Name</label>
-              <input id="add-contact-first" type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="James" className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-            <div>
-              <label htmlFor="add-contact-last" className="block text-xs font-medium text-slate-700 mb-1">Last Name</label>
-              <input id="add-contact-last" type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Okafor" className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="add-contact-type" className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
-            <select id="add-contact-type" value={type} onChange={e => setType(e.target.value)} className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all">
-              {["tenant","landlord","applicant","supplier","agent","guarantor","legal","accountant","investor","other"].map(t => (
-                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="add-contact-email" className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-            <input id="add-contact-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="james@example.com" className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-          <div>
-            <label htmlFor="add-contact-phone" className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
-            <input id="add-contact-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07700 900000" className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-        </div>
-        {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
-        <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
-          <button onClick={onClose} disabled={saving} className="flex-1 h-9 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">Cancel</button>
-          <button onClick={handleSave} disabled={saving} className="flex-1 h-9 rounded-lg bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70">{saving ? "Saving…" : "Save Contact"}</button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function Toast({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
@@ -170,11 +92,24 @@ export default function ContactsPage() {
   const importContact = useCreateContact()
   const [importing, setImporting] = useState(false)
 
-  const VALID_CONTACT_TYPES = ["tenant","guarantor","supplier","owner","agent","accountant","other"] as const
+  // Mirrors the live `contact_type` Postgres enum (kept in sync with
+  // src/types/database.ts ContactType). CSV imports are normalised to one of
+  // these so a bad value never breaks the insert with an invalid-enum error.
+  const VALID_CONTACT_TYPES = ["landlord","tenant","post_tenant","applicant","guarantor","supplier","agent","local_authority","housing_association","legal","accountant","insurer","utility_provider","broadband","cleaning","maintenance","emergency_contractor","investor","affiliate","other"] as const
   function normaliseContactType(raw: string): string {
-    const t = (raw || "").trim().toLowerCase()
+    const t = (raw || "").trim().toLowerCase().replace(/[\s-]+/g, "_")
     if ((VALID_CONTACT_TYPES as readonly string[]).includes(t)) return t
-    const alias: Record<string, string> = { landlord:"owner", applicant:"tenant", post_tenant:"tenant", contractor:"supplier", vendor:"supplier", maintenance:"supplier", solicitor:"other", insurer:"other" }
+    const alias: Record<string, string> = {
+      owner:"landlord", property_owner:"landlord",
+      prospect:"applicant", prospective_tenant:"applicant", enquiry:"applicant",
+      past_tenant:"post_tenant", former_tenant:"post_tenant", ex_tenant:"post_tenant",
+      contractor:"supplier", vendor:"supplier", tradesperson:"supplier", trade:"supplier",
+      solicitor:"legal", lawyer:"legal", barrister:"legal",
+      council:"local_authority", local_council:"local_authority",
+      bookkeeper:"accountant", tax_adviser:"accountant",
+      insurance:"insurer", utility:"utility_provider", cleaner:"cleaning",
+      emergency:"emergency_contractor", emergency_contact:"emergency_contractor",
+    }
     return alias[t] ?? "other"
   }
 
@@ -196,7 +131,7 @@ export default function ContactsPage() {
           ok++
         } catch { failed++ }
       }
-      showToast(failed === 0 ? `Imported ${ok} contacts` : `Imported ${ok} contacts · ${failed} skipped`)
+      showToast(failed === 0 ? `Imported ${ok} contacts` : `Imported ${ok} contacts Â· ${failed} skipped`)
     } catch {
       showToast("Could not read that CSV file")
     } finally {
@@ -248,7 +183,7 @@ export default function ContactsPage() {
         <div className="hidden md:block">
           <SectionHeader
             title="Contacts"
-            subtitle="Your relationship hub — tenants, landlords, suppliers and beyond"
+            subtitle="Your relationship hub â€” tenants, landlords, suppliers and beyond"
             tabs={<ContactsTabNav />}
             actions={
               <>
@@ -256,28 +191,9 @@ export default function ContactsPage() {
                   <Download className="w-4 h-4" /> Export
                 </button>
                 <button onClick={() => importInputRef.current?.click()} disabled={importing} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
-                  <Upload className="w-4 h-4" /> {importing ? "Importing…" : "Import"}
+                  <Upload className="w-4 h-4" /> {importing ? "Importingâ€¦" : "Import"}
                 </button>
-                <button
-                  onClick={() => openCopilot({
-                    prompt: "Summarise my contacts — how many tenants, landlords, and suppliers do I have?",
-                    summaryData: {
-                      section: "contacts",
-                      pageTitle: "Contacts",
-                      summaryData: {
-                        totalContacts: contacts.length,
-                        tenantsCount: contacts.filter(c => c.contact_type === "tenant").length,
-                        landlordsCount: contacts.filter(c => c.contact_type === "landlord" || c.contact_type === "owner").length,
-                        suppliersCount: contacts.filter(c => c.contact_type === "supplier").length,
-                        activeContacts: contacts.filter(c => c.status === "active").length,
-                      },
-                    },
-                  })}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"
-                >
-                  <Sparkles className="w-4 h-4" /> Ask AI
-                </button>
-                <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm">
+<button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm">
                   <UserPlus className="w-4 h-4" /> Add Contact
                 </button>
               </>
@@ -350,7 +266,8 @@ export default function ContactsPage() {
       </div>
 
       {showAddModal && (
-        <AddContactModal
+        <QuickAddContactModal
+          mode="contact"
           workspaceId={workspace?.id}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => { setShowAddModal(false); showToast("Contact created successfully") }}

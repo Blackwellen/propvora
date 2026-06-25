@@ -19,7 +19,6 @@ import { useRouter } from "next/navigation"
 import { InlineEditField, InlineEditMoney, InlineEditDate, InlineEditSelect, InlineEditTextarea } from "@/components/editing"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
-import { openCopilot } from "@/lib/copilot/open"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobileTabs from "@/components/mobile/MobileTabs"
 
@@ -391,8 +390,10 @@ export default function InvoiceDetailPage() {
   // Derive display values from live data
   const invoiceRaw = inv as unknown as Record<string, unknown>
   const invoiceNumber = (invoiceRaw.invoice_number as string | undefined) || `INV-${inv.id.slice(0, 8).toUpperCase()}`
-  const recipient = invoiceRaw.tenant_name as string | undefined ?? inv.contact_id ?? "—"
-  const property = invoiceRaw.property_address as string | undefined ?? inv.property_id ?? "—"
+  // Prefer resolved names (joined contact display_name / property address_line1)
+  // over raw UUIDs so users never see ids in the UI.
+  const recipient = (invoiceRaw.contact_name as string | undefined) ?? (invoiceRaw.tenant_name as string | undefined) ?? inv.contact_id ?? "—"
+  const property = (invoiceRaw.property_address as string | undefined) ?? inv.property_id ?? "—"
   const invoiceType = inv.invoice_type
 
   // Line items from live JSONB column, fallback to empty
@@ -993,26 +994,7 @@ export default function InvoiceDetailPage() {
           )}
         </div>
 
-        {/* AI insight */}
-        <div className="bg-violet-50 rounded-2xl border border-violet-200 p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <div style={{ color: "var(--accent)" }}><Sparkles className="w-4 h-4" /></div>
-            <p className="text-xs font-bold text-violet-700">AI Insight</p>
-          </div>
-          <p className="text-xs text-violet-600 leading-relaxed">
-            {inv.status === "paid"
-              ? `This invoice was paid on time. ${recipient !== "—" ? recipient : "The recipient"} has a good payment record — consider offering direct debit.`
-              : inv.status === "overdue"
-              ? "This invoice is overdue. Consider sending a reminder and offering a Stripe payment link for faster resolution."
-              : "No issues detected. This invoice looks healthy."}
-          </p>
-          <button
-            onClick={() => openCopilot({ prompt: `Review invoice ${invoiceNumber} (status: ${inv.status}). What should I do next to get it settled?` })}
-            className="w-full text-center text-xs font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 rounded-lg py-2 transition-colors"
-          >
-            Ask AI about this invoice
-          </button>
-        </div>
+
       </div>
     )
   }

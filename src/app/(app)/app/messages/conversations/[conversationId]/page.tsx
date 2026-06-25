@@ -15,6 +15,8 @@ import {
   useConversations,
   useConversationMessages,
   useSendMessage,
+  useMarkThreadRead,
+  useThreadRealtime,
 } from "@/hooks/useMessages"
 import type { Message } from "@/types/database"
 
@@ -77,6 +79,23 @@ export default function ConversationPage() {
   const { data: conversations = [] } = useConversations(workspace?.id)
   const { data: messages = [], isLoading } = useConversationMessages(workspace?.id, conversationId)
   const sendMessage = useSendMessage()
+  const markThreadRead = useMarkThreadRead()
+  const markRef = useRef<string | null>(null)
+
+  // Live push: new messages in this thread appear without a manual refresh.
+  useThreadRealtime(workspace?.id, conversationId)
+
+  // Stamp my id into inbound messages' read_by when the thread is opened/updated
+  // so the inbox unread badge and side-nav count clear. Guarded per (thread,
+  // message-count) so it only fires when there's genuinely something new to read.
+  const markFn = markThreadRead.mutate
+  useEffect(() => {
+    if (!workspace?.id || isLoading) return
+    const key = `${conversationId}:${messages.length}`
+    if (markRef.current === key) return
+    markRef.current = key
+    markFn({ workspaceId: workspace.id, conversationId })
+  }, [workspace?.id, conversationId, messages.length, isLoading, markFn])
 
   const conv = useMemo(
     () => conversations.find((c) => c.id === conversationId) ?? null,
@@ -87,19 +106,35 @@ export default function ConversationPage() {
 
   const [input, setInput] = useState("")
   const threadRef = useRef<HTMLDivElement>(null)
+  // Holds the idempotency token for the message currently being (re)sent, so a
+  // retry of the same body reuses it — if the first insert actually committed
+  // but the client saw a failure, the retry collapses on the unique index
+  // instead of duplicating.
+  const pendingSendRef = useRef<{ body: string; token: string } | null>(null)
 
   useEffect(() => {
     if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight
   }, [messages])
 
   async function handleSend() {
-    if (!input.trim() || !workspace?.id) return
+    if (!input.trim() || !workspace?.id || sendMessage.isPending) return
     const body = input.trim()
+    // Reuse the token if this is a retry of the same body; otherwise mint one.
+    const mint = () =>
+      typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined
+    let clientToken: string | undefined
+    if (pendingSendRef.current?.body === body) {
+      clientToken = pendingSendRef.current.token
+    } else {
+      clientToken = mint()
+      if (clientToken) pendingSendRef.current = { body, token: clientToken }
+    }
     setInput("")
     try {
-      await sendMessage.mutateAsync({ workspaceId: workspace.id, conversationId, body })
+      await sendMessage.mutateAsync({ workspaceId: workspace.id, conversationId, body, clientToken })
+      pendingSendRef.current = null // delivered — drop the token
     } catch {
-      setInput(body) // restore on failure
+      setInput(body) // restore on failure; token is retained for the retry
     }
   }
 
@@ -119,8 +154,8 @@ export default function ConversationPage() {
       />
 
       <div className="space-y-0">
-        {/* Back — desktop only (MobileTopBar owns mobile back) */}
-        <Link href={sectionLink("/property-manager/messages")} className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
+        {/* Back — desktop only below lg (MobileTopBar owns 768–1023 + phones) */}
+        <Link href={sectionLink("/property-manager/messages")} className="hidden lg:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to Messages
         </Link>
 
@@ -128,8 +163,8 @@ export default function ConversationPage() {
             height leaves room for the MobileTopBar, shell padding and the fixed
             bottom nav so the composer stays reachable above it. */}
         <div className="flex flex-col overflow-hidden bg-white border-slate-200 h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom,0px)-128px)] min-h-[420px] md:rounded-2xl md:border md:h-[calc(100vh-220px)] md:min-h-[480px]">
-          {/* Header — desktop only; mobile uses MobileTopBar above */}
-          <div className="hidden md:flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
+          {/* Header — desktop only (≥lg); MobileTopBar owns 768–1023 + phones */}
+          <div className="hidden lg:flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200">
             <div className="flex items-center gap-3 min-w-0">
               <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarBg(name))}>
                 {initials(name)}

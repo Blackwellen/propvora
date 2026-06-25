@@ -12,7 +12,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader"
 import { PortalsTabNav } from "@/components/portals/PortalsTabNav"
 import { GrantPortalAccessModal } from "@/components/portals/GrantPortalAccessModal"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { usePortalGrants } from "@/hooks/usePortals"
+import { usePortalGrants, usePortalUploadsCount } from "@/hooks/usePortals"
 import { GRANT_STATUS_META, profileLabel } from "@/lib/portals/config"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,8 @@ function isExpiringSoon(expiresAt: string | null): boolean {
 
 export default function PortalsOverviewPage() {
   const { workspace } = useWorkspace()
-  const { data: grants = [], isLoading } = usePortalGrants(workspace?.id)
+  const { data: grants = [], isLoading, isError, refetch } = usePortalGrants(workspace?.id)
+  const { data: uploadsCount = 0 } = usePortalUploadsCount(workspace?.id)
   const [showGrant, setShowGrant] = useState(false)
   // Open the grant modal when arrived via the global "New" quick-create (?new=1).
   const _searchParams = useSearchParams()
@@ -47,7 +48,7 @@ export default function PortalsOverviewPage() {
   const KPI_CARDS = [
     { label: "Active grants", value: kpis.active, icon: KeyRound, tint: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Expiring (7d)", value: kpis.expiring, icon: Clock, tint: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Uploads awaiting review", value: 0, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Recipient uploads", value: uploadsCount, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50" },
     { label: "Revoked", value: kpis.revoked, icon: XCircle, tint: "text-red-500", bg: "bg-red-50" },
   ]
 
@@ -56,7 +57,7 @@ export default function PortalsOverviewPage() {
       <div className="px-6 pt-6 pb-10 space-y-6">
         <SectionHeader
           title="Customer Portals"
-          subtitle="Provision secure, scoped portal access for suppliers, owners, tenants and applicants."
+          subtitle="Provision secure, scoped portal access for landlords, suppliers and tenants."
           actions={
             <button
               onClick={() => setShowGrant(true)}
@@ -101,6 +102,22 @@ export default function PortalsOverviewPage() {
 
             {isLoading ? (
               <div className="py-16 text-center text-sm text-slate-400">Loading…</div>
+            ) : isError ? (
+              <div className="py-16 text-center px-6">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+                  <XCircle className="w-6 h-6 text-red-400" />
+                </div>
+                <p className="text-sm font-semibold text-slate-600">Couldn’t load portal grants</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                  Something went wrong fetching this workspace’s portal access. Please try again.
+                </p>
+                <button
+                  onClick={() => refetch()}
+                  className="mt-4 inline-flex items-center gap-2 border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium px-3.5 py-2 rounded-lg transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
             ) : recent.length === 0 ? (
               <div className="py-16 text-center px-6">
                 <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-3">

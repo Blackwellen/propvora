@@ -29,7 +29,7 @@ export interface WorkspaceJurisdiction {
   settings: WorkspaceSettings
 }
 
-const GB_DEFAULTS: Required<WorkspaceSettings> & { countryCode: string } = {
+const GB_DEFAULTS: Required<Omit<WorkspaceSettings, 'region'>> = {
   countryCode: 'GB',
   currency: 'GBP',
   locale: 'en-GB',
@@ -39,12 +39,18 @@ const GB_DEFAULTS: Required<WorkspaceSettings> & { countryCode: string } = {
 
 export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
   const { workspace, isLoading } = useWorkspace()
-  const raw = (workspace?.settings ?? {}) as WorkspaceSettings & { countryCode?: string }
+  const raw = (workspace?.settings ?? {}) as WorkspaceSettings & { countryCode?: string; region?: string }
 
+  // Authoritative source is the workspaces.* columns written by Workspace
+  // Settings → Jurisdiction (business_country_code / default_currency /
+  // default_language). The JSONB `settings` object is a back-compat fallback so
+  // workspaces configured the old way still resolve. Without this, choosing a
+  // non-GB country never reached the compliance/legal/tax UI (it kept reading
+  // settings.countryCode, which the settings page never wrote).
   return {
-    countryCode: raw.countryCode || GB_DEFAULTS.countryCode,
-    currency: raw.currency || GB_DEFAULTS.currency,
-    locale: raw.locale || GB_DEFAULTS.locale,
+    countryCode: workspace?.business_country_code || raw.countryCode || GB_DEFAULTS.countryCode,
+    currency: workspace?.default_currency || raw.currency || GB_DEFAULTS.currency,
+    locale: workspace?.default_language || raw.locale || GB_DEFAULTS.locale,
     dateFormat: raw.dateFormat || GB_DEFAULTS.dateFormat,
     timezone: raw.timezone || GB_DEFAULTS.timezone,
     isLoading,

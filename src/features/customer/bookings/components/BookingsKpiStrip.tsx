@@ -37,7 +37,7 @@ export default function BookingsKpiStrip({ bookings }: { bookings: Booking[] }) 
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
       {kpis.map((k) => (
         <div key={k.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center", k.bg)}>

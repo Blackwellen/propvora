@@ -16,6 +16,7 @@ import {
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useTenancies } from "@/hooks/useTenancies"
 import { useProperties } from "@/hooks/useProperties"
+import { LegalJurisdictionGate } from "@/components/legal/LegalJurisdictionGate"
 import {
   usePossessionCases,
   useEpcCertificates,
@@ -36,6 +37,14 @@ interface ChecklistCategory {
 }
 
 export default function Rra2026Page() {
+  return (
+    <LegalJurisdictionGate module="rra">
+      <Rra2026PageInner />
+    </LegalJurisdictionGate>
+  )
+}
+
+function Rra2026PageInner() {
   const { workspace } = useWorkspace()
   const workspaceId = workspace?.id
   const { data: tenancies = [], isLoading: loadingTen } = useTenancies(workspaceId)

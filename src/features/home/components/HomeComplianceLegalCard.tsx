@@ -6,6 +6,8 @@ import type { HomeComplianceItem } from "../types"
 
 interface HomeComplianceLegalCardProps {
   items: HomeComplianceItem[]
+  /** Whether the legalSection feature flag is enabled. Defaults to true for backwards-compat. */
+  legalEnabled?: boolean
 }
 
 type Status = "overdue" | "due-soon" | "ok"
@@ -67,13 +69,21 @@ function formatDueDate(dateStr: string): string {
   }
 }
 
-export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps) {
+export function HomeComplianceLegalCard({ items, legalEnabled = true }: HomeComplianceLegalCardProps) {
   const displayed = items.slice(0, 4)
+
+  // Items tagged as "legal" type route to compliance when the legal section is disabled.
+  function itemHref(item: HomeComplianceItem): string {
+    if (item.section === "legal" && legalEnabled) return "/property-manager/legal"
+    return "/property-manager/compliance"
+  }
+
+  const cardTitle = legalEnabled ? "Compliance & legal" : "Compliance"
 
   return (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold text-slate-900">Compliance &amp; legal</h3>
+        <h3 className="text-[13px] font-semibold text-slate-900">{cardTitle}</h3>
         <div className="flex items-center gap-2">
           <Link
             href="/property-manager/compliance"
@@ -81,13 +91,17 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
           >
             Compliance
           </Link>
-          <span className="text-slate-200">·</span>
-          <Link
-            href="/property-manager/legal"
-            className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            Legal
-          </Link>
+          {legalEnabled && (
+            <>
+              <span className="text-slate-200">·</span>
+              <Link
+                href="/property-manager/legal"
+                className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Legal
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -103,7 +117,7 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
           displayed.map((item) => (
             <Link
               key={item.id}
-              href={item.section === "compliance" ? "/property-manager/compliance" : "/property-manager/legal"}
+              href={itemHref(item)}
               className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-slate-50 transition-colors group"
             >
               <StatusIcon status={item.status} />
@@ -135,9 +149,11 @@ export function HomeComplianceLegalCard({ items }: HomeComplianceLegalCardProps)
         <Link href="/property-manager/compliance" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
           View compliance →
         </Link>
-        <Link href="/property-manager/legal" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
-          View legal →
-        </Link>
+        {legalEnabled && (
+          <Link href="/property-manager/legal" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+            View legal →
+          </Link>
+        )}
       </div>
     </div>
   )

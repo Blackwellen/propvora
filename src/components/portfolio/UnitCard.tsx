@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import {
   BedDouble, Bath, Maximize2, Car,
   Calendar, AlertTriangle, Sofa, ChevronRight, Building2,
-  Eye, Plus, Users, Archive,
+  Eye, Plus, Users, Settings2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -121,8 +121,8 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
               items={[
                 { label: "View unit", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/units/${unit.id}`) },
                 { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?unitId=${unit.id}`) },
-                { label: "Add work order", icon: Plus, onClick: () => router.push(`/property-manager/portfolio/maintenance/new?unitId=${unit.id}`) },
-                { label: "Archive unit", icon: Archive, onClick: () => {} },
+                { label: "Add work order", icon: Plus, onClick: () => router.push(`/property-manager/work/tasks/new?unitId=${unit.id}`) },
+                { label: "Manage unit", icon: Settings2, onClick: () => router.push(`/property-manager/portfolio/units/${unit.id}/overview`) },
               ]}
             />
           </div>
@@ -220,8 +220,8 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
           )}
           {unit.status === "vacant" && (
             <div className="flex items-center mt-2 pt-2 border-t border-slate-100">
-              <span className="text-[11px] font-semibold text-[#2563EB] flex items-center gap-0.5">
-                <Calendar className="w-3 h-3" />List unit
+              <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />Available — no active tenancy
               </span>
             </div>
           )}

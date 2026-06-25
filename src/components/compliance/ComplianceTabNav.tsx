@@ -11,11 +11,10 @@ import {
   Building2,
   Truck,
   BarChart3,
-  Scale,
 } from "lucide-react"
 
-// 9 tabs — operational compliance + legal advisory (merged from /legal nav item).
-// Legal tab links to /property-manager/legal (HMO licences, EPC advisory, possession, RRA 2026).
+// 8 operational compliance tabs. Legal advisory (HMO licences, EPC, possession,
+// RRA 2026) is its own side-nav location at /property-manager/legal — not a tab here.
 const COMPLIANCE_TABS = [
   { key: "overview",      label: "Overview",      href: "/property-manager/compliance/overview", root: "/property-manager/compliance", icon: LayoutDashboard },
   { key: "certificates",  label: "Certificates",  href: "/property-manager/compliance/certificates",  icon: FileCheck2 },
@@ -25,7 +24,6 @@ const COMPLIANCE_TABS = [
   { key: "coverage",      label: "Coverage",      href: "/property-manager/compliance/coverage",      icon: Building2 },
   { key: "supplier-docs", label: "Supplier Docs", href: "/property-manager/compliance/supplier-docs", icon: Truck },
   { key: "reports",       label: "Reports",       href: "/property-manager/compliance/reports",       icon: BarChart3 },
-  { key: "legal",         label: "Legal",         href: "/property-manager/legal",                    icon: Scale },
 ] as const
 
 interface ComplianceTabNavProps {
@@ -36,18 +34,17 @@ interface ComplianceTabNavProps {
 
 export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
   const pathname = usePathname()
+  const visibleTabs = COMPLIANCE_TABS
 
   return (
     <div className="border-b border-slate-200 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {COMPLIANCE_TABS.map((tab) => {
+          {visibleTabs.map((tab) => {
             const active =
               tab.key === "overview"
                 ? pathname === "/property-manager/compliance" || pathname === "/property-manager/compliance/overview"
-                : tab.key === "legal"
-                  ? pathname === "/property-manager/legal" || pathname.startsWith("/property-manager/legal/")
-                  : pathname.startsWith(tab.href)
+                : pathname.startsWith(tab.href)
             const Icon = tab.icon
             const count = counts?.[tab.key]
             return (
@@ -55,7 +52,7 @@ export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
                 key={tab.key}
                 href={tab.href}
                 className={cn(
-                  "flex items-center gap-2 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
+                  "flex items-center gap-2 shrink-0 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                   active
                     ? "border-[#2563EB] text-[#2563EB]"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300",

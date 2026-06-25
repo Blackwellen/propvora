@@ -2,17 +2,12 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
   ChevronLeft,
-  Star,
-  Edit2,
-  Copy,
-  Download,
-  Share2,
-  MoreHorizontal,
   MapPin,
   Clock,
 } from "lucide-react"
 import { getPlanningSetById } from "@/lib/planning/server-data"
 import { PlanningSetTabStrip } from "./PlanningSetTabStrip"
+import { PlanningSetDetailActions } from "./PlanningSetDetailActions"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -32,12 +27,15 @@ const STATUS_CONFIG: Record<
   { label: string; textColor: string; bgColor: string }
 > = {
   draft:          { label: "Draft",          textColor: "text-slate-600",   bgColor: "bg-slate-100" },
+  active:         { label: "Active",         textColor: "text-emerald-700", bgColor: "bg-emerald-100" },
   assumptions:    { label: "Assumptions",    textColor: "text-amber-700",   bgColor: "bg-amber-100" },
   forecast_ready: { label: "Forecast Ready", textColor: "text-blue-700",    bgColor: "bg-blue-100" },
   risk_review:    { label: "Risk Review",    textColor: "text-orange-700",  bgColor: "bg-orange-100" },
   offer_sent:     { label: "Offer Sent",     textColor: "text-violet-700",  bgColor: "bg-violet-100" },
   accepted:       { label: "Accepted",       textColor: "text-emerald-700", bgColor: "bg-emerald-100" },
   converted:      { label: "Converted",      textColor: "text-teal-700",    bgColor: "bg-teal-100" },
+  paused:         { label: "Paused",         textColor: "text-slate-600",   bgColor: "bg-slate-200" },
+  archived:       { label: "Archived",       textColor: "text-slate-500",   bgColor: "bg-slate-100" },
 }
 
 const RISK_CONFIG: Record<
@@ -129,13 +127,6 @@ export default async function PlanningSetDetailLayout({
               <h1 className="text-[17px] font-bold text-slate-900 truncate leading-tight">
                 {title}
               </h1>
-              {/* Star / favourite button — client interaction handled inline via form-like approach */}
-              <button
-                aria-label="Favourite planning set"
-                className="flex-shrink-0 p-1 rounded-lg hover:bg-amber-50 text-slate-300 hover:text-amber-400 transition-colors"
-              >
-                <Star className="w-4 h-4" />
-              </button>
             </div>
 
             {address && (
@@ -185,46 +176,7 @@ export default async function PlanningSetDetailLayout({
           </div>
 
           {/* Right: action buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-            <Link
-              href={`/property-manager/planning/sets/${id}/edit`}
-              className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              Edit Planning Set
-            </Link>
-
-            <button
-              aria-label="Duplicate planning set"
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Duplicate</span>
-            </button>
-
-            <button
-              aria-label="Export planning set"
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-
-            <button
-              aria-label="Share planning set"
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Share</span>
-            </button>
-
-            <button
-              aria-label="More actions"
-              className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-colors"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-          </div>
+          <PlanningSetDetailActions planningSetId={id} title={title} />
         </div>
 
         {/* Row 2: 17-tab strip */}

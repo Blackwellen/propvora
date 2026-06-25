@@ -647,12 +647,20 @@ export default function UploadDocumentPage() {
           status: "active",
           expires_at: state.noExpiry ? null : (state.expiryDate || null),
           tags,
+          // Persist every captured field — review date, reminder preference, and
+          // the unit/tenancy/supplier links were previously discarded on save.
           metadata: {
             issuer: state.issuer || null,
             reference: state.referenceNumber || null,
             description: state.description || null,
             verification_status: "pending",
             issue_date: state.issueDate || null,
+            review_date: state.reviewDate || null,
+            renewal_reminder: state.renewalReminder,
+            no_expiry: state.noExpiry,
+            unit: state.unit || null,
+            tenancy_contact: state.tenancyContact || null,
+            supplier: state.supplier || null,
           },
           created_by: user?.id ?? null,
         })
@@ -665,7 +673,41 @@ export default function UploadDocumentPage() {
         return
       }
 
-      setNewId((data?.id as string) ?? null)
+      const docId = (data?.id as string) ?? null
+      setNewId(docId)
+
+      // Schedule a renewal reminder when one was requested and an expiry exists
+      // (best-effort; 42P01-safe if the reminders table isn't provisioned here).
+      if (docId && state.renewalReminder && !state.noExpiry && state.expiryDate) {
+        try {
+          const remindAt = new Date(state.expiryDate)
+          remindAt.setDate(remindAt.getDate() - 60)
+          await supabase.from("compliance_renewal_reminders").insert({
+            workspace_id: workspace.id,
+            linked_record_type: "document",
+            linked_record_id: docId,
+            reminder_type: "in_app",
+            remind_at: remindAt.toISOString(),
+            status: "pending",
+          })
+        } catch {
+          /* non-fatal: reminder preference is stored on the document metadata */
+        }
+      }
+
+      // Audit trail (best-effort).
+      try {
+        await supabase.from("audit_logs").insert({
+          workspace_id: workspace.id,
+          user_id: user?.id ?? null,
+          action: "compliance.document_uploaded",
+          resource_type: "document",
+          resource_id: docId,
+        })
+      } catch {
+        /* non-fatal */
+      }
+
       setUploaded(true)
     } catch (err) {
       console.error("[documents/new] upload error:", err)
@@ -792,7 +834,8 @@ export default function UploadDocumentPage() {
                   </button>
                   <button
                     onClick={() => setStep(s => Math.min(6, s + 1))}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+                    disabled={(step === 1 && !state.fileName) || (step === 2 && !state.docType)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Continue
                     <ChevronRight className="w-4 h-4" />

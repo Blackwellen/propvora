@@ -19,7 +19,9 @@ function getPieColour(type: string): string { return PIE_COLOURS[type] ?? "#94A3
 function buildPieSegments(contacts: MappedContact[]): PieSegment[] {
   const counts: Record<string, number> = {}
   for (const c of contacts) {
-    const key = ["tenant","landlord","supplier","applicant","post_tenant","agent"].includes(c.contact_type) ? c.contact_type : "other"
+    // Legacy `owner` rows are landlords for display purposes.
+    const type = c.contact_type === "owner" ? "landlord" : c.contact_type
+    const key = ["tenant","landlord","supplier","applicant","post_tenant","agent"].includes(type) ? type : "other"
     counts[key] = (counts[key] ?? 0) + 1
   }
   const total = contacts.length || 1
@@ -84,27 +86,35 @@ function DonutChart({ segments, total }: { segments: PieSegment[]; total: number
   )
 }
 
-// ---- Relationship health ring ----
-function RelHealthRing({ contactCount }: { contactCount: number }) {
-  const score = contactCount > 0 ? 84 : 0
+// ---- Relationship health (computed from real contact signals) ----
+function computeHealth(contacts: MappedContact[]) {
+  const total = contacts.length
+  const critical = contacts.filter(c => c.tags.includes("arrears")).length
+  const atRisk = contacts.filter(c =>
+    !c.tags.includes("arrears") && (c.tags.includes("follow_up") || c.status === "inactive")
+  ).length
+  const healthy = Math.max(0, total - critical - atRisk)
+  const score = total > 0 ? Math.round((healthy / total) * 100) : 0
+  return { total, critical, atRisk, healthy, score }
+}
+
+function RelHealthRing({ contacts }: { contacts: MappedContact[] }) {
+  const { total, critical, atRisk, healthy, score } = computeHealth(contacts)
   const circumference = 2 * Math.PI * 40
   const dash = (score / 100) * circumference
-  const strong   = Math.round(contactCount * 0.51)
-  const good     = Math.round(contactCount * 0.33)
-  const atRisk   = Math.round(contactCount * 0.11)
-  const critical = contactCount - strong - good - atRisk
+  const pctOf = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0)
+  const ringColour = score >= 80 ? "#10B981" : score >= 50 ? "#F59E0B" : "#EF4444"
   const breakdown = [
-    { label: "Strong",   count: strong,         pct: contactCount > 0 ? 51 : 0, colour: "#10B981" },
-    { label: "Good",     count: good,           pct: contactCount > 0 ? 33 : 0, colour: "#2563EB" },
-    { label: "At Risk",  count: atRisk,         pct: contactCount > 0 ? 11 : 0, colour: "#F59E0B" },
-    { label: "Critical", count: Math.max(0, critical), pct: contactCount > 0 ? 5 : 0,  colour: "#EF4444" },
+    { label: "Healthy",         count: healthy,  pct: pctOf(healthy),   colour: "#10B981" },
+    { label: "Needs attention", count: atRisk,   pct: pctOf(atRisk),    colour: "#F59E0B" },
+    { label: "Critical",        count: critical, pct: pctOf(critical),  colour: "#EF4444" },
   ]
   return (
     <div className="flex items-center gap-6">
       <div className="relative shrink-0">
         <svg viewBox="0 0 100 100" className="w-24 h-24 -rotate-90" role="img" aria-label={`Relationship health score ${score} out of 100`}>
           <circle cx="50" cy="50" r="40" fill="none" stroke="#F1F5F9" strokeWidth="12" />
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#10B981" strokeWidth="12" strokeDasharray={`${dash} ${circumference}`} strokeLinecap="round" />
+          <circle cx="50" cy="50" r="40" fill="none" stroke={ringColour} strokeWidth="12" strokeDasharray={`${dash} ${circumference}`} strokeLinecap="round" />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold text-slate-900">{score}</span>
@@ -154,6 +164,12 @@ interface Props {
 
 export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
   const pieSegments = buildPieSegments(contacts)
+  const health = computeHealth(contacts)
+  const healthBadge = health.score >= 80
+    ? { label: "Good", cls: "bg-emerald-50 text-emerald-700", up: true }
+    : health.score >= 50
+    ? { label: "Fair", cls: "bg-amber-50 text-amber-700", up: true }
+    : { label: "Needs work", cls: "bg-red-50 text-red-600", up: false }
 
   const attentionContacts = contacts
     .filter(c => c.tags.includes("arrears") || c.tags.includes("follow_up") || c.status === "inactive")
@@ -242,7 +258,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
             <div className="py-8 text-center"><Users className="w-8 h-8 text-slate-200 mx-auto mb-2" /><p className="text-xs text-slate-400">No contacts yet</p></div>
           ) : (
             <div className="space-y-3">
-              {keyContacts.map((c, i) => (
+              {keyContacts.map((c) => (
                 <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
                   <Avatar name={c.full_name} size="sm" />
                   <div className="flex-1 min-w-0">
@@ -253,8 +269,8 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-bold text-slate-700">{8 + i * 2}</p>
-                    <p className="text-[10px] text-slate-400">interactions</p>
+                    <p className="text-[10px] text-slate-400">Updated</p>
+                    <p className="text-xs font-semibold text-slate-600">{relativeTime(c.updated_at)}</p>
                   </div>
                 </Link>
               ))}
@@ -300,11 +316,11 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Relationship Health</h2>
               <p className="text-xs text-slate-500 mt-0.5">Portfolio health score</p>
             </div>
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
-              <TrendingUp className="w-3 h-3" /> Good
+            <span className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold", healthBadge.cls)}>
+              {healthBadge.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />} {healthBadge.label}
             </span>
           </div>
-          <RelHealthRing contactCount={contacts.length} />
+          <RelHealthRing contacts={contacts} />
         </div>
       </div>
 

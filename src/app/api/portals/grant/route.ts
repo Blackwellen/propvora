@@ -4,6 +4,8 @@ import { createHash, randomBytes } from "node:crypto"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
+import { isExtendedPortalProfile } from "@/lib/portals/config"
+import { isExtendedPortalProfilesEnabled } from "@/lib/portal/flags"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -52,6 +54,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "workspaceId and contactId are required" },
         { status: 400 }
+      )
+    }
+
+    // Defence in depth: reject extended portal profiles when the flag is off,
+    // so a flagged-off profile can't be granted via a direct API call even
+    // though the UI hides it. V1 only provisions landlord/supplier/tenant.
+    if (isExtendedPortalProfile(body.profile) && !isExtendedPortalProfilesEnabled()) {
+      return NextResponse.json(
+        { error: "This portal profile is not available." },
+        { status: 403 }
       )
     }
 

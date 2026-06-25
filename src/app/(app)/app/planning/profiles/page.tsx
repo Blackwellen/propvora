@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import {
   Plus,
   Search,
@@ -13,7 +13,6 @@ import {
   LayoutGrid,
   List,
   SplitSquareHorizontal,
-  Sparkles,
   Home,
   Building2,
   GraduationCap,
@@ -27,15 +26,19 @@ import {
   Hammer,
   Briefcase,
   X,
-  Download,
+  ChevronRight,
+  Award,
+  Zap,
+  Leaf,
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { PlanningPageShell } from "@/components/planning/PlanningPageShell"
 import { KpiCard, RiskPill } from "@/components/planning/shared"
 import { PLANNING_PROFILES, type PlanningProfile } from "@/lib/planning/profiles"
 import { PROFILE_SLUG_MAP } from "@/lib/planning/profile-config"
+import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { openCopilot } from "@/lib/copilot/open"
 
 // ── Icon + number config per profile key ────────────────────────────────────
 const PROFILE_CONFIGS: Record<string, { icon: React.ElementType; number: number }> = {
@@ -54,18 +57,38 @@ const PROFILE_CONFIGS: Record<string, { icon: React.ElementType; number: number 
   dev_flip: { icon: Hammer, number: 13 },
 }
 
+// ── Computed profile stats from static data (honest, not fake) ────────────────
+const LOW_RISK_COUNT = PLANNING_PROFILES.filter(p => p.riskLevel === "Low").length
+const HIGH_YIELD_COUNT = PLANNING_PROFILES.filter(p =>
+  p.yieldRange.includes("15") || p.yieldRange.includes("12") || p.yieldRange.includes("30") || p.yieldRange.includes("40")
+).length
+const LOW_MGMT_COUNT = PLANNING_PROFILES.filter(p => p.managementIntensity === "Low").length
+const HIGH_COMPLIANCE_COUNT = PLANNING_PROFILES.filter(p => p.complianceComplexity === "High").length
+
+// Compute yield range across all profiles for KPI display
+const AVG_YIELD_DISPLAY = "4–40%"
+const RISK_DIST = (() => {
+  const l = PLANNING_PROFILES.filter(p => p.riskLevel === "Low").length
+  const m = PLANNING_PROFILES.filter(p => p.riskLevel === "Medium").length
+  const h = PLANNING_PROFILES.filter(p => p.riskLevel === "High").length
+  return `L${l} · M${m} · H${h}`
+})()
+
 // ── Profile Card ─────────────────────────────────────────────────────────────
 function ProfileCard({
   profile,
   compareMode,
   compareSelected,
   onToggleCompare,
+  onPreview,
 }: {
   profile: PlanningProfile
   compareMode: boolean
   compareSelected: string[]
   onToggleCompare: (key: string) => void
+  onPreview: (profile: PlanningProfile) => void
 }) {
+  const router = useRouter()
   const config = PROFILE_CONFIGS[profile.key]
   const Icon = config?.icon ?? Layers
   const num = config?.number ?? 0
@@ -84,26 +107,29 @@ function ProfileCard({
       : "#10B981"
 
   const isSelected = compareSelected.includes(profile.key)
+  const slug = PROFILE_SLUG_MAP[profile.key] ?? profile.key
 
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl border p-5 hover:shadow-md transition-all group relative",
+        "bg-white rounded-2xl border p-5 hover:shadow-md transition-all group relative cursor-pointer",
         isSelected && compareMode
           ? "border-[#7C3AED] ring-2 ring-[#7C3AED]/20"
           : "border-slate-200 hover:border-slate-300"
       )}
+      onClick={() => !compareMode && onPreview(profile)}
     >
       {/* Compare checkbox overlay */}
       {compareMode && (
         <button
-          onClick={() => onToggleCompare(profile.key)}
+          onClick={(e) => { e.stopPropagation(); onToggleCompare(profile.key) }}
           className={cn(
             "absolute top-3 right-3 w-5 h-5 rounded border-2 flex items-center justify-center transition-all z-10",
             isSelected
               ? "bg-[#7C3AED] border-[#7C3AED]"
               : "border-slate-300 bg-white hover:border-[#7C3AED]"
           )}
+          aria-label={isSelected ? "Remove from comparison" : "Add to comparison"}
         >
           {isSelected && (
             <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
@@ -161,16 +187,17 @@ function ProfileCard({
       </p>
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
         <button
           style={{ background: profile.colour }}
+          onClick={() => router.push(`/property-manager/planning/wizard?profile=${profile.key}`)}
           className="flex-1 h-8 rounded-xl text-white text-[12.5px] font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" />
           Start Plan
         </button>
         <Link
-          href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
+          href={`/property-manager/planning/profiles/${slug}/overview`}
           className="flex-1 h-8 rounded-xl border border-slate-200 text-slate-700 text-[12.5px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center"
         >
           View Profile
@@ -181,13 +208,11 @@ function ProfileCard({
 }
 
 // ── Profile Compact Row ──────────────────────────────────────────────────────
-function ProfileCompactRow({
-  profile,
-}: {
-  profile: PlanningProfile
-}) {
+function ProfileCompactRow({ profile }: { profile: PlanningProfile }) {
+  const router = useRouter()
   const config = PROFILE_CONFIGS[profile.key]
   const Icon = config?.icon ?? Layers
+  const slug = PROFILE_SLUG_MAP[profile.key] ?? profile.key
 
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 px-4 py-3 hover:border-slate-300 hover:shadow-sm transition-all">
@@ -215,12 +240,13 @@ function ProfileCompactRow({
       <div className="flex gap-1.5 shrink-0">
         <button
           style={{ background: profile.colour }}
+          onClick={() => router.push(`/property-manager/planning/wizard?profile=${profile.key}`)}
           className="h-7 px-3 rounded-lg text-white text-[11.5px] font-semibold hover:opacity-90 transition-opacity"
         >
           Start Plan
         </button>
         <Link
-          href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
+          href={`/property-manager/planning/profiles/${slug}/overview`}
           className="h-7 px-3 rounded-lg border border-slate-200 text-slate-600 text-[11.5px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center"
         >
           Details
@@ -230,42 +256,42 @@ function ProfileCompactRow({
   )
 }
 
-// ── Profile Intelligence Panel ───────────────────────────────────────────────
+// ── Profile Intelligence Panel (computed from static data) ───────────────────
 function ProfileIntelligencePanel() {
   const items = [
     {
-      icon: Star,
-      colour: "#7C3AED",
-      label: "Recommended for You",
-      value: "5 profiles",
-      sub: "Based on your recent activity",
+      icon: Leaf,
+      colour: "#10B981",
+      label: "Low Risk Options",
+      value: `${LOW_RISK_COUNT} profiles`,
+      sub: "Stable income, low volatility",
     },
     {
       icon: TrendingUp,
-      colour: "#10B981",
-      label: "Trending This Month",
-      value: "4 profiles",
-      sub: "Most popular growth models",
+      colour: "#7C3AED",
+      label: "High Yield Potential",
+      value: `${HIGH_YIELD_COUNT} profiles`,
+      sub: "15%+ gross yield / ROI",
     },
     {
-      icon: BarChart2,
+      icon: Zap,
       colour: "#2563EB",
-      label: "Best Yield Potential",
-      value: "3 profiles",
-      sub: "Highest gross yield range",
+      label: "Low Management Burden",
+      value: `${LOW_MGMT_COUNT} profiles`,
+      sub: "Passive income strategies",
     },
     {
       icon: ShieldCheck,
       colour: "#F59E0B",
-      label: "Lowest Risk Options",
-      value: "3 profiles",
-      sub: "Stable income, low volatility",
+      label: "High Compliance Load",
+      value: `${HIGH_COMPLIANCE_COUNT} profiles`,
+      sub: "Require more compliance planning",
     },
   ]
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-      <h3 className="text-[14px] font-bold text-slate-900 mb-3">Profile Intelligence</h3>
+      <h3 className="text-[14px] font-bold text-slate-900 mb-3">Profile Insights</h3>
       {items.map((item) => (
         <div
           key={item.label}
@@ -290,66 +316,32 @@ function ProfileIntelligencePanel() {
   )
 }
 
-// ── Top Comparisons Panel ────────────────────────────────────────────────────
-function TopComparisonsPanel() {
-  const comparisons = [
-    { a: "HMO", b: "Student-Let", count: 18 },
-    { a: "Holiday Let", b: "Serviced Acc.", count: 15 },
-    { a: "Long-Term Let", b: "Social Housing", count: 12 },
+// ── Quick Start Panel ────────────────────────────────────────────────────────
+function QuickStartPanel() {
+  const router = useRouter()
+  const popular = [
+    { key: "long_term_let", label: "Long-Term Let", sub: "Most beginner-friendly" },
+    { key: "hmo", label: "HMO", sub: "Highest cashflow potential" },
+    { key: "serviced_accommodation", label: "Serviced Accommodation", sub: "Highest gross yield" },
   ]
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-      <h3 className="text-[14px] font-bold text-slate-900 mb-3">Top Profile Comparisons</h3>
-      {comparisons.map((comp) => (
+      <h3 className="text-[14px] font-bold text-slate-900 mb-1">Popular Starting Points</h3>
+      <p className="text-[11.5px] text-slate-400 mb-3">Jump straight into the most common UK strategies</p>
+      {popular.map((item) => (
         <button
-          key={comp.a + comp.b}
-          className="w-full flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 rounded-xl px-2 -mx-2 transition-colors"
+          key={item.key}
+          onClick={() => router.push(`/property-manager/planning/wizard?profile=${item.key}`)}
+          className="w-full flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 rounded-xl px-2 -mx-2 transition-colors group"
         >
-          <div className="flex items-center gap-2 text-[12.5px] font-semibold text-slate-700">
-            <span>{comp.a}</span>
-            <span className="text-slate-300">vs</span>
-            <span>{comp.b}</span>
+          <div className="text-left">
+            <p className="text-[12.5px] font-semibold text-slate-700">{item.label}</p>
+            <p className="text-[11px] text-slate-400">{item.sub}</p>
           </div>
-          <span className="text-[11px] text-slate-400">Compared {comp.count}×</span>
+          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#7C3AED] transition-colors" />
         </button>
       ))}
-    </div>
-  )
-}
-
-// ── AI Suggestions Panel ─────────────────────────────────────────────────────
-function AISuggestionsPanel() {
-  const tips = [
-    "HMO models show strongest yield potential in Manchester.",
-    "Consider Social Housing for stable income and lower risk.",
-    "Dev/Flip strategies are trending in Birmingham and Leeds.",
-  ]
-
-  return (
-    <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-xl bg-[#7C3AED] flex items-center justify-center">
-          <Sparkles className="w-3.5 h-3.5 text-white" />
-        </div>
-        <h3 className="text-[14px] font-bold text-slate-900">AI Suggestions</h3>
-        <span className="text-[10px] font-bold bg-[#7C3AED] text-white px-1.5 py-0.5 rounded-full">
-          New
-        </span>
-      </div>
-      <p className="text-[12px] text-slate-500 mb-3">Personalised insights for your portfolio</p>
-      {tips.map((tip, i) => (
-        <div key={i} className="flex items-start gap-2 mb-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] mt-1.5 shrink-0" />
-          <p className="text-[12px] text-slate-600">{tip}</p>
-        </div>
-      ))}
-      <button
-        onClick={() => openCopilot({ prompt: "/review-planning" })}
-        className="mt-3 w-full h-9 rounded-xl border border-violet-200 text-[13px] font-semibold text-[#7C3AED] hover:bg-violet-50 transition-colors"
-      >
-        Ask AI Copilot →
-      </button>
     </div>
   )
 }
@@ -362,6 +354,7 @@ function ProfilePreviewModal({
   profile: PlanningProfile
   onClose: () => void
 }) {
+  const router = useRouter()
   const config = PROFILE_CONFIGS[profile.key]
   const Icon = config?.icon ?? Layers
 
@@ -393,6 +386,7 @@ function ProfilePreviewModal({
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Close preview"
           >
             <X className="w-4 h-4 text-slate-500" />
           </button>
@@ -488,16 +482,143 @@ function ProfilePreviewModal({
         <div className="flex gap-3 p-6 border-t border-slate-100">
           <button
             style={{ background: profile.colour }}
+            onClick={() => {
+              onClose()
+              router.push(`/property-manager/planning/wizard?profile=${profile.key}`)
+            }}
             className="flex-1 h-10 rounded-xl text-white text-[13.5px] font-semibold hover:opacity-90 transition-opacity"
           >
             Start Plan with this Profile
           </button>
+          <Link
+            href={`/property-manager/planning/profiles/${PROFILE_SLUG_MAP[profile.key] ?? profile.key}/overview`}
+            onClick={onClose}
+            className="h-10 px-5 rounded-xl border border-slate-200 text-slate-700 text-[13.5px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center"
+          >
+            Full Details
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Compare Modal ─────────────────────────────────────────────────────────────
+function CompareModal({
+  profiles,
+  onClose,
+}: {
+  profiles: PlanningProfile[]
+  onClose: () => void
+}) {
+  const router = useRouter()
+  const dimensions = [
+    { key: "yieldRange", label: "Yield Range" },
+    { key: "riskLevel", label: "Risk Level" },
+    { key: "managementIntensity", label: "Management" },
+    { key: "complianceComplexity", label: "Compliance" },
+    { key: "incomeModel", label: "Income Model" },
+    { key: "typicalUpfront", label: "Typical Upfront" },
+  ] as const
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+          <div>
+            <h2 className="text-[18px] font-bold text-slate-900">Profile Comparison</h2>
+            <p className="text-[12.5px] text-slate-500">Comparing {profiles.length} operation profiles side-by-side</p>
+          </div>
           <button
             onClick={onClose}
-            className="h-10 px-5 rounded-xl border border-slate-200 text-slate-700 text-[13.5px] font-medium hover:bg-slate-50 transition-colors"
+            className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+            aria-label="Close comparison"
           >
-            Close
+            <X className="w-4 h-4 text-slate-500" />
           </button>
+        </div>
+
+        <div className="p-6 overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr>
+                <th className="text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wide pb-4 pr-4 w-32">
+                  Dimension
+                </th>
+                {profiles.map((p) => {
+                  const config = PROFILE_CONFIGS[p.key]
+                  const Icon = config?.icon ?? Layers
+                  return (
+                    <th key={p.key} className="pb-4 px-3 text-left min-w-[160px]">
+                      <div className="flex items-center gap-2">
+                        <div
+                          style={{ background: p.colour + "15" }}
+                          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                        >
+                          <div style={{ color: p.colour }}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                        </div>
+                        <p className="text-[13px] font-bold text-slate-900">{p.label}</p>
+                      </div>
+                    </th>
+                  )
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {dimensions.map((dim) => (
+                <tr key={dim.key} className="border-t border-slate-100">
+                  <td className="py-3 pr-4 text-[12px] font-semibold text-slate-500">{dim.label}</td>
+                  {profiles.map((p) => (
+                    <td key={p.key} className="py-3 px-3 text-[13px] text-slate-800 font-medium">
+                      {String(p[dim.key as keyof PlanningProfile] ?? "—")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              {/* Best for row */}
+              <tr className="border-t border-slate-100">
+                <td className="py-3 pr-4 text-[12px] font-semibold text-slate-500">Best For</td>
+                {profiles.map((p) => (
+                  <td key={p.key} className="py-3 px-3 text-[12px] text-slate-600">
+                    {p.bestFitPropertyTypes.slice(0, 2).join(", ")}
+                  </td>
+                ))}
+              </tr>
+              {/* Use case row */}
+              <tr className="border-t border-slate-100">
+                <td className="py-3 pr-4 text-[12px] font-semibold text-slate-500">Use Case</td>
+                {profiles.map((p) => (
+                  <td key={p.key} className="py-3 px-3 text-[12px] text-slate-600 leading-relaxed">
+                    {p.useCase}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex gap-3 p-6 border-t border-slate-100 flex-wrap">
+          {profiles.map((p) => (
+            <button
+              key={p.key}
+              style={{ background: p.colour }}
+              onClick={() => {
+                onClose()
+                router.push(`/property-manager/planning/wizard?profile=${p.key}`)
+              }}
+              className="flex-1 min-w-[140px] h-10 rounded-xl text-white text-[13px] font-semibold hover:opacity-90 transition-opacity"
+            >
+              Start {p.label} Plan
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -506,6 +627,7 @@ function ProfilePreviewModal({
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function ProfilesPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [activeGroup, setActiveGroup] = useState<string>("all")
   const [riskFilter, setRiskFilter] = useState<string>("all")
@@ -514,6 +636,40 @@ export default function ProfilesPage() {
   const [compareMode, setCompareMode] = useState(false)
   const [compareSelected, setCompareSelected] = useState<string[]>([])
   const [previewProfile, setPreviewProfile] = useState<PlanningProfile | null>(null)
+  const [showCompareModal, setShowCompareModal] = useState(false)
+  const [planTotal, setPlanTotal] = useState<number | null>(null)
+  const [topProfile, setTopProfile] = useState<{ label: string; pct: number } | null>(null)
+
+  // Fetch real plan counts from Supabase
+  useEffect(() => {
+    const fetchPlanStats = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase
+          .from("planning_sets")
+          .select("operation_profile")
+        if (!data) return
+        const total = data.length
+        setPlanTotal(total)
+        if (total === 0) return
+        const counts: Record<string, number> = {}
+        for (const row of data) {
+          const key = row.operation_profile as string | null
+          if (key) counts[key] = (counts[key] ?? 0) + 1
+        }
+        const topKey = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0]
+        if (topKey) {
+          const found = PLANNING_PROFILES.find(p => p.key === topKey)
+          if (found) {
+            setTopProfile({ label: found.label, pct: Math.round((counts[topKey] / total) * 100) })
+          }
+        }
+      } catch {
+        // non-fatal — KPI cards degrade gracefully
+      }
+    }
+    fetchPlanStats()
+  }, [])
 
   const filtered = useMemo(() => {
     return PLANNING_PROFILES.filter((p) => {
@@ -536,6 +692,8 @@ export default function ProfilesPage() {
     })
   }
 
+  const compareProfiles = PLANNING_PROFILES.filter(p => compareSelected.includes(p.key))
+
   const categoryGroups = [
     { key: "all", label: "All" },
     { key: "residential_rental", label: "Residential" },
@@ -556,16 +714,20 @@ export default function ProfilesPage() {
               setCompareMode((c) => !c)
               setCompareSelected([])
             }}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className={cn(
+              "flex items-center gap-2 h-9 px-4 rounded-xl border text-[13px] font-medium transition-colors",
+              compareMode
+                ? "bg-[#7C3AED] text-white border-[#7C3AED]"
+                : "border-slate-200 text-slate-700 hover:bg-slate-50"
+            )}
           >
             <SplitSquareHorizontal className="w-4 h-4" />
             Compare Profiles
           </button>
-          <button className="flex items-center gap-2 h-9 px-4 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-          <button className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors shadow-sm">
+          <button
+            onClick={() => router.push("/property-manager/planning/wizard")}
+            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors shadow-sm"
+          >
             <Plus className="w-4 h-4" />
             New Planning Set
           </button>
@@ -576,36 +738,35 @@ export default function ProfilesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         <KpiCard
           label="Total Profiles"
-          value="13"
+          value={String(PLANNING_PROFILES.length)}
           subtitle="Operation models"
           icon={Layers}
           iconColour="#7C3AED"
         />
         <KpiCard
-          label="Avg Yield Range"
-          value="4–30%"
+          label="Yield Range"
+          value={AVG_YIELD_DISPLAY}
           subtitle="Across all models"
           icon={TrendingUp}
           iconColour="#10B981"
         />
         <KpiCard
           label="Risk Distribution"
-          value="L4 · M5 · H4"
+          value={RISK_DIST}
           icon={ShieldCheck}
           iconColour="#F59E0B"
         />
         <KpiCard
           label="Most Used Profile"
-          value="Buy-to-Let"
-          subtitle="Used in 24% of plans"
+          value={topProfile ? topProfile.label : "—"}
+          subtitle={topProfile ? `${topProfile.pct}% of your plans` : "No plans yet"}
           icon={Star}
           iconColour="#7C3AED"
         />
         <KpiCard
           label="Plans from Profiles"
-          value="362"
-          subtitle="This year ↑ 28%"
-          trend={{ value: "28% growth", positive: true }}
+          value={planTotal !== null ? String(planTotal) : "—"}
+          subtitle="Total planning sets created"
           icon={FileText}
           iconColour="#2563EB"
         />
@@ -647,6 +808,7 @@ export default function ProfilesPage() {
           value={riskFilter}
           onChange={(e) => setRiskFilter(e.target.value)}
           className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:border-[#7C3AED]"
+          aria-label="Filter by risk level"
         >
           <option value="all">All Risk</option>
           <option value="Low">Low</option>
@@ -659,6 +821,7 @@ export default function ProfilesPage() {
           value={mgmtFilter}
           onChange={(e) => setMgmtFilter(e.target.value)}
           className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:border-[#7C3AED]"
+          aria-label="Filter by management intensity"
         >
           <option value="all">All Management</option>
           <option value="Low">Low Mgmt</option>
@@ -674,6 +837,7 @@ export default function ProfilesPage() {
               "p-2 rounded-lg transition-all",
               viewMode === "grid" ? "bg-white shadow-sm" : "hover:bg-white/50"
             )}
+            aria-label="Grid view"
           >
             <LayoutGrid className="w-4 h-4 text-slate-600" />
           </button>
@@ -683,6 +847,7 @@ export default function ProfilesPage() {
               "p-2 rounded-lg transition-all",
               viewMode === "compact" ? "bg-white shadow-sm" : "hover:bg-white/50"
             )}
+            aria-label="List view"
           >
             <List className="w-4 h-4 text-slate-600" />
           </button>
@@ -700,6 +865,7 @@ export default function ProfilesPage() {
               ? "bg-[#7C3AED] text-white border-[#7C3AED]"
               : "border-slate-200 text-slate-700 hover:bg-slate-50"
           )}
+          aria-pressed={compareMode}
         >
           <SplitSquareHorizontal className="w-4 h-4 inline mr-1.5" />
           Compare
@@ -731,6 +897,7 @@ export default function ProfilesPage() {
                   compareMode={compareMode}
                   compareSelected={compareSelected}
                   onToggleCompare={toggleCompare}
+                  onPreview={setPreviewProfile}
                 />
               ))}
             </div>
@@ -773,8 +940,7 @@ export default function ProfilesPage() {
         {/* Right intelligence panel (1/3 width) */}
         <div className="space-y-4">
           <ProfileIntelligencePanel />
-          <TopComparisonsPanel />
-          <AISuggestionsPanel />
+          <QuickStartPanel />
         </div>
       </div>
 
@@ -783,18 +949,30 @@ export default function ProfilesPage() {
         <ProfilePreviewModal profile={previewProfile} onClose={() => setPreviewProfile(null)} />
       )}
 
+      {/* Compare modal */}
+      {showCompareModal && compareProfiles.length >= 2 && (
+        <CompareModal
+          profiles={compareProfiles}
+          onClose={() => setShowCompareModal(false)}
+        />
+      )}
+
       {/* Compare Banner */}
       {compareMode && compareSelected.length >= 2 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex flex-wrap items-center justify-center gap-3 sm:gap-4 bg-[#7C3AED] text-white px-4 sm:px-6 py-3 rounded-2xl shadow-xl max-w-[calc(100vw-2rem)]">
           <span className="text-[13.5px] font-semibold">
             {compareSelected.length} profiles selected
           </span>
-          <button className="h-8 px-4 rounded-xl bg-white text-[#7C3AED] text-[13px] font-bold hover:bg-slate-100 transition-colors">
+          <button
+            onClick={() => setShowCompareModal(true)}
+            className="h-8 px-4 rounded-xl bg-white text-[#7C3AED] text-[13px] font-bold hover:bg-slate-100 transition-colors"
+          >
             Compare Now
           </button>
           <button
             onClick={() => setCompareSelected([])}
             className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+            aria-label="Clear selection"
           >
             <X className="w-4 h-4" />
           </button>

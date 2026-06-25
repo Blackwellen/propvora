@@ -6,10 +6,7 @@ import { useRouter, useParams } from "next/navigation"
 import {
   ChevronLeft,
   CheckCircle2,
-  Users,
   AlertTriangle,
-  Sparkles,
-  MoreHorizontal,
   Calendar,
   Clock,
   DollarSign,
@@ -18,14 +15,8 @@ import {
   Building2,
   Copy,
   CheckSquare,
-  FileText,
-  Download,
   Trash2,
   Plus,
-  Bold,
-  Italic,
-  Link2,
-  AtSign,
   Home,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -48,6 +39,9 @@ import { MobileTopBar, MobileTabs } from "@/components/mobile"
 import { useTask, useUpdateTask, useCompleteTask, useDeleteTask } from "@/hooks/useTasks"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
+import { useTaskDocuments } from "@/features/work/useWorkDocuments"
+import { useRecordActivity } from "@/features/work/useRecordActivity"
+import { useTabParam } from "@/features/work/useTabParam"
 import {
   useTaskComments, useAddTaskComment, useDeleteTaskComment,
   useTaskChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem,
@@ -102,7 +96,6 @@ interface TaskView {
   dependencies: { title: string; status: string }[]
   activity: { id: string; type: string; text: string; user: string; time: string; initials: string }[]
   watchers: { name: string; role: string; initials: string }[]
-  mockFiles: { name: string; size: string; uploaded: string; type: string }[]
 }
 
 function buildTaskView(task: Task): TaskView {
@@ -178,7 +171,6 @@ function buildTaskView(task: Task): TaskView {
       { id: "created", type: "created", text: "Task created", user: "System", time: createdAt, initials: "SY" },
     ],
     watchers: [],
-    mockFiles: [],
   }
 }
 
@@ -623,14 +615,7 @@ function NotesSection({
         className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 resize-none"
         rows={3}
       />
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-1">
-          {[Bold, Italic, Link2, AtSign].map((Icon, i) => (
-            <button key={i} className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600">
-              <Icon className="w-3.5 h-3.5" />
-            </button>
-          ))}
-        </div>
+      <div className="flex items-center justify-end mt-2">
         <button
           onClick={handleSaveNote}
           disabled={saving}
@@ -652,12 +637,24 @@ function NotesSection({
 // ---------------------------------------------------------------------------
 // Activity tab
 // ---------------------------------------------------------------------------
-function ActivityTab({ task }: { task: TaskView }) {
+function ActivityTab({ task, workspaceId, taskId }: { task: TaskView; workspaceId?: string; taskId: string }) {
+  const { data: logs = [] } = useRecordActivity(workspaceId, "task", taskId)
+  // Real logged history first, then the derived lifecycle baseline (task created).
+  const events = [
+    ...logs.map((l) => ({
+      id: l.id,
+      initials: l.action.slice(0, 2).toUpperCase(),
+      user: l.action.replace(/_/g, " "),
+      time: new Date(l.created_at).toLocaleString("en-GB"),
+      text: l.description ?? "",
+    })),
+    ...task.activity,
+  ]
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4">
       <h3 className="text-sm font-semibold text-slate-900 mb-4">Activity Timeline</h3>
       <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-100">
-        {task.activity.map((item) => (
+        {events.map((item) => (
           <div key={item.id} className="relative">
             <div className="absolute -left-6 w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
               <div className="w-2 h-2 rounded-full bg-white" />
@@ -667,10 +664,10 @@ function ActivityTab({ task }: { task: TaskView }) {
                 <div className="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
                   {item.initials}
                 </div>
-                <p className="text-xs font-semibold text-slate-700">{item.user}</p>
+                <p className="text-xs font-semibold text-slate-700 capitalize">{item.user}</p>
                 <p className="text-[10px] text-slate-400">{item.time}</p>
               </div>
-              <p className="text-xs text-slate-600">{item.text}</p>
+              {item.text && <p className="text-xs text-slate-600">{item.text}</p>}
             </div>
           </div>
         ))}
@@ -682,7 +679,10 @@ function ActivityTab({ task }: { task: TaskView }) {
 // ---------------------------------------------------------------------------
 // Files tab
 // ---------------------------------------------------------------------------
-function FilesTab({ task, workspaceId, taskId }: { task: TaskView; workspaceId?: string; taskId: string }) {
+function FilesTab({ workspaceId, taskId }: { workspaceId?: string; taskId: string }) {
+  // Re-read persisted documents so uploaded evidence survives a refresh
+  // (EvidenceUpload only tracks the in-session list on its own).
+  const { data: docs = [] } = useTaskDocuments(workspaceId, taskId)
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4">
       <h3 className="text-sm font-semibold text-slate-900 mb-4">Files &amp; Documents</h3>
@@ -691,35 +691,9 @@ function FilesTab({ task, workspaceId, taskId }: { task: TaskView; workspaceId?:
         folder="task-evidence"
         table="task_documents"
         extra={{ task_id: taskId }}
+        initialDocs={docs}
         className="mb-4"
       />
-      {task.mockFiles.length > 0 && (
-        <div className="space-y-2">
-          {task.mockFiles.map((file) => (
-            <div key={file.name} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-700">{file.name}</p>
-                  <p className="text-[11px] text-slate-400">
-                    {file.size} · Uploaded {file.uploaded}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400">
-                  <Download className="w-3.5 h-3.5" />
-                </button>
-                <button className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
@@ -1109,7 +1083,7 @@ export default function TaskDetailPage() {
   const updateTask = useUpdateTask()
   const completeTask = useCompleteTask()
   const deleteTask = useDeleteTask()
-  const [activeTab, setActiveTab] = useState("Overview")
+  const [activeTab, setActiveTab] = useTabParam(TABS, "Overview")
   const [copied, setCopied] = useState(false)
   const [completing, setCompleting] = useState(false)
 
@@ -1202,8 +1176,6 @@ export default function TaskDetailPage() {
         backHref="/property-manager/work/tasks"
         overflowActions={[
           { label: taskData.status === "done" ? "Completed" : "Mark complete", icon: CheckCircle2, onClick: () => { if (taskData.status !== "done") handleMarkComplete() } },
-          { label: "Reassign", icon: Users, onClick: () => router.push(`/property-manager/work/tasks/${task.id}/edit`) },
-          { label: "Ask AI", icon: Sparkles, href: "/property-manager/work" },
           { label: "Delete", icon: Trash2, destructive: true, onClick: handleDelete },
         ]}
       />
@@ -1225,20 +1197,8 @@ export default function TaskDetailPage() {
             disabled={completing || taskData.status === "done"}
             className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <CheckCircle2 className="w-3.5 h-3.5" /> {completing ? "Completing…" : "Complete"}
+            <CheckCircle2 className="w-3.5 h-3.5" /> {completing ? "Completing…" : "Mark Complete"}
           </button>
-          <button
-            onClick={() => router.push(`/property-manager/work/tasks/${task.id}/edit`)}
-            className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50"
-          >
-            <Users className="w-3.5 h-3.5" /> Reassign
-          </button>
-          <Link
-            href="/property-manager/work"
-            className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </Link>
           <ConfirmDeleteDialog
             title="Delete this task?"
             description="This action cannot be undone. The task will be permanently removed."
@@ -1253,9 +1213,6 @@ export default function TaskDetailPage() {
               </button>
             )}
           </ConfirmDeleteDialog>
-          <button className="h-8 w-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-50">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -1365,14 +1322,14 @@ export default function TaskDetailPage() {
           )}
           {activeTab === "Checklist" && <LiveChecklistTab workspaceId={workspaceId} taskId={id} />}
           {activeTab === "Activity" && <LiveCommentsTab workspaceId={workspaceId} taskId={id} baseActivity={task.activity} />}
-          {activeTab === "Files" && <FilesTab task={task} workspaceId={workspaceId} taskId={id} />}
+          {activeTab === "Files" && <FilesTab workspaceId={workspaceId} taskId={id} />}
           {activeTab === "Notes" && (
             <div className="max-w-2xl">
               <NotesSection rawTask={taskData} onSaveField={saveField} setActiveTab={setActiveTab} />
             </div>
           )}
           {activeTab === "Linked Work" && <LinkedWorkTab task={task} />}
-          {activeTab === "History" && <ActivityTab task={task} />}
+          {activeTab === "History" && <ActivityTab task={task} workspaceId={workspaceId} taskId={id} />}
         </div>
       </div>
 

@@ -7,9 +7,6 @@ export default function LandingHeroSection() {
     <section className="relative overflow-hidden bg-[#f7faff] px-4 pb-20 pt-36 sm:px-6 lg:pb-28 lg:pt-44">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_82%_20%,rgba(124,58,237,0.12),transparent_28%)]" />
       <div className="relative mx-auto flex max-w-7xl flex-col items-center text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-blue-600" /> Property operations, connected
-        </div>
         <h1 className="max-w-5xl text-balance text-5xl font-black leading-[0.98] tracking-[-0.055em] text-[#06122f] sm:text-6xl lg:text-[78px]">
           Run every property operation with clarity.
         </h1>

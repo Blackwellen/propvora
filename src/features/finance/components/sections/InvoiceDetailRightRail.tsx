@@ -5,7 +5,6 @@ import Link from "next/link"
 import {
   Send, CheckCircle2, Sparkles, Download, Building2, User, Link2,
 } from "lucide-react"
-import { openCopilot } from "@/lib/copilot/open"
 
 interface InvoiceDetailRightRailProps {
   invoiceId: string
@@ -39,13 +38,6 @@ export function InvoiceDetailRightRail({
   const isDraft = invoiceStatus === "draft" || invoiceStatus === "planned"
   const canMarkPaid =
     invoiceStatus === "due" || invoiceStatus === "overdue" || invoiceStatus === "sent"
-
-  const aiInsight =
-    invoiceStatus === "paid"
-      ? `This invoice was paid on time. ${recipient !== "—" ? recipient : "The recipient"} has a good payment record — consider offering direct debit.`
-      : invoiceStatus === "overdue"
-      ? "This invoice is overdue. Consider sending a reminder and offering a Stripe payment link for faster resolution."
-      : "No issues detected. This invoice looks healthy."
 
   return (
     <div className="space-y-4">
@@ -117,24 +109,6 @@ export function InvoiceDetailRightRail({
         </Link>
       </div>
 
-      {/* AI insight */}
-      <div className="bg-violet-50 rounded-2xl border border-violet-200 p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4" style={{ color: "#7C3AED" }} />
-          <p className="text-xs font-bold text-violet-700">AI Insight</p>
-        </div>
-        <p className="text-xs text-violet-600 leading-relaxed">{aiInsight}</p>
-        <button
-          onClick={() =>
-            openCopilot({
-              prompt: `Review invoice ${invoiceNumber} (status: ${invoiceStatus}). What should I do next to get it settled?`,
-            })
-          }
-          className="w-full text-center text-xs font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 rounded-lg py-2 transition-colors"
-        >
-          Ask AI about this invoice
-        </button>
-      </div>
     </div>
   )
 }

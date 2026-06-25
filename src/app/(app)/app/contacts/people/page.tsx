@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
@@ -7,7 +7,7 @@ import {
   Users, Home, Building2, UserPlus, Clock, User, Search, X,
   LayoutGrid, List, Table2, ChevronDown,
   ArrowUpRight, MapPin, MessageSquare,
-  AlertTriangle, CheckCircle2, SlidersHorizontal,
+  AlertTriangle, CheckCircle2,
   Eye, Edit, Archive, Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -15,7 +15,8 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { ContactsTabNav } from "@/components/contacts/ContactsTabNav"
 import { MobileTopBar, MobilePageHeader, MobileFilterSheet, type FilterGroup } from "@/components/mobile"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useContacts, useCreateContact, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
+import QuickAddContactModal from "@/components/contacts/contact-new/QuickAddContactModal"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { InlineEditCell, InlineEditSelect } from "@/components/editing"
@@ -52,7 +53,7 @@ function validatePeoplePhone(v: string): string | null {
 }
 
 /* ================================================================== */
-/* Shared person action menu — wired to live update/delete             */
+/* Shared person action menu â€” wired to live update/delete             */
 /* ================================================================== */
 function PersonActionMenu({ contact, align = "right" }: { contact: Contact; align?: "left" | "right" }) {
   const router = useRouter()
@@ -114,7 +115,7 @@ const FILTER_TABS: { key: ActiveFilter; label: string }[] = [
   { key: "other",        label: "Other" },
 ]
 
-/* People-only types — exclude orgs */
+/* People-only types â€” exclude orgs */
 const PEOPLE_TYPES = new Set([
   "tenant","landlord","applicant","post_tenant","guarantor",
   "other","local_authority","housing_association","broadband","utility_provider",
@@ -138,7 +139,7 @@ function getInitials(name: string): string {
 }
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "—"
+  if (!iso) return "â€”"
   const diff = Date.now() - new Date(iso).getTime()
   const days = Math.floor(diff / 86400000)
   if (days === 0) return "Today"
@@ -149,7 +150,7 @@ function relativeTime(iso: string | null): string {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—"
+  if (!iso) return "â€”"
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
 }
 
@@ -326,9 +327,8 @@ function PersonTableRow({ contact }: { contact: Contact }) {
           onSave={(v) => saveField({ phone: v || null })}
         />
       </td>
-      <td className="px-4 py-3 text-xs text-slate-500">{contact.city ?? "—"}</td>
+      <td className="px-4 py-3 text-xs text-slate-500">{contact.city ?? "â€”"}</td>
       <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{relativeTime(contact.updated_at)}</td>
-      <td className="px-4 py-3 text-center text-xs text-slate-600">0</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
           <StatusDot status={contact.status} />
@@ -384,132 +384,6 @@ function SkeletonPersonCard() {
 }
 
 /* ================================================================== */
-/* ADD PERSON MODAL                                                     */
-/* ================================================================== */
-
-interface AddPersonModalProps {
-  onClose: () => void
-  onSuccess: () => void
-  workspaceId?: string
-}
-
-function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonModalProps) {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName]   = useState("")
-  const [type, setType]           = useState("tenant")
-  const [email, setEmail]         = useState("")
-  const [phone, setPhone]         = useState("")
-  const [city, setCity]           = useState("")
-  const [saving, setSaving]       = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
-  const createContact = useCreateContact()
-
-  async function handleSave() {
-    const name = `${firstName.trim()} ${lastName.trim()}`.trim()
-    if (!name) { setFormError("Name is required"); return }
-    if (!workspaceId) { setFormError("Workspace not loaded"); return }
-    setSaving(true)
-    setFormError(null)
-    try {
-      await createContact.mutateAsync({
-        workspace_id: workspaceId,
-        full_name: name,
-        contact_type: type as import("@/types/database").ContactType,
-        email: email.trim() || null,
-        phone: phone.trim() || null,
-        city: city.trim() || null,
-        status: "active",
-        is_demo: false,
-      })
-      onSuccess()
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Failed to save contact")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="add-person-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 id="add-person-title" className="text-lg font-bold text-slate-900">Add Person</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Create a new person contact</p>
-          </div>
-          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="add-person-first" className="block text-xs font-medium text-slate-700 mb-1">First Name <span className="text-red-400">*</span></label>
-              <input id="add-person-first" type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="James"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-            <div>
-              <label htmlFor="add-person-last" className="block text-xs font-medium text-slate-700 mb-1">Last Name <span className="text-red-400">*</span></label>
-              <input id="add-person-last" type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Okafor"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="add-person-type" className="block text-xs font-medium text-slate-700 mb-1">Contact Type</label>
-            <select id="add-person-type" value={type} onChange={e => setType(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all">
-              <option value="tenant">Tenant</option>
-              <option value="landlord">Landlord</option>
-              <option value="applicant">Applicant</option>
-              <option value="guarantor">Guarantor</option>
-              <option value="post_tenant">Past Tenant</option>
-              <option value="local_authority">Local Authority</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="add-person-email" className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-            <input id="add-person-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="james@example.com"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="add-person-phone" className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
-              <input id="add-person-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07700 900000"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-            <div>
-              <label htmlFor="add-person-city" className="block text-xs font-medium text-slate-700 mb-1">City</label>
-              <input id="add-person-city" type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="Birmingham"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all" />
-            </div>
-          </div>
-        </div>
-
-        {formError && <p className="text-xs text-red-500 mt-2">{formError}</p>}
-
-        <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
-          <button onClick={onClose} disabled={saving} className="flex-1 h-9 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !firstName.trim() || !lastName.trim()}
-            className="flex-1 h-9 rounded-lg bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? "Saving…" : "Save Person"}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ================================================================== */
 /* TOAST                                                                */
 /* ================================================================== */
 
@@ -537,7 +411,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
   return (
     <div className="flex items-center justify-between text-xs text-slate-500 mt-4">
       <span>
-        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)}</span> of {total}
+        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}â€“{Math.min(page * PAGE_SIZE, total)}</span> of {total}
       </span>
       <div className="flex items-center gap-1">
         <button
@@ -696,7 +570,7 @@ export default function PeoplePage() {
           count={`${filtered.length} ${filtered.length === 1 ? "person" : "people"}`}
           search={searchQuery}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search people…"
+          searchPlaceholder="Search peopleâ€¦"
           onOpenFilters={() => setMobileFiltersOpen(true)}
           activeFilterCount={activeFilterCount}
         />
@@ -752,7 +626,7 @@ export default function PeoplePage() {
           {/* KPI CARDS                                                   */}
           {/* ========================================================== */}
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl border border-slate-200 bg-white p-4 h-24 animate-pulse">
                   <div className="w-9 h-9 rounded-xl bg-slate-100 mb-3" />
@@ -761,7 +635,7 @@ export default function PeoplePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
               <KpiCard icon={Users}    label="Total People"  value={kpiData.total}        iconColour="#2563EB" bg="bg-blue-50"    sub={`${kpiData.total} contacts`} />
               <KpiCard icon={Home}     label="Tenants"       value={kpiData.tenants}      iconColour="#10B981" bg="bg-emerald-50" />
               <KpiCard icon={Building2}label="Landlords"     value={kpiData.landlords}    iconColour="#2563EB" bg="bg-blue-50"    />
@@ -781,7 +655,7 @@ export default function PeoplePage() {
               <input
                 type="text"
                 aria-label="Search people"
-                placeholder="Search people…"
+                placeholder="Search peopleâ€¦"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
@@ -827,12 +701,6 @@ export default function PeoplePage() {
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
               </div>
 
-              {/* Filters button */}
-              <button className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:bg-slate-50 transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-              </button>
-
               {/* View switcher */}
               <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-slate-100 border border-slate-200">
                 {([
@@ -862,7 +730,7 @@ export default function PeoplePage() {
             <p className="text-xs text-slate-400">
               Showing{" "}
               <span className="font-semibold text-slate-600">
-                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–${Math.min(page * PAGE_SIZE, filtered.length)}`}
+                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}â€“${Math.min(page * PAGE_SIZE, filtered.length)}`}
               </span>{" "}
               of <span className="font-semibold text-slate-600">{filtered.length}</span> people
             </p>
@@ -956,7 +824,7 @@ export default function PeoplePage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200">
-                      {["Name","Type","Contact","Location","Last Interaction","Properties","Status","Actions"].map(col => (
+                      {["Name","Type","Contact","Location","Last Interaction","Status","Actions"].map(col => (
                         <th key={col} className="px-4 py-3 text-xs font-semibold text-slate-500 whitespace-nowrap">
                           <div className="flex items-center gap-1">
                             {col}
@@ -971,7 +839,7 @@ export default function PeoplePage() {
                   <tbody>
                     {isLoading ? (
                       <tr>
-                        <td colSpan={8} className="py-12 text-center">
+                        <td colSpan={7} className="py-12 text-center">
                           <div className="flex justify-center gap-2">
                             {Array.from({ length: 3 }).map((_, i) => (
                               <div key={i} className="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: `${i * 100}ms` }} />
@@ -981,7 +849,7 @@ export default function PeoplePage() {
                       </tr>
                     ) : filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="py-20 text-center text-sm text-slate-400">
+                        <td colSpan={7} className="py-20 text-center text-sm text-slate-400">
                           No people match your filters.{" "}
                           <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="text-[#2563EB] hover:underline">Clear filters</button>
                         </td>
@@ -1009,7 +877,8 @@ export default function PeoplePage() {
       {/* ADD PERSON MODAL                                              */}
       {/* ============================================================ */}
       {showAddModal && (
-        <AddPersonModal
+        <QuickAddContactModal
+          mode="person"
           workspaceId={workspace?.id}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {

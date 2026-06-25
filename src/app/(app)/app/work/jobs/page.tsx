@@ -12,7 +12,6 @@ import {
   AlertTriangle,
   Clock,
   Download,
-  Sparkles,
   Briefcase,
   Receipt,
   TrendingDown,
@@ -20,7 +19,6 @@ import {
   Paperclip,
   ChevronLeft,
   ChevronRight,
-  Filter,
   Activity,
   Loader2,
 } from "lucide-react"
@@ -53,7 +51,6 @@ import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { InlineEditSelect } from "@/components/editing"
 import { SavedViewsMenu } from "@/components/list/SavedViewsMenu"
 import { useCreateSavedView } from "@/hooks/useSavedViews"
-import { openCopilot } from "@/lib/copilot/open"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { Eye, Edit2, CheckCircle2, Trash2 } from "lucide-react"
 
@@ -104,37 +101,6 @@ const JOB_PRIORITY_CELL_OPTIONS = [
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
   { value: "urgent", label: "Urgent" },
-]
-
-// ---------------------------------------------------------------------------
-// Demo data
-// ---------------------------------------------------------------------------
-const DEMO_JOBS: DemoJob[] = [
-  { id: "JOB-2024-1048", title: "Boiler Annual Service", priority: "high", property: "14 Grove St", block: "Block A", supplier: "HeatPro Ltd", engineer: "Alan Carter", engineerInitials: "AC", team: "Team 1", scheduledStart: "16 May, 09:00", scheduledEnd: "16 May, 17:00", dueDate: "16 May, 17:00", status: "scheduled", sla: 100, slaColor: "emerald", quoteValue: "£650", invoiceStatus: "Not Invoiced", attachments: 2, notes: 1 },
-  { id: "JOB-2024-1047", title: "Gas Safety Certificate", priority: "urgent", property: "Manor Flat 3B", block: "Block A", supplier: "Gas Safe Co", engineer: "Sarah Malik", engineerInitials: "SM", team: "Team 2", scheduledStart: "16 May, 11:00", scheduledEnd: "16 May, 15:00", dueDate: "16 May, 15:00", status: "overdue", sla: 85, slaColor: "amber", quoteValue: "£120", invoiceStatus: "Overdue", attachments: 1, notes: 2 },
-  { id: "JOB-2024-1046", title: "Bathroom Renovation", priority: "medium", property: "22 Oak Ave", block: "Flat 2", supplier: "BuildRight Ltd", engineer: "James Wood", engineerInitials: "JW", team: "Team 3", scheduledStart: "17 May, 10:00", scheduledEnd: "18 May, 17:00", dueDate: "18 May, 17:00", status: "in_progress", sla: 60, slaColor: "amber", quoteValue: "£2,850", invoiceStatus: "Part Invoiced", attachments: 4, notes: 1 },
-  { id: "JOB-2024-1045", title: "Electrical Compliance Cert", priority: "medium", property: "5 Hillview Rd", block: "—", supplier: "ElecSure Ltd", engineer: "Daniel Brown", engineerInitials: "DB", team: "Team 1", scheduledStart: "17 May, 14:00", scheduledEnd: "19 May, 17:00", dueDate: "19 May, 17:00", status: "in_progress", sla: 40, slaColor: "amber", quoteValue: "£180", invoiceStatus: "Not Invoiced", attachments: 2, notes: 0 },
-  { id: "JOB-2024-1044", title: "Kitchen Extraction Fan", priority: "low", property: "Manor Flat 2A", block: "—", supplier: "VentPro Services", engineer: "Alan Carter", engineerInitials: "AC", team: "Team 1", scheduledStart: "18 May, 09:30", scheduledEnd: "18 May, 12:00", dueDate: "18 May, 12:00", status: "scheduled", sla: 100, slaColor: "emerald", quoteValue: "£95", invoiceStatus: "Not Invoiced", attachments: 0, notes: 1 },
-  { id: "JOB-2024-1043", title: "Lift Inspection", priority: "high", property: "12 Park Place", block: "—", supplier: "LiftCare Ltd", engineer: "Luke Harris", engineerInitials: "LH", team: "Team 4", scheduledStart: "18 May, 13:00", scheduledEnd: "19 May, 17:00", dueDate: "19 May, 17:00", status: "waiting", sla: 25, slaColor: "red", quoteValue: "£420", invoiceStatus: "Not Invoiced", attachments: 0, notes: 0 },
-  { id: "JOB-2024-1042", title: "Door Entry System Repair", priority: "medium", property: "9 Cedar Court", block: "—", supplier: "SecureTech", engineer: "Sarah Malik", engineerInitials: "SM", team: "Team 2", scheduledStart: "19 May, 10:00", scheduledEnd: "20 May, 17:00", dueDate: "20 May, 17:00", status: "in_progress", sla: 55, slaColor: "amber", quoteValue: "£210", invoiceStatus: "Not Invoiced", attachments: 2, notes: 1 },
-  { id: "JOB-2024-1041", title: "Painting & Touch Up", priority: "low", property: "31 Maple Rd", block: "—", supplier: "BrightFinish", engineer: "James Wood", engineerInitials: "JW", team: "Team 3", scheduledStart: "20 May, 09:00", scheduledEnd: "21 May, 17:00", dueDate: "21 May, 17:00", status: "scheduled", sla: 100, slaColor: "emerald", quoteValue: "£320", invoiceStatus: "Not Invoiced", attachments: 3, notes: 0 },
-]
-
-// ---------------------------------------------------------------------------
-// Pipeline & cost data
-// ---------------------------------------------------------------------------
-const PIPELINE_DATA = [
-  { name: "Scheduled", value: 7, color: "#3B82F6" },
-  { name: "In Progress", value: 12, color: "#6366F1" },
-  { name: "Waiting", value: 3, color: "#F59E0B" },
-  { name: "Overdue", value: 4, color: "#EF4444" },
-  { name: "Completed", value: 6, color: "#10B981" },
-]
-
-const COST_EXPOSURE_DATA = [
-  { name: "Overdue", value: 1250, color: "#EF4444" },
-  { name: "At Risk", value: 740, color: "#F59E0B" },
-  { name: "Pending Quotes", value: 400, color: "#94A3B8" },
 ]
 
 // ---------------------------------------------------------------------------
@@ -360,33 +326,37 @@ function CostExposurePanel({ jobs }: { jobs: DemoJob[] }) {
   )
 }
 
-function RecentUpdatesPanel() {
-  const updates = [
-    { initials: "AC", name: "Alan Carter", action: "Updated boiler service checklist", time: "2h ago" },
-    { initials: "SM", name: "Sarah Malik", action: "Gas safety cert — invoice overdue", time: "4h ago" },
-    { initials: "JW", name: "James Wood", action: "Bathroom reno progress: 60% done", time: "5h ago" },
-    { initials: "SY", name: "System", action: "3 jobs scheduled for tomorrow", time: "6h ago" },
-    { initials: "DB", name: "Daniel Brown", action: "EICR cert started — access confirmed", time: "1d ago" },
-  ]
+function RecentJobsPanel({ jobs }: { jobs: DemoJob[] }) {
+  const recent = jobs.slice(0, 5)
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-slate-900">Recent Updates</h3>
+        <h3 className="text-sm font-semibold text-slate-900">Recent Jobs</h3>
         <Activity className="w-4 h-4 text-slate-400" />
       </div>
-      <div className="space-y-3">
-        {updates.map((u, i) => (
-          <div key={i} className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[9px] text-white font-bold shrink-0">
-              {u.initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] text-slate-700"><span className="font-semibold">{u.name}</span> — {u.action}</p>
-              <p className="text-[10px] text-slate-400">{u.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      {recent.length === 0 ? (
+        <p className="text-[12px] text-slate-400">No jobs yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {recent.map((j) => (
+            <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} className="flex items-start gap-2.5 group">
+              <span className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0",
+                j.status === "complete" ? "bg-emerald-500" :
+                j.status === "overdue" ? "bg-red-500" :
+                j.status === "in_progress" ? "bg-indigo-500" :
+                "bg-blue-400"
+              )} />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-slate-700 truncate group-hover:text-[#2563EB] transition-colors">{j.title}</p>
+                <p className="text-[10px] text-slate-400">{j.property !== "—" ? j.property : "No property"} · {j.status.replace("_", " ")}</p>
+              </div>
+              {j.quoteValue !== "—" && (
+                <span className="text-[11px] font-semibold text-slate-600 tabular-nums shrink-0">{j.quoteValue}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -907,7 +877,6 @@ export default function JobsPage() {
         subtitle="Work orders"
         primaryAction={{ label: "Create job", icon: Plus, href: "/property-manager/work/jobs/new" }}
         overflowActions={[
-          { label: "Select all", icon: CheckCircle2, onClick: () => setSelectedIds(displayJobs.map((j) => j.id)) },
           { label: "Export", icon: Download, onClick: exportSelected },
         ]}
       />
@@ -969,26 +938,6 @@ export default function JobsPage() {
           >
             <Download className="w-3.5 h-3.5" /> Export
           </button>
-          <button
-            onClick={() => openCopilot({
-              prompt: "Summarise my open jobs and flag any at risk of an SLA breach.",
-              summaryData: {
-                section: "work",
-                pageTitle: "Jobs",
-                summaryData: {
-                  openJobs: liveOrDemo.filter(j => j.status !== "complete" && j.status !== "invoiced").length,
-                  overdueJobs: liveOrDemo.filter(j => j.status === "overdue").length,
-                  inProgressJobs: liveOrDemo.filter(j => j.status === "in_progress").length,
-                  waitingJobs: liveOrDemo.filter(j => j.status === "waiting").length,
-                  scheduledJobs: liveOrDemo.filter(j => j.status === "scheduled").length,
-                  totalJobs: liveOrDemo.length,
-                },
-              },
-            })}
-            className="h-8 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Ask AI
-          </button>
         </div>
       </div>
 
@@ -1048,19 +997,6 @@ export default function JobsPage() {
           value={categoryFilter}
           onChange={setCategoryFilter}
         />
-        <div className="relative">
-          <select className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 appearance-none cursor-pointer">
-            <option>This Week</option>
-            <option>This Month</option>
-            <option>All Time</option>
-          </select>
-          <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </div>
-        </div>
-        <button className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 flex items-center gap-1.5 hover:bg-slate-50">
-          <Filter className="w-3.5 h-3.5" /> Filters
-        </button>
       </div>
 
       {/* Main table */}
@@ -1291,28 +1227,13 @@ export default function JobsPage() {
             </ResponsiveTable>
           )}
 
-          {/* Pagination */}
-          <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
-            <p className="text-xs text-slate-500">Showing 1 to {displayJobs.length} of {displayJobs.length} jobs</p>
-            <div className="flex items-center gap-1">
-              <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              {[1, 2, 3].map(p => (
-                <button
-                  key={p}
-                  className={cn(
-                    "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
-                    p === 1 ? "bg-[#2563EB] text-white" : "hover:bg-slate-100 text-slate-600"
-                  )}
-                >
-                  {p}
-                </button>
-              ))}
-              <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+          <div className="hidden md:flex items-center px-5 py-3 border-t border-slate-100">
+            <p className="text-xs text-slate-500">
+              {displayJobs.length === 0
+                ? "No jobs"
+                : `Showing ${displayJobs.length} job${displayJobs.length === 1 ? "" : "s"}`}
+              {[statusFilter, priorityFilter, propertyFilter, categoryFilter, search].some(Boolean) ? " (filtered)" : ""}
+            </p>
           </div>
         </div>
       )}
@@ -1366,7 +1287,7 @@ export default function JobsPage() {
         <TodaySchedulePanel jobs={liveOrDemo} />
         <JobPipelinePanel jobs={liveOrDemo} />
         <CostExposurePanel jobs={liveOrDemo} />
-        <RecentUpdatesPanel />
+        <RecentJobsPanel jobs={liveOrDemo} />
       </div>
 
       {/* Delete confirmation */}

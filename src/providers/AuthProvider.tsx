@@ -17,6 +17,10 @@ import { switchWorkspace as switchWorkspaceAction } from "@/lib/actions/workspac
 
 /** Workspace i18n settings stored as JSONB in workspaces.settings */
 export interface WorkspaceSettings {
+  /** ISO-3166-1 alpha-2 country code — drives compliance/legal jurisdiction packs. */
+  countryCode?: string
+  /** Optional sub-jurisdiction (e.g. "SCT", "NI") refining a GB workspace. */
+  region?: string
   currency?: string
   locale?: string
   dateFormat?: string
@@ -34,6 +38,13 @@ export interface Workspace {
   plan: string
   trial_ends_at: string | null
   owner_id: string
+  /** Authoritative operating jurisdiction (ISO-3166-1 alpha-2) — set via
+   *  Workspace Settings → Jurisdiction. Drives compliance/legal/tax i18n. */
+  business_country_code: string | null
+  /** Authoritative default currency (ISO-4217) for the workspace. */
+  default_currency: string | null
+  /** Authoritative default language/locale (BCP-47) for the workspace. */
+  default_language: string | null
   /** i18n / locale preferences stored in JSONB settings column. */
   settings: WorkspaceSettings | null
 }
@@ -87,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, settings")
+          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, business_country_code, default_currency, default_language, settings")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)

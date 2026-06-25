@@ -17,7 +17,7 @@ import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import {
   FileText, Home, CheckCircle, Download, Eye, Archive,
-  ClipboardList, Calendar, User, Shield, Clock, ChevronRight, Sparkles,
+  ClipboardList, Calendar, User, Shield, Clock, ChevronRight,
   RotateCcw,
 } from "lucide-react"
 
@@ -255,15 +255,6 @@ export default function DocumentDetailPage() {
           </div>
         )}
 
-        <div className="bg-violet-50 rounded-xl border border-violet-200 p-4 space-y-2">
-          <div className="flex items-center gap-2">
-            <div style={{ color: "#7c3aed" }}><Sparkles className="w-4 h-4" /></div>
-            <h3 className="text-xs font-semibold text-violet-700 uppercase tracking-wide">AI Insight</h3>
-          </div>
-          <p className="text-xs text-violet-700">
-            Keep this document verified and schedule a renewal reminder before expiry to maintain compliance continuity.
-          </p>
-        </div>
       </aside>
     )
   }

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
   ChevronUp, ChevronDown, Eye, AlertTriangle,
-  Calendar, Home, Shield, Building2, RefreshCw, LogOut, Trash2,
+  Calendar, Home, Shield, Building2, RefreshCw, LogOut,
 } from "lucide-react"
 import type { TenancyCardData } from "./TenancyCard"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -254,9 +254,8 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                         items={[
                           { label: "View tenancy", icon: Eye, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}`) },
                           { label: "View property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${t.property_id}`) },
-                          { label: "Renew", icon: RefreshCw, onClick: () => {} },
-                          { label: "End tenancy", icon: LogOut, onClick: () => {} },
-                          { label: "Delete", icon: Trash2, onClick: () => {}, variant: "danger" },
+                          { label: "Renew", icon: RefreshCw, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}/overview`) },
+                          { label: "End tenancy", icon: LogOut, onClick: () => router.push(`/property-manager/portfolio/tenancies/${t.id}/deposit`) },
                         ]}
                       />
                     </div>

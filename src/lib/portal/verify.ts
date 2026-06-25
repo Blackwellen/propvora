@@ -34,8 +34,15 @@ function accessTypeToPortalType(t: unknown): PortalType {
   const v = String(t ?? "").toLowerCase()
   if (v === "landlord" || v === "owner" || v === "investor") return "landlord"
   if (v === "tenant" || v === "occupier") return "tenant"
-  // supplier / accountant / solicitor / generic all use the supplier vertical
-  return "supplier"
+  if (v === "supplier" || v === "contractor") return "supplier"
+  // Extended profiles each route to their own dedicated portal experience.
+  if (v === "applicant" || v === "prospect") return "applicant"
+  if (v === "accountant") return "accountant"
+  if (v === "solicitor" || v === "lawyer") return "solicitor"
+  if (v === "generic") return "generic"
+  // Unknown access types fall back to the most-restrictive generic document
+  // portal rather than leaking a richer vertical.
+  return "generic"
 }
 
 interface TokenRow {

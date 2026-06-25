@@ -18,21 +18,7 @@ import {
   Cell,
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
-
-// ── Live schema row (planning_scenarios is profile-scoped) ─────────────────────
-
-interface ScenarioRow {
-  id: string
-  name: string
-  scenario_type: string | null
-  type: string | null
-  occupancy_pct: number | null
-  income_adjustment_pct: number | null
-  expense_adjustment_pct: number | null
-  calculated_net_profit: number | null
-  calculated_margin_pct: number | null
-  notes: string | null
-}
+import { deriveScenariosFromSet, hasSetFinancials, type PlanningSetSummary } from "@/lib/planning/set-forecast"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -108,6 +94,8 @@ const TYPE_STYLE: Record<string, { accentColor: string; accentBg: string; accent
   base:         { accentColor: "#2563EB", accentBg: "bg-blue-50",    accentText: "text-blue-700",    accentBorder: "border-blue-200",    accentBar: "bg-blue-500",    badge: "Most likely outcome" },
   optimistic:   { accentColor: "#10B981", accentBg: "bg-emerald-50", accentText: "text-emerald-700", accentBorder: "border-emerald-200", accentBar: "bg-emerald-500", badge: "Best case" },
   pessimistic:  { accentColor: "#F59E0B", accentBg: "bg-amber-50",   accentText: "text-amber-700",   accentBorder: "border-amber-200",   accentBar: "bg-amber-400",   badge: "Prudent assumptions" },
+  conservative: { accentColor: "#F59E0B", accentBg: "bg-amber-50",   accentText: "text-amber-700",   accentBorder: "border-amber-200",   accentBar: "bg-amber-400",   badge: "Prudent assumptions" },
+  stress:       { accentColor: "#EF4444", accentBg: "bg-red-50",     accentText: "text-red-700",     accentBorder: "border-red-200",     accentBar: "bg-red-500",     badge: "Downside stress test" },
   custom:       { accentColor: "#7C3AED", accentBg: "bg-violet-50",  accentText: "text-violet-700",  accentBorder: "border-violet-200",  accentBar: "bg-violet-500",  badge: "Custom scenario" },
 }
 
@@ -150,7 +138,7 @@ export default function ScenariosPage() {
   const params = useParams()
   const id = params.id as string
 
-  const [scenarios, setScenarios] = useState<ScenarioRow[]>([])
+  const [set, setSet] = useState<PlanningSetSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -158,34 +146,33 @@ export default function ScenariosPage() {
     const supabase = createClient()
     async function load() {
       setLoading(true)
-      // planning_scenarios is profile-scoped (no planning_set_id) — query resiliently
-      const { data, error } = await supabase
-        .from("planning_scenarios")
-        .select("*")
-        .eq("planning_set_id", id)
-        .order("sort_order")
-      setScenarios(error ? [] : ((data ?? []) as unknown as ScenarioRow[]))
+      // Scenarios are derived from the set's stored summary figures via the shared
+      // engine (base/optimistic/conservative/stress) — consistent with the Overview.
+      const { data } = await supabase
+        .from("planning_sets")
+        .select("gross_monthly_income, total_monthly_expenses, net_monthly_income, upfront_cash_required")
+        .eq("id", id)
+        .maybeSingle()
+      setSet((data ?? null) as PlanningSetSummary | null)
       setLoading(false)
     }
     load()
   }, [id])
 
-  // ── Derived from real rows only ──────────────────────────────────────────────
+  // ── Derived from the set's stored summary via the shared engine ──────────────
 
-  const cards = scenarios.map((s) => {
-    const t = s.scenario_type ?? s.type
-    const style = styleForType(t)
-    const net = s.calculated_net_profit ?? 0
+  const cards = (hasSetFinancials(set) ? deriveScenariosFromSet(set!) : []).map((d) => {
+    const style = styleForType(d.type)
     return {
-      id: s.id,
-      type: t ?? "custom",
-      label: s.name,
+      id: d.type,
+      type: d.type,
+      label: d.name,
       style,
-      netMonthly: net / 12,
-      annualProfit: net,
-      occupancy: s.occupancy_pct,
-      margin: s.calculated_margin_pct,
-      healthScore: Math.max(0, Math.min(100, Math.round(s.calculated_margin_pct ?? 0))),
+      netMonthly: d.netMonthly,
+      annualProfit: d.annualNet,
+      occupancy: d.occupancyPct,
+      margin: d.marginPct,
+      healthScore: Math.max(0, Math.min(100, Math.round(d.marginPct))),
     }
   })
 

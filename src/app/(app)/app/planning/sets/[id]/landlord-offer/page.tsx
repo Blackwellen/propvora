@@ -123,7 +123,7 @@ export default function LandlordOfferPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-bold text-slate-900">9 Landlord Offer</h2>
+          <h2 className="text-base font-bold text-slate-900">Landlord Offer</h2>
           <p className="text-xs text-slate-500 mt-0.5">Proposed rent and deal terms for this planning set.</p>
         </div>
         <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#7C3AED] text-white text-xs font-semibold hover:bg-violet-700 transition-colors">

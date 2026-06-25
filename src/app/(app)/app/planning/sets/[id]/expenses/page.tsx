@@ -164,7 +164,7 @@ export default function ExpensesPage() {
           {/* ── Section header ── */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Section 5A — Expenses</h2>
+              <h2 className="text-base font-bold text-slate-900">Expenses</h2>
               <p className="text-xs text-slate-500 mt-0.5">Operating expense summary</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">

@@ -281,6 +281,7 @@ export default function NewUnitPage() {
   }
 
   async function handleSubmit() {
+    if (saving) return // guard against double-submit
     setSaving(true)
     setSaveError(null)
     try {
@@ -295,6 +296,7 @@ export default function NewUnitPage() {
         floor_area_sqm: data.floor_area_sqm || undefined,
         target_rent: data.target_rent || undefined,
         status: data.status,
+        notes: data.notes.trim() || undefined,
       })
       router.push(`/property-manager/portfolio/units/${unit.id}`)
     } catch (err) {

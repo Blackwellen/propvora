@@ -1,6 +1,7 @@
 ﻿"use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Siren,
   Wallet,
@@ -16,6 +17,7 @@ import {
   Mail,
   MessageSquare,
   Phone,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -24,8 +26,10 @@ import MobileTopBar from "@/components/mobile/MobileTopBar"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile/ResponsiveTable"
 import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useMoneyArrears, useMoneyArrearsSummary } from "@/hooks/useMoneyData"
+import { useMoneyArrears, useMoneyArrearsSummary, useCreateMoneyArrears } from "@/hooks/useMoneyData"
 import type { MoneyArrearsRow } from "@/hooks/useMoneyData"
+import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import { createClient } from "@/lib/supabase/client"
 
 export const dynamic = "force-dynamic"
@@ -182,6 +186,141 @@ function ChaseCaseRow({
   )
 }
 
+// ─── New Rent Chase Case Modal ──────────────────────────────────────────────
+
+function NewRentChaseCaseModal({
+  workspaceId,
+  onClose,
+  onSaved,
+}: {
+  workspaceId: string | undefined
+  onClose: () => void
+  onSaved: (msg: string) => void
+}) {
+  const [tenantId, setTenantId] = useState("")
+  const [propertyId, setPropertyId] = useState("")
+  const [amount, setAmount] = useState("")
+  const [dueDate, setDueDate] = useState("")
+  const [notes, setNotes] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const createArrears = useCreateMoneyArrears(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
+  const { data: tenants = [] } = useContacts(workspaceId, { contact_type: "tenant" })
+
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose() }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [onClose])
+
+  async function handleSave() {
+    const value = parseFloat(amount)
+    if (!Number.isFinite(value) || value <= 0) { setError("Enter a valid outstanding amount"); return }
+    if (!tenantId) { setError("Select the tenant in arrears"); return }
+    if (!workspaceId) { setError("Workspace not loaded"); return }
+    setSaving(true)
+    setError(null)
+    try {
+      await createArrears.mutateAsync({
+        workspace_id: workspaceId,
+        contact_id: tenantId,
+        property_id: propertyId || null,
+        tenancy_id: null,
+        amount_due: value,
+        amount_paid: 0,
+        due_date: dueDate || null,
+        notes: notes.trim() || null,
+      })
+      onSaved("New rent chase case opened")
+      onClose()
+    } catch (err) {
+      // Friendly message when the arrears table is not yet provisioned.
+      const code = (err as { code?: string })?.code
+      setError(code === "42P01" ? "Arrears table not provisioned yet" : err instanceof Error ? err.message : "Failed to open case")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="new-chase-title">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white">
+          <div>
+            <h2 id="new-chase-title" className="text-lg font-semibold text-slate-900">New Rent Chase Case</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Open an arrears case to begin the escalation workflow.</p>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+            <X className="w-4 h-4 text-slate-500" />
+          </button>
+        </div>
+
+        <div className="p-6 flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="rc-tenant" className="text-xs font-medium text-slate-600">Tenant <span className="text-red-500">*</span></label>
+            <select id="rc-tenant" value={tenantId} onChange={(e) => setTenantId(e.target.value)}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              <option value="">Select tenant…</option>
+              {tenants.map((t) => (
+                <option key={t.id} value={t.id}>{t.full_name || t.company_name || "Unnamed contact"}</option>
+              ))}
+            </select>
+            {tenants.length === 0 && (
+              <p className="text-[11px] text-slate-500">No tenant contacts yet — add one in Contacts first.</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="rc-property" className="text-xs font-medium text-slate-600">Property</label>
+            <select id="rc-property" value={propertyId} onChange={(e) => setPropertyId(e.target.value)}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              <option value="">Select property…</option>
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="rc-amount" className="text-xs font-medium text-slate-600">Amount outstanding (£) <span className="text-red-500">*</span></label>
+              <input id="rc-amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="rc-due" className="text-xs font-medium text-slate-600">Rent due date</label>
+              <input id="rc-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="rc-notes" className="text-xs font-medium text-slate-600">Notes</label>
+            <textarea id="rc-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
+              placeholder="Context for this arrears case…"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
+          </div>
+        </div>
+
+        {error && <p className="text-xs text-red-500 px-6 pb-2">{error}</p>}
+
+        <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-100 sticky bottom-0 bg-white">
+          <button onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-70">
+            {saving ? "Opening…" : "Open Case"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function RentChasePage() {
@@ -197,6 +336,9 @@ export default function RentChasePage() {
   const [evidenceOn, setEvidenceOn] = useState(true)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
+  const [showNewCase, setShowNewCase] = useState(false)
+  const _sp = useSearchParams()
+  useEffect(() => { if (_sp.get("new") === "1") setShowNewCase(true) }, [_sp])
 
   function showToast(m: string) { setToastMsg(m); setTimeout(() => setToastMsg(null), 3500) }
 
@@ -209,8 +351,8 @@ export default function RentChasePage() {
         const lvl = levelFromDays(days)
         return {
           id: r.id,
-          tenant: r.tenant_id ?? "Unknown tenant",
-          property: r.property_id ?? "—",
+          tenant: r.tenant_name ?? "Unknown tenant",
+          property: r.property_name ?? "—",
           amount: (r.amount_owed ?? 0) - (r.amount_paid ?? 0),
           daysOverdue: days,
           level: lvl.level,
@@ -283,9 +425,16 @@ export default function RentChasePage() {
       <MobileTopBar
         title="Rent Chase"
         subtitle={`${chaseCases.length} chasing`}
-        primaryAction={{ label: "New Case", icon: Plus, href: "/property-manager/money/arrears" }}
+        primaryAction={{ label: "New Case", icon: Plus, onClick: () => setShowNewCase(true) }}
         overflowActions={[{ label: "Manage Arrears", icon: Settings, href: "/property-manager/money/arrears" }]}
       />
+      {showNewCase && (
+        <NewRentChaseCaseModal
+          workspaceId={workspace?.id}
+          onClose={() => setShowNewCase(false)}
+          onSaved={showToast}
+        />
+      )}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl max-w-sm">
           <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -306,10 +455,10 @@ export default function RentChasePage() {
                 <Settings className="w-3.5 h-3.5" />
                 Manage Arrears
               </Link>
-              <Link href="/property-manager/money/arrears" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+              <button onClick={() => setShowNewCase(true)} className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 <Plus className="w-3.5 h-3.5" />
                 New Case
-              </Link>
+              </button>
             </>
           }
         />

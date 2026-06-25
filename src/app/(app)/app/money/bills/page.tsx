@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react"
 import {
   Plus, Download, Search, Eye, CheckSquare, AlertTriangle, CheckCircle,
   Users, ChevronDown,
-  X, Paperclip, Columns3, CheckCheck, Banknote, Loader2,
+  X, Columns3, CheckCheck, Banknote, Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
@@ -16,6 +16,8 @@ import { DashboardContainer } from "@/components/layout/PageContainer"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyBills, useMoneyBillsSummary, useCreateMoneyBill, useApproveBill, useMarkBillPaid } from "@/hooks/useMoneyData"
 import type { InsertMoneyBill } from "@/hooks/useMoneyData"
+import { useProperties } from "@/hooks/useProperties"
+import { useContacts } from "@/hooks/useContacts"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -119,6 +121,8 @@ function billTypeBadge(type: BillType): string {
 
 function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; workspaceId: string | undefined; onSaved: () => void }) {
   const createBill = useCreateMoneyBill(workspaceId)
+  const { data: properties = [] } = useProperties(workspaceId)
+  const { data: suppliers = [] } = useContacts(workspaceId, { contact_type: "supplier" })
   const [supplier, setSupplier] = useState("")
   const [property, setProperty] = useState("")
   const [billNumber, setBillNumber] = useState("")
@@ -138,8 +142,8 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
     try {
       const payload: InsertMoneyBill = {
         workspace_id: workspaceId,
-        property_id: null,
-        supplier_id: null,
+        property_id: property || null,
+        supplier_id: supplier || null,
         amount: parseFloat(amount),
         due_date: dueDate,
         approval_status: "pending_review",
@@ -176,16 +180,16 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-700">Supplier</label>
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search suppliers…"
-                  value={supplier}
-                  onChange={(e) => setSupplier(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <select
+                value={supplier}
+                onChange={(e) => setSupplier(e.target.value)}
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select supplier…</option>
+                {suppliers.map((s) => (
+                  <option key={s.id} value={s.id}>{s.full_name || s.company_name || "Unnamed supplier"}</option>
+                ))}
+              </select>
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-700">Property</label>
@@ -195,6 +199,9 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select property…</option>
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -257,13 +264,6 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700">Receipt / Attachment</label>
-            <label className="flex items-center gap-2.5 px-4 py-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all">
-              <Paperclip className="w-4 h-4 text-slate-400" />
-              <span className="text-[13px] text-slate-500">Click to attach file or drag & drop</span>
-            </label>
-          </div>
         </div>
 
         <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 space-y-2">

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import {
@@ -8,23 +8,49 @@ import {
   FileText, Building2, Briefcase, User, Clock, Plus, Receipt,
   ChevronRight, X, Trash2,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { uploadFile } from "@/lib/upload"
 import { InlineEditField } from "@/components/portfolio/InlineEditField"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
+import { StripeConnectButton } from "@/components/payments/StripeConnectButton"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobileTabs from "@/components/mobile/MobileTabs"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type BillStatus = "awaiting_review" | "approved" | "overdue" | "paid" | "scheduled_for_payment" | "disputed"
-type BillType = "maintenance_bill" | "renovation_bill" | "utility_bill" | "compliance_bill" | "insurance_bill" | "professional_fee" | "landlord_rent_bill"
 
-interface LineItem { id: string; description: string; qty: number; unit_price: number; tax_rate: number }
+interface LineItem { id: string; description: string; qty: number; unit_price: number; tax_rate: number; line_total: number }
+
+interface PaymentRow {
+  id: string
+  date: string
+  method: string | null
+  amount: number
+  reference: string | null
+}
+
+interface AuditRow {
+  id: string
+  ts: string
+  user: string
+  action: string
+  detail: string
+}
+
+interface BillDoc {
+  id: string
+  name: string
+  url: string | null
+  mime: string | null
+  size: number | null
+  created_at: string | null
+}
 
 interface BillDetail {
   id: string
@@ -32,58 +58,43 @@ interface BillDetail {
   supplier: string
   supplier_email: string
   supplier_phone: string
-  type: BillType
+  bill_type: string
   property: string
   unit: string
   job: string | null
   job_title: string | null
-  job_estimated_cost: number | null
+  // Real linkable record ids (route to detail pages):
+  contact_id: string | null
+  property_ref: string | null
+  unit_ref: string | null
+  job_ref: string | null
   amount: number
   subtotal: number
   tax: number
   paid: number
+  currency: string
   due_date: string
   issue_date: string
   status: BillStatus
-  payment_method: string
   approval_required: boolean
   notes: string
   line_items: LineItem[]
   created_by: string
   created_at: string
   updated_at: string
-  has_invoice_pdf: boolean
 }
 
-// ── Mock Data ─────────────────────────────────────────────────────────────────
+// ── Blank placeholder (no fabricated data — live fetch hydrates real values) ────
 
-const MOCK_BILLS: Record<string, BillDetail> = {
-  "bill-001": {
-    id: "bill-001", bill_number: "BILL-001", supplier: "Kevin Walsh Plumbing", supplier_email: "kevin@kwplumbing.co.uk", supplier_phone: "07712 345678",
-    type: "maintenance_bill", property: "14 Birchwood Rd", unit: "Ground Floor", job: "JOB-2026-034", job_title: "Boiler replacement",
-    job_estimated_cost: 350, amount: 320, subtotal: 266.67, tax: 53.33, paid: 0, due_date: "2026-06-15", issue_date: "2026-06-01",
-    status: "awaiting_review", payment_method: "Bank Transfer (BACS)", approval_required: true,
-    notes: "Boiler replaced on 2026-05-30. Bill includes parts and labour. VAT invoice attached.",
-    line_items: [
-      { id: "li-1", description: "Boiler replacement — parts", qty: 1, unit_price: 180, tax_rate: 20 },
-      { id: "li-2", description: "Labour (4 hrs @ £21.67)", qty: 4, unit_price: 21.67, tax_rate: 20 },
-    ],
-    created_by: "Alex Johnson", created_at: "2026-06-01T09:00:00Z", updated_at: "2026-06-01T09:00:00Z", has_invoice_pdf: true,
-  },
-}
-
-function getOrCreateBill(id: string): BillDetail {
-  if (MOCK_BILLS[id]) return MOCK_BILLS[id]
-  // Unknown id: return a BLANK placeholder (no fabricated supplier/property/job
-  // details). The live fetch in the effect hydrates real values; until then we
-  // must not flash demo data that looks like a real bill.
+function blankBill(id: string): BillDetail {
   return {
     id, bill_number: "", supplier: "Supplier", supplier_email: "", supplier_phone: "",
-    type: "maintenance_bill", property: "—", unit: "—", job: null, job_title: null,
-    job_estimated_cost: null, amount: 0, subtotal: 0, tax: 0, paid: 0, due_date: "", issue_date: "",
-    status: "awaiting_review", payment_method: "Bank Transfer (BACS)", approval_required: true, notes: "",
+    bill_type: "supplier_invoice", property: "—", unit: "—", job: null, job_title: null,
+    contact_id: null, property_ref: null, unit_ref: null, job_ref: null,
+    amount: 0, subtotal: 0, tax: 0, paid: 0, currency: "GBP", due_date: "", issue_date: "",
+    status: "awaiting_review", approval_required: true, notes: "",
     line_items: [],
-    created_by: "—", created_at: "", updated_at: "", has_invoice_pdf: false,
+    created_by: "—", created_at: "", updated_at: "",
   }
 }
 
@@ -98,10 +109,33 @@ const STATUS_LABEL: Record<BillStatus, string> = {
   disputed: "Disputed",
 }
 
-const TYPE_LABEL: Record<BillType, string> = {
-  maintenance_bill: "Maintenance", renovation_bill: "Renovation", utility_bill: "Utility",
-  compliance_bill: "Compliance", insurance_bill: "Insurance", professional_fee: "Professional Fee",
+// Live `bills.bill_type` values mapped to human labels (safe fallback for unknowns).
+const TYPE_LABEL: Record<string, string> = {
+  supplier_invoice: "Supplier Invoice",
+  maintenance_bill: "Maintenance",
+  renovation_bill: "Renovation",
+  utility_bill: "Utility",
+  compliance_bill: "Compliance",
+  insurance_bill: "Insurance",
+  professional_fee: "Professional Fee",
   landlord_rent_bill: "Landlord Rent",
+}
+function typeLabel(t: string): string {
+  return TYPE_LABEL[t] ?? t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+// Map a live `bills.status` value onto the BillStatus UI type.
+function liveToBillStatus(s: string): BillStatus {
+  switch (s) {
+    case "paid":
+    case "part_paid":
+    case "reconciled": return "paid"
+    case "overdue": return "overdue"
+    case "scheduled_for_payment": return "scheduled_for_payment"
+    case "disputed": return "disputed"
+    case "approved": return "approved"
+    default: return "awaiting_review"
+  }
 }
 
 function statusVariant(s: BillStatus): "warning" | "primary" | "danger" | "success" | "ai" | "default" {
@@ -115,32 +149,14 @@ function statusVariant(s: BillStatus): "warning" | "primary" | "danger" | "succe
   }
 }
 
-// Reflect a status patch back onto the BillDetail UI shape
-function mapStatusPatch(patch: Record<string, unknown>): Partial<BillDetail> {
-  const out: Partial<BillDetail> = {}
-  if (patch.approval_status === "approved") out.status = "approved"
-  if (patch.payment_status === "paid") { out.status = "paid" }
-  if (patch.payment_status === "overdue") out.status = "overdue"
-  if (patch.payment_status === "scheduled") out.status = "scheduled_for_payment"
-  return out
+// Format money against the bill's own currency (i18n-safe — never raw £ concat).
+function gbp(n: number, currency = "GBP"): string {
+  return formatCurrency(Number.isFinite(n) ? n : 0, currency)
 }
 
-// Translate a page-facing approval/payment patch into a real `bills` update.
-// The live `bills` table uses a single `status` column (no approval_status /
-// payment_status). Allowed status values include: awaiting_review, approved,
-// scheduled_for_payment, paid, overdue, disputed, rejected, cancelled.
-function toBillsUpdate(patch: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  if (patch.approval_status === "approved") out.status = "approved"
-  if (patch.approval_status === "rejected") out.status = "rejected"
-  if (patch.payment_status === "paid") out.status = "paid"
-  if (patch.payment_status === "overdue") out.status = "overdue"
-  if (patch.payment_status === "scheduled") out.status = "scheduled_for_payment"
-  if (patch.approved_at != null) out.approved_at = patch.approved_at
-  if (patch.paid_at != null) out.paid_at = patch.paid_at
-  // Map a bare amount edit to the real total column.
-  if (patch.amount != null) { out.subtotal = patch.amount; out.total = patch.amount }
-  return out
+function num(v: unknown): number {
+  const n = typeof v === "string" ? parseFloat(v) : (v as number)
+  return Number.isFinite(n) ? n : 0
 }
 
 function initials(name: string) { return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase() }
@@ -154,16 +170,30 @@ const TABS = ["Overview","Line Items","Payment","Supplier Invoice","Linked Job",
 
 // ── Record Payment Modal ──────────────────────────────────────────────────────
 
-function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onClose: () => void; onRecord: () => Promise<void> }) {
+interface PaymentInput { date: string; amount: number; method: string; reference: string }
+
+function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onClose: () => void; onRecord: (p: PaymentInput) => Promise<void> }) {
+  const outstanding = Math.max(bill.amount - bill.paid, 0)
   const [saving, setSaving] = useState(false)
   const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-  const [amount, setAmount] = useState(String(bill.amount))
-  const [method, setMethod] = useState(bill.payment_method)
+  const [amount, setAmount] = useState(String(outstanding > 0 ? outstanding : bill.amount))
+  const [method, setMethod] = useState("Bank Transfer (BACS)")
   const [ref, setRef] = useState("")
+  const [err, setErr] = useState<string | null>(null)
 
   async function handle(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true)
-    try { await onRecord() } finally { setSaving(false); onClose() }
+    e.preventDefault()
+    const amt = parseFloat(amount || "0")
+    if (!amt || amt <= 0) { setErr("Enter a payment amount greater than zero."); return }
+    setSaving(true); setErr(null)
+    try {
+      await onRecord({ date, amount: amt, method, reference: ref.trim() })
+      onClose()
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Could not record payment.")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -175,6 +205,7 @@ function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onC
           <button aria-label="Close" onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={handle} className="space-y-3">
+          {err && <p className="text-xs text-red-600">{err}</p>}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Payment Date</label>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
@@ -186,7 +217,7 @@ function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onC
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Payment Method</label>
             <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
-              {["Bank Transfer (BACS)","Faster Payments","CHAPS","Direct Debit","Cheque"].map((m) => <option key={m}>{m}</option>)}
+              {["Bank Transfer (BACS)","Faster Payments","CHAPS","Direct Debit","Cheque","Card"].map((m) => <option key={m}>{m}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -209,86 +240,223 @@ export default function BillDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { workspace } = useWorkspace()
-  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "bill-001"
+  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : ""
 
-  const [bill, setBill] = useState<BillDetail>(() => getOrCreateBill(id))
-  // Live = a real row was found in money_bills; only then is inline editing persisted
+  const [bill, setBill] = useState<BillDetail>(() => blankBill(id))
   const [isLive, setIsLive] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+  const [payments, setPayments] = useState<PaymentRow[]>([])
+  const [docs, setDocs] = useState<BillDoc[]>([])
+  const [auditRows, setAuditRows] = useState<AuditRow[]>([])
+  const [supplierBillCount, setSupplierBillCount] = useState<number | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
+  const docInputRef = useRef<HTMLInputElement>(null)
 
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 3500)
   }
 
-  // Map a live money_bills row onto the BillDetail shape used by the UI
+  // Load real payments for this bill from the `payments` ledger.
+  const loadPayments = useCallback(async () => {
+    if (!id) return
+    const supabase = createClient()
+    try {
+      const { data, error } = await supabase
+        .from("payments")
+        .select("id, payment_date, payment_method, amount, reference, created_at")
+        .eq("linked_type", "bill")
+        .eq("linked_id", id)
+        .order("payment_date", { ascending: false })
+      if (error) return
+      setPayments((data ?? []).map((r: Record<string, unknown>) => ({
+        id: r.id as string,
+        date: ((r.payment_date ?? r.created_at) as string) ?? "",
+        method: (r.payment_method as string) ?? null,
+        amount: num(r.amount),
+        reference: (r.reference as string) ?? null,
+      })))
+    } catch { /* payments table may not exist — stay empty */ }
+  }, [id])
+
+  // Load documents attached to this bill (category 'bill', metadata.bill_id === id).
+  const loadDocs = useCallback(async () => {
+    if (!id || !workspace?.id) return
+    const supabase = createClient()
+    try {
+      const { data, error } = await supabase
+        .from("documents")
+        .select("id, name, url, mime_type, size_bytes, created_at, metadata")
+        .eq("workspace_id", workspace.id)
+        .eq("category", "bill")
+        .order("created_at", { ascending: false })
+      if (error) return
+      const linked = (data ?? []).filter((r: Record<string, unknown>) => {
+        const m = r.metadata as { bill_id?: string } | null
+        return m?.bill_id === id
+      })
+      setDocs(linked.map((r: Record<string, unknown>) => ({
+        id: r.id as string,
+        name: r.name as string,
+        url: (r.url as string) ?? null,
+        mime: (r.mime_type as string) ?? null,
+        size: (r.size_bytes as number) ?? null,
+        created_at: (r.created_at as string) ?? null,
+      })))
+    } catch { /* documents table may not exist — stay empty */ }
+  }, [id, workspace?.id])
+
+  // Main fetch: real bill + joined supplier/property/unit/job + line items.
   useEffect(() => {
     if (!id || !workspace?.id) return
+    setLoading(true)
     const supabase = createClient();
     (async () => {
       try {
+        // NOTE: bills.unit_id → units and bills.job_id → jobs have no FK constraint
+        // registered, so PostgREST cannot embed them (it 400s). Only contacts +
+        // properties have working FK relationships; unit/job are fetched separately.
         const { data, error } = await supabase
           .from("bills")
-          .select("*")
+          .select("*, contacts!supplier_contact_id(display_name, email, phone), properties(address_line1)")
           .eq("id", id)
           .eq("workspace_id", workspace.id)
           .maybeSingle()
         if (error) {
-          // 42P01 (table missing) or other — fall back to mock, editing disabled
-          return
+          if (error.code === "42P01") { setLoading(false); return }
+          throw error
         }
-        if (data) {
-          const r = data as Record<string, unknown>
-          // live `bills.status` is a single column; map it onto the BillStatus UI type.
-          const liveStatus = (r.status as string) ?? "awaiting_review"
-          const status: BillStatus =
-            liveStatus === "paid" || liveStatus === "part_paid" || liveStatus === "reconciled" ? "paid"
-            : liveStatus === "overdue" ? "overdue"
-            : liveStatus === "scheduled_for_payment" ? "scheduled_for_payment"
-            : liveStatus === "disputed" ? "disputed"
-            : liveStatus === "approved" ? "approved"
-            : "awaiting_review"
-          const total = (r.total as number | null) ?? undefined
-          const subtotalLive = (r.subtotal as number | null) ?? undefined
-          const taxLive = (r.tax_amount as number | null) ?? undefined
-          // Map a live bill onto the UI shape. Crucially, clear the mock
-          // supplier/property/job/line-item fields so a REAL bill never shows
-          // fabricated demo details ("Example Supplier Ltd", "14 Birchwood Rd"…).
-          setBill((prev) => ({
-            ...prev,
-            id: r.id as string,
-            amount: total ?? prev.amount,
-            subtotal: subtotalLive ?? total ?? prev.subtotal,
-            tax: taxLive ?? prev.tax,
-            due_date: (r.due_date as string) ?? prev.due_date,
-            issue_date: (r.issue_date as string) ?? prev.issue_date,
-            status,
-            notes: (r.notes as string | null) ?? "",
-            bill_number: (r.bill_number as string | null) ?? prev.bill_number,
-            paid: liveStatus === "paid" ? (total ?? prev.amount) : 0,
-            // Real records have no demo supplier/property/job context columns here:
-            supplier: "Supplier",
-            supplier_email: "",
-            supplier_phone: "",
-            property: "—",
-            unit: "—",
-            job: null,
-            job_title: null,
-            job_estimated_cost: null,
-            line_items: [],
-            created_by: "—",
-            created_at: (r.created_at as string) ?? prev.created_at,
-            updated_at: (r.updated_at as string) ?? prev.updated_at,
-            has_invoice_pdf: false,
-          }))
-          setIsLive(true)
+        if (!data) { setNotFound(true); setLoading(false); return }
+
+        const r = data as Record<string, unknown>
+        const supplierJoin = r.contacts as { display_name?: string; email?: string; phone?: string } | null
+        const propertyJoin = r.properties as { address_line1?: string } | null
+
+        // Resolve unit + job labels separately (no embeddable FK relationship).
+        let unitLabel = "—"
+        let jobTitle: string | null = null
+        let jobRefLabel: string | null = null
+        if (r.unit_id) {
+          const { data: u } = await supabase.from("units").select("label").eq("id", r.unit_id as string).maybeSingle()
+          if (u?.label) unitLabel = u.label as string
         }
-      } catch { /* table may not exist — keep mock */ }
+        if (r.job_id) {
+          const { data: j } = await supabase.from("jobs").select("title, reference").eq("id", r.job_id as string).maybeSingle()
+          if (j) { jobTitle = (j.title as string) ?? null; jobRefLabel = (j.reference as string) ?? null }
+        }
+        const total = num(r.total)
+
+        setBill({
+          id: r.id as string,
+          bill_number: (r.bill_number as string) ?? "",
+          supplier: supplierJoin?.display_name ?? "Supplier",
+          supplier_email: supplierJoin?.email ?? "",
+          supplier_phone: supplierJoin?.phone ?? "",
+          bill_type: (r.bill_type as string) ?? "supplier_invoice",
+          property: propertyJoin?.address_line1 ?? "—",
+          unit: unitLabel,
+          job: jobRefLabel ?? jobTitle ?? null,
+          job_title: jobTitle,
+          contact_id: (r.supplier_contact_id as string) ?? null,
+          property_ref: (r.property_id as string) ?? null,
+          unit_ref: (r.unit_id as string) ?? null,
+          job_ref: (r.job_id as string) ?? null,
+          amount: total,
+          subtotal: num(r.subtotal) || total,
+          tax: num(r.tax_amount),
+          paid: 0, // hydrated from real payments below
+          currency: (r.currency as string) ?? "GBP",
+          due_date: (r.due_date as string) ?? "",
+          issue_date: (r.issue_date as string) ?? "",
+          status: liveToBillStatus((r.status as string) ?? "awaiting_review"),
+          approval_required: true,
+          notes: (r.notes as string) ?? "",
+          line_items: [],
+          created_by: (r.created_by as string) ?? "—",
+          created_at: (r.created_at as string) ?? "",
+          updated_at: (r.updated_at as string) ?? "",
+        })
+        setIsLive(true)
+
+        // Line items
+        try {
+          const { data: lines } = await supabase
+            .from("bill_lines")
+            .select("id, description, quantity, unit_price, tax_rate, line_total, sort_order")
+            .eq("bill_id", id)
+            .order("sort_order", { ascending: true })
+          if (lines) {
+            setBill((prev) => ({
+              ...prev,
+              line_items: lines.map((l: Record<string, unknown>) => ({
+                id: l.id as string,
+                description: (l.description as string) ?? "",
+                qty: num(l.quantity),
+                unit_price: num(l.unit_price),
+                tax_rate: num(l.tax_rate),
+                line_total: num(l.line_total),
+              })),
+            }))
+          }
+        } catch { /* bill_lines may not exist — keep empty */ }
+
+        // Supplier history (real count of other bills from same supplier)
+        if (r.supplier_contact_id) {
+          try {
+            const { count } = await supabase
+              .from("bills")
+              .select("id", { count: "exact", head: true })
+              .eq("workspace_id", workspace.id)
+              .eq("supplier_contact_id", r.supplier_contact_id as string)
+              .neq("id", id)
+            setSupplierBillCount(count ?? 0)
+          } catch { /* ignore */ }
+        }
+      } catch {
+        setNotFound(true)
+      } finally {
+        setLoading(false)
+      }
     })()
   }, [id, workspace?.id])
 
-  // Persist a field to the live `bills` row (only called when isLive).
-  // Map page-facing field names onto real `bills` columns.
+  // Hydrate `paid` from real payments whenever they change.
+  useEffect(() => {
+    const paid = payments.reduce((s, p) => s + p.amount, 0)
+    setBill((prev) => (prev.paid === paid ? prev : { ...prev, paid }))
+  }, [payments])
+
+  useEffect(() => { loadPayments() }, [loadPayments])
+  useEffect(() => { loadDocs() }, [loadDocs])
+
+  // Audit log (real)
+  useEffect(() => {
+    if (!id) return
+    const supabase = createClient();
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("audit_logs")
+          .select("*")
+          .eq("resource_type", "bill")
+          .eq("resource_id", id)
+          .order("created_at", { ascending: false })
+        if (!error) {
+          setAuditRows((data ?? []).map((r: Record<string, unknown>) => ({
+            id: r.id as string,
+            ts: ((r.created_at as string) ?? "").slice(0, 16).replace("T", " "),
+            user: (r.actor_email ?? r.user_email ?? r.user_id ?? "system") as string,
+            action: (r.action ?? r.event_type ?? "") as string,
+            detail: (r.detail ?? r.description ?? "") as string,
+          })))
+        }
+      } catch { /* audit_logs may not exist — stay empty */ }
+    })()
+  }, [id])
+
+  // Persist a field to the live `bills` row (only meaningful when isLive).
   async function saveField(field: string, value: string | number | null) {
     const supabase = createClient()
     let patch: Record<string, unknown>
@@ -310,21 +478,60 @@ export default function BillDetailPage() {
     }
   }
 
-  async function setBillStatus(patch: Record<string, unknown>, label: string) {
+  // Update the live `bills.status` column from a UI status value.
+  async function setBillStatus(uiStatus: BillStatus, label: string) {
     if (!isLive) { showToast("Demo bill — actions persist once the bill is saved"); return }
     const supabase = createClient()
+    const patch: Record<string, unknown> =
+      uiStatus === "paid" ? { status: "paid", paid_at: new Date().toISOString() }
+      : uiStatus === "overdue" ? { status: "overdue" }
+      : uiStatus === "disputed" ? { status: "disputed" }
+      : uiStatus === "approved" ? { status: "approved", approved_at: new Date().toISOString() }
+      : uiStatus === "scheduled_for_payment" ? { status: "scheduled_for_payment" }
+      : { status: "awaiting_review" }
     try {
       const { error } = await supabase
         .from("bills")
-        .update(toBillsUpdate(patch))
+        .update(patch)
         .eq("id", bill.id)
         .eq("workspace_id", workspace?.id ?? "")
       if (error && error.code !== "42P01") throw error
       if (error?.code === "42P01") { showToast("Bills table not provisioned yet"); return }
-      setBill((prev) => ({ ...prev, ...mapStatusPatch(patch) }))
+      setBill((prev) => ({ ...prev, status: uiStatus }))
       showToast(label)
     } catch {
       showToast("Could not update bill")
+    }
+  }
+
+  // Record a real payment row against this bill, then settle status if fully paid.
+  async function recordPayment(p: PaymentInput) {
+    if (!isLive || !workspace?.id) { showToast("Demo bill — payments persist once the bill is saved"); return }
+    const supabase = createClient()
+    const { error } = await supabase.from("payments").insert({
+      workspace_id: workspace.id,
+      payment_type: "outbound",
+      linked_type: "bill",
+      linked_id: bill.id,
+      contact_id: bill.contact_id,
+      property_id: bill.property_ref,
+      amount: p.amount,
+      currency: bill.currency,
+      payment_date: p.date,
+      payment_method: p.method,
+      status: "completed",
+      reference: p.reference || null,
+    })
+    if (error) {
+      if (error.code === "42P01") { showToast("Payments table not provisioned yet"); return }
+      throw error
+    }
+    await loadPayments()
+    const newPaid = payments.reduce((s, x) => s + x.amount, 0) + p.amount
+    if (newPaid >= bill.amount && bill.amount > 0) {
+      await setBillStatus("paid", "Payment recorded — bill marked paid")
+    } else {
+      showToast("Payment recorded")
     }
   }
 
@@ -340,12 +547,72 @@ export default function BillDetailPage() {
     }
   }
 
+  // Upload a supporting document to R2 and link it to this bill.
+  async function uploadBillDoc(file: File) {
+    if (!id || !workspace?.id) { showToast("No workspace found — please refresh and try again"); return }
+    setUploading(true)
+    try {
+      const uploaded = await uploadFile(file, workspace.id, "bills")
+      const supabase = createClient()
+      const { error: docErr } = await supabase.from("documents").insert({
+        workspace_id: workspace.id,
+        name: file.name,
+        category: "bill",
+        mime_type: uploaded.type || file.type || null,
+        size_bytes: uploaded.size ?? file.size,
+        r2_key: uploaded.key,
+        r2_bucket: "propvora",
+        url: uploaded.url,
+        status: "uploaded",
+        metadata: { bill_id: id },
+      })
+      if (docErr) {
+        showToast(docErr.code === "42P01" ? "Documents table not provisioned yet" : (docErr.message ?? "Could not save document"))
+        return
+      }
+      showToast("Document uploaded and linked to bill")
+      await loadDocs()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function pickFile() { docInputRef.current?.click() }
+
   const [activeTab, setActiveTab] = useState("Overview")
   const [showPayModal, setShowPayModal] = useState(false)
 
+  // ── Loading / not-found states ───────────────────────────────────────────────
+  if (loading && !isLive && !notFound) {
+    return (
+      <div className="px-5 md:px-7 lg:px-8 py-6 max-w-[1600px] mx-auto space-y-5 animate-pulse">
+        <div className="h-4 w-40 bg-slate-200 rounded" />
+        <div className="h-40 bg-white border border-slate-200 rounded-2xl" />
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-16 bg-white border border-slate-200 rounded-xl" />)}
+        </div>
+        <div className="h-72 bg-white border border-slate-200 rounded-2xl" />
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 space-y-4">
+        <Receipt className="w-12 h-12 text-slate-300" />
+        <p className="text-slate-600 font-medium">Bill not found</p>
+        <p className="text-sm text-slate-400 max-w-sm text-center">This bill doesn&apos;t exist, has been deleted, or belongs to another workspace.</p>
+        <Link href="/property-manager/money/bills" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Bills
+        </Link>
+      </div>
+    )
+  }
+
   const outstanding = bill.amount - bill.paid
   const paidPct = bill.amount > 0 ? Math.round((bill.paid / bill.amount) * 100) : 0
-  const costVariance = bill.job_estimated_cost != null ? bill.amount - bill.job_estimated_cost : null
   const color = supplierColor(bill.supplier)
 
   const statusOptions = [
@@ -359,14 +626,15 @@ export default function BillDetailPage() {
 
   return (
     <div className="space-y-0">
+      <input ref={docInputRef} type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBillDoc(f); e.target.value = "" }} />
       <MobileTopBar
-        title={bill.bill_number}
+        title={bill.bill_number || "Bill"}
         subtitle={bill.supplier}
         showBack
         backHref="/property-manager/money/bills"
         overflowActions={[
           ...(bill.status === "awaiting_review"
-            ? [{ label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved") }]
+            ? [{ label: "Approve Bill", icon: Check, onClick: () => setBillStatus("approved", "Bill approved") }]
             : []),
           { label: "Record Payment", icon: CreditCard, onClick: () => setShowPayModal(true) },
           { label: "Download PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank") },
@@ -376,9 +644,7 @@ export default function BillDetailPage() {
         <RecordPaymentModal
           bill={bill}
           onClose={() => setShowPayModal(false)}
-          onRecord={async () => {
-            await setBillStatus({ payment_status: "paid", paid_at: new Date().toISOString() }, "Payment recorded — bill marked paid")
-          }}
+          onRecord={recordPayment}
         />
       )}
       {toastMsg && (
@@ -395,7 +661,7 @@ export default function BillDetailPage() {
             <ArrowLeft className="w-3.5 h-3.5" /> Bills
           </Link>
           <ChevronRight className="w-3 h-3 text-slate-300" />
-          <span className="text-slate-900 font-medium">{bill.bill_number}</span>
+          <span className="text-slate-900 font-medium">{bill.bill_number || "Bill"}</span>
         </div>
 
         {/* Main layout */}
@@ -430,9 +696,11 @@ export default function BillDetailPage() {
                           <Briefcase className="w-3 h-3" /> {bill.job}
                         </span>
                       )}
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> Due {bill.due_date}
-                      </span>
+                      {bill.due_date && (
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" /> Due {bill.due_date}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -452,36 +720,31 @@ export default function BillDetailPage() {
                       />
                     </div>
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">£{bill.amount.toLocaleString()}</p>
+                    <p className="text-3xl font-bold text-slate-900">{gbp(bill.amount, bill.currency)}</p>
                   )}
-                  <p className="text-xs text-slate-500 mt-0.5">{TYPE_LABEL[bill.type]}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{typeLabel(bill.bill_type)}</p>
                 </div>
               </div>
 
               {/* Action buttons */}
               <div className="flex items-center gap-2 flex-wrap mt-5 pt-4 border-t border-slate-100">
                 {bill.status === "awaiting_review" && (
-                  <Button variant="success" size="sm" onClick={() => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved")}>
+                  <Button variant="success" size="sm" onClick={() => setBillStatus("approved", "Bill approved")}>
                     <Check className="w-4 h-4" /> Approve Bill
                   </Button>
                 )}
-                <Button variant="destructive-soft" size="sm" onClick={() => setBillStatus({ payment_status: "overdue" }, "Bill marked disputed")}>
+                <Button variant="destructive-soft" size="sm" onClick={() => setBillStatus("disputed", "Bill marked disputed")}>
                   <AlertCircle className="w-4 h-4" /> Dispute Bill
                 </Button>
                 <Button variant="soft" size="sm" onClick={() => setShowPayModal(true)}>
                   <CreditCard className="w-4 h-4" /> Record Payment
                 </Button>
-                <div title="Stripe Connect not configured — go to Settings to enable">
-                  <Button variant="outline" size="sm" disabled>
-                    <div style={{ color: "#7C3AED" }}><CreditCard className="w-4 h-4" /></div>
-                    Pay via Stripe
-                  </Button>
-                </div>
+                <StripeConnectButton onReady={() => setShowPayModal(true)} />
                 <Button variant="outline" size="sm" onClick={() => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank")}>
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
-                {bill.job && (
-                  <Link href={`/property-manager/work/jobs/${bill.job}`}>
+                {bill.job_ref && (
+                  <Link href={`/property-manager/work/jobs/${bill.job_ref}`}>
                     <Button variant="outline" size="sm">
                       <ExternalLink className="w-4 h-4" /> Open Linked Job
                     </Button>
@@ -496,8 +759,8 @@ export default function BillDetailPage() {
                   {(open) => (
                     <ActionMenu
                       items={[
-                        { label: "Mark as Paid", icon: Check, onClick: () => setBillStatus({ payment_status: "paid", paid_at: new Date().toISOString() }, "Bill marked paid"), disabled: bill.status === "paid" },
-                        { label: "Approve Bill", icon: Check, onClick: () => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved"), disabled: bill.status !== "awaiting_review" },
+                        { label: "Mark as Paid", icon: Check, onClick: () => setBillStatus("paid", "Bill marked paid"), disabled: bill.status === "paid" },
+                        { label: "Approve Bill", icon: Check, onClick: () => setBillStatus("approved", "Bill approved"), disabled: bill.status !== "awaiting_review" },
                         { label: "Download PDF", icon: Download, onClick: () => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank") },
                         { label: "Delete Bill", icon: Trash2, onClick: open, variant: "danger" },
                       ]}
@@ -508,14 +771,13 @@ export default function BillDetailPage() {
             </div>
 
             {/* KPI Strip */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {[
-                { label: "Subtotal", value: `£${bill.subtotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, colour: "text-slate-900" },
-                { label: "Tax", value: `£${bill.tax.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, colour: "text-slate-600" },
-                { label: "Total", value: `£${bill.amount.toLocaleString()}`, colour: "text-[#2563EB] font-bold" },
-                { label: "Paid", value: `£${bill.paid.toLocaleString()}`, colour: "text-emerald-600" },
-                { label: "Outstanding", value: `£${outstanding.toLocaleString()}`, colour: outstanding > 0 ? "text-red-600 font-bold" : "text-emerald-600" },
-                ...(costVariance != null ? [{ label: "Cost Variance", value: `${costVariance >= 0 ? "+" : ""}£${costVariance.toLocaleString()}`, colour: costVariance > 0 ? "text-red-600" : "text-emerald-600" }] : []),
+                { label: "Subtotal", value: gbp(bill.subtotal, bill.currency), colour: "text-slate-900" },
+                { label: "Tax", value: gbp(bill.tax, bill.currency), colour: "text-slate-600" },
+                { label: "Total", value: gbp(bill.amount, bill.currency), colour: "text-[#2563EB] font-bold" },
+                { label: "Paid", value: gbp(bill.paid, bill.currency), colour: "text-emerald-600" },
+                { label: "Outstanding", value: gbp(outstanding, bill.currency), colour: outstanding > 0 ? "text-red-600 font-bold" : "text-emerald-600" },
               ].map((k) => (
                 <div key={k.label} className="bg-white rounded-xl border border-slate-200 p-3">
                   <p className="text-xs text-slate-500 mb-1">{k.label}</p>
@@ -566,12 +828,12 @@ export default function BillDetailPage() {
                   />
                 )}
                 {activeTab === "Line Items" && <LineItemsTab bill={bill} />}
-                {activeTab === "Payment" && <PaymentTab bill={bill} onRecordPayment={() => setShowPayModal(true)} />}
-                {activeTab === "Supplier Invoice" && <SupplierInvoiceTab bill={bill} />}
+                {activeTab === "Payment" && <PaymentTab bill={bill} payments={payments} onRecordPayment={() => setShowPayModal(true)} />}
+                {activeTab === "Supplier Invoice" && <SupplierInvoiceTab docs={docs} uploading={uploading} onUpload={pickFile} />}
                 {activeTab === "Linked Job" && <LinkedJobTab bill={bill} />}
-                {activeTab === "Documents" && <DocumentsTab />}
-                {activeTab === "Activity" && <ActivityTab bill={bill} />}
-                {activeTab === "Audit" && <AuditTab bill={bill} />}
+                {activeTab === "Documents" && <DocumentsTab docs={docs} uploading={uploading} onUpload={pickFile} />}
+                {activeTab === "Activity" && <ActivityTab bill={bill} audit={auditRows} />}
+                {activeTab === "Audit" && <AuditTab bill={bill} audit={auditRows} />}
               </div>
             </div>
           </div>
@@ -583,17 +845,14 @@ export default function BillDetailPage() {
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Quick Actions</h3>
               <div className="space-y-2">
                 {bill.status === "awaiting_review" && (
-                  <Button variant="success" size="sm" className="w-full justify-start" onClick={() => setBillStatus({ approval_status: "approved", approved_at: new Date().toISOString() }, "Bill approved")}>
+                  <Button variant="success" size="sm" className="w-full justify-start" onClick={() => setBillStatus("approved", "Bill approved")}>
                     <Check className="w-4 h-4" /> Approve Bill
                   </Button>
                 )}
                 <Button variant="soft" size="sm" className="w-full justify-start" onClick={() => setShowPayModal(true)}>
                   <CreditCard className="w-4 h-4" /> Record Payment
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled>
-                  <div style={{ color: "#7C3AED" }}><CreditCard className="w-4 h-4" /></div>
-                  Pay via Stripe
-                </Button>
+                <StripeConnectButton fullWidth onReady={() => setShowPayModal(true)} />
                 <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => id && window.open(`/api/pdf/invoice/${id}?type=bill`, "_blank")}>
                   <Download className="w-4 h-4" /> Download PDF
                 </Button>
@@ -604,11 +863,10 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Bill Info</h3>
               <div className="space-y-2.5">
-                <RailRow label="Created by" value={bill.created_by} />
-                <RailRow label="Created" value={bill.created_at.split("T")[0]} />
-                <RailRow label="Updated" value={bill.updated_at.split("T")[0]} />
-                <RailRow label="Bill Type" value={TYPE_LABEL[bill.type]} />
-                <RailRow label="Issue Date" value={bill.issue_date} />
+                <RailRow label="Created" value={bill.created_at ? bill.created_at.split("T")[0] : "—"} />
+                <RailRow label="Updated" value={bill.updated_at ? bill.updated_at.split("T")[0] : "—"} />
+                <RailRow label="Bill Type" value={typeLabel(bill.bill_type)} />
+                <RailRow label="Issue Date" value={bill.issue_date || "—"} />
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-xs text-slate-500 shrink-0">Status</span>
                   <InlineEditField
@@ -617,20 +875,7 @@ export default function BillDetailPage() {
                     options={statusOptions}
                     disabled={!isLive}
                     displayClassName="text-xs font-medium text-slate-700"
-                    onSave={async (v) => {
-                      // Map the BillStatus UI value -> the real `bills.status` column.
-                      const patch: Record<string, unknown> =
-                        v === "paid" ? { status: "paid", paid_at: new Date().toISOString() }
-                        : v === "overdue" ? { status: "overdue" }
-                        : v === "disputed" ? { status: "disputed" }
-                        : v === "approved" ? { status: "approved", approved_at: new Date().toISOString() }
-                        : v === "scheduled_for_payment" ? { status: "scheduled_for_payment" }
-                        : { status: "awaiting_review" }
-                      const supabase = createClient()
-                      const { error } = await supabase.from("bills").update(patch).eq("id", bill.id).eq("workspace_id", workspace?.id ?? "")
-                      if (error && error.code !== "42P01") throw error
-                      setBill((p) => ({ ...p, status: v as BillStatus }))
-                    }}
+                    onSave={async (v) => { await setBillStatus(v as BillStatus, "Status updated") }}
                   />
                 </div>
                 <div className="flex items-start justify-between gap-2">
@@ -643,7 +888,6 @@ export default function BillDetailPage() {
                     onSave={async (v) => { await saveField("due_date", v); setBill((p) => ({ ...p, due_date: v })) }}
                   />
                 </div>
-                <RailRow label="Payment Method" value={bill.payment_method} />
               </div>
             </div>
 
@@ -651,28 +895,44 @@ export default function BillDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Related</h3>
               <div className="space-y-2">
-                <Link href={`/property-manager/contacts`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
-                  <User className="w-3.5 h-3.5" /> {bill.supplier}
-                </Link>
-                <Link href={`/property-manager/portfolio/properties`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
-                  <Building2 className="w-3.5 h-3.5" /> {bill.property}
-                </Link>
-                {bill.job && (
-                  <Link href={`/property-manager/work/jobs/${bill.job}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                {bill.contact_id ? (
+                  <Link href={`/property-manager/contacts/${bill.contact_id}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                    <User className="w-3.5 h-3.5" /> {bill.supplier}
+                  </Link>
+                ) : (
+                  <span className="flex items-center gap-2 text-sm text-slate-400"><User className="w-3.5 h-3.5" /> {bill.supplier}</span>
+                )}
+                {bill.property_ref ? (
+                  <Link href={`/property-manager/portfolio/properties/${bill.property_ref}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                    <Building2 className="w-3.5 h-3.5" /> {bill.property}
+                  </Link>
+                ) : (
+                  <span className="flex items-center gap-2 text-sm text-slate-400"><Building2 className="w-3.5 h-3.5" /> {bill.property}</span>
+                )}
+                {bill.job_ref && (
+                  <Link href={`/property-manager/work/jobs/${bill.job_ref}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
                     <Briefcase className="w-3.5 h-3.5" /> {bill.job}
                   </Link>
                 )}
               </div>
             </div>
 
-            {/* Supplier History */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Supplier History</p>
-              <p className="text-xs text-slate-500">3 previous bills from {bill.supplier.split(" ")[0]}</p>
-              <Link href="/property-manager/money/bills" className="text-xs text-[#2563EB] hover:underline mt-1 block">
-                View all supplier bills →
-              </Link>
-            </div>
+            {/* Supplier History (real count) */}
+            {bill.contact_id && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Supplier History</p>
+                <p className="text-xs text-slate-500">
+                  {supplierBillCount === null
+                    ? "Loading…"
+                    : supplierBillCount === 0
+                      ? "No other bills from this supplier"
+                      : `${supplierBillCount} other bill${supplierBillCount === 1 ? "" : "s"} from ${bill.supplier}`}
+                </p>
+                <Link href={`/property-manager/money/bills?supplier=${bill.contact_id}`} className="text-xs text-[#2563EB] hover:underline mt-1 block">
+                  View all supplier bills →
+                </Link>
+              </div>
+            )}
           </aside>
         </div>
       </div>
@@ -707,7 +967,9 @@ function OverviewTab({ bill, paidPct, outstanding, isLive, onSaveNotes }: { bill
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900">{bill.supplier}</p>
-            <p className="text-xs text-slate-500">{bill.supplier_email} · {bill.supplier_phone}</p>
+            <p className="text-xs text-slate-500">
+              {[bill.supplier_email, bill.supplier_phone].filter(Boolean).join(" · ") || "No contact details on file"}
+            </p>
           </div>
         </div>
       </div>
@@ -725,27 +987,27 @@ function OverviewTab({ bill, paidPct, outstanding, isLive, onSaveNotes }: { bill
           />
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-emerald-600 font-medium">£{bill.paid.toLocaleString()} paid</span>
-          <span className="text-red-600 font-medium">£{outstanding.toLocaleString()} outstanding</span>
+          <span className="text-emerald-600 font-medium">{gbp(bill.paid, bill.currency)} paid</span>
+          <span className="text-red-600 font-medium">{gbp(outstanding, bill.currency)} outstanding</span>
         </div>
       </div>
 
-      {/* Approval timeline */}
+      {/* Approval timeline (derived from real status) */}
       <div className="space-y-2">
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Approval Timeline</p>
         <div className="space-y-3">
           {[
-            { label: "Bill created", date: bill.created_at.split("T")[0], done: true },
-            { label: "Awaiting review", date: bill.created_at.split("T")[0], done: bill.status !== "awaiting_review" },
-            { label: "Approved", date: "—", done: ["approved","paid","scheduled_for_payment"].includes(bill.status) },
-            { label: "Payment recorded", date: "—", done: bill.status === "paid" },
+            { label: "Bill created", date: bill.created_at ? bill.created_at.split("T")[0] : "—", done: !!bill.created_at },
+            { label: "Awaiting review", date: "", done: bill.status !== "awaiting_review" },
+            { label: "Approved", date: "", done: ["approved","paid","scheduled_for_payment"].includes(bill.status) },
+            { label: "Payment recorded", date: "", done: bill.status === "paid" },
           ].map((step, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0", step.done ? "bg-emerald-500" : "bg-slate-200")}>
                 {step.done && <Check className="w-3 h-3 text-white" />}
               </div>
               <span className={cn("text-sm", step.done ? "text-slate-700" : "text-slate-400")}>{step.label}</span>
-              <span className="ml-auto text-xs text-slate-500">{step.date}</span>
+              {step.date && <span className="ml-auto text-xs text-slate-500">{step.date}</span>}
             </div>
           ))}
         </div>
@@ -755,11 +1017,19 @@ function OverviewTab({ bill, paidPct, outstanding, isLive, onSaveNotes }: { bill
 }
 
 function LineItemsTab({ bill }: { bill: BillDetail }) {
+  if (bill.line_items.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-10 text-center">
+        <Receipt className="w-8 h-8 text-slate-300" />
+        <p className="text-sm text-slate-500">No line items on this bill</p>
+      </div>
+    )
+  }
   const subtotal = bill.line_items.reduce((s, li) => s + li.qty * li.unit_price, 0)
   const totalTax = bill.line_items.reduce((s, li) => s + li.qty * li.unit_price * (li.tax_rate / 100), 0)
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm min-w-[560px]">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
             {["Description", "Qty", "Unit Price", "Tax Rate", "Line Total"].map((h) => (
@@ -771,14 +1041,14 @@ function LineItemsTab({ bill }: { bill: BillDetail }) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {bill.line_items.map((li) => {
-            const lineTotal = li.qty * li.unit_price * (1 + li.tax_rate / 100)
+            const lineTotal = li.line_total || li.qty * li.unit_price * (1 + li.tax_rate / 100)
             return (
               <tr key={li.id}>
                 <td className="px-4 py-3 text-slate-700">{li.description}</td>
                 <td className="px-4 py-3 text-right text-slate-600">{li.qty}</td>
-                <td className="px-4 py-3 text-right text-slate-600">£{li.unit_price.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td>
+                <td className="px-4 py-3 text-right text-slate-600">{gbp(li.unit_price, bill.currency)}</td>
                 <td className="px-4 py-3 text-right text-slate-600">{li.tax_rate}%</td>
-                <td className="px-4 py-3 text-right font-semibold text-slate-900">£{lineTotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td>
+                <td className="px-4 py-3 text-right font-semibold text-slate-900">{gbp(lineTotal, bill.currency)}</td>
               </tr>
             )
           })}
@@ -786,15 +1056,15 @@ function LineItemsTab({ bill }: { bill: BillDetail }) {
         <tfoot>
           <tr className="border-t border-slate-200 bg-slate-50">
             <td colSpan={4} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Subtotal</td>
-            <td className="px-4 py-3 text-right font-semibold text-slate-900">£{subtotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td>
+            <td className="px-4 py-3 text-right font-semibold text-slate-900">{gbp(subtotal, bill.currency)}</td>
           </tr>
           <tr className="border-t border-slate-100 bg-slate-50">
             <td colSpan={4} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">VAT</td>
-            <td className="px-4 py-3 text-right font-semibold text-slate-900">£{totalTax.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td>
+            <td className="px-4 py-3 text-right font-semibold text-slate-900">{gbp(totalTax, bill.currency)}</td>
           </tr>
           <tr className="border-t-2 border-slate-200 bg-slate-50">
             <td colSpan={4} className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Total</td>
-            <td className="px-4 py-3 text-right font-bold text-[#2563EB] text-base">£{bill.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td>
+            <td className="px-4 py-3 text-right font-bold text-[#2563EB] text-base">{gbp(bill.amount, bill.currency)}</td>
           </tr>
         </tfoot>
       </table>
@@ -802,7 +1072,7 @@ function LineItemsTab({ bill }: { bill: BillDetail }) {
   )
 }
 
-function PaymentTab({ bill, onRecordPayment }: { bill: BillDetail; onRecordPayment: () => void }) {
+function PaymentTab({ bill, payments, onRecordPayment }: { bill: BillDetail; payments: PaymentRow[]; onRecordPayment: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -811,25 +1081,27 @@ function PaymentTab({ bill, onRecordPayment }: { bill: BillDetail; onRecordPayme
           <Plus className="w-4 h-4" /> Record Payment
         </Button>
       </div>
-      {bill.paid > 0 ? (
+      {payments.length > 0 ? (
         <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[560px]">
-          <thead>
-            <tr className="border-b border-slate-200 bg-slate-50">
-              {["Date","Method","Amount","Reference"].map((h) => (
-                <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{h}</th>
+          <table className="w-full text-sm min-w-[560px]">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                {["Date","Method","Amount","Reference"].map((h) => (
+                  <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((p) => (
+                <tr key={p.id} className="border-b border-slate-100">
+                  <td className="px-4 py-3 text-slate-700">{p.date}</td>
+                  <td className="px-4 py-3 text-slate-700">{p.method ?? "—"}</td>
+                  <td className="px-4 py-3 font-semibold text-emerald-700">{gbp(p.amount, bill.currency)}</td>
+                  <td className="px-4 py-3 text-slate-500 font-mono text-xs">{p.reference ?? "—"}</td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-slate-100">
-              <td className="px-4 py-3 text-slate-700">2026-06-10</td>
-              <td className="px-4 py-3 text-slate-700">{bill.payment_method}</td>
-              <td className="px-4 py-3 font-semibold text-emerald-700">£{bill.paid.toLocaleString()}</td>
-              <td className="px-4 py-3 text-slate-500 font-mono text-xs">BACS-20260610</td>
-            </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -846,25 +1118,40 @@ function PaymentTab({ bill, onRecordPayment }: { bill: BillDetail; onRecordPayme
   )
 }
 
-function SupplierInvoiceTab({ bill }: { bill: BillDetail }) {
+function fmtSize(bytes: number | null): string {
+  if (!bytes) return ""
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+function SupplierInvoiceTab({ docs, uploading, onUpload }: { docs: BillDoc[]; uploading: boolean; onUpload: () => void }) {
   return (
     <div className="space-y-4">
-      {bill.has_invoice_pdf ? (
-        <div className="rounded-xl border border-slate-200 p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-red-500" />
+      {docs.length > 0 ? (
+        <div className="space-y-3">
+          {docs.map((d) => (
+            <div key={d.id} className="rounded-xl border border-slate-200 p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{d.name}</p>
+                  <p className="text-xs text-slate-500">
+                    {[d.created_at ? d.created_at.split("T")[0] : null, fmtSize(d.size)].filter(Boolean).join(" · ") || "Uploaded"}
+                  </p>
+                </div>
+              </div>
+              {d.url && (
+                <a href={d.url} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm"><Download className="w-4 h-4" /> Download</Button>
+                </a>
+              )}
             </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-900">supplier-invoice-{bill.bill_number}.pdf</p>
-              <p className="text-xs text-slate-500">Uploaded 2026-06-01 · 284 KB</p>
-            </div>
-          </div>
-          <div className="rounded-xl bg-slate-100 h-64 flex items-center justify-center">
-            <p className="text-sm text-slate-500">PDF preview</p>
-          </div>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4" /> Download Invoice
+          ))}
+          <Button variant="soft" size="sm" loading={uploading} onClick={onUpload}>
+            <Plus className="w-4 h-4" /> Upload another
           </Button>
         </div>
       ) : (
@@ -876,7 +1163,7 @@ function SupplierInvoiceTab({ bill }: { bill: BillDetail }) {
             <p className="text-sm font-semibold text-slate-700">No invoice uploaded</p>
             <p className="text-xs text-slate-500 mt-0.5">Upload the supplier&apos;s PDF invoice for your records</p>
           </div>
-          <Button variant="soft" size="sm">
+          <Button variant="soft" size="sm" loading={uploading} onClick={onUpload}>
             <Plus className="w-4 h-4" /> Upload Invoice
           </Button>
         </div>
@@ -886,7 +1173,7 @@ function SupplierInvoiceTab({ bill }: { bill: BillDetail }) {
 }
 
 function LinkedJobTab({ bill }: { bill: BillDetail }) {
-  if (!bill.job) {
+  if (!bill.job_ref) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">
         <Briefcase className="w-8 h-8 text-slate-300" />
@@ -904,10 +1191,9 @@ function LinkedJobTab({ bill }: { bill: BillDetail }) {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">{bill.job}</p>
-              <p className="text-xs text-slate-500">{bill.job_title}</p>
+              {bill.job_title && <p className="text-xs text-slate-500">{bill.job_title}</p>}
             </div>
           </div>
-          <Badge variant="warning" size="sm" dot>In Progress</Badge>
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -918,18 +1204,12 @@ function LinkedJobTab({ bill }: { bill: BillDetail }) {
             <p className="text-xs text-slate-500 mb-0.5">Unit</p>
             <p className="font-medium text-slate-900">{bill.unit}</p>
           </div>
-          {bill.job_estimated_cost != null && (
-            <div>
-              <p className="text-xs text-slate-500 mb-0.5">Estimated Cost</p>
-              <p className="font-medium text-slate-900">£{bill.job_estimated_cost.toLocaleString()}</p>
-            </div>
-          )}
           <div>
-            <p className="text-xs text-slate-500 mb-0.5">Actual Cost (this bill)</p>
-            <p className="font-medium text-slate-900">£{bill.amount.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 mb-0.5">Bill Total</p>
+            <p className="font-medium text-slate-900">{gbp(bill.amount, bill.currency)}</p>
           </div>
         </div>
-        <Link href={`/property-manager/work/jobs/${bill.job}`}>
+        <Link href={`/property-manager/work/jobs/${bill.job_ref}`}>
           <Button variant="outline" size="sm">
             <ExternalLink className="w-4 h-4" /> Open Job Detail
           </Button>
@@ -939,28 +1219,58 @@ function LinkedJobTab({ bill }: { bill: BillDetail }) {
   )
 }
 
-function DocumentsTab() {
+function DocumentsTab({ docs, uploading, onUpload }: { docs: BillDoc[]; uploading: boolean; onUpload: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-900">Documents</p>
-        <Button variant="soft" size="sm">
+        <Button variant="soft" size="sm" loading={uploading} onClick={onUpload}>
           <Plus className="w-4 h-4" /> Upload
         </Button>
       </div>
-      <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <FileText className="w-8 h-8 text-slate-300" />
-        <p className="text-sm text-slate-500">No documents yet</p>
-      </div>
+      {docs.length > 0 ? (
+        <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+          {docs.map((d) => (
+            <div key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <FileText className="w-5 h-5 text-slate-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm text-slate-700 truncate">{d.name}</p>
+                  <p className="text-xs text-slate-400">{[d.created_at ? d.created_at.split("T")[0] : null, fmtSize(d.size)].filter(Boolean).join(" · ")}</p>
+                </div>
+              </div>
+              {d.url && (
+                <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2563EB] hover:underline shrink-0">Download</a>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <FileText className="w-8 h-8 text-slate-300" />
+          <p className="text-sm text-slate-500">No documents yet</p>
+        </div>
+      )}
     </div>
   )
 }
 
-function ActivityTab({ bill }: { bill: BillDetail }) {
-  const events = [
-    { date: bill.created_at.split("T")[0], action: "Bill created", user: bill.created_by },
-    { date: bill.created_at.split("T")[0], action: "Status set to Awaiting Review", user: "System" },
-  ]
+function ActivityTab({ bill, audit }: { bill: BillDetail; audit: AuditRow[] }) {
+  // Real audit events; fall back to the bill's own creation event (real data).
+  const events = audit.length > 0
+    ? audit.map((a) => ({ date: a.ts || (bill.created_at ? bill.created_at.split("T")[0] : ""), action: a.action.replace(/_/g, " ") || "Updated", user: a.user }))
+    : bill.created_at
+      ? [{ date: bill.created_at.split("T")[0], action: "Bill created", user: bill.created_by }]
+      : []
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8 text-center">
+        <Receipt className="w-8 h-8 text-slate-300" />
+        <p className="text-sm text-slate-500">No activity recorded yet</p>
+      </div>
+    )
+  }
   return (
     <div className="space-y-4">
       {events.map((e, i) => (
@@ -969,8 +1279,8 @@ function ActivityTab({ bill }: { bill: BillDetail }) {
             <Receipt className="w-4 h-4 text-slate-400" />
           </div>
           <div>
-            <p className="text-sm text-slate-700">{e.action}</p>
-            <p className="text-xs text-slate-500">{e.date} · {e.user}</p>
+            <p className="text-sm text-slate-700 capitalize">{e.action}</p>
+            <p className="text-xs text-slate-500">{[e.date, e.user].filter(Boolean).join(" · ")}</p>
           </div>
         </div>
       ))}
@@ -978,26 +1288,37 @@ function ActivityTab({ bill }: { bill: BillDetail }) {
   )
 }
 
-function AuditTab({ bill }: { bill: BillDetail }) {
+function AuditTab({ bill, audit }: { bill: BillDetail; audit: AuditRow[] }) {
+  if (audit.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8 text-center">
+        <FileText className="w-8 h-8 text-slate-300" />
+        <p className="text-sm text-slate-500">No audit entries recorded yet</p>
+        {bill.created_at && (
+          <p className="text-xs text-slate-400">Bill created {bill.created_at.slice(0, 16).replace("T", " ")}</p>
+        )}
+      </div>
+    )
+  }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm min-w-[560px]">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
-            {["Timestamp","User","Action","Field","Old Value","New Value"].map((h) => (
+            {["Timestamp","User","Action","Detail"].map((h) => (
               <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          <tr className="border-b border-slate-100">
-            <td className="px-4 py-3 text-xs text-slate-500 font-mono whitespace-nowrap">{bill.created_at}</td>
-            <td className="px-4 py-3 text-slate-700">{bill.created_by}</td>
-            <td className="px-4 py-3"><Badge variant="primary" size="sm">CREATE</Badge></td>
-            <td className="px-4 py-3 text-slate-500">—</td>
-            <td className="px-4 py-3 text-slate-500">—</td>
-            <td className="px-4 py-3 text-slate-700">{bill.bill_number}</td>
-          </tr>
+          {audit.map((a) => (
+            <tr key={a.id} className="border-b border-slate-100">
+              <td className="px-4 py-3 text-xs text-slate-500 font-mono whitespace-nowrap">{a.ts}</td>
+              <td className="px-4 py-3 text-slate-700">{a.user}</td>
+              <td className="px-4 py-3"><Badge variant="primary" size="sm">{(a.action || "—").toUpperCase()}</Badge></td>
+              <td className="px-4 py-3 text-slate-600">{a.detail || "—"}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
