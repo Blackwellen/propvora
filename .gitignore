@@ -61,3 +61,10 @@ supabase/.temp/
 /docs/Audits/
 /docs/release/
 /dev-server-qa*.log
+
+# Local working files / Excel temp files
+*.xlsx
+~$*
+/build-output-session*.txt
+/dev-crawl.log
+/dev-server-verify.log
