@@ -1,10 +1,8 @@
-import WebhooksPage from "@/features/automations/pages/WebhooksPage"
+import { redirect } from "next/navigation"
 
-export const metadata = {
-  title: "Webhooks - Automations - Propvora",
-  description: "Real-time event notifications for your systems and integrations.",
-}
-
-export default function AutomationWebhooksRoute() {
-  return <WebhooksPage />
+// Webhooks management has been consolidated into the Integrations tab as a
+// sub-tab: /property-manager/automations/integrations (select "Webhooks").
+// This route is kept so any bookmarks or existing links land in the right place.
+export default function AutomationWebhooksRedirect() {
+  redirect("/property-manager/automations/integrations")
 }

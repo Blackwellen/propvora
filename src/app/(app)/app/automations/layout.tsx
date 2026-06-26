@@ -8,7 +8,9 @@ import { AutomationsFlagsProvider } from "@/features/automations/components/Auto
 // feature flags ONCE and provides the resulting hidden-tab set to every page via
 // context, so the tab strip is identical and correctly gated across the whole
 // section. Without this, sub-pages that didn't re-resolve flags rendered the
-// flag-gated Canvas/Webhooks/Integrations tabs, which then bounced the user.
+// flag-gated Canvas Builder / Integrations tabs, which then bounced the user.
+// NOTE: Webhooks is now a sub-tab inside Integrations — hiding "Integrations"
+// covers webhooks too; there is no separate "Webhooks" main tab to gate.
 export const dynamic = "force-dynamic"
 
 export default async function AutomationsLayout({ children }: { children: ReactNode }) {
@@ -42,12 +44,11 @@ export default async function AutomationsLayout({ children }: { children: ReactN
     // fail-closed: gated tabs stay hidden
   }
 
+  // Webhooks is a sub-tab of Integrations (not a separate main tab), so gating
+  // "Integrations" hides both when automationsFull is OFF.
   const hiddenTabs: string[] = []
   if (!canvasLite) hiddenTabs.push("Canvas Builder")
-  if (!automationsFull) {
-    hiddenTabs.push("Webhooks")
-    hiddenTabs.push("Integrations")
-  }
+  if (!automationsFull) hiddenTabs.push("Integrations")
 
   return (
     <AutomationsFlagsProvider value={{ hiddenTabs, canvasEnabled: canvasLite }}>

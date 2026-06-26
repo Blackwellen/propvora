@@ -30,8 +30,10 @@ export const AUTOMATIONS_TABS: AutomationsTab[] = [
   { label: "Runs & Logs", href: "/property-manager/automations/runs-logs", match: ["/automations/runs-logs", "/automations/runs"] },
   { label: "Approvals", href: "/property-manager/automations/approvals", match: ["/automations/approvals"] },
   { label: "Errors", href: "/property-manager/automations/errors", match: ["/automations/errors"] },
-  { label: "Integrations", href: "/property-manager/automations/integrations", match: ["/automations/integrations"] },
-  { label: "Webhooks", href: "/property-manager/automations/webhooks", match: ["/automations/webhooks"] },
+  // Integrations tab houses all third-party connections AND outbound webhooks as
+  // sub-tabs: Overview · Integrations · Webhooks · Connection Health · Secrets ·
+  // Usage Analytics · Audit Log. Webhooks is NOT a separate main tab.
+  { label: "Integrations", href: "/property-manager/automations/integrations", match: ["/automations/integrations", "/automations/webhooks"] },
   { label: "AI Builder", href: "/property-manager/automations/ai-builder", match: ["/automations/ai-builder"] },
   { label: "Usage & Limits", href: "/property-manager/automations/usage-limits", match: ["/automations/usage-limits", "/automations/usage"] },
   // Admin Controls (workspace governance) moved to
@@ -59,8 +61,8 @@ export default function AutomationsTabs({
   /**
    * Labels of tabs to hide. Used to enforce feature-flag gating:
    *   - "Canvas Builder"  → canvasLite flag OFF
-   *   - "Webhooks"        → automationsFull flag OFF
    *   - "Integrations"    → automationsFull flag OFF
+   *   (Webhooks is now a sub-tab of Integrations, not a separate main tab)
    */
   hiddenTabs?: string[]
 }) {
@@ -76,38 +78,42 @@ export default function AutomationsTabs({
     ? AUTOMATIONS_TABS.filter((t) => !effectiveHidden.includes(t.label))
     : AUTOMATIONS_TABS
   return (
-    <nav className="overflow-x-auto border-b border-slate-200" aria-label="Automation sections">
-      <div className="flex min-w-max items-center gap-1">
-        {visibleTabs.map((tab) => {
-          const active = isActive(pathname, tab.match, base)
-          return (
-            <Link
-              key={tab.href}
-              href={resolveSectionHref(tab.href, ctx)}
-              className={[
-                "relative whitespace-nowrap border-b-2 px-3.5 py-3 text-sm transition",
-                active
-                  ? "border-blue-600 font-semibold text-blue-700"
-                  : "border-transparent font-medium text-slate-500 hover:text-slate-800",
-              ].join(" ")}
-            >
-              <span className="inline-flex items-center gap-2">
-                {tab.label}
-                {tab.badge != null && tab.badge > 0 && (
-                  <span
-                    className={[
-                      "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
-                      active ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500",
-                    ].join(" ")}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </span>
-            </Link>
-          )
-        })}
-      </div>
-    </nav>
+    <div className="relative border-b border-slate-200">
+      {/* Right-edge fade gradient — visible only on mobile/tablet when tabs overflow */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent lg:hidden" aria-hidden="true" />
+      <nav className="overflow-x-auto scrollbar-none" aria-label="Automation sections">
+        <div className="flex min-w-max items-center gap-1">
+          {visibleTabs.map((tab) => {
+            const active = isActive(pathname, tab.match, base)
+            return (
+              <Link
+                key={tab.href}
+                href={resolveSectionHref(tab.href, ctx)}
+                className={[
+                  "relative shrink-0 whitespace-nowrap border-b-2 px-3.5 py-3 text-sm transition",
+                  active
+                    ? "border-blue-600 font-semibold text-blue-700"
+                    : "border-transparent font-medium text-slate-500 hover:text-slate-800",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-2">
+                  {tab.label}
+                  {tab.badge != null && tab.badge > 0 && (
+                    <span
+                      className={[
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                        active ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500",
+                      ].join(" ")}
+                    >
+                      {tab.badge}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+    </div>
   )
 }
