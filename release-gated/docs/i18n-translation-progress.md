@@ -57,6 +57,17 @@ All components made `async` and wired:
 **Features page (done this session):**
 - `src/components/marketing/sections/FeaturesHeroSection.tsx` — featHeroEyebrow, featHeroTitle, featHeroSubtitle, featHeroCta, featHeroWalkthrough
 - `src/components/marketing/sections/FeaturesCta.tsx` — featCtaTitle, featCtaSubtitle, featCtaTrial, featCtaWalkthrough
+- `src/components/marketing/FeaturesPremium.tsx` — feat1–7 Eyebrow/Title/Copy/P1–P3 (42 keys) — sections array now localised via async server component
+
+**Pricing page (done this session):**
+- `src/app/pricing/page.tsx` — LocaleProvider server wrapper
+- `src/app/pricing/PricingClient.tsx` — pricingAddonsTitle, pricingAddonsSubtitle, pricingEnterpriseTitle, pricingEnterpriseSubtitle, pricingContactSales, pricingStartTrialInstead
+- `src/components/marketing/pricing/PricingHero.tsx` — pricingBadge, pricingHeroTitle, pricingHeroSubtitle, pricingMonthly, pricingAnnual, pricingAnnualSave
+- `src/components/marketing/pricing/PricingToggle.tsx` — optional label props (labelMonthly/labelAnnual/labelSave)
+- `src/components/marketing/pricing/PlanCards.tsx` — pricingCustom, pricingMonth, pricingAnnualNote, pricingAllPlans, pricingUnlimited
+- `src/components/marketing/pricing/FeatureComparisonTable.tsx` — pricingCompareTitle, pricingCompareSubtitle, pricingMostPopular
+- `src/components/marketing/pricing/PricingFAQ.tsx` — pricingFAQTitle
+- Total pricing keys: 19 per locale
 
 **Global shell (done this session):**
 - `src/components/marketing/PublicFooter.tsx` — footerTagline, footerLocation, footerProduct, footerCompany, footerLegalCol, footerGdpr
@@ -71,10 +82,11 @@ All components made `async` and wired:
 
 ## Verification
 
-- TypeScript: `npx tsc --noEmit` → **exit 0** (2026-06-27)
+- TypeScript: `npx tsc --noEmit` → **exit 0** (2026-06-27, latest check)
 - HTTP GET `/` → all 7 en-GB capability/footer strings confirmed present
-- HTTP GET `/features` → featCtaTitle, featCtaTrial, featCtaWalkthrough, navLogin, navGetStarted confirmed
-- Auth guard: `/app/account/preferences` → correctly redirects to `/login?redirectTo=...`
+- HTTP GET `/features` → all 7 feature section titles confirmed present (A connected operational record, Coordinate reactive and planned work, See the financial position, Make obligations visible, Repeatable workflows, Legal readiness, A focused workspace)
+- HTTP GET `/pricing` → Add-ons, enhancements, Need something custom, Unlimited, Most popular, Contact sales, Start free trial instead, Frequently asked questions — all confirmed
+- Total marketing keys in en-GB: **116**
 
 ---
 
@@ -86,10 +98,12 @@ All landing/features/footer/nav marketing strings are done. Remaining scope is t
 - `LocaleProvider` needs wiring into the `(app)` layout wrapping children (currently only `WorkspaceLocaleProvider` is there)
 - This is a large mechanical program — the marketing vertical slice is the proven pattern to scale from
 
-### 2. pricing / faq pages
-- `src/app/(marketing)/pricing/` — price labels, plan names, feature bullets
-- `src/app/(marketing)/faq/` — question/answer copy
+### 2. FAQ / walkthrough / suppliers pages
+- `src/app/faq/` — question/answer copy (10 FAQs × 2 strings = 20+ keys)
+- `src/app/walkthrough/` — walkthrough steps
+- `src/app/suppliers/` — supplier landing page
 - Strategy: same async server component pattern, add keys to locale files
+- **Note:** Pricing page is DONE ✅
 
 ### 3. ar-AE locale (Arabic)
 - `ar-AE.json` does not exist and `ar-AE` is not in `SUPPORTED_LOCALES` in `config.ts`

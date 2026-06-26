@@ -2,7 +2,7 @@
 
 **Session:** automations-section7-audit (session-auto7) — 2026-06-26
 
-All code defects found in this audit were fixed in-session (FIX-596 … FIX-602) and the project type-checks clean (`tsc --noEmit` → 0 errors). The items below could **not** be completed in-session for the exact reasons stated — none are code defects.
+All code defects found in this audit were fixed in-session (FIX-610 … FIX-616) and the project type-checks clean (`tsc --noEmit` → 0 errors). The items below could **not** be completed in-session for the exact reasons stated — none are code defects.
 
 ---
 

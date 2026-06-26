@@ -8,6 +8,9 @@ import { resolveNavFlags, resolveFlags } from "@/lib/flags"
 import { normaliseTier, PLAN_DISPLAY } from "@/lib/billing/plans"
 import type { BrandColours } from "@/lib/branding/theme"
 import { WorkspaceLocaleProvider } from "@/lib/i18n/WorkspaceLocaleProvider"
+import { LocaleProvider } from "@/components/i18n/LocaleProvider"
+import { getServerLocale } from "@/lib/i18n"
+import type { Locale } from "@/lib/i18n/config"
 import { JurisdictionContextProvider } from "@/lib/jurisdiction/context"
 
 export const metadata: Metadata = {
@@ -22,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   let isTrial = false
   let brandColor: string | null = null
   let brandColours: Partial<BrandColours> | null = null
-  const wsLocale = "en-GB"
+  let wsLocale: Locale = "en-GB"
   const wsCurrency = "GBP"
   const wsTimezone = "Europe/London"
   const wsDateFormat = "DD/MM/YYYY"
@@ -141,18 +144,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     // Non-fatal — default to restricted access + default branding.
   }
 
+  // Resolve the active locale for this request: user preference → workspace default
+  // → Accept-Language → en-GB. This drives both LocaleProvider (useT() strings)
+  // and WorkspaceLocaleProvider (money/date formatting).
+  try {
+    wsLocale = await getServerLocale() as Locale
+  } catch {
+    // Non-fatal — keep en-GB default.
+  }
+
   return (
     <BrandingStyle brandColor={brandColor} brandColours={brandColours}>
-      <WorkspaceLocaleProvider
-        locale={wsLocale}
-        currency={wsCurrency}
-        timezone={wsTimezone}
-        dateFormat={wsDateFormat}
-      >
-        <JurisdictionContextProvider>
-          <AppShell aiCopilotEnabled={aiCopilotEnabled} isTrial={isTrial} navFlags={navFlags}>{children}</AppShell>
-        </JurisdictionContextProvider>
-      </WorkspaceLocaleProvider>
+      <LocaleProvider locale={wsLocale}>
+        <WorkspaceLocaleProvider
+          locale={wsLocale}
+          currency={wsCurrency}
+          timezone={wsTimezone}
+          dateFormat={wsDateFormat}
+        >
+          <JurisdictionContextProvider>
+            <AppShell aiCopilotEnabled={aiCopilotEnabled} isTrial={isTrial} navFlags={navFlags}>{children}</AppShell>
+          </JurisdictionContextProvider>
+        </WorkspaceLocaleProvider>
+      </LocaleProvider>
     </BrandingStyle>
   )
 }
