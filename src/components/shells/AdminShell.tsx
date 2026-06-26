@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useState, useCallback } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -356,8 +356,6 @@ function AdminTopNav() {
 // ─── Shell ────────────────────────────────────────────────────────────────────
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("admin-shell-collapsed") === "true"
@@ -378,7 +376,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/bw-console-x9f3")
+    window.location.assign("/bw-console-x9f3")
   }
 
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16

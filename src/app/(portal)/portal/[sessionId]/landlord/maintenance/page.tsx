@@ -1,7 +1,7 @@
 import Link from "next/link"
 import {
   Wrench, AlertTriangle, CalendarClock, CheckCircle2, PoundSterling, ChevronRight,
-  MessageSquare, FileText, Building2, Download, History, LifeBuoy,
+  MessageSquare, FileText, Building2, LifeBuoy,
 } from "lucide-react"
 import { requirePortalSession } from "../../_guard"
 import { getLandlordPropertyIds } from "@/lib/portal/data"
@@ -59,7 +59,7 @@ export default async function LandlordMaintenancePage({ params }: { params: Prom
     <div className="space-y-5">
       <PortalPageHeader
         title="Maintenance" subtitle="Track repairs, quotes, visits and spend across your portfolio." backHref={base}
-        actions={<><PortalButtonLink href="#" icon={History}>View history</PortalButtonLink><PortalButtonLink href="#" variant="primary" icon={Download}>Download report</PortalButtonLink></>}
+        actions={<PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message manager</PortalButtonLink>}
       />
       {urgent.length > 0 && <PortalAlertBanner tone="red" icon={AlertTriangle} title={`${urgent.length} urgent issue${urgent.length === 1 ? "" : "s"} need attention`}>Review and approve action to keep your tenants safe.</PortalAlertBanner>}
       <PortalKpiStrip kpis={kpis} cols={6} />

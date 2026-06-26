@@ -1,28 +1,34 @@
 import Link from "next/link"
 import { ArrowRight, Check } from "lucide-react"
 import PremiumProductImage from "../PremiumProductImage"
+import { getServerLocale, t } from "@/lib/i18n"
 
-export default function LandingHeroSection() {
+export default async function LandingHeroSection() {
+  // Marketing copy renders in the visitor's browser language (Accept-Language
+  // negotiated to a supported locale; en-GB by default). Translations live in
+  // src/lib/i18n/locales/*.json under the `marketing` namespace.
+  const locale = await getServerLocale()
+  const tr = (k: string) => t(locale, `marketing.${k}`)
   return (
     <section className="relative overflow-hidden bg-[#f7faff] px-4 pb-20 pt-36 sm:px-6 lg:pb-28 lg:pt-44">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_82%_20%,rgba(124,58,237,0.12),transparent_28%)]" />
       <div className="relative mx-auto flex max-w-7xl flex-col items-center text-center">
         <h1 className="max-w-5xl text-balance text-5xl font-black leading-[0.98] tracking-[-0.055em] text-[#06122f] sm:text-6xl lg:text-[78px]">
-          Run every property operation with clarity.
+          {tr("heroTitle")}
         </h1>
         <p className="mt-7 max-w-3xl text-pretty text-lg leading-8 text-slate-600 sm:text-xl">
-          Propvora connects portfolio management, tenancies, work, compliance, money, planning and communication in one operational workspace.
+          {tr("heroSubtitle")}
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href="/register" className="inline-flex h-13 items-center gap-2 rounded-xl bg-blue-600 px-7 font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">
-            Start free trial <ArrowRight className="h-4 w-4" />
+            {tr("ctaPrimary")} <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/features" className="inline-flex h-13 items-center rounded-xl border border-slate-300 bg-white px-7 font-bold text-slate-800 transition hover:border-blue-300 hover:text-blue-700">
-            Explore the platform
+            {tr("ctaSecondary")}
           </Link>
         </div>
         <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-600">
-          {["7-day trial", "No credit card required", "Cancel anytime"].map((item) => (
+          {[tr("trialDays"), tr("trialNoCard"), tr("trialCancel")].map((item) => (
             <span key={item} className="inline-flex items-center gap-2">
               <Check className="h-4 w-4 text-emerald-600" />{item}
             </span>

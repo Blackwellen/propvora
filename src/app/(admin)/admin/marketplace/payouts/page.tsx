@@ -1,12 +1,12 @@
 import React from "react"
-import Link from "next/link"
 import { redirect } from "next/navigation"
-import { ArrowLeft, Wallet } from "lucide-react"
+import { Wallet } from "lucide-react"
 import { getAdminIdentity } from "@/lib/admin/guard"
 import { listPayouts, fmtPence } from "@/components/admin-marketplace/data"
 import PayoutsTable from "@/components/admin-marketplace/PayoutsTable"
 import StatusFilter from "@/components/admin-marketplace/StatusFilter"
 import { NotProvisioned, EmptyState } from "@/components/admin-marketplace/states"
+import { AdminPageHeader } from "@/components/admin/ui"
 
 export const dynamic = "force-dynamic"
 
@@ -36,25 +36,16 @@ export default async function MarketplacePayoutsPage({ searchParams }: PageProps
   const total = rows.reduce((a, r) => a + r.amountPence, 0)
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/admin/marketplace" className="hover:text-[#2563EB] flex items-center gap-1">
-          <ArrowLeft className="w-4 h-4" /> Marketplace
-        </Link>
-        <span>/</span>
-        <span className="text-slate-800 font-medium">Payouts</span>
-      </div>
-
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Payout monitor</h1>
-          <p className="text-xs text-slate-500">
-            {available ? `${rows.length} payout${rows.length === 1 ? "" : "s"}` : "payouts not provisioned"}
-            {available && rows.length > 0 && <> · total {fmtPence(total)}</>}
-          </p>
-        </div>
-        <StatusFilter options={STATUS_OPTIONS} />
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={Wallet}
+        title="Payout monitor"
+        subtitle={available
+          ? `${rows.length} payout${rows.length === 1 ? "" : "s"}${rows.length > 0 ? ` · total ${fmtPence(total)}` : ""} — platform-wide`
+          : "Payouts not provisioned"}
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Marketplace" }, { label: "Payouts" }]}
+        actions={<StatusFilter options={STATUS_OPTIONS} />}
+      />
 
       {!available ? (
         <NotProvisioned table="payouts" />

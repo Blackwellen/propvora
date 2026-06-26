@@ -1,5 +1,8 @@
+"use client"
+
 import { Check, Minus } from "lucide-react"
 import { getPlans, type PlanTier } from "@/lib/billing/plans"
+import { useT } from "@/components/i18n/LocaleProvider"
 
 const plans = getPlans()
 const tiers = plans.map((p) => p.tier)
@@ -176,15 +179,17 @@ function renderCell(value: Cell) {
 }
 
 export default function FeatureComparisonTable() {
+  const tFn = useT()
+  const tr = (k: string) => tFn(`marketing.${k}`)
   return (
     <section className="py-20 bg-white border-t border-slate-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-            Compare every plan
+            {tr("pricingCompareTitle")}
           </h2>
           <p className="text-slate-600">
-            A full breakdown of what&apos;s included on each plan.
+            {tr("pricingCompareSubtitle")}
           </p>
         </div>
 
@@ -205,7 +210,7 @@ export default function FeatureComparisonTable() {
                     <div className="text-sm font-bold text-slate-900">{p.name}</div>
                     {p.popular && (
                       <div className="text-[10px] font-bold uppercase tracking-wide text-blue-600 mt-0.5">
-                        Most popular
+                        {tr("pricingMostPopular") || "Most popular"}
                       </div>
                     )}
                   </th>

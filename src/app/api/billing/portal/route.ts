@@ -56,11 +56,14 @@ export async function POST() {
 
     const returnUrl =
       process.env.STRIPE_PORTAL_RETURN_URL ??
-      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/app/workspace-settings/billing`
+      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/property-manager/workspace-settings/subscription`
+
+    const configurationId = process.env.STRIPE_PORTAL_CONFIGURATION_ID
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
+      ...(configurationId ? { configuration: configurationId } : {}),
     })
 
     return NextResponse.json({ url: session.url })

@@ -10,16 +10,19 @@ import { createContext, useContext, type ReactNode } from "react"
  * Automations page. Previously each page had to resolve flags itself and pass
  * `hiddenTabs` down; pages that forgot (Runs & Logs, Approvals, Errors, AI
  * Builder, Usage & Limits) rendered the FULL strip, so the flag-gated Canvas
- * Builder / Webhooks / Integrations tabs re-appeared the moment you clicked into
- * them — and clicking a gated tab bounced the user. The PM Automations layout
- * now resolves the flags ONCE and provides them here, so every page renders an
+ * Builder / Integrations tabs re-appeared the moment you clicked into them —
+ * and clicking a gated tab bounced the user. The PM Automations layout now
+ * resolves the flags ONCE and provides them here, so every page renders an
  * identical, correctly-gated strip.
+ *
+ * Note: "Webhooks" is a sub-tab inside Integrations, not a separate main tab.
+ * Gating "Integrations" covers Webhooks automatically.
  *
  * The Supplier workspace mounts a couple of these pages OUTSIDE this provider,
  * so consumers must fall back to their own props when the context is absent.
  */
 export interface AutomationsFlagsValue {
-  /** Tab labels to hide from the strip, e.g. ["Canvas Builder","Webhooks","Integrations"]. */
+  /** Tab labels to hide from the strip, e.g. ["Canvas Builder", "Integrations"]. */
   hiddenTabs: string[]
   /** Whether canvasLite is ON — controls the Canvas shortcut buttons. */
   canvasEnabled: boolean

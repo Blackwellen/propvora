@@ -2,21 +2,37 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { Save, AlertTriangle } from "lucide-react"
+import { Save, AlertTriangle, Trophy } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { useAffiliate } from "@/components/affiliate/useAffiliate"
+import { COMPANY } from "@/lib/legal/company"
 import { updateAffiliateProfile } from "@/lib/actions/affiliate"
 import AffiliatePayoutCard from "@/components/affiliate/AffiliatePayoutCard"
 
 const NOTIF_KEY = "propvora.affiliate.notifications"
 
+function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={on}
+      aria-label={label}
+      className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${on ? "bg-[#2563EB]" : "bg-slate-200"}`}
+    >
+      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0.5"}`} />
+    </button>
+  )
+}
+
 export function AffiliateSettings({ basePath }: { basePath: string }) {
   const { loading: affLoading, affiliate, workspaceId, reload } = useAffiliate()
   const [handle, setHandle] = useState("")
   const [payoutEmail, setPayoutEmail] = useState("")
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +42,7 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
     if (affiliate) {
       setHandle(affiliate.public_handle ?? "")
       setPayoutEmail(affiliate.payout_email ?? "")
+      setLeaderboardVisible(!!affiliate.leaderboard_visible)
     }
     try {
       const raw = localStorage.getItem(NOTIF_KEY)
@@ -33,7 +50,7 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
     } catch { /* ignore */ }
   }, [affiliate])
 
-  function toggle(key: keyof typeof notifs) {
+  function toggleNotif(key: keyof typeof notifs) {
     setNotifs((prev) => {
       const next = { ...prev, [key]: !prev[key] }
       try { localStorage.setItem(NOTIF_KEY, JSON.stringify(next)) } catch { /* ignore */ }
@@ -48,6 +65,7 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
       const res = await updateAffiliateProfile(workspaceId, {
         publicHandle: handle.trim() || null,
         payoutEmail: payoutEmail.trim() || null,
+        leaderboardVisible,
       })
       if (!res.ok) throw new Error(res.error ?? "Could not save changes.")
       setSaved(true)
@@ -91,6 +109,19 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
           <p className="text-xs text-slate-400">
             We store only non-sensitive payout preferences. Set up how you get paid below.
           </p>
+
+          {/* Leaderboard opt-in */}
+          <div className="flex items-center justify-between py-2 border-t border-slate-100 pt-3">
+            <div className="flex items-start gap-2">
+              <Trophy className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-slate-800">Show on leaderboard</p>
+                <p className="text-xs text-slate-400">Allow your anonymised stats to appear on the affiliate leaderboard.</p>
+              </div>
+            </div>
+            <Toggle on={leaderboardVisible} onToggle={() => setLeaderboardVisible((v) => !v)} label="Leaderboard visibility" />
+          </div>
+
           <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save changes"}
           </Button>
@@ -112,13 +143,10 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
                 <p className="text-sm font-medium text-slate-800">{p.label}</p>
                 <p className="text-xs text-slate-400">{p.sub}</p>
               </div>
-              <button type="button" onClick={() => toggle(p.key)} aria-pressed={notifs[p.key]}
-                className={`w-10 h-5 rounded-full transition-colors relative ${notifs[p.key] ? "bg-[#2563EB]" : "bg-slate-200"}`}>
-                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${notifs[p.key] ? "translate-x-5" : "translate-x-0.5"}`} />
-              </button>
+              <Toggle on={notifs[p.key]} onToggle={() => toggleNotif(p.key)} label={p.label} />
             </div>
           ))}
-          <p className="text-[11px] text-slate-400 pt-1">Preferences are saved on this device.</p>
+          <p className="text-[11px] text-slate-400 pt-1">Notification preferences are saved on this device.</p>
         </CardContent>
       </Card>
 
@@ -129,7 +157,7 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
             Review the{" "}
             <Link href="/affiliate-programme/terms" className="text-[#2563EB] hover:underline">Affiliate Terms</Link>.
             You can leave the programme at any time — contact{" "}
-            <a href="mailto:partners@propvora.com" className="text-[#2563EB] hover:underline">partners@propvora.com</a>.
+            <a href={`mailto:${COMPANY.emails.support}`} className="text-[#2563EB] hover:underline">{COMPANY.emails.support}</a>.
           </p>
           <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-100 p-3 text-xs text-amber-700">
             <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />

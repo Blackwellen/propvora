@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation"
 import type { Metadata } from "next"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Set up your workspace | Propvora",
@@ -14,10 +16,19 @@ export const metadata: Metadata = {
   },
 }
 
-export default function OnboardingLayout({
+export default async function OnboardingLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/login?redirectTo=/onboarding")
+  }
+
   return <>{children}</>
 }

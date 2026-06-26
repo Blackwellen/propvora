@@ -5,9 +5,12 @@ export type BillingCycle = "monthly" | "annual"
 interface Props {
   billing: BillingCycle
   onChange: (cycle: BillingCycle) => void
+  labelMonthly?: string
+  labelAnnual?: string
+  labelSave?: string
 }
 
-export default function PricingToggle({ billing, onChange }: Props) {
+export default function PricingToggle({ billing, onChange, labelMonthly = "Monthly", labelAnnual = "Annual", labelSave = "Save 2 months" }: Props) {
   return (
     <div className="inline-flex items-center gap-1 p-1 bg-white rounded-xl border border-slate-200 shadow-sm">
       <button
@@ -19,7 +22,7 @@ export default function PricingToggle({ billing, onChange }: Props) {
             : "text-slate-600 hover:text-slate-900"
         )}
       >
-        Monthly
+        {labelMonthly}
       </button>
       <button
         onClick={() => onChange("annual")}
@@ -30,7 +33,7 @@ export default function PricingToggle({ billing, onChange }: Props) {
             : "text-slate-600 hover:text-slate-900"
         )}
       >
-        Annual
+        {labelAnnual}
         <span
           className={cn(
             "px-2 py-0.5 rounded-full text-xs font-bold",
@@ -39,7 +42,7 @@ export default function PricingToggle({ billing, onChange }: Props) {
               : "bg-emerald-100 text-emerald-700"
           )}
         >
-          Save 2 months
+          {labelSave}
         </span>
       </button>
     </div>

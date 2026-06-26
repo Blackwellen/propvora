@@ -592,3 +592,91 @@ export async function deleteWorkspace(confirmName: string): Promise<DangerResult
   revalidatePath("/property-manager")
   return { ok: true, redirect: "/onboarding" }
 }
+
+/* ------------------------------------------------------------------ */
+/* Storage usage                                                        */
+/* ------------------------------------------------------------------ */
+
+export interface StorageUsageResult {
+  ok: boolean
+  error?: string
+  /** Bytes consumed by non-deleted files in this workspace. */
+  usedBytes: number
+  /** Base quota from plan tier, in bytes. */
+  baseQuotaBytes: number
+  /** Extra bytes from purchased add-on packs (10 GB each). */
+  addonQuotaBytes: number
+  /** Total quota = base + addon. */
+  totalQuotaBytes: number
+  /** Purchased add-on quantity (number of 10 GB packs). */
+  addonPacks: number
+}
+
+const STORAGE_BASE_BYTES: Record<string, number> = {
+  starter:    2  * 1024 ** 3,
+  operator:   5  * 1024 ** 3,
+  scale:      15 * 1024 ** 3,
+  pro_agency: 35 * 1024 ** 3,
+  enterprise: 100 * 1024 ** 3,
+}
+const ADDON_PACK_BYTES = 10 * 1024 ** 3 // 10 GB per pack
+
+/**
+ * Returns real storage usage for the current workspace, factoring in plan tier
+ * and any purchased extra-storage add-on packs.
+ */
+export async function getStorageUsage(): Promise<StorageUsageResult> {
+  let ctx: AuthedContext
+  try {
+    ctx = await resolveContext()
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Unauthorised", usedBytes: 0, baseQuotaBytes: 0, addonQuotaBytes: 0, totalQuotaBytes: 0, addonPacks: 0 }
+  }
+
+  const supabase = await createClient()
+
+  // Resolve plan tier
+  let tier = "starter"
+  try {
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("plan")
+      .eq("id", ctx.workspaceId)
+      .maybeSingle()
+    if (ws?.plan && typeof ws.plan === "string") tier = ws.plan
+  } catch { /* fail open */ }
+
+  const baseQuotaBytes = STORAGE_BASE_BYTES[tier] ?? STORAGE_BASE_BYTES.starter
+
+  // Sum file sizes (exclude deleted files)
+  let usedBytes = 0
+  try {
+    const { data } = await supabase
+      .from("files")
+      .select("size_bytes")
+      .eq("workspace_id", ctx.workspaceId)
+      .neq("status", "deleted")
+    if (Array.isArray(data)) {
+      usedBytes = data.reduce((sum, r) => sum + Number((r as { size_bytes?: number }).size_bytes ?? 0), 0)
+    }
+  } catch { /* fail open — 0 used is a safe display default */ }
+
+  // Count purchased extra-storage add-on packs
+  let addonPacks = 0
+  try {
+    const { data } = await supabase
+      .from("workspace_addons")
+      .select("quantity")
+      .eq("workspace_id", ctx.workspaceId)
+      .eq("addon_key", "extra_storage")
+      .eq("status", "active")
+    if (Array.isArray(data)) {
+      addonPacks = data.reduce((sum, r) => sum + Number((r as { quantity?: number }).quantity ?? 0), 0)
+    }
+  } catch { /* fail open */ }
+
+  const addonQuotaBytes = addonPacks * ADDON_PACK_BYTES
+  const totalQuotaBytes = baseQuotaBytes + addonQuotaBytes
+
+  return { ok: true, usedBytes, baseQuotaBytes, addonQuotaBytes, totalQuotaBytes, addonPacks }
+}

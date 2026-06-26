@@ -1,20 +1,6 @@
-import AdminManagementPage from "../../_components/AdminManagementPage"
+import { redirect } from "next/navigation"
 
-export default function AdminAutomationUsageCapsPage() {
-  return (
-    <AdminManagementPage
-      title="Automation usage caps"
-      description="Platform controls for automation execution limits, workspace quotas, throttling, overage review and abuse prevention."
-      items={[
-        "Workspace caps",
-        "Run quotas",
-        "AI usage limits",
-        "Webhook throttles",
-        "Retry limits",
-        "Overage alerts",
-        "Abuse flags",
-        "Limit audit trail",
-      ]}
-    />
-  )
+// Canonical URL is /admin/automation-usage — redirect the legacy nested stub.
+export default function AutomationUsageCapsRedirect() {
+  redirect("/admin/automation-usage")
 }

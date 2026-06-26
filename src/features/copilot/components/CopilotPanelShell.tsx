@@ -11,6 +11,7 @@ import CopilotInboxScreen from "../screens/CopilotInboxScreen"
 import CopilotStartConversationScreen from "../screens/CopilotStartConversationScreen"
 import CopilotConversationView from "../screens/CopilotConversationView"
 import CopilotBrandMark from "./CopilotBrandMark"
+import TrialCopilotGate from "./TrialCopilotGate"
 import { zIndex } from "@/lib/ui/z-index"
 
 interface CopilotPanelShellProps {
@@ -18,13 +19,18 @@ interface CopilotPanelShellProps {
   onClose: () => void
   /** Structured page-level data injected from the page that opened the copilot. */
   summaryData?: Record<string, unknown>
+  /**
+   * True when the workspace is on a free trial. The Copilot tab shows an upgrade
+   * gate; the Inbox tab is unaffected and remains fully functional.
+   */
+  isTrial?: boolean
 }
 
 function PropvoraCopilotIcon() {
   return <CopilotBrandMark size={36} radius={10} />
 }
 
-export default function CopilotPanelShell({ isOpen, onClose, summaryData }: CopilotPanelShellProps) {
+export default function CopilotPanelShell({ isOpen, onClose, summaryData, isTrial = false }: CopilotPanelShellProps) {
   const [activeTab, setActiveTab] = useState<CopilotTab>("copilot")
   const [expanded, setExpanded] = useState(false)
   const [inboxScreen, setInboxScreen] = useState<InboxScreen>("list")
@@ -189,7 +195,11 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData }: Copi
 
       {/* ── Body ───────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        {activeTab === "copilot" && <CopilotChatScreen />}
+        {activeTab === "copilot" && (
+          isTrial
+            ? <TrialCopilotGate onSwitchToInbox={() => setActiveTab("inbox")} />
+            : <CopilotChatScreen />
+        )}
 
         {activeTab === "inbox" && inboxScreen === "list" && (
           <CopilotInboxScreen

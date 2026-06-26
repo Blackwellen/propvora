@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { Monitor, LogOut, Loader2, Info } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import ConfirmDialog from "@/components/account/ConfirmDialog"
 
 export default function SessionsPage() {
-  const router = useRouter()
   const [email, setEmail] = useState("")
   const [lastSignIn, setLastSignIn] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,7 +31,7 @@ export default function SessionsPage() {
     try {
       const supabase = createClient()
       await supabase.auth.signOut({ scope: "global" })
-      router.push("/login")
+      window.location.assign("/login")
     } catch {
       setSigningOut(false)
     }

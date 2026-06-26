@@ -1,6 +1,6 @@
 import {
   Home, PoundSterling, CalendarClock, ShieldCheck, Users, Plug, Phone, KeyRound,
-  ScrollText, Building2, History, Download, MessageSquare, FileText, MapPin, Bed, Bath, CheckCircle2, AlertTriangle,
+  ScrollText, Building2, History, Download, MessageSquare, FileText, MapPin, Bed, Bath,
 } from "lucide-react"
 import { requirePortalSession } from "../../_guard"
 import { getTenantTenancies } from "@/lib/portal/data"
@@ -97,10 +97,10 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
           {current.deposit_amount != null ? (
             <>
               <dl className="space-y-2.5 text-sm">
-                <Row k="Amount protected" v={formatMoney(current.deposit_amount)} />
-                <Row k="Scheme" v="Deposit Protection Service (DPS)" />
+                <Row k="Amount" v={formatMoney(current.deposit_amount)} />
                 <Row k="Status" v={<StatusChip tone="emerald">Protected</StatusChip>} />
               </dl>
+              <p className="text-[11px] text-slate-400 mt-2">Your deposit is protected in a government-approved scheme. Contact your manager for scheme details and certificate.</p>
               <PortalButtonLink href={`${base}/documents`} className="mt-3" variant="ghost" icon={Download}>View deposit certificate</PortalButtonLink>
             </>
           ) : <PortalEmptyState icon={ShieldCheck} title="No deposit recorded" />}
@@ -114,13 +114,9 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
           <PortalButtonLink href={`${base}/messages`} className="mt-3" variant="ghost" icon={Users}>Add additional occupant</PortalButtonLink>
         </PortalSectionCard>
 
-        <PortalSectionCard title="Included services & utilities" icon={Plug}>
-          <ul className="space-y-2 text-sm">
-            {["Buildings insurance (landlord)", "Gas safety servicing", "Communal area maintenance"].map((s) => (
-              <li key={s} className="flex items-center gap-2 text-slate-600"><CheckCircle2 className="w-4 h-4 text-emerald-500" />{s}</li>
-            ))}
-            <li className="flex items-center gap-2 text-slate-400"><AlertTriangle className="w-4 h-4 text-amber-400" />Council tax & utilities — tenant responsibility</li>
-          </ul>
+        <PortalSectionCard title="Services & utilities" icon={Plug}>
+          <p className="text-sm text-slate-500">Your tenancy agreement sets out which services are included. Please refer to your signed agreement or contact your manager for a full breakdown.</p>
+          <PortalButtonLink href={`${base}/messages`} className="mt-3" variant="ghost" icon={MessageSquare}>Ask about included services</PortalButtonLink>
         </PortalSectionCard>
 
         <PortalSectionCard title="Key contacts" icon={Phone}>
@@ -135,24 +131,20 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
           <dl className="space-y-2.5 text-sm">
             <Row k="Tenancy start" v={formatDate(current.start_date)} />
             <Row k="Tenancy end / renewal" v={formatDate(current.end_date)} />
-            <Row k="Next gas safety check" v="Annually" />
           </dl>
+          <p className="text-[11px] text-slate-400 mt-2">Your manager will notify you ahead of safety checks, inspections and renewals.</p>
         </PortalSectionCard>
 
         <PortalSectionCard title="Access & keys" icon={KeyRound}>
           <ul className="space-y-2 text-sm text-slate-600">
-            <li className="flex items-center gap-2"><KeyRound className="w-4 h-4 text-slate-400" />2 sets of keys issued at check-in</li>
-            <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-slate-400" />Report lost keys via your manager</li>
+            <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-slate-400" />Contact your manager for key queries</li>
           </ul>
           <PortalButtonLink href={`${base}/messages`} className="mt-3" variant="ghost">Report lost key</PortalButtonLink>
         </PortalSectionCard>
 
         <PortalSectionCard title="House rules / building guidance" icon={ScrollText}>
-          <ul className="space-y-2 text-sm text-slate-600">
-            <li>No subletting without written consent</li>
-            <li>Keep communal areas clear</li>
-            <li>Report repairs promptly via the portal</li>
-          </ul>
+          <p className="text-sm text-slate-500">Your tenancy agreement contains the full terms. Common obligations include notifying your manager of repairs promptly and not subletting without written consent.</p>
+          <PortalButtonLink href={`${base}/documents`} className="mt-3" variant="ghost" icon={FileText}>View your agreement</PortalButtonLink>
         </PortalSectionCard>
 
         <PortalSectionCard title="Property details" icon={Building2}>

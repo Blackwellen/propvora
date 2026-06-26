@@ -5,6 +5,7 @@
 // ============================================================================
 
 import { createClient } from "@/lib/supabase/server"
+import { MILESTONE_CONFIGS } from "@/lib/affiliate/levels"
 
 function isPgError(e: unknown): e is { code: string } {
   return typeof e === "object" && e !== null && "code" in e
@@ -259,5 +260,196 @@ export async function getReferralDetails(
   } catch (e) {
     if (isMissing(e)) return []
     return []
+  }
+}
+
+// ── Sub-affiliate network ─────────────────────────────────────────────────────
+
+export interface SubAffiliateRow {
+  workspace_id: string
+  band: number | null
+  active_referrals_count: number
+  pending_pence: number
+  enrolled_at: string | null
+  /** Earn-through commission the parent has earned from this sub so far (pence). */
+  parent_earned_pence: number
+}
+
+/**
+ * Returns the list of affiliates recruited by this workspace (1 level deep).
+ * Also aggregates the sub-commission the parent has earned from each.
+ */
+export async function getSubAffiliateNetwork(
+  workspaceId: string
+): Promise<SubAffiliateRow[]> {
+  try {
+    const supabase = await createClient()
+    const { data: subs, error: subErr } = await supabase
+      .from("affiliates")
+      .select("workspace_id, band, active_referrals_count, pending_pence, applied_at")
+      .eq("recruited_by_affiliate_workspace_id", workspaceId)
+      .eq("enrolled", true)
+      .order("applied_at", { ascending: false })
+    if (subErr) {
+      if (isMissing(subErr)) return []
+      return []
+    }
+
+    const subRows = (subs ?? []) as {
+      workspace_id: string
+      band: number | null
+      active_referrals_count: number | null
+      pending_pence: number | null
+      applied_at: string | null
+    }[]
+    if (subRows.length === 0) return []
+
+    const result: SubAffiliateRow[] = []
+    for (const sub of subRows) {
+      let parentEarned = 0
+      try {
+        const { data: comms } = await supabase
+          .from("affiliate_commissions")
+          .select("commission_pence, status")
+          .eq("workspace_id", workspaceId)
+          .eq("commission_type", "sub_affiliate")
+          .like("notes", `%${sub.workspace_id}%`)
+        if (comms) {
+          parentEarned = (comms as { commission_pence: number; status: string }[])
+            .filter((c) => c.status !== "reversed")
+            .reduce((s, c) => s + (c.commission_pence ?? 0), 0)
+        }
+      } catch { /* best effort */ }
+
+      result.push({
+        workspace_id: sub.workspace_id,
+        band: sub.band,
+        active_referrals_count: Number(sub.active_referrals_count ?? 0),
+        pending_pence: Number(sub.pending_pence ?? 0),
+        enrolled_at: sub.applied_at,
+        parent_earned_pence: parentEarned,
+      })
+    }
+    return result
+  } catch (e) {
+    if (isMissing(e)) return []
+    return []
+  }
+}
+
+// ── Milestone status ──────────────────────────────────────────────────────────
+
+export interface MilestoneStatusRow {
+  key: "m5" | "m15" | "m50"
+  threshold: number
+  bonusPence: number
+  label: string
+  awarded: boolean
+  awardedAt: string | null
+  currentCount: number
+}
+
+export async function getMilestoneStatus(workspaceId: string): Promise<MilestoneStatusRow[]> {
+  try {
+    const supabase = await createClient()
+    const { data: aff } = await supabase
+      .from("affiliates")
+      .select("active_referrals_count, milestone_5_awarded, milestone_15_awarded, milestone_50_awarded")
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+
+    const currentCount = Number((aff as Record<string, unknown> | null)?.active_referrals_count ?? 0)
+    const awardedMap: Record<string, boolean> = {
+      m5:  Boolean((aff as Record<string, unknown> | null)?.milestone_5_awarded),
+      m15: Boolean((aff as Record<string, unknown> | null)?.milestone_15_awarded),
+      m50: Boolean((aff as Record<string, unknown> | null)?.milestone_50_awarded),
+    }
+
+    const awardedDates: Record<string, string> = {}
+    try {
+      const { data: milestoneRows } = await supabase
+        .from("affiliate_milestones")
+        .select("milestone_key, awarded_at")
+        .eq("affiliate_workspace_id", workspaceId)
+      if (milestoneRows) {
+        for (const m of milestoneRows as { milestone_key: string; awarded_at: string }[]) {
+          awardedDates[m.milestone_key] = m.awarded_at
+        }
+      }
+    } catch { /* tolerate missing table */ }
+
+    return MILESTONE_CONFIGS.map((m) => ({
+      key: m.key,
+      threshold: m.threshold,
+      bonusPence: m.bonusPence,
+      label: m.label,
+      awarded: awardedMap[m.key] ?? false,
+      awardedAt: awardedDates[m.key] ?? null,
+      currentCount,
+    }))
+  } catch (e) {
+    if (isMissing(e)) return []
+    return []
+  }
+}
+
+// ── Click / conversion funnel ─────────────────────────────────────────────────
+
+export interface ClickFunnelData {
+  totalClicks: number
+  discountClicks: number
+  standardClicks: number
+  signups: number
+  paidConversions: number
+  conversionRate: number
+  byCampaign: { campaign: string; clicks: number }[]
+}
+
+export async function getClickFunnel(workspaceId: string): Promise<ClickFunnelData> {
+  const empty: ClickFunnelData = {
+    totalClicks: 0, discountClicks: 0, standardClicks: 0,
+    signups: 0, paidConversions: 0, conversionRate: 0, byCampaign: [],
+  }
+  try {
+    const supabase = await createClient()
+
+    const { data: clicks, error: clickErr } = await supabase
+      .from("affiliate_click_log")
+      .select("link_type, utm_campaign")
+      .eq("affiliate_workspace_id", workspaceId)
+    if (clickErr && !isMissing(clickErr)) return empty
+
+    const clickRows = (clicks ?? []) as { link_type: string; utm_campaign: string | null }[]
+    const totalClicks = clickRows.length
+    const discountClicks = clickRows.filter((c) => c.link_type === "discount").length
+    const standardClicks = totalClicks - discountClicks
+
+    const campaignMap: Record<string, number> = {}
+    for (const c of clickRows) {
+      const key = c.utm_campaign ?? "(none)"
+      campaignMap[key] = (campaignMap[key] ?? 0) + 1
+    }
+    const byCampaign = Object.entries(campaignMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([campaign, count]) => ({ campaign, clicks: count }))
+
+    const { data: refs, error: refErr } = await supabase
+      .from("affiliate_referrals")
+      .select("status")
+      .eq("affiliate_workspace_id", workspaceId)
+    if (refErr && !isMissing(refErr)) {
+      return { totalClicks, discountClicks, standardClicks, signups: 0, paidConversions: 0, conversionRate: 0, byCampaign }
+    }
+
+    const refRows = (refs ?? []) as { status: string }[]
+    const signups = refRows.length
+    const paidConversions = refRows.filter((r) => r.status === "active" || r.status === "converted").length
+    const conversionRate = signups > 0 ? Math.round((paidConversions / signups) * 100) : 0
+
+    return { totalClicks, discountClicks, standardClicks, signups, paidConversions, conversionRate, byCampaign }
+  } catch (e) {
+    if (isMissing(e)) return empty
+    return empty
   }
 }

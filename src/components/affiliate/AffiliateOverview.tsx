@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import {
   Copy, Check, Share2, Mail, MessageCircle, ChevronRight, ExternalLink,
-  TrendingUp, Users, Sparkles, Percent, Clock, Wallet,
+  TrendingUp, Users, Sparkles, Percent, Clock, Wallet, Tag, Trophy, Network,
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
@@ -14,7 +14,8 @@ import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { enrolWorkspaceAffiliate } from "@/lib/actions/affiliate"
-import { levelByBand, formatPence } from "@/lib/affiliate/levels"
+import { levelByBand, formatPence, discountCodeFromHandle, DISCOUNT_LINK_PERCENT } from "@/lib/affiliate/levels"
+import { getMilestoneStatus, getSubAffiliateNetwork, type MilestoneStatusRow, type SubAffiliateRow } from "@/lib/affiliate/dashboard-data"
 
 interface AffiliateRow {
   workspace_id: string
@@ -22,10 +23,14 @@ interface AffiliateRow {
   approved: boolean
   band: number | null
   referral_code: string | null
+  discount_referral_code: string | null
   active_referrals_count: number | null
+  sub_affiliate_count: number | null
   pending_pence: number | null
   cleared_pence: number | null
   paid_pence: number | null
+  sub_pending_pence: number | null
+  sub_cleared_pence: number | null
 }
 
 interface ReferralRow {
@@ -42,11 +47,111 @@ function refBadge(status: string) {
 }
 
 const ENROL_BENEFITS = [
-  { icon: Percent, title: "10% recurring", sub: "On eligible subscription revenue, for 6 months per referral." },
-  { icon: Clock, title: "60-day cookie", sub: "Last-click attribution within a 60-day window." },
-  { icon: Wallet, title: "£50 payout threshold", sub: "Withdraw once cleared commission reaches £50." },
-  { icon: Users, title: "Live dashboard", sub: "Track links, referrals, earnings and payouts." },
+  { icon: Percent,  title: "10–15% recurring",     sub: "Commission on eligible subscription revenue, 6 months per referral." },
+  { icon: Tag,      title: `${DISCOUNT_LINK_PERCENT}% off discount link`, sub: "Give cold audiences a discount — earns the same commission, customer gets 30-day trial." },
+  { icon: Network,  title: "Network earn-through",  sub: "Recruit other affiliates, earn 3–5% on every sale they make." },
+  { icon: Trophy,   title: "Milestone bonuses",     sub: "£50 at 5 referrals, £150 at 15, £500 at 50 — cash added to your ledger automatically." },
+  { icon: Clock,    title: "60-day cookie",         sub: "Last-click attribution within a 60-day window." },
+  { icon: Wallet,   title: "£50 payout threshold",  sub: "Withdraw once cleared commission reaches £50." },
 ]
+
+function MilestonePanel({ milestones }: { milestones: MilestoneStatusRow[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-amber-500" /> Milestone bonuses
+        </CardTitle>
+        <p className="text-xs text-slate-400">Cash bonuses auto-credited at each milestone.</p>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {milestones.map((m) => {
+          const pct = Math.min(100, Math.round((m.currentCount / m.threshold) * 100))
+          return (
+            <div key={m.key} className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {m.awarded
+                    ? <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    : <Trophy className="w-3.5 h-3.5 text-amber-400" />}
+                  <span className="text-sm font-medium text-slate-700">{m.label}</span>
+                </div>
+                <span className={cn("text-xs font-semibold", m.awarded ? "text-emerald-600" : "text-slate-500")}>
+                  {m.awarded
+                    ? `Awarded${m.awardedAt ? ` ${new Date(m.awardedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}`
+                    : `${m.currentCount} / ${m.threshold}`}
+                </span>
+              </div>
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all", m.awarded ? "bg-emerald-400" : "bg-amber-400")}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          )
+        })}
+      </CardContent>
+    </Card>
+  )
+}
+
+function SubNetworkMiniPanel({ subs, basePath }: { subs: SubAffiliateRow[]; basePath: string }) {
+  const totalEarned = subs.reduce((s, r) => s + r.parent_earned_pence, 0)
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Network className="w-4 h-4 text-violet-500" /> Your affiliate network
+        </CardTitle>
+        <Link href={`${basePath}/network`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+          Full network <ChevronRight className="w-3 h-3" />
+        </Link>
+      </CardHeader>
+      <CardContent>
+        {subs.length === 0 ? (
+          <div className="text-center py-6 space-y-2">
+            <Network className="w-6 h-6 text-slate-300 mx-auto" />
+            <p className="text-xs text-slate-400">
+              No sub-affiliates yet. Share your{" "}
+              <Link href={`${basePath}/links`} className="text-[#2563EB] hover:underline">recruit link</Link>{" "}
+              to start building your network.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 rounded-lg bg-violet-50">
+                <p className="text-base font-bold text-violet-700">{subs.length}</p>
+                <p className="text-[11px] text-violet-500">Sub-affiliates</p>
+              </div>
+              <div className="p-3 rounded-lg bg-emerald-50">
+                <p className="text-base font-bold text-emerald-700">{formatPence(totalEarned)}</p>
+                <p className="text-[11px] text-emerald-500">Earn-through</p>
+              </div>
+            </div>
+            <div className="divide-y divide-slate-50">
+              {subs.slice(0, 3).map((s) => (
+                <div key={s.workspace_id} className="py-2 flex items-center justify-between text-xs">
+                  <span className="font-mono text-slate-500">{s.workspace_id.slice(0, 8).toUpperCase()}…</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-600">{s.active_referrals_count} refs</span>
+                    <span className="font-semibold text-emerald-700">{formatPence(s.parent_earned_pence)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {subs.length > 3 && (
+              <Link href={`${basePath}/network`} className="block text-xs text-center text-[#2563EB] hover:underline pt-1">
+                View all {subs.length} →
+              </Link>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
 
 export function AffiliateOverview({ basePath }: { basePath: string }) {
   const [loading, setLoading] = useState(true)
@@ -54,6 +159,8 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
   const [affiliate, setAffiliate] = useState<AffiliateRow | null>(null)
   const [referrals, setReferrals] = useState<ReferralRow[]>([])
+  const [milestones, setMilestones] = useState<MilestoneStatusRow[]>([])
+  const [subNetwork, setSubNetwork] = useState<SubAffiliateRow[]>([])
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -63,7 +170,6 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); return }
 
-      // Resolve current workspace
       let wsId: string | null = null
       const { data: profile } = await supabase
         .from("profiles").select("current_workspace_id").eq("id", user.id).maybeSingle()
@@ -78,21 +184,26 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
 
       const { data: aff, error: affErr } = await supabase
         .from("affiliates")
-        .select("workspace_id, enrolled, approved, band, referral_code, active_referrals_count, pending_pence, cleared_pence, paid_pence")
+        .select("workspace_id, enrolled, approved, band, referral_code, discount_referral_code, active_referrals_count, sub_affiliate_count, pending_pence, cleared_pence, paid_pence, sub_pending_pence, sub_cleared_pence")
         .eq("workspace_id", wsId)
         .maybeSingle()
       if (affErr && affErr.code !== "42P01" && affErr.code !== "PGRST116") console.error(affErr)
       setAffiliate((aff as AffiliateRow) ?? null)
 
       if (aff?.enrolled) {
-        const { data: refs, error: refErr } = await supabase
-          .from("affiliate_referrals")
-          .select("id, status, created_at")
-          .eq("affiliate_workspace_id", wsId)
-          .order("created_at", { ascending: false })
-          .limit(8)
-        if (refErr && refErr.code !== "42P01") console.error(refErr)
-        if (refs) setReferrals(refs as ReferralRow[])
+        const [refs, msData, netData] = await Promise.all([
+          supabase
+            .from("affiliate_referrals")
+            .select("id, status, created_at")
+            .eq("affiliate_workspace_id", wsId)
+            .order("created_at", { ascending: false })
+            .limit(8),
+          getMilestoneStatus(wsId),
+          getSubAffiliateNetwork(wsId),
+        ])
+        if (refs.data) setReferrals(refs.data as ReferralRow[])
+        setMilestones(msData)
+        setSubNetwork(netData)
       }
     } catch (err) {
       console.error(err)
@@ -121,17 +232,15 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
     ? `https://propvora.com/?ref=${affiliate.referral_code}`
     : ""
 
+  const discountLink = affiliate?.referral_code
+    ? `https://propvora.com/?ref=${affiliate.discount_referral_code ?? discountCodeFromHandle(affiliate.referral_code)}`
+    : ""
+
   function copyLink() {
     if (!affiliateLink) return
-    navigator.clipboard
-      .writeText(affiliateLink)
-      .then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
-      .catch(() => {
-        // Clipboard permission denied / unavailable — fail silently.
-      })
+    navigator.clipboard?.writeText(affiliateLink)
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+      .catch(() => {})
   }
 
   if (loading) {
@@ -146,7 +255,6 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
     )
   }
 
-  // Not enrolled → internal one-click enrol door (folds in the old Sign Up tab).
   if (!affiliate?.enrolled) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 py-6">
@@ -156,9 +264,9 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Refer &amp; earn with Propvora</h1>
           <p className="text-sm text-slate-600 max-w-md mx-auto">
-            Enrol your workspace in one click and earn <strong className="text-[#2563EB]">10% recurring
-            commission for 6 months</strong> on every paying customer you refer. Same programme, same
-            commission as our external partners — no separate application needed.
+            Enrol your workspace in one click. Earn <strong className="text-[#2563EB]">10% recurring
+            commission for 6 months</strong> on every paying customer you refer, plus network earn-through
+            and cash milestone bonuses.
           </p>
         </div>
 
@@ -210,6 +318,8 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
 
   const level = levelByBand(affiliate.band)
   const recent = referrals.slice(0, 6)
+  const totalEarnings = (affiliate.pending_pence ?? 0) + (affiliate.cleared_pence ?? 0) + (affiliate.paid_pence ?? 0)
+  const totalSubEarnings = (affiliate.sub_pending_pence ?? 0) + (affiliate.sub_cleared_pence ?? 0)
 
   const recentReferralMapping: MobileCardMapping<ReferralRow> = {
     getKey: (row) => row.id,
@@ -227,7 +337,8 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
         <div>
           <h1 className="text-xl font-bold">Your Affiliate Dashboard</h1>
           <p className="text-sm text-slate-300 mt-0.5">
-            {level.name} · earn {Math.round(level.rate * 100)}% recurring for {level.durationMonths} months per referral.
+            {level.name} · earn {Math.round(level.rate * 100)}% recurring for {level.durationMonths} months
+            {(affiliate.sub_affiliate_count ?? 0) > 0 && ` · ${affiliate.sub_affiliate_count} in your network`}
           </p>
         </div>
         <Badge variant={affiliate.approved ? "success" : "warning"} size="lg">
@@ -239,13 +350,13 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
         <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">{error}</div>
       )}
 
-      {/* KPI strip — live pence balances */}
+      {/* KPI strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Active Referrals", value: String(affiliate.active_referrals_count ?? 0), colour: "text-slate-700", bg: "bg-slate-100", icon: Users },
-          { label: "Pending", value: formatPence(affiliate.pending_pence ?? 0), colour: "text-[#F59E0B]", bg: "bg-[#FFFBEB]", icon: TrendingUp },
-          { label: "Cleared", value: formatPence(affiliate.cleared_pence ?? 0), colour: "text-[#2563EB]", bg: "bg-[#EFF6FF]", icon: Check },
-          { label: "Paid Out", value: formatPence(affiliate.paid_pence ?? 0), colour: "text-[#10B981]", bg: "bg-[#ECFDF5]", icon: Check },
+          { label: "Active Referrals",   value: String(affiliate.active_referrals_count ?? 0), colour: "text-slate-700",  bg: "bg-slate-100",    icon: Users },
+          { label: "Direct Pending",     value: formatPence(affiliate.pending_pence ?? 0),     colour: "text-[#F59E0B]",  bg: "bg-[#FFFBEB]",    icon: TrendingUp },
+          { label: "Network Earned",     value: formatPence(totalSubEarnings),                  colour: "text-[#7C3AED]",  bg: "bg-violet-50",    icon: Network },
+          { label: "Total Paid Out",     value: formatPence(affiliate.paid_pence ?? 0),         colour: "text-[#10B981]",  bg: "bg-[#ECFDF5]",    icon: Check },
         ].map((kpi) => {
           const Icon = kpi.icon
           return (
@@ -261,17 +372,31 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Affiliate link widget */}
+        {/* Left: link widget + milestone + network */}
         <div className="lg:col-span-1 space-y-4">
           <Card>
-            <CardHeader><CardTitle>Your Referral Link</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Your Referral Links</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <div className="bg-slate-50 rounded-lg p-3 break-all">
-                <p className="text-xs text-slate-500 mb-1">Unique link</p>
-                <p className="text-sm font-mono text-[#2563EB] font-medium">{affiliateLink || "—"}</p>
+              {/* Standard link */}
+              <div>
+                <p className="text-xs text-slate-400 mb-1">Standard link</p>
+                <div className="bg-slate-50 rounded-lg p-2.5 break-all">
+                  <p className="text-xs font-mono text-[#2563EB]">{affiliateLink || "—"}</p>
+                </div>
               </div>
+              {/* Discount link */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <p className="text-xs text-slate-400">{DISCOUNT_LINK_PERCENT}% off link</p>
+                  <Badge size="sm" variant="success">Discount</Badge>
+                </div>
+                <div className="bg-emerald-50 rounded-lg p-2.5 break-all">
+                  <p className="text-xs font-mono text-emerald-700">{discountLink || "—"}</p>
+                </div>
+              </div>
+
               <Button variant="primary" className="w-full" onClick={copyLink} disabled={!affiliateLink}>
-                {copied ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy link</>}
+                {copied ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy standard link</>}
               </Button>
 
               {affiliateLink && (
@@ -299,11 +424,17 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
 
               <Link href={`${basePath}/links`}>
                 <Button variant="outline" size="sm" className="w-full">
-                  <Share2 className="w-4 h-4" /> Manage links &amp; assets
+                  <Share2 className="w-4 h-4" /> All links &amp; assets
                 </Button>
               </Link>
             </CardContent>
           </Card>
+
+          {/* Milestone progress */}
+          {milestones.length > 0 && <MilestonePanel milestones={milestones} />}
+
+          {/* Sub-affiliate network mini panel */}
+          <SubNetworkMiniPanel subs={subNetwork} basePath={basePath} />
         </div>
 
         {/* Right: earnings + recent referrals */}
@@ -316,23 +447,30 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
               </Link>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div className="text-center p-3 rounded-lg bg-slate-50">
-                  <p className="text-xs text-slate-400">Pending</p>
+                  <p className="text-xs text-slate-400">Direct pending</p>
                   <p className="text-lg font-bold text-[#F59E0B]">{formatPence(affiliate.pending_pence ?? 0)}</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-50">
-                  <p className="text-xs text-slate-400">Cleared</p>
+                  <p className="text-xs text-slate-400">Direct cleared</p>
                   <p className="text-lg font-bold text-[#2563EB]">{formatPence(affiliate.cleared_pence ?? 0)}</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-50">
-                  <p className="text-xs text-slate-400">Paid out</p>
+                  <p className="text-xs text-slate-400">Network earned</p>
+                  <p className="text-lg font-bold text-violet-600">{formatPence(totalSubEarnings)}</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-emerald-50 col-span-2 sm:col-span-1">
+                  <p className="text-xs text-slate-400">Total paid out</p>
                   <p className="text-lg font-bold text-[#10B981]">{formatPence(affiliate.paid_pence ?? 0)}</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-amber-50 col-span-2 sm:col-span-2">
+                  <p className="text-xs text-slate-400">All-time earned</p>
+                  <p className="text-lg font-bold text-amber-600">{formatPence(totalEarnings + totalSubEarnings)}</p>
                 </div>
               </div>
               <p className="mt-3 text-xs text-slate-400">
-                Commission is pending for 30 days (cooling-off), then clears once payment is confirmed.
-                Minimum payout {formatPence(level.minPayoutPence)}.
+                Commission is pending for 30 days (cooling-off), then clears. Minimum payout {formatPence(level.minPayoutPence)}.
               </p>
             </CardContent>
           </Card>

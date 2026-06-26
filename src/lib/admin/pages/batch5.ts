@@ -106,9 +106,10 @@ async function loadNamespaces(): Promise<{ id: string; description: string | nul
 async function loadStrings(): Promise<{ available: boolean; rows: TranslationStringRow[] }> {
   try {
     const admin = createAdminClient()
+    // intl_translation_strings joins to intl_translation_keys; namespace_id IS the namespace key
     const { data, error } = await admin
       .from("intl_translation_strings")
-      .select("id, namespace, key, source_text, locale, translated_text, status, updated_at")
+      .select("id, locale, value, status, updated_at, intl_translation_keys(key, source_text, namespace_id)")
       .order("updated_at", { ascending: false })
       .limit(2000)
     if (error) {
@@ -117,16 +118,19 @@ async function loadStrings(): Promise<{ available: boolean; rows: TranslationStr
     }
     return {
       available: true,
-      rows: (data ?? []).map((r) => ({
-        id: r.id as string,
-        namespace: (r.namespace as string) ?? "common",
-        key: (r.key as string) ?? "",
-        sourceText: (r.source_text as string) ?? "",
-        locale: (r.locale as string) ?? "",
-        translatedText: (r.translated_text as string) ?? null,
-        status: (r.status as string) ?? "missing",
-        updatedAt: (r.updated_at as string) ?? null,
-      })),
+      rows: (data ?? []).map((r) => {
+        const k = (r as Record<string, unknown>).intl_translation_keys as Record<string, unknown> | null ?? {}
+        return {
+          id: r.id as string,
+          namespace: (k.namespace_id as string) ?? "common",
+          key: (k.key as string) ?? "",
+          sourceText: (k.source_text as string) ?? "",
+          locale: (r.locale as string) ?? "",
+          translatedText: (r.value as string) ?? null,
+          status: (r.status as string) ?? "missing",
+          updatedAt: (r.updated_at as string) ?? null,
+        }
+      }),
     }
   } catch {
     return { available: false, rows: [] }

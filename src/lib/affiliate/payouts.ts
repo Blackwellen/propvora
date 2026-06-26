@@ -138,6 +138,7 @@ export async function requestAffiliatePayout(workspaceId: string): Promise<Payou
 
   revalidatePath("/property-manager/affiliates/earnings")
   revalidatePath("/user/affiliate/earnings")
+  revalidatePath("/affiliate/earnings")
   return { ok: true, id: row.id as string }
 }
 
@@ -281,6 +282,7 @@ export async function markAffiliatePayoutPaid(payoutId: string, reference?: stri
   revalidatePath("/admin/affiliates")
   revalidatePath("/property-manager/affiliates/earnings")
   revalidatePath("/user/affiliate/earnings")
+  revalidatePath("/affiliate/earnings")
   return { ok: true, id: payoutId }
 }
 

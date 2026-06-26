@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useWorkspace } from "@/hooks/useWorkspace"
 import { useProperties } from "@/hooks/useProperties"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
+import { fitnessStandard } from "@/lib/compliance/fitness"
 import { useCreateJob } from "@/hooks/useJobs"
 import { useCreateContact } from "@/hooks/useContacts"
 import { useNotify } from "@/hooks/useNotify"
@@ -56,6 +58,7 @@ export default function NewJobPage() {
   const createContact = useCreateContact()
   const { data: propertiesRaw = [], isLoading: propertiesLoading } = useProperties(workspace?.id)
   const properties = propertiesRaw.map((p) => ({ id: p.id, name: p.name }))
+  const ws = useWorkspaceJurisdiction()
   const [step, setStep] = useState(1)
   const { data, setData, restoredFromDraft, discardDraft, clearDraft } = useWizardDraft<JobWizardData>("create-job", defaultData)
   const [saving, setSaving] = useState(false)
@@ -102,7 +105,8 @@ export default function NewJobPage() {
 
       // Route through the canonical useCreateJob hook so the new job inherits
       // React Query cache invalidation (jobs list + work-kpis refresh
-      // immediately) and created_by attribution.
+      // immediately) and created_by attribution. Every captured wizard field is
+      // persisted here — nothing entered in the steps is silently dropped.
       const created = await createJob.mutateAsync({
         workspace_id: workspace.id,
         title: data.title.trim(),
@@ -113,12 +117,46 @@ export default function NewJobPage() {
         property_id: data.propertyId || null,
         supplier_contact_id: supplierContactId,
         notes: data.scopeOfWork || null,
+        revenue_blocking: data.revenueBlocking,
+        occupancy_blocking: data.occupancyBlocking,
         scheduled_date: data.scheduledDate || null,
+        scheduled_time: data.scheduledTime || null,
+        estimated_duration: data.estimatedDuration || null,
         quoted_amount: data.quotedAmount || null,
         approved_amount: data.approvedAmount || null,
         created_by: actorId,
         is_demo: false,
+        ...(showFitnessSla
+          ? {
+              sla_source: fit.slaSource,
+              sla_target_at: new Date(Date.now() + (fit.hazardResponseDays as number) * 86_400_000).toISOString(),
+            }
+          : {}),
       })
+
+      // If requested, provision secure supplier portal access so the contractor
+      // can submit quotes & evidence against this job. Best-effort: never block
+      // job creation on the grant. The grant is audit-logged server-side and the
+      // shareable magic link can be (re)issued from the supplier's contact
+      // record at any time.
+      if (data.sendPortalLink && supplierContactId) {
+        try {
+          await fetch("/api/portals/grant", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              workspaceId: workspace.id,
+              contactId: supplierContactId,
+              profile: "supplier",
+              purpose: `Job: ${data.title.trim()}`,
+            }),
+          })
+        } catch {
+          // swallow — the job is created regardless; portal access can be
+          // granted later from the supplier's contact record.
+        }
+      }
+
       clearDraft()
       router.push(`/property-manager/work/jobs/${created.id}`)
     } catch (err) {
@@ -127,6 +165,13 @@ export default function NewJobPage() {
       setSaving(false)
     }
   }
+
+  // Fitness/repair SLA (dim 23) for the selected property's jurisdiction.
+  const selJobProperty = propertiesRaw.find((p) => p.id === data.propertyId)
+  const jobCc = selJobProperty?.country_code || ws.countryCode
+  const jobRegion = selJobProperty?.region_code || (selJobProperty?.country_code ? null : (ws.settings as { region?: string }).region ?? null)
+  const fit = fitnessStandard(jobCc, jobRegion)
+  const showFitnessSla = !!data.propertyId && fit.hazardResponseDays != null
 
   const canAdvance = step === 1 ? data.title.trim() !== "" : true
 
@@ -153,7 +198,17 @@ export default function NewJobPage() {
       submitting={saving}
       submitLabel="Create Job"
       error={saveError}
-      banner={restoredFromDraft ? <WizardDraftBanner onDiscard={discardDraft} /> : null}
+      banner={
+        <>
+          {restoredFromDraft && <WizardDraftBanner onDiscard={discardDraft} />}
+          {showFitnessSla && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[12px] text-amber-800">
+              Repair-response standard for {fit.jurisdiction}: serious hazards (e.g. damp/mould) should be addressed within{" "}
+              <span className="font-semibold">{fit.hazardResponseDays} days</span> ({fit.slaSource}). An SLA target will be set on this job.
+            </div>
+          )}
+        </>
+      }
     >
       {stepComponents[step - 1]}
     </WizardShell>

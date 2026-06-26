@@ -51,7 +51,7 @@ export default async function LandlordFinancialsPage({ params }: { params: Promi
     <div className="space-y-5">
       <PortalPageHeader
         title="Financials" subtitle="Income, expenditure and net performance across your portfolio." backHref={base}
-        actions={<><PortalButtonLink href="#" icon={Download}>Export CSV</PortalButtonLink><PortalButtonLink href={`${base}/documents`} variant="primary" icon={FileText}>Download statement</PortalButtonLink></>}
+        actions={<PortalButtonLink href={`${base}/documents`} variant="primary" icon={FileText}>Download statement</PortalButtonLink>}
       />
       <PortalKpiStrip kpis={kpis} cols={6} />
 

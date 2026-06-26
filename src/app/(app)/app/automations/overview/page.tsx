@@ -47,10 +47,7 @@ export default async function AutomationsOverviewRoute() {
 
   const hiddenTabs: string[] = []
   if (!canvasLite) hiddenTabs.push("Canvas Builder")
-  if (!automationsFull) {
-    hiddenTabs.push("Webhooks")
-    hiddenTabs.push("Integrations")
-  }
+  if (!automationsFull) hiddenTabs.push("Integrations")
 
   return <HomePage hiddenTabs={hiddenTabs} canvasEnabled={canvasLite} />
 }

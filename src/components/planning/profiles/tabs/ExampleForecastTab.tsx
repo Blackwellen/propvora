@@ -1,14 +1,193 @@
 "use client"
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { AlertCircle, Settings, GitCompare, Download } from 'lucide-react'
+import { AlertCircle, Settings, GitCompare, Download, Percent } from 'lucide-react'
 import type { ProfileConfig, ScenarioType } from '@/lib/planning/profile-config'
 import { ProfileKpiCard } from '@/components/planning/profiles'
 import { downloadCsv } from '@/lib/export/csv'
+import { useWorkspaceJurisdiction } from '@/hooks/useWorkspaceJurisdiction'
+import { computeIncomeTax } from '@/lib/planning/interest-relief'
+import { disposalTax } from '@/lib/planning/disposal-tax'
+import { formatMoneyMajor } from '@/lib/i18n'
+import { NotLegalAdviceNotice } from '@/components/jurisdiction'
 
 interface Props {
   profile: ProfileConfig
+}
+
+const RELIEF_COUNTRIES: { code: string; label: string }[] = [
+  { code: 'GB', label: 'United Kingdom (S24)' },
+  { code: 'IE', label: 'Ireland' },
+  { code: 'DE', label: 'Germany' },
+  { code: 'FR', label: 'France' },
+  { code: 'ES', label: 'Spain' },
+  { code: 'US', label: 'United States' },
+]
+
+/**
+ * Interest-relief comparison (dim 9). The biggest cross-jurisdiction forecast
+ * divergence: UK S24 restricts finance-cost relief for individual landlords.
+ */
+function InterestReliefPanel() {
+  const ws = useWorkspaceJurisdiction()
+  const [country, setCountry] = useState(ws.countryCode || 'GB')
+  const [structure, setStructure] = useState<'personal' | 'corporate'>('personal')
+  const [profit, setProfit] = useState('20000')
+  const [interest, setInterest] = useState('8000')
+  const [rate, setRate] = useState('40')
+
+  const ccy = country === 'GB' ? 'GBP' : country === 'US' ? 'USD' : 'EUR'
+  const r = useMemo(
+    () =>
+      computeIncomeTax({
+        countryCode: country,
+        structure,
+        profitBeforeInterest: Number(profit) || 0,
+        interest: Number(interest) || 0,
+        marginalRate: (Number(rate) || 0) / 100,
+      }),
+    [country, structure, profit, interest, rate],
+  )
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Percent className="w-5 h-5 text-slate-500" />
+        <h2 className="text-lg font-semibold text-slate-900">Mortgage interest relief</h2>
+      </div>
+      <p className="text-sm text-slate-500 mb-4">
+        How mortgage interest is taxed varies sharply by jurisdiction. The UK restricts relief for individual landlords
+        (Section 24) — interest is not deductible; a 20% tax credit applies instead. Most other countries allow full
+        deduction. Indicative only — verify with an accountant.
+      </p>
+
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <label className="flex flex-col gap-1 col-span-2 lg:col-span-1">
+          <span className="text-xs font-semibold text-slate-600">Jurisdiction</span>
+          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {RELIEF_COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Holding</span>
+          <select value={structure} onChange={(e) => setStructure(e.target.value as 'personal' | 'corporate')} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="personal">Personal</option>
+            <option value="corporate">Company</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Profit (pre-interest)</span>
+          <input type="number" value={profit} onChange={(e) => setProfit(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Mortgage interest</span>
+          <input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Marginal rate %</span>
+          <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </label>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Tax due ({r.regime})</p>
+          <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatMoneyMajor(r.taxDue, ccy)}</p>
+        </div>
+        <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">If fully deductible</p>
+          <p className="text-2xl font-bold text-slate-700 tabular-nums">{formatMoneyMajor(r.taxIfFullyDeductible, ccy)}</p>
+        </div>
+        <div className={`rounded-xl border p-4 ${r.reliefPenalty > 0 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'}`}>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Relief penalty</p>
+          <p className={`text-2xl font-bold tabular-nums ${r.reliefPenalty > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>{formatMoneyMajor(r.reliefPenalty, ccy)}</p>
+        </div>
+      </div>
+
+      <p className="text-[11px] text-slate-400 mt-2">Source: {r.citation}</p>
+      <NotLegalAdviceNotice variant="inline" className="mt-2" />
+    </div>
+  )
+}
+
+/**
+ * Disposal / capital-gains tax (dim 26). Exit modelling — a forecast that
+ * ignores disposal tax overstates net return. Dev/Flip especially.
+ */
+function DisposalTaxPanel() {
+  const ws = useWorkspaceJurisdiction()
+  const [country, setCountry] = useState(ws.countryCode || 'GB')
+  const [gain, setGain] = useState('80000')
+  const [holdingYears, setHoldingYears] = useState('3')
+  const [mainResidence, setMainResidence] = useState(false)
+  const [nonResident, setNonResident] = useState(false)
+  const [higherRate, setHigherRate] = useState(true)
+
+  const ccy = country === 'GB' ? 'GBP' : country === 'US' ? 'USD' : country === 'AU' ? 'AUD' : 'EUR'
+  const r = useMemo(
+    () => disposalTax({ countryCode: country, gain: Number(gain) || 0, holdingYears: Number(holdingYears) || 0, isMainResidence: mainResidence, isNonResident: nonResident, higherRate }),
+    [country, gain, holdingYears, mainResidence, nonResident, higherRate],
+  )
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <GitCompare className="w-5 h-5 text-slate-500" />
+        <h2 className="text-lg font-semibold text-slate-900">Disposal / capital-gains tax</h2>
+      </div>
+      <p className="text-sm text-slate-500 mb-4">
+        Exit modelling. Holding-period exemptions (DE 10yr, IT 5yr), main-residence relief and non-resident withholding
+        all change the net. Indicative only — verify with an accountant.
+      </p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Jurisdiction</span>
+          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {RELIEF_COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Expected gain</span>
+          <input type="number" value={gain} onChange={(e) => setGain(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Holding years</span>
+          <input type="number" value={holdingYears} onChange={(e) => setHoldingYears(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </label>
+        <div className="flex flex-col gap-1.5 justify-end text-xs text-slate-600">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={mainResidence} onChange={(e) => setMainResidence(e.target.checked)} className="accent-blue-600" /> Main residence</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-blue-600" /> Non-resident</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={higherRate} onChange={(e) => setHigherRate(e.target.checked)} className="accent-blue-600" /> Higher-rate taxpayer</label>
+        </div>
+      </div>
+      <div className="mt-5 flex flex-wrap items-end gap-6 rounded-xl bg-slate-50 border border-slate-100 p-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{r.taxName} ({(r.rate * 100).toFixed(1)}%)</p>
+          <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatMoneyMajor(r.taxAmount, ccy)}</p>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Net of tax</p>
+          <p className="text-lg font-semibold text-slate-700 tabular-nums">{formatMoneyMajor(r.net, ccy)}</p>
+        </div>
+        {r.withholding > 0 && (
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-500">Non-resident withholding</p>
+            <p className="text-lg font-semibold text-amber-700 tabular-nums">{formatMoneyMajor(r.withholding, ccy)}</p>
+          </div>
+        )}
+        {r.reportingDeadlineDays != null && (
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Report within</p>
+            <p className="text-lg font-semibold text-slate-700">{r.reportingDeadlineDays} days</p>
+          </div>
+        )}
+      </div>
+      {r.note && <p className="text-[11px] text-slate-500 mt-2">{r.note}</p>}
+      <p className="text-[11px] text-slate-400 mt-1">Source: {r.citation}</p>
+      <NotLegalAdviceNotice variant="inline" className="mt-2" />
+    </div>
+  )
 }
 
 export default function ExampleForecastTab({ profile }: Props) {
@@ -214,6 +393,12 @@ export default function ExampleForecastTab({ profile }: Props) {
           </table>
         </div>
       </div>
+
+      {/* 4b. Interest-relief comparison (dim 9) — UK S24 vs full deduction. */}
+      <InterestReliefPanel />
+
+      {/* 4c. Disposal / CGT (dim 26) — exit modelling (esp. Dev/Flip). */}
+      <DisposalTaxPanel />
 
       {/* 5. Sensitivity Analysis */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import {
   Search, BookOpen, ChevronDown, LifeBuoy, Mail, Clock, PlayCircle, ArrowRight,
@@ -14,9 +14,20 @@ export default function HelpCenterClient({
   articles: HelpArticle[]
   source: "live" | "static"
 }) {
+  const [inputValue, setInputValue] = useState("")
   const [query, setQuery] = useState("")
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
   const [activeCat, setActiveCat] = useState<string | null>(null)
+
+  // Debounce search input by 220 ms so we don't filter on every keystroke.
+  function handleSearchChange(value: string) {
+    setInputValue(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setQuery(value), 220)
+  }
+
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current) }, [])
   // Public feature flags — flagged articles (automations / marketplace / i18n)
   // are hidden only when their flag is EXPLICITLY disabled.
   const [flags, setFlags] = useState<Record<string, boolean> | null>(null)
@@ -81,10 +92,11 @@ export default function HelpCenterClient({
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
             <input
               type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={inputValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search guides…"
               aria-label="Search help articles"
+              aria-controls="help-article-list"
               className="h-13 w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-12 pr-4 text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
@@ -118,7 +130,7 @@ export default function HelpCenterClient({
       </section>
 
       {/* Articles */}
-      <section className="py-14">
+      <section id="help-article-list" aria-live="polite" aria-label="Help articles" className="py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           {grouped.length === 0 ? (
             <div className="py-16 text-center">
@@ -140,12 +152,16 @@ export default function HelpCenterClient({
                   <div className="grid grid-cols-1 gap-3">
                     {group.items.map((a) => {
                       const open = openId === a.id
+                      const panelId = `help-panel-${a.id}`
+                      const btnId = `help-btn-${a.id}`
                       return (
                         <div key={a.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-[0_8px_24px_-16px_rgba(15,23,42,0.18)]">
                           <button
+                            id={btnId}
                             type="button"
                             onClick={() => setOpenId(open ? null : a.id)}
                             aria-expanded={open}
+                            aria-controls={panelId}
                             className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-slate-50"
                           >
                             <span className="min-w-0">
@@ -160,7 +176,12 @@ export default function HelpCenterClient({
                             <ChevronDown className={`mt-1 h-5 w-5 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
                           </button>
                           {open && (
-                            <div className="space-y-4 border-t border-slate-100 px-5 pb-6 pt-4">
+                            <div
+                              id={panelId}
+                              role="region"
+                              aria-labelledby={btnId}
+                              className="space-y-4 border-t border-slate-100 px-5 pb-6 pt-4"
+                            >
                               {a.sections.map((s, i) => (
                                 <div key={i}>
                                   <h3 className="mb-1 text-[14px] font-bold text-slate-900">{s.heading}</h3>

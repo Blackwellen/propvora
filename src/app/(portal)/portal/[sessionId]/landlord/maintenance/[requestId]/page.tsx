@@ -1,5 +1,5 @@
 import {
-  Wrench, MessageSquare, Download, MapPin, CalendarClock, User, CheckCircle2, Circle,
+  Wrench, MessageSquare, MapPin, CalendarClock, User, CheckCircle2, Circle,
   ClipboardList, Images, PoundSterling, Phone, Building2, Home, FileText, Wallet,
 } from "lucide-react"
 import { requirePortalSession } from "../../../_guard"
@@ -57,7 +57,6 @@ export default async function LandlordMaintenanceDetail({ params }: { params: Pr
         actions={<>
           {awaitingApproval && <PortalButtonLink href={`${base}/messages`} variant="primary" icon={CheckCircle2}>Approve quote</PortalButtonLink>}
           <PortalButtonLink href={`${base}/messages`} icon={MessageSquare}>Message manager</PortalButtonLink>
-          <PortalButtonLink href="#" icon={Download}>Download summary</PortalButtonLink>
         </>}
       />
 

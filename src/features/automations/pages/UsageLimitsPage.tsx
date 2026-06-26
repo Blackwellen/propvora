@@ -85,10 +85,14 @@ export default function UsageLimitsPage() {
       actions={actions}
     >
       {/* Sub-tab strip */}
-      <div className="flex items-center gap-1 border-b border-slate-200">
+      <div role="tablist" aria-label="Usage sections" className="flex items-center gap-1 border-b border-slate-200">
         {USAGE_TABS.map((t) => (
           <button
             key={t}
+            role="tab"
+            aria-selected={activeTab === t}
+            aria-controls={`usage-panel-${t.toLowerCase().replace(/[\s&]+/g, "-")}`}
+            id={`usage-tab-${t.toLowerCase().replace(/[\s&]+/g, "-")}`}
             onClick={() => setActiveTab(t)}
             className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${activeTab === t ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
           >

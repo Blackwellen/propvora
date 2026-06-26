@@ -53,29 +53,31 @@ const MORE_GROUPS: { label: string; items: NavDest[] }[] = [
   {
     label: "Core",
     items: [
-      { label: "Bookings", href: `${MANAGER_BASE}/bookings`, icon: Calendar, flag: "bookingManagement" },
-      { label: "Marketplace", href: `${MANAGER_BASE}/marketplace`, icon: Globe, flag: "marketplaceEnabled" },
-      { label: "Suppliers", href: `${MANAGER_BASE}/marketplace/suppliers`, icon: Store, flag: "marketplaceEnabled" },
-      { label: "Planning", href: `${MANAGER_BASE}/planning`, icon: Map },
-      { label: "Contacts", href: `${MANAGER_BASE}/contacts`, icon: Users },
-      { label: "Portals", href: `${MANAGER_BASE}/portals`, icon: Globe },
-      { label: "Messages", href: `${MANAGER_BASE}/messages`, icon: MessageSquare },
+      { label: "Bookings",  href: `${MANAGER_BASE}/bookings`,  icon: Calendar, flag: "bookingManagement" },
+      // Suppliers hub — canonical path matches SideNavigation (/suppliers not /marketplace/suppliers)
+      { label: "Suppliers", href: `${MANAGER_BASE}/suppliers`, icon: Store,    flag: "marketplaceEnabled" },
+      // Planning — flag-gated same as SideNavigation
+      { label: "Planning",  href: `${MANAGER_BASE}/planning`,  icon: Map,      flag: "planningEnabled" },
+      { label: "Contacts",  href: `${MANAGER_BASE}/contacts`,  icon: Users },
+      { label: "Portals",   href: `${MANAGER_BASE}/portals`,   icon: Globe },
+      { label: "Messages",  href: `${MANAGER_BASE}/messages`,  icon: MessageSquare },
     ],
   },
   {
     label: "Finance",
     items: [
-      { label: "Money", href: `${MANAGER_BASE}/money`, icon: Wallet },
+      { label: "Money",      href: `${MANAGER_BASE}/money`,      icon: Wallet },
       { label: "Accounting", href: `${MANAGER_BASE}/accounting`, icon: Calculator, flag: "accountingGl" },
     ],
   },
   {
     label: "Operations",
     items: [
-      { label: "Calendar", href: `${MANAGER_BASE}/calendar`, icon: Calendar },
-      { label: "Compliance", href: `${MANAGER_BASE}/compliance`, icon: ShieldCheck },
-      { label: "Legal", href: `${MANAGER_BASE}/legal`, icon: Scale, flag: "legalSection" },
-      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow },
+      { label: "Calendar",    href: `${MANAGER_BASE}/calendar`,    icon: Calendar },
+      { label: "Compliance",  href: `${MANAGER_BASE}/compliance`,  icon: ShieldCheck },
+      { label: "Legal",       href: `${MANAGER_BASE}/legal`,       icon: Scale,    flag: "legalSection" },
+      // Automations-lite (canvasLite) — flag-gated same as SideNavigation
+      { label: "Automations", href: `${MANAGER_BASE}/automations`, icon: Workflow, flag: "canvasLite" },
     ],
   },
   {

@@ -97,6 +97,10 @@ function fromDb(r: Record<string, unknown>): Property {
     county: g('county') ?? null,
     postcode: g('postcode') ?? null,
     country: (g('country') ?? 'United Kingdom') as string,
+    // Per-property jurisdiction spine. Live columns already exist.
+    country_code: (g('country_code') ?? null) as string | null,
+    region_code: (g('region_code') ?? null) as string | null,
+    currency: (g('currency') ?? null) as string | null,
     latitude: g('latitude') ?? null,
     longitude: g('longitude') ?? null,
     property_type: templateToType(template),
@@ -135,6 +139,7 @@ function toDb(p: Partial<Property>): Record<string, unknown> {
   if ('status' in p && p.status) o.status = PROPERTY_STATUS_TO_DB[String(p.status)] ?? 'active'
   for (const k of [
     'workspace_id', 'address_line1', 'address_line2', 'city', 'county', 'postcode', 'country',
+    'country_code', 'region_code', 'currency',
     'latitude', 'longitude', 'bedrooms', 'bathrooms', 'floor_area_sqm',
     'purchase_price', 'current_value', 'notes', 'cover_image_url', 'created_by', 'category',
   ] as const) {

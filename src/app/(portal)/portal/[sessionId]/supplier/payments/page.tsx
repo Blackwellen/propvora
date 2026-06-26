@@ -39,7 +39,7 @@ export default async function SupplierPaymentsPage({ params }: { params: Promise
     <div className="space-y-5">
       <PortalPageHeader
         title="Payments" subtitle="Track your payouts, remittances and payment history." backHref={base}
-        actions={<PortalButtonLink href="#" variant="primary" icon={Download}>Export</PortalButtonLink>}
+        actions={<PortalButtonLink href={`${base}/documents`} variant="primary" icon={Download}>Statements</PortalButtonLink>}
       />
       <PortalKpiStrip kpis={kpis} cols={5} />
 

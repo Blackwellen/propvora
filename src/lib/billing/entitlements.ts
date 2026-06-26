@@ -152,11 +152,11 @@ const TIER_FEATURES: Record<PlanTier, Pick<FeatureFlags, TierFeatureKeys>> = {
 
 /** Storage allowance per tier (bytes). Mirrors gates.ts STORAGE_LIMIT_BYTES. */
 const STORAGE_BYTES: Record<PlanTier, number> = {
-  starter: 2 * 1024 ** 3, //     2 GB
-  operator: 10 * 1024 ** 3, //  10 GB
-  scale: 50 * 1024 ** 3, //     50 GB
-  pro_agency: 200 * 1024 ** 3, // 200 GB
-  enterprise: Infinity, //      unlimited
+  starter:    2 * 1024 ** 3,  //   2 GB
+  operator:   5 * 1024 ** 3,  //   5 GB
+  scale:     15 * 1024 ** 3,  //  15 GB
+  pro_agency: 35 * 1024 ** 3, //  35 GB
+  enterprise: 100 * 1024 ** 3, // 100 GB — capped; add-on available for more
 }
 
 function toLimit(v: number | "Unlimited"): number {

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import PersonaLinks from "@/components/shell/PersonaLinks"
@@ -88,15 +88,16 @@ export default function CustomerTopNav({
   avatarUrl,
   unreadNotifications = 0,
   unreadMessages = 0,
+  brandLogoUrl,
 }: {
   customerName?: string
   customerEmail?: string | null
   avatarUrl?: string | null
   unreadNotifications?: number
   unreadMessages?: number
+  brandLogoUrl?: string | null
 }) {
   const pathname = usePathname()
-  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -120,16 +121,22 @@ export default function CustomerTopNav({
   async function signOut() {
     const sb = createClient()
     await sb.auth.signOut()
-    router.push("/login")
+    window.location.assign("/login")
   }
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
       <div className="mx-auto max-w-[1480px] h-[68px] px-4 sm:px-6 lg:px-8 flex items-center gap-3">
-        {/* Logo */}
+        {/* Logo — workspace brand logo when set, otherwise Propvora default. */}
         <Link href="/customer" aria-label="Propvora home" className="shrink-0 mr-2">
           <span className="relative block h-10 w-[180px]">
-            <Image src="/propvora-logo-dark.png" alt="Propvora" fill className="object-contain object-left" priority />
+            <Image
+              src={brandLogoUrl ?? "/propvora-logo-dark.png"}
+              alt={brandLogoUrl ? "Workspace logo" : "Propvora"}
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </span>
         </Link>
 

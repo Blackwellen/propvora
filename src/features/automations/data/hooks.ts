@@ -146,12 +146,77 @@ async function fetchDefinitions(
 
 /* ── Home + My automations — live `automation_definitions`, safe-mapped ─────── */
 
+// Compose a recent-activity feed from real run + approval rows. Both tables are
+// workspace-scoped by RLS; any missing table / denial yields an honest empty feed.
+async function fetchActivity(
+  sb: ReturnType<typeof createClient>,
+  wid: string,
+): Promise<ActivityItem[] | null> {
+  const items: ActivityItem[] = []
+  try {
+    const { data: runs } = await sb
+      .from("automation_v2_runs")
+      .select("id, status, finished_at, created_at, is_dry_run")
+      .eq("workspace_id", wid)
+      .order("created_at", { ascending: false })
+      .limit(40)
+    for (const raw of (runs ?? []) as Array<{ id: string; status?: string; finished_at?: string | null; created_at?: string | null; is_dry_run?: boolean }>) {
+      if (raw.is_dry_run) continue
+      const kind: ActivityItem["kind"] = raw.status === "failed" ? "error" : raw.status === "succeeded" ? "run_completed" : "action_executed"
+      const verb = raw.status === "failed" ? "Run failed" : raw.status === "succeeded" ? "Run completed" : `Run ${raw.status ?? "queued"}`
+      items.push({ id: `run-${raw.id}`, kind, text: `${verb} · RUN-${String(raw.id).slice(0, 8).toUpperCase()}`, at: String(raw.finished_at ?? raw.created_at ?? "") })
+    }
+  } catch { /* tolerant */ }
+  try {
+    const { data: approvals } = await sb
+      .from("automation_approvals")
+      .select("id, title, summary, status, created_at")
+      .eq("workspace_id", wid)
+      .order("created_at", { ascending: false })
+      .limit(20)
+    for (const raw of (approvals ?? []) as Array<{ id: string; title?: string; summary?: string; status?: string; created_at?: string | null }>) {
+      items.push({ id: `apr-${raw.id}`, kind: "approval_required", text: `${raw.status === "pending" ? "Approval required" : `Approval ${raw.status}`} · ${raw.title ?? raw.summary ?? "Automation action"}`, at: String(raw.created_at ?? "") })
+    }
+  } catch { /* tolerant */ }
+  if (items.length === 0) return null
+  items.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0))
+  return items.slice(0, 50)
+}
+
+async function fetchReviewQueue(
+  sb: ReturnType<typeof createClient>,
+  wid: string,
+): Promise<ReviewQueueItem[] | null> {
+  const { data, error } = await sb
+    .from("automation_approvals")
+    .select("id, title, summary, risk, status")
+    .eq("workspace_id", wid)
+    .in("status", ["pending", "escalated"])
+    .order("due_at", { ascending: true, nullsFirst: false })
+    .limit(20)
+  if (error) throw error
+  if (!data || data.length === 0) return null
+  const mapRisk = (r: string): ReviewQueueItem["risk"] =>
+    (["low", "medium", "high", "critical"] as const).includes(r as ReviewQueueItem["risk"]) ? (r as ReviewQueueItem["risk"]) : "low"
+  return (data as Record<string, unknown>[]).map((row) => ({
+    id: String(row.id),
+    title: String(row.title ?? row.summary ?? "Automation action"),
+    risk: mapRisk(String(row.risk ?? "low")),
+  }))
+}
+
+export function useAutomationActivity() {
+  return useLiveData<ActivityItem[]>([], fetchActivity)
+}
+
 export function useAutomationsHome() {
   const automations = useLiveData<AutomationRow[]>([], fetchDefinitions)
+  const reviewQueue = useLiveData<ReviewQueueItem[]>([], fetchReviewQueue)
+  const activity = useLiveData<ActivityItem[]>([], fetchActivity)
   return {
     automations,
-    reviewQueue: [] as ReviewQueueItem[],
-    activity: [] as ActivityItem[],
+    reviewQueue: reviewQueue.data,
+    activity: activity.data,
   }
 }
 
@@ -255,17 +320,69 @@ export function useAutomationRunsLogs() {
 
 export function useAutomationApprovals() {
   return useLiveData<ApprovalRow[]>([], async (sb, wid) => {
-    const { error } = await sb.from("automation_approvals").select("id").eq("workspace_id", wid).limit(1)
+    const { data, error } = await sb
+      .from("automation_approvals")
+      .select("id, node_key, node_type, category, risk, title, summary, status, requested_by, due_at, created_at")
+      .eq("workspace_id", wid)
+      .in("status", ["pending", "escalated"])
+      .order("due_at", { ascending: true, nullsFirst: false })
+      .limit(50)
     if (error) throw error
-    return null
+    if (!data || data.length === 0) return null
+    const mapRisk = (r: string): ApprovalRow["risk"] =>
+      (["low", "medium", "high", "critical"] as const).includes(r as ApprovalRow["risk"])
+        ? (r as ApprovalRow["risk"])
+        : "low"
+    return (data as Record<string, unknown>[]).map((row) => ({
+      id: String(row.id),
+      ref: `APR-${String(row.id).slice(0, 8).toUpperCase()}`,
+      automation: String(row.category ?? "Automation"),
+      proposedAction: String(row.node_key ?? row.node_type ?? "Action"),
+      risk: mapRisk(String(row.risk ?? "low")),
+      relatedTo: String(row.category ?? "—"),
+      relatedRef: "—",
+      created: String(row.created_at ?? ""),
+      requestedBy: String(row.requested_by ?? "System"),
+      impact: "medium" as const,
+      deadline: String(row.due_at ?? ""),
+      deadlineSoon: row.due_at ? new Date(String(row.due_at)) < new Date(Date.now() + 2 * 86_400_000) : false,
+      summary: String(row.summary ?? ""),
+    }))
   })
 }
 
 export function useAutomationErrors() {
   return useLiveData<ErrorRow[]>([], async (sb, wid) => {
-    const { error } = await sb.from("automation_errors").select("id").eq("workspace_id", wid).limit(1)
+    const { data, error } = await sb
+      .from("automation_errors")
+      .select("id, definition_id, run_id, node_key, node_type, severity, code, message, resolved, created_at")
+      .eq("workspace_id", wid)
+      .order("created_at", { ascending: false })
+      .limit(50)
     if (error) throw error
-    return null
+    if (!data || data.length === 0) return null
+    const mapSev = (s: string): ErrorRow["severity"] => {
+      if (s === "critical") return "critical"
+      if (s === "error") return "high"
+      if (s === "warning") return "medium"
+      return "low"
+    }
+    return (data as Record<string, unknown>[]).map((row) => ({
+      id: String(row.id),
+      ref: `ERR-${String(row.id).slice(0, 8).toUpperCase()}`,
+      title: String(row.code ?? "Error"),
+      subtitle: String(row.message ?? ""),
+      automation: String(row.definition_id ?? "Automation"),
+      automationRef: row.definition_id ? `AUT-${String(row.definition_id).slice(0, 6).toUpperCase()}` : "—",
+      severity: mapSev(String(row.severity ?? "warning")),
+      firstSeen: String(row.created_at ?? ""),
+      latestSeen: String(row.created_at ?? ""),
+      impactedRecord: "—",
+      retryCount: 0,
+      owner: "—",
+      status: row.resolved ? "resolved" as const : "active" as const,
+      safeToRetry: !row.resolved,
+    }))
   })
 }
 
@@ -273,9 +390,31 @@ export function useAutomationIntegrations() {
   return useLiveData<{ integrations: IntegrationRow[]; credentialAlerts: CredentialAlert[] }>(
     { integrations: [], credentialAlerts: [] },
     async (sb, wid) => {
-      const { error } = await sb.from("automation_integrations").select("id").eq("workspace_id", wid).limit(1)
+      const { data, error } = await sb
+        .from("automation_integrations")
+        .select("id, provider, name, category, health, environment, last_sync, permissions, capabilities, executions, success_rate, enabled")
+        .eq("workspace_id", wid)
+        .order("created_at", { ascending: false })
+        .limit(50)
       if (error) throw error
-      return null
+      if (!data || data.length === 0) return null
+      const mapHealth = (h: string): IntegrationRow["health"] =>
+        (["healthy", "warning", "error", "disconnected"] as const).includes(h as IntegrationRow["health"])
+          ? (h as IntegrationRow["health"])
+          : "disconnected"
+      const integrations: IntegrationRow[] = (data as Record<string, unknown>[]).map((row) => ({
+        id: String(row.id),
+        name: String(row.name ?? row.provider ?? "Integration"),
+        category: String(row.category ?? "General"),
+        health: mapHealth(String(row.health ?? "disconnected")),
+        environment: String(row.environment ?? "Production"),
+        lastSync: String(row.last_sync ?? ""),
+        permissions: String(row.permissions ?? "—"),
+        capabilities: String(row.capabilities ?? "—"),
+        executions: Number(row.executions ?? 0),
+        successRate: Number(row.success_rate ?? 0),
+      }))
+      return { integrations, credentialAlerts: [] }
     },
   )
 }
@@ -284,18 +423,71 @@ export function useAutomationWebhooks() {
   return useLiveData<{ endpoints: WebhookEndpoint[]; deliveries: WebhookDelivery[] }>(
     { endpoints: [], deliveries: [] },
     async (sb, wid) => {
-      const { error } = await sb.from("automation_webhook_endpoints").select("id").eq("workspace_id", wid).limit(1)
-      if (error) throw error
-      return null
+      const [epRes, dlRes] = await Promise.all([
+        sb
+          .from("automation_webhook_endpoints")
+          .select("id, name, token, secret_hash, active, last_triggered_at, created_at")
+          .eq("workspace_id", wid)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        sb
+          .from("automation_webhook_deliveries")
+          .select("id, endpoint_id, received_at, source_ip, status")
+          .order("received_at", { ascending: false })
+          .limit(100),
+      ])
+      if (epRes.error) throw epRes.error
+      if (!epRes.data || epRes.data.length === 0) return null
+      const endpoints: WebhookEndpoint[] = (epRes.data as Record<string, unknown>[]).map((row) => ({
+        id: String(row.id),
+        name: String(row.name ?? "Webhook"),
+        slug: String(row.token ?? "").slice(0, 12),
+        url: `/api/webhooks/${String(row.token ?? "")}`,
+        eventGroups: [],
+        eventCount: 0,
+        secretSet: Boolean(row.secret_hash),
+        environment: "Production" as const,
+        lastDelivery: String(row.last_triggered_at ?? row.created_at ?? ""),
+        successRate: 0,
+        enabled: Boolean(row.active),
+      }))
+      const deliveries: WebhookDelivery[] = (dlRes.data ?? []).slice(0, 30).map((row) => {
+        const r = row as Record<string, unknown>
+        const s = String(r.status ?? "accepted")
+        return {
+          id: String(r.id),
+          event: "webhook.received",
+          eventId: `EVT-${String(r.id).slice(0, 8).toUpperCase()}`,
+          endpoint: String(r.endpoint_id ?? ""),
+          environment: "Production",
+          status: s === "accepted" ? "success" as const : "failed" as const,
+          deliveredAt: String(r.received_at ?? ""),
+          response: s === "accepted" ? 200 : 400,
+          latency: "—",
+          retries: 0,
+        }
+      })
+      return { endpoints, deliveries }
     },
   )
 }
 
 export function useAutomationAiBuilder() {
   return useLiveData<AiBuild[]>([], async (sb, wid) => {
-    const { error } = await sb.from("automation_ai_outputs").select("id").eq("workspace_id", wid).limit(1)
+    const { data, error } = await sb
+      .from("automation_ai_outputs")
+      .select("id, created_at")
+      .eq("workspace_id", wid)
+      .order("created_at", { ascending: false })
+      .limit(20)
     if (error) throw error
-    return null
+    if (!data || data.length === 0) return null
+    return (data as Record<string, unknown>[]).map((row) => ({
+      id: String(row.id),
+      name: `AI Build ${String(row.id).slice(0, 6).toUpperCase()}`,
+      status: "Draft" as const,
+      at: String(row.created_at ?? ""),
+    }))
   })
 }
 
@@ -303,9 +495,31 @@ export function useAutomationUsageLimits() {
   return useLiveData<{ drivers: UsageDriver[]; quotas: PlanQuotaRow[] }>(
     { drivers: [], quotas: [] },
     async (sb, wid) => {
-      const { error } = await sb.from("automation_usage_daily").select("id").eq("workspace_id", wid).limit(1)
+      const { data, error } = await sb
+        .from("automation_usage_daily")
+        .select("id, day, runs, ai_credits, webhook_volume, storage_gb, module")
+        .eq("workspace_id", wid)
+        .order("day", { ascending: false })
+        .limit(30)
       if (error) throw error
-      return null
+      if (!data || data.length === 0) return null
+      const rows = data as Array<{ id: string; day: string; runs: number; ai_credits: number; webhook_volume: number; storage_gb: number; module: string }>
+      const totalRuns = rows.reduce((s, r) => s + (r.runs ?? 0), 0)
+      // Group by module for top drivers
+      const byModule = new Map<string, number>()
+      for (const r of rows) {
+        byModule.set(r.module ?? "all", (byModule.get(r.module ?? "all") ?? 0) + (r.runs ?? 0))
+      }
+      const drivers: UsageDriver[] = [...byModule.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, runs]) => ({
+          id: name,
+          name: name === "all" ? "All automations" : name,
+          runs,
+          share: totalRuns > 0 ? Math.round((runs / totalRuns) * 100) : 0,
+        }))
+      return { drivers, quotas: [] }
     },
   )
 }

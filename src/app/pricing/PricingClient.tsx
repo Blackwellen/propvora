@@ -11,6 +11,7 @@ import FeatureComparisonTable from "@/components/marketing/pricing/FeatureCompar
 import PricingFAQ from "@/components/marketing/pricing/PricingFAQ"
 import type { BillingCycle } from "@/components/marketing/pricing/PricingToggle"
 import { getReleasedOperatorAddons, gbp } from "@/lib/billing/plans"
+import { useT } from "@/components/i18n/LocaleProvider"
 
 // Operator add-ons, sourced from the canonical catalog (names/prices all from
 // src/lib/billing). No prices are duplicated/invented here.
@@ -18,6 +19,8 @@ const operatorAddons = getReleasedOperatorAddons("V1.5")
 
 export default function PricingClient() {
   const [billing, setBilling] = useState<BillingCycle>("monthly")
+  const tFn = useT()
+  const tr = (k: string) => tFn(`marketing.${k}`)
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,10 +36,10 @@ export default function PricingClient() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-                Add-ons & enhancements
+                {tr("pricingAddonsTitle")}
               </h2>
               <p className="text-slate-600">
-                Extend any plan with optional modules. Add what you need, when you need it.
+                {tr("pricingAddonsSubtitle")}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -76,26 +79,24 @@ export default function PricingClient() {
               Enterprise
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Need something custom?
+              {tr("pricingEnterpriseTitle")}
             </h2>
             <p className="text-slate-600 mb-8">
-              Running a large portfolio, a property management company, or an agency? We offer
-              custom plans with volume pricing, dedicated support, custom integrations, and SLA
-              agreements.
+              {tr("pricingEnterpriseSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-base transition-colors"
               >
-                Contact sales
+                {tr("pricingContactSales")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/register"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl text-base transition-colors"
               >
-                Start free trial instead
+                {tr("pricingStartTrialInstead")}
               </Link>
             </div>
           </div>

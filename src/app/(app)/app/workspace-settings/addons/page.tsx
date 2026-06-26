@@ -20,7 +20,7 @@ interface Addon {
 const ADDONS: Addon[] = [
   { key: "ai-credits-pack",    name: "AI Credit Pack",         desc: "500 additional AI credits per month",             price: "£19/mo",  status: "not_purchased", icon: Sparkles,   colour: "#7C3AED" },
   { key: "extra-users",        name: "Extra Users (5 pack)",   desc: "Add 5 more team member seats",                    price: "£15/mo",  status: "not_purchased", icon: Users,      colour: "#2563EB" },
-  { key: "extra-storage",      name: "Extra Storage (50GB)",   desc: "50GB additional document storage",                price: "£9/mo",   status: "not_purchased", icon: HardDrive,  colour: "#059669" },
+  { key: "extra-storage",      name: "Extra Storage (10 GB)",  desc: "10 GB additional document and media storage",     price: "£5/mo",   status: "not_purchased", icon: HardDrive,  colour: "#059669" },
   { key: "white-label",        name: "White Label",            desc: "Custom branding, hide Propvora logo",             price: "£39/mo",  status: "not_purchased", icon: Globe,      colour: "#D97706", planRequired: "Agency"     },
   { key: "saml-sso",           name: "SAML / SSO",             desc: "Enterprise single sign-on with SAML 2.0",         price: "£49/mo",  status: "not_purchased", icon: Key,        colour: "#DC2626", planRequired: "Enterprise" },
   { key: "advanced-reporting", name: "Advanced Reporting",     desc: "Custom reports, PDF exports, data visualisations",price: "£19/mo",  status: "not_purchased", icon: BarChart3,  colour: "#2563EB" },

@@ -44,6 +44,32 @@ export default function HomePage({
   const [tab, setTab] = useState<SubTab>("automations")
   const [page, setPage] = useState(1)
   const [newOpen, setNewOpen] = useState(false)
+  const [running, setRunning] = useState(false)
+
+  // Manual "Run now" — evaluates this workspace's enabled automations through the
+  // real engine (enqueue → drain). Idempotent server-side, so a double-click can't
+  // duplicate runs. Refreshes the list so new runs/queue counts appear immediately.
+  async function runNow() {
+    if (running) return
+    setRunning(true)
+    try {
+      const res = await fetch("/api/automations/run-now", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean; error?: string; upgrade?: boolean; executed?: number; enqueued?: number
+      }
+      if (!res.ok || !json.ok) {
+        toast(json.upgrade ? "Automations aren't available on your current plan." : json.error || "Couldn't run automations right now.")
+        return
+      }
+      const ran = (json.executed ?? 0) + (json.enqueued ?? 0)
+      toast(ran > 0 ? `Ran automations — ${json.executed ?? 0} executed, ${json.enqueued ?? 0} queued for review.` : "No automations were due to run.")
+      automations.reload()
+    } catch {
+      toast("Couldn't run automations right now. Please try again.")
+    } finally {
+      setRunning(false)
+    }
+  }
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
     () => Object.fromEntries(automations.data.map((a) => [a.id, a.enabled])),
   )
@@ -120,8 +146,8 @@ export default function HomePage({
 
   const actions = (
     <>
-      <Btn icon={Play} onClick={() => toast("Running enabled automations now…")}>
-        Run now
+      <Btn icon={Play} onClick={() => void runNow()} disabled={running}>
+        {running ? "Running…" : "Run now"}
       </Btn>
       <Btn icon={Wand2} variant="violet" onClick={() => router.push("/property-manager/automations/ai-builder")}>
         AI Builder

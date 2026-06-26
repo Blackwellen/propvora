@@ -31,7 +31,7 @@ import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
 
 const SUPPLIER_BASE = "/supplier"
 
-function SupplierShellChrome({ children }: { children: React.ReactNode }) {
+function SupplierShellChrome({ children, brandLogoUrl }: { children: React.ReactNode; brandLogoUrl?: string | null }) {
   const { workspace } = useWorkspace()
   const { planType, memberCount } = useSupplierPlan()
 
@@ -80,7 +80,7 @@ function SupplierShellChrome({ children }: { children: React.ReactNode }) {
 
         {/* Fixed sidebar — shared SideNavigation, supplier config. */}
         <div className="hidden lg:block">
-          <SideNavigation collapsed={collapsed} onToggle={handleToggle} navConfig={navConfig} />
+          <SideNavigation collapsed={collapsed} onToggle={handleToggle} navConfig={navConfig} brandLogoUrl={brandLogoUrl} />
         </div>
 
         <div
@@ -125,16 +125,19 @@ export default function SupplierAppShell({
   workspaceId = null,
   teamMemberCount = 1,
   planType,
+  brandLogoUrl,
 }: {
   children: React.ReactNode
   workspaceId?: string | null
   teamMemberCount?: number
   planType?: SupplierPlanType
+  /** Optional workspace brand logo URL; falls back to Propvora logo when not set. */
+  brandLogoUrl?: string | null
 }) {
   return (
     <SupplierWorkspaceProvider workspaceId={workspaceId}>
       <SupplierPlanProvider seedPlanType={planType} seedMemberCount={teamMemberCount}>
-        <SupplierShellChrome>{children}</SupplierShellChrome>
+        <SupplierShellChrome brandLogoUrl={brandLogoUrl}>{children}</SupplierShellChrome>
       </SupplierPlanProvider>
     </SupplierWorkspaceProvider>
   )

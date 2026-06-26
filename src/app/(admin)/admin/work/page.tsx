@@ -71,7 +71,7 @@ export default async function AdminWorkPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 items-start">
         <div className="xl:col-span-2 space-y-4">
-          <DiagnosticsBrowser rows={rows} primaryLabel="Task" metaLabel="Priority" icon={CheckSquare} />
+          <DiagnosticsBrowser rows={rows} primaryLabel="Task" metaLabel="Priority" iconKey="task" />
         </div>
 
         <AdminRightRail>

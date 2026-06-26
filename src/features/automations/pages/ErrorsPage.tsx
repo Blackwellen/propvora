@@ -1,15 +1,41 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
-import { AlertTriangle, BellOff, Bug, Clock, Download, RefreshCw, Settings } from "lucide-react"
+import { AlertTriangle, BellOff, Bug, CheckCircle2, Clock, Download, RefreshCw, Settings } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsRiskBadge, AutomationsStatusBadge } from "../components/AutomationsBadges"
 import { Btn, Card, useToast } from "../components/primitives"
 import { useAutomationErrors } from "../data/hooks"
+import { resolveAutomationError } from "@/lib/automation/error-actions"
 import type { ErrorRow } from "../data/types"
+
+function exportErrorsCsv(rows: ErrorRow[]) {
+  const header = ["Ref", "Title", "Message", "Automation", "Severity", "Status", "First seen", "Latest seen", "Retries"]
+  const csv = [
+    header.join(","),
+    ...rows.map((r) => [
+      r.ref,
+      `"${(r.title ?? "").replace(/"/g, '""')}"`,
+      `"${(r.subtitle ?? "").replace(/"/g, '""')}"`,
+      `"${(r.automation ?? "").replace(/"/g, '""')}"`,
+      r.severity,
+      r.status,
+      r.firstSeen,
+      r.latestSeen,
+      r.retryCount,
+    ].join(",")),
+  ].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `automation-errors-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 const STATUS_LABEL: Record<ErrorRow["status"], { label: string; status: string }> = {
   active: { label: "Active", status: "active" },
@@ -20,10 +46,31 @@ const STATUS_LABEL: Record<ErrorRow["status"], { label: string; status: string }
 export default function ErrorsPage() {
   const router = useSectionRouter()
   const toast = useToast()
-  const { data: errors, loading } = useAutomationErrors()
+  const { data: errors, loading, reload } = useAutomationErrors()
   const [tab, setTab] = useState("queue")
   const [page, setPage] = useState(1)
-  const [active, setActive] = useState<ErrorRow | undefined>(errors[0])
+  const [active, setActive] = useState<ErrorRow | undefined>(undefined)
+  const [resolving, setResolving] = useState(false)
+
+  // Default the detail panel to the first error once data loads (useState init
+  // runs before the async fetch resolves, so it can't capture the first row).
+  useEffect(() => {
+    setActive((cur) => cur ?? errors[0])
+  }, [errors])
+
+  async function markResolved(id: string) {
+    if (resolving) return
+    setResolving(true)
+    try {
+      const res = await resolveAutomationError(id)
+      if (!res.ok) { toast(res.error || "Couldn't resolve this error."); return }
+      toast("Error marked resolved")
+      setActive(undefined)
+      reload()
+    } finally {
+      setResolving(false)
+    }
+  }
 
   const openCount = errors.filter((e) => e.status === "active").length
   const needsConfig = errors.filter((e) => e.status === "needs_config").length
@@ -57,11 +104,17 @@ export default function ErrorsPage() {
     [],
   )
 
+  const filteredErrors = useMemo(() => {
+    if (tab === "all") return errors
+    if (tab === "queue") return errors.filter((e) => e.status === "active")
+    return errors.filter((e) => e.status === tab)
+  }, [errors, tab])
+
   const actions = (
     <>
-      <Btn icon={RefreshCw} onClick={() => toast("Retrying failed runs…")}>Retry failed runs</Btn>
-      <Btn icon={Download} onClick={() => toast("Exporting errors…")}>Export errors</Btn>
-      <Btn icon={Settings} onClick={() => toast("Alert settings")}>Alert settings</Btn>
+      <Btn icon={RefreshCw} onClick={() => reload()}>Refresh</Btn>
+      <Btn icon={Download} disabled={errors.length === 0} onClick={() => exportErrorsCsv(errors)}>Export errors</Btn>
+      <Btn icon={Settings} onClick={() => router.push("/property-manager/workspace-settings/automations")}>Alert settings</Btn>
     </>
   )
 
@@ -93,7 +146,7 @@ export default function ErrorsPage() {
         {["Critical", "Active", "Resolved", "Needs config", "External integration", "More filters"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>
         ))}
-        <button onClick={() => toast("Refreshed")} className="ml-auto grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50"><RefreshCw className="h-4 w-4" /></button>
+        <button aria-label="Refresh errors" onClick={() => reload()} className="ml-auto grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50"><RefreshCw className="h-4 w-4" /></button>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_360px]">
@@ -103,14 +156,14 @@ export default function ErrorsPage() {
           ) : (
             <AutomationsDataTable
               columns={columns}
-              rows={errors}
+              rows={filteredErrors}
               selectable
               selectedIds={selected}
               onToggleRow={(id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))}
-              onToggleAll={(c) => setSelected(c ? errors.map((r) => r.id) : [])}
+              onToggleAll={(c) => setSelected(c ? filteredErrors.map((r) => r.id) : [])}
               page={page}
               pageSize={8}
-              total={errors.length}
+              total={filteredErrors.length}
               onPageChange={setPage}
               onRowClick={(r) => setActive(r)}
               activeRowId={active?.id}
@@ -132,38 +185,38 @@ export default function ErrorsPage() {
             <div className="space-y-4 p-4 text-sm">
               {detailTab === "details" ? (
                 <>
-                  <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/60 p-3 text-red-800">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>This error is affecting automated payments and needs prompt attention.</span>
-                  </div>
+                  {active.severity === "critical" && (
+                    <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/60 p-3 text-red-800">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>This is a critical error and needs prompt attention.</span>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-2">
                     <Stat label="Severity" value={active.severity} />
                     <Stat label="Status" value={STATUS_LABEL[active.status].label} />
                     <Stat label="First seen" value={active.firstSeen} />
                     <Stat label="Latest seen" value={active.latestSeen} />
                     <Stat label="Retry count" value={`${active.retryCount}`} />
-                    <Stat label="Owner" value={active.owner} />
+                    <Stat label="Automation" value={active.automationRef} />
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold uppercase text-slate-400">Error source</div>
-                    <pre className="mt-1.5 overflow-x-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100">{`POST https://api.stripe.com/v1/charges\nError: ETIMEDOUT\nTrace ID: trc_${active.ref.toLowerCase()}`}</pre>
-                    <button onClick={() => toast("Full stack trace")} className="mt-1.5 text-xs font-semibold text-blue-600 hover:underline">Show full stack trace</button>
+                    <div className="text-[11px] font-semibold uppercase text-slate-400">Error message</div>
+                    <pre className="mt-1.5 overflow-x-auto whitespace-pre-wrap rounded-lg bg-slate-900 p-3 text-xs text-slate-100">{active.subtitle || active.title || "No error detail recorded."}</pre>
                   </div>
                   <div className="rounded-xl border border-slate-200 p-3">
-                    <div className="text-[11px] font-semibold uppercase text-slate-400">Failed step</div>
-                    <p className="mt-1 text-slate-700">Step 4 of 6</p>
-                    <button onClick={() => router.push("/property-manager/automations/runs-logs")} className="text-xs font-semibold text-blue-600 hover:underline">View step logs</button>
+                    <div className="text-[11px] font-semibold uppercase text-slate-400">Run logs</div>
+                    <button onClick={() => router.push("/property-manager/automations/runs-logs")} className="mt-1 text-xs font-semibold text-blue-600 hover:underline">View step logs for the affected run</button>
                   </div>
                 </>
               ) : (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-                  <div className="text-[11px] font-semibold uppercase text-emerald-700">Safe retry guidance</div>
-                  <ul className="mt-2 space-y-1 text-emerald-900">
-                    <li>Safe to retry: {active.safeToRetry ? "Yes" : "No"}</li>
-                    <li>No side effects on retry</li>
-                    <li>Retries remaining: {active.retriesRemaining}</li>
-                  </ul>
-                  <Btn variant="emerald" className="mt-3" disabled={!active.safeToRetry} onClick={() => toast("Retrying this error…")}>Retry this error</Btn>
+                  <div className="text-[11px] font-semibold uppercase text-emerald-700">Resolve this error</div>
+                  <p className="mt-2 text-emerald-900">
+                    Once you&apos;ve fixed the underlying cause (or confirmed it no longer applies), mark this error resolved to clear it from the active queue. The next scheduled run re-evaluates the trigger automatically.
+                  </p>
+                  <Btn variant="emerald" icon={CheckCircle2} className="mt-3" disabled={active.status === "resolved" || resolving} onClick={() => void markResolved(active.id)}>
+                    {active.status === "resolved" ? "Resolved" : resolving ? "Resolving…" : "Mark as resolved"}
+                  </Btn>
                 </div>
               )}
               <div className="rounded-xl border border-slate-200 p-3">

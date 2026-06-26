@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sun, Moon, Monitor, Info } from "lucide-react"
+import { Sun, Moon, Monitor, Info, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUserPreferences, saveUserPreferences } from "@/lib/actions/settings"
 import { useGuidedHelp } from "@/guided-help/GuidedHelpProvider"
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher"
+import { isSupportedLocale, type Locale } from "@/lib/i18n/config"
+import { useRouter } from "next/navigation"
 
 type Theme   = "light" | "dark" | "system"
 type Density = "compact" | "comfortable" | "spacious"
@@ -19,6 +22,7 @@ type PrefsForm = {
 }
 
 export default function PreferencesPage() {
+  const router = useRouter()
   const [form, setForm] = useState<PrefsForm>({
     theme: "light",
     density: "comfortable",
@@ -26,6 +30,9 @@ export default function PreferencesPage() {
     landingPage: "/property-manager/portfolio",
     reducedMotion: false,
   })
+  const [language, setLanguage] = useState<Locale>("en-GB")
+  const [langSaving, setLangSaving] = useState(false)
+  const [langError, setLangError] = useState<string | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
@@ -46,9 +53,24 @@ export default function PreferencesPage() {
           landingPage:   (prefs.landing_page as string) ?? f.landingPage,
           reducedMotion: typeof prefs.reduced_motion === "boolean" ? (prefs.reduced_motion as boolean) : f.reducedMotion,
         }))
+        const stored = prefs.default_language as string | undefined
+        if (stored && isSupportedLocale(stored)) setLanguage(stored)
       }
     })
   }, [])
+
+  async function handleLanguageChange(locale: Locale) {
+    setLanguage(locale)
+    setLangSaving(true)
+    setLangError(null)
+    const res = await saveUserPreferences({ default_language: locale })
+    setLangSaving(false)
+    if (!res.ok && !res.unavailable) {
+      setLangError(res.error ?? "Failed to save language.")
+      return
+    }
+    router.refresh()
+  }
 
   function update<K extends keyof PrefsForm>(key: K, value: PrefsForm[K]) {
     setForm(f => ({ ...f, [key]: value }))
@@ -106,6 +128,39 @@ export default function PreferencesPage() {
           Preferences storage is not provisioned yet — selections show defaults and can&apos;t be saved until the <code className="font-mono">user_preferences</code> table exists.
         </div>
       )}
+
+      {/* Language & Region */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
+        <div className="flex items-center gap-2 mb-1">
+          <Globe className="w-4 h-4 text-slate-500" />
+          <h3 className="text-[14px] font-bold text-slate-900">Language &amp; Region</h3>
+        </div>
+        <p className="text-[12.5px] text-slate-500 mb-4">
+          Sets your personal display language. Overrides the workspace default — takes effect on next page load.
+        </p>
+        <div className="max-w-xs">
+          <LocaleSwitcher
+            value={language}
+            onChange={handleLanguageChange}
+            refreshOnChange={false}
+            hideLabel
+          />
+          {langSaving && (
+            <p className="mt-1.5 text-[11.5px] text-slate-400 flex items-center gap-1.5">
+              <span className="w-3 h-3 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin inline-block" />
+              Saving…
+            </p>
+          )}
+          {langError && (
+            <p className="mt-1.5 text-[11.5px] text-red-500">{langError}</p>
+          )}
+          {!langSaving && !langError && (
+            <p className="mt-1.5 text-[11px] text-slate-400">
+              Changes save instantly and refresh the page.
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* Theme */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">

@@ -1,9 +1,20 @@
-// Canonical location for Legal settings. `next.config.ts` redirects
-// `/property-manager/settings/legal` here (via the settings/:path* catch-all), but
-// no page existed at this target — leaving the Legal settings (custom legal module
-// editor) unreachable (404). This re-exports the existing settings page so the
-// canonical workspace-settings route resolves. `dynamic` is declared statically
-// (Next forbids re-exporting route segment config).
-export { default } from "../../settings/legal/page"
+"use client"
+
+import { DashboardContainer, PageHeader } from "@/components/layout/PageContainer"
+import { LegalModulesEditor } from "@/components/legal/LegalModulesEditor"
 
 export const dynamic = "force-dynamic"
+
+export default function LegalSettingsPage() {
+  return (
+    <DashboardContainer>
+      <PageHeader
+        title="Legal Settings"
+        description="Customise the legal jurisdiction modules and guidance shown across the Legal section for your workspace."
+      />
+      <div className="grid grid-cols-1 gap-6 px-6 pb-6 mt-6">
+        <LegalModulesEditor />
+      </div>
+    </DashboardContainer>
+  )
+}

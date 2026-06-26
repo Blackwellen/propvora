@@ -1,20 +1,6 @@
-import AdminManagementPage from "../_components/AdminManagementPage"
+import { redirect } from "next/navigation"
 
-export default function AdminMaintenancePage() {
-  return (
-    <AdminManagementPage
-      title="Maintenance mode"
-      description="Platform maintenance controls for planned downtime, banner messaging, restricted access, health checks and rollback status."
-      items={[
-        "Global maintenance switch",
-        "Workspace allowlist",
-        "Announcement copy",
-        "API readiness",
-        "Scheduled windows",
-        "Rollback status",
-        "Customer comms",
-        "Post-maintenance checks",
-      ]}
-    />
-  )
+// Canonical URL is /admin/maintenance-mode — redirect the legacy /admin/maintenance stub.
+export default function AdminMaintenanceRedirect() {
+  redirect("/admin/maintenance-mode")
 }

@@ -235,18 +235,18 @@ export default function SubscriptionPage() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors disabled:opacity-60"
           >
             {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
-            Open Stripe billing portal
+            Open billing portal
           </button>
           <button
             onClick={handlePortal}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 text-red-600 text-[13px] font-semibold hover:bg-red-50 transition-colors"
           >
             <AlertTriangle className="w-4 h-4" />
-            Cancel or change in portal
+            Cancel or change plan
           </button>
         </div>
         <p className="text-[11px] text-slate-400 mt-3">
-          Plan changes, cancellations, payment methods and receipts are managed securely in the Stripe billing portal.
+          Plan changes, cancellations, payment methods and receipts are managed securely in the billing portal.
         </p>
       </div>
     </div>

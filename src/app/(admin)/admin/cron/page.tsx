@@ -1,20 +1,6 @@
-import AdminManagementPage from "../_components/AdminManagementPage"
+import { redirect } from "next/navigation"
 
-export default function AdminCronPage() {
-  return (
-    <AdminManagementPage
-      title="Cron management"
-      description="Visibility and controls for scheduled jobs, reconciliation tasks, automation runners, daily maintenance and stuck-job recovery."
-      items={[
-        "Daily cron",
-        "Automation runner",
-        "Payment reconciliation",
-        "Expired holds",
-        "Failed jobs",
-        "Manual reruns",
-        "Last run status",
-        "Operational alerts",
-      ]}
-    />
-  )
+// Canonical URL is /admin/cron-management — redirect the legacy /admin/cron stub.
+export default function AdminCronRedirect() {
+  redirect("/admin/cron-management")
 }

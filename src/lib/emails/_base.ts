@@ -1,11 +1,15 @@
 /**
  * Shared branded email wrapper for all Propvora transactional emails.
- * Uses table-based layout for maximum email client compatibility.
- * Logo is hosted at NEXT_PUBLIC_SITE_URL/propvora-logo-dark.png with text fallback.
+ * Table-based layout — works in Gmail, Outlook (Windows), Apple Mail, Yahoo.
+ * Rules: solid colours only (no CSS gradients — they break Outlook), all styles inline,
+ * logo hardcoded to staging CDN (not NEXT_PUBLIC_SITE_URL which resolves to localhost in dev).
  */
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://propvora.com"
-const LOGO_URL = `${SITE}/propvora-logo-dark.png`
+// Logo image served from staging (confirmed live). All visible links use propvora.com.
+// Swap LOGO_CDN to https://propvora.com once that domain's DNS is pointed.
+const LOGO_CDN = "https://staging.propvora.com"
+const LOGO_URL = `${LOGO_CDN}/propvora-logo-dark.png`
+const SITE = "https://propvora.com"
 const YEAR = new Date().getFullYear()
 
 /** Brand colour tokens */
@@ -14,9 +18,15 @@ export const BRAND = {
   navyMid: "#0F172A",
   blue: "#1E3A8A",
   accent: "#2563EB",
+  accentDark: "#1d4ed8",
   accentLight: "#EFF6FF",
+  accentBorder: "#BFDBFE",
+  green: "#059669",
+  greenLight: "#ECFDF5",
   red: "#DC2626",
+  redLight: "#FEF2F2",
   amber: "#D97706",
+  amberLight: "#FFFBEB",
   bg: "#F1F5F9",
   card: "#FFFFFF",
   border: "#E2E8F0",
@@ -27,70 +37,20 @@ export const BRAND = {
   textFaint: "#94A3B8",
 } as const
 
-/** Branded logo bar shown above every email card */
-function logoBar(): string {
-  return `
-  <tr>
-    <td style="padding-bottom:24px; text-align:center;">
-      <!--[if !mso]><!-->
-      <img src="${LOGO_URL}" alt="Propvora" width="140" height="32"
-           style="display:inline-block; width:140px; height:auto; max-height:32px; object-fit:contain;"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-      <!--<![endif]-->
-      <span style="display:none; font-size:22px; font-weight:800; color:${BRAND.navy}; letter-spacing:-0.5px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-        &#x25C6; Propvora
-      </span>
-    </td>
-  </tr>`
-}
+const FONT = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`
 
-/** Dark gradient header strip with category label + headline */
-export function emailHeader(category: string, headline: string): string {
-  return `
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-    <tr>
-      <td style="background:linear-gradient(135deg,${BRAND.navyMid} 0%,${BRAND.blue} 100%); padding:32px 40px; border-radius:16px 16px 0 0;">
-        <table cellpadding="0" cellspacing="0" role="presentation">
-          <tr>
-            <td style="padding-right:12px; vertical-align:middle;">
-              <div style="width:36px; height:36px; background:rgba(255,255,255,0.12); border-radius:8px; text-align:center; line-height:36px;">
-                <span style="font-size:18px;">&#x25C6;</span>
-              </div>
-            </td>
-            <td style="vertical-align:middle;">
-              <p style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1.2px; margin:0 0 4px;">Propvora &nbsp;&#xb7;&nbsp; ${category}</p>
-              <h1 style="font-size:22px; font-weight:800; color:#FFFFFF; line-height:1.2; margin:0;">${headline}</h1>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>`
+/** Invisible inbox preview text */
+function preheader(text: string): string {
+  return `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;color:#ffffff;line-height:1px;">${text}&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;&#8203;&zwnj;&nbsp;</div>`
 }
 
 /** Primary blue CTA button */
 export function ctaButton(label: string, href: string): string {
   return `
-  <table cellpadding="0" cellspacing="0" role="presentation">
+  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0 24px;">
     <tr>
-      <td style="border-radius:10px; background:${BRAND.accent}; box-shadow:0 2px 8px rgba(37,99,235,0.30);">
-        <a href="${href}"
-           style="display:inline-block; padding:13px 28px; font-size:14px; font-weight:700; color:#FFFFFF; text-decoration:none; border-radius:10px; letter-spacing:0.3px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          ${label} &nbsp;&rarr;
-        </a>
-      </td>
-    </tr>
-  </table>`
-}
-
-/** Secondary ghost CTA */
-export function secondaryButton(label: string, href: string): string {
-  return `
-  <table cellpadding="0" cellspacing="0" role="presentation">
-    <tr>
-      <td style="border-radius:10px; border:2px solid ${BRAND.border};">
-        <a href="${href}"
-           style="display:inline-block; padding:11px 24px; font-size:13px; font-weight:600; color:${BRAND.textBody}; text-decoration:none; border-radius:8px; letter-spacing:0.2px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+      <td style="border-radius:8px;background:#2563EB;">
+        <a href="${href}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;font-family:${FONT};letter-spacing:0.2px;">
           ${label}
         </a>
       </td>
@@ -98,123 +58,214 @@ export function secondaryButton(label: string, href: string): string {
   </table>`
 }
 
-/** Branded footer with legal line, unsubscribe, and social links */
-function emailFooter(extraLine?: string): string {
+/** Secondary ghost button */
+export function secondaryButton(label: string, href: string): string {
   return `
-  <tr>
-    <td style="padding-top:32px; text-align:center; border-top:1px solid ${BRAND.border};">
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-        <tr>
-          <td style="text-align:center; padding-bottom:12px;">
-            <img src="${LOGO_URL}" alt="Propvora" width="80" height="18"
-                 style="display:inline-block; width:80px; height:auto; opacity:0.4;" />
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align:center;">
-            <p style="font-size:12px; color:${BRAND.textFaint}; line-height:1.7; margin:0;">
-              &copy; ${YEAR} <a href="https://propvora.com" style="color:${BRAND.textFaint}; text-decoration:none;">Propvora</a>
-              &nbsp;&bull;&nbsp; Blackwellen Ltd (Co. 16482166) &nbsp;&bull;&nbsp; <a href="https://propvora.com/legal/privacy" style="color:${BRAND.textFaint}; text-decoration:underline;">Privacy</a>
-              &nbsp;&bull;&nbsp; <a href="https://propvora.com/legal/terms" style="color:${BRAND.textFaint}; text-decoration:underline;">Terms</a>
-            </p>
-            ${extraLine ? `<p style="font-size:11px; color:${BRAND.textFaint}; line-height:1.6; margin:6px 0 0;">${extraLine}</p>` : ""}
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>`
-}
-
-/** Global shared styles injected into every email <style> block */
-const SHARED_STYLES = `
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background-color:${BRAND.bg}; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
-  a { color:${BRAND.accent}; }
-`
-
-/**
- * Wraps the given body HTML in the full branded email shell.
- * @param body  - inner content rows (everything inside the white card body)
- * @param subject - used as <title>
- * @param footerNote - optional extra line in the footer (e.g. "Sent on behalf of…")
- */
-export function brandedEmail(opts: {
-  subject: string
-  category: string
-  headline: string
-  body: string
-  footerNote?: string
-}): string {
-  const { subject, category, headline, body, footerNote } = opts
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light" />
-  <title>${subject}</title>
-  <style>${SHARED_STYLES}</style>
-</head>
-<body style="background-color:${BRAND.bg}; padding:40px 16px;">
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+  <table cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0;">
     <tr>
-      <td align="center">
-        <table width="100%" style="max-width:580px;" cellpadding="0" cellspacing="0" role="presentation">
-
-          ${logoBar()}
-
-          <!-- Card -->
-          <tr>
-            <td style="background:${BRAND.card}; border-radius:16px; border:1px solid ${BRAND.border}; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.06);">
-
-              ${emailHeader(category, headline)}
-
-              <!-- Body content -->
-              <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td style="padding:36px 40px;">
-                    ${body}
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-          ${emailFooter(footerNote)}
-
-        </table>
+      <td style="border-radius:8px;border:2px solid #E2E8F0;">
+        <a href="${href}" style="display:inline-block;padding:12px 24px;font-size:13px;font-weight:600;color:#334155;text-decoration:none;border-radius:8px;font-family:${FONT};">
+          ${label}
+        </a>
       </td>
     </tr>
-  </table>
-</body>
-</html>`
+  </table>`
 }
 
-/** Helper: info/data row pair for summary cards */
-export function dataRow(label: string, value: string, valueStyle = "", border = true): string {
+/** Highlighted alert/info box */
+export function infoBox(text: string, tone: "info" | "success" | "warning" | "danger" = "info"): string {
+  const config = {
+    info:    { bg: "#EFF6FF", border: "#BFDBFE", color: "#1d4ed8", icon: "ℹ" },
+    success: { bg: "#ECFDF5", border: "#A7F3D0", color: "#059669", icon: "✓" },
+    warning: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", icon: "!" },
+    danger:  { bg: "#FEF2F2", border: "#FECACA", color: "#DC2626", icon: "✕" },
+  }[tone]
   return `
-  <tr>
-    <td style="padding:${border ? "14px 0" : "10px 0"}; ${border ? "border-bottom:1px solid " + BRAND.border + ";" : ""}">
-      <p style="font-size:11px; font-weight:700; color:${BRAND.textFaint}; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">${label}</p>
-      <p style="font-size:14px; font-weight:600; color:${BRAND.textPrimary}; ${valueStyle}">${value}</p>
-    </td>
-  </tr>`
-}
-
-/** Helper: summary card container */
-export function summaryCard(rows: string): string {
-  return `
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-         style="background:${BRAND.cardBg}; border:1px solid ${BRAND.border}; border-radius:12px; margin-bottom:28px;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:24px;">
     <tr>
-      <td style="padding:22px 28px;">
-        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-          ${rows}
+      <td style="background:${config.bg};border:1px solid ${config.border};border-radius:8px;padding:14px 18px;">
+        <table cellpadding="0" cellspacing="0" role="presentation">
+          <tr>
+            <td style="width:22px;vertical-align:top;padding-right:10px;font-size:14px;color:${config.color};font-weight:700;">${config.icon}</td>
+            <td style="font-size:13px;color:${config.color};line-height:1.6;font-family:${FONT};">${text}</td>
+          </tr>
         </table>
       </td>
     </tr>
   </table>`
 }
 
-export { logoBar, emailFooter, SITE, YEAR }
+/** Divider line */
+export function divider(): string {
+  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:20px 0;"><tr><td style="height:1px;background:#E2E8F0;font-size:0;line-height:0;">&nbsp;</td></tr></table>`
+}
+
+/** Summary card row */
+export function dataRow(label: string, value: string, valueStyle = "", border = true): string {
+  return `
+  <tr>
+    <td style="padding:${border ? "14px 0" : "10px 0"};${border ? "border-bottom:1px solid #E2E8F0;" : ""}">
+      <p style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.9px;margin:0 0 4px;font-family:${FONT};">${label}</p>
+      <p style="font-size:14px;font-weight:600;color:#0D1B2A;font-family:${FONT};${valueStyle}margin:0;">${value}</p>
+    </td>
+  </tr>`
+}
+
+/** Summary card container */
+export function summaryCard(rows: string): string {
+  return `
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:28px;">
+    <tr><td style="padding:22px 28px;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${rows}</table>
+    </td></tr>
+  </table>`
+}
+
+/**
+ * Full branded email shell.
+ * Solid-colour design — no CSS gradients so Outlook renders correctly.
+ */
+export function brandedEmail(opts: {
+  subject: string
+  preheaderText?: string
+  category: string
+  headline: string
+  iconEmoji?: string
+  body: string
+  footerNote?: string
+}): string {
+  const { subject, preheaderText, category, headline, iconEmoji, body, footerNote } = opts
+
+  return `<!DOCTYPE html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="color-scheme" content="light"/>
+  <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+  <title>${subject}</title>
+  <style>
+    * { box-sizing:border-box; }
+    body { margin:0; padding:0; background:#F1F5F9; font-family:${FONT}; -webkit-font-smoothing:antialiased; }
+    a { color:#2563EB; }
+    @media only screen and (max-width:600px) {
+      .outer { padding:20px 12px !important; }
+      .card-inner { padding:24px 20px !important; }
+      .hero { padding:28px 24px !important; }
+      .logo-cell { padding:20px 24px 16px !important; }
+      h1.headline { font-size:20px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#F1F5F9;">
+
+  ${preheaderText ? preheader(preheaderText) : ""}
+
+  <table class="outer" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#F1F5F9;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
+
+        <!-- Blue top bar -->
+        <tr>
+          <td style="background:#2563EB;height:4px;border-radius:6px 6px 0 0;font-size:0;line-height:0;">&nbsp;</td>
+        </tr>
+
+        <!-- White card -->
+        <tr>
+          <td style="background:#ffffff;border:1px solid #E2E8F0;border-top:0;border-radius:0 0 12px 12px;overflow:hidden;">
+
+            <!-- Logo row -->
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td class="logo-cell" style="padding:28px 40px 20px;border-bottom:1px solid #F1F5F9;">
+                  <a href="https://propvora.com" style="text-decoration:none;display:inline-block;">
+                    <!--[if !mso]><!-->
+                    <img src="${LOGO_URL}"
+                         alt="Propvora"
+                         width="140"
+                         style="display:block;width:140px;height:auto;border:0;outline:0;"
+                         onerror="this.style.display='none'" />
+                    <!--<![endif]-->
+                    <!--[if mso]><span style="font-size:22px;font-weight:800;color:#0D1B2A;font-family:Arial,sans-serif;text-decoration:none;">Propvora</span><![endif]-->
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Dark hero header — solid colour (no gradient, works in all clients) -->
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td class="hero" style="background:#0D1B2A;padding:36px 40px;">
+                  <table cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                      ${iconEmoji ? `<td style="vertical-align:middle;padding-right:16px;">
+                        <div style="width:48px;height:48px;background:#1e3a8a;border-radius:10px;text-align:center;line-height:48px;font-size:22px;">${iconEmoji}</div>
+                      </td>` : ""}
+                      <td style="vertical-align:middle;">
+                        <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1.4px;margin:0 0 8px;font-family:${FONT};">Propvora &nbsp;&middot;&nbsp; ${category}</p>
+                        <h1 class="headline" style="font-size:24px;font-weight:800;color:#ffffff;line-height:1.25;margin:0;font-family:${FONT};letter-spacing:-0.3px;">${headline}</h1>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Body -->
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td class="card-inner" style="padding:36px 40px;">
+                  ${body}
+                </td>
+              </tr>
+            </table>
+
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:28px 40px;border-radius:0 0 12px 12px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                      <td style="text-align:center;padding-bottom:14px;">
+                        <img src="${LOGO_URL}" alt="Propvora" width="80"
+                             style="display:inline-block;width:80px;height:auto;opacity:0.25;border:0;"
+                             onerror="this.style.display='none'" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="text-align:center;padding-bottom:10px;">
+                        <a href="https://propvora.com/help" style="font-size:12px;color:#94A3B8;text-decoration:none;font-family:${FONT};padding:0 8px;">Help</a>
+                        <span style="color:#CBD5E1;">&middot;</span>
+                        <a href="https://propvora.com/legal/privacy" style="font-size:12px;color:#94A3B8;text-decoration:none;font-family:${FONT};padding:0 8px;">Privacy</a>
+                        <span style="color:#CBD5E1;">&middot;</span>
+                        <a href="https://propvora.com/legal/terms" style="font-size:12px;color:#94A3B8;text-decoration:none;font-family:${FONT};padding:0 8px;">Terms</a>
+                        <span style="color:#CBD5E1;">&middot;</span>
+                        <a href="mailto:support@propvora.com" style="font-size:12px;color:#94A3B8;text-decoration:none;font-family:${FONT};padding:0 8px;">Support</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="text-align:center;">
+                        <p style="font-size:11px;color:#94A3B8;line-height:1.7;margin:0;font-family:${FONT};">
+                          &copy; ${YEAR} Propvora &nbsp;&middot;&nbsp; Blackwellen Ltd (Co.&nbsp;16482166) &nbsp;&middot;&nbsp; Registered in England &amp; Wales
+                        </p>
+                        ${footerNote ? `<p style="font-size:11px;color:#94A3B8;margin:4px 0 0;font-family:${FONT};">${footerNote}</p>` : ""}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+
+</body>
+</html>`
+}
+
+export { LOGO_URL, YEAR, FONT as FONT_STACK }

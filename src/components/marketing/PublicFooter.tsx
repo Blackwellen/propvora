@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Mail, MapPin } from "lucide-react"
 import CookiePreferencesLink from "@/components/consent/CookiePreferencesLink"
 import NewsletterSignup from "@/components/marketing/NewsletterSignup"
+import { getServerLocale, t } from "@/lib/i18n"
 
 const footerLinks = {
   product: [
@@ -28,7 +29,9 @@ const footerLinks = {
   ],
 }
 
-export default function PublicFooter() {
+export default async function PublicFooter() {
+  const locale = await getServerLocale()
+  const tr = (k: string) => t(locale, `marketing.${k}`)
   const productLinks = footerLinks.product
   return (
     <footer className="bg-white border-t border-slate-200">
@@ -51,12 +54,12 @@ export default function PublicFooter() {
               />
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed max-w-xs mb-6">
-              The command centre for serious property operators. Portfolio, work, planning, contacts and money — all in one premium platform.
+              {tr("footerTagline")}
             </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-500 text-sm">
                 <MapPin className="h-4 w-4 text-sky-500 flex-shrink-0" />
-                <span>Built for UK property operators</span>
+                <span>{tr("footerLocation")}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-500 text-sm">
                 <Mail className="h-4 w-4 text-sky-500 flex-shrink-0" />
@@ -69,7 +72,7 @@ export default function PublicFooter() {
 
           {/* Product links */}
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Product</h3>
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">{tr("footerProduct")}</h3>
             <ul className="space-y-2.5">
               {productLinks.map((link) => (
                 <li key={link.href}>
@@ -86,7 +89,7 @@ export default function PublicFooter() {
 
           {/* Company links */}
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Company</h3>
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">{tr("footerCompany")}</h3>
             <ul className="space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -103,7 +106,7 @@ export default function PublicFooter() {
 
           {/* Legal links */}
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Legal</h3>
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">{tr("footerLegalCol")}</h3>
             <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
@@ -132,7 +135,7 @@ export default function PublicFooter() {
             <span className="text-slate-300">·</span>
             <span className="text-slate-400 text-xs">ICO ZC160806</span>
             <span className="text-slate-300">·</span>
-            <span className="text-slate-400 text-xs">GDPR Compliant</span>
+            <span className="text-slate-400 text-xs">{tr("footerGdpr")}</span>
           </div>
         </div>
       </div>

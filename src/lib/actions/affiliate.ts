@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { createHash } from "node:crypto"
 import { headers } from "next/headers"
+import { discountCodeFromHandle } from "@/lib/affiliate/levels"
+import { COMPANY } from "@/lib/legal/company"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -10,6 +12,7 @@ export interface AffiliateActionResult {
   ok: boolean
   error?: string
   referralCode?: string
+  discountReferralCode?: string
 }
 
 function isMissingTable(code: string | undefined): boolean {
@@ -39,7 +42,7 @@ function makeReferralCode(seed: string): string {
   return `${base}-${rand}`
 }
 
-// ── External door: public application ───────────────────────────────────────
+// ── External door: public application ────────────────────────────────────────
 
 export async function submitAffiliateApplication(input: {
   fullName: string
@@ -52,6 +55,8 @@ export async function submitAffiliateApplication(input: {
   country?: string
   existingCustomer?: boolean
   acceptedTerms: boolean
+  /** Workspace ID of the affiliate who sent the recruit link (optional). */
+  recruitedByWorkspaceId?: string | null
 }): Promise<AffiliateActionResult> {
   const fullName = (input.fullName ?? "").trim()
   const email = (input.email ?? "").trim().toLowerCase()
@@ -74,6 +79,21 @@ export async function submitAffiliateApplication(input: {
   const ipHash = await clientIpHash()
   const referralCode = makeReferralCode(email)
 
+  // Validate recruitedBy workspace exists and is an approved affiliate
+  let recruitedByWsId: string | null = null
+  if (input.recruitedByWorkspaceId) {
+    try {
+      const { data: recruiter } = await supabase
+        .from("affiliates")
+        .select("workspace_id, approved, enrolled")
+        .eq("workspace_id", input.recruitedByWorkspaceId)
+        .maybeSingle()
+      if (recruiter?.approved && recruiter?.enrolled) {
+        recruitedByWsId = recruiter.workspace_id as string
+      }
+    } catch { /* non-fatal — skip if table missing */ }
+  }
+
   const { error } = await supabase.from("affiliate_applications").insert({
     full_name: fullName,
     email,
@@ -87,6 +107,7 @@ export async function submitAffiliateApplication(input: {
     referral_code: referralCode,
     status: "pending_review",
     ip_hash: ipHash,
+    recruited_by_affiliate_workspace_id: recruitedByWsId,
   })
 
   if (error) {
@@ -96,8 +117,7 @@ export async function submitAffiliateApplication(input: {
     if (isMissingTable(error.code)) {
       return {
         ok: false,
-        error:
-          "We couldn't record your application right now. Please email partners@propvora.com and we'll set you up.",
+        error: `We couldn't record your application right now. Please email ${COMPANY.emails.support} and we'll set you up.`,
       }
     }
     console.error("[submitAffiliateApplication]", error)
@@ -107,11 +127,11 @@ export async function submitAffiliateApplication(input: {
   return { ok: true, referralCode }
 }
 
-// ── Update affiliate profile (handle + payout email) ────────────────────────
+// ── Update affiliate profile (handle + payout email) ─────────────────────────
 
 export async function updateAffiliateProfile(
   workspaceId: string,
-  input: { publicHandle: string | null; payoutEmail: string | null }
+  input: { publicHandle: string | null; payoutEmail: string | null; leaderboardVisible?: boolean }
 ): Promise<AffiliateActionResult> {
   if (!workspaceId) return { ok: false, error: "No workspace selected." }
 
@@ -119,7 +139,6 @@ export async function updateAffiliateProfile(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Please sign in." }
 
-  // Must be owner/admin of the workspace.
   const { data: member } = await supabase
     .from("workspace_members")
     .select("role")
@@ -140,9 +159,18 @@ export async function updateAffiliateProfile(
     return { ok: false, error: "Please enter a valid payout email address." }
   }
 
+  const update: Record<string, unknown> = {
+    public_handle: handle,
+    payout_email: payoutEmail,
+    updated_at: new Date().toISOString(),
+  }
+  if (typeof input.leaderboardVisible === "boolean") {
+    update.leaderboard_visible = input.leaderboardVisible
+  }
+
   const { error } = await supabase
     .from("affiliates")
-    .update({ public_handle: handle, payout_email: payoutEmail, updated_at: new Date().toISOString() })
+    .update(update)
     .eq("workspace_id", workspaceId)
 
   if (error) {
@@ -156,18 +184,18 @@ export async function updateAffiliateProfile(
   return { ok: true }
 }
 
-// ── Internal door: one-click enrol for an existing workspace ────────────────
+// ── Internal door: one-click enrol for an existing workspace ──────────────────
 
-export async function enrolWorkspaceAffiliate(workspaceId: string): Promise<AffiliateActionResult> {
+export async function enrolWorkspaceAffiliate(
+  workspaceId: string,
+  options?: { recruitedByWorkspaceId?: string | null }
+): Promise<AffiliateActionResult> {
   if (!workspaceId) return { ok: false, error: "No workspace selected." }
 
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Please sign in to join the programme." }
 
-  // Must be an owner/admin of this workspace.
   const { data: member } = await supabase
     .from("workspace_members")
     .select("role")
@@ -181,24 +209,49 @@ export async function enrolWorkspaceAffiliate(workspaceId: string): Promise<Affi
   // Already enrolled?
   const { data: existing } = await supabase
     .from("affiliates")
-    .select("referral_code, enrolled")
+    .select("referral_code, discount_referral_code, enrolled")
     .eq("workspace_id", workspaceId)
     .maybeSingle()
   if (existing?.enrolled && existing.referral_code) {
-    return { ok: true, referralCode: existing.referral_code }
+    return {
+      ok: true,
+      referralCode: existing.referral_code as string,
+      discountReferralCode: (existing.discount_referral_code as string | null) ?? discountCodeFromHandle(existing.referral_code as string),
+    }
   }
 
-  const referralCode = existing?.referral_code ?? makeReferralCode(user.email ?? workspaceId)
+  const referralCode = (existing as { referral_code?: string } | null)?.referral_code ?? makeReferralCode(user.email ?? workspaceId)
+  const discountCode = discountCodeFromHandle(referralCode)
+
+  // Validate recruiter if provided
+  let recruitedByWsId: string | null = options?.recruitedByWorkspaceId ?? null
+  if (recruitedByWsId) {
+    // Prevent self-recruitment
+    if (recruitedByWsId === workspaceId) recruitedByWsId = null
+    else {
+      try {
+        const { data: recruiter } = await supabase
+          .from("affiliates")
+          .select("workspace_id, approved, enrolled")
+          .eq("workspace_id", recruitedByWsId)
+          .maybeSingle()
+        if (!recruiter?.approved || !recruiter?.enrolled) recruitedByWsId = null
+      } catch {
+        recruitedByWsId = null
+      }
+    }
+  }
 
   const { error } = await supabase.from("affiliates").upsert(
     {
       workspace_id: workspaceId,
       enrolled: true,
-      // internal customers are auto-approved (they're already a paying account)
-      approved: true,
+      approved: true, // internal customers are auto-approved
       origin: "internal",
       referral_code: referralCode,
+      discount_referral_code: discountCode,
       payout_email: user.email ?? null,
+      recruited_by_affiliate_workspace_id: recruitedByWsId,
       applied_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
@@ -213,5 +266,25 @@ export async function enrolWorkspaceAffiliate(workspaceId: string): Promise<Affi
     return { ok: false, error: "We couldn't enrol you right now. Please try again shortly." }
   }
 
-  return { ok: true, referralCode }
+  // Increment recruiter's sub_affiliate_count
+  if (recruitedByWsId) {
+    try {
+      const { data: recruiterAff } = await supabase
+        .from("affiliates")
+        .select("sub_affiliate_count")
+        .eq("workspace_id", recruitedByWsId)
+        .maybeSingle()
+      if (recruiterAff) {
+        await supabase
+          .from("affiliates")
+          .update({
+            sub_affiliate_count: Number(recruiterAff.sub_affiliate_count ?? 0) + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("workspace_id", recruitedByWsId)
+      }
+    } catch { /* non-fatal */ }
+  }
+
+  return { ok: true, referralCode, discountReferralCode: discountCode }
 }

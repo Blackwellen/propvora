@@ -13,6 +13,9 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateMoneyInvoice } from "@/hooks/useMoneyData"
 import type { InsertMoneyInvoice, InvoiceType } from "@/hooks/useMoneyData"
 import { createClient } from "@/lib/supabase/client"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
+import { taxScheme } from "@/lib/money/tax"
+import { NotLegalAdviceNotice } from "@/components/jurisdiction"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -120,10 +123,12 @@ function LineItemRow({
   item,
   onChange,
   onRemove,
+  taxOptions = [0, 5, 20],
 }: {
   item: LineItem
   onChange: (updated: LineItem) => void
   onRemove: () => void
+  taxOptions?: number[]
 }) {
   const lineTotal = item.quantity * item.unit_price * (1 + item.tax_rate / 100)
   return (
@@ -158,7 +163,7 @@ function LineItemRow({
           onChange={e => onChange({ ...item, tax_rate: Number(e.target.value) })}
           className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-blue-400"
         >
-          {[0, 5, 20].map(r => <option key={r} value={r}>{r}%</option>)}
+          {taxOptions.map(r => <option key={r} value={r}>{r}%</option>)}
         </select>
       </td>
       <td className="px-3 py-2 w-28 text-right font-semibold text-slate-800 text-sm">
@@ -200,8 +205,9 @@ export default function NewInvoicePage() {
   const [createdId, setCreatedId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  const ws = useWorkspaceJurisdiction()
   const [dbContacts, setDbContacts] = useState<{ id: string; name: string; email: string | null }[]>([])
-  const [dbProperties, setDbProperties] = useState<{ id: string; address: string }[]>([])
+  const [dbProperties, setDbProperties] = useState<{ id: string; address: string; country_code: string | null; region_code: string | null }[]>([])
   const [dbTenancies, setDbTenancies] = useState<{ id: string; reference: string | null }[]>([])
   const [dbJobs, setDbJobs] = useState<{ id: string; title: string }[]>([])
 
@@ -219,7 +225,7 @@ export default function NewInvoicePage() {
             .limit(50),
           supabase
             .from("properties")
-            .select("id, address_line1")
+            .select("id, address_line1, country_code, region_code")
             .eq("workspace_id", workspace!.id)
             .order("address_line1")
             .limit(50),
@@ -240,7 +246,7 @@ export default function NewInvoicePage() {
           setDbContacts((contactsRes.data as { id: string; display_name: string; email: string | null }[]).map(c => ({ id: c.id, name: c.display_name, email: c.email })))
         }
         if (!propertiesRes.error && propertiesRes.data) {
-          setDbProperties((propertiesRes.data as { id: string; address_line1: string | null }[]).map(r => ({ id: r.id, address: r.address_line1 ?? "" })))
+          setDbProperties((propertiesRes.data as { id: string; address_line1: string | null; country_code: string | null; region_code: string | null }[]).map(r => ({ id: r.id, address: r.address_line1 ?? "", country_code: r.country_code, region_code: r.region_code })))
         }
         if (!tenanciesRes.error && tenanciesRes.data) {
           setDbTenancies((tenanciesRes.data as { id: string; start_date: string | null; end_date: string | null }[]).map(r => ({ id: r.id, reference: r.start_date ? `Tenancy from ${r.start_date}` : r.id.slice(0, 8) })))
@@ -316,7 +322,18 @@ export default function NewInvoicePage() {
   const taxTotal = lineItems.reduce((s, li) => s + li.quantity * li.unit_price * (li.tax_rate / 100), 0)
   const grandTotal = subtotal + taxTotal
   // formData.property holds the selected property id; resolve its address for display.
-  const selectedPropertyLabel = dbProperties.find((p) => p.id === formData.property)?.address || ""
+  const selectedProperty = dbProperties.find((p) => p.id === formData.property)
+  const selectedPropertyLabel = selectedProperty?.address || ""
+
+  // Tax treatment follows the INVOICE's jurisdiction: the linked property's
+  // (record-true) when set, else the workspace default. Drives the line-item tax
+  // options and the treatment note (dim 8).
+  const taxJurCc = selectedProperty?.country_code || ws.countryCode
+  const invScheme = taxScheme(taxJurCc)
+  const stdPct = Math.round(invScheme.standardRate * 1000) / 10
+  const isRentInvoice = mapInvoiceType(formData.invoice_type) === "rent"
+  const rentExempt = isRentInvoice && invScheme.rentTreatment === "exempt"
+  const taxOptions = [0, ...(stdPct > 0 ? [stdPct] : [])]
 
   async function handleSubmit() {
     setSubmitError(null)
@@ -484,6 +501,28 @@ export default function NewInvoicePage() {
               <h2 className="text-lg font-bold text-slate-900">Line Items</h2>
               <p className="text-sm text-slate-500 mt-0.5">Add the charges for this invoice.</p>
             </div>
+
+            {/* Jurisdiction tax treatment (dim 8). */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-semibold text-slate-800">{invScheme.label} treatment ({taxJurCc.toUpperCase()})</span>
+                {rentExempt ? (
+                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Residential rent — exempt</span>
+                ) : invScheme.system === "none" ? (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">Set your rate</span>
+                ) : (
+                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">{invScheme.label} {stdPct}%</span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {rentExempt
+                  ? "Residential rent is generally exempt — leave the tax rate at 0%. For cross-border B2B services, the reverse charge may apply."
+                  : `Tax options below reflect the ${invScheme.label} rate for ${taxJurCc.toUpperCase()}.`}
+              </p>
+              <p className="text-[10px] text-slate-400 mt-1">Source: {invScheme.citation}</p>
+              <NotLegalAdviceNotice variant="inline" className="mt-1.5" />
+            </div>
+
             <div className="border border-slate-200 rounded-xl overflow-hidden">
               <div className="overflow-x-auto"><table className="w-full text-sm min-w-[600px]">
                 <thead>
@@ -503,6 +542,7 @@ export default function NewInvoicePage() {
                       item={li}
                       onChange={updated => updateLineItem(li.id, updated)}
                       onRemove={() => removeLineItem(li.id)}
+                      taxOptions={taxOptions}
                     />
                   ))}
                 </tbody>

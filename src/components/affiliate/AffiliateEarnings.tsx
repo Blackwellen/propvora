@@ -155,6 +155,30 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
         </div>
       </div>
 
+      {/* Network earn-through balance — only show when non-zero */}
+      {((affiliate.sub_pending_pence ?? 0) + (affiliate.sub_cleared_pence ?? 0)) > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-violet-500" /> Network earn-through balance
+            </CardTitle>
+            <p className="text-xs text-slate-400">Commission earned from affiliates you recruited. Paid on the same schedule as direct commission.</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-violet-50 border border-violet-100">
+                <p className="text-xs text-violet-600">Network pending</p>
+                <p className="text-xl font-bold text-violet-700 mt-0.5">{formatPence(affiliate.sub_pending_pence ?? 0)}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <p className="text-xs text-emerald-600">Network cleared</p>
+                <p className="text-xl font-bold text-emerald-700 mt-0.5">{formatPence(affiliate.sub_cleared_pence ?? 0)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Monthly breakdown */}
       <Card>
         <CardHeader>

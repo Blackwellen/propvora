@@ -15,6 +15,67 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { depositRules, isOverCap } from "@/lib/money/deposits"
+import { tenantFeesRule, holdingDepositCap } from "@/lib/legal/tenant-fees"
+import { rentIncreaseRule } from "@/lib/legal/rent-control"
+import { tenancyModel } from "@/lib/legal/tenancy-models"
+import { requiredTenantChecks } from "@/lib/legal/tenant-checks"
+import { formatMoneyMajor } from "@/lib/i18n"
+import { NotLegalAdviceNotice } from "@/components/jurisdiction"
+
+const RENT_TO_MONTHLY: Record<string, number> = { weekly: 52 / 12, monthly: 1, nightly: 30, quarterly: 1 / 3, annually: 1 / 12 }
+
+/** Jurisdiction rules for a tenancy: deposit cap (dim 2), tenant fees (dim 22), rent control (dim 6). */
+function TenancyRulesPanel({ countryCode, region, monthlyRent, depositAmount, currency }: {
+  countryCode: string
+  region: string | null
+  monthlyRent: number
+  depositAmount: number
+  currency: string
+}) {
+  const dep = depositRules(countryCode, region)
+  const fees = tenantFeesRule(countryCode, region)
+  const rent = rentIncreaseRule(countryCode, region)
+  const tenancy = tenancyModel(countryCode, region)
+  const checks = requiredTenantChecks(countryCode, region)
+  const rtr = checks.checks.find((c) => c.required)
+  const holdCap = holdingDepositCap(fees, monthlyRent)
+  const overCap = depositAmount > 0 && isOverCap(dep, depositAmount, monthlyRent)
+
+  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="flex items-center justify-between gap-3 py-1.5">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className="text-[13px] font-medium text-slate-800 text-right">{value}</span>
+    </div>
+  )
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-sm font-bold text-slate-800 mb-2">Jurisdiction rules ({dep.jurisdiction})</p>
+      <div className="divide-y divide-slate-100">
+        <Row label="Agreement" value={<span className="capitalize">{tenancy.agreementTerm}{tenancy.types[0] ? ` · ${tenancy.types[0].name}` : ""}</span>} />
+        <Row label="Deposit scheme" value={dep.scheme ?? "—"} />
+        <Row label="Deposit cap" value={dep.cap.value != null ? `${dep.cap.value} ${dep.cap.kind}` : "no statutory multiple"} />
+        {holdCap != null && <Row label="Holding-deposit cap" value={formatMoneyMajor(holdCap, currency)} />}
+        <Row label="Rent increase" value={rent.capPct != null ? `≤ ${rent.capPct}%, once/${rent.frequencyMonths}mo` : `once/${rent.frequencyMonths}mo (no cap)`} />
+        <Row label="Rent index" value={rent.indexMethod} />
+        {rtr && <Row label="Pre-tenancy check" value={<span className="text-amber-700">{rtr.name} required</span>} />}
+      </div>
+      {tenancy.agreementTerm === "occupation contract" && (
+        <p className="text-[11px] font-medium text-indigo-700 mt-2">Wales uses occupation contracts (not tenancies) — issue a written statement within 14 days.</p>
+      )}
+      {overCap && (
+        <p className="text-[11px] font-medium text-amber-700 mt-2">
+          Deposit ({formatMoneyMajor(depositAmount, currency)}) exceeds the indicative cap for this jurisdiction — verify against the scheme rules.
+        </p>
+      )}
+      {fees.bannedFeesRegime && (
+        <p className="text-[11px] text-slate-500 mt-1">{fees.note}</p>
+      )}
+      <NotLegalAdviceNotice variant="inline" className="mt-2" />
+    </div>
+  )
+}
 
 interface TenancyWizardData {
   property_id: string
@@ -239,7 +300,14 @@ function StepDates({ data, onChange }: { data: TenancyWizardData; onChange: (d: 
   )
 }
 
-function StepFinancials({ data, onChange }: { data: TenancyWizardData; onChange: (d: Partial<TenancyWizardData>) => void }) {
+function StepFinancials({ data, onChange, country, region, currency }: {
+  data: TenancyWizardData
+  onChange: (d: Partial<TenancyWizardData>) => void
+  country: string
+  region: string | null
+  currency: string
+}) {
+  const monthlyRent = (data.rent_amount || 0) * (RENT_TO_MONTHLY[data.rent_frequency] ?? 1)
   return (
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-4">
@@ -316,6 +384,9 @@ function StepFinancials({ data, onChange }: { data: TenancyWizardData; onChange:
           </p>
         </div>
       )}
+
+      {/* Jurisdiction rules for this property (dim 2 deposit, dim 22 fees, dim 6 rent control). */}
+      <TenancyRulesPanel countryCode={country} region={region} monthlyRent={monthlyRent} depositAmount={data.deposit_amount || 0} currency={currency} />
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
@@ -404,6 +475,15 @@ export default function NewTenancyPage() {
 
   const selectedProperty = properties.find((p) => p.id === data.property_id)
   const selectedUnit = units.find((u) => u.id === data.unit_id)
+
+  // Record-true jurisdiction of the selected property (falls back to GB-EW).
+  const propCountry = (selectedProperty?.country_code || "GB").toUpperCase()
+  const propRegion = selectedProperty?.region_code
+    ? selectedProperty.region_code.toUpperCase()
+    : selectedProperty?.country_code
+      ? null
+      : "EW"
+  const propCurrency = selectedProperty?.currency || "GBP"
 
   function handleChange(updates: Partial<TenancyWizardData>) {
     setData((prev) => ({ ...prev, ...updates }))
@@ -518,7 +598,7 @@ export default function NewTenancyPage() {
         {step === 1 && <StepProperty data={data} onChange={handleChange} properties={properties} units={units} />}
         {step === 2 && <StepTenant data={data} onChange={handleChange} emailValid={emailValid} />}
         {step === 3 && <StepDates data={data} onChange={handleChange} />}
-        {step === 4 && <StepFinancials data={data} onChange={handleChange} />}
+        {step === 4 && <StepFinancials data={data} onChange={handleChange} country={propCountry} region={propRegion} currency={propCurrency} />}
         {step === 5 && <StepDocuments />}
         {step === 6 && <StepReview data={data} propertyName={selectedProperty?.name ?? ""} unitName={selectedUnit?.unit_name ?? ""} />}
       </div>

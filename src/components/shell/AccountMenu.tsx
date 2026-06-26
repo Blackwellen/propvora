@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ChevronDown, User, Settings, LogOut } from "lucide-react"
+import { ChevronDown, User, Settings, LogOut, ShieldCheck, LifeBuoy } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import PersonaLinks from "./PersonaLinks"
 
@@ -28,11 +27,11 @@ export default function AccountMenu({
   const [open, setOpen] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
   const [liveUser, setLiveUser] = useState<{ name: string; email: string | null; avatarUrl: string | null } | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
 
-  // Live signed-in user (no fake placeholder).
+  // Live signed-in user (no fake placeholder). Also checks platform_role for admin link.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -45,13 +44,14 @@ export default function AccountMenu({
         try {
           const { data: p } = await supabase
             .from("profiles")
-            .select("display_name, first_name, last_name, avatar_url")
+            .select("display_name, first_name, last_name, avatar_url, platform_role")
             .eq("id", u.id)
             .maybeSingle()
           if (p) {
             display = (p.display_name as string) || [p.first_name, p.last_name].filter(Boolean).join(" ") || display
             const key = p.avatar_url as string | null
             if (key) avatarUrl = key.startsWith("http") || key.startsWith("/api/") ? key : `/api/files/${key}`
+            if (!cancelled) setIsAdmin((p.platform_role as string) === "admin")
           }
         } catch { /* ignore */ }
         if (!display) display = u.email?.split("@")[0] ?? "Your account"
@@ -82,7 +82,10 @@ export default function AccountMenu({
       setOpen(false)
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false)
+      if (e.key === "Escape") {
+        setOpen(false)
+        buttonRef.current?.focus()
+      }
     }
     if (open) {
       document.addEventListener("mousedown", handleClick)
@@ -97,7 +100,9 @@ export default function AccountMenu({
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/login")
+    // window.location.assign avoids the proxy bounce loop that router.push causes
+    // when the proxy redirects authed users off /login back to /app.
+    window.location.assign("/login")
   }
 
   const displayName = name ?? liveUser?.name ?? "Your account"
@@ -141,6 +146,24 @@ export default function AccountMenu({
             switcher, so it gets an explicit door here (only if the account has
             a customer workspace). */}
         <PersonaLinks targets={["customer"]} onNavigate={() => setOpen(false)} />
+        <Link
+          href="/property-manager/help"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          <LifeBuoy className="w-4 h-4 text-slate-400" />
+          Help &amp; Support
+        </Link>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-violet-700 hover:bg-violet-50 transition-colors"
+          >
+            <ShieldCheck className="w-4 h-4 text-violet-500" />
+            Platform Admin
+          </Link>
+        )}
         <div className="h-px bg-slate-100 mx-3 my-1" />
         <button
           onClick={handleSignOut}

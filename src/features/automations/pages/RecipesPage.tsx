@@ -227,13 +227,19 @@ export default function RecipesPage() {
               ))}
             </div>
           </Card>
-          <Card className="border-violet-200 bg-violet-50/40">
-            <div className="p-4">
-              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-violet-900"><Sparkles className="h-4 w-4" />Recommended by AI</h3>
-              <p className="mt-1 text-xs text-violet-800">Based on your arrears volume, the Rent Collection & Follow-up suite could save ~9h/month.</p>
-              <Btn variant="violet" className="mt-3" onClick={() => useRecipe(featured[2])}>Use recipe</Btn>
-            </div>
-          </Card>
+          {(() => {
+            const recommended = featured[2] ?? featured[0] ?? allRecipes[0]
+            if (!recommended) return null
+            return (
+              <Card className="border-violet-200 bg-violet-50/40">
+                <div className="p-4">
+                  <h3 className="flex items-center gap-1.5 text-sm font-semibold text-violet-900"><Sparkles className="h-4 w-4" />Recommended by AI</h3>
+                  <p className="mt-1 text-xs text-violet-800">{recommended.name} could save you time across {recommended.category.toLowerCase()} tasks.</p>
+                  <Btn variant="violet" className="mt-3" onClick={() => useRecipe(recommended)}>Use recipe</Btn>
+                </div>
+              </Card>
+            )
+          })()}
         </AutomationsRightRail>
       </div>
 

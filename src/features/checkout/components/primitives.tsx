@@ -192,7 +192,7 @@ const TRUST = [
   { label: "Best price guarantee", icon: BadgeCheck },
   { label: "Free cancellation", icon: ShieldCheck },
   { label: "Secure payments", icon: Lock },
-  { label: "24/7 support", icon: ShieldCheck },
+  { label: "Always here to help", icon: ShieldCheck },
 ]
 
 export function TrustBar() {

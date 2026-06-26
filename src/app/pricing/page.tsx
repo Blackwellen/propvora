@@ -1,5 +1,7 @@
 ﻿import type { Metadata } from "next"
 import PricingClient from "./PricingClient"
+import { LocaleProvider } from "@/components/i18n/LocaleProvider"
+import { getServerLocale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Pricing | Propvora — Simple Transparent Plans",
@@ -17,6 +19,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PricingPage() {
-  return <PricingClient />
+export default async function PricingPage() {
+  const locale = await getServerLocale()
+  return (
+    <LocaleProvider locale={locale}>
+      <PricingClient />
+    </LocaleProvider>
+  )
 }

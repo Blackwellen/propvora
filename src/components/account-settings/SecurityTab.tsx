@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Check, Eye, EyeOff, Lock, Monitor, Shield, Smartphone, LogOut } from "lucide-react"
+import { Check, Eye, EyeOff, Lock, Monitor, Shield, Smartphone, LogOut, QrCode, Key, AlertTriangle, X } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { createClient } from "@/lib/supabase/client"
@@ -18,15 +18,52 @@ const passwordSchema = z.object({
 
 type PasswordData = z.infer<typeof passwordSchema>
 
+type MfaStep = "idle" | "loading" | "qr" | "verifying" | "enrolled" | "error"
+
+interface EnrollData {
+  factorId: string
+  qrCode: string  // SVG data URI
+  secret: string
+  uri: string
+}
+
 export default function SecurityTab() {
   const [showPwd,    setShowPwd]    = useState({ current: false, new: false, confirm: false })
-  const [mfaEnabled, setMfaEnabled] = useState(false)
   const [saving,     setSaving]     = useState(false)
   const [saved,      setSaved]      = useState(false)
   const [sessions,   setSessions]   = useState(SESSIONS_MOCK)
   const [pwdError,   setPwdError]   = useState<string | null>(null)
 
+  // MFA state
+  const [mfaStep,    setMfaStep]    = useState<MfaStep>("loading")
+  const [enrollData, setEnrollData] = useState<EnrollData | null>(null)
+  const [totpCode,   setTotpCode]   = useState("")
+  const [mfaError,   setMfaError]   = useState<string | null>(null)
+  const [enrolledFactorId, setEnrolledFactorId] = useState<string | null>(null)
+  const [showSecret, setShowSecret] = useState(false)
+
   const form = useForm<PasswordData>({ resolver: zodResolver(passwordSchema) })
+
+  // Check current MFA enrollment status on mount
+  const checkMfaStatus = useCallback(async () => {
+    setMfaStep("loading")
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.mfa.listFactors()
+      if (error) { setMfaStep("idle"); return }
+      const verified = data?.totp?.filter(f => f.status === "verified") ?? []
+      if (verified.length > 0) {
+        setEnrolledFactorId(verified[0].id)
+        setMfaStep("enrolled")
+      } else {
+        setMfaStep("idle")
+      }
+    } catch {
+      setMfaStep("idle")
+    }
+  }, [])
+
+  useEffect(() => { checkMfaStatus() }, [checkMfaStatus])
 
   async function onSubmit(data: PasswordData) {
     setSaving(true); setPwdError(null)
@@ -49,6 +86,80 @@ export default function SecurityTab() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function startEnroll() {
+    setMfaError(null)
+    setMfaStep("loading")
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "Propvora Authenticator",
+      })
+      if (error || !data) {
+        setMfaError(error?.message ?? "Could not start enrollment. Please try again.")
+        setMfaStep("idle")
+        return
+      }
+      setEnrollData({
+        factorId: data.id,
+        qrCode: data.totp.qr_code,
+        secret: data.totp.secret,
+        uri: data.totp.uri,
+      })
+      setTotpCode("")
+      setMfaStep("qr")
+    } catch {
+      setMfaError("Unexpected error. Please try again.")
+      setMfaStep("idle")
+    }
+  }
+
+  async function verifyEnroll() {
+    if (!enrollData || totpCode.length !== 6) return
+    setMfaError(null)
+    setMfaStep("verifying")
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.mfa.challengeAndVerify({
+        factorId: enrollData.factorId,
+        code: totpCode,
+      })
+      if (error) {
+        setMfaError("Incorrect code — check your authenticator app and try again.")
+        setMfaStep("qr")
+        return
+      }
+      setEnrolledFactorId(enrollData.factorId)
+      setEnrollData(null)
+      setTotpCode("")
+      setMfaStep("enrolled")
+    } catch {
+      setMfaError("Verification failed. Please try again.")
+      setMfaStep("qr")
+    }
+  }
+
+  async function unenroll() {
+    if (!enrolledFactorId) return
+    setMfaError(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.mfa.unenroll({ factorId: enrolledFactorId })
+      if (error) { setMfaError(error.message); return }
+      setEnrolledFactorId(null)
+      setMfaStep("idle")
+    } catch {
+      setMfaError("Could not remove 2FA. Please try again.")
+    }
+  }
+
+  function cancelEnroll() {
+    setEnrollData(null)
+    setTotpCode("")
+    setMfaError(null)
+    setMfaStep("idle")
   }
 
   return (
@@ -100,22 +211,135 @@ export default function SecurityTab() {
         </form>
       </div>
 
-      {/* 2FA */}
+      {/* 2FA — real Supabase TOTP enrollment */}
       <div className="border-t border-slate-200 pt-6">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between mb-3">
           <div>
             <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
               <Shield className="w-4 h-4 text-slate-400" />
               Two-Factor Authentication
             </h3>
-            <p className="text-xs text-slate-500 mt-1">Add an extra layer of security to your account.</p>
+            <p className="text-xs text-slate-500 mt-1">Add an extra layer of security using an authenticator app.</p>
           </div>
-          <Toggle checked={mfaEnabled} onChange={setMfaEnabled} />
+          {mfaStep === "enrolled" && (
+            <Badge variant="success">Enabled</Badge>
+          )}
         </div>
-        {mfaEnabled && (
-          <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
-            <Check className="w-3 h-3" /> 2FA is enabled
-          </p>
+
+        {mfaError && (
+          <div className="flex items-center gap-2 p-3 mb-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            {mfaError}
+          </div>
+        )}
+
+        {/* Idle — not enrolled */}
+        {mfaStep === "idle" && (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<QrCode className="w-4 h-4" />}
+            onClick={startEnroll}
+          >
+            Set up authenticator app
+          </Button>
+        )}
+
+        {/* Loading */}
+        {mfaStep === "loading" && (
+          <p className="text-xs text-slate-400 animate-pulse">Checking 2FA status…</p>
+        )}
+
+        {/* QR code step */}
+        {mfaStep === "qr" && enrollData && (
+          <div className="space-y-4 max-w-sm">
+            <p className="text-xs text-slate-600">
+              Scan this QR code with <strong>Google Authenticator</strong>, <strong>Authy</strong>, or <strong>1Password</strong>, then enter the 6-digit code below.
+            </p>
+
+            {/* QR image */}
+            <div className="p-4 bg-white border border-slate-200 rounded-xl inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={enrollData.qrCode}
+                alt="TOTP QR Code"
+                width={160}
+                height={160}
+                className="block"
+              />
+            </div>
+
+            {/* Manual entry toggle */}
+            <button
+              type="button"
+              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700"
+              onClick={() => setShowSecret(s => !s)}
+            >
+              <Key className="w-3 h-3" />
+              {showSecret ? "Hide" : "Can't scan? Enter manually"}
+            </button>
+            {showSecret && (
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1">Manual entry key:</p>
+                <code className="text-xs font-mono text-slate-800 break-all">{enrollData.secret}</code>
+              </div>
+            )}
+
+            {/* Code entry */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Verification code</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="000000"
+                value={totpCode}
+                onChange={e => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className="w-40 h-10 px-3 rounded-lg text-sm font-mono text-center border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 tracking-widest"
+                onKeyDown={e => e.key === "Enter" && totpCode.length === 6 && verifyEnroll()}
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={totpCode.length !== 6}
+                onClick={verifyEnroll}
+              >
+                Verify and enable
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<X className="w-3.5 h-3.5" />}
+                onClick={cancelEnroll}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Verifying */}
+        {mfaStep === "verifying" && (
+          <p className="text-xs text-slate-400 animate-pulse">Verifying code…</p>
+        )}
+
+        {/* Enrolled */}
+        {mfaStep === "enrolled" && (
+          <div className="space-y-3">
+            <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+              <Check className="w-3 h-3" /> 2FA is active — your account is protected.
+            </p>
+            <button
+              type="button"
+              className="text-xs text-slate-400 hover:text-red-600 underline transition-colors"
+              onClick={unenroll}
+            >
+              Remove authenticator
+            </button>
+          </div>
         )}
       </div>
 

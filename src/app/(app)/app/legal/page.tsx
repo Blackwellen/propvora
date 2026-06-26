@@ -7,6 +7,7 @@ import { useProperties } from "@/hooks/useProperties"
 import { useTenancies } from "@/hooks/useTenancies"
 import { LegalJurisdictionGate } from "@/components/legal/LegalJurisdictionGate"
 import { useLegalJurisdiction } from "@/hooks/useLegalJurisdiction"
+import { JurisdictionLensSwitcher, JurisdictionFrameworkPanel } from "@/components/jurisdiction"
 import {
   usePossessionCases,
   useHmoLicences,
@@ -136,6 +137,7 @@ function LegalOverviewPageInner() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <JurisdictionLensSwitcher sectionKey="legal" defaultToGrouped />
           <Link
             href="/property-manager/legal/possession/new/select-tenancy"
             className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
@@ -144,6 +146,11 @@ function LegalOverviewPageInner() {
             New Possession Case
           </Link>
         </div>
+      </div>
+
+      {/* Lens-reflecting framework panel — updates when the switcher changes. */}
+      <div className="px-4 sm:px-6 pt-4">
+        <JurisdictionFrameworkPanel sectionKey="legal" defaultToGrouped />
       </div>
 
       <div className="px-4 sm:px-6 pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

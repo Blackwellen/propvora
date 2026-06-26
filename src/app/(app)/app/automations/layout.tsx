@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { resolveFlags } from "@/lib/flags"
 import { AutomationsFlagsProvider } from "@/features/automations/components/AutomationsFlagsContext"
+import TrialFeatureGate from "@/components/trial/TrialFeatureGate"
 
 // The Automations module chrome (header + route-aware tab strip + safety banner)
 // is provided per-page by AutomationsModuleShell. This layout resolves the
@@ -17,6 +18,7 @@ export default async function AutomationsLayout({ children }: { children: ReactN
   const supabase = await createClient()
 
   let workspaceId: string | null = null
+  let isTrial = false
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
@@ -26,9 +28,34 @@ export default async function AutomationsLayout({ children }: { children: ReactN
         .eq("id", user.id)
         .maybeSingle()
       workspaceId = (profile?.current_workspace_id as string | undefined) ?? null
+
+      if (workspaceId) {
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("plan")
+          .eq("id", workspaceId)
+          .maybeSingle()
+        isTrial = (ws?.plan as string | null)?.toLowerCase() === "trial"
+      }
     }
   } catch {
     // tolerant — fail closed below
+  }
+
+  // Trial workspaces get zero automation access — show branded upgrade gate.
+  if (isTrial) {
+    return (
+      <TrialFeatureGate
+        featureName="Propvora Automations"
+        description="Automate rent reminders, compliance alerts, maintenance follow-ups, and more. Available on all paid plans."
+        benefits={[
+          "Send automatic rent reminders and late payment chases",
+          "Trigger compliance certificate reminders before expiry",
+          "Automate maintenance job updates and contractor notifications",
+          "Build custom workflows with triggers, conditions, and actions",
+        ]}
+      />
+    )
   }
 
   let canvasLite = false

@@ -38,6 +38,8 @@ const bodySchema = z.object({
   locale: z.string().trim().min(2).max(12).optional(),
   // Optional sub-jurisdiction refinement (GB only): "EW" | "SCT" | "NI".
   region: z.string().trim().max(8).optional(),
+  // Optional reporting/roll-up currency for mixed-portfolio totals.
+  reportingCurrency: z.string().trim().min(1).max(8).optional(),
 })
 
 async function requireOwnerAdmin(
@@ -79,19 +81,22 @@ export async function GET(request: NextRequest) {
     listSelectableCountries(supabase),
   ])
 
-  // Sub-jurisdiction region lives in workspaces.settings JSONB (GB refinement).
+  // Sub-jurisdiction region + reporting currency live in workspaces.settings JSONB.
   let region: string | null = null
+  let reportingCurrency: string | null = null
   try {
     const { data: ws } = await supabase.from("workspaces").select("settings").eq("id", workspaceId).maybeSingle()
-    const settings = (ws?.settings ?? {}) as { region?: string }
+    const settings = (ws?.settings ?? {}) as { region?: string; reportingCurrency?: string }
     region = settings.region ?? null
+    reportingCurrency = settings.reportingCurrency ?? null
   } catch {
-    /* settings column absent — region stays null */
+    /* settings column absent — region/reportingCurrency stay null */
   }
 
   return NextResponse.json({
     current,
     region,
+    reportingCurrency,
     countries,
     canEdit: ALLOWED_ROLES.has(String(member.role)),
   })
@@ -166,12 +171,14 @@ export async function POST(request: NextRequest) {
   // country so a stale "SCT" can't linger after switching away from GB.
   const regionRaw = (parsed.data.region ?? "").toUpperCase().trim()
   const region = countryCode === "GB" && ["EW", "SCT", "NI"].includes(regionRaw) ? regionRaw : null
+  const reportingCurrency = parsed.data.reportingCurrency?.toUpperCase()
   const mergedSettings: Record<string, unknown> = {
     ...existingSettings,
     countryCode,
     ...(currency ? { currency } : {}),
     ...(locale ? { locale } : {}),
     ...(region ? { region } : {}),
+    ...(reportingCurrency ? { reportingCurrency } : {}),
   }
   if (!region) delete mergedSettings.region
 

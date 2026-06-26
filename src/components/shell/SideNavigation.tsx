@@ -28,6 +28,7 @@ import {
   HandCoins,
   MessageSquareMore,
   CreditCard,
+  LifeBuoy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import ShellLogo from "./ShellLogo"
@@ -70,6 +71,8 @@ interface SideNavigationProps {
   navConfig?: ShellNavConfig
   /** Server-resolved feature flags; items tagged with a `flag` are hidden when off. */
   navFlags?: Record<string, boolean>
+  /** Optional workspace brand logo URL; falls back to Propvora logo when not set. */
+  brandLogoUrl?: string | null
 }
 
 const NAV_GROUPS: ShellNavGroup[] = [
@@ -121,6 +124,7 @@ const NAV_GROUPS: ShellNavGroup[] = [
     items: [
       { label: "Workspace", href: `${MANAGER_BASE}/workspace-settings`, icon: Settings },
       { label: "Billing", href: `${MANAGER_BASE}/workspace/billing`, icon: CreditCard },
+      { label: "Help & Support", href: `${MANAGER_BASE}/help`, icon: LifeBuoy },
     ],
   },
 ]
@@ -145,6 +149,7 @@ export default function SideNavigation({
   onNavigate,
   navConfig,
   navFlags,
+  brandLogoUrl,
 }: SideNavigationProps) {
   const pathname = usePathname()
   const { workspace } = useWorkspace()
@@ -208,7 +213,7 @@ export default function SideNavigation({
       }}
     >
       {/* Logo area */}
-      <ShellLogo collapsed={collapsed} />
+      <ShellLogo collapsed={collapsed} brandLogoUrl={brandLogoUrl} />
 
       {/* Nav scroll area */}
       <nav aria-label="Primary" className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden py-2">

@@ -1,4 +1,6 @@
-import { brandedEmail, ctaButton, BRAND } from "./_base"
+import { brandedEmail, ctaButton, infoBox, BRAND } from "./_base"
+
+const FONT_STACK = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`
 
 interface WelcomeParams {
   userName: string
@@ -7,63 +9,65 @@ interface WelcomeParams {
 
 export function welcomeEmail(params: WelcomeParams): { subject: string; html: string } {
   const { userName, workspaceName } = params
-  const subject = `Welcome to Propvora — your account is ready`
-  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.propvora.com"
+  const displayName = userName || "there"
+  const subject = `Welcome to Propvora — your workspace is ready`
+  const SITE = "https://propvora.com"
 
   const features = [
-    ["Portfolio & Units", "Organise all your properties and units in one view."],
-    ["Tenancy Management", "Track leases, rent, and tenant communications."],
-    ["Compliance", "Stay on top of certificates and inspections."],
-    ["Work Management", "Assign jobs, track progress, manage suppliers."],
-    ["Invoicing & Finance", "Invoices, bills, and financial reporting built in."],
+    { icon: "&#127968;", title: "Portfolio & Units", desc: "Organise all your properties and units in one view." },
+    { icon: "&#128203;", title: "Tenancy Management", desc: "Track leases, rent schedules and tenant communications." },
+    { icon: "&#9989;", title: "Compliance", desc: "Certificates, inspections and legal deadlines — never missed." },
+    { icon: "&#128295;", title: "Work Management", desc: "Assign jobs, track progress and manage suppliers." },
+    { icon: "&#128176;", title: "Invoicing & Finance", desc: "Invoices, bills and financial reporting built in." },
+    { icon: "&#129302;", title: "AI Copilot", desc: "AI-powered operations assistant — built for property." },
   ]
 
-  const body = `
-    <p style="font-size:15px; color:${BRAND.textBody}; line-height:1.7; margin-bottom:20px;">
-      Hi <strong style="color:${BRAND.textPrimary};">${userName || "there"}</strong>,
-    </p>
-    <p style="font-size:15px; color:${BRAND.textBody}; line-height:1.7; margin-bottom:20px;">
-      Your Propvora account is ready${workspaceName ? ` and your workspace <strong style="color:${BRAND.textPrimary};">${workspaceName}</strong> has been set up` : ""}.
-      Everything you need to manage properties, tenancies, compliance, finances, and your team — in one platform.
-    </p>
-
+  const featureGrid = `
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:32px;">
-      ${features
-        .map(
-          ([title, desc]) => `
+      ${features.map((f, i) => `
       <tr>
-        <td style="padding:11px 0; border-bottom:1px solid ${BRAND.border};">
+        <td style="padding:12px 0; ${i < features.length - 1 ? `border-bottom:1px solid ${BRAND.border};` : ""}">
           <table cellpadding="0" cellspacing="0" role="presentation">
             <tr>
-              <td style="width:28px; vertical-align:top; padding-top:1px;">
-                <div style="width:20px; height:20px; background:${BRAND.accentLight}; border-radius:50%; text-align:center; line-height:20px; font-size:11px; color:${BRAND.accent}; font-weight:700;">&#10003;</div>
+              <td style="width:36px; vertical-align:top; padding-top:1px;">
+                <div style="width:28px; height:28px; background:${BRAND.accentLight}; border-radius:7px; text-align:center; line-height:28px; font-size:15px;">${f.icon}</div>
               </td>
-              <td>
-                <p style="font-size:13px; font-weight:700; color:${BRAND.textPrimary}; margin-bottom:2px;">${title}</p>
-                <p style="font-size:12px; color:${BRAND.textMuted};">${desc}</p>
+              <td style="padding-left:4px; vertical-align:middle;">
+                <p style="font-size:13px; font-weight:700; color:${BRAND.textPrimary}; margin-bottom:2px; font-family:${FONT_STACK};">${f.title}</p>
+                <p style="font-size:12px; color:${BRAND.textMuted}; font-family:${FONT_STACK}; line-height:1.5;">${f.desc}</p>
               </td>
             </tr>
           </table>
         </td>
-      </tr>`
-        )
-        .join("")}
-    </table>
+      </tr>`).join("")}
+    </table>`
 
-    ${ctaButton("Go to your dashboard", `${SITE}/app`)}
+  const body = `
+    <p style="font-size:15px; color:${BRAND.textBody}; line-height:1.7; margin-bottom:16px; font-family:${FONT_STACK};">
+      Hi <strong style="color:${BRAND.textPrimary};">${displayName}</strong>,
+    </p>
+    <p style="font-size:15px; color:${BRAND.textBody}; line-height:1.7; margin-bottom:24px; font-family:${FONT_STACK};">
+      Your Propvora account is ready${workspaceName ? ` and your workspace <strong style="color:${BRAND.textPrimary};">&ldquo;${workspaceName}&rdquo;</strong> has been created` : ""}. You now have everything you need to run your property operations — from day-to-day maintenance to long-term compliance.
+    </p>
 
-    <p style="font-size:12px; color:${BRAND.textFaint}; margin-top:28px; line-height:1.6;">
-      Questions? Reply to this email or reach us at
-      <a href="mailto:support@propvora.com" style="color:${BRAND.accent};">support@propvora.com</a>.
+    ${featureGrid}
+
+    ${ctaButton("Open your dashboard", `${SITE}/property-manager`)}
+
+    <p style="font-size:13px; color:${BRAND.textMuted}; margin-top:28px; line-height:1.6; font-family:${FONT_STACK};">
+      Need help getting started? Visit our <a href="https://propvora.com/help" style="color:${BRAND.accent};font-weight:600;">Help Centre</a> or reply to this email &mdash; we&rsquo;re here.
     </p>
   `
 
-  const html = brandedEmail({
+  return {
     subject,
-    category: "Welcome aboard",
-    headline: `Hi ${userName || "there"}, you&rsquo;re in!`,
-    body,
-  })
-
-  return { subject, html }
+    html: brandedEmail({
+      subject,
+      preheaderText: `Hi ${displayName}, your Propvora workspace is live and ready to use.`,
+      category: "Welcome aboard",
+      headline: `You&rsquo;re in, ${displayName}`,
+      iconEmoji: "&#127968;",
+      body,
+    }),
+  }
 }

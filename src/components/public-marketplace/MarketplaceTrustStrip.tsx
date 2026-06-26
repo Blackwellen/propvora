@@ -10,7 +10,7 @@ const DEFAULT_ITEMS: TrustItem[] = [
   { icon: Shield, title: 'Verified stays', desc: 'Every listing is operator-verified before going live.' },
   { icon: CheckCircle, title: 'Licensed & compliant', desc: 'All providers meet UK licensing requirements.' },
   { icon: Lock, title: 'Secure payments', desc: 'Escrow-protected, with full dispute resolution.' },
-  { icon: HeadphonesIcon, title: '24/7 guest support', desc: 'Round-the-clock help for guests and customers.' },
+  { icon: HeadphonesIcon, title: 'Always-on guest support', desc: 'Our team is always reachable — email us any time.' },
 ]
 
 interface MarketplaceTrustStripProps {

@@ -69,7 +69,7 @@ export default function AuthShell({ children, footer, fullPage = false }: AuthSh
 
       {/* Bottom strip */}
       <footer className="px-6 py-4 text-center text-xs text-slate-400">
-        &copy; {new Date().getFullYear()} Propvora Ltd. &nbsp;&middot;&nbsp;
+        &copy;{" "}{new Date().getFullYear()}{" "}Propvora Ltd. &nbsp;&middot;&nbsp;
         <Link href="/legal/terms" className="hover:text-slate-600 transition-colors">Terms</Link>
         &nbsp;&middot;&nbsp;
         <Link href="/legal/privacy" className="hover:text-slate-600 transition-colors">Privacy</Link>

@@ -303,15 +303,21 @@ function IntentChooser({ onSelect }: { onSelect: (intent: Intent) => void }) {
 interface RegisterFormProps {
   intent: Intent
   onBack: () => void
+  /** Invite token from URL — carry through email callback and Google OAuth so the
+   *  user is redirected to accept the invite after account creation. */
+  inviteToken?: string | null
 }
 
-function RegisterForm({ intent, onBack }: RegisterFormProps) {
+function RegisterForm({ intent, onBack, inviteToken }: RegisterFormProps) {
   const isCustomer = intent === "customer"
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [successEmail, setSuccessEmail] = useState<string | null>(null)
+  // Company name is optional for non-customers — captured separately and stored
+  // in user_metadata so it appears in the workspace onboarding pre-fill.
+  const [companyName, setCompanyName] = useState("")
 
   const {
     register: formRegister,
@@ -359,10 +365,13 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
     setIsLoading(true)
     setAuthError(null)
     const supabase = createClient()
+    const callbackUrl = new URL("/auth/callback", window.location.origin)
+    callbackUrl.searchParams.set("intent", intent)
+    if (inviteToken) callbackUrl.searchParams.set("invite", inviteToken)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?intent=${intent}`,
+        redirectTo: callbackUrl.toString(),
         queryParams: { access_type: "offline", prompt: "consent" },
       },
     })
@@ -384,6 +393,9 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
     }
 
     const supabase = createClient()
+    const callbackUrl = new URL("/auth/callback", window.location.origin)
+    callbackUrl.searchParams.set("intent", intent)
+    if (inviteToken) callbackUrl.searchParams.set("invite", inviteToken)
     const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email.trim().toLowerCase(),
       password: data.password,
@@ -391,8 +403,9 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
         data: {
           full_name: data.fullName.trim(),
           display_name: data.fullName.trim(),
+          ...(companyName.trim() ? { company_name: companyName.trim() } : {}),
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback?intent=${intent}`,
+        emailRedirectTo: callbackUrl.toString(),
       },
     })
     if (error) {
@@ -413,6 +426,11 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
           body: JSON.stringify({ email: data.email.trim().toLowerCase(), userName: data.fullName.trim(), workspaceName: "" }),
         })
       } catch { /* non-critical */ }
+      // If the user arrived via an invite link, route them straight to accept it.
+      if (inviteToken) {
+        window.location.assign(`/invite/${encodeURIComponent(inviteToken)}`)
+        return
+      }
       let destination = "/onboarding"
       try { destination = await resolveLoginDestination(intent) }
       catch { destination = intent === "customer" ? "/user" : intent === "supplier" ? "/onboarding/supplier" : "/onboarding" }
@@ -512,10 +530,12 @@ function RegisterForm({ intent, onBack }: RegisterFormProps) {
                 </label>
                 <Input
                   type="text"
-                  aria-label="Company"
+                  aria-label="Company name"
                   placeholder="Company name"
                   autoComplete="organization"
                   leftElement={<Building2 className="h-4 w-4" />}
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                 />
               </div>
             )}
@@ -773,6 +793,10 @@ function RegisterShell() {
       ? rawIntent
       : null
 
+  // Invite token from URL — carry through the form so it can be embedded in the
+  // email verification callback URL and the Google OAuth redirect URL.
+  const inviteToken = searchParams.get("invite") || null
+
   // Step 0 = chooser, step 1 = form
   const [step, setStep] = useState<0 | 1>(urlIntent ? 1 : 0)
   const [intent, setIntent] = useState<Intent | null>(urlIntent)
@@ -780,13 +804,18 @@ function RegisterShell() {
   const handleSelect = (chosen: Intent) => {
     setIntent(chosen)
     setStep(1)
-    // Reflect in URL without full navigation (back button goes to chooser via state)
-    router.replace(`/register?intent=${chosen}`, { scroll: false })
+    // Reflect in URL without full navigation (back button goes to chooser via state).
+    // Preserve the invite token so it survives the chooser → form transition.
+    const url = inviteToken
+      ? `/register?intent=${chosen}&invite=${encodeURIComponent(inviteToken)}`
+      : `/register?intent=${chosen}`
+    router.replace(url, { scroll: false })
   }
 
   const handleBack = () => {
     setStep(0)
-    router.replace("/register", { scroll: false })
+    const url = inviteToken ? `/register?invite=${encodeURIComponent(inviteToken)}` : "/register"
+    router.replace(url, { scroll: false })
   }
 
   return (
@@ -821,7 +850,7 @@ function RegisterShell() {
           {step === 0 || intent === null ? (
             <IntentChooser onSelect={handleSelect} />
           ) : (
-            <RegisterForm intent={intent} onBack={handleBack} />
+            <RegisterForm intent={intent} onBack={handleBack} inviteToken={inviteToken} />
           )}
         </div>
       </div>

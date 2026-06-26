@@ -384,27 +384,39 @@ Guidelines:
       : message.trim()
 
     // 9. Resolve the provider/model chain and open a streamed completion.
-    // Copilot is hard-bounded at 500 input / 1000 output tokens (a request can
-    // never exceed these regardless of plan). Plans may set a LOWER cap.
-    const COPILOT_MAX_INPUT_TOKENS = 500
-    const COPILOT_MAX_OUTPUT_TOKENS = 1000
-    let planMaxTokens = COPILOT_MAX_OUTPUT_TOKENS
+    //
+    // Platform absolute ceilings (no single request may exceed these regardless
+    // of plan or model — protects against runaway context costs on Azure):
+    //   Input:  8,000 tokens  (~32,000 chars — enough for a full tenancy agreement)
+    //   Output: 4,000 tokens  (~16,000 chars — detailed reports, full draft letters)
+    //
+    // Per-plan limits in PLAN_LIMITS (gates.ts) set the LOWER bound that users
+    // actually see. Enterprise reaches the absolute ceiling; Scale/Pro are
+    // constrained below it. Plans may never exceed these absolute values.
+    const COPILOT_MAX_INPUT_TOKENS = 8_000
+    const COPILOT_MAX_OUTPUT_TOKENS = 4_000
+
+    // Output token cap: start from the plan limit, never exceed the platform ceiling.
+    let planMaxTokens = 1_500  // safe default (Scale-tier floor)
     if (workspaceId && workspaceId !== "demo-workspace") {
       try {
         const planLimits = await getPlanLimits(supabase, workspaceId)
         if (planLimits.aiOutputTokensPerMessage > 0) {
-          planMaxTokens = planLimits.aiOutputTokensPerMessage
+          planMaxTokens = Math.min(planLimits.aiOutputTokensPerMessage, COPILOT_MAX_OUTPUT_TOKENS)
         }
       } catch {
-        /* fall back to the copilot ceiling */
+        /* fall back to the safe default */
       }
+    } else {
+      // Demo workspace: give a useful output budget without an account.
+      planMaxTokens = 1_500
     }
 
-    // Truncate input to the copilot's 500-token ceiling (plans may set lower).
-    // Rough heuristic: 1 token ≈ 4 characters. Applied for all real workspaces.
+    // Input truncation: enforce the plan's per-message input limit, capped at the
+    // platform ceiling. Rough heuristic: 1 token ≈ 4 characters.
     let effectiveUserTurn = userTurn
     {
-      let inputTokenCap = COPILOT_MAX_INPUT_TOKENS
+      let inputTokenCap = 2_000  // safe default (Scale-tier floor)
       if (workspaceId && workspaceId !== "demo-workspace") {
         try {
           const planLimits = await getPlanLimits(supabase, workspaceId)
@@ -412,7 +424,7 @@ Guidelines:
             inputTokenCap = Math.min(planLimits.aiInputTokensPerMessage, COPILOT_MAX_INPUT_TOKENS)
           }
         } catch {
-          /* keep the copilot ceiling */
+          /* keep the safe default */
         }
       }
       const maxInputChars = inputTokenCap * 4
@@ -480,6 +492,7 @@ Guidelines:
             usage,
           })
           // Keep the legacy metering tables in sync for existing dashboards.
+          // Pass the real gateway cost so metering never re-estimates with stale rates.
           await recordUsage(supabase, {
             workspaceId,
             userId: user.id,
@@ -487,6 +500,7 @@ Guidelines:
             model: usage.model,
             inputTokens: usage.tokensIn,
             outputTokens: usage.tokensOut,
+            costPence: usage.costPence,
           })
           // Credit-class ledger: a chat turn is metered as Conversation (1 credit
           // per 1k tokens). Best-effort; never blocks the response.

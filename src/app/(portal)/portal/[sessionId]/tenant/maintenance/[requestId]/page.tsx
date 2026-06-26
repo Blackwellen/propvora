@@ -1,5 +1,5 @@
 import {
-  Wrench, MessageSquare, Printer, MapPin, CalendarClock, User, CheckCircle2, Circle,
+  Wrench, MessageSquare, MapPin, CalendarClock, User, CheckCircle2, Circle,
   Images, ClipboardList, AlertTriangle, Phone, PoundSterling, ShieldCheck,
 } from "lucide-react"
 import { requirePortalSession } from "../../../_guard"
@@ -51,7 +51,7 @@ export default async function TenantMaintenanceDetail({ params }: { params: Prom
     <div className="space-y-5">
       <PortalPageHeader
         title={req.title} subtitle={`Request #${req.id.slice(0, 8).toUpperCase()}`} backHref={`${base}/maintenance`} backLabel="Back to maintenance"
-        actions={<><PortalButtonLink href="#" icon={Printer}>Download summary</PortalButtonLink><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message about this request</PortalButtonLink></>}
+        actions={<PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message about this request</PortalButtonLink>}
       />
 
       {/* Meta strip */}

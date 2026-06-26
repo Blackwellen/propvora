@@ -15,6 +15,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { recordAudit } from "@/lib/audit/log"
 import { evaluateRule } from "./evaluate"
 import { buildActionPayload, executeAction } from "./execute"
+import { loadAutomationGovernance, requiresReview } from "./governance"
 import type { RunContext, SmartRule, TriggerMatch } from "./types"
 
 export interface EvaluateSummary {
@@ -58,6 +59,11 @@ export async function evaluateWorkspace(
     return summary
   }
 
+  // Workspace automation governance — resolved once per evaluation. When the
+  // dangerous-action guardrail is ON, record-mutating / outbound actions are
+  // held for human review even if the rule is set to auto-run.
+  const governance = await loadAutomationGovernance(supabase, workspaceId)
+
   // Existing open/recent run dedupe keys (pending_review or executed in last 30d).
   const cutoff = new Date(Date.now() - 30 * 86_400_000).toISOString()
   const { data: recentRuns } = await supabase
@@ -96,7 +102,9 @@ export async function evaluateWorkspace(
         facts: m.facts,
       }
 
-      const initialStatus = rule.review_required ? "pending_review" : "approved"
+      // Governance can only ADD review (never downgrade a review-first rule).
+      const reviewRequired = requiresReview(governance, rule.action_type, rule.review_required)
+      const initialStatus = reviewRequired ? "pending_review" : "approved"
       const { data: run, error: runErr } = await supabase
         .from("smart_rule_runs")
         .insert({
@@ -131,10 +139,10 @@ export async function evaluateWorkspace(
         workspaceId, userId: actorId,
         action: "automation.run_created",
         resourceType: "smart_rule_run", resourceId: run.id,
-        metadata: { rule_id: rule.id, trigger_type: rule.trigger_type, action_type: rule.action_type, review_required: rule.review_required, entity_type: m.entity_type, entity_id: m.entity_id },
+        metadata: { rule_id: rule.id, trigger_type: rule.trigger_type, action_type: rule.action_type, review_required: reviewRequired, rule_review_required: rule.review_required, governance_held: reviewRequired && !rule.review_required, entity_type: m.entity_type, entity_id: m.entity_id },
       })
 
-      if (rule.review_required) {
+      if (reviewRequired) {
         summary.pendingReview++
       } else {
         // Auto-execute SAFE action immediately (no destructive types allowed).

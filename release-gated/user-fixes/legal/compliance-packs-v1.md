@@ -55,6 +55,23 @@ disclaimer.
 
 > Tell me "run the jurisdiction backfill" and I will execute it via PAT.
 
+### ✅ RESOLVED 2026-06-26 — backfill is a verified no-op (gap closed)
+
+A read-only check via the Management API on 2026-06-26 shows the data has already
+converged — **all 15 workspaces** now report `business_country_code = 'GB'` **and**
+`settings.countryCode = 'GB'`, with no nulls and no remaining US row:
+
+```
+business_country_code | settings_cc | count
+GB                    | GB          | 15
+```
+
+The backfill UPDATE therefore touches **0 rows** (its `where settings_cc <> business_country_code`
+clause matches nothing). The divergence this fix tracked no longer exists, so no
+production write is required. **Item closed.** If a non-GB workspace is created in
+future, FIX-473 (jurisdiction API POST merging `countryCode` into `settings`) lights
+up the packs go-forward, so the divergence cannot recur.
+
 ---
 
 ## Note on `multiCountryPortfolio` (deliberately left V2)

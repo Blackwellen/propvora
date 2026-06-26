@@ -3,14 +3,12 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Mail, Lock, AlertCircle, Shield, ShieldCheck, Activity } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 
 export default function AdminLoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -47,8 +45,9 @@ export default function AdminLoginPage() {
         return
       }
 
-      router.push("/admin")
-      router.refresh()
+      // Hard navigation so the proxy sees the fresh session and the admin layout
+      // guard (`getAdminIdentity`) runs with the updated cookie.
+      window.location.assign("/admin")
     } catch {
       setError("Something went wrong. Please try again.")
       setLoading(false)

@@ -6,6 +6,12 @@ import { cn } from "@/lib/utils"
 import { InlineEditField, InlineEditMoney, InlineEditSelect } from "@/components/editing"
 import { Shield, AlertTriangle, Check, Plus, ArrowUpRight } from "lucide-react"
 import { SectionCard, fmtGBP, type TenancyDisplay } from "./shared"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
+import { DepositRulePanel } from "@/components/jurisdiction"
+import { depositRules } from "@/lib/money/deposits"
+
+// Normalise a stored rent + frequency to a monthly figure for the deposit cap.
+const RENT_TO_MONTHLY: Record<string, number> = { weekly: 52 / 12, monthly: 1, quarterly: 1 / 3, annually: 1 / 12 }
 
 export function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: string, value: unknown) => Promise<void> }) {
   const router = useRouter()
@@ -44,6 +50,13 @@ export function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: s
   }
 
   const protectedStatus = t.depositScheme && t.depositScheme !== "—" ? "Protected" : "Not recorded"
+
+  // Resolve the property's record-true jurisdiction so the deposit rule, cap and
+  // return window reflect where the asset actually is — not the workspace default.
+  const jur = usePropertyJurisdiction(t.propertyId ?? undefined)
+  const monthlyRent = t.rent * (RENT_TO_MONTHLY[(t.rentFrequency ?? "monthly").toLowerCase()] ?? 1)
+  const depositRule = depositRules(jur.countryCode, jur.region)
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -112,6 +125,14 @@ export function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: s
               </div>
             </div>
           </SectionCard>
+
+          <DepositRulePanel
+            countryCode={jur.countryCode}
+            region={jur.region}
+            monthlyRent={monthlyRent}
+            currency={jur.currency}
+            currentDeposit={t.deposit || null}
+          />
 
           <SectionCard className="p-5">
             <div className="flex items-center justify-between mb-3">
@@ -229,7 +250,9 @@ export function DepositTab({ t, onSave }: { t: TenancyDisplay; onSave: (field: s
             <div>
               <p className="text-sm font-semibold text-amber-800">Deposit return deadline</p>
               <p className="text-xs text-amber-700 mt-0.5">
-                Deposit must be returned within 10 days of tenancy end. Failure to return may result in penalties.
+                {depositRule.returnWindowDays != null
+                  ? `Indicative return window for ${depositRule.jurisdiction}: within ${depositRule.returnWindowDays} days of tenancy end. Verify against the scheme rules.`
+                  : "Return the deposit promptly at tenancy end and verify the timescale against your jurisdiction's scheme rules."}
               </p>
             </div>
           </div>

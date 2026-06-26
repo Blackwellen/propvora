@@ -10,6 +10,7 @@ import {
   PortalCard, PortalSectionCard, PortalKpiStrip, StatusChip, PortalEmptyState,
   PortalButtonLink, PortalFact, type PortalKpi,
 } from "@/components/portals/portal-ui"
+import TenantPaymentModal, { type BankDetails } from "@/components/portals/TenantPaymentModal"
 
 export interface LedgerRow {
   id: string
@@ -32,11 +33,13 @@ function fmtDate(iso: string | null) { if (!iso) return "—"; const d = new Dat
 const TABS = ["All", "Rent", "Credits", "Charges", "Deposit", "Receipts"] as const
 
 export default function PortalPaymentsClient({
-  rows, base, rentPcm, depositHeld, nextDue,
+  rows, base, rentPcm, depositHeld, nextDue, sessionId, bankDetails,
 }: {
   rows: LedgerRow[]; base: string; rentPcm: number | null; depositHeld: number | null; nextDue: string | null
+  sessionId?: string; bankDetails?: BankDetails | null
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]>("All")
+  const [paymentOpen, setPaymentOpen] = useState(false)
 
   const totalPaid = useMemo(() => rows.filter((r) => r.direction === "in").reduce((s, r) => s + (r.amount ?? 0), 0), [rows])
   const filtered = useMemo(() => {
@@ -132,13 +135,31 @@ export default function PortalPaymentsClient({
           <PortalSectionCard title="Recent statements" icon={FileText} viewAllHref={`${base}/documents`}>
             <PortalButtonLink href={`${base}/documents`} variant="ghost" icon={Download} className="w-full justify-center">Download statement</PortalButtonLink>
           </PortalSectionCard>
+          <PortalSectionCard title="Make a payment" icon={CreditCard}>
+            <p className="text-xs text-slate-500 mb-3">Pay your rent by card or bank transfer.</p>
+            <button
+              onClick={() => setPaymentOpen(true)}
+              className="w-full h-9 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1D4ED8] transition-colors flex items-center justify-center gap-1.5"
+            >
+              <CreditCard className="w-4 h-4" /> Make a payment
+            </button>
+          </PortalSectionCard>
           <PortalSectionCard title="Payment support" icon={LifeBuoy}>
             <p className="text-xs text-slate-500 mb-3">Questions about a payment? Message your manager.</p>
-            <PortalButtonLink href={`${base}/messages`} variant="primary" className="w-full justify-center">Message manager</PortalButtonLink>
+            <PortalButtonLink href={`${base}/messages`} variant="ghost" className="w-full justify-center">Message manager</PortalButtonLink>
           </PortalSectionCard>
           <PortalCard className="p-4"><div className="flex items-start gap-2.5"><span className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0"><ShieldCheck className="w-4 h-4" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Deposit protected</p><p className="text-xs text-slate-400 mt-0.5">{depositHeld != null ? money(depositHeld) : "Your deposit"} held in a government scheme.</p></div></div></PortalCard>
         </div>
       </div>
+
+      {paymentOpen && (
+        <TenantPaymentModal
+          rentPcm={rentPcm}
+          sessionId={sessionId ?? ""}
+          bankDetails={bankDetails ?? null}
+          onClose={() => setPaymentOpen(false)}
+        />
+      )}
     </div>
   )
 }

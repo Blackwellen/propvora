@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"
 import SupplierAppShell from "@/components/shells/SupplierAppShell"
 import { createClient } from "@/lib/supabase/server"
 import { getGlobalFlag } from "@/lib/flags/public"
+import BrandingStyle from "@/lib/branding/BrandingStyle"
+import type { BrandColours } from "@/lib/branding/theme"
 
 /**
  * Independent Supplier SaaS workspace layout — V2, gated behind the
@@ -42,5 +44,26 @@ export default async function SupplierWorkspaceLayout({
   }
   if (!workspaceId) redirect("/property-manager")
 
-  return <SupplierAppShell>{children}</SupplierAppShell>
+  let brandColor: string | null = null
+  let brandColours: Partial<BrandColours> | null = null
+  let brandLogoUrl: string | null = null
+  try {
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("brand_color, brand_colours, logo_url")
+      .eq("id", workspaceId)
+      .maybeSingle()
+    const row = ws as { brand_color?: string | null; brand_colours?: Partial<BrandColours> | null; logo_url?: string | null } | null
+    brandColor = row?.brand_color ?? null
+    brandColours = row?.brand_colours ?? null
+    brandLogoUrl = row?.logo_url ?? null
+  } catch {
+    // non-fatal — fall back to Propvora defaults
+  }
+
+  return (
+    <BrandingStyle brandColor={brandColor} brandColours={brandColours}>
+      <SupplierAppShell brandLogoUrl={brandLogoUrl}>{children}</SupplierAppShell>
+    </BrandingStyle>
+  )
 }

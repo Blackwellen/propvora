@@ -35,6 +35,12 @@ interface PaymentFormProps {
    * return { clientSecret, customerSessionSecret? }.
    */
   intentRequest?: { url: string; body: Record<string, unknown> }
+  /**
+   * Footer reassurance copy under the Pay button. Defaults to the guest-booking
+   * escrow wording ("funds are held until your stay is confirmed"). Direct-charge
+   * contexts (e.g. tenant rent) should pass context-appropriate copy.
+   */
+  footerNote?: string
 }
 
 type Phase = "loading" | "ready" | "not_ready" | "submitting" | "done"
@@ -45,6 +51,7 @@ export default function PaymentForm({
   currency,
   onResult,
   intentRequest,
+  footerNote,
 }: PaymentFormProps) {
   const [phase, setPhase] = useState<Phase>("loading")
   const [error, setError] = useState<string | null>(null)
@@ -216,13 +223,14 @@ export default function PaymentForm({
           Card details
         </label>
         <div className="rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 min-h-[48px] focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#2563EB]/20 transition-colors">
-          {phase === "loading" ? (
+          {phase === "loading" && (
             <span className="flex items-center gap-2 text-[13px] text-slate-400">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading secure card field…
             </span>
-          ) : (
-            <div ref={cardMountRef} />
           )}
+          {/* Mount node must ALWAYS be in the DOM so the post-init rAF can mount
+              the Stripe Element into it. Hidden (not unmounted) while loading. */}
+          <div ref={cardMountRef} className={phase === "loading" ? "hidden" : ""} />
         </div>
         {cardError && (
           <p className="mt-1.5 text-[12px] text-red-600 flex items-center gap-1.5">
@@ -258,8 +266,8 @@ export default function PaymentForm({
 
       <p className="text-[11.5px] text-slate-400 text-center leading-relaxed flex items-center justify-center gap-1.5">
         <Lock className="w-3 h-3 shrink-0" />
-        Secured by Stripe · Your card is authorised now and funds are held until your
-        stay is confirmed.
+        {footerNote ??
+          "Secured by Stripe · Your card is authorised now and funds are held until your stay is confirmed."}
       </p>
     </div>
   )

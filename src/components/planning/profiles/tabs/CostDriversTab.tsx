@@ -1,11 +1,166 @@
 "use client"
 
-import { AlertCircle } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { AlertCircle, Landmark } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
 import { ProfileKpiCard } from '@/components/planning/profiles'
+import { useWorkspaceJurisdiction } from '@/hooks/useWorkspaceJurisdiction'
+import { acquisitionTax } from '@/lib/planning/acquisition-tax'
+import { recurringTax, estimateRecurringTax } from '@/lib/money/recurring-tax'
+import { formatMoneyMajor } from '@/lib/i18n'
+import { NotLegalAdviceNotice } from '@/components/jurisdiction'
 
 interface Props {
   profile: ProfileConfig
+}
+
+const TAX_COUNTRIES: { code: string; label: string }[] = [
+  { code: 'GB', label: 'United Kingdom' },
+  { code: 'IE', label: 'Ireland' },
+  { code: 'ES', label: 'Spain' },
+  { code: 'DE', label: 'Germany' },
+  { code: 'FR', label: 'France' },
+  { code: 'IT', label: 'Italy' },
+  { code: 'PT', label: 'Portugal' },
+  { code: 'NL', label: 'Netherlands' },
+  { code: 'AU', label: 'Australia' },
+  { code: 'AE', label: 'UAE (Dubai)' },
+]
+
+function AcquisitionTaxEstimator() {
+  const ws = useWorkspaceJurisdiction()
+  const [country, setCountry] = useState(ws.countryCode || 'GB')
+  const [region, setRegion] = useState((ws.settings as { region?: string }).region || 'EW')
+  const [price, setPrice] = useState('300000')
+  const [additional, setAdditional] = useState(false)
+  const [nonResident, setNonResident] = useState(false)
+
+  const ccy = country === 'GB' ? 'GBP' : country === 'AE' ? 'AED' : country === 'AU' ? 'AUD' : 'EUR'
+  const result = useMemo(
+    () =>
+      acquisitionTax({
+        countryCode: country,
+        region: country === 'GB' ? region : null,
+        price: Number(price) || 0,
+        isAdditional: additional,
+        isNonResident: nonResident,
+      }),
+    [country, region, price, additional, nonResident],
+  )
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Landmark className="w-5 h-5 text-slate-500" />
+        <h2 className="text-lg font-semibold text-slate-900">Acquisition tax estimator</h2>
+      </div>
+      <p className="text-sm text-slate-500 mb-4">
+        The biggest upfront cost driver. Estimate purchase-transaction tax for the property&apos;s jurisdiction. Indicative
+        only — rates change at fiscal events and vary by region; verify before relying on a figure.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Jurisdiction</span>
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {TAX_COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.label}</option>
+            ))}
+          </select>
+        </label>
+        {country === 'GB' && (
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">UK region</span>
+            <select
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="EW">England & N. Ireland</option>
+              <option value="SCT">Scotland</option>
+              <option value="WLS">Wales</option>
+            </select>
+          </label>
+        )}
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-slate-600">Purchase price</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
+        <div className="flex flex-col gap-1.5 justify-end">
+          <label className="flex items-center gap-2 text-xs text-slate-600">
+            <input type="checkbox" checked={additional} onChange={(e) => setAdditional(e.target.checked)} className="accent-blue-600" />
+            Additional / second property
+          </label>
+          {country === 'GB' && region === 'EW' && (
+            <label className="flex items-center gap-2 text-xs text-slate-600">
+              <input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-blue-600" />
+              Non-resident purchaser
+            </label>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-end gap-6 rounded-xl bg-slate-50 border border-slate-100 p-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{result.taxName}</p>
+          <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatMoneyMajor(result.total, ccy)}</p>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Effective rate</p>
+          <p className="text-lg font-semibold text-slate-700 tabular-nums">{(result.effectiveRate * 100).toFixed(2)}%</p>
+        </div>
+        {result.breakdown.length > 0 && (
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Breakdown</p>
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
+              {result.breakdown.map((b, i) => (
+                <span key={i} className="text-[11px] text-slate-500">
+                  {b.band}: {formatMoneyMajor(b.amount, ccy)}
+                </span>
+              ))}
+              {result.surcharges.filter((s) => s.amount > 0).map((s, i) => (
+                <span key={`s${i}`} className="text-[11px] font-medium text-amber-600">
+                  {s.label}: {formatMoneyMajor(s.amount, ccy)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Recurring property tax (dim 21) — the main ongoing tax cost driver. */}
+      {(() => {
+        const rec = recurringTax(country)
+        const annual = estimateRecurringTax(rec, Number(price) || 0)
+        return (
+          <div className="mt-3 rounded-xl border border-slate-100 bg-white p-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-semibold text-slate-800">{rec.taxName}</span>
+              <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[11px] text-slate-500">payer: {rec.payer}</span>
+              {annual != null && (
+                <span className="text-[13px] text-slate-700">≈ {formatMoneyMajor(annual, ccy)}/yr</span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">{rec.note}</p>
+          </div>
+        )
+      })()}
+
+      <p className="text-[11px] text-slate-400 mt-2">Source: {result.citation}</p>
+      <NotLegalAdviceNotice variant="inline" className="mt-2" />
+    </div>
+  )
 }
 
 function parseCostAmount(typical: string): number {
@@ -86,6 +241,9 @@ export default function CostDriversTab({ profile }: Props) {
           ))}
         </div>
       </div>
+
+      {/* 2b. Acquisition tax estimator (dim 7) — the biggest upfront cost driver. */}
+      <AcquisitionTaxEstimator />
 
       {/* 3. Cost Categories */}
       {costDrivers.categories.map((category) => (

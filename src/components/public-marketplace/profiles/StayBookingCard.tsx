@@ -205,7 +205,7 @@ export default function StayBookingCard({ stay }: { stay: PublicStay }) {
             <Lock className="h-3.5 w-3.5 shrink-0 text-blue-600" />Secure payments
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />24/7 guest support
+            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />Always-on guest support
           </div>
         </div>
       </div>

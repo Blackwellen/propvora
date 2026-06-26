@@ -173,6 +173,12 @@ export interface Property {
   county: string | null
   postcode: string | null
   country: string
+  /** ISO-3166-1 alpha-2 jurisdiction of the asset (the per-property i18n spine). */
+  country_code: string | null
+  /** Sub-jurisdiction (GB: "EW" | "SCT" | "NI"). */
+  region_code: string | null
+  /** ISO-4217 currency for this property (its country's). */
+  currency: string | null
   latitude: number | null
   longitude: number | null
   property_type: PropertyType | null
@@ -305,6 +311,12 @@ export interface Job {
   invoiced_amount: number | null
   reference: string | null
   notes: string | null
+  revenue_blocking: boolean
+  occupancy_blocking: boolean
+  scheduled_time: string | null
+  estimated_duration: string | null
+  sla_source: string | null
+  sla_target_at: string | null
   is_demo: boolean
   created_by: string | null
   created_at: string
@@ -741,6 +753,9 @@ export interface InsertProperty {
   status: PropertyStatus
   is_demo: boolean
   country?: string
+  country_code?: string | null
+  region_code?: string | null
+  currency?: string | null
   address_line1?: string | null
   address_line2?: string | null
   city?: string | null
@@ -854,6 +869,12 @@ export interface InsertJob {
   invoiced_amount?: number | null
   reference?: string | null
   notes?: string | null
+  revenue_blocking?: boolean
+  occupancy_blocking?: boolean
+  scheduled_time?: string | null
+  estimated_duration?: string | null
+  sla_source?: string | null
+  sla_target_at?: string | null
   created_by?: string | null
 }
 

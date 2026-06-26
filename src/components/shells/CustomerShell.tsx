@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -78,7 +78,6 @@ export default function CustomerShell({
   unreadMessages?: number
 }) {
   const pathname = usePathname()
-  const router = useRouter()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -119,7 +118,7 @@ export default function CustomerShell({
   async function signOut() {
     const sb = createClient()
     await sb.auth.signOut()
-    router.push("/login")
+    window.location.assign("/login")
   }
 
   return (

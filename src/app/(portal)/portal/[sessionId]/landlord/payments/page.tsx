@@ -41,7 +41,7 @@ export default async function LandlordPaymentsPage({ params }: { params: Promise
     <div className="space-y-5">
       <PortalPageHeader
         title="Payments" subtitle="Track rent collections, arrears, fees and landlord payouts." backHref={base}
-        actions={<><PortalButtonLink href={`${base}/documents`} icon={Download}>Download statement</PortalButtonLink><PortalButtonLink href="#" variant="primary" icon={Download}>Export ledger</PortalButtonLink></>}
+        actions={<PortalButtonLink href={`${base}/documents`} variant="primary" icon={Download}>Download statement</PortalButtonLink>}
       />
       <PortalKpiStrip kpis={kpis} cols={6} />
 

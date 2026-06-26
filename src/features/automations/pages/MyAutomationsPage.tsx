@@ -8,8 +8,8 @@ import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsReviewFirstBadge } from "../components/AutomationsBadges"
 import AutomationsRightRail from "../components/AutomationsRightRail"
-import { Btn, Card, CardHeader, Toggle, useToast } from "../components/primitives"
-import { setAutomationEnabled } from "@/lib/automation/toggle"
+import { Btn, Card, CardHeader, Modal, Toggle, useToast } from "../components/primitives"
+import { setAutomationEnabled, deleteAutomation } from "@/lib/automation/toggle"
 import { Donut } from "../components/charts"
 import { useMyAutomations } from "../data/hooks"
 import type { AutomationRow, Health } from "../data/types"
@@ -63,12 +63,52 @@ function exportAutomationsCsv(rows: AutomationRow[]) {
 export default function MyAutomationsPage() {
   const router = useSectionRouter()
   const toast = useToast()
-  const { data: rows, loading } = useMyAutomations()
+  const { data: rows, loading, reload } = useMyAutomations()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => Object.fromEntries(rows.map((r) => [r.id, r.enabled])))
   const [bulkOpen, setBulkOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const bulkRef = useRef<HTMLDivElement>(null)
+
+  // Apply enable/disable to every selected automation through the real server
+  // action, then reflect locally + refresh from Supabase. Awaits all writes so
+  // the toast reports the true outcome (no fire-and-forget).
+  async function bulkSetEnabled(value: boolean) {
+    if (busy || selected.length === 0) return
+    setBusy(true)
+    setBulkOpen(false)
+    try {
+      const results = await Promise.all(selected.map((id) => setAutomationEnabled(id, value)))
+      const okCount = results.filter((r) => r.ok).length
+      setEnabled((s) => {
+        const next = { ...s }
+        selected.forEach((id, i) => { if (results[i].ok) next[id] = value })
+        return next
+      })
+      toast(`${value ? "Enabled" : "Paused"} ${okCount} automation${okCount === 1 ? "" : "s"}${okCount < selected.length ? ` (${selected.length - okCount} failed)` : ""}`)
+      reload()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Permanently delete every selected automation (confirmed via modal first).
+  async function bulkDelete() {
+    if (busy || selected.length === 0) return
+    setBusy(true)
+    setConfirmDelete(false)
+    try {
+      const results = await Promise.all(selected.map((id) => deleteAutomation(id)))
+      const okCount = results.filter((r) => r.ok).length
+      toast(`Deleted ${okCount} automation${okCount === 1 ? "" : "s"}${okCount < selected.length ? ` (${selected.length - okCount} failed)` : ""}`)
+      setSelected([])
+      reload()
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const columns: DataColumn<AutomationRow>[] = useMemo(
     () => [
@@ -135,13 +175,13 @@ export default function MyAutomationsPage() {
         {bulkOpen && (
           <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
             {[
-              { label: "Enable selected", action: () => { setSelected((s) => { s.forEach((id) => void setAutomationEnabled(id, true)); return s }); setBulkOpen(false); toast(`Enabled ${selected.length} automations`) } },
-              { label: "Disable selected", action: () => { setSelected((s) => { s.forEach((id) => void setAutomationEnabled(id, false)); return s }); setBulkOpen(false); toast(`Disabled ${selected.length} automations`) } },
-              { label: "Export selected", action: () => { exportAutomationsCsv(rows.filter((r) => selected.includes(r.id))); setBulkOpen(false) } },
-              { label: "Select all", action: () => { setSelected(rows.map((r) => r.id)); setBulkOpen(false) } },
-              { label: "Clear selection", action: () => { setSelected([]); setBulkOpen(false) } },
-            ].map(({ label, action }) => (
-              <button key={label} onClick={action} className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+              { label: "Enable selected", action: () => { void bulkSetEnabled(true) }, disabled: selected.length === 0 || busy },
+              { label: "Disable selected", action: () => { void bulkSetEnabled(false) }, disabled: selected.length === 0 || busy },
+              { label: "Export selected", action: () => { exportAutomationsCsv(rows.filter((r) => selected.includes(r.id))); setBulkOpen(false) }, disabled: selected.length === 0 },
+              { label: "Select all", action: () => { setSelected(rows.map((r) => r.id)); setBulkOpen(false) }, disabled: false },
+              { label: "Clear selection", action: () => { setSelected([]); setBulkOpen(false) }, disabled: selected.length === 0 },
+            ].map(({ label, action, disabled }) => (
+              <button key={label} onClick={action} disabled={disabled} className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40">
                 {label}
               </button>
             ))}
@@ -210,11 +250,10 @@ export default function MyAutomationsPage() {
             <div className="sticky bottom-4 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-lg">
               <span className="text-sm font-medium text-slate-700">{selected.length} selected</span>
               <div className="ml-auto flex gap-2">
-                <Btn variant="outline" onClick={() => toast(`Enabled ${selected.length}`)}>Enable</Btn>
-                <Btn variant="outline" onClick={() => toast(`Disabled ${selected.length}`)}>Disable</Btn>
-                <Btn variant="outline" onClick={() => toast(`Paused ${selected.length}`)}>Pause</Btn>
-                <Btn variant="outline" onClick={() => toast("Moved to draft")}>Move to draft</Btn>
-                <Btn variant="danger" onClick={() => { toast(`Deleted ${selected.length}`); setSelected([]) }}>Delete</Btn>
+                <Btn variant="outline" disabled={busy} onClick={() => void bulkSetEnabled(true)}>Enable</Btn>
+                <Btn variant="outline" disabled={busy} onClick={() => void bulkSetEnabled(false)}>Pause</Btn>
+                <Btn variant="outline" disabled={busy} onClick={() => { exportAutomationsCsv(rows.filter((r) => selected.includes(r.id))) }}>Export</Btn>
+                <Btn variant="danger" disabled={busy} onClick={() => setConfirmDelete(true)}>Delete</Btn>
               </div>
             </div>
           )}
@@ -274,6 +313,20 @@ export default function MyAutomationsPage() {
           })()}
         </AutomationsRightRail>
       </div>
+
+      <Modal
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title={`Delete ${selected.length} automation${selected.length === 1 ? "" : "s"}?`}
+        footer={
+          <>
+            <Btn variant="outline" onClick={() => setConfirmDelete(false)}>Cancel</Btn>
+            <Btn variant="danger" disabled={busy} onClick={() => void bulkDelete()}>{busy ? "Deleting…" : "Delete permanently"}</Btn>
+          </>
+        }
+      >
+        This permanently removes {selected.length === 1 ? "this automation" : "these automations"} and stops {selected.length === 1 ? "it" : "them"} from running. Run history and logs are retained. This cannot be undone.
+      </Modal>
     </AutomationsModuleShell>
   )
 }

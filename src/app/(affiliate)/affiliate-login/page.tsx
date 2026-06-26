@@ -10,7 +10,25 @@ import { createClient } from "@/lib/supabase/client"
 function mapErr(code?: string): string {
   if (code === "invalid_credentials") return "Incorrect email or password. Please try again."
   if (code === "email_not_confirmed") return "Please confirm your email first — check your inbox."
+  if (code === "too_many_requests") return "Too many sign-in attempts. Please wait a minute and try again."
   return "Couldn’t sign you in. Please try again."
+}
+
+async function checkRateLimit(action: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/rate-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    })
+    if (res.status === 429) {
+      const json = await res.json().catch(() => ({}))
+      return (json as { message?: string }).message ?? "Too many attempts. Please wait and try again."
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 function AffiliateLoginInner() {
@@ -24,6 +42,8 @@ function AffiliateLoginInner() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setErr(null)
+    const gate = await checkRateLimit("login")
+    if (gate) { setErr(gate); setBusy(false); return }
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
     if (error) { setErr(mapErr(error.code ?? error.message)); setBusy(false); return }
@@ -77,6 +97,9 @@ function AffiliateLoginInner() {
                 </div>
               </label>
               <button type="submit" disabled={busy} className="h-11 w-full rounded-xl bg-[#2563EB] text-[14px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
+              <div className="text-right">
+                <Link href="/forgot-password" className="text-[12.5px] text-slate-500 hover:text-[#2563EB]">Forgot password?</Link>
+              </div>
             </form>
 
             <div className="relative my-4">
@@ -88,9 +111,10 @@ function AffiliateLoginInner() {
               Continue with Google
             </button>
 
-            <p className="mt-6 text-center text-[13px] text-slate-500">
-              New to the programme? <Link href="/affiliate-programme/apply" className="font-semibold text-[#2563EB] hover:text-[#1d4ed8]">Apply to become an affiliate</Link>
-            </p>
+            <div className="mt-6 space-y-2 text-center text-[13px] text-slate-500">
+              <p>New to the programme? <Link href="/affiliate-programme/apply" className="font-semibold text-[#2563EB] hover:text-[#1d4ed8]">Apply to become an affiliate</Link></p>
+              <p>Have an approval code? <Link href="/register?next=/affiliate" className="font-semibold text-[#2563EB] hover:text-[#1d4ed8]">Create your account</Link></p>
+            </div>
           </div>
         </div>
       </div>

@@ -38,7 +38,7 @@ export default async function LandlordPaymentDetail({ params }: { params: Promis
     <div className="space-y-5">
       <PortalPageHeader
         title="Payment detail" subtitle={`${monthLabel} ${inc ? "rent receipt" : "payout"}`} backHref={`${base}/payments`} backLabel="Back to payments"
-        actions={<><PortalButtonLink href="#" icon={Download}>Download receipt</PortalButtonLink><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message manager</PortalButtonLink></>}
+        actions={<><PortalButtonLink href={`${base}/documents`} icon={Download}>Statements</PortalButtonLink><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message manager</PortalButtonLink></>}
       />
 
       <PortalCard className="p-5">
@@ -74,7 +74,7 @@ export default async function LandlordPaymentDetail({ params }: { params: Promis
             <p className="text-sm font-semibold text-[#071B4D]">Your property</p>
           </PortalSectionCard>
           <PortalSectionCard title="Payout account" icon={Building2}><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p></PortalSectionCard>
-          <PortalSectionCard title="Remittance documents" icon={FileText}><PortalButtonLink href="#" icon={Download} className="w-full justify-center">Download remittance</PortalButtonLink></PortalSectionCard>
+          <PortalSectionCard title="Statements" icon={FileText}><PortalButtonLink href={`${base}/documents`} icon={Download} className="w-full justify-center">View statements</PortalButtonLink></PortalSectionCard>
           <PortalSectionCard title="Support" icon={LifeBuoy}><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare} className="w-full justify-center">Message accounts</PortalButtonLink></PortalSectionCard>
         </div>
       </div>

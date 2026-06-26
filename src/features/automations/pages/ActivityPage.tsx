@@ -7,9 +7,9 @@ import {
   CheckCircle2,
   Clock,
   Download,
-  Filter,
   Pause,
   Play,
+  RefreshCw,
   Search,
   ShieldCheck,
   XCircle,
@@ -18,9 +18,23 @@ import {
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import { Btn, Card, CardHeader } from "../components/primitives"
+import { useAutomationActivity } from "../data/hooks"
 import type { ActivityItem } from "../data/types"
 
-const SEED_ACTIVITY: ActivityItem[] = []
+function exportActivityCsv(rows: ActivityItem[]) {
+  const header = ["Kind", "Event", "At"]
+  const csv = [
+    header.join(","),
+    ...rows.map((r) => [r.kind, `"${(r.text ?? "").replace(/"/g, '""')}"`, r.at].join(",")),
+  ].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `automation-activity-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 const KIND_ICON: Record<ActivityItem["kind"], typeof Activity> = {
   run_completed: CheckCircle2,
@@ -66,24 +80,25 @@ const FILTER_TABS = [
 export default function ActivityPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [query, setQuery] = useState("")
+  const { data: events, loading, reload } = useAutomationActivity()
 
   const filtered = useMemo(() => {
-    return SEED_ACTIVITY.filter((a) => {
+    return events.filter((a) => {
       if (activeTab !== "all" && a.kind !== activeTab) return false
       if (query && !a.text.toLowerCase().includes(query.toLowerCase())) return false
       return true
     })
-  }, [activeTab, query])
+  }, [events, activeTab, query])
 
-  const runCount = SEED_ACTIVITY.filter((a) => a.kind === "run_completed").length
-  const actionCount = SEED_ACTIVITY.filter((a) => a.kind === "action_executed").length
-  const approvalCount = SEED_ACTIVITY.filter((a) => a.kind === "approval_required").length
-  const errorCount = SEED_ACTIVITY.filter((a) => a.kind === "error").length
+  const runCount = events.filter((a) => a.kind === "run_completed").length
+  const actionCount = events.filter((a) => a.kind === "action_executed").length
+  const approvalCount = events.filter((a) => a.kind === "approval_required").length
+  const errorCount = events.filter((a) => a.kind === "error").length
 
   const actions = (
     <>
-      <Btn icon={Download} onClick={() => {}}>Export log</Btn>
-      <Btn icon={Filter} onClick={() => {}}>Filter</Btn>
+      <Btn icon={RefreshCw} onClick={() => reload()}>Refresh</Btn>
+      <Btn icon={Download} disabled={events.length === 0} onClick={() => exportActivityCsv(events)}>Export log</Btn>
     </>
   )
 
@@ -129,7 +144,7 @@ export default function ActivityPage() {
       {/* Activity feed */}
       <Card className="mt-4">
         <CardHeader
-          title={`Activity feed${filtered.length !== SEED_ACTIVITY.length ? ` (${filtered.length} matching)` : ` (${SEED_ACTIVITY.length} events)`}`}
+          title={`Activity feed${filtered.length !== events.length ? ` (${filtered.length} matching)` : ` (${events.length} events)`}`}
           action={
             <span className="flex items-center gap-1 text-xs text-slate-400">
               <Clock className="h-3.5 w-3.5" />
@@ -137,11 +152,13 @@ export default function ActivityPage() {
             </span>
           }
         />
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="h-48 animate-pulse bg-slate-100" />
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-12 text-center">
             <Zap className="h-8 w-8 text-slate-300" />
-            <p className="text-sm font-medium text-slate-500">No activity events match your filter</p>
-            <p className="text-xs text-slate-400">Try a different filter or clear the search</p>
+            <p className="text-sm font-medium text-slate-500">{events.length === 0 ? "No automation activity yet" : "No activity events match your filter"}</p>
+            <p className="text-xs text-slate-400">{events.length === 0 ? "Runs, approvals and errors appear here as your automations execute." : "Try a different filter or clear the search"}</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
@@ -168,12 +185,6 @@ export default function ActivityPage() {
         )}
       </Card>
 
-      {/* Info note about seed data */}
-      {SEED_ACTIVITY.length > 0 && (
-        <p className="mt-3 text-xs text-slate-400">
-          Showing recent activity. Connect the automations backend to see live events from your workspace.
-        </p>
-      )}
     </AutomationsModuleShell>
   )
 }

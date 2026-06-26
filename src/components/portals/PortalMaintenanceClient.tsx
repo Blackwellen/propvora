@@ -63,7 +63,7 @@ export default function PortalMaintenanceClient({ rows, base }: { rows: MaintRow
     { label: "Open requests", value: String(open.length), icon: Wrench, tone: open.length ? "amber" : "emerald", href: undefined },
     { label: "Visits scheduled", value: String(scheduled.length), icon: CalendarClock, tone: "blue" },
     { label: "Resolved (90 days)", value: String(resolved90.length), icon: CheckCircle2, tone: "emerald" },
-    { label: "Emergency guidance", value: "24/7", sub: "Out of hours", icon: Phone, tone: "red" },
+    { label: "Emergency guidance", value: "Email us", sub: "support@propvora.com", icon: Phone, tone: "red" },
   ]
 
   return (
@@ -71,8 +71,8 @@ export default function PortalMaintenanceClient({ rows, base }: { rows: MaintRow
       <PortalKpiStrip kpis={kpis} cols={4} />
 
       <PortalAlertBanner tone="red" icon={AlertTriangle} title="What counts as an emergency?"
-        action={<a href="tel:0800000000" className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/70 text-red-700 text-[13px] font-semibold hover:bg-white"><Phone className="w-4 h-4" /> 0800 000 000</a>}>
-        Gas leaks, flooding, no heating in winter, or anything risking safety — call the emergency line immediately.
+        action={<a href="mailto:support@propvora.com" className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/70 text-red-700 text-[13px] font-semibold hover:bg-white"><Phone className="w-4 h-4" /> Email us now</a>}>
+        Gas leaks, flooding, no heating in winter, or anything risking safety — contact us immediately and we will coordinate the response.
       </PortalAlertBanner>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
@@ -142,7 +142,7 @@ export default function PortalMaintenanceClient({ rows, base }: { rows: MaintRow
               <p className="text-xs text-slate-400">{fmtDate(scheduled[0].scheduled_date ?? scheduled[0].created_at)}</p>
             </PortalSectionCard>
           )}
-          <PortalCard className="p-4"><div className="flex items-start gap-2.5"><span className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0"><Phone className="w-4 h-4" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Out-of-hours emergency</p><p className="text-xs text-slate-400 mt-0.5">Call <a href="tel:0800000000" className="font-semibold text-red-600">0800 000 000</a> for gas, flood or fire.</p></div></div></PortalCard>
+          <PortalCard className="p-4"><div className="flex items-start gap-2.5"><span className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0"><Phone className="w-4 h-4" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Out-of-hours emergency</p><p className="text-xs text-slate-400 mt-0.5">Email <a href="mailto:support@propvora.com" className="font-semibold text-red-600">support@propvora.com</a> for gas, flood or fire — we always respond to urgent issues.</p></div></div></PortalCard>
         </div>
       </div>
     </div>

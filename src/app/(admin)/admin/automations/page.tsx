@@ -11,8 +11,10 @@ import {
   listPlanLimits,
 } from "@/lib/automation/admin"
 import AdminAutomationsClient from "@/components/admin-automations/AdminAutomationsClient"
+import { AdminPageHeader, AdminBanner } from "@/components/admin/ui"
 
 export const dynamic = "force-dynamic"
+export const metadata = { title: "Automations — Propvora admin" }
 
 /**
  * Platform-admin Automation Engine console.
@@ -37,23 +39,19 @@ export default async function AdminAutomationsPage() {
   ])
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-white"><Workflow className="h-5 w-5" /></span>
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Automation engine</h1>
-          <p className="text-xs text-slate-500">Cross-workspace runs, errors, abuse signals, node registry, plan limits, and kill-switches.</p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={Workflow}
+        title="Automation engine"
+        subtitle="Cross-workspace runs, errors, abuse signals, node registry, plan limits, and kill-switches."
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Operations" }, { label: "Automations" }]}
+      />
 
-      <div className="flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-        <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-        <p className="text-[11.5px] leading-relaxed text-slate-500">
-          All figures are <span className="font-semibold text-slate-700">real recorded engine state</span> across every workspace. The
-          node kill-switch is a global safety control: disabling a node type blocks it from every workspace&apos;s canvas compiler.
-          Payment and legal nodes can never auto-run regardless — they always require an approval.
-        </p>
-      </div>
+      <AdminBanner tone="slate" icon={Workflow} title="Real recorded engine state.">
+        All figures are <span className="font-semibold text-slate-700">real recorded engine state</span> across every workspace. The
+        node kill-switch is a global safety control: disabling a node type blocks it from every workspace&apos;s canvas compiler.
+        Payment and legal nodes can never auto-run regardless — they always require an approval.
+      </AdminBanner>
 
       <AdminAutomationsClient
         overview={overview}

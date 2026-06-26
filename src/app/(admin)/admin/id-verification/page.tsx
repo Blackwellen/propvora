@@ -51,6 +51,7 @@ export default async function AdminIdVerificationPage() {
         title="Identity verification"
         icon={ShieldCheck}
         subtitle="KYC review queue across all workspaces — oldest first. Each verification is decided by an explicit, recorded admin action."
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Operations" }, { label: "Identity verification" }]}
       />
 
       {available && rows.length > 0 && <AdminKpiStrip kpis={kpis} cols={5} />}

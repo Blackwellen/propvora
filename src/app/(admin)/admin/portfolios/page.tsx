@@ -73,7 +73,7 @@ export default async function AdminPortfoliosPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 items-start">
         <div className="xl:col-span-2 space-y-4">
-          <DiagnosticsBrowser rows={rows} primaryLabel="Property" metaLabel="Type" icon={Building2} />
+          <DiagnosticsBrowser rows={rows} primaryLabel="Property" metaLabel="Type" iconKey="building" />
         </div>
 
         <AdminRightRail>

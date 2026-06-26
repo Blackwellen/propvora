@@ -10,9 +10,10 @@
 
 | Session description | Dev port | Chrome port | Claimed at | Status |
 |---|---|---|---|---|
-| money-detail-qa (invoice/bill/arrears/deposit/dispute) | 3004 | 9222 | 2026-06-25 | active |
-| automations-section-qa | 3004 (shared) | 9225 | 2026-06-25 | active |
-| compliance-wizards-qa | 3004 (shared) | 9226 | 2026-06-25 | active |
+| admin-dashboard-final-qa (session-adminfinalqa) | 3008 | 9222 | 2026-06-26 10:15 | active |
+| master-todo-audit (session-wsqa2) | 3006 | 9223 | 2026-06-26 18:00 | active |
+| automations-section7-audit (session-auto7) | 3010 | 9228 | 2026-06-26 19:00 | active |
+| i18n-marketing-wire (session-i18nwire) | 3003 | 9229 | 2026-06-26 19:30 | active |
 
 ---
 

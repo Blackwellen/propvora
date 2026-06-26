@@ -8,6 +8,7 @@ import { resolveNavFlags, resolveFlags } from "@/lib/flags"
 import { normaliseTier, PLAN_DISPLAY } from "@/lib/billing/plans"
 import type { BrandColours } from "@/lib/branding/theme"
 import { WorkspaceLocaleProvider } from "@/lib/i18n/WorkspaceLocaleProvider"
+import { JurisdictionContextProvider } from "@/lib/jurisdiction/context"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -17,6 +18,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Fetch the workspace plan server-side so feature gates are enforced here,
   // never on the client. Default to 'trial' if not resolvable.
   let aiCopilotEnabled = false
+  /** True when plan = 'trial': AI + automations blocked, inbox stays open. */
+  let isTrial = false
   let brandColor: string | null = null
   let brandColours: Partial<BrandColours> | null = null
   const wsLocale = "en-GB"
@@ -105,11 +108,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .maybeSingle()
 
     if (workspace?.plan) {
+      const rawPlan = workspace.plan as string
+      // Free-trial workspaces: AI and automations are gated; only inbox stays open.
+      isTrial = rawPlan.toLowerCase() === "trial"
       // Use the V2-authoritative normaliseTier + PLAN_DISPLAY so that V2 plan
       // names (starter/operator/scale/pro_agency/enterprise) stored in the DB
       // are handled correctly. The legacy canAccess() only knew V1 names and
       // would return false for any V2 plan name.
-      const tier = normaliseTier(workspace.plan as string)
+      const tier = normaliseTier(rawPlan)
       aiCopilotEnabled = PLAN_DISPLAY[tier].features.aiCopilot
     }
     brandColor = (workspace?.brand_color as string | null) ?? null
@@ -143,7 +149,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         timezone={wsTimezone}
         dateFormat={wsDateFormat}
       >
-        <AppShell aiCopilotEnabled={aiCopilotEnabled} navFlags={navFlags}>{children}</AppShell>
+        <JurisdictionContextProvider>
+          <AppShell aiCopilotEnabled={aiCopilotEnabled} isTrial={isTrial} navFlags={navFlags}>{children}</AppShell>
+        </JurisdictionContextProvider>
       </WorkspaceLocaleProvider>
     </BrandingStyle>
   )

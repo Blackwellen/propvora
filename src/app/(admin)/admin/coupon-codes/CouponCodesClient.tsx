@@ -318,12 +318,9 @@ export default function CouponCodesClient({ initialRows }: { initialRows: Coupon
 
   return (
     <div className="space-y-5">
-      {/* Header */}
+      {/* Action bar */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Coupon Codes</h1>
-          <p className="mt-0.5 text-[13px] text-slate-500">{rows.length} code{rows.length !== 1 ? "s" : ""} total</p>
-        </div>
+        <p className="text-[13px] text-slate-500">{rows.length} code{rows.length !== 1 ? "s" : ""} total</p>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold transition-colors shadow-sm shadow-blue-600/20"

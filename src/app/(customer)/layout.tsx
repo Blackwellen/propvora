@@ -68,16 +68,18 @@ export default async function CustomerLayout({
   }
   if (!workspaceId) redirect("/property-manager")
 
-  // Resolve a friendly display name (tolerant — falls back to the account email
-  // then "Customer").
+  // Resolve workspace display name + branding.
   let customerName = user.email ?? "Customer"
+  let brandLogoUrl: string | null = null
   try {
     const { data: ws } = await supabase
       .from("workspaces")
-      .select("name")
+      .select("name, logo_url")
       .eq("id", workspaceId)
       .maybeSingle()
-    if ((ws as { name?: string } | null)?.name) customerName = (ws as { name: string }).name
+    const wsRow = ws as { name?: string; logo_url?: string | null } | null
+    if (wsRow?.name) customerName = wsRow.name
+    brandLogoUrl = wsRow?.logo_url ?? null
   } catch {
     // keep default
   }
@@ -122,6 +124,7 @@ export default async function CustomerLayout({
         avatarUrl={avatarUrl}
         unreadNotifications={unreadNotifications}
         unreadMessages={unreadMessages}
+        brandLogoUrl={brandLogoUrl}
       >
         {children}
       </CustomerShell>

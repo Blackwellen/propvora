@@ -17,7 +17,7 @@ export default async function AutomationRunDetailPage({
   return (
     <div className="space-y-6">
       <OpsHeader
-        icon={Activity}
+        iconNode={<Activity className="h-5 w-5" />}
         title="Run detail"
         subtitle="The step-by-step timeline for this run — input, output and any error per step, exactly as recorded."
         backHref="/property-manager/automations/runs"

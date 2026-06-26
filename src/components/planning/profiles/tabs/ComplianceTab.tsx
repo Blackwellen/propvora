@@ -1,14 +1,50 @@
 "use client"
 
-import { CheckCircle, Shield, Clock, FileText } from 'lucide-react'
+import { CheckCircle, Shield, Clock, FileText, KeyRound } from 'lucide-react'
 import type { ProfileConfig } from '@/lib/planning/profile-config'
+import { useWorkspaceJurisdiction } from '@/hooks/useWorkspaceJurisdiction'
+import { shortLetRule } from '@/lib/legal/short-let'
+import { NotLegalAdviceNotice } from '@/components/jurisdiction'
 
 interface Props {
   profile: ProfileConfig
 }
 
+/** Short-let licensing panel (dim 10) — only for short-let-style profiles. */
+function ShortLetCompliance({ profile }: { profile: ProfileConfig }) {
+  const ws = useWorkspaceJurisdiction()
+  const region = (ws.settings as { region?: string }).region
+  const r = shortLetRule(ws.countryCode, region)
+  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="flex items-center justify-between gap-3 py-1.5">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className="text-[13px] font-medium text-slate-800 text-right">{value}</span>
+    </div>
+  )
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <KeyRound className="w-5 h-5 text-slate-500" />
+        <h2 className="text-lg font-semibold text-slate-900">Short-let licensing ({r.jurisdiction})</h2>
+        {r.applicability === 'gate' && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600">Restricted</span>}
+        {r.applicability === 'flag' && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-600">Verify locally</span>}
+      </div>
+      <div className="divide-y divide-slate-100">
+        <Row label="Registration / licence" value={r.registrationRequired ? (r.registrationName ?? 'Required') : 'Not required'} />
+        <Row label="Night cap" value={r.nightCap != null ? `${r.nightCap} nights/yr` : 'None / varies'} />
+        <Row label="Change of use / planning" value={r.changeOfUse ? 'May be required' : 'Not flagged'} />
+        <Row label="Tourist / occupancy tax" value={r.touristTax ? 'Applies' : '—'} />
+      </div>
+      <p className="text-[12px] text-slate-500 mt-2">{r.note}</p>
+      <p className="text-[11px] text-slate-400 mt-1">Source: {r.citation}</p>
+      <NotLegalAdviceNotice variant="inline" className="mt-2" />
+    </div>
+  )
+}
+
 export default function ComplianceTab({ profile }: Props) {
   const { compliance } = profile
+  const isShortLet = /serviced|holiday|short|sa-|airbnb/i.test(profile.slug)
 
   const priorityBadge: Record<string, string> = {
     High: 'bg-red-100 text-red-700',
@@ -28,6 +64,9 @@ export default function ComplianceTab({ profile }: Props) {
 
   return (
     <div className="space-y-6 pb-10">
+      {/* Short-let licensing (dim 10) — SA / Holiday profiles only. */}
+      {isShortLet && <ShortLetCompliance profile={profile} />}
+
       {/* 1. Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Compliance Score */}

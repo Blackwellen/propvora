@@ -50,7 +50,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .order("due_date", { ascending: true })
           .limit(limit)
         if (error || !data) return []
@@ -76,7 +76,7 @@ export async function evaluateRule(
           .is("deleted_at", null)
           .not("due_date", "is", null)
           .lt("due_date", daysFromNow(-minOverdue))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .order("due_date", { ascending: true })
           .limit(limit)
         if (error || !data) return []
@@ -680,7 +680,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => {
@@ -705,7 +705,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => {
@@ -730,7 +730,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => {
@@ -755,7 +755,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => {
@@ -780,7 +780,7 @@ export async function evaluateRule(
           .not("due_date", "is", null)
           .gte("due_date", todayISO())
           .lte("due_date", daysFromNow(within))
-          .neq("status", "complete")
+          .not("status", "in", '("ok","exempt")')
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => {

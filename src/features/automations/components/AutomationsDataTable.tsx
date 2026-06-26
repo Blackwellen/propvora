@@ -55,18 +55,18 @@ export default function AutomationsDataTable<T extends { id: string }>({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
               {selectable && (
-                <th className="w-10 px-4 py-2.5">
+                <th scope="col" className="w-10 px-4 py-2.5">
                   <input
                     type="checkbox"
                     checked={allChecked}
                     onChange={(e) => onToggleAll?.(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    aria-label="Select all"
+                    aria-label="Select all rows"
                   />
                 </th>
               )}
               {columns.map((c) => (
-                <th key={c.key} className={`px-4 py-2.5 ${c.className ?? ""}`}>
+                <th key={c.key} scope="col" className={`px-4 py-2.5 ${c.className ?? ""}`}>
                   {c.header}
                 </th>
               ))}
@@ -86,9 +86,13 @@ export default function AutomationsDataTable<T extends { id: string }>({
                   <tr
                     key={row.id}
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    onKeyDown={onRowClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onRowClick(row) } } : undefined}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    role={onRowClick ? "button" : undefined}
+                    aria-current={active ? "true" : undefined}
                     className={[
                       "transition",
-                      onRowClick ? "cursor-pointer" : "",
+                      onRowClick ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500" : "",
                       active ? "bg-blue-50/60" : "hover:bg-slate-50",
                     ].join(" ")}
                   >
@@ -124,16 +128,18 @@ export default function AutomationsDataTable<T extends { id: string }>({
           <button
             onClick={() => onPageChange?.(Math.max(1, page - 1))}
             disabled={page <= 1}
+            aria-label="Previous page"
             className="rounded-md border border-slate-200 bg-white px-2.5 py-1 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40"
           >
             Prev
           </button>
-          <span className="font-medium text-slate-700">
+          <span className="font-medium text-slate-700" aria-live="polite" aria-atomic="true">
             {page} / {pageCount}
           </span>
           <button
             onClick={() => onPageChange?.(Math.min(pageCount, page + 1))}
             disabled={page >= pageCount}
+            aria-label="Next page"
             className="rounded-md border border-slate-200 bg-white px-2.5 py-1 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40"
           >
             Next

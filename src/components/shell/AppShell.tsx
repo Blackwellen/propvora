@@ -19,11 +19,16 @@ interface AppShellProps {
   children: React.ReactNode
   /** Whether the workspace plan includes AI Copilot access. Passed from the server layout. */
   aiCopilotEnabled?: boolean
+  /**
+   * True when the workspace is on a free trial. The chat bubble opens the full
+   * panel so the Inbox tab is accessible; the Copilot tab shows an upgrade gate.
+   */
+  isTrial?: boolean
   /** Server-resolved nav-relevant feature flags (V2/V1.5 surfaces). Off = hidden from nav. */
   navFlags?: Record<string, boolean>
 }
 
-export default function AppShell({ children, aiCopilotEnabled = false, navFlags }: AppShellProps) {
+export default function AppShell({ children, aiCopilotEnabled = false, isTrial = false, navFlags }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("shell-collapsed") === "true"
@@ -52,7 +57,9 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
     window.addEventListener(OPEN_COPILOT_EVENT, open)
     return () => window.removeEventListener(OPEN_COPILOT_EVENT, open)
   }, [])
-  const [unreadCount] = useState(3)
+  // Copilot/inbox badge — currently 0 until AI messaging threads are tracked.
+  // The NotificationBell owns its own realtime count; this is a separate surface.
+  const [unreadCount] = useState(0)
   const { workspace } = useWorkspace()
 
   /* sidebar total footprint: width + left-margin + right-gap */
@@ -113,6 +120,7 @@ export default function AppShell({ children, aiCopilotEnabled = false, navFlags 
             isOpen={chatOpen}
             onClose={() => setChatOpen(false)}
             aiCopilotEnabled={aiCopilotEnabled}
+            isTrial={isTrial}
             summaryData={copilotSummaryData}
           />
         )}

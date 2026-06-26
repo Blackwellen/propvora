@@ -68,17 +68,30 @@ export interface UsageInput {
   outputTokens: number
   entityType?: string
   entityId?: string
+  /**
+   * Actual cost in pence already computed by the gateway (from the model's
+   * inputCostPencePer1k / outputCostPencePer1k). When provided, this is used
+   * directly and no estimation is performed. When absent, a conservative
+   * GPT-4o-mini-equivalent estimate is used as fallback (legacy behaviour).
+   */
+  costPence?: number
 }
 
-/** GPT-4o-mini approx cost (USD): $0.15 / 1M in, $0.60 / 1M out. Coarse but honest. */
-function estimateCostUsd(inTok: number, outTok: number): number {
-  return (inTok / 1_000_000) * 0.15 + (outTok / 1_000_000) * 0.6
+/** Fallback cost estimate when the gateway-computed value is unavailable.
+ *  Uses Azure GPT-4o-mini EU-West rates converted to pence (£1 ≈ $1.27):
+ *    Input:  $0.15/1M → £0.118/1M → ~0.012p/1k
+ *    Output: $0.60/1M → £0.472/1M → ~0.047p/1k
+ */
+function estimateCostPence(inTok: number, outTok: number): number {
+  return (inTok / 1_000) * 0.012 + (outTok / 1_000) * 0.047
 }
 
 /** Record per-call metering + daily rollup. Best-effort, never throws. */
 export async function recordUsage(supabase: SupabaseClient, u: UsageInput): Promise<void> {
   if (!u.workspaceId || u.workspaceId === "demo-workspace") return
-  const costUsd = estimateCostUsd(u.inputTokens, u.outputTokens)
+  // Prefer the gateway-computed actual cost; fall back to the estimate.
+  const costPence = u.costPence ?? estimateCostPence(u.inputTokens, u.outputTokens)
+  const costUsd = costPence / 79  // pence → USD (~79p = $1)
 
   // Per-call row
   try {
@@ -108,11 +121,11 @@ export async function recordUsage(supabase: SupabaseClient, u: UsageInput): Prom
       .maybeSingle()
     const tokIn = Number(data?.tokens_in ?? 0) + u.inputTokens
     const tokOut = Number(data?.tokens_out ?? 0) + u.outputTokens
-    const costPence = Number(data?.cost_pence ?? 0) + Math.round(costUsd * 79) // ~USD→pence
+    const newCostPence = Number(data?.cost_pence ?? 0) + Math.round(costPence)
     await supabase
       .from("ai_token_usage")
       .upsert(
-        { workspace_id: u.workspaceId, day, tokens_in: tokIn, tokens_out: tokOut, cost_pence: costPence, updated_at: new Date().toISOString() },
+        { workspace_id: u.workspaceId, day, tokens_in: tokIn, tokens_out: tokOut, cost_pence: newCostPence, updated_at: new Date().toISOString() },
         { onConflict: "workspace_id,day" }
       )
   } catch {

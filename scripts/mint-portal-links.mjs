@@ -158,5 +158,6 @@ server.listen(0, () => {
   const port = server.address().port
   console.log("\nPortal entry links (open in your browser):\n")
   for (const t of ["tenant", "landlord", "supplier"]) if (links[t]) console.log(`  ${t.padEnd(9)} →  http://localhost:${port}/go/${t}`)
-  console.log("\nLeave this script running while you open the links. Ctrl+C to stop.")
+  console.log(`  ${"affiliate".padEnd(9)} →  ${APP}/affiliate-login   (sign in with jamahlthomas1996@gmail.com)`)
+  console.log("\nLeave this script running while you open the token portal links. Ctrl+C to stop.")
 })

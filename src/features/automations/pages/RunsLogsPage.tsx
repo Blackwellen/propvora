@@ -1,23 +1,52 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSectionRouter } from "@/components/sections/SectionBasePath"
-import { Activity, CheckCircle2, Clock, Download, Play, Plus, XCircle } from "lucide-react"
+import { Activity, CheckCircle2, Clock, Download, Plus, XCircle } from "lucide-react"
 import AutomationsModuleShell from "../components/AutomationsModuleShell"
 import AutomationsKpiCard from "../components/AutomationsKpiCard"
 import AutomationsDataTable, { type DataColumn } from "../components/AutomationsDataTable"
 import { AutomationsStatusBadge } from "../components/AutomationsBadges"
-import { Btn, Card, CardHeader, useToast } from "../components/primitives"
+import { Btn, Card, CardHeader } from "../components/primitives"
 import { useAutomationRunsLogs } from "../data/hooks"
 import type { RunRow } from "../data/types"
 
+function exportRunsCsv(rows: RunRow[]) {
+  const header = ["Run ID", "Automation", "Trigger", "Status", "Started", "Duration", "Outputs", "Approvals", "Initiated by"]
+  const csv = [
+    header.join(","),
+    ...rows.map((r) => [
+      r.ref,
+      `"${(r.automation ?? "").replace(/"/g, '""')}"`,
+      `"${(r.triggerEvent ?? "").replace(/"/g, '""')}"`,
+      r.status,
+      r.startedAt,
+      r.duration,
+      r.outputs,
+      r.approvals,
+      `"${(r.initiatedBy ?? "").replace(/"/g, '""')}"`,
+    ].join(",")),
+  ].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `automation-runs-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function RunsLogsPage() {
   const router = useSectionRouter()
-  const toast = useToast()
   const { data: runs, loading } = useAutomationRunsLogs()
   const [page, setPage] = useState(1)
-  const [active, setActive] = useState<RunRow>(runs[0])
+  const [active, setActive] = useState<RunRow | undefined>(undefined)
   const [detailTab, setDetailTab] = useState<"steps" | "payload" | "outputs" | "approvals" | "audit">("steps")
+
+  // Sync the detail panel to the first run once the async fetch resolves.
+  useEffect(() => {
+    setActive((cur) => cur ?? runs[0])
+  }, [runs])
 
   const columns: DataColumn<RunRow>[] = useMemo(
     () => [
@@ -43,9 +72,7 @@ export default function RunsLogsPage() {
 
   const actions = (
     <>
-      <Btn icon={Download} onClick={() => toast("Exporting logs…")}>Export logs</Btn>
-      <Btn icon={Play} onClick={() => toast("Run preview — simulates without side effects")}>Run preview</Btn>
-      <Btn onClick={() => toast("Opening monitoring")}>Open monitoring</Btn>
+      <Btn icon={Download} disabled={runs.length === 0} onClick={() => exportRunsCsv(runs)}>Export logs</Btn>
       <Btn icon={Plus} variant="primary" onClick={() => router.push("/property-manager/automations/canvas")}>New automation</Btn>
     </>
   )
@@ -126,7 +153,7 @@ export default function RunsLogsPage() {
             <div className="flex gap-1">
               {(["steps", "payload", "outputs", "approvals", "audit"] as const).map((t) => (
                 <button key={t} onClick={() => setDetailTab(t)} className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize ${detailTab === t ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:bg-slate-50"}`}>
-                  {t === "steps" ? "Run steps" : t === "payload" ? "Payload summary" : t === "outputs" ? "Outputs (0)" : t === "approvals" ? "Approvals (0)" : "Audit trail"}
+                  {t === "steps" ? "Run steps" : t === "payload" ? "Payload summary" : t === "outputs" ? `Outputs (${active.outputs})` : t === "approvals" ? `Approvals (${active.approvals})` : "Audit trail"}
                 </button>
               ))}
             </div>
@@ -149,10 +176,10 @@ export default function RunsLogsPage() {
               </table>
             )}
             {detailTab === "payload" && (
-              <pre className="overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">{JSON.stringify({ run: active.ref, automation: active.automation, trigger: active.triggerEvent, context: { workspace_id: "ws_demo", records: 12 } }, null, 2)}</pre>
+              <pre className="overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">{JSON.stringify({ run: active.ref, automation: active.automation, trigger: active.triggerEvent, status: active.status, started_at: active.startedAt, duration: active.duration, initiated_by: active.initiatedBy }, null, 2)}</pre>
             )}
-            {detailTab === "outputs" && <div className="py-8 text-center text-sm text-slate-400">No outputs produced for this run.</div>}
-            {detailTab === "approvals" && <div className="py-8 text-center text-sm text-slate-400">No approvals created for this run.</div>}
+            {detailTab === "outputs" && <div className="py-8 text-center text-sm text-slate-400">{active.outputs > 0 ? `${active.outputs} output${active.outputs === 1 ? "" : "s"} produced for this run.` : "No outputs produced for this run."}</div>}
+            {detailTab === "approvals" && <div className="py-8 text-center text-sm text-slate-400">{active.approvals > 0 ? `${active.approvals} approval${active.approvals === 1 ? "" : "s"} created for this run.` : "No approvals created for this run."}</div>}
             {detailTab === "audit" && (
               <ol className="space-y-3 border-l border-slate-200 pl-4 text-sm">
                 <li><span className="text-slate-700">Run started</span> <span className="text-slate-400">· {active.startedAt}</span></li>

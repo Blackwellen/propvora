@@ -25,10 +25,25 @@ import enUS from "./locales/en-US.json"
 import frFR from "./locales/fr-FR.json"
 import deDE from "./locales/de-DE.json"
 import esES from "./locales/es-ES.json"
+import itIT from "./locales/it-IT.json"
+import nlNL from "./locales/nl-NL.json"
+import svSE from "./locales/sv-SE.json"
+import fiFI from "./locales/fi-FI.json"
+import daDK from "./locales/da-DK.json"
+import csCZ from "./locales/cs-CZ.json"
+import hrHR from "./locales/hr-HR.json"
+import huHU from "./locales/hu-HU.json"
+import ptBR from "./locales/pt-BR.json"
+import jaJP from "./locales/ja-JP.json"
+import thTH from "./locales/th-TH.json"
+import trTR from "./locales/tr-TR.json"
 
 /** A nested catalogue: string leaves, object branches. */
 type Messages = { [key: string]: string | Messages }
 
+// Core UI vocabulary is translated for all 22 locales; any untranslated key
+// falls back to en-GB via t(). Legal/statutory strings are NOT machine-translated
+// here — they are gated to qualified legal translators (see the i18n posture).
 const CATALOGUES: Record<Locale, Messages> = {
   "en-GB": enGB as Messages,
   "en-US": enUS as Messages,
@@ -40,18 +55,18 @@ const CATALOGUES: Record<Locale, Messages> = {
   "fr-FR": frFR as Messages,
   "de-DE": deDE as Messages,
   "es-ES": esES as Messages,
-  "it-IT": enGB as Messages,
-  "nl-NL": enGB as Messages,
-  "sv-SE": enGB as Messages,
-  "fi-FI": enGB as Messages,
-  "da-DK": enGB as Messages,
-  "cs-CZ": enGB as Messages,
-  "hr-HR": enGB as Messages,
-  "hu-HU": enGB as Messages,
-  "pt-BR": enGB as Messages,
-  "ja-JP": enGB as Messages,
-  "th-TH": enGB as Messages,
-  "tr-TR": enGB as Messages,
+  "it-IT": itIT as Messages,
+  "nl-NL": nlNL as Messages,
+  "sv-SE": svSE as Messages,
+  "fi-FI": fiFI as Messages,
+  "da-DK": daDK as Messages,
+  "cs-CZ": csCZ as Messages,
+  "hr-HR": hrHR as Messages,
+  "hu-HU": huHU as Messages,
+  "pt-BR": ptBR as Messages,
+  "ja-JP": jaJP as Messages,
+  "th-TH": thTH as Messages,
+  "tr-TR": trTR as Messages,
 }
 
 export type TParams = Record<string, string | number>

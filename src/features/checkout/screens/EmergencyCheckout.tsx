@@ -129,7 +129,7 @@ export function EmergencyCheckout({
           </ol>
         </SectionCard>
         <div className="flex gap-3">
-          <button type="button" onClick={() => toast.show("Connecting to support…", "ok")} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#D8E1F0] bg-white text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><LifeBuoy className="h-4 w-4" /> Call support</button>
+          <a href="mailto:support@propvora.com" className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#D8E1F0] bg-white text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><LifeBuoy className="h-4 w-4" /> Email support</a>
           <a href="/checkout" className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#D8E1F0] bg-white text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><ArrowLeft className="h-4 w-4" /> Back to bookings</a>
         </div>
         {toast.node}

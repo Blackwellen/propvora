@@ -22,6 +22,10 @@ export interface WorkspaceSettings {
   /** Optional sub-jurisdiction (e.g. "SCT", "NI") refining a GB workspace. */
   region?: string
   currency?: string
+  /** Reporting/roll-up currency for mixed-portfolio totals (default = currency). */
+  reportingCurrency?: string
+  /** Locales the workspace serves to portal recipients (their UI language). */
+  supportedPortalLocales?: string[]
   locale?: string
   dateFormat?: string
   timezone?: string
@@ -167,8 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (event === "SIGNED_OUT") {
-        router.push("/login")
-        router.refresh()
+        window.location.assign("/login")
       }
 
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
@@ -187,9 +190,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setSession(null)
     setWorkspace(null)
-    router.push("/login")
-    router.refresh()
-  }, [supabase, router])
+    window.location.assign("/login")
+  }, [supabase])
 
   const refreshWorkspace = useCallback(async () => {
     if (user) {

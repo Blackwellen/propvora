@@ -14,7 +14,7 @@ const plans = [
       "Up to 5 properties",
       "Portfolio, Work, Contacts & Calendar",
       "1 team member",
-      "5GB document storage",
+      "2 GB document storage",
       "Email support",
     ],
   },

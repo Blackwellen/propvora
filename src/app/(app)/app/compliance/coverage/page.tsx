@@ -23,6 +23,10 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useComplianceItems, humaniseType, downloadCsv, type ComplianceItemVM } from "../_lib/useComplianceItems"
 import { useComplianceRequirements } from "@/lib/compliance/useComplianceRequirements"
+import { getComplianceJurisdiction } from "@/lib/compliance/requirements"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
+import { useActiveJurisdiction } from "@/lib/jurisdiction/context"
+import { JurisdictionLensSwitcher, flagEmoji } from "@/components/jurisdiction"
 
 /**
  * Coverage is a REAL computed matrix:
@@ -74,6 +78,32 @@ export default function CoveragePage() {
   const [showPct, setShowPct] = useState(false)
   const [search, setSearch] = useState("")
 
+  // Mixed-portfolio lens: default to "All (grouped)" so every jurisdiction shows.
+  const lens = useActiveJurisdiction({ sectionKey: "compliance", defaultToGrouped: true })
+  const ws = useWorkspaceJurisdiction()
+  const wsRegion = (ws.settings as { region?: string }).region ?? null
+
+  // A property's record-true jurisdiction (falls back to the workspace default).
+  const propJur = React.useCallback(
+    (p: { country_code?: string | null; region_code?: string | null }) => {
+      const cc = (p.country_code || ws.countryCode).toUpperCase()
+      const region = p.region_code ? p.region_code.toUpperCase() : p.country_code ? null : wsRegion
+      const note = getComplianceJurisdiction(cc, region ?? undefined).note
+      return { cc, region: region ?? null, label: note.regionName, key: `${cc}:${region ?? ""}` }
+    },
+    [ws.countryCode, wsRegion],
+  )
+
+  // Distinct jurisdictions present in the portfolio (drives column union).
+  const portfolioJurisdictions = useMemo(() => {
+    const m = new Map<string, { cc: string; region: string | null }>()
+    for (const p of properties) {
+      const j = propJur(p)
+      if (!m.has(j.key)) m.set(j.key, { cc: j.cc, region: j.region })
+    }
+    return [...m.values()]
+  }, [properties, propJur])
+
   const loading = itemsLoading || propsLoading
 
   // Columns = the jurisdiction's REQUIRED requirement kinds (so a requirement with
@@ -82,18 +112,23 @@ export default function CoveragePage() {
   // Keyed by `kind` because that's what compliance_items.type stores.
   const columns = useMemo(() => {
     const set = new Map<string, string>()
-    // 1) Required by the active jurisdiction pack (built-in + custom).
-    for (const r of requirements) {
-      if (r.kind === "insurance" || r.kind === "other") continue // not coverage matrix columns
-      if (!set.has(r.kind)) set.set(r.kind, humaniseType(r.kind))
+    const add = (kind: string, label?: string) => {
+      if (kind === "insurance" || kind === "other") return // not coverage matrix columns
+      if (!set.has(kind)) set.set(kind, label ?? humaniseType(kind))
     }
-    // 2) Any extra types observed on live items.
+    // 1) Required by the active workspace pack (built-in + custom).
+    for (const r of requirements) add(r.kind)
+    // 2) Required by EVERY jurisdiction present in the portfolio (mixed portfolio).
+    for (const j of portfolioJurisdictions) {
+      for (const r of getComplianceJurisdiction(j.cc, j.region ?? undefined).reqs) add(r.kind)
+    }
+    // 3) Any extra types observed on live items.
     for (const i of items) {
       const key = i.type ?? "other"
-      if (!set.has(key)) set.set(key, i.typeLabel)
+      if (key !== "insurance" && key !== "other" && !set.has(key)) set.set(key, i.typeLabel)
     }
     return [...set.entries()].map(([key, label]) => ({ key, label })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [items, requirements])
+  }, [items, requirements, portfolioJurisdictions])
 
   // Index items by property + type.
   const byPropType = useMemo(() => {
@@ -113,6 +148,7 @@ export default function CoveragePage() {
     return properties
       .filter((p) => !q || (p.name || "").toLowerCase().includes(q) || (p.city || "").toLowerCase().includes(q))
       .map((p) => {
+        const j = propJur(p)
         const cells = columns.map((col) => {
           const list = byPropType.get(`${p.id}::${col.key}`) ?? []
           return { col: col.key, status: deriveCell(list) }
@@ -127,9 +163,27 @@ export default function CoveragePage() {
           initials: (p.name || "P").slice(0, 2).toUpperCase(),
           cells,
           overallPct: pct,
+          jurKey: j.key,
+          jurLabel: j.label,
+          jurCc: j.cc,
+          jurRegion: j.region,
         }
       })
-  }, [properties, columns, byPropType, search])
+      // Lens filter: focused jurisdiction shows only its properties; grouped shows all.
+      .filter((r) => lens.isGrouped || (r.jurCc === lens.countryCode && (r.jurRegion ?? null) === (lens.region ?? null)))
+  }, [properties, columns, byPropType, search, propJur, lens.isGrouped, lens.countryCode, lens.region])
+
+  // Group rows by jurisdiction for the "All (grouped)" view.
+  const groups = useMemo(() => {
+    if (!lens.isGrouped) return null
+    const m = new Map<string, { label: string; cc: string; region: string | null; rows: typeof rows }>()
+    for (const r of rows) {
+      const g = m.get(r.jurKey) ?? { label: r.jurLabel, cc: r.jurCc, region: r.jurRegion, rows: [] as typeof rows }
+      g.rows.push(r)
+      m.set(r.jurKey, g)
+    }
+    return [...m.values()].sort((a, b) => a.label.localeCompare(b.label))
+  }, [rows, lens.isGrouped])
 
   // KPIs derived from real cells.
   const kpis = useMemo(() => {
@@ -176,6 +230,29 @@ export default function CoveragePage() {
 
   const noProperties = !loading && properties.length === 0
 
+  const renderRow = (row: (typeof rows)[number]) => (
+    <tr key={row.id} className="hover:bg-slate-50/40 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/portfolio/properties/${row.id}`)}>
+      <td className="px-4 py-3 sticky left-0 bg-white z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 bg-blue-600">{row.initials}</div>
+          <div>
+            <p className="font-medium text-slate-800 text-xs leading-snug">{row.name}</p>
+            {row.location && <p className="text-[11px] text-slate-400">{row.location}</p>}
+          </div>
+        </div>
+      </td>
+      {row.cells.map((cell) => (
+        <td key={cell.col} className="px-3 py-3 text-center">
+          <div className="flex flex-col items-center gap-1">
+            {cellIcon(cell.status)}
+            {showPct && <span className="text-[10px] font-medium text-slate-500">{humaniseType(cell.status)}</span>}
+          </div>
+        </td>
+      ))}
+      <td className="px-4 py-3 text-center">{overallChip(row.overallPct)}</td>
+    </tr>
+  )
+
   return (
     <>
       {/* Header */}
@@ -185,6 +262,7 @@ export default function CoveragePage() {
           <p className="text-sm text-slate-500 mt-0.5">Live compliance coverage computed across your properties.</p>
         </div>
         <div className="flex items-center gap-2">
+          <JurisdictionLensSwitcher sectionKey="compliance" defaultToGrouped />
           <button onClick={exportMatrix} disabled={rows.length === 0 || columns.length === 0} className="flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40">
             <Download className="w-4 h-4" />
             Export matrix
@@ -281,28 +359,22 @@ export default function CoveragePage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
-                        {rows.map((row) => (
-                          <tr key={row.id} className="hover:bg-slate-50/40 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/portfolio/properties/${row.id}`)}>
-                            <td className="px-4 py-3 sticky left-0 bg-white z-10">
-                              <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 bg-blue-600">{row.initials}</div>
-                                <div>
-                                  <p className="font-medium text-slate-800 text-xs leading-snug">{row.name}</p>
-                                  {row.location && <p className="text-[11px] text-slate-400">{row.location}</p>}
-                                </div>
-                              </div>
-                            </td>
-                            {row.cells.map((cell) => (
-                              <td key={cell.col} className="px-3 py-3 text-center">
-                                <div className="flex flex-col items-center gap-1">
-                                  {cellIcon(cell.status)}
-                                  {showPct && <span className="text-[10px] font-medium text-slate-500">{humaniseType(cell.status)}</span>}
-                                </div>
-                              </td>
-                            ))}
-                            <td className="px-4 py-3 text-center">{overallChip(row.overallPct)}</td>
-                          </tr>
-                        ))}
+                        {lens.isGrouped && groups
+                          ? groups.map((g) => (
+                              <React.Fragment key={g.cc + (g.region ?? "")}>
+                                <tr className="bg-slate-100/70">
+                                  <td
+                                    colSpan={columns.length + 2}
+                                    className="px-4 py-2 text-[11px] font-semibold text-slate-600 sticky left-0 bg-slate-100/70"
+                                  >
+                                    <span aria-hidden="true">{flagEmoji(g.cc)}</span> {g.label}
+                                    <span className="ml-1 font-normal text-slate-400">· {g.rows.length} {g.rows.length === 1 ? "property" : "properties"}</span>
+                                  </td>
+                                </tr>
+                                {g.rows.map(renderRow)}
+                              </React.Fragment>
+                            ))
+                          : rows.map(renderRow)}
                       </tbody>
                       <tfoot>
                         <tr className="border-t border-slate-200 bg-slate-50/80">

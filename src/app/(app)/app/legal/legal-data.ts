@@ -59,6 +59,10 @@ export interface PossessionCase {
   notice_type: string
   grounds: unknown
   notice_period_days: number | null
+  // per-case notice-period override (operator changed the sourced default)
+  notice_period_overridden: boolean
+  notice_override_reason: string | null
+  notice_override_exemption: string | null
   service_method: string | null
   service_recipient: string | null
   validity_snapshot: unknown
@@ -86,6 +90,9 @@ export interface InsertPossessionCase {
   notice_type?: string
   grounds?: unknown
   notice_period_days?: number | null
+  notice_period_overridden?: boolean
+  notice_override_reason?: string | null
+  notice_override_exemption?: string | null
   service_method?: string | null
   service_recipient?: string | null
   validity_snapshot?: unknown

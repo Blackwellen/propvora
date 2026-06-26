@@ -17,6 +17,7 @@ export function AffiliateTabNav({ basePath }: AffiliateTabNavProps) {
     { key: "overview",  label: "Overview",  href: basePath },
     { key: "links",     label: "Links",     href: `${basePath}/links` },
     { key: "referrals", label: "Referrals", href: `${basePath}/referrals` },
+    { key: "network",   label: "Network",   href: `${basePath}/network` },
     { key: "earnings",  label: "Earnings",  href: `${basePath}/earnings` },
     { key: "settings",  label: "Settings",  href: `${basePath}/settings` },
   ] as const

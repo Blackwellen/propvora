@@ -1,10 +1,13 @@
 import React from "react"
 import { redirect } from "next/navigation"
+import { ShieldCheck } from "lucide-react"
 import { getAdminIdentity } from "@/lib/admin/guard"
 import { createAdminClient } from "@/lib/supabase/admin"
 import ModerationClient from "./ModerationClient"
+import { AdminPageHeader } from "@/components/admin/ui"
 
 export const dynamic = "force-dynamic"
+export const metadata = { title: "Moderation — Propvora admin" }
 
 interface ListingRow {
   id: string
@@ -94,5 +97,15 @@ export default async function MarketplaceModerationPage() {
     schemaGap = true
   }
 
-  return <ModerationClient listings={listings} schemaGap={schemaGap} kpis={kpis} />
+  return (
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={ShieldCheck}
+        title="Marketplace moderation"
+        subtitle="Review and approve or reject marketplace listings pending moderation. Every decision is recorded as an explicit, audited admin action."
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Marketplace" }, { label: "Moderation" }]}
+      />
+      <ModerationClient listings={listings} schemaGap={schemaGap} kpis={kpis} />
+    </div>
+  )
 }

@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
@@ -125,21 +125,22 @@ export default function SupplierWorkspaceShell({
   workspaceId = null,
   teamMemberCount = 1,
   planType,
+  brandLogoUrl,
 }: {
   children: React.ReactNode
   supplierName?: string
   workspaceId?: string | null
   teamMemberCount?: number
-  /** Optional server-resolved plan seed; client resolves if omitted. */
   planType?: SupplierPlanType
+  /** Optional workspace brand logo; falls back to Propvora logo when not set. */
+  brandLogoUrl?: string | null
 }) {
-  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/login")
+    window.location.assign("/login")
   }
 
   return (
@@ -173,7 +174,13 @@ export default function SupplierWorkspaceShell({
           >
             <div className="flex items-center gap-2 h-16 px-4 border-b border-white/[0.08] shrink-0">
               <div className="relative h-8 w-[132px] shrink-0">
-                <Image src="/propvora-logo-white.png" alt="Propvora" fill className="object-contain object-left" priority />
+                <Image
+                  src={brandLogoUrl ?? "/propvora-logo-white.png"}
+                  alt={brandLogoUrl ? "Workspace logo" : "Propvora"}
+                  fill
+                  className="object-contain object-left"
+                  priority
+                />
               </div>
               <span className="ml-1 px-1.5 py-0.5 bg-[#0EA5E9]/20 text-[#38BDF8] text-[10px] font-semibold rounded shrink-0">
                 SUPPLIER

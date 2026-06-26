@@ -5,15 +5,19 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 // Shared page header for the Automation v2 ops sub-routes.
+// Accepts either a pre-rendered iconNode (for server-component callers) or
+// an icon ElementType (for client-component callers). iconNode takes precedence.
 export default function OpsHeader({
   icon: Icon,
+  iconNode,
   title,
   subtitle,
   backHref = "/property-manager/automations",
   backLabel = "Automations",
   actions,
 }: {
-  icon: React.ElementType
+  icon?: React.ElementType
+  iconNode?: React.ReactNode
   title: string
   subtitle: string
   backHref?: string
@@ -31,7 +35,7 @@ export default function OpsHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
-            <Icon className="h-5 w-5" />
+            {iconNode ?? (Icon ? <Icon className="h-5 w-5" /> : null)}
           </div>
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{title}</h1>

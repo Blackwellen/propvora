@@ -7,6 +7,7 @@ import { Menu, X, ChevronDown, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import SkipLink from "@/components/a11y/SkipLink"
+import { useT } from "@/components/i18n/LocaleProvider"
 
 const legalLinks = [
   { label: "Terms of Service", href: "/legal/terms" },
@@ -29,6 +30,8 @@ const navLinks: { label: string; href: string; marketplace?: boolean }[] = [
 ]
 
 export default function PublicNav() {
+  const tFn = useT()
+  const tr = (k: string) => tFn(`marketing.${k}`)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
@@ -154,7 +157,7 @@ export default function PublicNav() {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 )}
               >
-                Legal
+                {tr("navLegal")}
                 <ChevronDown
                   className={cn(
                     "h-3.5 w-3.5 transition-transform",
@@ -187,13 +190,13 @@ export default function PublicNav() {
                 href="/property-manager"
                 className="inline-flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
               >
-                Open app
+                {tr("navOpenApp")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             ) : authed ? (
               <Link
                 href="/customer"
-                aria-label="My account"
+                aria-label={tr("navMyAccount")}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm overflow-hidden ring-2 ring-white transition-transform hover:scale-105"
               >
                 {account?.avatarUrl ? (
@@ -209,13 +212,13 @@ export default function PublicNav() {
                   href="/login"
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-slate-700 hover:text-slate-900 hover:bg-slate-100"
                 >
-                  Log in
+                  {tr("navLogin")}
                 </Link>
                 <Link
                   href="/register"
                   className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
                 >
-                  Get started
+                  {tr("navGetStarted")}
                 </Link>
               </>
             )}
@@ -257,7 +260,7 @@ export default function PublicNav() {
                 aria-haspopup="true"
                 className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
               >
-                Legal
+                {tr("navLegal")}
                 <ChevronDown className={cn("h-4 w-4 transition-transform", legalOpen && "rotate-180")} />
               </button>
               {legalOpen && (
@@ -283,7 +286,7 @@ export default function PublicNav() {
                   onClick={() => setMobileOpen(false)}
                   className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                 >
-                  Open app
+                  {tr("navOpenApp")}
                 </Link>
               ) : authed ? (
                 <Link
@@ -291,7 +294,7 @@ export default function PublicNav() {
                   onClick={() => setMobileOpen(false)}
                   className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                 >
-                  My account
+                  {tr("navMyAccount")}
                 </Link>
               ) : (
                 <>
@@ -300,14 +303,14 @@ export default function PublicNav() {
                     onClick={() => setMobileOpen(false)}
                     className="block w-full px-4 py-3 text-center rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors"
                   >
-                    Log in
+                    {tr("navLogin")}
                   </Link>
                   <Link
                     href="/register"
                     onClick={() => setMobileOpen(false)}
                     className="block w-full px-4 py-3 text-center rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                   >
-                    Get started free
+                    {tr("navGetStartedFree")}
                   </Link>
                 </>
               )}

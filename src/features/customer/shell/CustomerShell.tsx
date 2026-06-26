@@ -16,6 +16,7 @@ export default function CustomerShell({
   avatarUrl,
   unreadNotifications = 0,
   unreadMessages = 0,
+  brandLogoUrl,
   children,
 }: {
   customerName?: string
@@ -23,6 +24,7 @@ export default function CustomerShell({
   avatarUrl?: string | null
   unreadNotifications?: number
   unreadMessages?: number
+  brandLogoUrl?: string | null
   children: React.ReactNode
 }) {
   return (
@@ -34,6 +36,7 @@ export default function CustomerShell({
           avatarUrl={avatarUrl}
           unreadNotifications={unreadNotifications}
           unreadMessages={unreadMessages}
+          brandLogoUrl={brandLogoUrl}
         />
         <main className="mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">{children}</main>
         <CustomerMobileNav unreadMessages={unreadMessages} />

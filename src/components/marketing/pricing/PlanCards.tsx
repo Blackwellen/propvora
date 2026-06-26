@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import {
   CheckCircle2,
@@ -15,6 +17,7 @@ import {
 import { cn } from "@/lib/utils"
 import { getPlans, gbp, type PlanTier } from "@/lib/billing/plans"
 import type { BillingCycle } from "./PricingToggle"
+import { useT } from "@/components/i18n/LocaleProvider"
 
 // Canonical tiers + prices come straight from src/lib/billing/plans.ts (which
 // reads catalog.generated.json). No prices are duplicated/invented here.
@@ -81,7 +84,7 @@ const PLAN_CARD: Record<
       { label: "Owner portals", included: true, icon: Store },
       { label: "Supplier procurement rules", included: true },
       { label: "White-label ready", included: true, icon: Share2 },
-      { label: "Priority phone support", included: true, icon: Phone },
+      { label: "Priority email support", included: true, icon: Phone },
     ],
   },
   enterprise: {
@@ -102,6 +105,8 @@ interface Props {
 }
 
 export default function PlanCards({ billing }: Props) {
+  const tFn = useT()
+  const tr = (k: string) => tFn(`marketing.${k}`)
   return (
     <section className="py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,7 +122,7 @@ export default function PlanCards({ billing }: Props) {
               {
                 label:
                   plan.features.properties === "Unlimited"
-                    ? "Unlimited properties"
+                    ? `${tr("pricingUnlimited") || "Unlimited"} properties`
                     : `Up to ${plan.features.properties} properties`,
                 included: true,
                 icon: Building2,
@@ -125,7 +130,7 @@ export default function PlanCards({ billing }: Props) {
               {
                 label:
                   plan.features.teamSeats === "Unlimited"
-                    ? "Unlimited team seats"
+                    ? `${tr("pricingUnlimited") || "Unlimited"} team seats`
                     : `${plan.features.teamSeats} team seat${plan.features.teamSeats === 1 ? "" : "s"}`,
                 included: true,
                 icon: Users,
@@ -156,19 +161,19 @@ export default function PlanCards({ billing }: Props) {
 
                   <div className="flex items-baseline gap-1 mb-2">
                     {isCustom ? (
-                      <span className="text-3xl font-bold text-slate-900">Custom</span>
+                      <span className="text-3xl font-bold text-slate-900">{tr("pricingCustom")}</span>
                     ) : (
                       <>
                         <span className="text-4xl font-bold text-slate-900">
                           {gbp(priceMinor ?? 0)}
                         </span>
-                        <span className="text-slate-500 text-sm">/month</span>
+                        <span className="text-slate-500 text-sm">{tr("pricingMonth")}</span>
                       </>
                     )}
                   </div>
                   {!isCustom && billing === "annual" && annual != null ? (
                     <p className="text-emerald-600 text-xs font-medium mb-5">
-                      Billed annually · {gbp(annual)}/year
+                      {tr("pricingAnnualNote")} · {gbp(annual)}/year
                     </p>
                   ) : (
                     <div className="mb-5" />
@@ -212,7 +217,7 @@ export default function PlanCards({ billing }: Props) {
         </div>
 
         <p className="text-center text-slate-500 text-sm mt-8">
-          All plans include a 7-day free trial · No credit card required · Cancel anytime
+          {tr("pricingAllPlans")}
         </p>
       </div>
     </section>

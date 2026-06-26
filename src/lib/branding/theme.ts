@@ -30,6 +30,23 @@ export const DEFAULT_BRAND: BrandColours = {
   background: "#F8FAFC",
 }
 
+/**
+ * Propvora default asset URLs — used when a workspace has not uploaded its own
+ * logos or favicon. Email templates, invoice generators and portal shells should
+ * resolve `workspace.email_logo_url ?? PROPVORA_ASSETS.emailLogo` rather than
+ * hardcoding a path in each generator.
+ */
+export const PROPVORA_ASSETS = {
+  /** App sidebar + general branding logo */
+  logo:        "/propvora-logo-dark.png",
+  /** Logo used in outbound email templates */
+  emailLogo:   "/propvora-logo-dark.png",
+  /** Logo printed on invoices and PDF documents */
+  invoiceLogo: "/propvora-logo-dark.png",
+  /** 32×32 browser tab favicon */
+  favicon:     "/propvora-favicon.png",
+} as const
+
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
 
 /** Validate + normalise a hex colour to 6-digit lowercase, or null if invalid. */

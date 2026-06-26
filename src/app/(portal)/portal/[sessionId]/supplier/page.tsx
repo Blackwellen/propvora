@@ -1,13 +1,14 @@
 import Link from "next/link"
 import {
   Briefcase, Wrench, AlertCircle, FileText, PoundSterling, Wallet, Building2,
-  CalendarClock, MessageSquare, FolderOpen, ShieldCheck, TrendingUp, Upload, ArrowRight, CheckCircle2,
+  CalendarClock, MessageSquare, FolderOpen, ShieldCheck, Upload, ArrowRight, CheckCircle2, AlertTriangle,
 } from "lucide-react"
 import { requirePortalSession } from "../_guard"
 import { getSupplierJobs, getSupplierInvoices } from "@/lib/portal/data"
-import { formatMoney, formatDate, jobStatusMeta, invoiceStatusMeta, isOpenJob } from "@/lib/portal/format"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { formatMoney, formatDate, jobStatusMeta, isOpenJob } from "@/lib/portal/format"
 import {
-  PortalCard, PortalSectionCard, PortalKpiStrip, StatusChip, PortalEmptyState,
+  PortalSectionCard, PortalKpiStrip, StatusChip, PortalEmptyState,
   PortalButtonLink, type PortalKpi, type PortalTone,
 } from "@/components/portals/portal-ui"
 
@@ -29,6 +30,22 @@ export default async function SupplierPortalHome({ params }: { params: Promise<{
   const nextPayout = invoices.filter((i) => i.status === "approved").reduce((s, i) => s + (i.amount ?? 0), 0)
   const activeJobs = jobs.filter((j) => isOpenJob(j.status)).slice(0, 4)
   const upcoming = jobs.filter((j) => j.scheduled_date).slice(0, 3)
+
+  // Fetch real certifications from supplier_compliance
+  type CertRow = { id: string; compliance_type: string; expiry_date: string | null; verified: boolean }
+  let certifications: CertRow[] = []
+  if (session.contactId) {
+    try {
+      const admin = createAdminClient()
+      const { data } = await admin.from("supplier_compliance")
+        .select("id, compliance_type, expiry_date, verified")
+        .eq("workspace_id", session.workspaceId)
+        .eq("supplier_id", session.contactId)
+        .order("expiry_date", { ascending: true })
+        .limit(5)
+      certifications = (data ?? []) as CertRow[]
+    } catch { /* tolerate missing table */ }
+  }
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
   const kpis: PortalKpi[] = [
@@ -83,10 +100,23 @@ export default async function SupplierPortalHome({ params }: { params: Promise<{
             <PortalButtonLink href={`${base}/documents`} variant="ghost" className="w-full justify-center">View documents</PortalButtonLink>
           </PortalSectionCard>
           <PortalSectionCard title="Certification & compliance" icon={ShieldCheck}>
-            <ul className="space-y-2 text-sm">{["Gas Safe", "Public liability"].map((c) => <li key={c} className="flex items-center justify-between"><span className="text-slate-600">{c}</span><StatusChip tone="emerald"><CheckCircle2 className="w-3 h-3 inline" /> Valid</StatusChip></li>)}</ul>
-          </PortalSectionCard>
-          <PortalSectionCard title="Performance snapshot" icon={TrendingUp}>
-            <dl className="space-y-2 text-sm"><div className="flex justify-between"><dt className="text-slate-500">On-time</dt><dd className="font-semibold text-[#071B4D]">96%</dd></div><div className="flex justify-between"><dt className="text-slate-500">Rating</dt><dd className="font-semibold text-[#071B4D]">4.8 ★</dd></div></dl>
+            {certifications.length === 0 ? (
+              <PortalEmptyState icon={ShieldCheck} title="No certifications on record" description="Your manager will add your certifications here." />
+            ) : (
+              <ul className="space-y-2 text-sm">{certifications.map((c) => {
+                const expired = c.expiry_date ? new Date(c.expiry_date) < new Date() : false
+                const label = c.compliance_type.replace(/_/g, " ").replace(/\b\w/g, (x) => x.toUpperCase())
+                return (
+                  <li key={c.id} className="flex items-center justify-between gap-2">
+                    <span className="text-slate-600 truncate">{label}</span>
+                    <StatusChip tone={expired ? "red" : c.verified ? "emerald" : "amber"}>
+                      {expired ? <><AlertTriangle className="w-3 h-3 inline" /> Expired</> : c.verified ? <><CheckCircle2 className="w-3 h-3 inline" /> Valid</> : "Pending"}
+                    </StatusChip>
+                  </li>
+                )
+              })}</ul>
+            )}
+            <PortalButtonLink href={`${base}/messages`} variant="ghost" className="mt-2 w-full justify-center">Contact manager about certs</PortalButtonLink>
           </PortalSectionCard>
         </div>
       </div>

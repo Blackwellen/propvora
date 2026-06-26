@@ -1,9 +1,11 @@
 "use client"
 import React, { useMemo, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Shield, Calendar, CheckCircle, AlertTriangle, Gavel, FileText, PoundSterling } from "lucide-react"
+import { Shield, Calendar, CheckCircle, AlertTriangle, Gavel, FileText, PoundSterling, Clock } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
+import { resolveValue, numericCompare } from "@/lib/jurisdiction/resolve"
+import { SourcedValue, NotLegalAdviceNotice } from "@/components/jurisdiction"
 import { useWorkspace } from "@/providers/AuthProvider"
 import {
   usePossessionCase,
@@ -18,6 +20,9 @@ import {
   type NoticeRoute,
 } from "@/lib/legal/grounds"
 import { computeValidity, countWarnings } from "@/lib/legal/validity"
+import { possessionRoutes } from "@/lib/legal/possession-routes"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
+import { JurisdictionChip } from "@/components/jurisdiction"
 
 export default function SelectGroundsPage() {
   return (
@@ -47,7 +52,20 @@ function SelectGroundsInner() {
   const [howToRent, setHowToRent] = useState(false)
   const [arrearsAmount, setArrearsAmount] = useState("")
   const [arrearsWeeks, setArrearsWeeks] = useState("")
+  // Per-case notice-period override (operator changes Propvora's indicative default).
+  const [overrideActive, setOverrideActive] = useState(false)
+  const [overrideValue, setOverrideValue] = useState("")
+  const [overrideReason, setOverrideReason] = useState("")
+  const [overrideExemption, setOverrideExemption] = useState("")
   const [saving, setSaving] = useState(false)
+
+  // Property jurisdiction → possession routes. E&W keeps the Section 8/21 UI
+  // (pack === null); other jurisdictions render their own notice routes.
+  const jur = usePropertyJurisdiction(caseData?.property_id ?? undefined)
+  const routesPack = possessionRoutes(jur.countryCode, jur.region)
+  const isEW = routesPack === null
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
+  const selectedRoute = routesPack?.routes.find((r) => r.id === selectedRouteId) ?? routesPack?.routes[0] ?? null
 
   function toggleGround(id: string) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
@@ -57,7 +75,7 @@ function SelectGroundsInner() {
   // the live arrears figure so the notice preview and court bundle show the real
   // amount instead of £0. Review-only; not a legal calculation.
   const RENT_ARREARS_GROUNDS = ["g8", "g10", "g11"]
-  const showArrears = route === "section_8" && selected.some((g) => RENT_ARREARS_GROUNDS.includes(g))
+  const showArrears = isEW && route === "section_8" && selected.some((g) => RENT_ARREARS_GROUNDS.includes(g))
 
   // Prefill the arrears figure from any value already saved on the case.
   React.useEffect(() => {
@@ -71,7 +89,60 @@ function SelectGroundsInner() {
   }, [caseData?.arrears_amount, caseData?.arrears_weeks])
 
   const selectedGrounds = useMemo(() => toSelectedGrounds(selected), [selected])
-  const noticeDays = indicativeNoticeDays(route, selectedGrounds)
+  // Indicative notice: E&W from the Section 8/21 grounds; other jurisdictions
+  // from the selected route in the possession-routes pack.
+  const noticeDays = isEW
+    ? indicativeNoticeDays(route, selectedGrounds)
+    : selectedRoute?.noticeDays ?? 0
+
+  // Prefill any saved override so re-entering the wizard keeps the operator's choice.
+  React.useEffect(() => {
+    if (caseData?.notice_period_overridden && !overrideActive) {
+      setOverrideActive(true)
+      if (caseData.notice_period_days != null) setOverrideValue(String(caseData.notice_period_days))
+      if (caseData.notice_override_reason) setOverrideReason(caseData.notice_override_reason)
+      if (caseData.notice_override_exemption) setOverrideExemption(caseData.notice_override_exemption)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseData?.notice_period_overridden])
+
+  // Resolve the notice period through the override chain: operator override (with
+  // reason) ▸ Propvora's indicative default. Both are shown; going below the
+  // indicative period warns (never blocks).
+  const noticeResolved = useMemo(
+    () =>
+      resolveValue<number>(
+        {
+          case:
+            overrideActive && overrideValue !== "" && !isNaN(Number(overrideValue))
+              ? {
+                  value: Number(overrideValue),
+                  reason: overrideReason || undefined,
+                  exemption: overrideExemption || undefined,
+                }
+              : null,
+          sourced: {
+            value: noticeDays,
+            citation: "Housing Act 1988 (England & Wales) — indicative; confirm with a solicitor",
+            statutoryMinimum: noticeDays,
+          },
+        },
+        numericCompare,
+      ),
+    [overrideActive, overrideValue, overrideReason, overrideExemption, noticeDays],
+  )
+
+  // An override must have a valid value and a reason (for the audit trail).
+  const overrideError = useMemo(() => {
+    if (!overrideActive) return null
+    if (overrideValue === "" || isNaN(Number(overrideValue)) || Number(overrideValue) < 0) {
+      return "Enter a valid notice period in days."
+    }
+    if (!overrideReason.trim()) {
+      return "Add a reason for the override (e.g. contractual notice, statutory exemption)."
+    }
+    return null
+  }, [overrideActive, overrideValue, overrideReason])
 
   // Live validity snapshot for the chosen route.
   const validity = useMemo(() => {
@@ -104,8 +175,8 @@ function SelectGroundsInner() {
   }, [showArrears, arrearsAmount, arrearsWeeks])
 
   async function handleNext() {
-    if (arrearsError) return
-    const ground = groundsLabel(route, selectedGrounds)
+    if (arrearsError || overrideError) return
+    const ground = isEW ? groundsLabel(route, selectedGrounds) : selectedRoute?.name ?? "Notice of possession"
     if (workspaceId && caseId) {
       setSaving(true)
       try {
@@ -114,14 +185,16 @@ function SelectGroundsInner() {
           workspaceId,
           payload: {
             ground,
-            notice_type: route,
-            grounds: route === "section_21" ? [] : selectedGrounds,
-            notice_period_days: noticeDays,
-            validity_snapshot: validity ?? null,
-            // Persist the live arrears figure for rent-based grounds; clear it
-            // when the route no longer relies on arrears (e.g. switched to S21).
-            arrears_amount: showArrears && arrearsAmount !== "" ? Number(arrearsAmount) : null,
-            arrears_weeks: showArrears && arrearsWeeks !== "" ? Number(arrearsWeeks) : null,
+            notice_type: isEW ? route : selectedRoute?.id ?? "notice",
+            grounds: isEW ? (route === "section_21" ? [] : selectedGrounds) : [],
+            notice_period_days: noticeResolved.value ?? noticeDays,
+            notice_period_overridden: noticeResolved.isOverridden,
+            notice_override_reason: noticeResolved.isOverridden ? overrideReason || null : null,
+            notice_override_exemption: noticeResolved.isOverridden ? overrideExemption || null : null,
+            validity_snapshot: isEW ? (validity ?? null) : null,
+            // Arrears only apply to the E&W Section 8 rent grounds.
+            arrears_amount: isEW && showArrears && arrearsAmount !== "" ? Number(arrearsAmount) : null,
+            arrears_weeks: isEW && showArrears && arrearsWeeks !== "" ? Number(arrearsWeeks) : null,
             status: "drafting_notice",
           },
         })
@@ -144,18 +217,20 @@ function SelectGroundsInner() {
           </span>
         </div>
         <div className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-[12px] text-slate-600">Route</span>
-            <span className="text-[12px] font-semibold text-slate-800">
-              {route === "section_21" ? "Section 21" : "Section 8"}
+            <span className="text-[12px] font-semibold text-slate-800 text-right">
+              {isEW ? (route === "section_21" ? "Section 21" : "Section 8") : selectedRoute?.name ?? routesPack?.regionName}
             </span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] text-slate-600">Ground(s)</span>
-            <span className="text-[12px] font-semibold text-slate-800">
-              {route === "section_21" ? "No-fault" : selected.length || 0}
-            </span>
-          </div>
+          {isEW && (
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] text-slate-600">Ground(s)</span>
+              <span className="text-[12px] font-semibold text-slate-800">
+                {route === "section_21" ? "No-fault" : selected.length || 0}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between border-t border-slate-100 pt-3">
             <span className="text-[12px] text-slate-600">Indicative notice</span>
             <span className="text-[14px] font-bold text-slate-900">{noticeDays} days</span>
@@ -166,7 +241,8 @@ function SelectGroundsInner() {
         </div>
       </div>
 
-      {/* Live validity checks */}
+      {/* Live validity checks (England & Wales — deposit/EPC/gas/RtR prerequisites) */}
+      {isEW && (
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <h3 className="text-[13px] font-semibold text-slate-800">Validity Checks</h3>
@@ -215,6 +291,7 @@ function SelectGroundsInner() {
           )}
         </div>
       </div>
+      )}
     </>
   )
 
@@ -222,7 +299,7 @@ function SelectGroundsInner() {
     <PossessionWizardShell
       currentStep={2}
       rightRail={rightRail}
-      nextDisabled={(route === "section_8" && selected.length === 0) || !!arrearsError || saving}
+      nextDisabled={(route === "section_8" && selected.length === 0) || !!arrearsError || !!overrideError || saving}
       showSaveDraft={false}
       backLabel="Back"
       nextLabel={saving ? "Saving…" : "Next: Review Evidence"}
@@ -238,7 +315,55 @@ function SelectGroundsInner() {
 
         <LegalDisclaimer variant="inline" className="mb-4" />
 
-        {/* Route selector */}
+        {/* Record-true jurisdiction of the property this case concerns. */}
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-xs text-slate-500">Jurisdiction:</span>
+          <JurisdictionChip countryCode={jur.countryCode} region={jur.region} name={jur.legal.regionName} locked />
+        </div>
+
+        {/* Non-E&W jurisdictions: their own notice routes. */}
+        {!isEW && routesPack && (
+          <div className="mb-5 space-y-3">
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3">
+              <p className="text-[12px] text-slate-700">
+                <span className="font-semibold">{routesPack.regionName}</span> uses different possession routes from
+                England &amp; Wales. Select the applicable route — the indicative notice period feeds the panel below and
+                can be overridden.
+              </p>
+              <p className="text-[11px] text-slate-400 mt-1">Authority: {routesPack.authority}</p>
+            </div>
+            {routesPack.routes.map((r) => {
+              const active = (selectedRoute?.id ?? routesPack.routes[0].id) === r.id
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => setSelectedRouteId(r.id)}
+                  className={`w-full text-left p-4 rounded-xl border-2 transition-all ${active ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"}`}
+                >
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-[13px] font-bold text-slate-800">{r.name}</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">
+                      {r.noticeDays != null ? `${r.noticeDays}d notice` : "set notice period"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">{r.basis}{r.note ? ` · ${r.note}` : ""}</p>
+                  {active && r.grounds && r.grounds.length > 0 && (
+                    <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                      {r.grounds.map((g) => (
+                        <li key={g.id} className="text-[11px] text-slate-500">• {g.name}</li>
+                      ))}
+                    </ul>
+                  )}
+                </button>
+              )
+            })}
+            <p className="text-[11px] text-slate-400">{routesPack.citation}</p>
+          </div>
+        )}
+
+        {/* Route selector (England & Wales) */}
+        {isEW && (
+        <>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           {[
             {
@@ -335,6 +460,8 @@ function SelectGroundsInner() {
             })}
           </div>
         )}
+        </>
+        )}
 
         {/* Rent arrears capture — shown for rent-based grounds. Feeds the notice
             preview, court bundle and case record with the real figure. */}
@@ -389,6 +516,96 @@ function SelectGroundsInner() {
             </div>
           </div>
         )}
+
+        {/* Notice period — sourced default with optional per-case override. */}
+        <div className="mt-5 rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-blue-600" />
+              </div>
+              <h3 className="text-[13px] font-semibold text-slate-800">Notice period</h3>
+            </div>
+            <SourcedValue
+              resolved={noticeResolved}
+              unit="days"
+              onEdit={() => {
+                setOverrideActive(true)
+                if (overrideValue === "") setOverrideValue(String(noticeDays))
+              }}
+            />
+          </div>
+          <div className="p-5">
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              The default is Propvora&apos;s indicative notice period for the selected ground(s). You can override it for a
+              contractual term or statutory exemption — both the default and your override are recorded on the case.
+            </p>
+
+            {overrideActive && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="override-days" className="block text-[12px] font-semibold text-slate-700 mb-1.5">
+                    Notice period (days)
+                  </label>
+                  <input
+                    id="override-days"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={overrideValue}
+                    onChange={(e) => setOverrideValue(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="override-reason" className="block text-[12px] font-semibold text-slate-700 mb-1.5">
+                    Reason <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="override-reason"
+                    type="text"
+                    value={overrideReason}
+                    onChange={(e) => setOverrideReason(e.target.value)}
+                    placeholder="e.g. contractual 2-month notice"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="override-exemption" className="block text-[12px] font-semibold text-slate-700 mb-1.5">
+                    Exemption type <span className="text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="override-exemption"
+                    type="text"
+                    value={overrideExemption}
+                    onChange={(e) => setOverrideExemption(e.target.value)}
+                    placeholder="e.g. transitional, contractual"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            )}
+
+            {overrideActive && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOverrideActive(false)
+                  setOverrideValue("")
+                  setOverrideReason("")
+                  setOverrideExemption("")
+                }}
+                className="mt-3 text-[11px] font-medium text-slate-500 hover:text-slate-700"
+              >
+                Reset to indicative default
+              </button>
+            )}
+
+            {overrideError && <p className="text-[11px] text-red-600 mt-2">{overrideError}</p>}
+
+            <NotLegalAdviceNotice variant="inline" className="mt-3" />
+          </div>
+        </div>
       </div>
     </PossessionWizardShell>
   )

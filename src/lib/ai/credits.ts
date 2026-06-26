@@ -5,31 +5,35 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import type { PlanTier } from "@/lib/billing/plans"
 
 // ============================================================================
-// AI credit-class economics.
+// AI credit-class economics — Azure-calibrated.
 //
-// A single flat "AI message" credit is wrong: a chat turn on DeepSeek costs us
-// a fraction of a penny, while an Opus-class agent run with web search + doc
-// generation can cost pounds. If they shared one budget, a handful of heavy
-// runs would silently drain a user's whole conversational allowance (or, worse,
-// our margin). So usage is metered in ONE ledger but across credit CLASSES,
-// each with its own monthly allowance:
+// A single flat "AI message" credit is wrong: a chat turn on our workhorse
+// (Azure GPT-4o-mini at ~£0.0003/msg) costs us a fraction of a penny, while
+// an agent run with web search + document generation can cost pennies. If they
+// shared one budget, heavy runs would silently drain a user's conversational
+// allowance. So usage is metered in ONE ledger across credit CLASSES, each
+// with its own monthly allowance:
 //
 //   • conversation — chat turns, reads, retrieval, context resolve. High volume,
-//                    routed to cheap models, effectively a rounding error. We
-//                    meter it for telemetry but never hard-block on it (the
-//                    abuse caps in caps.ts already bound spend).
-//   • action       — writes, edits, drafted/sent emails, automation runs.
-//                    State-changing; deserves its own budget + visible limit.
+//                    routed to cheapest model (Azure GPT-4o-mini). Very cheap
+//                    (~£0.0003–0.0006 / message). Metered for telemetry; never
+//                    hard-blocked here (PLAN_CAPS in caps.ts is the hard limit).
+//   • action       — writes, edits, drafted/sent emails, automation builds/runs.
+//                    State-changing; deserves its own budget + visible UI limit.
 //   • intelligence — web/market search, document extract/generate, agent runs.
-//                    External + heavy compute = real £. This is the class that
-//                    protects margin and drives credit-pack / AI-Pro upsell.
+//                    Uses stronger models (GPT-4o or agentic tier). Real £.
+//                    This is the margin-protecting, upsell-driving class.
 //   • monitoring   — scheduled background monitor cycles. Always-on cost; bundled
-//                    per plan so it can't surprise-bill a conversational user.
+//                    per plan so it never surprise-bills a conversational user.
 //
-// Pricing principle: 1 credit ≈ £0.02 RETAIL. Op costs below are set to cover
-// the true provider £ (cheapest-model routing — see routing.ts) plus margin.
-// On cheap-first routing even agent runs are pennies, so the included monthly
-// allowances are generous; packs/AI-Pro exist for genuinely heavy users.
+// Azure pricing reference (EU West, ~USD→GBP at £1 = $1.27):
+//   GPT-4o-mini:  £0.012/1k input,  £0.047/1k output
+//   GPT-4o:       £0.197/1k input,  £0.787/1k output
+//
+// Retail price: 1 credit = £0.02. Op cost per credit class:
+//   conversation: ~£0.0003–0.0006/msg  → margin >30× on 1-credit turn
+//   action:       ~£0.001–0.003/action → margin >6× on 1-credit action
+//   intelligence: ~£0.01–0.10/action  → margin >2× on 5-credit web search
 //
 // SAFETY: every DB touch here is best-effort and FAILS OPEN. If the credit
 // tables aren't migrated yet, or a balance row is missing, we allow the call
@@ -46,7 +50,12 @@ export const CREDIT_CLASSES: CreditClass[] = [
   "monitoring",
 ]
 
-/** Retail value of one credit, GBP. Used for cost previews + pack pricing. */
+/**
+ * Retail value of one credit, GBP.
+ * At £0.02/credit: 50 credits = £1.00 retail. This gives us comfortable margin
+ * above Azure GPT-4o-mini costs (~£0.0003–0.0006 per chat turn consumed as
+ * 1–3 conversation credits). Used for cost previews + credit-pack pricing.
+ */
 export const CREDIT_VALUE_GBP = 0.02
 
 export interface CreditCost {
@@ -99,22 +108,32 @@ export const CREDIT_COSTS: Record<string, CreditCost> = {
 }
 
 /**
- * Monthly INCLUDED credit allowance per plan, per class. Conversation is set
- * high (it's effectively free to serve); intelligence is the differentiated,
- * upsell-driving class and climbs sharply with tier. Starter/Operator get no
- * Copilot today (gateAiCopilot blocks them) so their allowances are 0 and only
- * matter if the gate is relaxed or an AI-Pro add-on is attached.
+ * Monthly INCLUDED credit allowance per plan, per class.
  *
- * UNLIM is represented by Number.MAX_SAFE_INTEGER (Enterprise).
+ * Calibrated to the revised plan token limits (gates.ts) and Azure pricing:
+ *
+ *   Scale (750 msg/mo, 2k+2k tokens): ~4 credits/msg → 3,000 conversation credits.
+ *     Allowance 5,000 gives 67% headroom above expected use.
+ *   Pro/Agency (3k msg/mo, 4k+3k tokens): ~7 credits/msg → 21,000 credits.
+ *     Allowance 30,000 gives 43% headroom.
+ *
+ * Intelligence class (web search = 5 credits, doc generate = 10, agent run = 25):
+ *   Scale 500 credits ≈ 100 web searches or 50 doc extracts per month.
+ *   Pro  3,000 credits ≈ 300 web searches or 120 agent runs per month.
+ *
+ * Starter/Operator: Copilot gated off (gateAiCopilot blocks first). Allowances
+ * are 0 and only matter if the gate is relaxed or an AI-Pro add-on is attached.
+ *
+ * UNLIM = Number.MAX_SAFE_INTEGER (Enterprise — bounded by PLAN_CAPS cost ceiling).
  */
 const UNLIM = Number.MAX_SAFE_INTEGER
 
 export const PLAN_CREDIT_ALLOWANCES: Record<PlanTier, Record<CreditClass, number>> = {
-  starter: { conversation: 0, action: 0, intelligence: 0, monitoring: 0 },
-  operator: { conversation: 0, action: 0, intelligence: 0, monitoring: 0 },
-  scale: { conversation: 5_000, action: 750, intelligence: 400, monitoring: 300 },
-  pro_agency: { conversation: 25_000, action: 4_000, intelligence: 2_500, monitoring: 1_500 },
-  enterprise: { conversation: UNLIM, action: UNLIM, intelligence: UNLIM, monitoring: UNLIM },
+  starter:    { conversation: 0,      action: 0,     intelligence: 0,     monitoring: 0 },
+  operator:   { conversation: 0,      action: 0,     intelligence: 0,     monitoring: 0 },
+  scale:      { conversation: 5_000,  action: 800,   intelligence: 500,   monitoring: 300 },
+  pro_agency: { conversation: 30_000, action: 4_500, intelligence: 3_000, monitoring: 1_500 },
+  enterprise: { conversation: UNLIM,  action: UNLIM, intelligence: UNLIM, monitoring: UNLIM },
 }
 
 /** Credit packs / AI-Pro add-on grants, applied on top of plan allowance. */

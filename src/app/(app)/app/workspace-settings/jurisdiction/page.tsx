@@ -8,9 +8,12 @@ import {
   CountryPicker,
   JurisdictionStatusBanner,
   JurisdictionDisclaimer,
+  NotLegalAdviceNotice,
 } from "@/components/jurisdiction"
 import { SUPPORTED_LOCALES, LOCALE_META } from "@/lib/i18n/config"
 import type { SelectableCountry, WorkspaceJurisdiction } from "@/lib/international/workspace-jurisdiction"
+import { agentDuties } from "@/lib/legal/agent-regulation"
+import { amlDuties } from "@/lib/legal/aml"
 
 /* ------------------------------------------------------------------ */
 /* Section card (matches the workspace-settings convention)            */
@@ -105,6 +108,9 @@ export default function JurisdictionSettingsPage() {
 
   const [countryCode, setCountryCode] = useState("GB")
   const [currency, setCurrency] = useState("GBP")
+  // Reporting/roll-up currency for mixed-portfolio totals (Home/Portfolio/Money).
+  const [reportingCurrency, setReportingCurrency] = useState("GBP")
+  const [loadedReportingCurrency, setLoadedReportingCurrency] = useState("GBP")
   const [locale, setLocale] = useState("en-GB")
   // Sub-jurisdiction within GB: England & Wales (EW), Scotland (SCT), Northern
   // Ireland (NI). Drives the compliance requirement pack for UK workspaces.
@@ -150,6 +156,7 @@ export default function JurisdictionSettingsPage() {
         const json = (await res.json()) as {
           current: WorkspaceJurisdiction
           region?: string | null
+          reportingCurrency?: string | null
           countries: SelectableCountry[]
           canEdit: boolean
         }
@@ -159,6 +166,9 @@ export default function JurisdictionSettingsPage() {
         setCanEdit(json.canEdit)
         setCountryCode(json.current.countryCode || "GB")
         setCurrency(json.current.currency || "GBP")
+        const repCcy = json.reportingCurrency || json.current.currency || "GBP"
+        setReportingCurrency(repCcy)
+        setLoadedReportingCurrency(repCcy)
         setLocale(json.current.locale || "en-GB")
         setRegion(json.region || "EW")
         setLoadedRegion(json.region || "EW")
@@ -228,7 +238,7 @@ export default function JurisdictionSettingsPage() {
       const res = await fetch("/api/workspace/jurisdiction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId, countryCode, currency, locale, region: countryCode === "GB" ? region : undefined }),
+        body: JSON.stringify({ workspaceId, countryCode, currency, reportingCurrency, locale, region: countryCode === "GB" ? region : undefined }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -239,6 +249,7 @@ export default function JurisdictionSettingsPage() {
       }
       if (json.current) setCurrent(json.current as WorkspaceJurisdiction)
       setLoadedRegion(countryCode === "GB" ? region : "EW")
+      setLoadedReportingCurrency(reportingCurrency)
       setSaved(true)
       setIsDirty(false)
       setTimeout(() => setSaved(false), 3000)
@@ -345,6 +356,27 @@ export default function JurisdictionSettingsPage() {
           </div>
         </SectionCard>
 
+        {/* Reporting / roll-up currency for mixed portfolios */}
+        <SectionCard
+          title="Reporting currency"
+          description="Mixed-portfolio totals (Home, Portfolio, Money, Planning) are rolled up into this currency. Each record keeps its own local currency; the roll-up shows the converted total alongside the local amounts."
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SelectField
+              label="Reporting / roll-up currency"
+              value={reportingCurrency}
+              onChange={(v) => {
+                setReportingCurrency(v)
+                setIsDirty(true)
+                setSaved(false)
+              }}
+              options={CURRENCY_OPTIONS}
+              disabled={!canEdit}
+              helper="Used only for cross-currency totals. Per-record currency is unchanged."
+            />
+          </div>
+        </SectionCard>
+
         {/* Applicable disclaimer for the chosen jurisdiction */}
         <SectionCard
           title="Legal, tax &amp; AI guardrails"
@@ -358,6 +390,69 @@ export default function JurisdictionSettingsPage() {
             qualified local professional.
           </p>
         </SectionCard>
+
+        {/* Agent regulation (dim 19) + AML/KYC (dim 28) for the chosen jurisdiction. */}
+        {(() => {
+          const agent = agentDuties(countryCode, region)
+          const aml = amlDuties(countryCode)
+          return (
+            <SectionCard
+              title="Agent regulation &amp; AML obligations"
+              description="What letting-agent licensing, client-money protection, redress and anti-money-laundering rules apply where you operate."
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-slate-100 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Letting-agent regulation</p>
+                  <p className="text-[12.5px] text-slate-700 mt-1">
+                    {agent.licenceRequired ? `Licence: ${agent.licenceName}` : "No agent licence required"}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    {agent.cmpRequired ? "Client Money Protection required" : "CMP not required"} ·{" "}
+                    {agent.redressRequired ? "Redress scheme required" : "No redress requirement"}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">{agent.note}</p>
+                </div>
+                <div className="rounded-xl border border-slate-100 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">AML / KYC</p>
+                  <p className="text-[12.5px] text-slate-700 mt-1">{aml.inScope ? "Within AML scope" : "AML scope varies — verify"}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    {aml.cddRequired ? "CDD" : "—"} · {aml.sourceOfFunds ? "Source of funds" : "—"} ·{" "}
+                    {aml.mlroRequired ? "MLRO required" : "No MLRO"}{aml.supervisor ? ` · ${aml.supervisor}` : ""}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">{aml.note}</p>
+                </div>
+              </div>
+            </SectionCard>
+          )
+        })()}
+
+        {/* Jurisdiction customisation (B14) — overrides live per-record + per-workspace. */}
+        <SectionCard
+          title="Jurisdiction customisation &amp; overrides"
+          description="Propvora's figures are sourced defaults. Where a local exemption or contractual term applies, you can override values where they appear."
+        >
+          <ul className="space-y-2 text-[12.5px] text-slate-600">
+            <li>• <span className="font-medium text-slate-700">Notice periods</span> — override per possession case (with a reason) in the New Possession Case wizard.</li>
+            <li>• <span className="font-medium text-slate-700">Deposit caps &amp; tenancy rules</span> — shown per property's jurisdiction on Tenancy ▸ Deposit and Create Tenancy.</li>
+            <li>• <span className="font-medium text-slate-700">Compliance requirements</span> — extra or exempt certificates can be recorded per property on Property ▸ Compliance.</li>
+            <li>• <span className="font-medium text-slate-700">Acquisition / disposal tax</span> — override rates per planning set in Planning.</li>
+          </ul>
+          <p className="text-[11px] text-slate-400 mt-3">Every overridden value keeps its sourced default and citation visible alongside, and is recorded for audit.</p>
+        </SectionCard>
+
+        {/* Disclaimers & notices (B15). */}
+        <SectionCard
+          title="Disclaimers &amp; notices"
+          description="Propvora is a property-management platform, not a legal or tax advisor."
+        >
+          <NotLegalAdviceNotice variant="popover" noticeKey="settings.disclaimer" />
+          <p className="text-[11px] text-slate-400 mt-3">
+            This notice appears wherever jurisdiction figures are shown. You can dismiss the pop-up version per device; the
+            standing footer remains as the permanent record of this posture.
+          </p>
+        </SectionCard>
+
+        <NotLegalAdviceNotice variant="inline" className="px-1" />
       </div>
 
       {/* Save bar (matches workspace-settings convention) */}
@@ -383,6 +478,7 @@ export default function JurisdictionSettingsPage() {
                 setLocale(current.locale || "en-GB")
               }
               setRegion(loadedRegion)
+              setReportingCurrency(loadedReportingCurrency)
             }}
             className="px-4 py-2.5 rounded-xl border border-slate-200 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >

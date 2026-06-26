@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
 import SideNavigation, { type ShellNavConfig } from "@/components/shell/SideNavigation"
 import ShellContent from "@/components/shell/ShellContent"
@@ -17,7 +16,6 @@ export default function AuthenticatedPortalShell({
   title: string
   navConfig: ShellNavConfig
 }) {
-  const router = useRouter()
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" && localStorage.getItem("portal-shell-collapsed") === "true"
   )
@@ -32,7 +30,7 @@ export default function AuthenticatedPortalShell({
 
   async function signOut() {
     await createClient().auth.signOut()
-    router.push("/login")
+    window.location.assign("/login")
   }
 
   return (

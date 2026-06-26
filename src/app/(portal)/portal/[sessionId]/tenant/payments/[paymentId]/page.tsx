@@ -35,7 +35,7 @@ export default async function TenantPaymentDetail({ params }: { params: Promise<
     <div className="space-y-5">
       <PortalPageHeader
         title="Payment detail" subtitle={`${monthLabel} rent payment`} backHref={`${base}/payments`} backLabel="Back to payments"
-        actions={<><PortalButtonLink href="#" icon={Download}>Download receipt</PortalButtonLink><PortalButtonLink href={`${base}/documents`} icon={Download}>Download statement</PortalButtonLink></>}
+        actions={<PortalButtonLink href={`${base}/documents`} icon={Download}>Statements</PortalButtonLink>}
       />
 
       {/* Summary */}
@@ -80,8 +80,8 @@ export default async function TenantPaymentDetail({ params }: { params: Promise<
             <p className="text-sm font-semibold text-[#071B4D]">Your home</p>
             <p className="text-xs text-slate-400">{session.workspaceName}</p>
           </PortalSectionCard>
-          <PortalSectionCard title="Receipt" icon={FileText}>
-            <PortalButtonLink href="#" variant="primary" icon={Download} className="w-full justify-center">Download receipt</PortalButtonLink>
+          <PortalSectionCard title="Statements" icon={FileText}>
+            <PortalButtonLink href={`${base}/documents`} variant="primary" icon={Download} className="w-full justify-center">View statements</PortalButtonLink>
           </PortalSectionCard>
           <PortalSectionCard title="Payment support" icon={LifeBuoy}>
             <PortalButtonLink href={`${base}/messages`} icon={MessageSquare} className="w-full justify-center">Message manager</PortalButtonLink>

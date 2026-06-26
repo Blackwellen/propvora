@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useT } from "@/components/i18n/LocaleProvider"
 
 const faqs = [
   {
@@ -48,6 +49,7 @@ const faqs = [
 ]
 
 export default function PricingFAQ() {
+  const tFn = useT()
   const [open, setOpen] = useState<number | null>(0)
 
   return (
@@ -55,7 +57,7 @@ export default function PricingFAQ() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-            Frequently asked questions
+            {tFn("marketing.pricingFAQTitle")}
           </h2>
         </div>
         <div className="space-y-3">

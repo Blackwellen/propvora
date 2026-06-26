@@ -15,6 +15,8 @@ import {
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
 import { LegalDisclaimer, DraftBadge } from "@/components/legal/LegalDisclaimer"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
+import { BilingualNotice } from "@/components/jurisdiction"
 import { usePossessionCase, usePossessionEvidence, formatDate } from "../../../legal-data"
 import { openCourtBundle } from "@/lib/legal/bundle"
 import type { ValiditySnapshot } from "@/lib/legal/validity"
@@ -40,6 +42,7 @@ function NoticePreviewInner() {
   const workspaceId = workspace?.id
   const { data: caseData } = usePossessionCase(workspaceId, caseId)
   const { data: evidence = [] } = usePossessionEvidence(workspaceId, caseId)
+  const jur = usePropertyJurisdiction(caseData?.property_id ?? undefined)
 
   const tenant = caseData?.contact?.display_name ?? "Respondent"
   const property = caseData?.property?.nickname ?? "Property"
@@ -129,6 +132,8 @@ function NoticePreviewInner() {
           message="This is a review-only draft summary — not a legally served notice. Propvora never auto-serves. Verify all details, grounds and notice periods with a qualified solicitor before service."
         />
 
+        <BilingualNotice countryCode={jur.countryCode} region={jur.region} className="mb-4" />
+
         <div className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
           <div className="bg-[#071B4D] px-6 py-5 text-center relative">
             <p className="text-white font-bold text-[15px] uppercase tracking-widest">
@@ -157,7 +162,11 @@ function NoticePreviewInner() {
                 icon={Clock}
                 label="Indicative Notice Period"
                 value={caseData?.notice_period_days != null ? `${caseData.notice_period_days} days` : "—"}
-                sub="Verify with solicitor"
+                sub={
+                  caseData?.notice_period_overridden
+                    ? `Operator-overridden${caseData?.notice_override_reason ? ` — ${caseData.notice_override_reason}` : ""}`
+                    : "Verify with solicitor"
+                }
               />
               <Item icon={Calendar} label="Notice Served" value={formatDate(caseData?.notice_served_date)} />
               <Item icon={Calendar} label="Notice Expiry" value={formatDate(caseData?.notice_expiry_date)} />

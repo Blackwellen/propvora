@@ -17,6 +17,8 @@ export interface WorkspaceJurisdiction {
   countryCode: string
   /** ISO-4217 currency code (default GBP) */
   currency: string
+  /** Reporting/roll-up currency for mixed-portfolio totals (default = currency) */
+  reportingCurrency: string
   /** BCP-47 locale tag (default en-GB) */
   locale: string
   /** Date display format string (default DD/MM/YYYY) */
@@ -29,7 +31,7 @@ export interface WorkspaceJurisdiction {
   settings: WorkspaceSettings
 }
 
-const GB_DEFAULTS: Required<Omit<WorkspaceSettings, 'region'>> = {
+const GB_DEFAULTS: Required<Omit<WorkspaceSettings, 'region' | 'reportingCurrency' | 'supportedPortalLocales'>> = {
   countryCode: 'GB',
   currency: 'GBP',
   locale: 'en-GB',
@@ -50,6 +52,8 @@ export function useWorkspaceJurisdiction(): WorkspaceJurisdiction {
   return {
     countryCode: workspace?.business_country_code || raw.countryCode || GB_DEFAULTS.countryCode,
     currency: workspace?.default_currency || raw.currency || GB_DEFAULTS.currency,
+    reportingCurrency:
+      raw.reportingCurrency || workspace?.default_currency || raw.currency || GB_DEFAULTS.currency,
     locale: workspace?.default_language || raw.locale || GB_DEFAULTS.locale,
     dateFormat: raw.dateFormat || GB_DEFAULTS.dateFormat,
     timezone: raw.timezone || GB_DEFAULTS.timezone,

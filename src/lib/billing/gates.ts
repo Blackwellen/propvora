@@ -28,6 +28,21 @@ export interface PlanLimits {
 
 const UNLIM_INT = 9999
 
+// ── AI token limits — Azure GPT-4o-mini profitability notes ──────────────────
+// Provider: Azure OpenAI (EU region, GPT-4o-mini class)
+//   Input:  ~£0.012 per 1,000 tokens
+//   Output: ~£0.047 per 1,000 tokens
+//
+// Expected average call cost per plan (system prompt ~1,500 tokens overhead):
+//   Scale     (750  msg/mo, 2k in  + 2k out user turn):  ~£0.0003/msg → ~£0.22/mo Azure cost
+//   Pro/Agency (3k msg/mo, 4k in  + 3k out user turn):  ~£0.0006/msg → ~£1.80/mo Azure cost
+//   Enterprise (unlimited):  bounded by PLAN_CAPS costPenceMonth hard ceiling
+//
+// All AI is gated behind PLAN_CAPS rolling spend ceiling (caps.ts) as the
+// financial backstop. Token limits here control per-message quality, not cost.
+//
+// Starter / Operator plans: AI disabled entirely (aiEnabled: false).
+// No amounts appear here because gateAiCopilot() will block first.
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   starter: {
     aiEnabled: false,
@@ -44,7 +59,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     maxStorageGb: 2,
   },
   operator: {
-    // Operator: no AI Copilot, no automations on V1 plan
+    // Operator: no AI Copilot, no automations on V1
     aiEnabled: false,
     aiMessagesPerMonth: 0,
     aiInputTokensPerMessage: 0,
@@ -60,12 +75,18 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   },
   scale: {
     aiEnabled: true,
-    aiMessagesPerMonth: 500,
-    aiInputTokensPerMessage: 4000,
-    aiOutputTokensPerMessage: 1500,
-    aiRateLimitPerHour: 60,
+    // 750 messages/month. Azure cost ceiling £30 (caps.ts) = ~136× safety margin.
+    aiMessagesPerMonth: 750,
+    // Per-message limits: 2k input / 2k output.
+    // Enough for detailed questions + full reply paragraphs (compliance letters,
+    // task summaries, rent chase emails). Constrained enough to keep Scale cost
+    // well below the £30 monthly cap even at 100% utilisation.
+    aiInputTokensPerMessage: 2_000,
+    aiOutputTokensPerMessage: 2_000,
+    // 30 messages/hour burst cap (prevents automated spam; humans chat slower).
+    aiRateLimitPerHour: 30,
     automationsEnabled: true,
-    automationRunsPerMonth: 1000,
+    automationRunsPerMonth: 1_000,
     maxAutomationDefinitions: 50,
     maxWebhooks: 10,
     maxProperties: 100,
@@ -74,12 +95,15 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   },
   pro_agency: {
     aiEnabled: true,
-    aiMessagesPerMonth: 2000,
-    aiInputTokensPerMessage: 6000,
-    aiOutputTokensPerMessage: 2000,
+    // 3,000 messages/month. Azure cost ceiling £120 (caps.ts) = ~67× safety margin.
+    aiMessagesPerMonth: 3_000,
+    // 4k input / 3k output: agency users paste full tenancy agreements, full
+    // portfolio summaries, compliance reports. 3k output covers long legal drafts.
+    aiInputTokensPerMessage: 4_000,
+    aiOutputTokensPerMessage: 3_000,
     aiRateLimitPerHour: 120,
     automationsEnabled: true,
-    automationRunsPerMonth: 10000,
+    automationRunsPerMonth: 10_000,
     maxAutomationDefinitions: 200,
     maxWebhooks: 50,
     maxProperties: 500,
@@ -88,9 +112,11 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   },
   enterprise: {
     aiEnabled: true,
+    // Unlimited messages, bounded only by the PLAN_CAPS monthly cost ceiling.
     aiMessagesPerMonth: UNLIM_INT,
-    aiInputTokensPerMessage: 8000,
-    aiOutputTokensPerMessage: 3000,
+    // Platform absolute maximums (chat/route.ts enforces 8k/4k hard ceiling).
+    aiInputTokensPerMessage: 8_000,
+    aiOutputTokensPerMessage: 4_000,
     aiRateLimitPerHour: UNLIM_INT,
     automationsEnabled: true,
     automationRunsPerMonth: UNLIM_INT,
@@ -175,12 +201,14 @@ export async function gateAiCopilot(
  * nickel-and-dime — and the check fails open if usage can't be read.
  */
 const STORAGE_LIMIT_BYTES: Record<PlanTier, number> = {
-  starter: 2 * 1024 ** 3, //   2 GB
-  operator: 10 * 1024 ** 3, // 10 GB
-  scale: 50 * 1024 ** 3, //    50 GB
-  pro_agency: 200 * 1024 ** 3, // 200 GB
-  enterprise: Number.MAX_SAFE_INTEGER, // unlimited
+  starter:    2 * 1024 ** 3,  //   2 GB
+  operator:   5 * 1024 ** 3,  //   5 GB
+  scale:     15 * 1024 ** 3,  //  15 GB
+  pro_agency: 35 * 1024 ** 3, //  35 GB
+  enterprise: 100 * 1024 ** 3, // 100 GB — capped; add-on available for more
 }
+
+const ADDON_PACK_BYTES_GATE = 10 * 1024 ** 3 // 10 GB per extra-storage pack
 
 export async function gateStorage(
   supabase: SupabaseClient,
@@ -188,18 +216,31 @@ export async function gateStorage(
   incomingBytes: number
 ): Promise<GateResult> {
   const tier = await getWorkspaceTier(supabase, workspaceId)
-  const limit = STORAGE_LIMIT_BYTES[tier]
-  if (limit === Number.MAX_SAFE_INTEGER) return { allowed: true, tier }
+  const baseLimit = STORAGE_LIMIT_BYTES[tier]
+
+  // Stack purchased add-on packs on top of the plan base limit.
+  let addonPacks = 0
+  try {
+    const { data } = await supabase
+      .from("workspace_addons")
+      .select("quantity")
+      .eq("workspace_id", workspaceId)
+      .eq("addon_key", "extra_storage")
+      .eq("status", "active")
+    if (Array.isArray(data)) {
+      addonPacks = data.reduce((sum, r) => sum + Number((r as { quantity?: number }).quantity ?? 0), 0)
+    }
+  } catch { /* fail open */ }
+
+  const limit = baseLimit + addonPacks * ADDON_PACK_BYTES_GATE
 
   let used = 0
   try {
-    // Sum stored file sizes for this workspace (best-effort — table may be
-    // unmigrated, in which case we fail open).
     const { data } = await supabase
       .from("files")
       .select("size_bytes")
       .eq("workspace_id", workspaceId)
-      .is("deleted_at", null)
+      .neq("status", "deleted")
     if (Array.isArray(data)) {
       used = data.reduce((sum, r) => sum + Number((r as { size_bytes?: number }).size_bytes ?? 0), 0)
     }
@@ -213,7 +254,7 @@ export async function gateStorage(
     allowed: false,
     tier,
     status: 402,
-    reason: `This upload would exceed your ${PLAN_DISPLAY[tier].name} storage limit of ${gb(limit)} GB (currently using ${gb(used)} GB). Upgrade your plan or remove some files.`,
+    reason: `This upload would exceed your ${PLAN_DISPLAY[tier].name} storage limit of ${gb(limit)} GB (currently using ${gb(used)} GB). Upgrade your plan or purchase more storage.`,
   }
 }
 

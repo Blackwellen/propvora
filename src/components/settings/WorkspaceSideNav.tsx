@@ -4,6 +4,7 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  Scale,
   CreditCard,
   Package,
   Receipt,
@@ -23,6 +24,7 @@ import {
   Database,
   FlaskConical,
   AlertTriangle,
+  Settings2,
 } from "lucide-react"
 import type { SettingsNavItem } from "./SettingsShell"
 
@@ -121,6 +123,20 @@ export const WORKSPACE_NAV: SettingsNavItem[] = [
     icon: Globe,
     group: "Configuration",
     locked: false,
+  },
+  {
+    key: "preferences",
+    label: "Preferences",
+    href: "/property-manager/workspace-settings/preferences",
+    icon: Settings2,
+    group: "Configuration",
+  },
+  {
+    key: "jurisdiction",
+    label: "Jurisdiction",
+    href: "/property-manager/workspace-settings/jurisdiction",
+    icon: Scale,
+    group: "Configuration",
   },
   {
     key: "navigation",

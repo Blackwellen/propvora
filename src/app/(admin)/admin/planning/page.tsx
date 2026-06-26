@@ -69,7 +69,7 @@ export default async function AdminPlanningPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 items-start">
         <div className="xl:col-span-2 space-y-4">
-          <DiagnosticsBrowser rows={rows} primaryLabel="Planning set" metaLabel="Profile" icon={ClipboardList} />
+          <DiagnosticsBrowser rows={rows} primaryLabel="Planning set" metaLabel="Profile" iconKey="plan" />
         </div>
 
         <AdminRightRail>

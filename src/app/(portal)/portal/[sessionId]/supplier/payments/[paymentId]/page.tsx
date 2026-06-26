@@ -38,7 +38,7 @@ export default async function SupplierPaymentDetail({ params }: { params: Promis
     <div className="space-y-5">
       <PortalPageHeader
         title={`Remittance ${ref}`} subtitle="Payment to your account" backHref={`${base}/payments`} backLabel="Back to payments"
-        actions={<><PortalButtonLink href="#" icon={Download}>Download remittance</PortalButtonLink><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message accounts</PortalButtonLink></>}
+        actions={<><PortalButtonLink href={`${base}/documents`} icon={Download}>Statements</PortalButtonLink><PortalButtonLink href={`${base}/messages`} variant="primary" icon={MessageSquare}>Message accounts</PortalButtonLink></>}
       />
 
       <PortalCard className="p-5">
@@ -73,7 +73,7 @@ export default async function SupplierPaymentDetail({ params }: { params: Promis
         </div>
         <div className="space-y-4">
           <PortalSectionCard title="Payout account" icon={Building2}><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p><p className="text-xs text-slate-400">•••• 4821</p></PortalSectionCard>
-          <PortalSectionCard title="Remittance documents" icon={FileText}><PortalButtonLink href="#" icon={Download} className="w-full justify-center">Download statement</PortalButtonLink></PortalSectionCard>
+          <PortalSectionCard title="Documents" icon={FileText}><PortalButtonLink href={`${base}/documents`} icon={Download} className="w-full justify-center">View statements</PortalButtonLink></PortalSectionCard>
           <PortalSectionCard title="Questions?" icon={LifeBuoy}><PortalButtonLink href={`${base}/messages`} variant="primary" className="w-full justify-center">Message accounts</PortalButtonLink></PortalSectionCard>
         </div>
       </div>

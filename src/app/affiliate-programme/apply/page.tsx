@@ -10,12 +10,19 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default function AffiliateApplyPage() {
+export default async function AffiliateApplyPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const recruitedBy = typeof params.recruited_by === "string" ? params.recruited_by : null
+
   return (
     <div className="min-h-screen bg-[#F6FAFF] flex flex-col">
       <PublicNav />
       <main id="main-content" tabIndex={-1} className="focus:outline-none flex-1 px-6 pt-28 pb-16">
-        <ApplyClient />
+        <ApplyClient recruitedByWorkspaceId={recruitedBy} />
       </main>
       <PublicFooter />
     </div>

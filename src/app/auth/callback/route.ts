@@ -4,7 +4,17 @@ import { createClient } from "@/lib/supabase/server"
 import { recordCoreAcceptances } from "@/lib/legal/acceptance"
 import { bootstrapCustomerWorkspace } from "@/lib/actions/workspace"
 
-const ALLOWED_REDIRECTS = ["/property-manager", "/admin", "/supplier-portal", "/onboarding", "/customer", "/supplier"]
+const ALLOWED_REDIRECTS = [
+  "/property-manager",
+  "/admin",
+  "/supplier-portal",
+  "/onboarding",
+  "/customer",
+  "/supplier",
+  "/user",
+  "/invite",
+  "/affiliate",
+]
 
 function safeRedirect(url: string): string {
   return ALLOWED_REDIRECTS.some((allowed) => url.startsWith(allowed)) ? url : "/property-manager"
@@ -67,14 +77,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/invite/${encodeURIComponent(inviteToken)}`)
   }
 
-  // Customer intent: bootstrap a customer workspace (no wizard) → /customer.
+  // Customer intent: bootstrap a customer workspace (no wizard) → /user (canonical).
   if (intent === "customer") {
     try {
       await bootstrapCustomerWorkspace()
     } catch {
       // Non-fatal — they can create a workspace later.
     }
-    return NextResponse.redirect(`${origin}/customer`)
+    return NextResponse.redirect(`${origin}/user`)
   }
 
   // Supplier intent: send them through the supplier onboarding wizard.

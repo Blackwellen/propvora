@@ -9,11 +9,17 @@ interface ChatPanelProps {
   onClose: () => void
   /** Whether the workspace plan includes AI Copilot access. */
   aiCopilotEnabled?: boolean
+  /**
+   * True when the workspace is on a free trial. Shows the full panel (so inbox
+   * is accessible) but the Copilot tab shows a branded subscription gate.
+   * Distinct from non-trial lower-tier plans, which show the small upgrade card.
+   */
+  isTrial?: boolean
   /** Structured page-level data injected from the page that opened the copilot. */
   summaryData?: Record<string, unknown>
 }
 
-export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, summaryData }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, isTrial = false, summaryData }: ChatPanelProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
 
@@ -73,7 +79,11 @@ export default function ChatPanel({ isOpen, onClose, aiCopilotEnabled = false, s
   // not affect their layout.
   return (
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Propvora Copilot" tabIndex={-1}>
-      {aiCopilotEnabled ? (
+      {/* Trial: show the full panel so the Inbox tab remains accessible.
+          The copilot tab inside the panel renders the branded subscription gate. */}
+      {isTrial ? (
+        <CopilotPanelShell isOpen={isOpen} onClose={onClose} summaryData={summaryData} isTrial />
+      ) : aiCopilotEnabled ? (
         <CopilotPanelShell isOpen={isOpen} onClose={onClose} summaryData={summaryData} />
       ) : (
         <CopilotUpgradePrompt isOpen={isOpen} onClose={onClose} />

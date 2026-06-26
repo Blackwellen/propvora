@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useCallback } from "react"
 import { createBrowserClient } from "@supabase/ssr"
-import { useRouter } from "next/navigation"
 
 const TIMEOUT_MS = 30 * 60 * 1000   // 30 minutes
 const WARN_BEFORE_MS = 60 * 1000    // warn 1 minute before sign-out
@@ -14,7 +13,6 @@ const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scr
  * extend the session. Mount once in AppShell (client component).
  */
 export function useInactivityTimeout() {
-  const router = useRouter()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const warnRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const warningShownRef = useRef(false)
@@ -25,8 +23,8 @@ export function useInactivityTimeout() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
     await supabase.auth.signOut()
-    router.push("/login?reason=timeout")
-  }, [router])
+    window.location.assign("/login?reason=timeout")
+  }, [])
 
   const reset = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)

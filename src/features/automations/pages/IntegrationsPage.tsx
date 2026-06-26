@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import {
   Activity,
   AlertCircle,
-  BarChart3,
   Cable,
   CheckCircle2,
   Clock,
@@ -40,19 +39,10 @@ import {
   type CatalogIntegration,
   type IntegrationCategory,
 } from "../data/integrations-catalog"
-import type { WebhookDelivery, WebhookEndpoint } from "../data/types"
+import type { IntegrationRow, WebhookDelivery, WebhookEndpoint } from "../data/types"
 
-// ── Types ───────────────────────────────────────────────────────────────────
-
-interface ConnectedRow {
-  id: string
-  name: string
-  category: string
-  health: "healthy" | "warning" | "error" | "disconnected"
-  provider: string
-  environment: string
-  lastSync: string
-}
+// Use the live data type directly — avoids duplicate shape that drifts from the hook.
+type ConnectedRow = IntegrationRow & { provider?: string }
 
 const ENV_CLS: Record<string, string> = {
   Production: "bg-emerald-50 text-emerald-700",
@@ -601,7 +591,8 @@ function WebhooksTabContent() {
 
 export default function IntegrationsPage() {
   const toast = useToast()
-  const { data, loading, refresh } = useAutomationIntegrations()
+  const { data, loading, reload } = useAutomationIntegrations()
+  const refresh = reload
   const [subtab, setSubtab] = useState<SubTab>("Overview")
   const [view, setView] = useState<"grid" | "list">("grid")
   const [search, setSearch] = useState("")
@@ -609,19 +600,13 @@ export default function IntegrationsPage() {
   const [apiKeyModal, setApiKeyModal] = useState<CatalogIntegration | null>(null)
   const [testingProvider, setTestingProvider] = useState<string | null>(null)
 
-  const connected = data.integrations as ConnectedRow[]
+  const connected: ConnectedRow[] = data.integrations
 
-  function connectedFor(provider: string): ConnectedRow | undefined {
-    return connected.find((c) => c.provider === provider || c.name.toLowerCase().includes(provider.toLowerCase()))
+  function connectedFor(catalogId: string): ConnectedRow | undefined {
+    return connected.find((c) => c.name.toLowerCase().includes(catalogId.toLowerCase()))
   }
 
-  const qaAll = process.env.NEXT_PUBLIC_QA_ALL_FLAGS === "true"
-
   const filteredCatalog = AVAILABLE_INTEGRATIONS.filter((item) => {
-    if (item.featureFlag && !qaAll) {
-      const flagVal = process.env[item.featureFlag as keyof typeof process.env]
-      if (flagVal !== "true") return false
-    }
     const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || item.description.toLowerCase().includes(search.toLowerCase())
     const matchCat = category === "All categories" || CATEGORY_LABELS[item.category as IntegrationCategory] === category
     return matchSearch && matchCat
@@ -700,10 +685,14 @@ export default function IntegrationsPage() {
       <ConnectionBanner />
 
       {/* Sub-tab strip */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-slate-200">
+      <div role="tablist" aria-label="Integrations sections" className="flex flex-wrap items-center gap-1 border-b border-slate-200">
         {SUBTABS.map((t) => (
           <button
             key={t}
+            role="tab"
+            aria-selected={subtab === t}
+            aria-controls={`integrations-panel-${t.toLowerCase().replace(/\s+/g, "-")}`}
+            id={`integrations-tab-${t.toLowerCase().replace(/\s+/g, "-")}`}
             onClick={() => setSubtab(t)}
             className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${subtab === t ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
           >
@@ -882,7 +871,7 @@ export default function IntegrationsPage() {
                 {connected.filter((c) => c.health !== "healthy").map((c) => (
                   <div key={c.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
                     <span className="text-slate-700">{c.name}</span>
-                    <button onClick={() => handleTest(c.provider ?? c.name.toLowerCase())} className="text-xs font-medium text-blue-600 hover:underline">
+                    <button onClick={() => handleTest(c.id ?? c.name.toLowerCase())} className="text-xs font-medium text-blue-600 hover:underline">
                       Test connection
                     </button>
                   </div>
@@ -910,8 +899,8 @@ export default function IntegrationsPage() {
                       <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${it.health === "healthy" ? "bg-emerald-50 text-emerald-700" : it.health === "error" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
                         {it.health === "healthy" ? "Healthy" : it.health === "error" ? "Error" : "Warning"}
                       </span>
-                      <button onClick={() => handleTest(it.provider ?? it.name.toLowerCase())} disabled={testingProvider === (it.provider ?? it.name.toLowerCase())} className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50 disabled:opacity-50">
-                        {testingProvider === (it.provider ?? it.name.toLowerCase()) ? <Loader2 className="h-3 w-3 animate-spin" /> : "Test"}
+                      <button onClick={() => handleTest(it.id ?? it.name.toLowerCase())} disabled={testingProvider === (it.id ?? it.name.toLowerCase())} className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+                        {testingProvider === (it.id ?? it.name.toLowerCase()) ? <Loader2 className="h-3 w-3 animate-spin" /> : "Test"}
                       </button>
                     </div>
                   </div>

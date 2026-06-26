@@ -6,9 +6,20 @@ import { Mail, MessageSquare, CheckCircle2, ArrowRight, Loader2 } from "lucide-r
 import PublicNav from "@/components/marketing/PublicNav"
 import { submitContactRequest } from "@/lib/actions/public-forms"
 
+const CATEGORIES = [
+  "General enquiry",
+  "Product demo request",
+  "Billing & pricing",
+  "Technical support",
+  "Partnership or integration",
+  "Security or data concern",
+  "Other",
+]
+
 export default function ContactClient() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [category, setCategory] = useState("General enquiry")
   const [message, setMessage] = useState("")
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -30,7 +41,7 @@ export default function ContactClient() {
     }
 
     setSubmitting(true)
-    const result = await submitContactRequest({ name, email, message })
+    const result = await submitContactRequest({ name, email, message, category })
     setSubmitting(false)
 
     if (!result.ok) {
@@ -80,6 +91,7 @@ export default function ContactClient() {
                   onClick={() => {
                     setName("")
                     setEmail("")
+                    setCategory("General enquiry")
                     setMessage("")
                     setSubmitted(false)
                   }}
@@ -140,6 +152,23 @@ export default function ContactClient() {
                     autoComplete="email"
                     className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label htmlFor="contact-category" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                    How can we help?
+                  </label>
+                  <select
+                    id="contact-category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Message */}

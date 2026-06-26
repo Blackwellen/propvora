@@ -6,7 +6,7 @@ import { Check, ChevronRight, Copy } from "lucide-react"
 import { submitAffiliateApplication } from "@/lib/actions/affiliate"
 import { AUDIENCE_TYPES } from "@/lib/affiliate/levels"
 
-export default function ApplyClient() {
+export default function ApplyClient({ recruitedByWorkspaceId }: { recruitedByWorkspaceId?: string | null }) {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [code, setCode] = useState<string | null>(null)
@@ -34,7 +34,7 @@ export default function ApplyClient() {
     setError(null)
     setSubmitting(true)
     try {
-      const res = await submitAffiliateApplication(form)
+      const res = await submitAffiliateApplication({ ...form, recruitedByWorkspaceId: recruitedByWorkspaceId ?? null })
       if (res.ok) {
         setDone(true)
         setCode(res.referralCode ?? null)
@@ -80,9 +80,18 @@ export default function ApplyClient() {
             </p>
           </div>
         )}
+        <div className="space-y-2 text-sm">
+          <Link
+            href="/register?next=/affiliate"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+          >
+            Create your Propvora account <ChevronRight className="w-4 h-4" />
+          </Link>
+          <p className="text-xs text-slate-400">You can sign up now and enrol once approved.</p>
+        </div>
         <Link
           href="/affiliate-programme"
-          className="inline-block text-sm font-semibold text-[#2563EB] hover:underline"
+          className="inline-block text-sm text-slate-500 hover:text-[#2563EB]"
         >
           Back to the programme
         </Link>
@@ -102,6 +111,13 @@ export default function ApplyClient() {
           Earn 10% recurring commission for 6 months on every paying customer you refer.
         </p>
       </div>
+
+      {recruitedByWorkspaceId && (
+        <div className="rounded-xl bg-violet-50 border border-violet-100 p-3 text-sm text-violet-800 text-center">
+          You were invited by an existing Propvora affiliate. If approved, your account will be linked
+          to their network and they&apos;ll earn a small earn-through on your sales.
+        </div>
+      )}
 
       {error && (
         <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">{error}</div>

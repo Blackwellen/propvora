@@ -58,7 +58,7 @@ export default async function AutomationCanvasIdPage({ params }: { params: Promi
   return (
     <div className="space-y-5">
       <OpsHeader
-        icon={LayoutTemplate}
+        iconNode={<LayoutTemplate className="h-5 w-5" />}
         title={`Canvas — ${def.name}`}
         subtitle={`Visual node builder · ${versions.length} version(s)${active ? ` · v${active.version} active` : " · no active version"}`}
         backHref="/property-manager/automations/my-automations"

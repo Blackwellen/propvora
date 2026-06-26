@@ -55,10 +55,7 @@ export default async function AutomationCanvasPage() {
     // fail-closed
   }
   const hiddenTabs: string[] = []
-  if (!automationsFull) {
-    hiddenTabs.push("Webhooks")
-    hiddenTabs.push("Integrations")
-  }
+  if (!automationsFull) hiddenTabs.push("Integrations")
 
   return (
     <div className="mx-auto max-w-[1500px] space-y-4 px-6 pb-12">

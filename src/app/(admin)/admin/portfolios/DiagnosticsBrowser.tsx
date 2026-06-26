@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
-import { Database, ChevronRight, type LucideIcon } from "lucide-react"
+import { Database, ChevronRight, Building2, CheckSquare, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   AdminCard,
@@ -12,6 +12,14 @@ import {
   type AdminTone,
 } from "@/components/admin/ui"
 import type { DiagnosticRow } from "@/lib/admin/data"
+
+const ICON_MAP = {
+  building: Building2,
+  task: CheckSquare,
+  plan: ClipboardList,
+} as const
+
+type IconKey = keyof typeof ICON_MAP
 
 const STATUS_TONE: Record<string, AdminTone> = {
   active: "emerald", published: "emerald", live: "emerald", complete: "emerald", completed: "emerald",
@@ -34,8 +42,8 @@ interface Props {
   rows: DiagnosticRow[]
   primaryLabel: string
   metaLabel: string
-  /** Empty-state icon. */
-  icon: LucideIcon
+  /** Empty-state icon key — use a string to avoid passing functions from server components. */
+  iconKey?: IconKey
 }
 
 /**
@@ -44,7 +52,8 @@ interface Props {
  * so there is no extra round-trip. Read-only by design — links deep into the
  * source workspace; no mutating controls.
  */
-export default function DiagnosticsBrowser({ rows, primaryLabel, metaLabel, icon: Icon }: Props) {
+export default function DiagnosticsBrowser({ rows, primaryLabel, metaLabel, iconKey = "building" }: Props) {
+  const Icon = ICON_MAP[iconKey]
   const [search, setSearch] = useState("")
   const [metaFilter, setMetaFilter] = useState("All")
 

@@ -160,8 +160,8 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
   {
     code: "extra_storage",
     name: "Extra storage",
-    description: "Additional document & media storage, per 100 GB.",
-    unitPricePence: 1500,
+    description: "Additional document & media storage, sold in 10 GB packs at £5 each.",
+    unitPricePence: 500,
     unit: "per_gb",
     defaultQty: 1,
     hasQuantity: true,

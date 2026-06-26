@@ -35,36 +35,58 @@ export interface CapLimits {
   costPenceMonth: number
 }
 
-// Generous but real. Internal/enterprise effectively unlimited.
+// ── Azure OpenAI profitability reference (GPT-4o-mini, EU West region) ──────
+// Input:  £0.012 per 1k tokens  ($0.15/1M × 0.79 USD→GBP)
+// Output: £0.047 per 1k tokens  ($0.60/1M × 0.79 USD→GBP)
+//
+// Worst-case Azure cost per plan if every allowed monthly message hits limits
+// (system prompt + workspace context adds ~3k tokens overhead per call):
+//
+//   Scale     750 msg × 5k total in/2k out  ≈ £0.90/month   → cap £30   (33× margin)
+//   Pro/Agency 3k msg × 7k total in/3k out  ≈ £5.90/month   → cap £120  (20× margin)
+//   Enterprise bounded by per-workspace cap below
+//
+// These CAPS are the HARD FINANCIAL backstop. They override per-plan message
+// and token allowances if a workspace hits unusual usage (API automation,
+// rapid-fire prompts). A cap that is known to be exceeded REFUSES the call.
 const UNLIM = Number.MAX_SAFE_INTEGER
 
 export const PLAN_CAPS: Record<PlanTier, CapLimits> = {
-  // Starter / Operator don't include AI Copilot at all (gateAiCopilot blocks
-  // them first) — these values only matter if the gate is ever relaxed.
+  // Starter / Operator: gateAiCopilot() blocks before caps are reached, but
+  // small non-zero values here act as a final defence-in-depth if the gate
+  // is ever relaxed (e.g. trial / internal testing).
   starter: {
-    requests6h: 20, requestsDay: 50, requestsWeek: 150, requestsMonth: 400,
-    tokens6h: 60_000, tokensDay: 150_000, tokensWeek: 500_000, tokensMonth: 1_500_000,
-    costPenceMonth: 200, // £2.00
+    requests6h: 10, requestsDay: 25,  requestsWeek: 75,  requestsMonth: 200,
+    tokens6h: 30_000, tokensDay: 75_000, tokensWeek: 250_000, tokensMonth: 750_000,
+    costPenceMonth: 100, // £1.00 — absolute backstop
   },
   operator: {
-    requests6h: 40, requestsDay: 120, requestsWeek: 400, requestsMonth: 1_200,
-    tokens6h: 120_000, tokensDay: 400_000, tokensWeek: 1_500_000, tokensMonth: 4_000_000,
-    costPenceMonth: 600, // £6.00
+    requests6h: 20, requestsDay: 60,  requestsWeek: 200, requestsMonth: 600,
+    tokens6h: 60_000, tokensDay: 200_000, tokensWeek: 750_000, tokensMonth: 2_000_000,
+    costPenceMonth: 300, // £3.00 — backstop only (AI not sold on Operator)
   },
   scale: {
-    requests6h: 120, requestsDay: 400, requestsWeek: 1_500, requestsMonth: 5_000,
-    tokens6h: 400_000, tokensDay: 1_500_000, tokensWeek: 6_000_000, tokensMonth: 20_000_000,
+    // 750 msg/mo plan limit × max 4k tokens per turn (in+out) ≈ 3M tokens/mo.
+    // Cap at 2× expected volume (6M) + generous rolling windows for burst chat.
+    // £30 cost ceiling = 33× the realistic Azure spend at full utilisation.
+    requests6h: 60,  requestsDay: 200,  requestsWeek: 800,   requestsMonth: 2_000,
+    tokens6h: 200_000, tokensDay: 700_000, tokensWeek: 3_000_000, tokensMonth: 10_000_000,
     costPenceMonth: 3_000, // £30.00
   },
   pro_agency: {
-    requests6h: 400, requestsDay: 1_500, requestsWeek: 6_000, requestsMonth: 20_000,
-    tokens6h: 1_500_000, tokensDay: 6_000_000, tokensWeek: 25_000_000, tokensMonth: 90_000_000,
+    // 3k msg/mo × avg 7k total tokens (overhead + user turn) ≈ 21M/mo.
+    // Cap at 2× for burst headroom. £120 = 20× the realistic Azure spend.
+    requests6h: 200, requestsDay: 800,  requestsWeek: 3_500,  requestsMonth: 12_000,
+    tokens6h: 700_000, tokensDay: 2_500_000, tokensWeek: 12_000_000, tokensMonth: 50_000_000,
     costPenceMonth: 12_000, // £120.00
   },
   enterprise: {
+    // Enterprise is negotiated — a per-workspace cost ceiling prevents any
+    // single workspace from running away. Set high enough not to interrupt
+    // legitimate enterprise use while still bounding exposure.
     requests6h: UNLIM, requestsDay: UNLIM, requestsWeek: UNLIM, requestsMonth: UNLIM,
     tokens6h: UNLIM, tokensDay: UNLIM, tokensWeek: UNLIM, tokensMonth: UNLIM,
-    costPenceMonth: UNLIM,
+    costPenceMonth: 50_000, // £500/mo per workspace — negotiate higher for large accounts
   },
 }
 

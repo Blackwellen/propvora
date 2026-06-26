@@ -89,6 +89,7 @@ export default function AutomationsTabs({
               <Link
                 key={tab.href}
                 href={resolveSectionHref(tab.href, ctx)}
+                aria-current={active ? "page" : undefined}
                 className={[
                   "relative shrink-0 whitespace-nowrap border-b-2 px-3.5 py-3 text-sm transition",
                   active

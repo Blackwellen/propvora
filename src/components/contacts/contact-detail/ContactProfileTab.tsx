@@ -28,11 +28,16 @@ import {
   validateEmail, validatePhone,
 } from "./shared"
 import { useContactSave } from "./ContactSaveContext"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
+import { amlDuties } from "@/lib/legal/aml"
+import { NotLegalAdviceNotice } from "@/components/jurisdiction"
 
 // ---- Profile (generic) ----
 export function ProfileTab({ contact }: { contact: ContactDetail }) {
   const { save, editable } = useContactSave()
   const lockReason = editable ? undefined : "Demo records are read-only."
+  const ws = useWorkspaceJurisdiction()
+  const aml = amlDuties(ws.countryCode)
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -105,6 +110,29 @@ export function ProfileTab({ contact }: { contact: ContactDetail }) {
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Notes</p>
         <InlineEditTextarea value={contact.notes} label="notes" readOnly={!editable} readOnlyReason={lockReason} placeholder="Add an internal note about this contact…" displayClassName="text-sm text-slate-700 leading-relaxed" onSave={(v) => save("notes", v)} />
       </div>
+
+      {/* AML / KYC (dim 28) — customer due diligence when the workspace is in AML scope. */}
+      {aml.inScope && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">AML / KYC ({aml.jurisdiction})</p>
+          <ul className="space-y-1.5">
+            {[
+              { on: aml.cddRequired, label: "Customer due diligence (identity verified)" },
+              { on: aml.sourceOfFunds, label: "Source of funds checked" },
+              { on: aml.sanctionsScreening, label: "Sanctions screening completed" },
+            ].filter((x) => x.on).map((x) => (
+              <li key={x.label} className="flex items-center gap-2 text-[12.5px] text-slate-700">
+                <span className="w-4 h-4 rounded-full border border-amber-300 bg-amber-50 inline-block shrink-0" />
+                {x.label} <span className="text-[10px] text-amber-600">not recorded</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[11px] text-slate-500 mt-2">
+            {aml.note}{aml.supervisor ? ` Supervisor: ${aml.supervisor}.` : ""}
+          </p>
+          <NotLegalAdviceNotice variant="inline" className="mt-2" />
+        </div>
+      )}
     </div>
   )
 }

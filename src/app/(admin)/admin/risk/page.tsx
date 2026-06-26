@@ -8,6 +8,9 @@ import { listWorkspaceRiskRows, recentHighSeverityEvents } from "@/lib/risk/sign
 import RiskTable from "@/components/admin-risk/RiskTable"
 import { SeverityBadge } from "@/components/admin-risk/badges"
 import { eventTypeLabel, fmtDateTime, shortId } from "@/components/admin-risk/helpers"
+import { AdminPageHeader, AdminBanner, AdminNotConfigured } from "@/components/admin/ui"
+
+export const metadata = { title: "Risk — Propvora admin" }
 
 export const dynamic = "force-dynamic"
 
@@ -39,58 +42,34 @@ export default async function AdminRiskPage() {
   const criticalCount = rows.filter((r) => r.band === "critical").length
   const highCount = rows.filter((r) => r.band === "high").length
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Risk &amp; fraud</h1>
-          <p className="text-xs text-slate-500">
-            Workspaces ranked by aggregate risk signals across the platform
-          </p>
-        </div>
-        {available && rows.length > 0 && (
-          <div className="flex items-center gap-3 text-[11px] text-slate-500">
-            {criticalCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-rose-600">
-                <ShieldAlert className="w-3.5 h-3.5" />
-                {criticalCount} critical
-              </span>
-            )}
-            {highCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-orange-600">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                {highCount} high
-              </span>
-            )}
-            {flaggedCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-rose-600">
-                <Flag className="w-3.5 h-3.5" />
-                {flaggedCount} flagged
-              </span>
-            )}
-          </div>
-        )}
-      </div>
+  const subtitleParts = []
+  if (criticalCount > 0) subtitleParts.push(`${criticalCount} critical`)
+  if (highCount > 0) subtitleParts.push(`${highCount} high`)
+  if (flaggedCount > 0) subtitleParts.push(`${flaggedCount} flagged`)
 
-      {/* Honesty banner */}
-      <div className="flex items-start gap-2 rounded-xl border border-[#E2E8F0] bg-slate-50 px-3 py-2.5">
-        <ShieldAlert className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-        <p className="text-[11.5px] leading-relaxed text-slate-500">
-          Risk scores are <span className="font-semibold text-slate-700">computed signals to
-          assist review</span>, not automated enforcement or accusations. They aggregate observed
-          events (sanctions screenings, KYC checks, disputes, transaction patterns) to help a human
-          admin triage. Any flag or clear is an explicit, recorded admin action.
-        </p>
-      </div>
+  return (
+    <div className="space-y-5">
+      <AdminPageHeader
+        icon={ShieldAlert}
+        title="Risk & fraud"
+        subtitle={subtitleParts.length > 0
+          ? `Workspaces ranked by aggregate risk signals — ${subtitleParts.join(" · ")}`
+          : "Workspaces ranked by aggregate risk signals across the platform"}
+        breadcrumb={[{ label: "Admin", href: "/admin" }, { label: "Operations" }, { label: "Risk" }]}
+      />
+
+      <AdminBanner tone="amber" icon={ShieldAlert} title="Signals, not enforcement.">
+        Risk scores are <span className="font-semibold text-slate-700">computed signals to
+        assist review</span>, not automated enforcement or accusations. They aggregate observed
+        events (sanctions screenings, KYC checks, disputes, transaction patterns) to help a human
+        admin triage. Any flag or clear is an explicit, recorded admin action.
+      </AdminBanner>
 
       {!available ? (
-        <div className="rounded-xl border border-[#E2E8F0] bg-white py-12 text-center">
-          <ShieldAlert className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-sm text-slate-500 font-medium">Risk engine not provisioned</p>
-          <p className="text-xs text-slate-400 mt-1">
-            The risk_scores table is not present in this database yet.
-          </p>
-        </div>
+        <AdminNotConfigured
+          title="Risk engine not provisioned"
+          description="The risk_scores table is not present in this database yet. Apply the migration to enable the risk dashboard."
+        />
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
           {/* Ranked table */}

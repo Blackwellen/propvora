@@ -53,10 +53,15 @@ not in scope for the internationalisation drop.
 
 ---
 
-## 3. Per-jurisdiction legal content packs (post-V1, external dependency)
+## 3. Per-jurisdiction legal content packs (post-V1, optional)
 
-Real local possession/eviction procedure, licensing and tenancy law for non-GB
-jurisdictions requires **qualified local legal review** before it can be shipped as
-authoritative content. This is deliberately out of V1 scope. The V1 behaviour — generic
-record-keeping mode + "verify locally" disclaimer for all non-E&W jurisdictions — is the
-correct, compliant interim. Do **not** auto-generate statute text for other countries.
+**Founder decision (2026-06-26): no solicitor review required for V1.** Propvora makes
+**no legal-advice claims and no legal promises** — for non-GB jurisdictions it ships generic,
+non-advisory record-keeping/document/evidence-tracking copy behind the permanent
+`NotLegalAdviceNotice` disclaimer. Because nothing presented is legal advice, the V1 generic
+non-advice posture needs **no qualified-solicitor sign-off** to ship.
+
+A qualified-legal-review gate would only re-appear *if* a future release promotes reviewed
+**authoritative** statute packs for a country (advice-grade content). That is post-V1 and
+optional. Until then: keep all non-E&W jurisdictions in `generic` mode and do **not**
+auto-generate authoritative statute text for other countries.
