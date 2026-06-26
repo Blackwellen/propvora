@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { stripeSecretKey } from "@/lib/payments/stripe-keys"
+import { stripeSecretKey, stripePmcId } from "@/lib/payments/stripe-keys"
 import { createClient } from "@/lib/supabase/server"
 
 export const runtime = "nodejs"
@@ -64,6 +64,8 @@ export async function POST(request: Request) {
     const stripe = new Stripe(secretKey, {
       apiVersion: "2026-05-27.dahlia" as const,
     })
+    const pmcInvoice = stripePmcId("INVOICE_PAYMENTS")
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [
@@ -82,6 +84,7 @@ export async function POST(request: Request) {
       metadata: { workspace_id: row.workspace_id, invoice_id: String(id), kind: "invoice_payment" },
       success_url: `${appUrl}/property-manager/money/invoices/${id}?payment=success`,
       cancel_url: `${appUrl}/property-manager/money/invoices/${id}?payment=cancelled`,
+      ...(pmcInvoice ? { payment_method_configuration: pmcInvoice } : {}),
     })
     return NextResponse.json({ url: session.url })
   } catch (e) {

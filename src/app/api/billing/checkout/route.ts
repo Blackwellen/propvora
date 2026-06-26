@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { stripeSecretKey } from "@/lib/payments/stripe-keys"
+import { stripeSecretKey, stripePmcId } from "@/lib/payments/stripe-keys"
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -96,6 +96,8 @@ export async function POST(request: NextRequest) {
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 
+    const pmcSubscriptions = stripePmcId("SUBSCRIPTIONS")
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
@@ -114,13 +116,16 @@ export async function POST(request: NextRequest) {
         },
       },
       allow_promotion_codes: true,
+      ...(pmcSubscriptions ? { payment_method_configuration: pmcSubscriptions } : {}),
     })
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    console.error("[billing/checkout]", err)
+    const stripeErr = err as { type?: string; message?: string; code?: string } | null
+    const detail = stripeErr?.message ?? String(err)
+    console.error("[billing/checkout]", { type: stripeErr?.type, code: stripeErr?.code, detail })
     return NextResponse.json(
-      { error: "Failed to create checkout session." },
+      { error: "Failed to create checkout session.", detail: process.env.NODE_ENV !== "production" ? detail : undefined },
       { status: 500 }
     )
   }

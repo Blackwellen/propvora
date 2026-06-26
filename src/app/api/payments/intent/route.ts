@@ -4,7 +4,7 @@ import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { rateLimit, clientKey } from "@/lib/rate-limit"
-import { stripeSecretKey } from "@/lib/payments/stripe-keys"
+import { stripeSecretKey, stripePmcId } from "@/lib/payments/stripe-keys"
 import { resolveStripeCustomer, createCustomerSessionSecret } from "@/lib/payments/stripe-customer"
 
 export const runtime = "nodejs"
@@ -401,6 +401,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const pmcStayBookings = stripePmcId("STAY_BOOKINGS")
+
     const intent = await stripe.paymentIntents.create({
       ...(params as unknown as Stripe.PaymentIntentCreateParams),
       // Logged-in user → attach their Customer + save the card for next time.
@@ -408,6 +410,7 @@ export async function POST(request: NextRequest) {
         ? { customer: stripeCustomerId, setup_future_usage: "off_session" as const }
         : {}),
       automatic_payment_methods: { enabled: true },
+      ...(pmcStayBookings ? { payment_method_configuration: pmcStayBookings } : {}),
     })
 
     // ── Link the intent back to the payment record ──────────────────────────

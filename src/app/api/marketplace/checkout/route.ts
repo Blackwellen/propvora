@@ -4,7 +4,7 @@ import type Stripe from "stripe"
 import { flagGate } from "@/lib/flags/api-gate"
 import { createClient } from "@/lib/supabase/server"
 import { captureException, requestIdFrom } from "@/lib/observability"
-import { stripeSecretKey } from "@/lib/payments/stripe-keys"
+import { stripeSecretKey, stripePmcId } from "@/lib/payments/stripe-keys"
 import { createMarketplaceTransaction } from "@/lib/marketplace/transactions"
 import { transactionTypeForListing, type ListingType } from "@/lib/marketplace/types"
 import type { MarketplaceTransactionType } from "@/lib/marketplace/fees"
@@ -257,9 +257,12 @@ export async function POST(request: NextRequest) {
       metadata: { kind: "marketplace_order", ...(orderId ? { order_id: orderId } : {}) },
     })
 
+    const pmcMarketplace = stripePmcId("MARKETPLACE")
+
     const intent = await stripe.paymentIntents.create({
       ...(params as Stripe.PaymentIntentCreateParams),
       automatic_payment_methods: { enabled: true },
+      ...(pmcMarketplace ? { payment_method_configuration: pmcMarketplace } : {}),
     })
 
     if (paymentId) {
