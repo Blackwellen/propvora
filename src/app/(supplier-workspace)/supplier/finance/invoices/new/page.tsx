@@ -14,6 +14,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Briefcase, ListChecks, Send, FileText } from "lucide-react"
 import { SupplierWizardShell, type WizardStepMeta } from "@/components/supplier-workspace/wizard/SupplierWizardShell"
 import { moneyPence } from "@/components/supplier-workspace/format"
+import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
 // Extracted wizard step components
 import {
@@ -35,8 +37,6 @@ const STEPS: WizardStepMeta[] = [
   { label: "Review & send", subtitle: "Confirm and send", icon: Send },
 ]
 
-const COMPLETED_JOBS: BillableJob[] = []
-
 export default function SupplierNewInvoicePage() {
   return <Suspense fallback={null}><NewInvoiceInner /></Suspense>
 }
@@ -44,16 +44,24 @@ export default function SupplierNewInvoicePage() {
 function NewInvoiceInner() {
   const router = useRouter()
   const params = useSearchParams()
+  const { workspaceId } = useSupplierWorkspace()
   const stepParam = params.get("step")
   const initialStep = stepParam === "line-items" ? 1 : stepParam === "review" ? 2 : 0
+
+  const billable = useSupplierApi<BillableJob[]>(
+    useSupplierApiUrl("/api/supplier/invoices/billable"),
+    { select: (j) => (j as { items?: BillableJob[] }).items ?? [] }
+  )
+  const completedJobs = billable.data ?? []
 
   const [current, setCurrent] = useState(initialStep)
   const [finishing, setFinishing] = useState(false)
   const [jobId, setJobId] = useState<string | null>(null)
   const [includeVat, setIncludeVat] = useState(true)
   const [lines, setLines] = useState<InvoiceLine[]>([])
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const job = COMPLETED_JOBS.find((j) => j.id === jobId) ?? null
+  const job = completedJobs.find((j) => j.id === jobId) ?? null
 
   function selectJob(j: BillableJob) {
     setJobId(j.id)
@@ -76,10 +84,49 @@ function NewInvoiceInner() {
   function back() { router.push("/supplier/finance?tab=invoices") }
 
   async function submit() {
+    if (!workspaceId || !job) {
+      setSubmitError("Workspace or job not ready. Please retry.")
+      return
+    }
     setFinishing(true)
-    // STUB: TODO(supplier-invoices) POST /api/supplier/invoices then audit
-    // `invoice.created`. Optimistic redirect for now.
-    setTimeout(() => router.push("/supplier/finance?tab=invoices"), 600)
+    setSubmitError(null)
+    try {
+      // 1) Create the draft invoice against the selected completed job.
+      const noteParts = lines.map((l) => `${l.qty}× ${l.description}`).join("; ")
+      const createRes = await fetch("/api/supplier/invoices", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          amount_pence: grossPence,
+          assignment_id: job.id,
+          currency: "GBP",
+          notes: noteParts || null,
+        }),
+      })
+      if (!createRes.ok) {
+        const b = (await createRes.json().catch(() => null)) as { error?: string } | null
+        setSubmitError(b?.error ?? "Could not create the invoice.")
+        setFinishing(false)
+        return
+      }
+      const { invoice } = (await createRes.json()) as { invoice: { id: string } }
+
+      // 2) Submit it (draft → submitted) so the operator receives it.
+      const submitRes = await fetch("/api/supplier/invoices", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ workspaceId, invoiceId: invoice.id, action: "submit" }),
+      })
+      if (!submitRes.ok) {
+        // The draft was created; surface but still route to the list where it shows.
+        setSubmitError("Invoice saved as draft, but could not be submitted. You can submit it from the list.")
+      }
+      router.push("/supplier/finance?tab=invoices")
+    } catch {
+      setSubmitError("Network error. Please try again.")
+      setFinishing(false)
+    }
   }
 
   const livePanel = (
@@ -113,6 +160,17 @@ function NewInvoiceInner() {
         </dl>
       </div>
       <InvoiceWizardProgress items={readiness} />
+      {billable.loading && (
+        <p className="text-xs text-slate-400">Loading your completed jobs…</p>
+      )}
+      {!billable.loading && completedJobs.length === 0 && (
+        <p className="text-xs text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+          No completed, un-invoiced jobs yet. Finish and sign off a job to raise an invoice against it.
+        </p>
+      )}
+      {submitError && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{submitError}</p>
+      )}
     </div>
   )
 
@@ -133,7 +191,7 @@ function NewInvoiceInner() {
     >
       {current === 0 && (
         <InvoiceStep1JobCustomer
-          jobs={COMPLETED_JOBS}
+          jobs={completedJobs}
           selectedJobId={jobId}
           onSelectJob={selectJob}
         />
