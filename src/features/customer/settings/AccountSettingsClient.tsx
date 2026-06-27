@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill } from "../components/StatusPill"
 import { customerInputClass } from "@/components/customer/ui"
+import { PasswordChangeModal, TwoFactorModal } from "./SecurityModals"
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -27,6 +28,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
   const { toast } = useCustomerToast()
   const [tab, setTab] = useState(initialTab)
   const [dirty, setDirty] = useState(false)
+  const [modal, setModal] = useState<null | "password" | "2fa">(null)
 
   function changeTab(id: string) {
     setTab(id)
@@ -103,8 +105,8 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
 
           {(tab === "overview" || tab === "security") && (
             <Panel title="Security">
-              <SecRow icon={KeyRound} title="Password" sub="Update your login password" cta="Change password" onClick={() => toast("Change password — coming soon", "info")} />
-              <SecRow icon={Smartphone} title="Two-factor authentication" sub="Not yet enabled" cta="Enable 2FA" onClick={() => toast("Manage 2FA — coming soon", "info")} />
+              <SecRow icon={KeyRound} title="Password" sub="Update your login password" cta="Change password" onClick={() => setModal("password")} />
+              <SecRow icon={Smartphone} title="Two-factor authentication" sub="Not yet enabled" cta="Enable 2FA" onClick={() => setModal("2fa")} />
               <SecRow icon={Download} title="Download your data" sub="Get a copy of your account data" cta="Request" onClick={() => toast("Data export requested", "success")} />
             </Panel>
           )}
@@ -129,7 +131,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <div className="flex items-center justify-between"><span className="text-[12px] text-slate-500">Verification</span><StatusPill tone="slate">Unverified</StatusPill></div>
           </Panel>
           <Panel title="Quick actions">
-            <QA icon={KeyRound} label="Change password" onClick={() => toast("Change password — coming soon", "info")} />
+            <QA icon={KeyRound} label="Change password" onClick={() => setModal("password")} />
             <QA icon={Fingerprint} label="Verify identity" onClick={() => toast("Identity verification — coming soon", "info")} />
             <QA icon={CreditCard} label="Manage cards" onClick={() => router.push("/customer/payments")} />
             <QA icon={Download} label="Download data" onClick={() => toast("Data export requested", "success")} />
@@ -158,6 +160,9 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
           </div>
         </div>
       )}
+
+      {modal === "password" && <PasswordChangeModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
+      {modal === "2fa" && <TwoFactorModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
     </div>
   )
 }
