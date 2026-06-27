@@ -45,7 +45,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
               </span>
             )}
           </div>
-          <StayDetailActions title={stay.title} />
+          <StayDetailActions title={stay.title} slug={slug} />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 mb-1">{stay.title}</h1>
         <div className="flex items-center gap-4 text-sm text-slate-500">

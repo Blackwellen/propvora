@@ -13,6 +13,7 @@ import { useCustomerToast } from "../components/toast"
 import { StatusPill } from "../components/StatusPill"
 import { customerInputClass } from "@/components/customer/ui"
 import { PasswordChangeModal, TwoFactorModal } from "./SecurityModals"
+import { AddressModal } from "./AddressModal"
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -28,7 +29,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
   const { toast } = useCustomerToast()
   const [tab, setTab] = useState(initialTab)
   const [dirty, setDirty] = useState(false)
-  const [modal, setModal] = useState<null | "password" | "2fa">(null)
+  const [modal, setModal] = useState<null | "password" | "2fa" | "address">(null)
 
   function changeTab(id: string) {
     setTab(id)
@@ -73,7 +74,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
                   <Field label="Date of birth" defaultValue="" onChange={() => setDirty(true)} />
                 </div>
               </Panel>
-              <Panel title="Saved addresses" action={<AddBtn label="Add address" onClick={() => toast("Add address — coming soon", "info")} />}>
+              <Panel title="Saved addresses" action={<AddBtn label="Add address" onClick={() => setModal("address")} />}>
                 <p className="text-[12.5px] text-slate-400 py-2">No saved addresses yet. Add your home or work address for faster checkout.</p>
               </Panel>
               <Panel title="Emergency contact" action={<AddBtn label="Add contact" onClick={() => toast("Add emergency contact — coming soon", "info")} />}>
@@ -163,6 +164,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
 
       {modal === "password" && <PasswordChangeModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
       {modal === "2fa" && <TwoFactorModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
+      {modal === "address" && <AddressModal onClose={() => setModal(null)} onSaved={(m) => toast(m, "success")} />}
     </div>
   )
 }

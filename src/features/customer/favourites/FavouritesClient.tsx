@@ -1,13 +1,52 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
-  Heart, FolderPlus, Search, SlidersHorizontal, Map as MapIcon, LayoutGrid, Scale, X,
+  Heart, FolderPlus, Search, SlidersHorizontal, Map as MapIcon, LayoutGrid, Scale, X, Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { CustomerPropertyCard, type PropertyCardData } from "../components/PropertyCard"
+
+interface CollectionRow { id: string; name: string; description: string | null }
+
+function CreateCollectionModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: CollectionRow) => void }) {
+  const [name, setName] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  async function submit() {
+    if (!name.trim()) { setError("Give your collection a name."); return }
+    setBusy(true); setError(null)
+    try {
+      const res = await fetch("/api/customer/favourites/collections", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      })
+      if (!res.ok) { const b = await res.json().catch(() => null); setError(b?.error ?? "Could not create collection."); setBusy(false); return }
+      const { item } = await res.json() as { item: CollectionRow }
+      onCreated(item); onClose()
+    } catch { setError("Something went wrong."); setBusy(false) }
+  }
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40" onClick={onClose}>
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <h2 className="text-[15px] font-semibold text-slate-900">Create collection</h2>
+          <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="p-5 space-y-3">
+          <input value={name} onChange={(e) => setName(e.target.value)} autoFocus placeholder="e.g. Summer in Cornwall" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400" />
+          {error && <p className="text-[12.5px] text-rose-600">{error}</p>}
+          <div className="flex justify-end gap-2">
+            <button onClick={onClose} className="border border-slate-200 rounded-xl px-4 py-2 text-[12.5px] font-semibold text-slate-700">Cancel</button>
+            <button onClick={submit} disabled={busy} className="bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-60">{busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /* Favourites — saved stays & lets, collections, filters, card grid, map toggle,
    compare, recommended. Saved items are real (customer_saved_listings). */
@@ -16,7 +55,6 @@ type Tab = "all" | "stays" | "lets" | "collections"
 
 export type SavedFavourite = PropertyCardData & { kind: "stay" | "let"; available: string }
 
-const COLLECTIONS: { id: string; name: string; count: number; image: string }[] = []
 const RECOMMENDED: PropertyCardData[] = []
 
 export default function FavouritesClient({ savedItems = [] }: { savedItems?: SavedFavourite[] }) {
@@ -25,6 +63,22 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
   const SAVED = savedItems
   const [saved, setSaved] = useState<Record<string, boolean>>(() => Object.fromEntries(savedItems.map((s) => [s.id, true])))
   const [compare, setCompare] = useState<string[]>([])
+  const [showCreate, setShowCreate] = useState(false)
+  const [collections, setCollections] = useState<CollectionRow[]>([])
+
+  // Load the customer's real collections.
+  useEffect(() => {
+    let active = true
+    void (async () => {
+      try {
+        const res = await fetch("/api/customer/favourites/collections", { headers: { accept: "application/json" } })
+        if (!res.ok || !active) return
+        const data = (await res.json()) as { items?: CollectionRow[] }
+        if (active) setCollections(data.items ?? [])
+      } catch { /* ignore */ }
+    })()
+    return () => { active = false }
+  }, [])
 
   const rows = SAVED.filter((s) => saved[s.id]).filter((s) => (tab === "stays" ? s.kind === "stay" : tab === "lets" ? s.kind === "let" : true))
 
@@ -43,8 +97,8 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
           <p className="text-[13.5px] text-slate-500 mt-1">Your saved stays and lets, organised your way.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => toast("New collection — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><FolderPlus className="w-4 h-4" /> Create collection</button>
-          <button onClick={() => toast("Map view — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-[#0D1B2A] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold"><MapIcon className="w-4 h-4" /> Open map</button>
+          <button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><FolderPlus className="w-4 h-4" /> Create collection</button>
+          <Link href="/customer/stays/map" className="inline-flex items-center gap-1.5 bg-[#0D1B2A] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold"><MapIcon className="w-4 h-4" /> Open map</Link>
         </div>
       </div>
 
@@ -64,15 +118,13 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
 
       {tab === "collections" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {COLLECTIONS.map((c) => (
-            <Link key={c.id} href={`/customer/favourites?collection=${c.id}`} className="relative rounded-2xl overflow-hidden group h-40">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={c.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 inset-x-0 p-4"><p className="text-white text-[15px] font-bold">{c.name}</p><p className="text-white/80 text-[12px]">{c.count} saved</p></div>
+          {collections.map((c) => (
+            <Link key={c.id} href={`/customer/favourites?collection=${c.id}`} className="relative rounded-2xl overflow-hidden group h-40 bg-gradient-to-br from-slate-700 to-slate-900 flex flex-col justify-end p-4">
+              <p className="text-white text-[15px] font-bold">{c.name}</p>
+              {c.description && <p className="text-white/80 text-[12px]">{c.description}</p>}
             </Link>
           ))}
-          <button onClick={() => toast("New collection — coming soon", "info")} className="rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center h-40 text-slate-400 hover:border-blue-300 hover:text-blue-500"><FolderPlus className="w-6 h-6 mb-1" /><span className="text-[12.5px] font-semibold">Create collection</span></button>
+          <button onClick={() => setShowCreate(true)} className="rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center h-40 text-slate-400 hover:border-blue-300 hover:text-blue-500"><FolderPlus className="w-6 h-6 mb-1" /><span className="text-[12.5px] font-semibold">Create collection</span></button>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -103,6 +155,13 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
           <button onClick={() => toast("Comparison view — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-white text-[#0D1B2A] rounded-full px-3 py-1.5 text-[12px] font-semibold"><Scale className="w-3.5 h-3.5" /> Compare</button>
           <button onClick={() => setCompare([])} className="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
+      )}
+
+      {showCreate && (
+        <CreateCollectionModal
+          onClose={() => setShowCreate(false)}
+          onCreated={(c) => { setCollections((prev) => [c, ...prev]); setTab("collections"); toast("Collection created.", "success") }}
+        />
       )}
     </div>
   )
