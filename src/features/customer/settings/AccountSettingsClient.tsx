@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -30,6 +30,91 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
   const [tab, setTab] = useState(initialTab)
   const [dirty, setDirty] = useState(false)
   const [modal, setModal] = useState<null | "password" | "2fa" | "address">(null)
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const [dob, setDob] = useState("")
+  const [avatarUrl, setAvatarUrl] = useState("")
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [savingProfile, setSavingProfile] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const [addresses, setAddresses] = useState<{ id: string; label: string | null; line1: string | null; city: string | null; postcode: string | null; is_default: boolean }[]>([])
+
+  async function loadAddresses() {
+    try {
+      const res = await fetch("/api/customer/addresses", { headers: { accept: "application/json" } })
+      if (!res.ok) return
+      const data = (await res.json()) as { items?: typeof addresses }
+      setAddresses(data.items ?? [])
+    } catch { /* ignore */ }
+  }
+  useEffect(() => { void loadAddresses() }, [])
+
+  // Load the customer's profile from their auth account.
+  useEffect(() => {
+    let active = true
+    void (async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client")
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!active || !user) return
+        const m = (user.user_metadata ?? {}) as Record<string, unknown>
+        setFullName(typeof m.full_name === "string" ? m.full_name : "")
+        setPhone(typeof m.phone === "string" ? m.phone : "")
+        setDob(typeof m.date_of_birth === "string" ? m.date_of_birth : "")
+        setAvatarUrl(typeof m.avatar_url === "string" ? m.avatar_url : "")
+        setEmail(user.email ?? "")
+      } catch { /* keep blanks */ }
+    })()
+    return () => { active = false }
+  }, [])
+
+  async function onAvatarPicked(file: File | undefined) {
+    if (avatarInputRef.current) avatarInputRef.current.value = ""
+    if (!file) return
+    if (!file.type.startsWith("image/")) { toast("Please choose an image file.", "error"); return }
+    setUploadingAvatar(true)
+    try {
+      const { createClient } = await import("@/lib/supabase/client")
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { toast("Please sign in again.", "error"); setUploadingAvatar(false); return }
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase()
+      const path = `customers/${user.id}/avatars/avatar.${ext}`
+      const up = await supabase.storage.from("customer-files").upload(path, file, { upsert: true, contentType: file.type })
+      if (up.error) { toast("Upload failed. Please try again.", "error"); setUploadingAvatar(false); return }
+      const signed = await supabase.storage.from("customer-files").createSignedUrl(path, 60 * 60 * 24 * 365)
+      const url = signed.data?.signedUrl ?? ""
+      if (url) {
+        await supabase.auth.updateUser({ data: { avatar_url: url } })
+        setAvatarUrl(url)
+        toast("Photo updated.", "success")
+      }
+    } catch {
+      toast("Could not upload photo. Please try again.", "error")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  async function saveProfile() {
+    setSavingProfile(true)
+    try {
+      const { createClient } = await import("@/lib/supabase/client")
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: fullName.trim(), phone: phone.trim(), date_of_birth: dob.trim() },
+      })
+      if (error) { toast(error.message, "error"); setSavingProfile(false); return }
+      toast("Profile saved.", "success")
+      setDirty(false)
+    } catch {
+      toast("Could not save profile. Please try again.", "error")
+    } finally {
+      setSavingProfile(false)
+    }
+  }
 
   function changeTab(id: string) {
     setTab(id)
@@ -75,20 +160,31 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <>
               <Panel title="Profile information">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[18px] font-bold">
-                    <button onClick={() => toast("Upload avatar (upload-only) — coming soon", "info")} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm"><Camera className="w-3.5 h-3.5" /></button>
+                  <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[18px] font-bold overflow-hidden">
+                    {avatarUrl
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={avatarUrl} alt="Your photo" className="w-full h-full object-cover" />
+                      : (fullName.trim()[0]?.toUpperCase() ?? "")}
+                    <input ref={avatarInputRef} type="file" accept="image/*" hidden onChange={(e) => onAvatarPicked(e.target.files?.[0])} />
+                    <button onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar} aria-label="Upload profile photo" className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm disabled:opacity-60">{uploadingAvatar ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}</button>
                   </span>
-                  <div><p className="text-[14px] font-semibold text-slate-800">Your Profile</p><p className="text-[12px] text-slate-400">Customer · Unverified</p></div>
+                  <div><p className="text-[14px] font-semibold text-slate-800">{fullName.trim() || "Your Profile"}</p><p className="text-[12px] text-slate-400">Customer · Unverified</p></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="Full name" defaultValue="" onChange={() => setDirty(true)} />
-                  <Field label="Email address" defaultValue="" onChange={() => setDirty(true)} />
-                  <Field label="Phone number" defaultValue="" onChange={() => setDirty(true)} />
-                  <Field label="Date of birth" defaultValue="" onChange={() => setDirty(true)} />
+                  <Field label="Full name" value={fullName} onValueChange={(v) => { setFullName(v); setDirty(true) }} placeholder="Your name" />
+                  <Field label="Email address" value={email} readOnly placeholder="—" />
+                  <Field label="Phone number" value={phone} onValueChange={(v) => { setPhone(v); setDirty(true) }} placeholder="+44 …" />
+                  <Field label="Date of birth" value={dob} onValueChange={(v) => { setDob(v); setDirty(true) }} placeholder="YYYY-MM-DD" />
                 </div>
               </Panel>
               <Panel title="Saved addresses" action={<AddBtn label="Add address" onClick={() => setModal("address")} />}>
-                <p className="text-[12.5px] text-slate-400 py-2">No saved addresses yet. Add your home or work address for faster checkout.</p>
+                {addresses.length === 0 ? (
+                  <p className="text-[12.5px] text-slate-400 py-2">No saved addresses yet. Add your home or work address for faster checkout.</p>
+                ) : (
+                  addresses.map((a) => (
+                    <AddrRow key={a.id} label={a.label || "Address"} value={[a.line1, a.city, a.postcode].filter(Boolean).join(", ")} primary={a.is_default} />
+                  ))
+                )}
               </Panel>
               <Panel title="Emergency contact" action={<AddBtn label="Add contact" onClick={() => toast("Add emergency contact — coming soon", "info")} />}>
                 <p className="text-[12.5px] text-slate-400 py-2">No emergency contact added yet.</p>
@@ -169,7 +265,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <p className="text-[12.5px] text-slate-500">You have unsaved changes</p>
             <div className="flex items-center gap-2">
               <button onClick={() => { setDirty(false); toast("Changes discarded", "info") }} className="border border-slate-200 rounded-xl px-4 py-2 text-[12.5px] font-semibold text-slate-700">Discard</button>
-              <button onClick={() => { setDirty(false); toast("Changes saved", "success") }} className="bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold">Save changes</button>
+              <button onClick={saveProfile} disabled={savingProfile} className="bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold disabled:opacity-60">{savingProfile ? "Saving…" : "Save changes"}</button>
             </div>
           </div>
         </div>
@@ -177,7 +273,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
 
       {modal === "password" && <PasswordChangeModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
       {modal === "2fa" && <TwoFactorModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
-      {modal === "address" && <AddressModal onClose={() => setModal(null)} onSaved={(m) => toast(m, "success")} />}
+      {modal === "address" && <AddressModal onClose={() => setModal(null)} onSaved={(m) => { toast(m, "success"); void loadAddresses() }} />}
     </div>
   )
 }
@@ -196,8 +292,8 @@ function Stat({ icon: Icon, bg, label, value, cta, onClick, pill }: { icon: type
 function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"><div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900" dangerouslySetInnerHTML={{ __html: title }} />{action}</div><div className="space-y-2">{children}</div></div>
 }
-function Field({ label, defaultValue, onChange }: { label: string; defaultValue: string; onChange: () => void }) {
-  return <div><label className="block text-[11.5px] font-medium text-slate-500 mb-1">{label}</label><input defaultValue={defaultValue} onChange={onChange} className={customerInputClass} /></div>
+function Field({ label, value, onValueChange, readOnly, placeholder }: { label: string; value: string; onValueChange?: (v: string) => void; readOnly?: boolean; placeholder?: string }) {
+  return <div><label className="block text-[11.5px] font-medium text-slate-500 mb-1">{label}</label><input value={value} onChange={(e) => onValueChange?.(e.target.value)} readOnly={readOnly} placeholder={placeholder} className={cn(customerInputClass, readOnly && "bg-slate-50 text-slate-500")} /></div>
 }
 function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
   return <button onClick={onClick} className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600"><Plus className="w-3.5 h-3.5" /> {label}</button>
