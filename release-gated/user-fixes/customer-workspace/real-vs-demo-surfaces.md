@@ -42,7 +42,16 @@ The backing tables exist (the 55-table migration is applied) but **the UI never 
 each real means rewiring its data layer to the live tables + building the matching endpoints —
 a feature build, not a button fix. **Do not fake-wire these toasts** — that would hide the gap.
 
-### 1. Lets (long-term rentals) — the large one — `/customer/lets/*`
+### 1. Lets (long-term rentals) — ✅ REBUILT ON REAL DATA (FIX-677)
+**Status: done.** The Lets hub tabs (Viewings / Applications / Offers / Tenancy) and all 9 detail
+pages now read RLS-scoped live data via `src/lib/customer/lets.ts` + `/api/customer/lets`. Viewing
+confirm/reschedule/cancel and offer accept/counter/withdraw are wired to real PATCH endpoints.
+Seeded realistic data for the dev customer (4 properties, 2 tenancies, 4 viewings, 3 offers, 3
+applications). Remaining Lets long-tail (rent payment via Stripe, autopay, application doc upload,
+move-in meter readings) routes into the real wizard / messages or is documented below.
+
+<details><summary>Original (now historical) note</summary>
+
 - **Data source today:** `src/features/customer/data/lets.ts` (static `tenancies`, `offers`,
   `viewings`, `applications`). e.g. `lets/tenancies/[id]/page.tsx` → `findTenancy(id)` from the mock.
 - **Live tables that exist but are unused by the UI:** `customer_tenancies`,
@@ -63,6 +72,8 @@ a feature build, not a button fix. **Do not fake-wire these toasts** — that wo
   4. Wire each button to its endpoint.
   - Rough size: comparable to the bookings + payments wiring done this session, ×~1.5 (it's a full
     tenancy-management sub-product). Best done as its own drop.
+
+</details>
 
 ### 2. CompletedPage — `/customer/bookings/completed`
 - Static demo confirmation page (`data/mock` images, "—" placeholders, empty RECS). Receipt/invoice
